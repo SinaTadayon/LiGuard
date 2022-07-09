@@ -13,15 +13,123 @@ import * as Contracts from ".";
 declare module "hardhat/types/runtime" {
   interface HardhatEthersHelpers extends HardhatEthersHelpersBase {
     getContractFactory(
+      name: "ACLManager",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ACLManager__factory>;
+    getContractFactory(
+      name: "IACL",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IACL__factory>;
+    getContractFactory(
+      name: "IContextManagement",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IContextManagement__factory>;
+    getContractFactory(
+      name: "IGroupManagement",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IGroupManagement__factory>;
+    getContractFactory(
+      name: "IRealmManagement",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IRealmManagement__factory>;
+    getContractFactory(
+      name: "IRoleMangement",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IRoleMangement__factory>;
+    getContractFactory(
       name: "Greeter",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Greeter__factory>;
+    getContractFactory(
+      name: "BaseProxy",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.BaseProxy__factory>;
+    getContractFactory(
+      name: "BaseUUPSLogic",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.BaseUUPSLogic__factory>;
+    getContractFactory(
+      name: "IERC1822Proxiable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC1822Proxiable__factory>;
+    getContractFactory(
+      name: "Initializable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.Initializable__factory>;
+    getContractFactory(
+      name: "IProxy",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IProxy__factory>;
+    getContractFactory(
+      name: "Proxy",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.Proxy__factory>;
 
+    getContractAt(
+      name: "ACLManager",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ACLManager>;
+    getContractAt(
+      name: "IACL",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IACL>;
+    getContractAt(
+      name: "IContextManagement",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IContextManagement>;
+    getContractAt(
+      name: "IGroupManagement",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IGroupManagement>;
+    getContractAt(
+      name: "IRealmManagement",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IRealmManagement>;
+    getContractAt(
+      name: "IRoleMangement",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IRoleMangement>;
     getContractAt(
       name: "Greeter",
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.Greeter>;
+    getContractAt(
+      name: "BaseProxy",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.BaseProxy>;
+    getContractAt(
+      name: "BaseUUPSLogic",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.BaseUUPSLogic>;
+    getContractAt(
+      name: "IERC1822Proxiable",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC1822Proxiable>;
+    getContractAt(
+      name: "Initializable",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Initializable>;
+    getContractAt(
+      name: "IProxy",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IProxy>;
+    getContractAt(
+      name: "Proxy",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Proxy>;
 
     // default types
     getContractFactory(
