@@ -2,7 +2,17 @@
 pragma solidity 0.8.15;
 
 interface IGroupManagement {
-      
+
+    event GroupRegistered(bytes32 indexed group, address indexed sender, string name, bool isEnabled);
+
+    event GroupRoleGranted(bytes32 indexed group, bytes32 indexed role, address indexed sender);
+
+    event GroupRoleRevoked(bytes32 indexed group, bytes32 indexed role, address indexed sender);
+
+    event GroupEnabled(bytes32 indexed group, address indexed sender);
+
+    event GroupDisabled(bytes32 indexed group, address indexed sender);
+
     function addGroup(string calldata name, bool isEnabled) external returns (bytes32);
 
     function grantGroupRole(bytes32 group, bytes32 role) external returns (bool);
@@ -19,14 +29,4 @@ interface IGroupManagement {
 
     function getGroupRoles(bytes32 group) external view returns (bytes32[] calldata);
 
-
-    event GroupRegistered(bytes32 indexed group, address indexed sender, string name, bool isEnabled);
-
-    event GroupRoleGranted(bytes32 indexed group, bytes32 indexed role, address indexed sender);
-
-    event GroupRoleRevoked(bytes32 indexed group, bytes32 indexed role, address indexed sender);
-
-    event GroupEnabled(bytes32 indexed group, address indexed sender);
-
-    event GroupDisabled(bytes32 indexed group, address indexed sender);
 }

@@ -28,44 +28,65 @@ import type {
 
 export interface IProxyInterface extends utils.Interface {
   functions: {
-    "getProxyAdmin()": FunctionFragment;
-    "implementation()": FunctionFragment;
+    "contractContext()": FunctionFragment;
+    "contractName()": FunctionFragment;
+    "contractRealm()": FunctionFragment;
+    "contractRegisteration()": FunctionFragment;
+    "contractVersion()": FunctionFragment;
+    "getAccessControl()": FunctionFragment;
+    "getAdmin()": FunctionFragment;
     "isActivated()": FunctionFragment;
     "isUpgradable()": FunctionFragment;
     "setActivity(bool)": FunctionFragment;
-    "setProxyAdmin(address)": FunctionFragment;
+    "setAdmin(address)": FunctionFragment;
     "setUpgradability(bool)": FunctionFragment;
-    "subjectContext()": FunctionFragment;
-    "subjectName()": FunctionFragment;
-    "subjectRealm()": FunctionFragment;
-    "subjectVersion()": FunctionFragment;
+    "subjectAddress()": FunctionFragment;
     "upgradeTo(address,bytes,bool)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "getProxyAdmin"
-      | "implementation"
+      | "contractContext"
+      | "contractName"
+      | "contractRealm"
+      | "contractRegisteration"
+      | "contractVersion"
+      | "getAccessControl"
+      | "getAdmin"
       | "isActivated"
       | "isUpgradable"
       | "setActivity"
-      | "setProxyAdmin"
+      | "setAdmin"
       | "setUpgradability"
-      | "subjectContext"
-      | "subjectName"
-      | "subjectRealm"
-      | "subjectVersion"
+      | "subjectAddress"
       | "upgradeTo"
   ): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "getProxyAdmin",
+    functionFragment: "contractContext",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "implementation",
+    functionFragment: "contractName",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "contractRealm",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "contractRegisteration",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "contractVersion",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getAccessControl",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "getAdmin", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "isActivated",
     values?: undefined
@@ -79,7 +100,7 @@ export interface IProxyInterface extends utils.Interface {
     values: [PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setProxyAdmin",
+    functionFragment: "setAdmin",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -87,19 +108,7 @@ export interface IProxyInterface extends utils.Interface {
     values: [PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
-    functionFragment: "subjectContext",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "subjectName",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "subjectRealm",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "subjectVersion",
+    functionFragment: "subjectAddress",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -112,13 +121,30 @@ export interface IProxyInterface extends utils.Interface {
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "getProxyAdmin",
+    functionFragment: "contractContext",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "implementation",
+    functionFragment: "contractName",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "contractRealm",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "contractRegisteration",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "contractVersion",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getAccessControl",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "getAdmin", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "isActivated",
     data: BytesLike
@@ -131,44 +157,29 @@ export interface IProxyInterface extends utils.Interface {
     functionFragment: "setActivity",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "setProxyAdmin",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "setAdmin", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setUpgradability",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "subjectContext",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "subjectName",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "subjectRealm",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "subjectVersion",
+    functionFragment: "subjectAddress",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "upgradeTo", data: BytesLike): Result;
 
   events: {
     "ActivityChanged(address,address,bytes32,bool)": EventFragment;
-    "ProxyAdminChanged(address,address,address,address)": EventFragment;
-    "ProxyUpgraded(address,address,address,address,string,string)": EventFragment;
-    "UpgradablilityChanged(address,address,bytes32,bool)": EventFragment;
-    "Upgraded(address)": EventFragment;
+    "AdminChanged(address,address,address)": EventFragment;
+    "Initialized(address,address,address,string,string,bytes32,uint16)": EventFragment;
+    "UpgradabilityChanged(address,address,bytes32,bool)": EventFragment;
+    "Upgraded(address,address,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "ActivityChanged"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ProxyAdminChanged"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ProxyUpgraded"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "UpgradablilityChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "AdminChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "UpgradabilityChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Upgraded"): EventFragment;
 }
 
@@ -185,53 +196,57 @@ export type ActivityChangedEvent = TypedEvent<
 
 export type ActivityChangedEventFilter = TypedEventFilter<ActivityChangedEvent>;
 
-export interface ProxyAdminChangedEventObject {
+export interface AdminChangedEventObject {
   sender: string;
   proxy: string;
-  previousAdmin: string;
   newAdmin: string;
 }
-export type ProxyAdminChangedEvent = TypedEvent<
-  [string, string, string, string],
-  ProxyAdminChangedEventObject
+export type AdminChangedEvent = TypedEvent<
+  [string, string, string],
+  AdminChangedEventObject
 >;
 
-export type ProxyAdminChangedEventFilter =
-  TypedEventFilter<ProxyAdminChangedEvent>;
+export type AdminChangedEventFilter = TypedEventFilter<AdminChangedEvent>;
 
-export interface ProxyUpgradedEventObject {
+export interface InitializedEventObject {
   sender: string;
   proxy: string;
-  newImplementation: string;
-  oldImplementation: string;
-  newVersion: string;
-  oldVersion: string;
+  subject: string;
+  name: string;
+  version: string;
+  realm: string;
+  initializedCount: number;
 }
-export type ProxyUpgradedEvent = TypedEvent<
-  [string, string, string, string, string, string],
-  ProxyUpgradedEventObject
+export type InitializedEvent = TypedEvent<
+  [string, string, string, string, string, string, number],
+  InitializedEventObject
 >;
 
-export type ProxyUpgradedEventFilter = TypedEventFilter<ProxyUpgradedEvent>;
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
-export interface UpgradablilityChangedEventObject {
+export interface UpgradabilityChangedEventObject {
   sender: string;
   proxy: string;
   realm: string;
   value: boolean;
 }
-export type UpgradablilityChangedEvent = TypedEvent<
+export type UpgradabilityChangedEvent = TypedEvent<
   [string, string, string, boolean],
-  UpgradablilityChangedEventObject
+  UpgradabilityChangedEventObject
 >;
 
-export type UpgradablilityChangedEventFilter =
-  TypedEventFilter<UpgradablilityChangedEvent>;
+export type UpgradabilityChangedEventFilter =
+  TypedEventFilter<UpgradabilityChangedEvent>;
 
 export interface UpgradedEventObject {
-  implementation: string;
+  sender: string;
+  proxy: string;
+  newImplementation: string;
 }
-export type UpgradedEvent = TypedEvent<[string], UpgradedEventObject>;
+export type UpgradedEvent = TypedEvent<
+  [string, string, string],
+  UpgradedEventObject
+>;
 
 export type UpgradedEventFilter = TypedEventFilter<UpgradedEvent>;
 
@@ -262,9 +277,21 @@ export interface IProxy extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    getProxyAdmin(overrides?: CallOverrides): Promise<[string]>;
+    contractContext(overrides?: CallOverrides): Promise<[string]>;
 
-    implementation(overrides?: CallOverrides): Promise<[string]>;
+    contractName(overrides?: CallOverrides): Promise<[string]>;
+
+    contractRealm(overrides?: CallOverrides): Promise<[string]>;
+
+    contractRegisteration(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    contractVersion(overrides?: CallOverrides): Promise<[string]>;
+
+    getAccessControl(overrides?: CallOverrides): Promise<[string]>;
+
+    getAdmin(overrides?: CallOverrides): Promise<[string]>;
 
     isActivated(overrides?: CallOverrides): Promise<[boolean]>;
 
@@ -275,7 +302,7 @@ export interface IProxy extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setProxyAdmin(
+    setAdmin(
       newAdmin: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -285,25 +312,31 @@ export interface IProxy extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    subjectContext(overrides?: CallOverrides): Promise<[string]>;
-
-    subjectName(overrides?: CallOverrides): Promise<[string]>;
-
-    subjectRealm(overrides?: CallOverrides): Promise<[string]>;
-
-    subjectVersion(overrides?: CallOverrides): Promise<[string]>;
+    subjectAddress(overrides?: CallOverrides): Promise<[string]>;
 
     upgradeTo(
       newImplementation: PromiseOrValue<string>,
       data: PromiseOrValue<BytesLike>,
-      forceInitCall: PromiseOrValue<boolean>,
+      forceCall: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
-  getProxyAdmin(overrides?: CallOverrides): Promise<string>;
+  contractContext(overrides?: CallOverrides): Promise<string>;
 
-  implementation(overrides?: CallOverrides): Promise<string>;
+  contractName(overrides?: CallOverrides): Promise<string>;
+
+  contractRealm(overrides?: CallOverrides): Promise<string>;
+
+  contractRegisteration(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  contractVersion(overrides?: CallOverrides): Promise<string>;
+
+  getAccessControl(overrides?: CallOverrides): Promise<string>;
+
+  getAdmin(overrides?: CallOverrides): Promise<string>;
 
   isActivated(overrides?: CallOverrides): Promise<boolean>;
 
@@ -314,7 +347,7 @@ export interface IProxy extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setProxyAdmin(
+  setAdmin(
     newAdmin: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -324,25 +357,29 @@ export interface IProxy extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  subjectContext(overrides?: CallOverrides): Promise<string>;
-
-  subjectName(overrides?: CallOverrides): Promise<string>;
-
-  subjectRealm(overrides?: CallOverrides): Promise<string>;
-
-  subjectVersion(overrides?: CallOverrides): Promise<string>;
+  subjectAddress(overrides?: CallOverrides): Promise<string>;
 
   upgradeTo(
     newImplementation: PromiseOrValue<string>,
     data: PromiseOrValue<BytesLike>,
-    forceInitCall: PromiseOrValue<boolean>,
+    forceCall: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    getProxyAdmin(overrides?: CallOverrides): Promise<string>;
+    contractContext(overrides?: CallOverrides): Promise<string>;
 
-    implementation(overrides?: CallOverrides): Promise<string>;
+    contractName(overrides?: CallOverrides): Promise<string>;
+
+    contractRealm(overrides?: CallOverrides): Promise<string>;
+
+    contractRegisteration(overrides?: CallOverrides): Promise<boolean>;
+
+    contractVersion(overrides?: CallOverrides): Promise<string>;
+
+    getAccessControl(overrides?: CallOverrides): Promise<string>;
+
+    getAdmin(overrides?: CallOverrides): Promise<string>;
 
     isActivated(overrides?: CallOverrides): Promise<boolean>;
 
@@ -353,7 +390,7 @@ export interface IProxy extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    setProxyAdmin(
+    setAdmin(
       newAdmin: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
@@ -363,18 +400,12 @@ export interface IProxy extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    subjectContext(overrides?: CallOverrides): Promise<string>;
-
-    subjectName(overrides?: CallOverrides): Promise<string>;
-
-    subjectRealm(overrides?: CallOverrides): Promise<string>;
-
-    subjectVersion(overrides?: CallOverrides): Promise<string>;
+    subjectAddress(overrides?: CallOverrides): Promise<string>;
 
     upgradeTo(
       newImplementation: PromiseOrValue<string>,
       data: PromiseOrValue<BytesLike>,
-      forceInitCall: PromiseOrValue<boolean>,
+      forceCall: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<string>;
   };
@@ -393,61 +424,77 @@ export interface IProxy extends BaseContract {
       value?: null
     ): ActivityChangedEventFilter;
 
-    "ProxyAdminChanged(address,address,address,address)"(
+    "AdminChanged(address,address,address)"(
       sender?: PromiseOrValue<string> | null,
       proxy?: PromiseOrValue<string> | null,
-      previousAdmin?: null,
       newAdmin?: null
-    ): ProxyAdminChangedEventFilter;
-    ProxyAdminChanged(
+    ): AdminChangedEventFilter;
+    AdminChanged(
       sender?: PromiseOrValue<string> | null,
       proxy?: PromiseOrValue<string> | null,
-      previousAdmin?: null,
       newAdmin?: null
-    ): ProxyAdminChangedEventFilter;
+    ): AdminChangedEventFilter;
 
-    "ProxyUpgraded(address,address,address,address,string,string)"(
+    "Initialized(address,address,address,string,string,bytes32,uint16)"(
       sender?: PromiseOrValue<string> | null,
       proxy?: PromiseOrValue<string> | null,
-      newImplementation?: PromiseOrValue<string> | null,
-      oldImplementation?: null,
-      newVersion?: null,
-      oldVersion?: null
-    ): ProxyUpgradedEventFilter;
-    ProxyUpgraded(
+      subject?: PromiseOrValue<string> | null,
+      name?: null,
+      version?: null,
+      realm?: null,
+      initializedCount?: null
+    ): InitializedEventFilter;
+    Initialized(
       sender?: PromiseOrValue<string> | null,
       proxy?: PromiseOrValue<string> | null,
-      newImplementation?: PromiseOrValue<string> | null,
-      oldImplementation?: null,
-      newVersion?: null,
-      oldVersion?: null
-    ): ProxyUpgradedEventFilter;
+      subject?: PromiseOrValue<string> | null,
+      name?: null,
+      version?: null,
+      realm?: null,
+      initializedCount?: null
+    ): InitializedEventFilter;
 
-    "UpgradablilityChanged(address,address,bytes32,bool)"(
+    "UpgradabilityChanged(address,address,bytes32,bool)"(
       sender?: PromiseOrValue<string> | null,
       proxy?: PromiseOrValue<string> | null,
       realm?: PromiseOrValue<BytesLike> | null,
       value?: null
-    ): UpgradablilityChangedEventFilter;
-    UpgradablilityChanged(
+    ): UpgradabilityChangedEventFilter;
+    UpgradabilityChanged(
       sender?: PromiseOrValue<string> | null,
       proxy?: PromiseOrValue<string> | null,
       realm?: PromiseOrValue<BytesLike> | null,
       value?: null
-    ): UpgradablilityChangedEventFilter;
+    ): UpgradabilityChangedEventFilter;
 
-    "Upgraded(address)"(
-      implementation?: PromiseOrValue<string> | null
+    "Upgraded(address,address,address)"(
+      sender?: PromiseOrValue<string> | null,
+      proxy?: PromiseOrValue<string> | null,
+      newImplementation?: PromiseOrValue<string> | null
     ): UpgradedEventFilter;
     Upgraded(
-      implementation?: PromiseOrValue<string> | null
+      sender?: PromiseOrValue<string> | null,
+      proxy?: PromiseOrValue<string> | null,
+      newImplementation?: PromiseOrValue<string> | null
     ): UpgradedEventFilter;
   };
 
   estimateGas: {
-    getProxyAdmin(overrides?: CallOverrides): Promise<BigNumber>;
+    contractContext(overrides?: CallOverrides): Promise<BigNumber>;
 
-    implementation(overrides?: CallOverrides): Promise<BigNumber>;
+    contractName(overrides?: CallOverrides): Promise<BigNumber>;
+
+    contractRealm(overrides?: CallOverrides): Promise<BigNumber>;
+
+    contractRegisteration(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    contractVersion(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getAccessControl(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getAdmin(overrides?: CallOverrides): Promise<BigNumber>;
 
     isActivated(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -458,7 +505,7 @@ export interface IProxy extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setProxyAdmin(
+    setAdmin(
       newAdmin: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -468,26 +515,32 @@ export interface IProxy extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    subjectContext(overrides?: CallOverrides): Promise<BigNumber>;
-
-    subjectName(overrides?: CallOverrides): Promise<BigNumber>;
-
-    subjectRealm(overrides?: CallOverrides): Promise<BigNumber>;
-
-    subjectVersion(overrides?: CallOverrides): Promise<BigNumber>;
+    subjectAddress(overrides?: CallOverrides): Promise<BigNumber>;
 
     upgradeTo(
       newImplementation: PromiseOrValue<string>,
       data: PromiseOrValue<BytesLike>,
-      forceInitCall: PromiseOrValue<boolean>,
+      forceCall: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    getProxyAdmin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    contractContext(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    implementation(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    contractName(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    contractRealm(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    contractRegisteration(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    contractVersion(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getAccessControl(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getAdmin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     isActivated(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -498,7 +551,7 @@ export interface IProxy extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setProxyAdmin(
+    setAdmin(
       newAdmin: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
@@ -508,18 +561,12 @@ export interface IProxy extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    subjectContext(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    subjectName(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    subjectRealm(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    subjectVersion(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    subjectAddress(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     upgradeTo(
       newImplementation: PromiseOrValue<string>,
       data: PromiseOrValue<BytesLike>,
-      forceInitCall: PromiseOrValue<boolean>,
+      forceCall: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

@@ -11,17 +11,30 @@ import type {
 
 const _abi = [
   {
-    anonymous: false,
-    inputs: [
+    inputs: [],
+    name: "getInitializedCount",
+    outputs: [
       {
-        indexed: false,
         internalType: "uint16",
-        name: "version",
+        name: "",
         type: "uint16",
       },
     ],
-    name: "Initialized",
-    type: "event",
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "isInitializing",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
   },
 ];
 

@@ -3,4 +3,4 @@
 /* eslint-disable */
 export * as acl from "./acl";
 export * as proxy from "./proxy";
-export { Greeter__factory } from "./Greeter__factory";
+export * as utils from "./utils";

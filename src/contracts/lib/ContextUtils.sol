@@ -8,6 +8,6 @@ pragma solidity >= 0.8.15;
 library ContextUtils {
 
     function generateCtx(address contractAddress) internal pure returns (bytes32) {
-        return keccak256(abi.encode(contractAddress));
+        return keccak256(abi.encodePacked(contractAddress));
     }
 }

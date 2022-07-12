@@ -37,7 +37,8 @@
     "./src/contracts",
     "./src/test",
     "./export/types",
-    "./src/scripts"
+    "./src/scripts",
+    "./src/deploy"
   ],
   "files": ["./hardhat.config.ts"]
 }

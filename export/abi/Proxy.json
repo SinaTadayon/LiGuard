@@ -3,12 +3,12 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_logic",
+        "name": "logic",
         "type": "address"
       },
       {
         "internalType": "bytes",
-        "name": "_data",
+        "name": "data",
         "type": "bytes"
       }
     ],
@@ -34,37 +34,6 @@
         "indexed": true,
         "internalType": "address",
         "name": "newImplementation",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "oldImplementation",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "newVersion",
-        "type": "string"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "oldVersion",
-        "type": "string"
-      }
-    ],
-    "name": "ProxyUpgraded",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "implementation",
         "type": "address"
       }
     ],

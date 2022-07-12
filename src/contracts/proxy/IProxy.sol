@@ -4,43 +4,49 @@ pragma solidity >= 0.8.15;
 
 interface IProxy {
 
-    event Upgraded(address indexed implementation);
-
-    event ProxyUpgraded(address indexed sender, address indexed proxy, address indexed newImplementation, 
-                    address oldImplementation, string newVersion, string oldVersion);
+    event Upgraded(address indexed sender, address indexed proxy, address indexed newImplementation);
 
     /**
      * @dev Emitted when the admin account has changed.
      */
-    event ProxyAdminChanged(address indexed sender, address indexed proxy, address previousAdmin, address newAdmin);
+    event AdminChanged(address indexed sender, address indexed proxy, address newAdmin);
                     
     event ActivityChanged(address indexed sender, address indexed proxy, bytes32 indexed realm, bool value);
 
-    event UpgradablilityChanged(address indexed sender, address indexed proxy, bytes32 indexed realm, bool value);
+    event UpgradabilityChanged(address indexed sender, address indexed proxy, bytes32 indexed realm, bool value);
 
-    function upgradeTo(address newImplementation, bytes memory data, bool forceInitCall) external returns (bytes memory);
+    // /**
+    //  * @dev Triggered when the contract has been initialized or reinitialized.
+    //  */
+    event Initialized(address indexed sender, address indexed proxy, address indexed subject, 
+                      string name, string version, bytes32 realm, uint16 initializedCount);
+
+
+    function upgradeTo(address newImplementation, bytes memory data, bool forceCall) external returns (bytes memory);
 
     function setActivity(bool value) external returns (bool);
 
     function setUpgradability(bool value) external returns (bool);
 
-    function setProxyAdmin(address newAdmin) external returns (bool);
+    function setAdmin(address newAdmin) external returns (bool);
 
-    function registerContext() external returns (bool);
+    function contractRegisteration() external returns (bool);
 
-    function subjectName() external view returns (string memory);
+    function contractName() external view returns (string memory);
 
-    function subjectVersion() external view returns (string memory);
+    function contractVersion() external view returns (string memory);
 
-    function subjectRealm() external view returns (bytes32);
+    function contractRealm() external view returns (bytes32);
 
-    function subjectContext() external view returns (bytes32);
+    function contractContext() external view returns (bytes32);
 
-    function implementation() external view returns (address);
+    function getAccessControl() external view returns (address);
+
+    function subjectAddress() external view returns (address);
 
     function isActivated() external view returns (bool);
 
     function isUpgradable() external view returns (bool);
 
-    function getProxyAdmin() external view returns (address);
+    function getAdmin() external view returns (address);
 }

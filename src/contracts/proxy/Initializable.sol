@@ -64,10 +64,14 @@ abstract contract Initializable {
      */
     bool private _initializing;
 
-    /**
-     * @dev Triggered when the contract has been initialized or reinitialized.
-     */
-    event Initialized(uint16 version);
+
+    function getInitializedCount() public view returns (uint16) {
+        return _initialized;
+    }
+
+    function isInitializing() public view returns (bool) {
+        return _initializing;
+    } 
 
     /**
      * @dev A modifier that defines a protected initializer function that can be invoked at most once. In its scope,
@@ -81,7 +85,6 @@ abstract contract Initializable {
         _;
         if (isTopLevelCall) {
             _initializing = false;
-            emit Initialized(1);
         }
     }
 
@@ -105,7 +108,6 @@ abstract contract Initializable {
         _;
         if (isTopLevelCall) {
             _initializing = false;
-            emit Initialized(version);
         }
     }
 
@@ -114,7 +116,7 @@ abstract contract Initializable {
      * {initializer} and {reinitializer} modifiers, directly or indirectly.
      */
     modifier onlyInitializing() {
-        require(_initializing, "Initializable: contract is not initializing");
+        require(_initializing, "Contract Not Initializing");
         _;
     }
 
@@ -135,11 +137,11 @@ abstract contract Initializable {
         if (_initializing) {
             require(
                 version == 1 && !Address.isContract(address(this)),
-                "Initializable: contract is already initialized"
+                "Contract Already Initialized"
             );
             return false;
         } else {
-            require(_initialized < version, "Initializable: contract is already initialized");
+            require(_initialized < version, "Illegal Initialize Version");
             _initialized = version;
             return true;
         }

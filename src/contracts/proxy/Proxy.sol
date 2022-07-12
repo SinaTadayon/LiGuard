@@ -8,6 +8,7 @@ import "./BaseProxy.sol";
 import "../lib/Address.sol";
 import "../lib/StorageSlot.sol";
 import "./Initializable.sol";
+import "hardhat/console.sol";
 
 /**
  * @dev This contract implements an upgradeable proxy. It is upgradeable because calls are delegated to an
@@ -44,10 +45,7 @@ contract Proxy is BaseProxy {
     bytes32 internal constant _ADMIN_SLOT = 0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103;
  
 
-    event Upgraded(address indexed implementation);
-
-    event ProxyUpgraded(address indexed sender, address indexed proxy, address indexed newImplementation, 
-                    address oldImplementation, string newVersion, string oldVersion);
+    event Upgraded(address indexed sender, address indexed proxy, address indexed newImplementation);
 
     /**
      * @dev Initializes the upgradeable proxy with an initial implementation specified by `_logic`.
@@ -55,9 +53,9 @@ contract Proxy is BaseProxy {
      * If `_data` is nonempty, it's used as data in a delegate call to `_logic`. This will typically be an encoded
      * function call, and allows initializating the storage of the proxy like a Solidity constructor.
      */
-    constructor(address _logic, bytes memory _data) payable {
+    constructor(address logic, bytes memory data) payable {
         assert(_IMPLEMENTATION_SLOT == bytes32(uint256(keccak256("eip1967.proxy.implementation")) - 1));
-        _upgradeToAndCallUUPS(_logic, _data, false);
+        _upgradeToAndCallUUPS(logic, data, false);
     }
 
     /**
@@ -71,8 +69,7 @@ contract Proxy is BaseProxy {
     /**
      * @dev Stores a new address in the EIP1967 implementation slot.
      */
-    function _setImplementation(address newImplementation) private {
-        require(Address.isContract(newImplementation), "ERC1967: new implementation is not a contract");
+    function _setImplementation(address newImplementation) private {  
         StorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value = newImplementation;
     }
 
@@ -82,11 +79,8 @@ contract Proxy is BaseProxy {
      * Emits an {Upgraded} event.
      */
     function _upgradeTo(address newImplementation) private {
-        address currentImplementation = _implementation();
-        emit Upgraded(newImplementation);       // TODO Does it remove?
-        emit ProxyUpgraded(msg.sender, address(this), newImplementation, currentImplementation, 
-                    IProxy(newImplementation).subjectVersion(), IProxy(currentImplementation).subjectVersion());
-        _setImplementation(newImplementation);        
+        _setImplementation(newImplementation);
+        emit Upgraded(msg.sender, address(this), _implementation());
     }
 
     /**
@@ -97,11 +91,11 @@ contract Proxy is BaseProxy {
     function _upgradeToAndCall(
         address newImplementation,
         bytes memory data,
-        bool forceCall
+        bool forceCall 
     ) private returns (bytes memory) {
         _upgradeTo(newImplementation);
         if (data.length > 0 || forceCall) {
-            return _functionDelegateCall(newImplementation, data);
+           return _functionDelegateCall(newImplementation, data);
         }
         return new bytes(0);
     }
@@ -124,10 +118,11 @@ contract Proxy is BaseProxy {
             return new bytes(0);
         } else {
             try IERC1822Proxiable(newImplementation).proxiableUUID() returns (bytes32 slot) {
-                require(slot == _IMPLEMENTATION_SLOT, "ERC1967Upgrade: unsupported proxiableUUID");
+                require(slot == _IMPLEMENTATION_SLOT, "UUPS Contract Invalid");
             } catch {
-                revert("ERC1967Upgrade: new implementation is not UUPS");
+                revert("Contract Not UUPS");
             }
+            
             return _upgradeToAndCall(newImplementation, data, forceCall);
         }
     }
@@ -138,10 +133,10 @@ contract Proxy is BaseProxy {
      * but performing a delegate call.
      */
     function _functionDelegateCall(address target, bytes memory data) private returns (bytes memory) {
-        require(Address.isContract(target), "Address: delegate call to non-contract");
+        require(Address.isContract(target), "Illegal Contract Address");
 
         // solhint-disable-next-line avoid-low-level-calls
         (bool success, bytes memory returndata) = target.delegatecall(data);
-        return Address.verifyCallResult(success, returndata, "Address: low-level delegate call failed");
+        return Address.verifyCallResult(success, returndata, "Delegatecall Failed");
     }
 }

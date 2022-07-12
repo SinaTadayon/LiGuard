@@ -11,56 +11,6 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "sender",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "realm",
-        "type": "bytes32"
-      }
-    ],
-    "name": "ContextDisabled",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "context",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "sender",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "realm",
-        "type": "bytes32"
-      }
-    ],
-    "name": "ContextEnabled",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "context",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
         "name": "scma",
         "type": "address"
       },
@@ -72,27 +22,9 @@
       },
       {
         "indexed": false,
-        "internalType": "string",
-        "name": "name",
-        "type": "string"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "version",
-        "type": "string"
-      },
-      {
-        "indexed": false,
         "internalType": "bytes32",
         "name": "realm",
         "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "isEnabled",
-        "type": "bool"
       }
     ],
     "name": "ContextRegistered",
@@ -184,17 +116,17 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "sender",
+        "name": "scma",
         "type": "address"
       },
       {
         "indexed": true,
-        "internalType": "bytes32",
-        "name": "realm",
-        "type": "bytes32"
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
       }
     ],
-    "name": "ContextUpgradabilityEnabled",
+    "name": "ContextUpdated",
     "type": "event"
   },
   {
@@ -370,29 +302,14 @@
       {
         "components": [
           {
-            "internalType": "string",
-            "name": "name",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "version",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
+            "internalType": "bytes32",
             "name": "realm",
-            "type": "string"
+            "type": "bytes32"
           },
           {
             "internalType": "address",
             "name": "smca",
             "type": "address"
-          },
-          {
-            "internalType": "bool",
-            "name": "isEnabled",
-            "type": "bool"
           }
         ],
         "internalType": "struct IContextManagement.RequestContext",
@@ -462,29 +379,14 @@
       {
         "components": [
           {
-            "internalType": "string",
-            "name": "name",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "version",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
+            "internalType": "bytes32",
             "name": "realm",
-            "type": "string"
+            "type": "bytes32"
           },
           {
             "internalType": "address",
             "name": "smca",
             "type": "address"
-          },
-          {
-            "internalType": "bool",
-            "name": "isEnabled",
-            "type": "bool"
           }
         ],
         "internalType": "struct IContextManagement.RequestContext",

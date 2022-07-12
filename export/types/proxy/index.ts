@@ -4,7 +4,7 @@
 import type * as ierc1822Sol from "./IERC1822.sol";
 export type { ierc1822Sol };
 export type { BaseProxy } from "./BaseProxy";
-export type { BaseUUPSLogic } from "./BaseUUPSLogic";
+export type { BaseUUPSProxy } from "./BaseUUPSProxy";
 export type { IProxy } from "./IProxy";
 export type { Initializable } from "./Initializable";
 export type { Proxy } from "./Proxy";

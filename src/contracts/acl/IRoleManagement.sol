@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.15;
 
-interface IRoleMangement {
+interface IRoleManagement {
     
     /**
      * @dev Emitted when `account` is granted `role`.

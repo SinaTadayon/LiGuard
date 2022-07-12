@@ -56,17 +56,11 @@ const _abi = [
       {
         indexed: false,
         internalType: "address",
-        name: "previousAdmin",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
         name: "newAdmin",
         type: "address",
       },
     ],
-    name: "ProxyAdminChanged",
+    name: "AdminChanged",
     type: "event",
   },
   {
@@ -87,29 +81,35 @@ const _abi = [
       {
         indexed: true,
         internalType: "address",
-        name: "newImplementation",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "oldImplementation",
+        name: "subject",
         type: "address",
       },
       {
         indexed: false,
         internalType: "string",
-        name: "newVersion",
+        name: "name",
         type: "string",
       },
       {
         indexed: false,
         internalType: "string",
-        name: "oldVersion",
+        name: "version",
         type: "string",
+      },
+      {
+        indexed: false,
+        internalType: "bytes32",
+        name: "realm",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "uint16",
+        name: "initializedCount",
+        type: "uint16",
       },
     ],
-    name: "ProxyUpgraded",
+    name: "Initialized",
     type: "event",
   },
   {
@@ -140,7 +140,7 @@ const _abi = [
         type: "bool",
       },
     ],
-    name: "UpgradablilityChanged",
+    name: "UpgradabilityChanged",
     type: "event",
   },
   {
@@ -149,7 +149,19 @@ const _abi = [
       {
         indexed: true,
         internalType: "address",
-        name: "implementation",
+        name: "sender",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "proxy",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "newImplementation",
         type: "address",
       },
     ],
@@ -158,7 +170,72 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "getProxyAdmin",
+    name: "contractContext",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "contractName",
+    outputs: [
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "contractRealm",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "contractRegisteration",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "contractVersion",
+    outputs: [
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getAccessControl",
     outputs: [
       {
         internalType: "address",
@@ -171,7 +248,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "implementation",
+    name: "getAdmin",
     outputs: [
       {
         internalType: "address",
@@ -235,7 +312,7 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "setProxyAdmin",
+    name: "setAdmin",
     outputs: [
       {
         internalType: "bool",
@@ -267,51 +344,12 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "subjectContext",
+    name: "subjectAddress",
     outputs: [
       {
-        internalType: "bytes32",
+        internalType: "address",
         name: "",
-        type: "bytes32",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "subjectName",
-    outputs: [
-      {
-        internalType: "string",
-        name: "",
-        type: "string",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "subjectRealm",
-    outputs: [
-      {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "subjectVersion",
-    outputs: [
-      {
-        internalType: "string",
-        name: "",
-        type: "string",
+        type: "address",
       },
     ],
     stateMutability: "view",
@@ -331,7 +369,7 @@ const _abi = [
       },
       {
         internalType: "bool",
-        name: "forceInitCall",
+        name: "forceCall",
         type: "bool",
       },
     ],

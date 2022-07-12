@@ -16,33 +16,21 @@ export interface ProxyInterface extends utils.Interface {
   functions: {};
 
   events: {
-    "ProxyUpgraded(address,address,address,address,string,string)": EventFragment;
-    "Upgraded(address)": EventFragment;
+    "Upgraded(address,address,address)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "ProxyUpgraded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Upgraded"): EventFragment;
 }
 
-export interface ProxyUpgradedEventObject {
+export interface UpgradedEventObject {
   sender: string;
   proxy: string;
   newImplementation: string;
-  oldImplementation: string;
-  newVersion: string;
-  oldVersion: string;
 }
-export type ProxyUpgradedEvent = TypedEvent<
-  [string, string, string, string, string, string],
-  ProxyUpgradedEventObject
+export type UpgradedEvent = TypedEvent<
+  [string, string, string],
+  UpgradedEventObject
 >;
-
-export type ProxyUpgradedEventFilter = TypedEventFilter<ProxyUpgradedEvent>;
-
-export interface UpgradedEventObject {
-  implementation: string;
-}
-export type UpgradedEvent = TypedEvent<[string], UpgradedEventObject>;
 
 export type UpgradedEventFilter = TypedEventFilter<UpgradedEvent>;
 
@@ -77,28 +65,15 @@ export interface Proxy extends BaseContract {
   callStatic: {};
 
   filters: {
-    "ProxyUpgraded(address,address,address,address,string,string)"(
+    "Upgraded(address,address,address)"(
       sender?: PromiseOrValue<string> | null,
       proxy?: PromiseOrValue<string> | null,
-      newImplementation?: PromiseOrValue<string> | null,
-      oldImplementation?: null,
-      newVersion?: null,
-      oldVersion?: null
-    ): ProxyUpgradedEventFilter;
-    ProxyUpgraded(
-      sender?: PromiseOrValue<string> | null,
-      proxy?: PromiseOrValue<string> | null,
-      newImplementation?: PromiseOrValue<string> | null,
-      oldImplementation?: null,
-      newVersion?: null,
-      oldVersion?: null
-    ): ProxyUpgradedEventFilter;
-
-    "Upgraded(address)"(
-      implementation?: PromiseOrValue<string> | null
+      newImplementation?: PromiseOrValue<string> | null
     ): UpgradedEventFilter;
     Upgraded(
-      implementation?: PromiseOrValue<string> | null
+      sender?: PromiseOrValue<string> | null,
+      proxy?: PromiseOrValue<string> | null,
+      newImplementation?: PromiseOrValue<string> | null
     ): UpgradedEventFilter;
   };
 

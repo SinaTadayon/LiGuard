@@ -8,9 +8,8 @@ import "./BaseProxy.sol";
 import "./Initializable.sol";
 import "../lib/Address.sol";
 import "../lib/StorageSlot.sol";
-import "../acl/IACL.sol";
 import "../utils/Message.sol";
-import "../lib/Context.sol";
+import "../lib/ContextUtils.sol";
 
 
 /**
@@ -63,7 +62,7 @@ abstract contract BaseUUPSStorage {
 
     /// @custom:oz-upgrades-unsafe-allow state-variable-immutable state-variable-assignment
     address internal immutable __self = address(this);
-    address internal _livelyACL;
+    address internal _accessControl;
     string internal _domainName;
     string internal _domainVersion;
     bytes32 internal _domainRealm;
