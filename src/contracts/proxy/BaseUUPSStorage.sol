@@ -1,15 +1,5 @@
 // SPDX-License-Identifier: MIT
-
-pragma solidity >= 0.8.15;
-
-import "./IERC1822.sol";
-import "./IProxy.sol";
-import "./BaseProxy.sol";
-import "./Initializable.sol";
-import "../lib/Address.sol";
-import "../lib/StorageSlot.sol";
-import "../utils/Message.sol";
-import "../lib/ContextUtils.sol";
+pragma solidity >= 0.8.15 < 0.9.0;
 
 
 /**

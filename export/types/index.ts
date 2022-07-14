@@ -3,6 +3,8 @@
 /* eslint-disable */
 import type * as acl from "./acl";
 export type { acl };
+import type * as lib from "./lib";
+export type { lib };
 import type * as proxy from "./proxy";
 export type { proxy };
 import type * as utils from "./utils";
@@ -22,6 +24,8 @@ export type { IRealmManagement } from "./acl/IRealmManagement";
 export { IRealmManagement__factory } from "./factories/acl/IRealmManagement__factory";
 export type { IRoleManagement } from "./acl/IRoleManagement";
 export { IRoleManagement__factory } from "./factories/acl/IRoleManagement__factory";
+export type { LContextManagement } from "./lib/acl/LContextManagement";
+export { LContextManagement__factory } from "./factories/lib/acl/LContextManagement__factory";
 export type { BaseProxy } from "./proxy/BaseProxy";
 export { BaseProxy__factory } from "./factories/proxy/BaseProxy__factory";
 export type { BaseUUPSProxy } from "./proxy/BaseUUPSProxy";

@@ -1,19 +1,18 @@
 // SPDX-License-Identifier: MIT
-
-pragma solidity >= 0.8.15;
+pragma solidity >= 0.8.15 < 0.9.0;
 
 import "./IERC1822.sol";
 import "./IProxy.sol";
 import "./BaseProxy.sol";
 import "./BaseUUPSStorage.sol";
 import "./Initializable.sol";
-import "../lib/Address.sol";
-import "../lib/StorageSlot.sol";
+import "../lib/LAddress.sol";
+import "../lib/LStorageSlot.sol";
 import "../acl/IAccessControl.sol";
 import "../acl/IContextManagement.sol";
 import "../utils/Message.sol";
 import "../utils/ERC165.sol";
-import "../lib/ContextUtils.sol";
+import "../lib/LContextUtils.sol";
 // import "hardhat/console.sol";
 
 
@@ -69,11 +68,11 @@ abstract contract BaseUUPSProxy is BaseUUPSStorage, BaseProxy, Initializable, IP
     function _hasPermission(bytes4 selector) internal returns (bool) {
         if (address(this) == _accessControl) {
             bytes memory data = abi.encodeWithSignature("hasAccess(bytes32,address,bytes4)", 
-                    ContextUtils.generateCtx(address(this)), msg.sender, selector);
+                    LContextUtils.generateCtx(address(this)), msg.sender, selector);
             bytes memory returndata = _functionDelegateCall(_implementation(), data, "hasAccess Failed");
             return uint8(returndata[returndata.length - 1]) == 1;
         } else {
-            return IAccessControl(_accessControl).hasAccess(ContextUtils.generateCtx(address(this)), msg.sender, selector);
+            return IAccessControl(_accessControl).hasAccess(LContextUtils.generateCtx(address(this)), msg.sender, selector);
         }
     }
 
@@ -89,7 +88,7 @@ abstract contract BaseUUPSProxy is BaseUUPSStorage, BaseProxy, Initializable, IP
         assert(_IMPLEMENTATION_SLOT == bytes32(uint256(keccak256("eip1967.proxy.implementation")) - 1));
         assert(_ADMIN_SLOT == bytes32(uint256(keccak256("eip1967.proxy.admin")) - 1));
         // set contract Admin (implementation contract)
-        StorageSlot.getAddressSlot(_ADMIN_SLOT).value = _msgSender();
+        LStorageSlot.getAddressSlot(_ADMIN_SLOT).value = _msgSender();
 
         // set _isUpgradable and _isEnabled of contact  
         _isUpgradable = false;
@@ -135,7 +134,7 @@ abstract contract BaseUUPSProxy is BaseUUPSStorage, BaseProxy, Initializable, IP
      * @dev Returns the current implementation address.
      */
     function _implementation() internal override view returns (address) {
-        return StorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value;
+        return LStorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value;
     }
 
     /**
@@ -143,8 +142,8 @@ abstract contract BaseUUPSProxy is BaseUUPSStorage, BaseProxy, Initializable, IP
      */
     function _setImplementation(address newImplementation) private {
         require(_isEnabled, "Context Not Activated");
-        require(Address.isContract(newImplementation), "Illegal Contract Address");
-        StorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value = newImplementation;
+        require(LAddress.isContract(newImplementation), "Illegal Contract Address");
+        LStorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value = newImplementation;
     }
 
     /**
@@ -188,7 +187,7 @@ abstract contract BaseUUPSProxy is BaseUUPSStorage, BaseProxy, Initializable, IP
         // Upgrades from old implementations will perform a rollback test. This test requires the new
         // implementation to upgrade back to the old, non-ERC1822 compliant, implementation. Removing
         // this special case will break upgrade paths from old UUPS implementation to new ones.
-        if (StorageSlot.getBooleanSlot(_ROLLBACK_SLOT).value) {
+        if (LStorageSlot.getBooleanSlot(_ROLLBACK_SLOT).value) {
             require(_isUpgradable, "Context Not Upgradable");
             _setImplementation(newImplementation);
             return new bytes(0);
@@ -210,14 +209,14 @@ abstract contract BaseUUPSProxy is BaseUUPSStorage, BaseProxy, Initializable, IP
      */
     function _functionDelegateCall(address target, bytes memory data, string memory message) private returns (bytes memory) {
         require(_isEnabled, "Context Not Activated");
-        require(Address.isContract(target), "Illegal Contract Address");
+        require(LAddress.isContract(target), "Illegal Contract Address");
 
         // solhint-disable-next-line avoid-low-level-calls
         (bool success, bytes memory returndata) = target.delegatecall(data);
         // console.log("_functionDelegateCall, msg: %s", message);
         // console.logBool(success);
         // console.logBytes(returndata);
-        return Address.verifyCallResult(success, returndata, message);
+        return LAddress.verifyCallResult(success, returndata, message);
     }
 
     /**
@@ -266,7 +265,7 @@ abstract contract BaseUUPSProxy is BaseUUPSStorage, BaseProxy, Initializable, IP
      * @dev Returns the current admin.
      */
     function _getAdmin() internal view returns (address) {
-        return StorageSlot.getAddressSlot(_ADMIN_SLOT).value;
+        return LStorageSlot.getAddressSlot(_ADMIN_SLOT).value;
     }
 
     /**
@@ -276,7 +275,7 @@ abstract contract BaseUUPSProxy is BaseUUPSStorage, BaseProxy, Initializable, IP
         require(_isEnabled, "Context Not Activated");
         require(_hasPermission(this.setAdmin.selector), "Change ProxyAdmin Forbidden");
         require(newAdmin != address(0), "Address Invalid");
-        StorageSlot.getAddressSlot(_ADMIN_SLOT).value = newAdmin;
+        LStorageSlot.getAddressSlot(_ADMIN_SLOT).value = newAdmin;
         emit AdminChanged(_msgSender(), address(this), newAdmin);
     }
  
@@ -307,7 +306,7 @@ abstract contract BaseUUPSProxy is BaseUUPSStorage, BaseProxy, Initializable, IP
     }
 
     function contractContext() external view returns (bytes32) {
-        return ContextUtils.generateCtx(address(this));
+        return LContextUtils.generateCtx(address(this));
     }
 
     function getAccessControl() external view returns (address) {

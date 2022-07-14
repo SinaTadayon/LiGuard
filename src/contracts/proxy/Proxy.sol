@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-
-pragma solidity >= 0.8.15;
+pragma solidity >= 0.8.15 < 0.9.0;
 
 import "./IBaseProxy.sol";
 import "./BaseProxy.sol";
+import "./IERC1822.sol";
 import "./BaseUUPSStorage.sol";
-import "../lib/Address.sol";
-import "../lib/StorageSlot.sol";
+import "../lib/LAddress.sol";
+import "../lib/LStorageSlot.sol";
 // import "hardhat/console.sol";
 
 /**
@@ -27,7 +27,7 @@ contract Proxy is BaseUUPSStorage, BaseProxy, IBaseProxy {
     constructor(address logic, bytes memory data) payable {
         assert(_IMPLEMENTATION_SLOT == bytes32(uint256(keccak256("eip1967.proxy.implementation")) - 1));
         assert(_ADMIN_SLOT == bytes32(uint256(keccak256("eip1967.proxy.admin")) - 1));
-        StorageSlot.getAddressSlot(_ADMIN_SLOT).value = msg.sender;
+        LStorageSlot.getAddressSlot(_ADMIN_SLOT).value = msg.sender;
         _upgradeToAndCallUUPS(logic, data, false);
     }
 
@@ -36,14 +36,14 @@ contract Proxy is BaseUUPSStorage, BaseProxy, IBaseProxy {
      * and {_fallback} should delegate.
      */
     function _implementation() internal view override returns (address) {
-         return StorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value;
+         return LStorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value;
     }
 
     /**
      * @dev Stores a new address in the EIP1967 implementation slot.
      */
     function _setImplementation(address newImplementation) private {  
-        StorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value = newImplementation;
+        LStorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value = newImplementation;
     }
 
     /**
@@ -86,7 +86,7 @@ contract Proxy is BaseUUPSStorage, BaseProxy, IBaseProxy {
         // Upgrades from old implementations will perform a rollback test. This test requires the new
         // implementation to upgrade back to the old, non-ERC1822 compliant, implementation. Removing
         // this special case will break upgrade paths from old UUPS implementation to new ones.
-        if (StorageSlot.getBooleanSlot(_ROLLBACK_SLOT).value) {
+        if (LStorageSlot.getBooleanSlot(_ROLLBACK_SLOT).value) {
             _setImplementation(newImplementation);
             return new bytes(0);
         } else {
@@ -106,10 +106,10 @@ contract Proxy is BaseUUPSStorage, BaseProxy, IBaseProxy {
      * but performing a delegate call.
      */
     function _functionDelegateCall(address target, bytes memory data) private returns (bytes memory) {
-        require(Address.isContract(target), "Illegal Contract Address");
+        require(LAddress.isContract(target), "Illegal Contract Address");
 
         // solhint-disable-next-line avoid-low-level-calls
         (bool success, bytes memory returndata) = target.delegatecall(data);
-        return Address.verifyCallResult(success, returndata, "Delegatecall Failed");
+        return LAddress.verifyCallResult(success, returndata, "Delegatecall Failed");
     }
 }

@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
-
-pragma solidity >= 0.8.15;
+pragma solidity >= 0.8.15 < 0.9.0;
 
 /**
  * @dev Provides information about the current execution context, including the
@@ -21,10 +20,4 @@ abstract contract Message {
     function _msgData() internal view virtual returns (bytes calldata) {
         return msg.data;
     }
-
-    /**
-     * @dev This empty reserved space is put in place to allow future versions to add new
-     * variables without shifting down storage in the inheritance chain.
-     */
-    uint256[64] private __gap;
 }

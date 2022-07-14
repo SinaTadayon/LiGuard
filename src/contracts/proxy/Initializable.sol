@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
+pragma solidity >= 0.8.15 < 0.9.0;
 
-pragma solidity >= 0.8.15;
-
-import "../lib/Address.sol";
+import "../lib/LAddress.sol";
 
 /**
  * @dev This is a base contract to aid in writing upgradeable contracts, or any kind of contract that will be deployed
@@ -136,7 +135,7 @@ abstract contract Initializable {
         // of initializers, because in other contexts the contract may have been reentered.
         if (_initializing) {
             require(
-                version == 1 && !Address.isContract(address(this)),
+                version == 1 && !LAddress.isContract(address(this)),
                 "Contract Already Initialized"
             );
             return false;

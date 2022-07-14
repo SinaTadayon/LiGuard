@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.15;
+pragma solidity >= 0.8.15 < 0.9.0;
 
-import "../lib/struct/EnumerableSet.sol";
-import "../lib/struct/EnumerableMap.sol";
+import "../lib/struct/LEnumerableSet.sol";
+import "../lib/struct/LEnumerableMap.sol";
 import "../proxy/BaseUUPSStorage.sol";
 
 abstract contract AccessControlStorage is BaseUUPSStorage {
 
-    using EnumerableSet for EnumerableSet.AddressSet;
-    using EnumerableSet for EnumerableSet.Bytes32Set;
-    using EnumerableMap for EnumerableMap.Bytes32ToBytes32Map;
-    using EnumerableMap for EnumerableMap.AddressToUintMap;
+    using LEnumerableSet for LEnumerableSet.AddressSet;
+    using LEnumerableSet for LEnumerableSet.Bytes32Set;
+    using LEnumerableMap for LEnumerableMap.Bytes32ToBytes32Map;
+    using LEnumerableMap for LEnumerableMap.AddressToUintMap;
 
     enum Status {
         NONE,
@@ -23,14 +23,14 @@ abstract contract AccessControlStorage is BaseUUPSStorage {
         address smca;                               // smart contract address
         bool isEnabled;
         mapping(bytes32 => Status) resources;      // function selector + Role => Status
-        EnumerableSet.Bytes32Set funcSet; 
+        LEnumerableSet.Bytes32Set funcSet; 
     }
 
     struct Role {
         string name;
         bytes32 group;
         bool isEnabled;
-        EnumerableMap.AddressToUintMap userMap;
+        LEnumerableMap.AddressToUintMap userMap;
         // mapping(address => Status) userMap;        
         // EnumerableSet.AddressSet userSet;
         // EnumerableSet.Bytes32Set ctxSet;        // TODO check it if needed or no
@@ -40,13 +40,13 @@ abstract contract AccessControlStorage is BaseUUPSStorage {
         string name;
         bool isEnabled;
         bool isUpgradable;
-        EnumerableSet.Bytes32Set ctxSet;        
+        LEnumerableSet.Bytes32Set ctxSet;        
     }
 
     struct Group {
         string name;
         bool isEnabled;
-        EnumerableSet.Bytes32Set roles;       
+        LEnumerableSet.Bytes32Set roles;       
     }
 
 

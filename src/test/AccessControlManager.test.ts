@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { Signer } from 'ethers';
 import { ethers, waffle, deployments } from 'hardhat';
 
-import { AccessControlManager, AccessControlManager__factory, ContextManagementLib, ContextManagementLib__factory, Proxy, Proxy__factory } from '../../export/types';
+import { AccessControlManager, AccessControlManager__factory, LContextManagement, LContextManagement__factory, Proxy, Proxy__factory } from '../../export/types';
 import {UpgradedEventObject, AdminChangedEventObject, InitializedEventObject,  } from '../../export/types/acl/AccessControlManager';
 import { AccessControlManagerLibraryAddresses } from '../../export/types/factories/acl/AccessControlManager__factory';
 
@@ -13,14 +13,14 @@ const { provider, deployMockContract, deployContract } = waffle;
 describe('AccessControlManager', function() {
     let admin: Signer
     let user: Signer
-    let contextManagementLib: ContextManagementLib
+    let contextManagementLib: LContextManagement
     let linkLibraryAddresses: AccessControlManagerLibraryAddresses
     this.beforeAll(async () => {
         [admin, user] = await ethers.getSigners();
-        const contextManagementLibFactory = new ContextManagementLib__factory(admin);
+        const contextManagementLibFactory = new LContextManagement__factory(admin);
         contextManagementLib = await contextManagementLibFactory.deploy();
         linkLibraryAddresses = {
-            ['src/contracts/lib/acl/ContextManagementLib.sol:ContextManagementLib']: contextManagementLib.address
+            ['src/contracts/lib/acl/LContextManagement.sol:LContextManagement']: contextManagementLib.address
         }
     })
 
