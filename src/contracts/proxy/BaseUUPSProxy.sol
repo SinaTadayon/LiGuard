@@ -14,7 +14,7 @@ import "../acl/IContextManagement.sol";
 import "../utils/Message.sol";
 import "../utils/ERC165.sol";
 import "../lib/ContextUtils.sol";
-import "hardhat/console.sol";
+// import "hardhat/console.sol";
 
 
 /**
@@ -86,6 +86,8 @@ abstract contract BaseUUPSProxy is BaseUUPSStorage, BaseProxy, Initializable, IP
      */
 
     constructor() {
+        assert(_IMPLEMENTATION_SLOT == bytes32(uint256(keccak256("eip1967.proxy.implementation")) - 1));
+        assert(_ADMIN_SLOT == bytes32(uint256(keccak256("eip1967.proxy.admin")) - 1));
         // set contract Admin (implementation contract)
         StorageSlot.getAddressSlot(_ADMIN_SLOT).value = _msgSender();
 
@@ -95,7 +97,7 @@ abstract contract BaseUUPSProxy is BaseUUPSStorage, BaseProxy, Initializable, IP
     }
 
 
-    function __BASE_UUPS_init(string calldata domainName, string calldata domainVersion, bytes32 domainRealm, address accessControl) internal onlyProxy onlyInitializing {
+    function __BASE_UUPS_init(string calldata domainName, string calldata domainVersion, bytes32 domainRealm, address accessControl) internal {
         __BASE_UUPS_init_unchained(domainName, domainVersion, domainRealm, accessControl);
     }
 

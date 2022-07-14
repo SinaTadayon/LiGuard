@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity >= 0.8.15;
-import "../proxy/Initializable.sol";
 
 /**
  * @dev Provides information about the current execution context, including the

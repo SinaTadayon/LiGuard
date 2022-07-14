@@ -25,15 +25,22 @@ export interface AccessControlStorageInterface extends utils.Interface {
     "LIVELY_ADMIN_ROLE()": FunctionFragment;
     "LIVELY_GENERAL_GROUP()": FunctionFragment;
     "LIVELY_GENERAL_REALM()": FunctionFragment;
+    "LIVELY_PUBLIC_ROLE()": FunctionFragment;
     "LIVELY_SYSTEM_ADMIN_ROLE()": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
       | "LIVELY_ADMIN_ROLE"
+      | "LIVELY_ADMIN_ROLE()"
       | "LIVELY_GENERAL_GROUP"
+      | "LIVELY_GENERAL_GROUP()"
       | "LIVELY_GENERAL_REALM"
+      | "LIVELY_GENERAL_REALM()"
+      | "LIVELY_PUBLIC_ROLE"
+      | "LIVELY_PUBLIC_ROLE()"
       | "LIVELY_SYSTEM_ADMIN_ROLE"
+      | "LIVELY_SYSTEM_ADMIN_ROLE()"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -41,7 +48,15 @@ export interface AccessControlStorageInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "LIVELY_ADMIN_ROLE()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "LIVELY_GENERAL_GROUP",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_GENERAL_GROUP()",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -49,7 +64,23 @@ export interface AccessControlStorageInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "LIVELY_GENERAL_REALM()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_PUBLIC_ROLE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_PUBLIC_ROLE()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "LIVELY_SYSTEM_ADMIN_ROLE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_SYSTEM_ADMIN_ROLE()",
     values?: undefined
   ): string;
 
@@ -58,7 +89,15 @@ export interface AccessControlStorageInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "LIVELY_ADMIN_ROLE()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "LIVELY_GENERAL_GROUP",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_GENERAL_GROUP()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -66,7 +105,23 @@ export interface AccessControlStorageInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "LIVELY_GENERAL_REALM()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_PUBLIC_ROLE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_PUBLIC_ROLE()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "LIVELY_SYSTEM_ADMIN_ROLE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_SYSTEM_ADMIN_ROLE()",
     data: BytesLike
   ): Result;
 
@@ -102,29 +157,65 @@ export interface AccessControlStorage extends BaseContract {
   functions: {
     LIVELY_ADMIN_ROLE(overrides?: CallOverrides): Promise<[string]>;
 
+    "LIVELY_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
+
     LIVELY_GENERAL_GROUP(overrides?: CallOverrides): Promise<[string]>;
+
+    "LIVELY_GENERAL_GROUP()"(overrides?: CallOverrides): Promise<[string]>;
 
     LIVELY_GENERAL_REALM(overrides?: CallOverrides): Promise<[string]>;
 
+    "LIVELY_GENERAL_REALM()"(overrides?: CallOverrides): Promise<[string]>;
+
+    LIVELY_PUBLIC_ROLE(overrides?: CallOverrides): Promise<[string]>;
+
+    "LIVELY_PUBLIC_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
+
     LIVELY_SYSTEM_ADMIN_ROLE(overrides?: CallOverrides): Promise<[string]>;
+
+    "LIVELY_SYSTEM_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
   };
 
   LIVELY_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
 
+  "LIVELY_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
   LIVELY_GENERAL_GROUP(overrides?: CallOverrides): Promise<string>;
+
+  "LIVELY_GENERAL_GROUP()"(overrides?: CallOverrides): Promise<string>;
 
   LIVELY_GENERAL_REALM(overrides?: CallOverrides): Promise<string>;
 
+  "LIVELY_GENERAL_REALM()"(overrides?: CallOverrides): Promise<string>;
+
+  LIVELY_PUBLIC_ROLE(overrides?: CallOverrides): Promise<string>;
+
+  "LIVELY_PUBLIC_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
   LIVELY_SYSTEM_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
+
+  "LIVELY_SYSTEM_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
     LIVELY_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
 
+    "LIVELY_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
     LIVELY_GENERAL_GROUP(overrides?: CallOverrides): Promise<string>;
+
+    "LIVELY_GENERAL_GROUP()"(overrides?: CallOverrides): Promise<string>;
 
     LIVELY_GENERAL_REALM(overrides?: CallOverrides): Promise<string>;
 
+    "LIVELY_GENERAL_REALM()"(overrides?: CallOverrides): Promise<string>;
+
+    LIVELY_PUBLIC_ROLE(overrides?: CallOverrides): Promise<string>;
+
+    "LIVELY_PUBLIC_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
     LIVELY_SYSTEM_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
+
+    "LIVELY_SYSTEM_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {};
@@ -132,17 +223,37 @@ export interface AccessControlStorage extends BaseContract {
   estimateGas: {
     LIVELY_ADMIN_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
 
+    "LIVELY_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     LIVELY_GENERAL_GROUP(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "LIVELY_GENERAL_GROUP()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     LIVELY_GENERAL_REALM(overrides?: CallOverrides): Promise<BigNumber>;
 
+    "LIVELY_GENERAL_REALM()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    LIVELY_PUBLIC_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "LIVELY_PUBLIC_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     LIVELY_SYSTEM_ADMIN_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "LIVELY_SYSTEM_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
     LIVELY_ADMIN_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    "LIVELY_ADMIN_ROLE()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     LIVELY_GENERAL_GROUP(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "LIVELY_GENERAL_GROUP()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -150,7 +261,23 @@ export interface AccessControlStorage extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    "LIVELY_GENERAL_REALM()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    LIVELY_PUBLIC_ROLE(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "LIVELY_PUBLIC_ROLE()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     LIVELY_SYSTEM_ADMIN_ROLE(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "LIVELY_SYSTEM_ADMIN_ROLE()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };

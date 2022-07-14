@@ -34,12 +34,19 @@ export interface IAccessControlInterface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | "hasAccess"
+      | "hasAccess(bytes32,address,bytes4)"
       | "hasLivelyAdminRole"
+      | "hasLivelyAdminRole(address)"
       | "hasLivelyGroup"
+      | "hasLivelyGroup(bytes32)"
       | "hasLivelyRealm"
+      | "hasLivelyRealm(bytes32)"
       | "hasSystemAdminRole"
+      | "hasSystemAdminRole(address)"
       | "isEnabled"
+      | "isEnabled(bytes32)"
       | "isUpgradeEnabled"
+      | "isUpgradeEnabled(bytes32)"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -51,7 +58,19 @@ export interface IAccessControlInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "hasAccess(bytes32,address,bytes4)",
+    values: [
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BytesLike>
+    ]
+  ): string;
+  encodeFunctionData(
     functionFragment: "hasLivelyAdminRole",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "hasLivelyAdminRole(address)",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -59,11 +78,23 @@ export interface IAccessControlInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
+    functionFragment: "hasLivelyGroup(bytes32)",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "hasLivelyRealm",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
+    functionFragment: "hasLivelyRealm(bytes32)",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "hasSystemAdminRole",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "hasSystemAdminRole(address)",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -71,13 +102,29 @@ export interface IAccessControlInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
+    functionFragment: "isEnabled(bytes32)",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "isUpgradeEnabled",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isUpgradeEnabled(bytes32)",
     values: [PromiseOrValue<BytesLike>]
   ): string;
 
   decodeFunctionResult(functionFragment: "hasAccess", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "hasAccess(bytes32,address,bytes4)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "hasLivelyAdminRole",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "hasLivelyAdminRole(address)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -85,16 +132,36 @@ export interface IAccessControlInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "hasLivelyGroup(bytes32)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "hasLivelyRealm",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "hasLivelyRealm(bytes32)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "hasSystemAdminRole",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "hasSystemAdminRole(address)",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "isEnabled", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "isEnabled(bytes32)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "isUpgradeEnabled",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isUpgradeEnabled(bytes32)",
     data: BytesLike
   ): Result;
 
@@ -135,7 +202,19 @@ export interface IAccessControl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    "hasAccess(bytes32,address,bytes4)"(
+      context: PromiseOrValue<BytesLike>,
+      account: PromiseOrValue<string>,
+      signature: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     hasLivelyAdminRole(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    "hasLivelyAdminRole(address)"(
       account: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
@@ -145,7 +224,17 @@ export interface IAccessControl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    "hasLivelyGroup(bytes32)"(
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     hasLivelyRealm(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    "hasLivelyRealm(bytes32)"(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
@@ -155,12 +244,27 @@ export interface IAccessControl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    "hasSystemAdminRole(address)"(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     isEnabled(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    "isEnabled(bytes32)"(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     isUpgradeEnabled(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    "isUpgradeEnabled(bytes32)"(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
@@ -173,7 +277,19 @@ export interface IAccessControl extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  "hasAccess(bytes32,address,bytes4)"(
+    context: PromiseOrValue<BytesLike>,
+    account: PromiseOrValue<string>,
+    signature: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   hasLivelyAdminRole(
+    account: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  "hasLivelyAdminRole(address)"(
     account: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<boolean>;
@@ -183,7 +299,17 @@ export interface IAccessControl extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  "hasLivelyGroup(bytes32)"(
+    role: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   hasLivelyRealm(
+    context: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  "hasLivelyRealm(bytes32)"(
     context: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
@@ -193,12 +319,27 @@ export interface IAccessControl extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  "hasSystemAdminRole(address)"(
+    account: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   isEnabled(
     context: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  "isEnabled(bytes32)"(
+    context: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   isUpgradeEnabled(
+    context: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  "isUpgradeEnabled(bytes32)"(
     context: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
@@ -211,7 +352,19 @@ export interface IAccessControl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
+    "hasAccess(bytes32,address,bytes4)"(
+      context: PromiseOrValue<BytesLike>,
+      account: PromiseOrValue<string>,
+      signature: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
     hasLivelyAdminRole(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "hasLivelyAdminRole(address)"(
       account: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
@@ -221,7 +374,17 @@ export interface IAccessControl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
+    "hasLivelyGroup(bytes32)"(
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
     hasLivelyRealm(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "hasLivelyRealm(bytes32)"(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
@@ -231,12 +394,27 @@ export interface IAccessControl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
+    "hasSystemAdminRole(address)"(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
     isEnabled(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
+    "isEnabled(bytes32)"(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
     isUpgradeEnabled(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "isUpgradeEnabled(bytes32)"(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
@@ -252,7 +430,19 @@ export interface IAccessControl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    "hasAccess(bytes32,address,bytes4)"(
+      context: PromiseOrValue<BytesLike>,
+      account: PromiseOrValue<string>,
+      signature: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     hasLivelyAdminRole(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "hasLivelyAdminRole(address)"(
       account: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -262,7 +452,17 @@ export interface IAccessControl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    "hasLivelyGroup(bytes32)"(
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     hasLivelyRealm(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "hasLivelyRealm(bytes32)"(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -272,12 +472,27 @@ export interface IAccessControl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    "hasSystemAdminRole(address)"(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     isEnabled(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    "isEnabled(bytes32)"(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     isUpgradeEnabled(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "isUpgradeEnabled(bytes32)"(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -291,7 +506,19 @@ export interface IAccessControl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    "hasAccess(bytes32,address,bytes4)"(
+      context: PromiseOrValue<BytesLike>,
+      account: PromiseOrValue<string>,
+      signature: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     hasLivelyAdminRole(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "hasLivelyAdminRole(address)"(
       account: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -301,7 +528,17 @@ export interface IAccessControl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    "hasLivelyGroup(bytes32)"(
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     hasLivelyRealm(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "hasLivelyRealm(bytes32)"(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -311,12 +548,27 @@ export interface IAccessControl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    "hasSystemAdminRole(address)"(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     isEnabled(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    "isEnabled(bytes32)"(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     isUpgradeEnabled(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "isUpgradeEnabled(bytes32)"(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;

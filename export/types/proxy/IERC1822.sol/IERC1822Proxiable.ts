@@ -25,15 +25,25 @@ export interface IERC1822ProxiableInterface extends utils.Interface {
     "proxiableUUID()": FunctionFragment;
   };
 
-  getFunction(nameOrSignatureOrTopic: "proxiableUUID"): FunctionFragment;
+  getFunction(
+    nameOrSignatureOrTopic: "proxiableUUID" | "proxiableUUID()"
+  ): FunctionFragment;
 
   encodeFunctionData(
     functionFragment: "proxiableUUID",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "proxiableUUID()",
+    values?: undefined
+  ): string;
 
   decodeFunctionResult(
     functionFragment: "proxiableUUID",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "proxiableUUID()",
     data: BytesLike
   ): Result;
 
@@ -68,21 +78,31 @@ export interface IERC1822Proxiable extends BaseContract {
 
   functions: {
     proxiableUUID(overrides?: CallOverrides): Promise<[string]>;
+
+    "proxiableUUID()"(overrides?: CallOverrides): Promise<[string]>;
   };
 
   proxiableUUID(overrides?: CallOverrides): Promise<string>;
 
+  "proxiableUUID()"(overrides?: CallOverrides): Promise<string>;
+
   callStatic: {
     proxiableUUID(overrides?: CallOverrides): Promise<string>;
+
+    "proxiableUUID()"(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {};
 
   estimateGas: {
     proxiableUUID(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "proxiableUUID()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
     proxiableUUID(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "proxiableUUID()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

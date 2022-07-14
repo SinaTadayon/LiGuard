@@ -1,26 +1,34 @@
 import { expect } from 'chai';
 import { Signer } from 'ethers';
 import { ethers, waffle, deployments } from 'hardhat';
-import { execPath } from 'process';
 
-import { AccessControlManager, AccessControlManager__factory, Proxy, Proxy__factory } from '../../export/types';
-import {UpgradedEventObject, AdminChangedEventObject, InitializedEventObject } from '../../export/types/acl/AccessControlManager';
+import { AccessControlManager, AccessControlManager__factory, ContextManagementLib, ContextManagementLib__factory, Proxy, Proxy__factory } from '../../export/types';
+import {UpgradedEventObject, AdminChangedEventObject, InitializedEventObject,  } from '../../export/types/acl/AccessControlManager';
+import { AccessControlManagerLibraryAddresses } from '../../export/types/factories/acl/AccessControlManager__factory';
 
+// ethers.utils.keccak256(ethers.utils.toUtf8Bytes("src/contracts/lib/acl/ContextManagementLib.sol:ContextManagementLib")) => 0x0304621006bd13fe54dc5f6b75a37ec856740450109fd223c2bfb60db9095cad => __$0304621006bd13fe54dc5f6b75a37ec856$__ ( library placeholder)
 
 const { provider, deployMockContract, deployContract } = waffle;
 
 describe('AccessControlManager', function() {
     let admin: Signer
     let user: Signer
+    let contextManagementLib: ContextManagementLib
+    let linkLibraryAddresses: AccessControlManagerLibraryAddresses
     this.beforeAll(async () => {
         [admin, user] = await ethers.getSigners();
+        const contextManagementLibFactory = new ContextManagementLib__factory(admin);
+        contextManagementLib = await contextManagementLibFactory.deploy();
+        linkLibraryAddresses = {
+            ['src/contracts/lib/acl/ContextManagementLib.sol:ContextManagementLib']: contextManagementLib.address
+        }
     })
 
     describe('Subject (AccessControlMnanager Implementation)', function() {
         let accessControlManagerSubject: AccessControlManager
         it('Should deploy AccessControlManager subject success', async () => {
-            // given 
-            const accessControlManagerFactory = new AccessControlManager__factory(admin);
+            // given            
+            const accessControlManagerFactory = new AccessControlManager__factory(linkLibraryAddresses, admin);
 
             // when 
             accessControlManagerSubject = await accessControlManagerFactory.deploy();
@@ -82,7 +90,7 @@ describe('AccessControlManager', function() {
         let accessControlManagerProxy: AccessControlManager;
         it('Should proxy deploy success without initialize (typechain)', async() => {
             // given 
-            const accessControlManagerSubjectFactory = new AccessControlManager__factory(admin);
+            const accessControlManagerSubjectFactory = new AccessControlManager__factory(linkLibraryAddresses, admin);
             const proxyFactory = new Proxy__factory(admin);
 
             const accessControlSubject = await accessControlManagerSubjectFactory.deploy();
@@ -103,7 +111,11 @@ describe('AccessControlManager', function() {
         it('Should proxy deploy success with initialize', async() => {
             // given
             const adminAddress = await admin.getAddress();             
-            const accessControlFactory = await ethers.getContractFactory('AccessControlManager');        
+            const accessControlFactory = await ethers.getContractFactory('AccessControlManager', {
+                libraries: {
+                    ContextManagementLib: contextManagementLib.address
+                }
+            });        
             const accessControlSubject = await accessControlFactory.connect(admin).deploy();
             const accessControlArtifact = await deployments.getArtifact('AccessControlManager');
     
@@ -135,7 +147,7 @@ describe('AccessControlManager', function() {
         it('Should raise events when deploy proxy success', async() => {
             // given 
             let adminAddress = await admin.getAddress();
-            const accessControlManagerSubjectFactory = new AccessControlManager__factory(admin);
+            const accessControlManagerSubjectFactory = new AccessControlManager__factory(linkLibraryAddresses, admin);
             const proxyFactory = new Proxy__factory(admin);
 
             const accessControlSubject = await accessControlManagerSubjectFactory.deploy();
@@ -177,7 +189,7 @@ describe('AccessControlManager', function() {
 
         it('Should proxy deploy and initialize success (typechain)', async() => {           
             // given 
-            const accessControlManagerSubjectFactory = new AccessControlManager__factory(admin);
+            const accessControlManagerSubjectFactory = new AccessControlManager__factory(linkLibraryAddresses, admin);
             const proxyFactory = new Proxy__factory(admin);
 
             accessControlManagerSubject = await accessControlManagerSubjectFactory.deploy();

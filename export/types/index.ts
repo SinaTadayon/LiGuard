@@ -26,6 +26,8 @@ export type { BaseProxy } from "./proxy/BaseProxy";
 export { BaseProxy__factory } from "./factories/proxy/BaseProxy__factory";
 export type { BaseUUPSProxy } from "./proxy/BaseUUPSProxy";
 export { BaseUUPSProxy__factory } from "./factories/proxy/BaseUUPSProxy__factory";
+export type { IBaseProxy } from "./proxy/IBaseProxy";
+export { IBaseProxy__factory } from "./factories/proxy/IBaseProxy__factory";
 export type { IERC1822Proxiable } from "./proxy/IERC1822.sol/IERC1822Proxiable";
 export { IERC1822Proxiable__factory } from "./factories/proxy/IERC1822.sol/IERC1822Proxiable__factory";
 export type { Initializable } from "./proxy/Initializable";

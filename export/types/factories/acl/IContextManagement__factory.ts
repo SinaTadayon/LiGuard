@@ -136,6 +136,12 @@ const _abi = [
         name: "sender",
         type: "address",
       },
+      {
+        indexed: false,
+        internalType: "bytes32",
+        name: "realm",
+        type: "bytes32",
+      },
     ],
     name: "ContextUpdated",
     type: "event",
@@ -205,27 +211,12 @@ const _abi = [
         type: "bytes32",
       },
     ],
-    name: "getContext",
+    name: "getContextFuncs",
     outputs: [
       {
-        internalType: "string",
+        internalType: "bytes4[]",
         name: "",
-        type: "string",
-      },
-      {
-        internalType: "string",
-        name: "",
-        type: "string",
-      },
-      {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
+        type: "bytes4[]",
       },
     ],
     stateMutability: "view",
@@ -239,12 +230,44 @@ const _abi = [
         type: "bytes32",
       },
     ],
-    name: "getContextFuncs",
+    name: "getContextInfo",
     outputs: [
       {
-        internalType: "bytes4[]",
+        components: [
+          {
+            internalType: "string",
+            name: "name",
+            type: "string",
+          },
+          {
+            internalType: "string",
+            name: "version",
+            type: "string",
+          },
+          {
+            internalType: "address",
+            name: "smca",
+            type: "address",
+          },
+          {
+            internalType: "bytes32",
+            name: "realm",
+            type: "bytes32",
+          },
+          {
+            internalType: "bool",
+            name: "isEnabled",
+            type: "bool",
+          },
+          {
+            internalType: "bool",
+            name: "isUpgradable",
+            type: "bool",
+          },
+        ],
+        internalType: "struct IContextManagement.ResponseContext",
         name: "",
-        type: "bytes4[]",
+        type: "tuple",
       },
     ],
     stateMutability: "view",
@@ -311,21 +334,14 @@ const _abi = [
   {
     inputs: [
       {
-        components: [
-          {
-            internalType: "bytes32",
-            name: "realm",
-            type: "bytes32",
-          },
-          {
-            internalType: "address",
-            name: "smca",
-            type: "address",
-          },
-        ],
-        internalType: "struct IContextManagement.RequestContext",
-        name: "rc",
-        type: "tuple",
+        internalType: "address",
+        name: "newContract",
+        type: "address",
+      },
+      {
+        internalType: "bytes32",
+        name: "realm",
+        type: "bytes32",
       },
       {
         components: [
@@ -339,9 +355,14 @@ const _abi = [
             name: "funcSelectors",
             type: "bytes4[]",
           },
+          {
+            internalType: "bool",
+            name: "isEnabled",
+            type: "bool",
+          },
         ],
-        internalType: "struct IContextManagement.RequestContextResource[]",
-        name: "rcr",
+        internalType: "struct IContextManagement.RequestContext[]",
+        name: "rc",
         type: "tuple[]",
       },
     ],
@@ -388,21 +409,9 @@ const _abi = [
   {
     inputs: [
       {
-        components: [
-          {
-            internalType: "bytes32",
-            name: "realm",
-            type: "bytes32",
-          },
-          {
-            internalType: "address",
-            name: "smca",
-            type: "address",
-          },
-        ],
-        internalType: "struct IContextManagement.RequestContext",
-        name: "rc",
-        type: "tuple",
+        internalType: "bytes32",
+        name: "ctx",
+        type: "bytes32",
       },
       {
         components: [
@@ -416,18 +425,23 @@ const _abi = [
             name: "funcSelectors",
             type: "bytes4[]",
           },
+          {
+            internalType: "bool",
+            name: "isEnabled",
+            type: "bool",
+          },
         ],
-        internalType: "struct IContextManagement.RequestContextResource[]",
-        name: "rcr",
+        internalType: "struct IContextManagement.RequestContext[]",
+        name: "rc",
         type: "tuple[]",
       },
     ],
     name: "updateContext",
     outputs: [
       {
-        internalType: "bytes32",
+        internalType: "address",
         name: "",
-        type: "bytes32",
+        type: "address",
       },
     ],
     stateMutability: "nonpayable",

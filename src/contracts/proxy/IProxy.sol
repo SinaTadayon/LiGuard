@@ -2,9 +2,9 @@
 
 pragma solidity >= 0.8.15;
 
-interface IProxy {
+import "./IBaseProxy.sol";
 
-    event Upgraded(address indexed sender, address indexed proxy, address indexed newImplementation);
+interface IProxy is IBaseProxy {
 
     /**
      * @dev Emitted when the admin account has changed.

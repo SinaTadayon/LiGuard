@@ -6,6 +6,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     const { deploy } = deployments;
     const { deployer } = await getNamedAccounts();
 
+    const contextManagementLib = await deploy('ContextManagementLib', {
+        contract: 'ContextManagementLib',
+        from: deployer,
+        args: [],
+        log: true,
+        skipIfAlreadyDeployed: true,
+    });
 
     const accessControlManagerSubject = await deploy('AccessControlManagerSubject', {
         contract: 'AccessControlManager',
@@ -13,6 +20,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         args: [],
         log: true,
         skipIfAlreadyDeployed: true,
+        libraries: {
+            "ContextManagementLib": contextManagementLib.address,
+        }
     });
 
 

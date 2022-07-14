@@ -12,12 +12,6 @@ abstract contract AccessControlStorage is BaseUUPSStorage {
     using EnumerableMap for EnumerableMap.Bytes32ToBytes32Map;
     using EnumerableMap for EnumerableMap.AddressToUintMap;
 
-    bytes32 public constant LIVELY_GENERAL_REALM = keccak256(abi.encodePacked("LIVELY_GENERAL_REALM"));
-    bytes32 public constant LIVELY_GENERAL_GROUP = keccak256(abi.encodePacked("LIVELY_GENERAL_GROUP"));
-    bytes32 public constant LIVELY_ADMIN_ROLE = keccak256(abi.encodePacked("LIVELY_ADMIN_ROLE"));
-    bytes32 public constant LIVELY_SYSTEM_ADMIN_ROLE = keccak256(abi.encodePacked("LIVELY_SYSTEM_ADMIN_ROLE"));
-
-
     enum Status {
         NONE,
         ENABLED,
@@ -26,8 +20,9 @@ abstract contract AccessControlStorage is BaseUUPSStorage {
 
     struct Context {
         bytes32 realm;
-        address smca;                    // smart contract address
-        mapping(bytes32 => mapping(bytes32 => Status)) resources;      // function selector  => Roles
+        address smca;                               // smart contract address
+        bool isEnabled;
+        mapping(bytes32 => Status) resources;      // function selector + Role => Status
         EnumerableSet.Bytes32Set funcSet; 
     }
 
@@ -54,12 +49,22 @@ abstract contract AccessControlStorage is BaseUUPSStorage {
         EnumerableSet.Bytes32Set roles;       
     }
 
-    mapping(address => mapping(bytes32 => Status)) internal _userRoleMap;
-    mapping(bytes32 => Context) internal _ctxMap;
-    mapping(bytes32 => Role) internal _roleMap;
-    mapping(bytes32 => Realm) internal _realmMap;
-    mapping(bytes32 => Group) internal _groupMap;
 
+    struct DataMaps {
+        mapping(address => bytes32[]) userRoleMap;
+        mapping(bytes32 => Context)  ctxMap;
+        mapping(bytes32 => Role)  roleMap;
+        mapping(bytes32 => Realm) realmMap;
+        mapping(bytes32 => Group) groupMap;
+    }
+
+    bytes32 public constant LIVELY_GENERAL_REALM = keccak256(abi.encodePacked("LIVELY_GENERAL_REALM"));
+    bytes32 public constant LIVELY_GENERAL_GROUP = keccak256(abi.encodePacked("LIVELY_GENERAL_GROUP"));
+    bytes32 public constant LIVELY_ADMIN_ROLE = keccak256(abi.encodePacked("LIVELY_ADMIN_ROLE"));
+    bytes32 public constant LIVELY_SYSTEM_ADMIN_ROLE = keccak256(abi.encodePacked("LIVELY_SYSTEM_ADMIN_ROLE"));
+    bytes32 public constant LIVELY_PUBLIC_ROLE = keccak256(abi.encodePacked("LIVELY_ADMIN_ROLE"));
+
+    DataMaps internal _dataMaps;
     Realm internal _livelyGeneralRealm;
     Group internal _livelyGeneralGroup;
     Role  internal _livelyAdminRole;

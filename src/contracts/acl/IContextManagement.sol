@@ -4,18 +4,23 @@ pragma solidity 0.8.15;
 interface IContextManagement {
 
     struct RequestContext {
-        bytes32 realm;
-        address smca;                    
-    }
-
-    struct RequestContextResource {
         bytes32 role;
         bytes4[] funcSelectors;
+        bool isEnabled;
+    }
+
+    struct ResponseContext {
+        string name;
+        string version; 
+        address smca;
+        bytes32 realm; 
+        bool isEnabled; 
+        bool isUpgradable;
     }
 
     event ContextRegistered(bytes32 indexed context, address indexed scma, address indexed sender, bytes32 realm);
 
-    event ContextUpdated(bytes32 indexed context, address indexed scma, address indexed sender);
+    event ContextUpdated(bytes32 indexed context, address indexed scma, address indexed sender, bytes32 realm);
 
     event ContextRoleGranted(bytes32 indexed context, bytes32 indexed role, 
                             address indexed sender, bytes4 functionSelector, bytes32 realm);
@@ -23,9 +28,9 @@ interface IContextManagement {
     event ContextRoleRevoked(bytes32 indexed context, bytes32 indexed role, 
                             address indexed sender, bytes4 functionSelector, bytes32 realm);
 
-    function registerContext(RequestContext calldata rc, RequestContextResource[] calldata rcr) external returns (bytes32);
+    function registerContext(address newContract, bytes32 realm, RequestContext[] calldata rc) external returns (bytes32);
 
-    function updateContext(RequestContext calldata rc, RequestContextResource[] calldata rcr) external returns (bytes32);
+    function updateContext(bytes32 ctx, RequestContext[] calldata rc) external returns (address);
 
     function grantContextRole(bytes32 ctx, bytes4 functionSelector, bytes32 role) external returns (bool);
 
@@ -39,7 +44,7 @@ interface IContextManagement {
 
     function hasContextRole(bytes32 ctx, bytes32 role, bytes4 functionSelector) external view returns (bool);
 
-    function getContext(bytes32 ctx) external view returns (string memory, string memory, bytes32, bool);
+    function getContextInfo(bytes32 ctx) external view returns (ResponseContext memory);
 
     function getContextFuncs(bytes32 ctx) external view returns (bytes4[] memory);
 }

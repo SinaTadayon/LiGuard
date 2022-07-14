@@ -51,6 +51,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "LIVELY_PUBLIC_ROLE",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "LIVELY_SYSTEM_ADMIN_ROLE",
     outputs: [
       {

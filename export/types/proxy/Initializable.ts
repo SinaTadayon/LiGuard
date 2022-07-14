@@ -27,7 +27,11 @@ export interface InitializableInterface extends utils.Interface {
   };
 
   getFunction(
-    nameOrSignatureOrTopic: "getInitializedCount" | "isInitializing"
+    nameOrSignatureOrTopic:
+      | "getInitializedCount"
+      | "getInitializedCount()"
+      | "isInitializing"
+      | "isInitializing()"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -35,7 +39,15 @@ export interface InitializableInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "getInitializedCount()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "isInitializing",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isInitializing()",
     values?: undefined
   ): string;
 
@@ -44,7 +56,15 @@ export interface InitializableInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getInitializedCount()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "isInitializing",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isInitializing()",
     data: BytesLike
   ): Result;
 
@@ -80,17 +100,29 @@ export interface Initializable extends BaseContract {
   functions: {
     getInitializedCount(overrides?: CallOverrides): Promise<[number]>;
 
+    "getInitializedCount()"(overrides?: CallOverrides): Promise<[number]>;
+
     isInitializing(overrides?: CallOverrides): Promise<[boolean]>;
+
+    "isInitializing()"(overrides?: CallOverrides): Promise<[boolean]>;
   };
 
   getInitializedCount(overrides?: CallOverrides): Promise<number>;
 
+  "getInitializedCount()"(overrides?: CallOverrides): Promise<number>;
+
   isInitializing(overrides?: CallOverrides): Promise<boolean>;
+
+  "isInitializing()"(overrides?: CallOverrides): Promise<boolean>;
 
   callStatic: {
     getInitializedCount(overrides?: CallOverrides): Promise<number>;
 
+    "getInitializedCount()"(overrides?: CallOverrides): Promise<number>;
+
     isInitializing(overrides?: CallOverrides): Promise<boolean>;
+
+    "isInitializing()"(overrides?: CallOverrides): Promise<boolean>;
   };
 
   filters: {};
@@ -98,7 +130,11 @@ export interface Initializable extends BaseContract {
   estimateGas: {
     getInitializedCount(overrides?: CallOverrides): Promise<BigNumber>;
 
+    "getInitializedCount()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     isInitializing(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "isInitializing()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -106,6 +142,14 @@ export interface Initializable extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    "getInitializedCount()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     isInitializing(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "isInitializing()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
   };
 }

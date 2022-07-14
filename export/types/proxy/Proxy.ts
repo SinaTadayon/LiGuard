@@ -20,6 +20,9 @@ export interface ProxyInterface extends utils.Interface {
   };
 
   getEvent(nameOrSignatureOrTopic: "Upgraded"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "Upgraded(address,address,address)"
+  ): EventFragment;
 }
 
 export interface UpgradedEventObject {

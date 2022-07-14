@@ -9,83 +9,93 @@ import "./IRoleManagement.sol";
 import "./IContextManagement.sol";
 import "../lib/struct/EnumerableSet.sol";
 import "../lib/struct/EnumerableMap.sol";
+import "../lib/acl/ContextManagementLib.sol";
 import "../proxy/Initializable.sol";
 import "../proxy/BaseUUPSProxy.sol";
-import "hardhat/console.sol";
+// import "hardhat/console.sol";
 
-contract AccessControlManager is BaseUUPSProxy, AccessControlStorage, IContextManagement, IAccessControl, IGroupManagement, IRealmManagement,IRoleManagement {
+contract AccessControlManager is AccessControlStorage, BaseUUPSProxy, IContextManagement, IAccessControl, IGroupManagement, IRealmManagement,IRoleManagement {
 
     using EnumerableSet for EnumerableSet.AddressSet;
     using EnumerableSet for EnumerableSet.Bytes32Set;
     using EnumerableMap for EnumerableMap.Bytes32ToBytes32Map;
     using EnumerableMap for EnumerableMap.AddressToUintMap;
 
-    constructor() {
-        // _disableInitializers();
-    }
+    constructor() {}
 
-    function initialize(string calldata domainName, string calldata domainVersion, string calldata domainRealm, address accessControlManager) public initializer {
+    function initialize(string calldata domainName, string calldata domainVersion, string calldata domainRealm, address accessControlManager) public onlyAdmin initializer {
         bytes32 realm = keccak256(abi.encodePacked(domainRealm));
         __BASE_UUPS_init(domainName, domainVersion, realm, accessControlManager);
         emit Initialized(_msgSender(), address(this), _implementation(), _domainName, _domainVersion, realm, getInitializedCount());
     }
 
     // TODO should be complete.
-    function contractRegisteration() external onlyProxy onlyAdmin returns (bool) {
-        RequestContext memory reqCtx = RequestContext({
-            realm: keccak256(abi.encodePacked(_domainRealm)),
-            smca: address(this)
-        });
+    function contractRegisteration() external onlyProxy onlyAdmin returns (bool) {}
+    //     // RequestContext memory reqCtx = RequestContext({
+    //     //     realm: keccak256(abi.encodePacked(_domainRealm)),
+    //     //     smca: address(this)
+    //     // });
 
-        RequestContextResource memory rcr;
-        rcr.role = LIVELY_ADMIN_ROLE;
-        rcr.funcSelectors = new bytes4[](10);
-        rcr.funcSelectors[0] = this.setUpgradability.selector;
-        rcr.funcSelectors[1] = this.setActivity.selector;
-        rcr.funcSelectors[2] = this.setAdmin.selector;
-        rcr.funcSelectors[3] = this.upgradeTo.selector;
-        rcr.funcSelectors[4] = this.initialize.selector;
+    //     RequestContext memory rc;
+    //     rc.role = LIVELY_ADMIN_ROLE;
+    //     rc.isEnabled = true;
+    //     rc.funcSelectors = new bytes4[](10);
+    //     rc.funcSelectors[0] = this.setUpgradability.selector;
+    //     rc.funcSelectors[1] = this.setActivity.selector;
+    //     rc.funcSelectors[2] = this.setAdmin.selector;
+    //     rc.funcSelectors[3] = this.upgradeTo.selector;
+    //     rc.funcSelectors[4] = this.initialize.selector;
+    // }
+
+    // TODO hasPermission call this  function by SYSTEM_ADMIN
+    function registerContext(address newContract, bytes32 realm, RequestContext[] calldata rc) external returns (bytes32) {
+        bytes32 context = ContextManagementLib.registerContext(_dataMaps, newContract, realm, rc);
+        emit ContextRegistered(context, newContract, msg.sender, realm);
+        return context;
     }
 
-    function registerContext(RequestContext calldata rc, RequestContextResource[] calldata rcr) external returns (bytes32) {
-        require(_msgSender() == rc.smca, "Illegal Contract Address");
-        require(bytes(_realmMap[rc.realm].name).length != 0, "Realm Not Found");
-
-        bytes32 ctx = ContextUtils.generateCtx(rc.smca);
-        require(_ctxMap[ctx].smca == address(0), "Context Already Registered");
-        Context storage newContext = _ctxMap[ctx];
-        newContext.realm = rc.realm;
-        newContext.smca = rc.smca;
-        
-        for (uint256 i = 0; i < rcr.length; i++) {
-            require(bytes(_roleMap[rcr[i].role].name).length != 0, "Role Not Found");
-            for (uint256 j = 0; j < rcr[i].funcSelectors.length; j++) {
-                newContext.resources[rcr[i].funcSelectors[j]][rcr[i].role] = Status.ENABLED;
-                newContext.funcSet.add(ctx); 
-            }
-        }
-
-        emit ContextRegistered(ctx, rc.smca, _msgSender(), rc.realm);
+    // TODO hasPermission call this  function by SYSTEM_ADMIN
+    function updateContext(bytes32 ctx, RequestContext[] calldata rc) external returns (address) {
+        (address scma, bytes32 realm) = ContextManagementLib.updateContext(_dataMaps, ctx, rc);
+        emit ContextUpdated(ctx, scma, msg.sender, realm);
+        return scma;
     }
 
+    function grantContextRole(bytes32 ctx, bytes4 functionSelector, bytes32 role) external returns (bool) {
+        bytes32 realm = ContextManagementLib.grantContextRole(_dataMaps, ctx, functionSelector, role);
+        emit ContextRoleGranted(ctx, role, msg.sender, functionSelector, realm);
+        return true;
+    }
 
-    function updateContext(RequestContext calldata rc, RequestContextResource[] calldata rcr) external returns (bytes32) {}
+    function revokeContextRole(bytes32 ctx, bytes4 functionSelector, bytes32 role) external returns (bool) {
+        bytes32 realm = ContextManagementLib.revokeContextRole(_dataMaps, ctx, functionSelector, role);
+        emit ContextRoleRevoked(ctx, role, msg.sender, functionSelector, realm);
+        return true;
+    }
 
-    function grantContextRole(bytes32 ctx, bytes4 functionSelector, bytes32 role) external returns (bool) {}
+    function enableContext(bytes32 ctx) external returns (bool) {
+        return ContextManagementLib.enableContext(_dataMaps, ctx);
+    }
 
-    function revokeContextRole(bytes32 ctx, bytes4 functionSelector, bytes32 role) external returns (bool) {}
+    function disableContext(bytes32 ctx) external returns (bool) {
+        return ContextManagementLib.disableContext(_dataMaps, ctx);
+    }
 
-    function enableContext(bytes32 ctx) external returns (bool) {}
+    function enableUpgradeContext(bytes32 ctx) external returns (bool) {
+        return ContextManagementLib.enableUpgradeContext(_dataMaps, ctx);
+    }
 
-    function disableContext(bytes32 ctx) external returns (bool) {}
+    function hasContextRole(bytes32 ctx, bytes32 role, bytes4 functionSelector) external view returns (bool) {
+        return ContextManagementLib.hasContextRole(_dataMaps, ctx, role, functionSelector);
+    }
 
-    function enableUpgradeContext(bytes32 ctx) external returns (bool) {}
+    function getContextInfo(bytes32 ctx) external view returns (ResponseContext memory) {
+        return ContextManagementLib.getContextInfo(_dataMaps, ctx);
+    }
 
-    function hasContextRole(bytes32 ctx, bytes32 role, bytes4 functionSelector) external view returns (bool) {}
-
-    function getContext(bytes32 ctx) external view returns (string memory, string memory, bytes32, bool) {}
-
-    function getContextFuncs(bytes32 ctx) external view returns (bytes4[] memory) {}
+    function getContextFuncs(bytes32 ctx) external view returns (bytes4[] memory) {
+        return ContextManagementLib.getContextFuncs(_dataMaps, ctx);
+    }
 
 
 
