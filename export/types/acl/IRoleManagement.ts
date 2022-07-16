@@ -28,55 +28,36 @@ import type {
 
 export interface IRoleManagementInterface extends utils.Interface {
   functions: {
-    "addRole(string,string,bool)": FunctionFragment;
     "getRole(bytes32)": FunctionFragment;
-    "getRoleContextes(bytes32)": FunctionFragment;
-    "getRoleUsers(bytes32)": FunctionFragment;
+    "getRoleAccounts(bytes32)": FunctionFragment;
     "grantRoleAccount(bytes32,address)": FunctionFragment;
     "hasAccountRole(bytes32,address)": FunctionFragment;
+    "registerRole(string,bytes32,bool)": FunctionFragment;
     "revokeRoleAccount(bytes32,address)": FunctionFragment;
-    "setDisabledRole(bytes32)": FunctionFragment;
-    "setEnabledRole(bytes32)": FunctionFragment;
+    "setRoleGroup(bytes32,bytes32)": FunctionFragment;
+    "setRoleStat(bytes32,bool)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "addRole"
-      | "addRole(string,string,bool)"
       | "getRole"
       | "getRole(bytes32)"
-      | "getRoleContextes"
-      | "getRoleContextes(bytes32)"
-      | "getRoleUsers"
-      | "getRoleUsers(bytes32)"
+      | "getRoleAccounts"
+      | "getRoleAccounts(bytes32)"
       | "grantRoleAccount"
       | "grantRoleAccount(bytes32,address)"
       | "hasAccountRole"
       | "hasAccountRole(bytes32,address)"
+      | "registerRole"
+      | "registerRole(string,bytes32,bool)"
       | "revokeRoleAccount"
       | "revokeRoleAccount(bytes32,address)"
-      | "setDisabledRole"
-      | "setDisabledRole(bytes32)"
-      | "setEnabledRole"
-      | "setEnabledRole(bytes32)"
+      | "setRoleGroup"
+      | "setRoleGroup(bytes32,bytes32)"
+      | "setRoleStat"
+      | "setRoleStat(bytes32,bool)"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "addRole",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<boolean>
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "addRole(string,string,bool)",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<boolean>
-    ]
-  ): string;
   encodeFunctionData(
     functionFragment: "getRole",
     values: [PromiseOrValue<BytesLike>]
@@ -86,19 +67,11 @@ export interface IRoleManagementInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "getRoleContextes",
+    functionFragment: "getRoleAccounts",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "getRoleContextes(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getRoleUsers",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getRoleUsers(bytes32)",
+    functionFragment: "getRoleAccounts(bytes32)",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
@@ -118,6 +91,22 @@ export interface IRoleManagementInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
+    functionFragment: "registerRole",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<boolean>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "registerRole(string,bytes32,bool)",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<boolean>
+    ]
+  ): string;
+  encodeFunctionData(
     functionFragment: "revokeRoleAccount",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
   ): string;
@@ -126,46 +115,33 @@ export interface IRoleManagementInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setDisabledRole",
-    values: [PromiseOrValue<BytesLike>]
+    functionFragment: "setRoleGroup",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setDisabledRole(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
+    functionFragment: "setRoleGroup(bytes32,bytes32)",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setEnabledRole",
-    values: [PromiseOrValue<BytesLike>]
+    functionFragment: "setRoleStat",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setEnabledRole(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
+    functionFragment: "setRoleStat(bytes32,bool)",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
   ): string;
 
-  decodeFunctionResult(functionFragment: "addRole", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "addRole(string,string,bool)",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "getRole", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getRole(bytes32)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getRoleContextes",
+    functionFragment: "getRoleAccounts",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getRoleContextes(bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getRoleUsers",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getRoleUsers(bytes32)",
+    functionFragment: "getRoleAccounts(bytes32)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -185,6 +161,14 @@ export interface IRoleManagementInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "registerRole",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "registerRole(string,bytes32,bool)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "revokeRoleAccount",
     data: BytesLike
   ): Result;
@@ -193,49 +177,49 @@ export interface IRoleManagementInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setDisabledRole",
+    functionFragment: "setRoleGroup",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setDisabledRole(bytes32)",
+    functionFragment: "setRoleGroup(bytes32,bytes32)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setEnabledRole",
+    functionFragment: "setRoleStat",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setEnabledRole(bytes32)",
+    functionFragment: "setRoleStat(bytes32,bool)",
     data: BytesLike
   ): Result;
 
   events: {
-    "RoleAccountGranted(bytes32,address,address,bytes32)": EventFragment;
-    "RoleAccountRevoked(bytes32,address,address,bytes32)": EventFragment;
-    "RoleDisabled(bytes32,address,bytes32)": EventFragment;
-    "RoleEnabled(bytes32,address,bytes32)": EventFragment;
+    "RoleAccountGranted(bytes32,address,address)": EventFragment;
+    "RoleAccountRevoked(bytes32,address,address)": EventFragment;
+    "RoleGroupChanged(bytes32,address,bytes32,bytes32)": EventFragment;
     "RoleRegistered(bytes32,string,address,bytes32,bool)": EventFragment;
+    "RoleStatChanged(bytes32,address,bytes32,bool)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "RoleAccountGranted"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "RoleAccountGranted(bytes32,address,address,bytes32)"
+    nameOrSignatureOrTopic: "RoleAccountGranted(bytes32,address,address)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleAccountRevoked"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "RoleAccountRevoked(bytes32,address,address,bytes32)"
+    nameOrSignatureOrTopic: "RoleAccountRevoked(bytes32,address,address)"
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RoleDisabled"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RoleGroupChanged"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "RoleDisabled(bytes32,address,bytes32)"
-  ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RoleEnabled"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "RoleEnabled(bytes32,address,bytes32)"
+    nameOrSignatureOrTopic: "RoleGroupChanged(bytes32,address,bytes32,bytes32)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleRegistered"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "RoleRegistered(bytes32,string,address,bytes32,bool)"
+  ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RoleStatChanged"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "RoleStatChanged(bytes32,address,bytes32,bool)"
   ): EventFragment;
 }
 
@@ -243,10 +227,9 @@ export interface RoleAccountGrantedEventObject {
   role: string;
   account: string;
   sender: string;
-  group: string;
 }
 export type RoleAccountGrantedEvent = TypedEvent<
-  [string, string, string, string],
+  [string, string, string],
   RoleAccountGrantedEventObject
 >;
 
@@ -257,39 +240,28 @@ export interface RoleAccountRevokedEventObject {
   role: string;
   account: string;
   sender: string;
-  group: string;
 }
 export type RoleAccountRevokedEvent = TypedEvent<
-  [string, string, string, string],
+  [string, string, string],
   RoleAccountRevokedEventObject
 >;
 
 export type RoleAccountRevokedEventFilter =
   TypedEventFilter<RoleAccountRevokedEvent>;
 
-export interface RoleDisabledEventObject {
+export interface RoleGroupChangedEventObject {
   role: string;
   sender: string;
-  group: string;
+  newGroup: string;
+  oldGroup: string;
 }
-export type RoleDisabledEvent = TypedEvent<
-  [string, string, string],
-  RoleDisabledEventObject
+export type RoleGroupChangedEvent = TypedEvent<
+  [string, string, string, string],
+  RoleGroupChangedEventObject
 >;
 
-export type RoleDisabledEventFilter = TypedEventFilter<RoleDisabledEvent>;
-
-export interface RoleEnabledEventObject {
-  role: string;
-  sender: string;
-  group: string;
-}
-export type RoleEnabledEvent = TypedEvent<
-  [string, string, string],
-  RoleEnabledEventObject
->;
-
-export type RoleEnabledEventFilter = TypedEventFilter<RoleEnabledEvent>;
+export type RoleGroupChangedEventFilter =
+  TypedEventFilter<RoleGroupChangedEvent>;
 
 export interface RoleRegisteredEventObject {
   role: string;
@@ -304,6 +276,19 @@ export type RoleRegisteredEvent = TypedEvent<
 >;
 
 export type RoleRegisteredEventFilter = TypedEventFilter<RoleRegisteredEvent>;
+
+export interface RoleStatChangedEventObject {
+  role: string;
+  sender: string;
+  group: string;
+  status: boolean;
+}
+export type RoleStatChangedEvent = TypedEvent<
+  [string, string, string, boolean],
+  RoleStatChangedEventObject
+>;
+
+export type RoleStatChangedEventFilter = TypedEventFilter<RoleStatChangedEvent>;
 
 export interface IRoleManagement extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -332,20 +317,6 @@ export interface IRoleManagement extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    addRole(
-      name: PromiseOrValue<string>,
-      group: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "addRole(string,string,bool)"(
-      name: PromiseOrValue<string>,
-      group: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     getRole(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -356,22 +327,12 @@ export interface IRoleManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string, string, boolean]>;
 
-    getRoleContextes(
+    getRoleAccounts(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[string[]]>;
 
-    "getRoleContextes(bytes32)"(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[string[]]>;
-
-    getRoleUsers(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[string[]]>;
-
-    "getRoleUsers(bytes32)"(
+    "getRoleAccounts(bytes32)"(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[string[]]>;
@@ -400,6 +361,20 @@ export interface IRoleManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    registerRole(
+      name: PromiseOrValue<string>,
+      group: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "registerRole(string,bytes32,bool)"(
+      name: PromiseOrValue<string>,
+      group: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     revokeRoleAccount(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
@@ -412,40 +387,30 @@ export interface IRoleManagement extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setDisabledRole(
+    setRoleGroup(
       role: PromiseOrValue<BytesLike>,
+      group: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "setDisabledRole(bytes32)"(
+    "setRoleGroup(bytes32,bytes32)"(
       role: PromiseOrValue<BytesLike>,
+      group: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setEnabledRole(
+    setRoleStat(
       role: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "setEnabledRole(bytes32)"(
+    "setRoleStat(bytes32,bool)"(
       role: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
-
-  addRole(
-    name: PromiseOrValue<string>,
-    group: PromiseOrValue<string>,
-    isEnabled: PromiseOrValue<boolean>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "addRole(string,string,bool)"(
-    name: PromiseOrValue<string>,
-    group: PromiseOrValue<string>,
-    isEnabled: PromiseOrValue<boolean>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   getRole(
     role: PromiseOrValue<BytesLike>,
@@ -457,22 +422,12 @@ export interface IRoleManagement extends BaseContract {
     overrides?: CallOverrides
   ): Promise<[string, string, boolean]>;
 
-  getRoleContextes(
+  getRoleAccounts(
     role: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<string[]>;
 
-  "getRoleContextes(bytes32)"(
-    role: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<string[]>;
-
-  getRoleUsers(
-    role: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<string[]>;
-
-  "getRoleUsers(bytes32)"(
+  "getRoleAccounts(bytes32)"(
     role: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<string[]>;
@@ -501,6 +456,20 @@ export interface IRoleManagement extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  registerRole(
+    name: PromiseOrValue<string>,
+    group: PromiseOrValue<BytesLike>,
+    status: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "registerRole(string,bytes32,bool)"(
+    name: PromiseOrValue<string>,
+    group: PromiseOrValue<BytesLike>,
+    status: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   revokeRoleAccount(
     role: PromiseOrValue<BytesLike>,
     account: PromiseOrValue<string>,
@@ -513,41 +482,31 @@ export interface IRoleManagement extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setDisabledRole(
+  setRoleGroup(
     role: PromiseOrValue<BytesLike>,
+    group: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "setDisabledRole(bytes32)"(
+  "setRoleGroup(bytes32,bytes32)"(
     role: PromiseOrValue<BytesLike>,
+    group: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setEnabledRole(
+  setRoleStat(
     role: PromiseOrValue<BytesLike>,
+    status: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "setEnabledRole(bytes32)"(
+  "setRoleStat(bytes32,bool)"(
     role: PromiseOrValue<BytesLike>,
+    status: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    addRole(
-      name: PromiseOrValue<string>,
-      group: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    "addRole(string,string,bool)"(
-      name: PromiseOrValue<string>,
-      group: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
     getRole(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -558,22 +517,12 @@ export interface IRoleManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string, string, boolean]>;
 
-    getRoleContextes(
+    getRoleAccounts(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<string[]>;
 
-    "getRoleContextes(bytes32)"(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<string[]>;
-
-    getRoleUsers(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<string[]>;
-
-    "getRoleUsers(bytes32)"(
+    "getRoleAccounts(bytes32)"(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<string[]>;
@@ -602,6 +551,20 @@ export interface IRoleManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
+    registerRole(
+      name: PromiseOrValue<string>,
+      group: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    "registerRole(string,bytes32,bool)"(
+      name: PromiseOrValue<string>,
+      group: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
     revokeRoleAccount(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
@@ -614,75 +577,66 @@ export interface IRoleManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    setDisabledRole(
+    setRoleGroup(
       role: PromiseOrValue<BytesLike>,
+      group: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "setDisabledRole(bytes32)"(
+    "setRoleGroup(bytes32,bytes32)"(
       role: PromiseOrValue<BytesLike>,
+      group: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    setEnabledRole(
+    setRoleStat(
       role: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "setEnabledRole(bytes32)"(
+    "setRoleStat(bytes32,bool)"(
       role: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<boolean>;
   };
 
   filters: {
-    "RoleAccountGranted(bytes32,address,address,bytes32)"(
+    "RoleAccountGranted(bytes32,address,address)"(
       role?: PromiseOrValue<BytesLike> | null,
       account?: PromiseOrValue<string> | null,
-      sender?: PromiseOrValue<string> | null,
-      group?: null
+      sender?: PromiseOrValue<string> | null
     ): RoleAccountGrantedEventFilter;
     RoleAccountGranted(
       role?: PromiseOrValue<BytesLike> | null,
       account?: PromiseOrValue<string> | null,
-      sender?: PromiseOrValue<string> | null,
-      group?: null
+      sender?: PromiseOrValue<string> | null
     ): RoleAccountGrantedEventFilter;
 
-    "RoleAccountRevoked(bytes32,address,address,bytes32)"(
+    "RoleAccountRevoked(bytes32,address,address)"(
       role?: PromiseOrValue<BytesLike> | null,
       account?: PromiseOrValue<string> | null,
-      sender?: PromiseOrValue<string> | null,
-      group?: null
+      sender?: PromiseOrValue<string> | null
     ): RoleAccountRevokedEventFilter;
     RoleAccountRevoked(
       role?: PromiseOrValue<BytesLike> | null,
       account?: PromiseOrValue<string> | null,
-      sender?: PromiseOrValue<string> | null,
-      group?: null
+      sender?: PromiseOrValue<string> | null
     ): RoleAccountRevokedEventFilter;
 
-    "RoleDisabled(bytes32,address,bytes32)"(
+    "RoleGroupChanged(bytes32,address,bytes32,bytes32)"(
       role?: PromiseOrValue<BytesLike> | null,
       sender?: PromiseOrValue<string> | null,
-      group?: PromiseOrValue<BytesLike> | null
-    ): RoleDisabledEventFilter;
-    RoleDisabled(
+      newGroup?: PromiseOrValue<BytesLike> | null,
+      oldGroup?: null
+    ): RoleGroupChangedEventFilter;
+    RoleGroupChanged(
       role?: PromiseOrValue<BytesLike> | null,
       sender?: PromiseOrValue<string> | null,
-      group?: PromiseOrValue<BytesLike> | null
-    ): RoleDisabledEventFilter;
-
-    "RoleEnabled(bytes32,address,bytes32)"(
-      role?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null,
-      group?: PromiseOrValue<BytesLike> | null
-    ): RoleEnabledEventFilter;
-    RoleEnabled(
-      role?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null,
-      group?: PromiseOrValue<BytesLike> | null
-    ): RoleEnabledEventFilter;
+      newGroup?: PromiseOrValue<BytesLike> | null,
+      oldGroup?: null
+    ): RoleGroupChangedEventFilter;
 
     "RoleRegistered(bytes32,string,address,bytes32,bool)"(
       role?: PromiseOrValue<BytesLike> | null,
@@ -698,23 +652,22 @@ export interface IRoleManagement extends BaseContract {
       group?: null,
       isEnabled?: null
     ): RoleRegisteredEventFilter;
+
+    "RoleStatChanged(bytes32,address,bytes32,bool)"(
+      role?: PromiseOrValue<BytesLike> | null,
+      sender?: PromiseOrValue<string> | null,
+      group?: PromiseOrValue<BytesLike> | null,
+      status?: null
+    ): RoleStatChangedEventFilter;
+    RoleStatChanged(
+      role?: PromiseOrValue<BytesLike> | null,
+      sender?: PromiseOrValue<string> | null,
+      group?: PromiseOrValue<BytesLike> | null,
+      status?: null
+    ): RoleStatChangedEventFilter;
   };
 
   estimateGas: {
-    addRole(
-      name: PromiseOrValue<string>,
-      group: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "addRole(string,string,bool)"(
-      name: PromiseOrValue<string>,
-      group: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     getRole(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -725,22 +678,12 @@ export interface IRoleManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    getRoleContextes(
+    getRoleAccounts(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "getRoleContextes(bytes32)"(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    getRoleUsers(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "getRoleUsers(bytes32)"(
+    "getRoleAccounts(bytes32)"(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -769,6 +712,20 @@ export interface IRoleManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    registerRole(
+      name: PromiseOrValue<string>,
+      group: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "registerRole(string,bytes32,bool)"(
+      name: PromiseOrValue<string>,
+      group: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     revokeRoleAccount(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
@@ -781,42 +738,32 @@ export interface IRoleManagement extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setDisabledRole(
+    setRoleGroup(
       role: PromiseOrValue<BytesLike>,
+      group: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "setDisabledRole(bytes32)"(
+    "setRoleGroup(bytes32,bytes32)"(
       role: PromiseOrValue<BytesLike>,
+      group: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setEnabledRole(
+    setRoleStat(
       role: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "setEnabledRole(bytes32)"(
+    "setRoleStat(bytes32,bool)"(
       role: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    addRole(
-      name: PromiseOrValue<string>,
-      group: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "addRole(string,string,bool)"(
-      name: PromiseOrValue<string>,
-      group: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     getRole(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -827,22 +774,12 @@ export interface IRoleManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    getRoleContextes(
+    getRoleAccounts(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "getRoleContextes(bytes32)"(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getRoleUsers(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "getRoleUsers(bytes32)"(
+    "getRoleAccounts(bytes32)"(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -871,6 +808,20 @@ export interface IRoleManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    registerRole(
+      name: PromiseOrValue<string>,
+      group: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "registerRole(string,bytes32,bool)"(
+      name: PromiseOrValue<string>,
+      group: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     revokeRoleAccount(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
@@ -883,23 +834,27 @@ export interface IRoleManagement extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setDisabledRole(
+    setRoleGroup(
       role: PromiseOrValue<BytesLike>,
+      group: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "setDisabledRole(bytes32)"(
+    "setRoleGroup(bytes32,bytes32)"(
       role: PromiseOrValue<BytesLike>,
+      group: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setEnabledRole(
+    setRoleStat(
       role: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "setEnabledRole(bytes32)"(
+    "setRoleStat(bytes32,bool)"(
       role: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

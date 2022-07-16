@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.15 < 0.9.0;
+pragma solidity >=0.8.15 <0.9.0;
 
 /**
  * @dev This abstract contract provides a fallback function that delegates all calls to another contract using the EVM
@@ -12,7 +12,6 @@ pragma solidity >= 0.8.15 < 0.9.0;
  * The success and return data of the delegated call will be returned back to the caller of the proxy.
  */
 abstract contract BaseProxy {
-    
     /**
      * @dev Delegates the current call to `implementation`.
      *

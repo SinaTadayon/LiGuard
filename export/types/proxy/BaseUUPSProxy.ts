@@ -33,16 +33,16 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
     "contractRealm()": FunctionFragment;
     "contractRegisteration()": FunctionFragment;
     "contractVersion()": FunctionFragment;
-    "getAccessControl()": FunctionFragment;
+    "getAccessControlManager()": FunctionFragment;
     "getAdmin()": FunctionFragment;
     "getInitializedCount()": FunctionFragment;
-    "isActivated()": FunctionFragment;
     "isInitializing()": FunctionFragment;
+    "isSafeMode()": FunctionFragment;
     "isUpgradable()": FunctionFragment;
     "proxiableUUID()": FunctionFragment;
-    "setActivity(bool)": FunctionFragment;
     "setAdmin(address)": FunctionFragment;
-    "setUpgradability(bool)": FunctionFragment;
+    "setSafeModeState(bool)": FunctionFragment;
+    "setUpgradeState(bool)": FunctionFragment;
     "subjectAddress()": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
     "upgradeTo(address,bytes,bool)": FunctionFragment;
@@ -60,26 +60,26 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
       | "contractRegisteration()"
       | "contractVersion"
       | "contractVersion()"
-      | "getAccessControl"
-      | "getAccessControl()"
+      | "getAccessControlManager"
+      | "getAccessControlManager()"
       | "getAdmin"
       | "getAdmin()"
       | "getInitializedCount"
       | "getInitializedCount()"
-      | "isActivated"
-      | "isActivated()"
       | "isInitializing"
       | "isInitializing()"
+      | "isSafeMode"
+      | "isSafeMode()"
       | "isUpgradable"
       | "isUpgradable()"
       | "proxiableUUID"
       | "proxiableUUID()"
-      | "setActivity"
-      | "setActivity(bool)"
       | "setAdmin"
       | "setAdmin(address)"
-      | "setUpgradability"
-      | "setUpgradability(bool)"
+      | "setSafeModeState"
+      | "setSafeModeState(bool)"
+      | "setUpgradeState"
+      | "setUpgradeState(bool)"
       | "subjectAddress"
       | "subjectAddress()"
       | "supportsInterface"
@@ -129,11 +129,11 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getAccessControl",
+    functionFragment: "getAccessControlManager",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getAccessControl()",
+    functionFragment: "getAccessControlManager()",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "getAdmin", values?: undefined): string;
@@ -150,19 +150,19 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "isActivated",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isActivated()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "isInitializing",
     values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "isInitializing()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isSafeMode",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isSafeMode()",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -182,14 +182,6 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "setActivity",
-    values: [PromiseOrValue<boolean>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setActivity(bool)",
-    values: [PromiseOrValue<boolean>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "setAdmin",
     values: [PromiseOrValue<string>]
   ): string;
@@ -198,11 +190,19 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setUpgradability",
+    functionFragment: "setSafeModeState",
     values: [PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setUpgradability(bool)",
+    functionFragment: "setSafeModeState(bool)",
+    values: [PromiseOrValue<boolean>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setUpgradeState",
+    values: [PromiseOrValue<boolean>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setUpgradeState(bool)",
     values: [PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
@@ -279,11 +279,11 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getAccessControl",
+    functionFragment: "getAccessControlManager",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getAccessControl()",
+    functionFragment: "getAccessControlManager()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "getAdmin", data: BytesLike): Result;
@@ -297,19 +297,16 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "isActivated",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isActivated()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "isInitializing",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "isInitializing()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "isSafeMode", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "isSafeMode()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -328,25 +325,25 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
     functionFragment: "proxiableUUID()",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "setActivity",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setActivity(bool)",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "setAdmin", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setAdmin(address)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setUpgradability",
+    functionFragment: "setSafeModeState",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setUpgradability(bool)",
+    functionFragment: "setSafeModeState(bool)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setUpgradeState",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setUpgradeState(bool)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -372,17 +369,13 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "ActivityChanged(address,address,bytes32,bool)": EventFragment;
     "AdminChanged(address,address,address)": EventFragment;
     "Initialized(address,address,address,string,string,bytes32,uint16)": EventFragment;
-    "UpgradabilityChanged(address,address,bytes32,bool)": EventFragment;
+    "SafeModeStateChanged(address,address,bytes32,bool)": EventFragment;
+    "UpgradeStateChanged(address,address,bytes32,bool)": EventFragment;
     "Upgraded(address,address,address)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "ActivityChanged"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ActivityChanged(address,address,bytes32,bool)"
-  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AdminChanged"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "AdminChanged(address,address,address)"
@@ -391,28 +384,19 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
   getEvent(
     nameOrSignatureOrTopic: "Initialized(address,address,address,string,string,bytes32,uint16)"
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "UpgradabilityChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SafeModeStateChanged"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "UpgradabilityChanged(address,address,bytes32,bool)"
+    nameOrSignatureOrTopic: "SafeModeStateChanged(address,address,bytes32,bool)"
+  ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "UpgradeStateChanged"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "UpgradeStateChanged(address,address,bytes32,bool)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Upgraded"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "Upgraded(address,address,address)"
   ): EventFragment;
 }
-
-export interface ActivityChangedEventObject {
-  sender: string;
-  proxy: string;
-  realm: string;
-  value: boolean;
-}
-export type ActivityChangedEvent = TypedEvent<
-  [string, string, string, boolean],
-  ActivityChangedEventObject
->;
-
-export type ActivityChangedEventFilter = TypedEventFilter<ActivityChangedEvent>;
 
 export interface AdminChangedEventObject {
   sender: string;
@@ -442,19 +426,33 @@ export type InitializedEvent = TypedEvent<
 
 export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
-export interface UpgradabilityChangedEventObject {
+export interface SafeModeStateChangedEventObject {
   sender: string;
   proxy: string;
   realm: string;
-  value: boolean;
+  state: boolean;
 }
-export type UpgradabilityChangedEvent = TypedEvent<
+export type SafeModeStateChangedEvent = TypedEvent<
   [string, string, string, boolean],
-  UpgradabilityChangedEventObject
+  SafeModeStateChangedEventObject
 >;
 
-export type UpgradabilityChangedEventFilter =
-  TypedEventFilter<UpgradabilityChangedEvent>;
+export type SafeModeStateChangedEventFilter =
+  TypedEventFilter<SafeModeStateChangedEvent>;
+
+export interface UpgradeStateChangedEventObject {
+  sender: string;
+  proxy: string;
+  realm: string;
+  state: boolean;
+}
+export type UpgradeStateChangedEvent = TypedEvent<
+  [string, string, string, boolean],
+  UpgradeStateChangedEventObject
+>;
+
+export type UpgradeStateChangedEventFilter =
+  TypedEventFilter<UpgradeStateChangedEvent>;
 
 export interface UpgradedEventObject {
   sender: string;
@@ -519,9 +517,9 @@ export interface BaseUUPSProxy extends BaseContract {
 
     "contractVersion()"(overrides?: CallOverrides): Promise<[string]>;
 
-    getAccessControl(overrides?: CallOverrides): Promise<[string]>;
+    getAccessControlManager(overrides?: CallOverrides): Promise<[string]>;
 
-    "getAccessControl()"(overrides?: CallOverrides): Promise<[string]>;
+    "getAccessControlManager()"(overrides?: CallOverrides): Promise<[string]>;
 
     getAdmin(overrides?: CallOverrides): Promise<[string]>;
 
@@ -531,13 +529,13 @@ export interface BaseUUPSProxy extends BaseContract {
 
     "getInitializedCount()"(overrides?: CallOverrides): Promise<[number]>;
 
-    isActivated(overrides?: CallOverrides): Promise<[boolean]>;
-
-    "isActivated()"(overrides?: CallOverrides): Promise<[boolean]>;
-
     isInitializing(overrides?: CallOverrides): Promise<[boolean]>;
 
     "isInitializing()"(overrides?: CallOverrides): Promise<[boolean]>;
+
+    isSafeMode(overrides?: CallOverrides): Promise<[boolean]>;
+
+    "isSafeMode()"(overrides?: CallOverrides): Promise<[boolean]>;
 
     isUpgradable(overrides?: CallOverrides): Promise<[boolean]>;
 
@@ -546,16 +544,6 @@ export interface BaseUUPSProxy extends BaseContract {
     proxiableUUID(overrides?: CallOverrides): Promise<[string]>;
 
     "proxiableUUID()"(overrides?: CallOverrides): Promise<[string]>;
-
-    setActivity(
-      value: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "setActivity(bool)"(
-      value: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
 
     setAdmin(
       newAdmin: PromiseOrValue<string>,
@@ -567,13 +555,23 @@ export interface BaseUUPSProxy extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setUpgradability(
-      value: PromiseOrValue<boolean>,
+    setSafeModeState(
+      state: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "setUpgradability(bool)"(
-      value: PromiseOrValue<boolean>,
+    "setSafeModeState(bool)"(
+      state: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setUpgradeState(
+      state: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "setUpgradeState(bool)"(
+      state: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -630,9 +628,9 @@ export interface BaseUUPSProxy extends BaseContract {
 
   "contractVersion()"(overrides?: CallOverrides): Promise<string>;
 
-  getAccessControl(overrides?: CallOverrides): Promise<string>;
+  getAccessControlManager(overrides?: CallOverrides): Promise<string>;
 
-  "getAccessControl()"(overrides?: CallOverrides): Promise<string>;
+  "getAccessControlManager()"(overrides?: CallOverrides): Promise<string>;
 
   getAdmin(overrides?: CallOverrides): Promise<string>;
 
@@ -642,13 +640,13 @@ export interface BaseUUPSProxy extends BaseContract {
 
   "getInitializedCount()"(overrides?: CallOverrides): Promise<number>;
 
-  isActivated(overrides?: CallOverrides): Promise<boolean>;
-
-  "isActivated()"(overrides?: CallOverrides): Promise<boolean>;
-
   isInitializing(overrides?: CallOverrides): Promise<boolean>;
 
   "isInitializing()"(overrides?: CallOverrides): Promise<boolean>;
+
+  isSafeMode(overrides?: CallOverrides): Promise<boolean>;
+
+  "isSafeMode()"(overrides?: CallOverrides): Promise<boolean>;
 
   isUpgradable(overrides?: CallOverrides): Promise<boolean>;
 
@@ -657,16 +655,6 @@ export interface BaseUUPSProxy extends BaseContract {
   proxiableUUID(overrides?: CallOverrides): Promise<string>;
 
   "proxiableUUID()"(overrides?: CallOverrides): Promise<string>;
-
-  setActivity(
-    value: PromiseOrValue<boolean>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "setActivity(bool)"(
-    value: PromiseOrValue<boolean>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   setAdmin(
     newAdmin: PromiseOrValue<string>,
@@ -678,13 +666,23 @@ export interface BaseUUPSProxy extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setUpgradability(
-    value: PromiseOrValue<boolean>,
+  setSafeModeState(
+    state: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "setUpgradability(bool)"(
-    value: PromiseOrValue<boolean>,
+  "setSafeModeState(bool)"(
+    state: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setUpgradeState(
+    state: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "setUpgradeState(bool)"(
+    state: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -729,17 +727,17 @@ export interface BaseUUPSProxy extends BaseContract {
 
     "contractRealm()"(overrides?: CallOverrides): Promise<string>;
 
-    contractRegisteration(overrides?: CallOverrides): Promise<boolean>;
+    contractRegisteration(overrides?: CallOverrides): Promise<string>;
 
-    "contractRegisteration()"(overrides?: CallOverrides): Promise<boolean>;
+    "contractRegisteration()"(overrides?: CallOverrides): Promise<string>;
 
     contractVersion(overrides?: CallOverrides): Promise<string>;
 
     "contractVersion()"(overrides?: CallOverrides): Promise<string>;
 
-    getAccessControl(overrides?: CallOverrides): Promise<string>;
+    getAccessControlManager(overrides?: CallOverrides): Promise<string>;
 
-    "getAccessControl()"(overrides?: CallOverrides): Promise<string>;
+    "getAccessControlManager()"(overrides?: CallOverrides): Promise<string>;
 
     getAdmin(overrides?: CallOverrides): Promise<string>;
 
@@ -749,13 +747,13 @@ export interface BaseUUPSProxy extends BaseContract {
 
     "getInitializedCount()"(overrides?: CallOverrides): Promise<number>;
 
-    isActivated(overrides?: CallOverrides): Promise<boolean>;
-
-    "isActivated()"(overrides?: CallOverrides): Promise<boolean>;
-
     isInitializing(overrides?: CallOverrides): Promise<boolean>;
 
     "isInitializing()"(overrides?: CallOverrides): Promise<boolean>;
+
+    isSafeMode(overrides?: CallOverrides): Promise<boolean>;
+
+    "isSafeMode()"(overrides?: CallOverrides): Promise<boolean>;
 
     isUpgradable(overrides?: CallOverrides): Promise<boolean>;
 
@@ -764,16 +762,6 @@ export interface BaseUUPSProxy extends BaseContract {
     proxiableUUID(overrides?: CallOverrides): Promise<string>;
 
     "proxiableUUID()"(overrides?: CallOverrides): Promise<string>;
-
-    setActivity(
-      value: PromiseOrValue<boolean>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "setActivity(bool)"(
-      value: PromiseOrValue<boolean>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
 
     setAdmin(
       newAdmin: PromiseOrValue<string>,
@@ -785,13 +773,23 @@ export interface BaseUUPSProxy extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    setUpgradability(
-      value: PromiseOrValue<boolean>,
+    setSafeModeState(
+      state: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "setUpgradability(bool)"(
-      value: PromiseOrValue<boolean>,
+    "setSafeModeState(bool)"(
+      state: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    setUpgradeState(
+      state: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "setUpgradeState(bool)"(
+      state: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -825,19 +823,6 @@ export interface BaseUUPSProxy extends BaseContract {
   };
 
   filters: {
-    "ActivityChanged(address,address,bytes32,bool)"(
-      sender?: PromiseOrValue<string> | null,
-      proxy?: PromiseOrValue<string> | null,
-      realm?: PromiseOrValue<BytesLike> | null,
-      value?: null
-    ): ActivityChangedEventFilter;
-    ActivityChanged(
-      sender?: PromiseOrValue<string> | null,
-      proxy?: PromiseOrValue<string> | null,
-      realm?: PromiseOrValue<BytesLike> | null,
-      value?: null
-    ): ActivityChangedEventFilter;
-
     "AdminChanged(address,address,address)"(
       sender?: PromiseOrValue<string> | null,
       proxy?: PromiseOrValue<string> | null,
@@ -868,18 +853,31 @@ export interface BaseUUPSProxy extends BaseContract {
       initializedCount?: null
     ): InitializedEventFilter;
 
-    "UpgradabilityChanged(address,address,bytes32,bool)"(
+    "SafeModeStateChanged(address,address,bytes32,bool)"(
       sender?: PromiseOrValue<string> | null,
       proxy?: PromiseOrValue<string> | null,
       realm?: PromiseOrValue<BytesLike> | null,
-      value?: null
-    ): UpgradabilityChangedEventFilter;
-    UpgradabilityChanged(
+      state?: null
+    ): SafeModeStateChangedEventFilter;
+    SafeModeStateChanged(
       sender?: PromiseOrValue<string> | null,
       proxy?: PromiseOrValue<string> | null,
       realm?: PromiseOrValue<BytesLike> | null,
-      value?: null
-    ): UpgradabilityChangedEventFilter;
+      state?: null
+    ): SafeModeStateChangedEventFilter;
+
+    "UpgradeStateChanged(address,address,bytes32,bool)"(
+      sender?: PromiseOrValue<string> | null,
+      proxy?: PromiseOrValue<string> | null,
+      realm?: PromiseOrValue<BytesLike> | null,
+      state?: null
+    ): UpgradeStateChangedEventFilter;
+    UpgradeStateChanged(
+      sender?: PromiseOrValue<string> | null,
+      proxy?: PromiseOrValue<string> | null,
+      realm?: PromiseOrValue<BytesLike> | null,
+      state?: null
+    ): UpgradeStateChangedEventFilter;
 
     "Upgraded(address,address,address)"(
       sender?: PromiseOrValue<string> | null,
@@ -918,9 +916,9 @@ export interface BaseUUPSProxy extends BaseContract {
 
     "contractVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getAccessControl(overrides?: CallOverrides): Promise<BigNumber>;
+    getAccessControlManager(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "getAccessControl()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "getAccessControlManager()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     getAdmin(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -930,13 +928,13 @@ export interface BaseUUPSProxy extends BaseContract {
 
     "getInitializedCount()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    isActivated(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "isActivated()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     isInitializing(overrides?: CallOverrides): Promise<BigNumber>;
 
     "isInitializing()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    isSafeMode(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "isSafeMode()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     isUpgradable(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -945,16 +943,6 @@ export interface BaseUUPSProxy extends BaseContract {
     proxiableUUID(overrides?: CallOverrides): Promise<BigNumber>;
 
     "proxiableUUID()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    setActivity(
-      value: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "setActivity(bool)"(
-      value: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
 
     setAdmin(
       newAdmin: PromiseOrValue<string>,
@@ -966,13 +954,23 @@ export interface BaseUUPSProxy extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setUpgradability(
-      value: PromiseOrValue<boolean>,
+    setSafeModeState(
+      state: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "setUpgradability(bool)"(
-      value: PromiseOrValue<boolean>,
+    "setSafeModeState(bool)"(
+      state: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setUpgradeState(
+      state: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "setUpgradeState(bool)"(
+      state: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1034,9 +1032,11 @@ export interface BaseUUPSProxy extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    getAccessControl(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    getAccessControlManager(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
-    "getAccessControl()"(
+    "getAccessControlManager()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -1052,15 +1052,15 @@ export interface BaseUUPSProxy extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    isActivated(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "isActivated()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     isInitializing(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "isInitializing()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    isSafeMode(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "isSafeMode()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     isUpgradable(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1069,16 +1069,6 @@ export interface BaseUUPSProxy extends BaseContract {
     proxiableUUID(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "proxiableUUID()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    setActivity(
-      value: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "setActivity(bool)"(
-      value: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
 
     setAdmin(
       newAdmin: PromiseOrValue<string>,
@@ -1090,13 +1080,23 @@ export interface BaseUUPSProxy extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setUpgradability(
-      value: PromiseOrValue<boolean>,
+    setSafeModeState(
+      state: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "setUpgradability(bool)"(
-      value: PromiseOrValue<boolean>,
+    "setSafeModeState(bool)"(
+      state: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setUpgradeState(
+      state: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "setUpgradeState(bool)"(
+      state: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

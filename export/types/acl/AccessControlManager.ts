@@ -32,7 +32,7 @@ export declare namespace IContextManagement {
     version: PromiseOrValue<string>;
     smca: PromiseOrValue<string>;
     realm: PromiseOrValue<BytesLike>;
-    isEnabled: PromiseOrValue<boolean>;
+    isSafeMode: PromiseOrValue<boolean>;
     isUpgradable: PromiseOrValue<boolean>;
   };
 
@@ -48,7 +48,7 @@ export declare namespace IContextManagement {
     version: string;
     smca: string;
     realm: string;
-    isEnabled: boolean;
+    isSafeMode: boolean;
     isUpgradable: boolean;
   };
 
@@ -67,28 +67,27 @@ export declare namespace IContextManagement {
 
 export interface AccessControlManagerInterface extends utils.Interface {
   functions: {
+    "ACCESS_CONTROL_NAME()": FunctionFragment;
+    "ACCESS_CONTROL_VERSION()": FunctionFragment;
+    "ANONYMOUSE_ROLE()": FunctionFragment;
+    "CONTEXT_MANAGEMENT_NAME()": FunctionFragment;
+    "CONTEXT_MANAGEMENT_VERSION()": FunctionFragment;
+    "GROUP_MANAGEMENT_NAME()": FunctionFragment;
+    "GROUP_MANAGEMENT_VERSION()": FunctionFragment;
     "LIVELY_ADMIN_ROLE()": FunctionFragment;
     "LIVELY_GENERAL_GROUP()": FunctionFragment;
     "LIVELY_GENERAL_REALM()": FunctionFragment;
-    "LIVELY_PUBLIC_ROLE()": FunctionFragment;
     "LIVELY_SYSTEM_ADMIN_ROLE()": FunctionFragment;
-    "addGroup(string,bool)": FunctionFragment;
-    "addRealm(string,bool)": FunctionFragment;
-    "addRole(string,string,bool)": FunctionFragment;
+    "REALM_MANAGEMENT_NAME()": FunctionFragment;
+    "REALM_MANAGEMENT_VERSION()": FunctionFragment;
+    "ROLE_MANAGEMENT_NAME()": FunctionFragment;
+    "ROLE_MANAGEMENT_VERSION()": FunctionFragment;
     "contractContext()": FunctionFragment;
     "contractName()": FunctionFragment;
     "contractRealm()": FunctionFragment;
     "contractRegisteration()": FunctionFragment;
     "contractVersion()": FunctionFragment;
-    "disableContext(bytes32)": FunctionFragment;
-    "disabledGroup(bytes32)": FunctionFragment;
-    "disabledRealm(bytes32)": FunctionFragment;
-    "enableContext(bytes32)": FunctionFragment;
-    "enableUpgradeContext(bytes32)": FunctionFragment;
-    "enableUpgradeRealm(bytes32)": FunctionFragment;
-    "enabledGroup(bytes32)": FunctionFragment;
-    "enabledRealm(bytes32)": FunctionFragment;
-    "getAccessControl()": FunctionFragment;
+    "getAccessControlManager()": FunctionFragment;
     "getAdmin()": FunctionFragment;
     "getContextFuncs(bytes32)": FunctionFragment;
     "getContextInfo(bytes32)": FunctionFragment;
@@ -96,13 +95,10 @@ export interface AccessControlManagerInterface extends utils.Interface {
     "getGroupRoles(bytes32)": FunctionFragment;
     "getInitializedCount()": FunctionFragment;
     "getRealm(bytes32)": FunctionFragment;
-    "getRealmContextes(bytes32)": FunctionFragment;
+    "getRealmContexts(bytes32)": FunctionFragment;
     "getRole(bytes32)": FunctionFragment;
-    "getRoleContextes(bytes32)": FunctionFragment;
-    "getRoleUsers(bytes32)": FunctionFragment;
+    "getRoleAccounts(bytes32)": FunctionFragment;
     "grantContextRole(bytes32,bytes4,bytes32)": FunctionFragment;
-    "grantGroupRole(bytes32,bytes32)": FunctionFragment;
-    "grantRealmContext(bytes32,bytes32)": FunctionFragment;
     "grantRoleAccount(bytes32,address)": FunctionFragment;
     "hasAccess(bytes32,address,bytes4)": FunctionFragment;
     "hasAccountRole(bytes32,address)": FunctionFragment;
@@ -114,22 +110,29 @@ export interface AccessControlManagerInterface extends utils.Interface {
     "hasRealmContext(bytes32,bytes32)": FunctionFragment;
     "hasSystemAdminRole(address)": FunctionFragment;
     "initialize(string,string,string,address)": FunctionFragment;
-    "isActivated()": FunctionFragment;
-    "isEnabled(bytes32)": FunctionFragment;
     "isInitializing()": FunctionFragment;
+    "isSafeMode(bytes32)": FunctionFragment;
+    "isSafeMode()": FunctionFragment;
+    "isUpgradable(bytes32)": FunctionFragment;
     "isUpgradable()": FunctionFragment;
-    "isUpgradeEnabled(bytes32)": FunctionFragment;
     "proxiableUUID()": FunctionFragment;
     "registerContext(address,bytes32,(bytes32,bytes4[],bool)[])": FunctionFragment;
+    "registerGroup(string,bool)": FunctionFragment;
+    "registerRealm(string,bool,bool)": FunctionFragment;
+    "registerRole(string,bytes32,bool)": FunctionFragment;
     "revokeContextRole(bytes32,bytes4,bytes32)": FunctionFragment;
-    "revokeGroupRole(bytes32,bytes32)": FunctionFragment;
-    "revokeRealmContext(bytes32,bytes32)": FunctionFragment;
     "revokeRoleAccount(bytes32,address)": FunctionFragment;
-    "setActivity(bool)": FunctionFragment;
     "setAdmin(address)": FunctionFragment;
-    "setDisabledRole(bytes32)": FunctionFragment;
-    "setEnabledRole(bytes32)": FunctionFragment;
-    "setUpgradability(bool)": FunctionFragment;
+    "setContextRealm(bytes32,bytes32)": FunctionFragment;
+    "setContextSafeMode(bytes32,bool)": FunctionFragment;
+    "setContextUpgradeState(bytes32,bool)": FunctionFragment;
+    "setGroupStat(bytes32,bool)": FunctionFragment;
+    "setRealmStat(bytes32,bool)": FunctionFragment;
+    "setRealmUpgradeStat(bytes32,bool)": FunctionFragment;
+    "setRoleGroup(bytes32,bytes32)": FunctionFragment;
+    "setRoleStat(bytes32,bool)": FunctionFragment;
+    "setSafeModeState(bool)": FunctionFragment;
+    "setUpgradeState(bool)": FunctionFragment;
     "subjectAddress()": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
     "updateContext(bytes32,(bytes32,bytes4[],bool)[])": FunctionFragment;
@@ -138,22 +141,36 @@ export interface AccessControlManagerInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "ACCESS_CONTROL_NAME"
+      | "ACCESS_CONTROL_NAME()"
+      | "ACCESS_CONTROL_VERSION"
+      | "ACCESS_CONTROL_VERSION()"
+      | "ANONYMOUSE_ROLE"
+      | "ANONYMOUSE_ROLE()"
+      | "CONTEXT_MANAGEMENT_NAME"
+      | "CONTEXT_MANAGEMENT_NAME()"
+      | "CONTEXT_MANAGEMENT_VERSION"
+      | "CONTEXT_MANAGEMENT_VERSION()"
+      | "GROUP_MANAGEMENT_NAME"
+      | "GROUP_MANAGEMENT_NAME()"
+      | "GROUP_MANAGEMENT_VERSION"
+      | "GROUP_MANAGEMENT_VERSION()"
       | "LIVELY_ADMIN_ROLE"
       | "LIVELY_ADMIN_ROLE()"
       | "LIVELY_GENERAL_GROUP"
       | "LIVELY_GENERAL_GROUP()"
       | "LIVELY_GENERAL_REALM"
       | "LIVELY_GENERAL_REALM()"
-      | "LIVELY_PUBLIC_ROLE"
-      | "LIVELY_PUBLIC_ROLE()"
       | "LIVELY_SYSTEM_ADMIN_ROLE"
       | "LIVELY_SYSTEM_ADMIN_ROLE()"
-      | "addGroup"
-      | "addGroup(string,bool)"
-      | "addRealm"
-      | "addRealm(string,bool)"
-      | "addRole"
-      | "addRole(string,string,bool)"
+      | "REALM_MANAGEMENT_NAME"
+      | "REALM_MANAGEMENT_NAME()"
+      | "REALM_MANAGEMENT_VERSION"
+      | "REALM_MANAGEMENT_VERSION()"
+      | "ROLE_MANAGEMENT_NAME"
+      | "ROLE_MANAGEMENT_NAME()"
+      | "ROLE_MANAGEMENT_VERSION"
+      | "ROLE_MANAGEMENT_VERSION()"
       | "contractContext"
       | "contractContext()"
       | "contractName"
@@ -164,24 +181,8 @@ export interface AccessControlManagerInterface extends utils.Interface {
       | "contractRegisteration()"
       | "contractVersion"
       | "contractVersion()"
-      | "disableContext"
-      | "disableContext(bytes32)"
-      | "disabledGroup"
-      | "disabledGroup(bytes32)"
-      | "disabledRealm"
-      | "disabledRealm(bytes32)"
-      | "enableContext"
-      | "enableContext(bytes32)"
-      | "enableUpgradeContext"
-      | "enableUpgradeContext(bytes32)"
-      | "enableUpgradeRealm"
-      | "enableUpgradeRealm(bytes32)"
-      | "enabledGroup"
-      | "enabledGroup(bytes32)"
-      | "enabledRealm"
-      | "enabledRealm(bytes32)"
-      | "getAccessControl"
-      | "getAccessControl()"
+      | "getAccessControlManager"
+      | "getAccessControlManager()"
       | "getAdmin"
       | "getAdmin()"
       | "getContextFuncs"
@@ -196,20 +197,14 @@ export interface AccessControlManagerInterface extends utils.Interface {
       | "getInitializedCount()"
       | "getRealm"
       | "getRealm(bytes32)"
-      | "getRealmContextes"
-      | "getRealmContextes(bytes32)"
+      | "getRealmContexts"
+      | "getRealmContexts(bytes32)"
       | "getRole"
       | "getRole(bytes32)"
-      | "getRoleContextes"
-      | "getRoleContextes(bytes32)"
-      | "getRoleUsers"
-      | "getRoleUsers(bytes32)"
+      | "getRoleAccounts"
+      | "getRoleAccounts(bytes32)"
       | "grantContextRole"
       | "grantContextRole(bytes32,bytes4,bytes32)"
-      | "grantGroupRole"
-      | "grantGroupRole(bytes32,bytes32)"
-      | "grantRealmContext"
-      | "grantRealmContext(bytes32,bytes32)"
       | "grantRoleAccount"
       | "grantRoleAccount(bytes32,address)"
       | "hasAccess"
@@ -232,38 +227,48 @@ export interface AccessControlManagerInterface extends utils.Interface {
       | "hasSystemAdminRole(address)"
       | "initialize"
       | "initialize(string,string,string,address)"
-      | "isActivated"
-      | "isActivated()"
-      | "isEnabled"
-      | "isEnabled(bytes32)"
       | "isInitializing"
       | "isInitializing()"
-      | "isUpgradable"
+      | "isSafeMode(bytes32)"
+      | "isSafeMode()"
+      | "isUpgradable(bytes32)"
       | "isUpgradable()"
-      | "isUpgradeEnabled"
-      | "isUpgradeEnabled(bytes32)"
       | "proxiableUUID"
       | "proxiableUUID()"
       | "registerContext"
       | "registerContext(address,bytes32,(bytes32,bytes4[],bool)[])"
+      | "registerGroup"
+      | "registerGroup(string,bool)"
+      | "registerRealm"
+      | "registerRealm(string,bool,bool)"
+      | "registerRole"
+      | "registerRole(string,bytes32,bool)"
       | "revokeContextRole"
       | "revokeContextRole(bytes32,bytes4,bytes32)"
-      | "revokeGroupRole"
-      | "revokeGroupRole(bytes32,bytes32)"
-      | "revokeRealmContext"
-      | "revokeRealmContext(bytes32,bytes32)"
       | "revokeRoleAccount"
       | "revokeRoleAccount(bytes32,address)"
-      | "setActivity"
-      | "setActivity(bool)"
       | "setAdmin"
       | "setAdmin(address)"
-      | "setDisabledRole"
-      | "setDisabledRole(bytes32)"
-      | "setEnabledRole"
-      | "setEnabledRole(bytes32)"
-      | "setUpgradability"
-      | "setUpgradability(bool)"
+      | "setContextRealm"
+      | "setContextRealm(bytes32,bytes32)"
+      | "setContextSafeMode"
+      | "setContextSafeMode(bytes32,bool)"
+      | "setContextUpgradeState"
+      | "setContextUpgradeState(bytes32,bool)"
+      | "setGroupStat"
+      | "setGroupStat(bytes32,bool)"
+      | "setRealmStat"
+      | "setRealmStat(bytes32,bool)"
+      | "setRealmUpgradeStat"
+      | "setRealmUpgradeStat(bytes32,bool)"
+      | "setRoleGroup"
+      | "setRoleGroup(bytes32,bytes32)"
+      | "setRoleStat"
+      | "setRoleStat(bytes32,bool)"
+      | "setSafeModeState"
+      | "setSafeModeState(bool)"
+      | "setUpgradeState"
+      | "setUpgradeState(bool)"
       | "subjectAddress"
       | "subjectAddress()"
       | "supportsInterface"
@@ -274,6 +279,62 @@ export interface AccessControlManagerInterface extends utils.Interface {
       | "upgradeTo(address,bytes,bool)"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "ACCESS_CONTROL_NAME",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "ACCESS_CONTROL_NAME()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "ACCESS_CONTROL_VERSION",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "ACCESS_CONTROL_VERSION()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "ANONYMOUSE_ROLE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "ANONYMOUSE_ROLE()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "CONTEXT_MANAGEMENT_NAME",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "CONTEXT_MANAGEMENT_NAME()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "CONTEXT_MANAGEMENT_VERSION",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "CONTEXT_MANAGEMENT_VERSION()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "GROUP_MANAGEMENT_NAME",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "GROUP_MANAGEMENT_NAME()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "GROUP_MANAGEMENT_VERSION",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "GROUP_MANAGEMENT_VERSION()",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "LIVELY_ADMIN_ROLE",
     values?: undefined
@@ -299,14 +360,6 @@ export interface AccessControlManagerInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "LIVELY_PUBLIC_ROLE",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_PUBLIC_ROLE()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "LIVELY_SYSTEM_ADMIN_ROLE",
     values?: undefined
   ): string;
@@ -315,36 +368,36 @@ export interface AccessControlManagerInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "addGroup",
-    values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
+    functionFragment: "REALM_MANAGEMENT_NAME",
+    values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "addGroup(string,bool)",
-    values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
+    functionFragment: "REALM_MANAGEMENT_NAME()",
+    values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "addRealm",
-    values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
+    functionFragment: "REALM_MANAGEMENT_VERSION",
+    values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "addRealm(string,bool)",
-    values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
+    functionFragment: "REALM_MANAGEMENT_VERSION()",
+    values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "addRole",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<boolean>
-    ]
+    functionFragment: "ROLE_MANAGEMENT_NAME",
+    values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "addRole(string,string,bool)",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<boolean>
-    ]
+    functionFragment: "ROLE_MANAGEMENT_NAME()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "ROLE_MANAGEMENT_VERSION",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "ROLE_MANAGEMENT_VERSION()",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "contractContext",
@@ -387,75 +440,11 @@ export interface AccessControlManagerInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "disableContext",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "disableContext(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "disabledGroup",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "disabledGroup(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "disabledRealm",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "disabledRealm(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "enableContext",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "enableContext(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "enableUpgradeContext",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "enableUpgradeContext(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "enableUpgradeRealm",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "enableUpgradeRealm(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "enabledGroup",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "enabledGroup(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "enabledRealm",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "enabledRealm(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getAccessControl",
+    functionFragment: "getAccessControlManager",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getAccessControl()",
+    functionFragment: "getAccessControlManager()",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "getAdmin", values?: undefined): string;
@@ -512,11 +501,11 @@ export interface AccessControlManagerInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "getRealmContextes",
+    functionFragment: "getRealmContexts",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "getRealmContextes(bytes32)",
+    functionFragment: "getRealmContexts(bytes32)",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
@@ -528,19 +517,11 @@ export interface AccessControlManagerInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "getRoleContextes",
+    functionFragment: "getRoleAccounts",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "getRoleContextes(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getRoleUsers",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getRoleUsers(bytes32)",
+    functionFragment: "getRoleAccounts(bytes32)",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
@@ -558,22 +539,6 @@ export interface AccessControlManagerInterface extends utils.Interface {
       PromiseOrValue<BytesLike>,
       PromiseOrValue<BytesLike>
     ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "grantGroupRole",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "grantGroupRole(bytes32,bytes32)",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "grantRealmContext",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "grantRealmContext(bytes32,bytes32)",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "grantRoleAccount",
@@ -690,22 +655,6 @@ export interface AccessControlManagerInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "isActivated",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isActivated()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isEnabled",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isEnabled(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "isInitializing",
     values?: undefined
   ): string;
@@ -714,20 +663,20 @@ export interface AccessControlManagerInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "isUpgradable",
+    functionFragment: "isSafeMode(bytes32)",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isSafeMode()",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isUpgradable(bytes32)",
+    values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "isUpgradable()",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isUpgradeEnabled",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isUpgradeEnabled(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "proxiableUUID",
@@ -754,6 +703,46 @@ export interface AccessControlManagerInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "registerGroup",
+    values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "registerGroup(string,bool)",
+    values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "registerRealm",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<boolean>,
+      PromiseOrValue<boolean>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "registerRealm(string,bool,bool)",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<boolean>,
+      PromiseOrValue<boolean>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "registerRole",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<boolean>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "registerRole(string,bytes32,bool)",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<boolean>
+    ]
+  ): string;
+  encodeFunctionData(
     functionFragment: "revokeContextRole",
     values: [
       PromiseOrValue<BytesLike>,
@@ -770,36 +759,12 @@ export interface AccessControlManagerInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "revokeGroupRole",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "revokeGroupRole(bytes32,bytes32)",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "revokeRealmContext",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "revokeRealmContext(bytes32,bytes32)",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "revokeRoleAccount",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "revokeRoleAccount(bytes32,address)",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setActivity",
-    values: [PromiseOrValue<boolean>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setActivity(bool)",
-    values: [PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
     functionFragment: "setAdmin",
@@ -810,27 +775,83 @@ export interface AccessControlManagerInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setDisabledRole",
-    values: [PromiseOrValue<BytesLike>]
+    functionFragment: "setContextRealm",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setDisabledRole(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
+    functionFragment: "setContextRealm(bytes32,bytes32)",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setEnabledRole",
-    values: [PromiseOrValue<BytesLike>]
+    functionFragment: "setContextSafeMode",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setEnabledRole(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
+    functionFragment: "setContextSafeMode(bytes32,bool)",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setUpgradability",
+    functionFragment: "setContextUpgradeState",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setContextUpgradeState(bytes32,bool)",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setGroupStat",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setGroupStat(bytes32,bool)",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setRealmStat",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setRealmStat(bytes32,bool)",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setRealmUpgradeStat",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setRealmUpgradeStat(bytes32,bool)",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setRoleGroup",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setRoleGroup(bytes32,bytes32)",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setRoleStat",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setRoleStat(bytes32,bool)",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setSafeModeState",
     values: [PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setUpgradability(bool)",
+    functionFragment: "setSafeModeState(bool)",
+    values: [PromiseOrValue<boolean>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setUpgradeState",
+    values: [PromiseOrValue<boolean>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setUpgradeState(bool)",
     values: [PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
@@ -881,6 +902,62 @@ export interface AccessControlManagerInterface extends utils.Interface {
   ): string;
 
   decodeFunctionResult(
+    functionFragment: "ACCESS_CONTROL_NAME",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "ACCESS_CONTROL_NAME()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "ACCESS_CONTROL_VERSION",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "ACCESS_CONTROL_VERSION()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "ANONYMOUSE_ROLE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "ANONYMOUSE_ROLE()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "CONTEXT_MANAGEMENT_NAME",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "CONTEXT_MANAGEMENT_NAME()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "CONTEXT_MANAGEMENT_VERSION",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "CONTEXT_MANAGEMENT_VERSION()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "GROUP_MANAGEMENT_NAME",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "GROUP_MANAGEMENT_NAME()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "GROUP_MANAGEMENT_VERSION",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "GROUP_MANAGEMENT_VERSION()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "LIVELY_ADMIN_ROLE",
     data: BytesLike
   ): Result;
@@ -905,14 +982,6 @@ export interface AccessControlManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "LIVELY_PUBLIC_ROLE",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_PUBLIC_ROLE()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "LIVELY_SYSTEM_ADMIN_ROLE",
     data: BytesLike
   ): Result;
@@ -920,19 +989,36 @@ export interface AccessControlManagerInterface extends utils.Interface {
     functionFragment: "LIVELY_SYSTEM_ADMIN_ROLE()",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "addGroup", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "addGroup(string,bool)",
+    functionFragment: "REALM_MANAGEMENT_NAME",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "addRealm", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "addRealm(string,bool)",
+    functionFragment: "REALM_MANAGEMENT_NAME()",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "addRole", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "addRole(string,string,bool)",
+    functionFragment: "REALM_MANAGEMENT_VERSION",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "REALM_MANAGEMENT_VERSION()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "ROLE_MANAGEMENT_NAME",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "ROLE_MANAGEMENT_NAME()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "ROLE_MANAGEMENT_VERSION",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "ROLE_MANAGEMENT_VERSION()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -976,75 +1062,11 @@ export interface AccessControlManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "disableContext",
+    functionFragment: "getAccessControlManager",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "disableContext(bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "disabledGroup",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "disabledGroup(bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "disabledRealm",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "disabledRealm(bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "enableContext",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "enableContext(bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "enableUpgradeContext",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "enableUpgradeContext(bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "enableUpgradeRealm",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "enableUpgradeRealm(bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "enabledGroup",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "enabledGroup(bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "enabledRealm",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "enabledRealm(bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getAccessControl",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getAccessControl()",
+    functionFragment: "getAccessControlManager()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "getAdmin", data: BytesLike): Result;
@@ -1092,11 +1114,11 @@ export interface AccessControlManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getRealmContextes",
+    functionFragment: "getRealmContexts",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getRealmContextes(bytes32)",
+    functionFragment: "getRealmContexts(bytes32)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "getRole", data: BytesLike): Result;
@@ -1105,19 +1127,11 @@ export interface AccessControlManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getRoleContextes",
+    functionFragment: "getRoleAccounts",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getRoleContextes(bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getRoleUsers",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getRoleUsers(bytes32)",
+    functionFragment: "getRoleAccounts(bytes32)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1126,22 +1140,6 @@ export interface AccessControlManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "grantContextRole(bytes32,bytes4,bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "grantGroupRole",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "grantGroupRole(bytes32,bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "grantRealmContext",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "grantRealmContext(bytes32,bytes32)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1227,19 +1225,6 @@ export interface AccessControlManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "isActivated",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isActivated()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "isEnabled", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "isEnabled(bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "isInitializing",
     data: BytesLike
   ): Result;
@@ -1248,19 +1233,19 @@ export interface AccessControlManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "isUpgradable",
+    functionFragment: "isSafeMode(bytes32)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isSafeMode()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isUpgradable(bytes32)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "isUpgradable()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isUpgradeEnabled",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isUpgradeEnabled(bytes32)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1280,27 +1265,35 @@ export interface AccessControlManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "registerGroup",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "registerGroup(string,bool)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "registerRealm",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "registerRealm(string,bool,bool)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "registerRole",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "registerRole(string,bytes32,bool)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "revokeContextRole",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "revokeContextRole(bytes32,bytes4,bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "revokeGroupRole",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "revokeGroupRole(bytes32,bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "revokeRealmContext",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "revokeRealmContext(bytes32,bytes32)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1311,41 +1304,89 @@ export interface AccessControlManagerInterface extends utils.Interface {
     functionFragment: "revokeRoleAccount(bytes32,address)",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "setActivity",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setActivity(bool)",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "setAdmin", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setAdmin(address)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setDisabledRole",
+    functionFragment: "setContextRealm",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setDisabledRole(bytes32)",
+    functionFragment: "setContextRealm(bytes32,bytes32)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setEnabledRole",
+    functionFragment: "setContextSafeMode",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setEnabledRole(bytes32)",
+    functionFragment: "setContextSafeMode(bytes32,bool)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setUpgradability",
+    functionFragment: "setContextUpgradeState",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setUpgradability(bool)",
+    functionFragment: "setContextUpgradeState(bytes32,bool)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setGroupStat",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setGroupStat(bytes32,bool)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setRealmStat",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setRealmStat(bytes32,bool)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setRealmUpgradeStat",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setRealmUpgradeStat(bytes32,bool)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setRoleGroup",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setRoleGroup(bytes32,bytes32)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setRoleStat",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setRoleStat(bytes32,bool)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setSafeModeState",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setSafeModeState(bool)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setUpgradeState",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setUpgradeState(bool)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1379,40 +1420,35 @@ export interface AccessControlManagerInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "ActivityChanged(address,address,bytes32,bool)": EventFragment;
     "AdminChanged(address,address,address)": EventFragment;
+    "ContextRealmChanged(bytes32,address,bytes32,bytes32)": EventFragment;
     "ContextRegistered(bytes32,address,address,bytes32)": EventFragment;
     "ContextRoleGranted(bytes32,bytes32,address,bytes4,bytes32)": EventFragment;
     "ContextRoleRevoked(bytes32,bytes32,address,bytes4,bytes32)": EventFragment;
     "ContextUpdated(bytes32,address,address,bytes32)": EventFragment;
-    "GroupDisabled(bytes32,address)": EventFragment;
-    "GroupEnabled(bytes32,address)": EventFragment;
     "GroupRegistered(bytes32,address,string,bool)": EventFragment;
-    "GroupRoleGranted(bytes32,bytes32,address)": EventFragment;
-    "GroupRoleRevoked(bytes32,bytes32,address)": EventFragment;
+    "GroupStatChanged(bytes32,address,bool)": EventFragment;
     "Initialized(address,address,address,string,string,bytes32,uint16)": EventFragment;
-    "RealmContextGranted(bytes32,bytes32,address)": EventFragment;
-    "RealmDisabled(bytes32,address)": EventFragment;
-    "RealmEnabled(bytes32,address)": EventFragment;
-    "RealmRegistered(bytes32,address,string,bool)": EventFragment;
-    "RealmRoleRevoked(bytes32,bytes32,address)": EventFragment;
-    "RealmUpgradeEnabled(bytes32,address)": EventFragment;
-    "RoleAccountGranted(bytes32,address,address,bytes32)": EventFragment;
-    "RoleAccountRevoked(bytes32,address,address,bytes32)": EventFragment;
-    "RoleDisabled(bytes32,address,bytes32)": EventFragment;
-    "RoleEnabled(bytes32,address,bytes32)": EventFragment;
+    "RealmRegistered(bytes32,address,string,bool,bool)": EventFragment;
+    "RealmStatChanged(bytes32,address,bool)": EventFragment;
+    "RealmUpgradeStatChanged(bytes32,address,bool)": EventFragment;
+    "RoleAccountGranted(bytes32,address,address)": EventFragment;
+    "RoleAccountRevoked(bytes32,address,address)": EventFragment;
+    "RoleGroupChanged(bytes32,address,bytes32,bytes32)": EventFragment;
     "RoleRegistered(bytes32,string,address,bytes32,bool)": EventFragment;
-    "UpgradabilityChanged(address,address,bytes32,bool)": EventFragment;
+    "RoleStatChanged(bytes32,address,bytes32,bool)": EventFragment;
+    "SafeModeStateChanged(address,address,bytes32,bool)": EventFragment;
+    "UpgradeStateChanged(address,address,bytes32,bool)": EventFragment;
     "Upgraded(address,address,address)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "ActivityChanged"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ActivityChanged(address,address,bytes32,bool)"
-  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AdminChanged"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "AdminChanged(address,address,address)"
+  ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ContextRealmChanged"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "ContextRealmChanged(bytes32,address,bytes32,bytes32)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ContextRegistered"): EventFragment;
   getEvent(
@@ -1430,96 +1466,63 @@ export interface AccessControlManagerInterface extends utils.Interface {
   getEvent(
     nameOrSignatureOrTopic: "ContextUpdated(bytes32,address,address,bytes32)"
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "GroupDisabled"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "GroupDisabled(bytes32,address)"
-  ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "GroupEnabled"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "GroupEnabled(bytes32,address)"
-  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "GroupRegistered"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "GroupRegistered(bytes32,address,string,bool)"
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "GroupRoleGranted"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "GroupStatChanged"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "GroupRoleGranted(bytes32,bytes32,address)"
-  ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "GroupRoleRevoked"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "GroupRoleRevoked(bytes32,bytes32,address)"
+    nameOrSignatureOrTopic: "GroupStatChanged(bytes32,address,bool)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "Initialized(address,address,address,string,string,bytes32,uint16)"
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RealmContextGranted"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "RealmContextGranted(bytes32,bytes32,address)"
-  ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RealmDisabled"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "RealmDisabled(bytes32,address)"
-  ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RealmEnabled"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "RealmEnabled(bytes32,address)"
-  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RealmRegistered"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "RealmRegistered(bytes32,address,string,bool)"
+    nameOrSignatureOrTopic: "RealmRegistered(bytes32,address,string,bool,bool)"
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RealmRoleRevoked"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RealmStatChanged"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "RealmRoleRevoked(bytes32,bytes32,address)"
+    nameOrSignatureOrTopic: "RealmStatChanged(bytes32,address,bool)"
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RealmUpgradeEnabled"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RealmUpgradeStatChanged"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "RealmUpgradeEnabled(bytes32,address)"
+    nameOrSignatureOrTopic: "RealmUpgradeStatChanged(bytes32,address,bool)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleAccountGranted"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "RoleAccountGranted(bytes32,address,address,bytes32)"
+    nameOrSignatureOrTopic: "RoleAccountGranted(bytes32,address,address)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleAccountRevoked"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "RoleAccountRevoked(bytes32,address,address,bytes32)"
+    nameOrSignatureOrTopic: "RoleAccountRevoked(bytes32,address,address)"
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RoleDisabled"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RoleGroupChanged"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "RoleDisabled(bytes32,address,bytes32)"
-  ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RoleEnabled"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "RoleEnabled(bytes32,address,bytes32)"
+    nameOrSignatureOrTopic: "RoleGroupChanged(bytes32,address,bytes32,bytes32)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleRegistered"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "RoleRegistered(bytes32,string,address,bytes32,bool)"
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "UpgradabilityChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RoleStatChanged"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "UpgradabilityChanged(address,address,bytes32,bool)"
+    nameOrSignatureOrTopic: "RoleStatChanged(bytes32,address,bytes32,bool)"
+  ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SafeModeStateChanged"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "SafeModeStateChanged(address,address,bytes32,bool)"
+  ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "UpgradeStateChanged"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "UpgradeStateChanged(address,address,bytes32,bool)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Upgraded"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "Upgraded(address,address,address)"
   ): EventFragment;
 }
-
-export interface ActivityChangedEventObject {
-  sender: string;
-  proxy: string;
-  realm: string;
-  value: boolean;
-}
-export type ActivityChangedEvent = TypedEvent<
-  [string, string, string, boolean],
-  ActivityChangedEventObject
->;
-
-export type ActivityChangedEventFilter = TypedEventFilter<ActivityChangedEvent>;
 
 export interface AdminChangedEventObject {
   sender: string;
@@ -1532,6 +1535,20 @@ export type AdminChangedEvent = TypedEvent<
 >;
 
 export type AdminChangedEventFilter = TypedEventFilter<AdminChangedEvent>;
+
+export interface ContextRealmChangedEventObject {
+  context: string;
+  sender: string;
+  newRealm: string;
+  oldRealm: string;
+}
+export type ContextRealmChangedEvent = TypedEvent<
+  [string, string, string, string],
+  ContextRealmChangedEventObject
+>;
+
+export type ContextRealmChangedEventFilter =
+  TypedEventFilter<ContextRealmChangedEvent>;
 
 export interface ContextRegisteredEventObject {
   context: string;
@@ -1590,33 +1607,11 @@ export type ContextUpdatedEvent = TypedEvent<
 
 export type ContextUpdatedEventFilter = TypedEventFilter<ContextUpdatedEvent>;
 
-export interface GroupDisabledEventObject {
-  group: string;
-  sender: string;
-}
-export type GroupDisabledEvent = TypedEvent<
-  [string, string],
-  GroupDisabledEventObject
->;
-
-export type GroupDisabledEventFilter = TypedEventFilter<GroupDisabledEvent>;
-
-export interface GroupEnabledEventObject {
-  group: string;
-  sender: string;
-}
-export type GroupEnabledEvent = TypedEvent<
-  [string, string],
-  GroupEnabledEventObject
->;
-
-export type GroupEnabledEventFilter = TypedEventFilter<GroupEnabledEvent>;
-
 export interface GroupRegisteredEventObject {
   group: string;
   sender: string;
   name: string;
-  isEnabled: boolean;
+  status: boolean;
 }
 export type GroupRegisteredEvent = TypedEvent<
   [string, string, string, boolean],
@@ -1625,31 +1620,18 @@ export type GroupRegisteredEvent = TypedEvent<
 
 export type GroupRegisteredEventFilter = TypedEventFilter<GroupRegisteredEvent>;
 
-export interface GroupRoleGrantedEventObject {
+export interface GroupStatChangedEventObject {
   group: string;
-  role: string;
   sender: string;
+  status: boolean;
 }
-export type GroupRoleGrantedEvent = TypedEvent<
-  [string, string, string],
-  GroupRoleGrantedEventObject
+export type GroupStatChangedEvent = TypedEvent<
+  [string, string, boolean],
+  GroupStatChangedEventObject
 >;
 
-export type GroupRoleGrantedEventFilter =
-  TypedEventFilter<GroupRoleGrantedEvent>;
-
-export interface GroupRoleRevokedEventObject {
-  group: string;
-  role: string;
-  sender: string;
-}
-export type GroupRoleRevokedEvent = TypedEvent<
-  [string, string, string],
-  GroupRoleRevokedEventObject
->;
-
-export type GroupRoleRevokedEventFilter =
-  TypedEventFilter<GroupRoleRevokedEvent>;
+export type GroupStatChangedEventFilter =
+  TypedEventFilter<GroupStatChangedEvent>;
 
 export interface InitializedEventObject {
   sender: string;
@@ -1667,87 +1649,53 @@ export type InitializedEvent = TypedEvent<
 
 export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
-export interface RealmContextGrantedEventObject {
-  realm: string;
-  context: string;
-  sender: string;
-}
-export type RealmContextGrantedEvent = TypedEvent<
-  [string, string, string],
-  RealmContextGrantedEventObject
->;
-
-export type RealmContextGrantedEventFilter =
-  TypedEventFilter<RealmContextGrantedEvent>;
-
-export interface RealmDisabledEventObject {
-  realm: string;
-  sender: string;
-}
-export type RealmDisabledEvent = TypedEvent<
-  [string, string],
-  RealmDisabledEventObject
->;
-
-export type RealmDisabledEventFilter = TypedEventFilter<RealmDisabledEvent>;
-
-export interface RealmEnabledEventObject {
-  realm: string;
-  sender: string;
-}
-export type RealmEnabledEvent = TypedEvent<
-  [string, string],
-  RealmEnabledEventObject
->;
-
-export type RealmEnabledEventFilter = TypedEventFilter<RealmEnabledEvent>;
-
 export interface RealmRegisteredEventObject {
   realm: string;
   sender: string;
   name: string;
-  isEnabled: boolean;
+  status: boolean;
+  isUpgradable: boolean;
 }
 export type RealmRegisteredEvent = TypedEvent<
-  [string, string, string, boolean],
+  [string, string, string, boolean, boolean],
   RealmRegisteredEventObject
 >;
 
 export type RealmRegisteredEventFilter = TypedEventFilter<RealmRegisteredEvent>;
 
-export interface RealmRoleRevokedEventObject {
-  realm: string;
-  context: string;
-  sender: string;
-}
-export type RealmRoleRevokedEvent = TypedEvent<
-  [string, string, string],
-  RealmRoleRevokedEventObject
->;
-
-export type RealmRoleRevokedEventFilter =
-  TypedEventFilter<RealmRoleRevokedEvent>;
-
-export interface RealmUpgradeEnabledEventObject {
+export interface RealmStatChangedEventObject {
   realm: string;
   sender: string;
+  status: boolean;
 }
-export type RealmUpgradeEnabledEvent = TypedEvent<
-  [string, string],
-  RealmUpgradeEnabledEventObject
+export type RealmStatChangedEvent = TypedEvent<
+  [string, string, boolean],
+  RealmStatChangedEventObject
 >;
 
-export type RealmUpgradeEnabledEventFilter =
-  TypedEventFilter<RealmUpgradeEnabledEvent>;
+export type RealmStatChangedEventFilter =
+  TypedEventFilter<RealmStatChangedEvent>;
+
+export interface RealmUpgradeStatChangedEventObject {
+  realm: string;
+  sender: string;
+  status: boolean;
+}
+export type RealmUpgradeStatChangedEvent = TypedEvent<
+  [string, string, boolean],
+  RealmUpgradeStatChangedEventObject
+>;
+
+export type RealmUpgradeStatChangedEventFilter =
+  TypedEventFilter<RealmUpgradeStatChangedEvent>;
 
 export interface RoleAccountGrantedEventObject {
   role: string;
   account: string;
   sender: string;
-  group: string;
 }
 export type RoleAccountGrantedEvent = TypedEvent<
-  [string, string, string, string],
+  [string, string, string],
   RoleAccountGrantedEventObject
 >;
 
@@ -1758,39 +1706,28 @@ export interface RoleAccountRevokedEventObject {
   role: string;
   account: string;
   sender: string;
-  group: string;
 }
 export type RoleAccountRevokedEvent = TypedEvent<
-  [string, string, string, string],
+  [string, string, string],
   RoleAccountRevokedEventObject
 >;
 
 export type RoleAccountRevokedEventFilter =
   TypedEventFilter<RoleAccountRevokedEvent>;
 
-export interface RoleDisabledEventObject {
+export interface RoleGroupChangedEventObject {
   role: string;
   sender: string;
-  group: string;
+  newGroup: string;
+  oldGroup: string;
 }
-export type RoleDisabledEvent = TypedEvent<
-  [string, string, string],
-  RoleDisabledEventObject
+export type RoleGroupChangedEvent = TypedEvent<
+  [string, string, string, string],
+  RoleGroupChangedEventObject
 >;
 
-export type RoleDisabledEventFilter = TypedEventFilter<RoleDisabledEvent>;
-
-export interface RoleEnabledEventObject {
-  role: string;
-  sender: string;
-  group: string;
-}
-export type RoleEnabledEvent = TypedEvent<
-  [string, string, string],
-  RoleEnabledEventObject
->;
-
-export type RoleEnabledEventFilter = TypedEventFilter<RoleEnabledEvent>;
+export type RoleGroupChangedEventFilter =
+  TypedEventFilter<RoleGroupChangedEvent>;
 
 export interface RoleRegisteredEventObject {
   role: string;
@@ -1806,19 +1743,46 @@ export type RoleRegisteredEvent = TypedEvent<
 
 export type RoleRegisteredEventFilter = TypedEventFilter<RoleRegisteredEvent>;
 
-export interface UpgradabilityChangedEventObject {
+export interface RoleStatChangedEventObject {
+  role: string;
+  sender: string;
+  group: string;
+  status: boolean;
+}
+export type RoleStatChangedEvent = TypedEvent<
+  [string, string, string, boolean],
+  RoleStatChangedEventObject
+>;
+
+export type RoleStatChangedEventFilter = TypedEventFilter<RoleStatChangedEvent>;
+
+export interface SafeModeStateChangedEventObject {
   sender: string;
   proxy: string;
   realm: string;
-  value: boolean;
+  state: boolean;
 }
-export type UpgradabilityChangedEvent = TypedEvent<
+export type SafeModeStateChangedEvent = TypedEvent<
   [string, string, string, boolean],
-  UpgradabilityChangedEventObject
+  SafeModeStateChangedEventObject
 >;
 
-export type UpgradabilityChangedEventFilter =
-  TypedEventFilter<UpgradabilityChangedEvent>;
+export type SafeModeStateChangedEventFilter =
+  TypedEventFilter<SafeModeStateChangedEvent>;
+
+export interface UpgradeStateChangedEventObject {
+  sender: string;
+  proxy: string;
+  realm: string;
+  state: boolean;
+}
+export type UpgradeStateChangedEvent = TypedEvent<
+  [string, string, string, boolean],
+  UpgradeStateChangedEventObject
+>;
+
+export type UpgradeStateChangedEventFilter =
+  TypedEventFilter<UpgradeStateChangedEvent>;
 
 export interface UpgradedEventObject {
   sender: string;
@@ -1859,6 +1823,36 @@ export interface AccessControlManager extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    ACCESS_CONTROL_NAME(overrides?: CallOverrides): Promise<[string]>;
+
+    "ACCESS_CONTROL_NAME()"(overrides?: CallOverrides): Promise<[string]>;
+
+    ACCESS_CONTROL_VERSION(overrides?: CallOverrides): Promise<[string]>;
+
+    "ACCESS_CONTROL_VERSION()"(overrides?: CallOverrides): Promise<[string]>;
+
+    ANONYMOUSE_ROLE(overrides?: CallOverrides): Promise<[string]>;
+
+    "ANONYMOUSE_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
+
+    CONTEXT_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<[string]>;
+
+    "CONTEXT_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<[string]>;
+
+    CONTEXT_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<[string]>;
+
+    "CONTEXT_MANAGEMENT_VERSION()"(
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    GROUP_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<[string]>;
+
+    "GROUP_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<[string]>;
+
+    GROUP_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<[string]>;
+
+    "GROUP_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<[string]>;
+
     LIVELY_ADMIN_ROLE(overrides?: CallOverrides): Promise<[string]>;
 
     "LIVELY_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
@@ -1871,51 +1865,25 @@ export interface AccessControlManager extends BaseContract {
 
     "LIVELY_GENERAL_REALM()"(overrides?: CallOverrides): Promise<[string]>;
 
-    LIVELY_PUBLIC_ROLE(overrides?: CallOverrides): Promise<[string]>;
-
-    "LIVELY_PUBLIC_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
-
     LIVELY_SYSTEM_ADMIN_ROLE(overrides?: CallOverrides): Promise<[string]>;
 
     "LIVELY_SYSTEM_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
 
-    addGroup(
-      name: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+    REALM_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<[string]>;
 
-    "addGroup(string,bool)"(
-      name: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+    "REALM_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<[string]>;
 
-    addRealm(
-      name: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+    REALM_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<[string]>;
 
-    "addRealm(string,bool)"(
-      name: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+    "REALM_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<[string]>;
 
-    addRole(
-      name: PromiseOrValue<string>,
-      group: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+    ROLE_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<[string]>;
 
-    "addRole(string,string,bool)"(
-      name: PromiseOrValue<string>,
-      group: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+    "ROLE_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<[string]>;
+
+    ROLE_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<[string]>;
+
+    "ROLE_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<[string]>;
 
     contractContext(overrides?: CallOverrides): Promise<[string]>;
 
@@ -1941,89 +1909,9 @@ export interface AccessControlManager extends BaseContract {
 
     "contractVersion()"(overrides?: CallOverrides): Promise<[string]>;
 
-    disableContext(
-      ctx: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+    getAccessControlManager(overrides?: CallOverrides): Promise<[string]>;
 
-    "disableContext(bytes32)"(
-      ctx: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    disabledGroup(
-      group: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "disabledGroup(bytes32)"(
-      group: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    disabledRealm(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "disabledRealm(bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    enableContext(
-      ctx: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "enableContext(bytes32)"(
-      ctx: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    enableUpgradeContext(
-      ctx: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "enableUpgradeContext(bytes32)"(
-      ctx: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    enableUpgradeRealm(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "enableUpgradeRealm(bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    enabledGroup(
-      group: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "enabledGroup(bytes32)"(
-      group: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    enabledRealm(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "enabledRealm(bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    getAccessControl(overrides?: CallOverrides): Promise<[string]>;
-
-    "getAccessControl()"(overrides?: CallOverrides): Promise<[string]>;
+    "getAccessControlManager()"(overrides?: CallOverrides): Promise<[string]>;
 
     getAdmin(overrides?: CallOverrides): Promise<[string]>;
 
@@ -2076,19 +1964,19 @@ export interface AccessControlManager extends BaseContract {
     getRealm(
       realm: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<[string, boolean]>;
+    ): Promise<[string, boolean, boolean]>;
 
     "getRealm(bytes32)"(
       realm: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<[string, boolean]>;
+    ): Promise<[string, boolean, boolean]>;
 
-    getRealmContextes(
+    getRealmContexts(
       realm: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[string[]]>;
 
-    "getRealmContextes(bytes32)"(
+    "getRealmContexts(bytes32)"(
       realm: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[string[]]>;
@@ -2103,22 +1991,12 @@ export interface AccessControlManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string, string, boolean]>;
 
-    getRoleContextes(
+    getRoleAccounts(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[string[]]>;
 
-    "getRoleContextes(bytes32)"(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[string[]]>;
-
-    getRoleUsers(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[string[]]>;
-
-    "getRoleUsers(bytes32)"(
+    "getRoleAccounts(bytes32)"(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[string[]]>;
@@ -2134,30 +2012,6 @@ export interface AccessControlManager extends BaseContract {
       ctx: PromiseOrValue<BytesLike>,
       functionSelector: PromiseOrValue<BytesLike>,
       role: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    grantGroupRole(
-      group: PromiseOrValue<BytesLike>,
-      role: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "grantGroupRole(bytes32,bytes32)"(
-      group: PromiseOrValue<BytesLike>,
-      role: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    grantRealmContext(
-      realm: PromiseOrValue<BytesLike>,
-      context: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "grantRealmContext(bytes32,bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      context: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2293,37 +2147,23 @@ export interface AccessControlManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    isActivated(overrides?: CallOverrides): Promise<[boolean]>;
-
-    "isActivated()"(overrides?: CallOverrides): Promise<[boolean]>;
-
-    isEnabled(
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    "isEnabled(bytes32)"(
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
     isInitializing(overrides?: CallOverrides): Promise<[boolean]>;
 
     "isInitializing()"(overrides?: CallOverrides): Promise<[boolean]>;
 
-    isUpgradable(overrides?: CallOverrides): Promise<[boolean]>;
+    "isSafeMode(bytes32)"(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    "isSafeMode()"(overrides?: CallOverrides): Promise<[boolean]>;
+
+    "isUpgradable(bytes32)"(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     "isUpgradable()"(overrides?: CallOverrides): Promise<[boolean]>;
-
-    isUpgradeEnabled(
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    "isUpgradeEnabled(bytes32)"(
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
 
     proxiableUUID(overrides?: CallOverrides): Promise<[string]>;
 
@@ -2343,6 +2183,46 @@ export interface AccessControlManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    registerGroup(
+      name: PromiseOrValue<string>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "registerGroup(string,bool)"(
+      name: PromiseOrValue<string>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    registerRealm(
+      name: PromiseOrValue<string>,
+      status: PromiseOrValue<boolean>,
+      isUpgradable: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "registerRealm(string,bool,bool)"(
+      name: PromiseOrValue<string>,
+      status: PromiseOrValue<boolean>,
+      isUpgradable: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    registerRole(
+      name: PromiseOrValue<string>,
+      group: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "registerRole(string,bytes32,bool)"(
+      name: PromiseOrValue<string>,
+      group: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     revokeContextRole(
       ctx: PromiseOrValue<BytesLike>,
       functionSelector: PromiseOrValue<BytesLike>,
@@ -2354,30 +2234,6 @@ export interface AccessControlManager extends BaseContract {
       ctx: PromiseOrValue<BytesLike>,
       functionSelector: PromiseOrValue<BytesLike>,
       role: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    revokeGroupRole(
-      group: PromiseOrValue<BytesLike>,
-      role: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "revokeGroupRole(bytes32,bytes32)"(
-      group: PromiseOrValue<BytesLike>,
-      role: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    revokeRealmContext(
-      realm: PromiseOrValue<BytesLike>,
-      context: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "revokeRealmContext(bytes32,bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      context: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2393,16 +2249,6 @@ export interface AccessControlManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setActivity(
-      value: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "setActivity(bool)"(
-      value: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     setAdmin(
       newAdmin: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -2413,33 +2259,119 @@ export interface AccessControlManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setDisabledRole(
+    setContextRealm(
+      ctx: PromiseOrValue<BytesLike>,
+      realm: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "setContextRealm(bytes32,bytes32)"(
+      ctx: PromiseOrValue<BytesLike>,
+      realm: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setContextSafeMode(
+      ctx: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "setContextSafeMode(bytes32,bool)"(
+      ctx: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setContextUpgradeState(
+      ctx: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "setContextUpgradeState(bytes32,bool)"(
+      ctx: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setGroupStat(
+      group: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "setGroupStat(bytes32,bool)"(
+      group: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setRealmStat(
+      realm: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "setRealmStat(bytes32,bool)"(
+      realm: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setRealmUpgradeStat(
+      realm: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "setRealmUpgradeStat(bytes32,bool)"(
+      realm: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setRoleGroup(
       role: PromiseOrValue<BytesLike>,
+      group: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "setDisabledRole(bytes32)"(
+    "setRoleGroup(bytes32,bytes32)"(
       role: PromiseOrValue<BytesLike>,
+      group: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setEnabledRole(
+    setRoleStat(
       role: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "setEnabledRole(bytes32)"(
+    "setRoleStat(bytes32,bool)"(
       role: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setUpgradability(
-      value: PromiseOrValue<boolean>,
+    setSafeModeState(
+      state: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "setUpgradability(bool)"(
-      value: PromiseOrValue<boolean>,
+    "setSafeModeState(bool)"(
+      state: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setUpgradeState(
+      state: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "setUpgradeState(bool)"(
+      state: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2484,6 +2416,34 @@ export interface AccessControlManager extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
+  ACCESS_CONTROL_NAME(overrides?: CallOverrides): Promise<string>;
+
+  "ACCESS_CONTROL_NAME()"(overrides?: CallOverrides): Promise<string>;
+
+  ACCESS_CONTROL_VERSION(overrides?: CallOverrides): Promise<string>;
+
+  "ACCESS_CONTROL_VERSION()"(overrides?: CallOverrides): Promise<string>;
+
+  ANONYMOUSE_ROLE(overrides?: CallOverrides): Promise<string>;
+
+  "ANONYMOUSE_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
+  CONTEXT_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<string>;
+
+  "CONTEXT_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<string>;
+
+  CONTEXT_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<string>;
+
+  "CONTEXT_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<string>;
+
+  GROUP_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<string>;
+
+  "GROUP_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<string>;
+
+  GROUP_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<string>;
+
+  "GROUP_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<string>;
+
   LIVELY_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
 
   "LIVELY_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<string>;
@@ -2496,51 +2456,25 @@ export interface AccessControlManager extends BaseContract {
 
   "LIVELY_GENERAL_REALM()"(overrides?: CallOverrides): Promise<string>;
 
-  LIVELY_PUBLIC_ROLE(overrides?: CallOverrides): Promise<string>;
-
-  "LIVELY_PUBLIC_ROLE()"(overrides?: CallOverrides): Promise<string>;
-
   LIVELY_SYSTEM_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
 
   "LIVELY_SYSTEM_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
-  addGroup(
-    name: PromiseOrValue<string>,
-    isEnabled: PromiseOrValue<boolean>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  REALM_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<string>;
 
-  "addGroup(string,bool)"(
-    name: PromiseOrValue<string>,
-    isEnabled: PromiseOrValue<boolean>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  "REALM_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<string>;
 
-  addRealm(
-    name: PromiseOrValue<string>,
-    isEnabled: PromiseOrValue<boolean>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  REALM_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<string>;
 
-  "addRealm(string,bool)"(
-    name: PromiseOrValue<string>,
-    isEnabled: PromiseOrValue<boolean>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  "REALM_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<string>;
 
-  addRole(
-    name: PromiseOrValue<string>,
-    group: PromiseOrValue<string>,
-    isEnabled: PromiseOrValue<boolean>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  ROLE_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<string>;
 
-  "addRole(string,string,bool)"(
-    name: PromiseOrValue<string>,
-    group: PromiseOrValue<string>,
-    isEnabled: PromiseOrValue<boolean>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  "ROLE_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<string>;
+
+  ROLE_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<string>;
+
+  "ROLE_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<string>;
 
   contractContext(overrides?: CallOverrides): Promise<string>;
 
@@ -2566,89 +2500,9 @@ export interface AccessControlManager extends BaseContract {
 
   "contractVersion()"(overrides?: CallOverrides): Promise<string>;
 
-  disableContext(
-    ctx: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  getAccessControlManager(overrides?: CallOverrides): Promise<string>;
 
-  "disableContext(bytes32)"(
-    ctx: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  disabledGroup(
-    group: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "disabledGroup(bytes32)"(
-    group: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  disabledRealm(
-    realm: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "disabledRealm(bytes32)"(
-    realm: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  enableContext(
-    ctx: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "enableContext(bytes32)"(
-    ctx: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  enableUpgradeContext(
-    ctx: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "enableUpgradeContext(bytes32)"(
-    ctx: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  enableUpgradeRealm(
-    realm: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "enableUpgradeRealm(bytes32)"(
-    realm: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  enabledGroup(
-    group: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "enabledGroup(bytes32)"(
-    group: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  enabledRealm(
-    realm: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "enabledRealm(bytes32)"(
-    realm: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  getAccessControl(overrides?: CallOverrides): Promise<string>;
-
-  "getAccessControl()"(overrides?: CallOverrides): Promise<string>;
+  "getAccessControlManager()"(overrides?: CallOverrides): Promise<string>;
 
   getAdmin(overrides?: CallOverrides): Promise<string>;
 
@@ -2701,19 +2555,19 @@ export interface AccessControlManager extends BaseContract {
   getRealm(
     realm: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
-  ): Promise<[string, boolean]>;
+  ): Promise<[string, boolean, boolean]>;
 
   "getRealm(bytes32)"(
     realm: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
-  ): Promise<[string, boolean]>;
+  ): Promise<[string, boolean, boolean]>;
 
-  getRealmContextes(
+  getRealmContexts(
     realm: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<string[]>;
 
-  "getRealmContextes(bytes32)"(
+  "getRealmContexts(bytes32)"(
     realm: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<string[]>;
@@ -2728,22 +2582,12 @@ export interface AccessControlManager extends BaseContract {
     overrides?: CallOverrides
   ): Promise<[string, string, boolean]>;
 
-  getRoleContextes(
+  getRoleAccounts(
     role: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<string[]>;
 
-  "getRoleContextes(bytes32)"(
-    role: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<string[]>;
-
-  getRoleUsers(
-    role: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<string[]>;
-
-  "getRoleUsers(bytes32)"(
+  "getRoleAccounts(bytes32)"(
     role: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<string[]>;
@@ -2759,30 +2603,6 @@ export interface AccessControlManager extends BaseContract {
     ctx: PromiseOrValue<BytesLike>,
     functionSelector: PromiseOrValue<BytesLike>,
     role: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  grantGroupRole(
-    group: PromiseOrValue<BytesLike>,
-    role: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "grantGroupRole(bytes32,bytes32)"(
-    group: PromiseOrValue<BytesLike>,
-    role: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  grantRealmContext(
-    realm: PromiseOrValue<BytesLike>,
-    context: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "grantRealmContext(bytes32,bytes32)"(
-    realm: PromiseOrValue<BytesLike>,
-    context: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -2918,37 +2738,23 @@ export interface AccessControlManager extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  isActivated(overrides?: CallOverrides): Promise<boolean>;
-
-  "isActivated()"(overrides?: CallOverrides): Promise<boolean>;
-
-  isEnabled(
-    context: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  "isEnabled(bytes32)"(
-    context: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
   isInitializing(overrides?: CallOverrides): Promise<boolean>;
 
   "isInitializing()"(overrides?: CallOverrides): Promise<boolean>;
 
-  isUpgradable(overrides?: CallOverrides): Promise<boolean>;
+  "isSafeMode(bytes32)"(
+    context: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  "isSafeMode()"(overrides?: CallOverrides): Promise<boolean>;
+
+  "isUpgradable(bytes32)"(
+    context: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   "isUpgradable()"(overrides?: CallOverrides): Promise<boolean>;
-
-  isUpgradeEnabled(
-    context: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  "isUpgradeEnabled(bytes32)"(
-    context: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
 
   proxiableUUID(overrides?: CallOverrides): Promise<string>;
 
@@ -2968,6 +2774,46 @@ export interface AccessControlManager extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  registerGroup(
+    name: PromiseOrValue<string>,
+    status: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "registerGroup(string,bool)"(
+    name: PromiseOrValue<string>,
+    status: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  registerRealm(
+    name: PromiseOrValue<string>,
+    status: PromiseOrValue<boolean>,
+    isUpgradable: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "registerRealm(string,bool,bool)"(
+    name: PromiseOrValue<string>,
+    status: PromiseOrValue<boolean>,
+    isUpgradable: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  registerRole(
+    name: PromiseOrValue<string>,
+    group: PromiseOrValue<BytesLike>,
+    status: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "registerRole(string,bytes32,bool)"(
+    name: PromiseOrValue<string>,
+    group: PromiseOrValue<BytesLike>,
+    status: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   revokeContextRole(
     ctx: PromiseOrValue<BytesLike>,
     functionSelector: PromiseOrValue<BytesLike>,
@@ -2979,30 +2825,6 @@ export interface AccessControlManager extends BaseContract {
     ctx: PromiseOrValue<BytesLike>,
     functionSelector: PromiseOrValue<BytesLike>,
     role: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  revokeGroupRole(
-    group: PromiseOrValue<BytesLike>,
-    role: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "revokeGroupRole(bytes32,bytes32)"(
-    group: PromiseOrValue<BytesLike>,
-    role: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  revokeRealmContext(
-    realm: PromiseOrValue<BytesLike>,
-    context: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "revokeRealmContext(bytes32,bytes32)"(
-    realm: PromiseOrValue<BytesLike>,
-    context: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -3018,16 +2840,6 @@ export interface AccessControlManager extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setActivity(
-    value: PromiseOrValue<boolean>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "setActivity(bool)"(
-    value: PromiseOrValue<boolean>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   setAdmin(
     newAdmin: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -3038,33 +2850,119 @@ export interface AccessControlManager extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setDisabledRole(
+  setContextRealm(
+    ctx: PromiseOrValue<BytesLike>,
+    realm: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "setContextRealm(bytes32,bytes32)"(
+    ctx: PromiseOrValue<BytesLike>,
+    realm: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setContextSafeMode(
+    ctx: PromiseOrValue<BytesLike>,
+    state: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "setContextSafeMode(bytes32,bool)"(
+    ctx: PromiseOrValue<BytesLike>,
+    state: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setContextUpgradeState(
+    ctx: PromiseOrValue<BytesLike>,
+    state: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "setContextUpgradeState(bytes32,bool)"(
+    ctx: PromiseOrValue<BytesLike>,
+    state: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setGroupStat(
+    group: PromiseOrValue<BytesLike>,
+    status: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "setGroupStat(bytes32,bool)"(
+    group: PromiseOrValue<BytesLike>,
+    status: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setRealmStat(
+    realm: PromiseOrValue<BytesLike>,
+    status: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "setRealmStat(bytes32,bool)"(
+    realm: PromiseOrValue<BytesLike>,
+    status: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setRealmUpgradeStat(
+    realm: PromiseOrValue<BytesLike>,
+    status: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "setRealmUpgradeStat(bytes32,bool)"(
+    realm: PromiseOrValue<BytesLike>,
+    status: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setRoleGroup(
     role: PromiseOrValue<BytesLike>,
+    group: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "setDisabledRole(bytes32)"(
+  "setRoleGroup(bytes32,bytes32)"(
     role: PromiseOrValue<BytesLike>,
+    group: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setEnabledRole(
+  setRoleStat(
     role: PromiseOrValue<BytesLike>,
+    status: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "setEnabledRole(bytes32)"(
+  "setRoleStat(bytes32,bool)"(
     role: PromiseOrValue<BytesLike>,
+    status: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setUpgradability(
-    value: PromiseOrValue<boolean>,
+  setSafeModeState(
+    state: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "setUpgradability(bool)"(
-    value: PromiseOrValue<boolean>,
+  "setSafeModeState(bool)"(
+    state: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setUpgradeState(
+    state: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "setUpgradeState(bool)"(
+    state: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -3109,6 +3007,34 @@ export interface AccessControlManager extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    ACCESS_CONTROL_NAME(overrides?: CallOverrides): Promise<string>;
+
+    "ACCESS_CONTROL_NAME()"(overrides?: CallOverrides): Promise<string>;
+
+    ACCESS_CONTROL_VERSION(overrides?: CallOverrides): Promise<string>;
+
+    "ACCESS_CONTROL_VERSION()"(overrides?: CallOverrides): Promise<string>;
+
+    ANONYMOUSE_ROLE(overrides?: CallOverrides): Promise<string>;
+
+    "ANONYMOUSE_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
+    CONTEXT_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<string>;
+
+    "CONTEXT_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<string>;
+
+    CONTEXT_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<string>;
+
+    "CONTEXT_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<string>;
+
+    GROUP_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<string>;
+
+    "GROUP_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<string>;
+
+    GROUP_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<string>;
+
+    "GROUP_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<string>;
+
     LIVELY_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
 
     "LIVELY_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<string>;
@@ -3121,51 +3047,25 @@ export interface AccessControlManager extends BaseContract {
 
     "LIVELY_GENERAL_REALM()"(overrides?: CallOverrides): Promise<string>;
 
-    LIVELY_PUBLIC_ROLE(overrides?: CallOverrides): Promise<string>;
-
-    "LIVELY_PUBLIC_ROLE()"(overrides?: CallOverrides): Promise<string>;
-
     LIVELY_SYSTEM_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
 
     "LIVELY_SYSTEM_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
-    addGroup(
-      name: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: CallOverrides
-    ): Promise<string>;
+    REALM_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<string>;
 
-    "addGroup(string,bool)"(
-      name: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: CallOverrides
-    ): Promise<string>;
+    "REALM_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<string>;
 
-    addRealm(
-      name: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: CallOverrides
-    ): Promise<string>;
+    REALM_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<string>;
 
-    "addRealm(string,bool)"(
-      name: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: CallOverrides
-    ): Promise<string>;
+    "REALM_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<string>;
 
-    addRole(
-      name: PromiseOrValue<string>,
-      group: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: CallOverrides
-    ): Promise<string>;
+    ROLE_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<string>;
 
-    "addRole(string,string,bool)"(
-      name: PromiseOrValue<string>,
-      group: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: CallOverrides
-    ): Promise<string>;
+    "ROLE_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<string>;
+
+    ROLE_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<string>;
+
+    "ROLE_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<string>;
 
     contractContext(overrides?: CallOverrides): Promise<string>;
 
@@ -3179,97 +3079,17 @@ export interface AccessControlManager extends BaseContract {
 
     "contractRealm()"(overrides?: CallOverrides): Promise<string>;
 
-    contractRegisteration(overrides?: CallOverrides): Promise<boolean>;
+    contractRegisteration(overrides?: CallOverrides): Promise<string>;
 
-    "contractRegisteration()"(overrides?: CallOverrides): Promise<boolean>;
+    "contractRegisteration()"(overrides?: CallOverrides): Promise<string>;
 
     contractVersion(overrides?: CallOverrides): Promise<string>;
 
     "contractVersion()"(overrides?: CallOverrides): Promise<string>;
 
-    disableContext(
-      ctx: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    getAccessControlManager(overrides?: CallOverrides): Promise<string>;
 
-    "disableContext(bytes32)"(
-      ctx: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    disabledGroup(
-      group: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "disabledGroup(bytes32)"(
-      group: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    disabledRealm(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "disabledRealm(bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    enableContext(
-      ctx: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "enableContext(bytes32)"(
-      ctx: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    enableUpgradeContext(
-      ctx: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "enableUpgradeContext(bytes32)"(
-      ctx: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    enableUpgradeRealm(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "enableUpgradeRealm(bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    enabledGroup(
-      group: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "enabledGroup(bytes32)"(
-      group: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    enabledRealm(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "enabledRealm(bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    getAccessControl(overrides?: CallOverrides): Promise<string>;
-
-    "getAccessControl()"(overrides?: CallOverrides): Promise<string>;
+    "getAccessControlManager()"(overrides?: CallOverrides): Promise<string>;
 
     getAdmin(overrides?: CallOverrides): Promise<string>;
 
@@ -3322,19 +3142,19 @@ export interface AccessControlManager extends BaseContract {
     getRealm(
       realm: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<[string, boolean]>;
+    ): Promise<[string, boolean, boolean]>;
 
     "getRealm(bytes32)"(
       realm: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<[string, boolean]>;
+    ): Promise<[string, boolean, boolean]>;
 
-    getRealmContextes(
+    getRealmContexts(
       realm: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<string[]>;
 
-    "getRealmContextes(bytes32)"(
+    "getRealmContexts(bytes32)"(
       realm: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<string[]>;
@@ -3349,22 +3169,12 @@ export interface AccessControlManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string, string, boolean]>;
 
-    getRoleContextes(
+    getRoleAccounts(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<string[]>;
 
-    "getRoleContextes(bytes32)"(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<string[]>;
-
-    getRoleUsers(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<string[]>;
-
-    "getRoleUsers(bytes32)"(
+    "getRoleAccounts(bytes32)"(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<string[]>;
@@ -3380,30 +3190,6 @@ export interface AccessControlManager extends BaseContract {
       ctx: PromiseOrValue<BytesLike>,
       functionSelector: PromiseOrValue<BytesLike>,
       role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    grantGroupRole(
-      group: PromiseOrValue<BytesLike>,
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "grantGroupRole(bytes32,bytes32)"(
-      group: PromiseOrValue<BytesLike>,
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    grantRealmContext(
-      realm: PromiseOrValue<BytesLike>,
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "grantRealmContext(bytes32,bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -3539,37 +3325,23 @@ export interface AccessControlManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    isActivated(overrides?: CallOverrides): Promise<boolean>;
-
-    "isActivated()"(overrides?: CallOverrides): Promise<boolean>;
-
-    isEnabled(
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "isEnabled(bytes32)"(
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     isInitializing(overrides?: CallOverrides): Promise<boolean>;
 
     "isInitializing()"(overrides?: CallOverrides): Promise<boolean>;
 
-    isUpgradable(overrides?: CallOverrides): Promise<boolean>;
+    "isSafeMode(bytes32)"(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "isSafeMode()"(overrides?: CallOverrides): Promise<boolean>;
+
+    "isUpgradable(bytes32)"(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     "isUpgradable()"(overrides?: CallOverrides): Promise<boolean>;
-
-    isUpgradeEnabled(
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "isUpgradeEnabled(bytes32)"(
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
 
     proxiableUUID(overrides?: CallOverrides): Promise<string>;
 
@@ -3589,6 +3361,46 @@ export interface AccessControlManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
+    registerGroup(
+      name: PromiseOrValue<string>,
+      status: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    "registerGroup(string,bool)"(
+      name: PromiseOrValue<string>,
+      status: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    registerRealm(
+      name: PromiseOrValue<string>,
+      status: PromiseOrValue<boolean>,
+      isUpgradable: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    "registerRealm(string,bool,bool)"(
+      name: PromiseOrValue<string>,
+      status: PromiseOrValue<boolean>,
+      isUpgradable: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    registerRole(
+      name: PromiseOrValue<string>,
+      group: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    "registerRole(string,bytes32,bool)"(
+      name: PromiseOrValue<string>,
+      group: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
     revokeContextRole(
       ctx: PromiseOrValue<BytesLike>,
       functionSelector: PromiseOrValue<BytesLike>,
@@ -3600,30 +3412,6 @@ export interface AccessControlManager extends BaseContract {
       ctx: PromiseOrValue<BytesLike>,
       functionSelector: PromiseOrValue<BytesLike>,
       role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    revokeGroupRole(
-      group: PromiseOrValue<BytesLike>,
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "revokeGroupRole(bytes32,bytes32)"(
-      group: PromiseOrValue<BytesLike>,
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    revokeRealmContext(
-      realm: PromiseOrValue<BytesLike>,
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "revokeRealmContext(bytes32,bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -3639,16 +3427,6 @@ export interface AccessControlManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    setActivity(
-      value: PromiseOrValue<boolean>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "setActivity(bool)"(
-      value: PromiseOrValue<boolean>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     setAdmin(
       newAdmin: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -3659,33 +3437,119 @@ export interface AccessControlManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    setDisabledRole(
+    setContextRealm(
+      ctx: PromiseOrValue<BytesLike>,
+      realm: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "setContextRealm(bytes32,bytes32)"(
+      ctx: PromiseOrValue<BytesLike>,
+      realm: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    setContextSafeMode(
+      ctx: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "setContextSafeMode(bytes32,bool)"(
+      ctx: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    setContextUpgradeState(
+      ctx: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "setContextUpgradeState(bytes32,bool)"(
+      ctx: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    setGroupStat(
+      group: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "setGroupStat(bytes32,bool)"(
+      group: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    setRealmStat(
+      realm: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "setRealmStat(bytes32,bool)"(
+      realm: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    setRealmUpgradeStat(
+      realm: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "setRealmUpgradeStat(bytes32,bool)"(
+      realm: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    setRoleGroup(
       role: PromiseOrValue<BytesLike>,
+      group: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "setDisabledRole(bytes32)"(
+    "setRoleGroup(bytes32,bytes32)"(
       role: PromiseOrValue<BytesLike>,
+      group: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    setEnabledRole(
+    setRoleStat(
       role: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "setEnabledRole(bytes32)"(
+    "setRoleStat(bytes32,bool)"(
       role: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    setUpgradability(
-      value: PromiseOrValue<boolean>,
+    setSafeModeState(
+      state: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "setUpgradability(bool)"(
-      value: PromiseOrValue<boolean>,
+    "setSafeModeState(bool)"(
+      state: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    setUpgradeState(
+      state: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "setUpgradeState(bool)"(
+      state: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -3731,19 +3595,6 @@ export interface AccessControlManager extends BaseContract {
   };
 
   filters: {
-    "ActivityChanged(address,address,bytes32,bool)"(
-      sender?: PromiseOrValue<string> | null,
-      proxy?: PromiseOrValue<string> | null,
-      realm?: PromiseOrValue<BytesLike> | null,
-      value?: null
-    ): ActivityChangedEventFilter;
-    ActivityChanged(
-      sender?: PromiseOrValue<string> | null,
-      proxy?: PromiseOrValue<string> | null,
-      realm?: PromiseOrValue<BytesLike> | null,
-      value?: null
-    ): ActivityChangedEventFilter;
-
     "AdminChanged(address,address,address)"(
       sender?: PromiseOrValue<string> | null,
       proxy?: PromiseOrValue<string> | null,
@@ -3754,6 +3605,19 @@ export interface AccessControlManager extends BaseContract {
       proxy?: PromiseOrValue<string> | null,
       newAdmin?: null
     ): AdminChangedEventFilter;
+
+    "ContextRealmChanged(bytes32,address,bytes32,bytes32)"(
+      context?: PromiseOrValue<BytesLike> | null,
+      sender?: PromiseOrValue<string> | null,
+      newRealm?: PromiseOrValue<BytesLike> | null,
+      oldRealm?: null
+    ): ContextRealmChangedEventFilter;
+    ContextRealmChanged(
+      context?: PromiseOrValue<BytesLike> | null,
+      sender?: PromiseOrValue<string> | null,
+      newRealm?: PromiseOrValue<BytesLike> | null,
+      oldRealm?: null
+    ): ContextRealmChangedEventFilter;
 
     "ContextRegistered(bytes32,address,address,bytes32)"(
       context?: PromiseOrValue<BytesLike> | null,
@@ -3811,58 +3675,29 @@ export interface AccessControlManager extends BaseContract {
       realm?: null
     ): ContextUpdatedEventFilter;
 
-    "GroupDisabled(bytes32,address)"(
-      group?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null
-    ): GroupDisabledEventFilter;
-    GroupDisabled(
-      group?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null
-    ): GroupDisabledEventFilter;
-
-    "GroupEnabled(bytes32,address)"(
-      group?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null
-    ): GroupEnabledEventFilter;
-    GroupEnabled(
-      group?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null
-    ): GroupEnabledEventFilter;
-
     "GroupRegistered(bytes32,address,string,bool)"(
       group?: PromiseOrValue<BytesLike> | null,
       sender?: PromiseOrValue<string> | null,
       name?: null,
-      isEnabled?: null
+      status?: null
     ): GroupRegisteredEventFilter;
     GroupRegistered(
       group?: PromiseOrValue<BytesLike> | null,
       sender?: PromiseOrValue<string> | null,
       name?: null,
-      isEnabled?: null
+      status?: null
     ): GroupRegisteredEventFilter;
 
-    "GroupRoleGranted(bytes32,bytes32,address)"(
+    "GroupStatChanged(bytes32,address,bool)"(
       group?: PromiseOrValue<BytesLike> | null,
-      role?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null
-    ): GroupRoleGrantedEventFilter;
-    GroupRoleGranted(
+      sender?: PromiseOrValue<string> | null,
+      status?: null
+    ): GroupStatChangedEventFilter;
+    GroupStatChanged(
       group?: PromiseOrValue<BytesLike> | null,
-      role?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null
-    ): GroupRoleGrantedEventFilter;
-
-    "GroupRoleRevoked(bytes32,bytes32,address)"(
-      group?: PromiseOrValue<BytesLike> | null,
-      role?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null
-    ): GroupRoleRevokedEventFilter;
-    GroupRoleRevoked(
-      group?: PromiseOrValue<BytesLike> | null,
-      role?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null
-    ): GroupRoleRevokedEventFilter;
+      sender?: PromiseOrValue<string> | null,
+      status?: null
+    ): GroupStatChangedEventFilter;
 
     "Initialized(address,address,address,string,string,bytes32,uint16)"(
       sender?: PromiseOrValue<string> | null,
@@ -3883,115 +3718,77 @@ export interface AccessControlManager extends BaseContract {
       initializedCount?: null
     ): InitializedEventFilter;
 
-    "RealmContextGranted(bytes32,bytes32,address)"(
-      realm?: PromiseOrValue<BytesLike> | null,
-      context?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null
-    ): RealmContextGrantedEventFilter;
-    RealmContextGranted(
-      realm?: PromiseOrValue<BytesLike> | null,
-      context?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null
-    ): RealmContextGrantedEventFilter;
-
-    "RealmDisabled(bytes32,address)"(
-      realm?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null
-    ): RealmDisabledEventFilter;
-    RealmDisabled(
-      realm?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null
-    ): RealmDisabledEventFilter;
-
-    "RealmEnabled(bytes32,address)"(
-      realm?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null
-    ): RealmEnabledEventFilter;
-    RealmEnabled(
-      realm?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null
-    ): RealmEnabledEventFilter;
-
-    "RealmRegistered(bytes32,address,string,bool)"(
+    "RealmRegistered(bytes32,address,string,bool,bool)"(
       realm?: PromiseOrValue<BytesLike> | null,
       sender?: PromiseOrValue<string> | null,
       name?: null,
-      isEnabled?: null
+      status?: null,
+      isUpgradable?: null
     ): RealmRegisteredEventFilter;
     RealmRegistered(
       realm?: PromiseOrValue<BytesLike> | null,
       sender?: PromiseOrValue<string> | null,
       name?: null,
-      isEnabled?: null
+      status?: null,
+      isUpgradable?: null
     ): RealmRegisteredEventFilter;
 
-    "RealmRoleRevoked(bytes32,bytes32,address)"(
+    "RealmStatChanged(bytes32,address,bool)"(
       realm?: PromiseOrValue<BytesLike> | null,
-      context?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null
-    ): RealmRoleRevokedEventFilter;
-    RealmRoleRevoked(
+      sender?: PromiseOrValue<string> | null,
+      status?: null
+    ): RealmStatChangedEventFilter;
+    RealmStatChanged(
       realm?: PromiseOrValue<BytesLike> | null,
-      context?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null
-    ): RealmRoleRevokedEventFilter;
+      sender?: PromiseOrValue<string> | null,
+      status?: null
+    ): RealmStatChangedEventFilter;
 
-    "RealmUpgradeEnabled(bytes32,address)"(
+    "RealmUpgradeStatChanged(bytes32,address,bool)"(
       realm?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null
-    ): RealmUpgradeEnabledEventFilter;
-    RealmUpgradeEnabled(
+      sender?: PromiseOrValue<string> | null,
+      status?: null
+    ): RealmUpgradeStatChangedEventFilter;
+    RealmUpgradeStatChanged(
       realm?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null
-    ): RealmUpgradeEnabledEventFilter;
+      sender?: PromiseOrValue<string> | null,
+      status?: null
+    ): RealmUpgradeStatChangedEventFilter;
 
-    "RoleAccountGranted(bytes32,address,address,bytes32)"(
+    "RoleAccountGranted(bytes32,address,address)"(
       role?: PromiseOrValue<BytesLike> | null,
       account?: PromiseOrValue<string> | null,
-      sender?: PromiseOrValue<string> | null,
-      group?: null
+      sender?: PromiseOrValue<string> | null
     ): RoleAccountGrantedEventFilter;
     RoleAccountGranted(
       role?: PromiseOrValue<BytesLike> | null,
       account?: PromiseOrValue<string> | null,
-      sender?: PromiseOrValue<string> | null,
-      group?: null
+      sender?: PromiseOrValue<string> | null
     ): RoleAccountGrantedEventFilter;
 
-    "RoleAccountRevoked(bytes32,address,address,bytes32)"(
+    "RoleAccountRevoked(bytes32,address,address)"(
       role?: PromiseOrValue<BytesLike> | null,
       account?: PromiseOrValue<string> | null,
-      sender?: PromiseOrValue<string> | null,
-      group?: null
+      sender?: PromiseOrValue<string> | null
     ): RoleAccountRevokedEventFilter;
     RoleAccountRevoked(
       role?: PromiseOrValue<BytesLike> | null,
       account?: PromiseOrValue<string> | null,
-      sender?: PromiseOrValue<string> | null,
-      group?: null
+      sender?: PromiseOrValue<string> | null
     ): RoleAccountRevokedEventFilter;
 
-    "RoleDisabled(bytes32,address,bytes32)"(
+    "RoleGroupChanged(bytes32,address,bytes32,bytes32)"(
       role?: PromiseOrValue<BytesLike> | null,
       sender?: PromiseOrValue<string> | null,
-      group?: PromiseOrValue<BytesLike> | null
-    ): RoleDisabledEventFilter;
-    RoleDisabled(
+      newGroup?: PromiseOrValue<BytesLike> | null,
+      oldGroup?: null
+    ): RoleGroupChangedEventFilter;
+    RoleGroupChanged(
       role?: PromiseOrValue<BytesLike> | null,
       sender?: PromiseOrValue<string> | null,
-      group?: PromiseOrValue<BytesLike> | null
-    ): RoleDisabledEventFilter;
-
-    "RoleEnabled(bytes32,address,bytes32)"(
-      role?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null,
-      group?: PromiseOrValue<BytesLike> | null
-    ): RoleEnabledEventFilter;
-    RoleEnabled(
-      role?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null,
-      group?: PromiseOrValue<BytesLike> | null
-    ): RoleEnabledEventFilter;
+      newGroup?: PromiseOrValue<BytesLike> | null,
+      oldGroup?: null
+    ): RoleGroupChangedEventFilter;
 
     "RoleRegistered(bytes32,string,address,bytes32,bool)"(
       role?: PromiseOrValue<BytesLike> | null,
@@ -4008,18 +3805,44 @@ export interface AccessControlManager extends BaseContract {
       isEnabled?: null
     ): RoleRegisteredEventFilter;
 
-    "UpgradabilityChanged(address,address,bytes32,bool)"(
+    "RoleStatChanged(bytes32,address,bytes32,bool)"(
+      role?: PromiseOrValue<BytesLike> | null,
+      sender?: PromiseOrValue<string> | null,
+      group?: PromiseOrValue<BytesLike> | null,
+      status?: null
+    ): RoleStatChangedEventFilter;
+    RoleStatChanged(
+      role?: PromiseOrValue<BytesLike> | null,
+      sender?: PromiseOrValue<string> | null,
+      group?: PromiseOrValue<BytesLike> | null,
+      status?: null
+    ): RoleStatChangedEventFilter;
+
+    "SafeModeStateChanged(address,address,bytes32,bool)"(
       sender?: PromiseOrValue<string> | null,
       proxy?: PromiseOrValue<string> | null,
       realm?: PromiseOrValue<BytesLike> | null,
-      value?: null
-    ): UpgradabilityChangedEventFilter;
-    UpgradabilityChanged(
+      state?: null
+    ): SafeModeStateChangedEventFilter;
+    SafeModeStateChanged(
       sender?: PromiseOrValue<string> | null,
       proxy?: PromiseOrValue<string> | null,
       realm?: PromiseOrValue<BytesLike> | null,
-      value?: null
-    ): UpgradabilityChangedEventFilter;
+      state?: null
+    ): SafeModeStateChangedEventFilter;
+
+    "UpgradeStateChanged(address,address,bytes32,bool)"(
+      sender?: PromiseOrValue<string> | null,
+      proxy?: PromiseOrValue<string> | null,
+      realm?: PromiseOrValue<BytesLike> | null,
+      state?: null
+    ): UpgradeStateChangedEventFilter;
+    UpgradeStateChanged(
+      sender?: PromiseOrValue<string> | null,
+      proxy?: PromiseOrValue<string> | null,
+      realm?: PromiseOrValue<BytesLike> | null,
+      state?: null
+    ): UpgradeStateChangedEventFilter;
 
     "Upgraded(address,address,address)"(
       sender?: PromiseOrValue<string> | null,
@@ -4034,6 +3857,36 @@ export interface AccessControlManager extends BaseContract {
   };
 
   estimateGas: {
+    ACCESS_CONTROL_NAME(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "ACCESS_CONTROL_NAME()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    ACCESS_CONTROL_VERSION(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "ACCESS_CONTROL_VERSION()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    ANONYMOUSE_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "ANONYMOUSE_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    CONTEXT_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "CONTEXT_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    CONTEXT_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "CONTEXT_MANAGEMENT_VERSION()"(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    GROUP_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "GROUP_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    GROUP_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "GROUP_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     LIVELY_ADMIN_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
 
     "LIVELY_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -4046,51 +3899,25 @@ export interface AccessControlManager extends BaseContract {
 
     "LIVELY_GENERAL_REALM()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    LIVELY_PUBLIC_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "LIVELY_PUBLIC_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     LIVELY_SYSTEM_ADMIN_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
 
     "LIVELY_SYSTEM_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    addGroup(
-      name: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+    REALM_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "addGroup(string,bool)"(
-      name: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+    "REALM_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    addRealm(
-      name: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+    REALM_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "addRealm(string,bool)"(
-      name: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+    "REALM_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    addRole(
-      name: PromiseOrValue<string>,
-      group: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+    ROLE_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "addRole(string,string,bool)"(
-      name: PromiseOrValue<string>,
-      group: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+    "ROLE_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    ROLE_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "ROLE_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     contractContext(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -4116,89 +3943,9 @@ export interface AccessControlManager extends BaseContract {
 
     "contractVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    disableContext(
-      ctx: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+    getAccessControlManager(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "disableContext(bytes32)"(
-      ctx: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    disabledGroup(
-      group: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "disabledGroup(bytes32)"(
-      group: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    disabledRealm(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "disabledRealm(bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    enableContext(
-      ctx: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "enableContext(bytes32)"(
-      ctx: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    enableUpgradeContext(
-      ctx: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "enableUpgradeContext(bytes32)"(
-      ctx: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    enableUpgradeRealm(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "enableUpgradeRealm(bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    enabledGroup(
-      group: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "enabledGroup(bytes32)"(
-      group: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    enabledRealm(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "enabledRealm(bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    getAccessControl(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "getAccessControl()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "getAccessControlManager()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     getAdmin(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -4258,12 +4005,12 @@ export interface AccessControlManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    getRealmContextes(
+    getRealmContexts(
       realm: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "getRealmContextes(bytes32)"(
+    "getRealmContexts(bytes32)"(
       realm: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -4278,22 +4025,12 @@ export interface AccessControlManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    getRoleContextes(
+    getRoleAccounts(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "getRoleContextes(bytes32)"(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    getRoleUsers(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "getRoleUsers(bytes32)"(
+    "getRoleAccounts(bytes32)"(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -4309,30 +4046,6 @@ export interface AccessControlManager extends BaseContract {
       ctx: PromiseOrValue<BytesLike>,
       functionSelector: PromiseOrValue<BytesLike>,
       role: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    grantGroupRole(
-      group: PromiseOrValue<BytesLike>,
-      role: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "grantGroupRole(bytes32,bytes32)"(
-      group: PromiseOrValue<BytesLike>,
-      role: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    grantRealmContext(
-      realm: PromiseOrValue<BytesLike>,
-      context: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "grantRealmContext(bytes32,bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      context: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -4468,37 +4181,23 @@ export interface AccessControlManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    isActivated(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "isActivated()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    isEnabled(
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "isEnabled(bytes32)"(
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     isInitializing(overrides?: CallOverrides): Promise<BigNumber>;
 
     "isInitializing()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    isUpgradable(overrides?: CallOverrides): Promise<BigNumber>;
+    "isSafeMode(bytes32)"(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "isSafeMode()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "isUpgradable(bytes32)"(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     "isUpgradable()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    isUpgradeEnabled(
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "isUpgradeEnabled(bytes32)"(
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     proxiableUUID(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -4518,6 +4217,46 @@ export interface AccessControlManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    registerGroup(
+      name: PromiseOrValue<string>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "registerGroup(string,bool)"(
+      name: PromiseOrValue<string>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    registerRealm(
+      name: PromiseOrValue<string>,
+      status: PromiseOrValue<boolean>,
+      isUpgradable: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "registerRealm(string,bool,bool)"(
+      name: PromiseOrValue<string>,
+      status: PromiseOrValue<boolean>,
+      isUpgradable: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    registerRole(
+      name: PromiseOrValue<string>,
+      group: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "registerRole(string,bytes32,bool)"(
+      name: PromiseOrValue<string>,
+      group: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     revokeContextRole(
       ctx: PromiseOrValue<BytesLike>,
       functionSelector: PromiseOrValue<BytesLike>,
@@ -4529,30 +4268,6 @@ export interface AccessControlManager extends BaseContract {
       ctx: PromiseOrValue<BytesLike>,
       functionSelector: PromiseOrValue<BytesLike>,
       role: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    revokeGroupRole(
-      group: PromiseOrValue<BytesLike>,
-      role: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "revokeGroupRole(bytes32,bytes32)"(
-      group: PromiseOrValue<BytesLike>,
-      role: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    revokeRealmContext(
-      realm: PromiseOrValue<BytesLike>,
-      context: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "revokeRealmContext(bytes32,bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      context: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -4568,16 +4283,6 @@ export interface AccessControlManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setActivity(
-      value: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "setActivity(bool)"(
-      value: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     setAdmin(
       newAdmin: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -4588,33 +4293,119 @@ export interface AccessControlManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setDisabledRole(
+    setContextRealm(
+      ctx: PromiseOrValue<BytesLike>,
+      realm: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "setContextRealm(bytes32,bytes32)"(
+      ctx: PromiseOrValue<BytesLike>,
+      realm: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setContextSafeMode(
+      ctx: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "setContextSafeMode(bytes32,bool)"(
+      ctx: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setContextUpgradeState(
+      ctx: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "setContextUpgradeState(bytes32,bool)"(
+      ctx: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setGroupStat(
+      group: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "setGroupStat(bytes32,bool)"(
+      group: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setRealmStat(
+      realm: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "setRealmStat(bytes32,bool)"(
+      realm: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setRealmUpgradeStat(
+      realm: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "setRealmUpgradeStat(bytes32,bool)"(
+      realm: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setRoleGroup(
       role: PromiseOrValue<BytesLike>,
+      group: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "setDisabledRole(bytes32)"(
+    "setRoleGroup(bytes32,bytes32)"(
       role: PromiseOrValue<BytesLike>,
+      group: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setEnabledRole(
+    setRoleStat(
       role: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "setEnabledRole(bytes32)"(
+    "setRoleStat(bytes32,bool)"(
       role: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setUpgradability(
-      value: PromiseOrValue<boolean>,
+    setSafeModeState(
+      state: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "setUpgradability(bool)"(
-      value: PromiseOrValue<boolean>,
+    "setSafeModeState(bool)"(
+      state: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setUpgradeState(
+      state: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "setUpgradeState(bool)"(
+      state: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -4660,6 +4451,60 @@ export interface AccessControlManager extends BaseContract {
   };
 
   populateTransaction: {
+    ACCESS_CONTROL_NAME(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "ACCESS_CONTROL_NAME()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    ACCESS_CONTROL_VERSION(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "ACCESS_CONTROL_VERSION()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    ANONYMOUSE_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "ANONYMOUSE_ROLE()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    CONTEXT_MANAGEMENT_NAME(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "CONTEXT_MANAGEMENT_NAME()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    CONTEXT_MANAGEMENT_VERSION(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "CONTEXT_MANAGEMENT_VERSION()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    GROUP_MANAGEMENT_NAME(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "GROUP_MANAGEMENT_NAME()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    GROUP_MANAGEMENT_VERSION(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "GROUP_MANAGEMENT_VERSION()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     LIVELY_ADMIN_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "LIVELY_ADMIN_ROLE()"(
@@ -4682,14 +4527,6 @@ export interface AccessControlManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    LIVELY_PUBLIC_ROLE(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "LIVELY_PUBLIC_ROLE()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     LIVELY_SYSTEM_ADMIN_ROLE(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -4698,42 +4535,36 @@ export interface AccessControlManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    addGroup(
-      name: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    REALM_MANAGEMENT_NAME(
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "addGroup(string,bool)"(
-      name: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    "REALM_MANAGEMENT_NAME()"(
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    addRealm(
-      name: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    REALM_MANAGEMENT_VERSION(
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "addRealm(string,bool)"(
-      name: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    "REALM_MANAGEMENT_VERSION()"(
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    addRole(
-      name: PromiseOrValue<string>,
-      group: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ROLE_MANAGEMENT_NAME(
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "addRole(string,string,bool)"(
-      name: PromiseOrValue<string>,
-      group: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    "ROLE_MANAGEMENT_NAME()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    ROLE_MANAGEMENT_VERSION(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "ROLE_MANAGEMENT_VERSION()"(
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     contractContext(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -4764,89 +4595,11 @@ export interface AccessControlManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    disableContext(
-      ctx: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    getAccessControlManager(
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "disableContext(bytes32)"(
-      ctx: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    disabledGroup(
-      group: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "disabledGroup(bytes32)"(
-      group: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    disabledRealm(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "disabledRealm(bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    enableContext(
-      ctx: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "enableContext(bytes32)"(
-      ctx: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    enableUpgradeContext(
-      ctx: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "enableUpgradeContext(bytes32)"(
-      ctx: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    enableUpgradeRealm(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "enableUpgradeRealm(bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    enabledGroup(
-      group: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "enabledGroup(bytes32)"(
-      group: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    enabledRealm(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "enabledRealm(bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    getAccessControl(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "getAccessControl()"(
+    "getAccessControlManager()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -4912,12 +4665,12 @@ export interface AccessControlManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    getRealmContextes(
+    getRealmContexts(
       realm: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "getRealmContextes(bytes32)"(
+    "getRealmContexts(bytes32)"(
       realm: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -4932,22 +4685,12 @@ export interface AccessControlManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    getRoleContextes(
+    getRoleAccounts(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "getRoleContextes(bytes32)"(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getRoleUsers(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "getRoleUsers(bytes32)"(
+    "getRoleAccounts(bytes32)"(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -4963,30 +4706,6 @@ export interface AccessControlManager extends BaseContract {
       ctx: PromiseOrValue<BytesLike>,
       functionSelector: PromiseOrValue<BytesLike>,
       role: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    grantGroupRole(
-      group: PromiseOrValue<BytesLike>,
-      role: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "grantGroupRole(bytes32,bytes32)"(
-      group: PromiseOrValue<BytesLike>,
-      role: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    grantRealmContext(
-      realm: PromiseOrValue<BytesLike>,
-      context: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "grantRealmContext(bytes32,bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      context: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -5122,39 +4841,25 @@ export interface AccessControlManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    isActivated(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "isActivated()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    isEnabled(
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "isEnabled(bytes32)"(
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     isInitializing(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "isInitializing()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    isUpgradable(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    "isSafeMode(bytes32)"(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "isSafeMode()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "isUpgradable(bytes32)"(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     "isUpgradable()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    isUpgradeEnabled(
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "isUpgradeEnabled(bytes32)"(
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
 
     proxiableUUID(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -5174,6 +4879,46 @@ export interface AccessControlManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    registerGroup(
+      name: PromiseOrValue<string>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "registerGroup(string,bool)"(
+      name: PromiseOrValue<string>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    registerRealm(
+      name: PromiseOrValue<string>,
+      status: PromiseOrValue<boolean>,
+      isUpgradable: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "registerRealm(string,bool,bool)"(
+      name: PromiseOrValue<string>,
+      status: PromiseOrValue<boolean>,
+      isUpgradable: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    registerRole(
+      name: PromiseOrValue<string>,
+      group: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "registerRole(string,bytes32,bool)"(
+      name: PromiseOrValue<string>,
+      group: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     revokeContextRole(
       ctx: PromiseOrValue<BytesLike>,
       functionSelector: PromiseOrValue<BytesLike>,
@@ -5185,30 +4930,6 @@ export interface AccessControlManager extends BaseContract {
       ctx: PromiseOrValue<BytesLike>,
       functionSelector: PromiseOrValue<BytesLike>,
       role: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    revokeGroupRole(
-      group: PromiseOrValue<BytesLike>,
-      role: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "revokeGroupRole(bytes32,bytes32)"(
-      group: PromiseOrValue<BytesLike>,
-      role: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    revokeRealmContext(
-      realm: PromiseOrValue<BytesLike>,
-      context: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "revokeRealmContext(bytes32,bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      context: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -5224,16 +4945,6 @@ export interface AccessControlManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setActivity(
-      value: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "setActivity(bool)"(
-      value: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     setAdmin(
       newAdmin: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -5244,33 +4955,119 @@ export interface AccessControlManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setDisabledRole(
+    setContextRealm(
+      ctx: PromiseOrValue<BytesLike>,
+      realm: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "setContextRealm(bytes32,bytes32)"(
+      ctx: PromiseOrValue<BytesLike>,
+      realm: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setContextSafeMode(
+      ctx: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "setContextSafeMode(bytes32,bool)"(
+      ctx: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setContextUpgradeState(
+      ctx: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "setContextUpgradeState(bytes32,bool)"(
+      ctx: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setGroupStat(
+      group: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "setGroupStat(bytes32,bool)"(
+      group: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setRealmStat(
+      realm: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "setRealmStat(bytes32,bool)"(
+      realm: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setRealmUpgradeStat(
+      realm: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "setRealmUpgradeStat(bytes32,bool)"(
+      realm: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setRoleGroup(
       role: PromiseOrValue<BytesLike>,
+      group: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "setDisabledRole(bytes32)"(
+    "setRoleGroup(bytes32,bytes32)"(
       role: PromiseOrValue<BytesLike>,
+      group: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setEnabledRole(
+    setRoleStat(
       role: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "setEnabledRole(bytes32)"(
+    "setRoleStat(bytes32,bool)"(
       role: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setUpgradability(
-      value: PromiseOrValue<boolean>,
+    setSafeModeState(
+      state: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "setUpgradability(bool)"(
-      value: PromiseOrValue<boolean>,
+    "setSafeModeState(bool)"(
+      state: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setUpgradeState(
+      state: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "setUpgradeState(bool)"(
+      state: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

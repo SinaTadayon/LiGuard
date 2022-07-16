@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.15 < 0.9.0;
+pragma solidity >=0.8.15 <0.9.0;
 
 /**
  * @dev Library for reading and writing primitive types to specific storage slots.

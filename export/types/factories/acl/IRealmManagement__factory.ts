@@ -21,69 +21,6 @@ const _abi = [
       },
       {
         indexed: true,
-        internalType: "bytes32",
-        name: "context",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "sender",
-        type: "address",
-      },
-    ],
-    name: "RealmContextGranted",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "realm",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "sender",
-        type: "address",
-      },
-    ],
-    name: "RealmDisabled",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "realm",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "sender",
-        type: "address",
-      },
-    ],
-    name: "RealmEnabled",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "realm",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
         internalType: "address",
         name: "sender",
         type: "address",
@@ -97,7 +34,13 @@ const _abi = [
       {
         indexed: false,
         internalType: "bool",
-        name: "isEnabled",
+        name: "status",
+        type: "bool",
+      },
+      {
+        indexed: false,
+        internalType: "bool",
+        name: "isUpgradable",
         type: "bool",
       },
     ],
@@ -115,18 +58,18 @@ const _abi = [
       },
       {
         indexed: true,
-        internalType: "bytes32",
-        name: "context",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
         internalType: "address",
         name: "sender",
         type: "address",
       },
+      {
+        indexed: false,
+        internalType: "bool",
+        name: "status",
+        type: "bool",
+      },
     ],
-    name: "RealmRoleRevoked",
+    name: "RealmStatChanged",
     type: "event",
   },
   {
@@ -144,90 +87,15 @@ const _abi = [
         name: "sender",
         type: "address",
       },
+      {
+        indexed: false,
+        internalType: "bool",
+        name: "status",
+        type: "bool",
+      },
     ],
-    name: "RealmUpgradeEnabled",
+    name: "RealmUpgradeStatChanged",
     type: "event",
-  },
-  {
-    inputs: [
-      {
-        internalType: "string",
-        name: "name",
-        type: "string",
-      },
-      {
-        internalType: "bool",
-        name: "isEnabled",
-        type: "bool",
-      },
-    ],
-    name: "addRealm",
-    outputs: [
-      {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "realm",
-        type: "bytes32",
-      },
-    ],
-    name: "disabledRealm",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "realm",
-        type: "bytes32",
-      },
-    ],
-    name: "enableUpgradeRealm",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "realm",
-        type: "bytes32",
-      },
-    ],
-    name: "enabledRealm",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
   },
   {
     inputs: [
@@ -249,6 +117,11 @@ const _abi = [
         name: "",
         type: "bool",
       },
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
     ],
     stateMutability: "view",
     type: "function",
@@ -261,7 +134,7 @@ const _abi = [
         type: "bytes32",
       },
     ],
-    name: "getRealmContextes",
+    name: "getRealmContexts",
     outputs: [
       {
         internalType: "bytes32[]",
@@ -270,30 +143,6 @@ const _abi = [
       },
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "realm",
-        type: "bytes32",
-      },
-      {
-        internalType: "bytes32",
-        name: "context",
-        type: "bytes32",
-      },
-    ],
-    name: "grantRealmContext",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -323,17 +172,70 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "string",
+        name: "name",
+        type: "string",
+      },
+      {
+        internalType: "bool",
+        name: "status",
+        type: "bool",
+      },
+      {
+        internalType: "bool",
+        name: "isUpgradable",
+        type: "bool",
+      },
+    ],
+    name: "registerRealm",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes32",
         name: "realm",
         type: "bytes32",
       },
       {
-        internalType: "bytes32",
-        name: "context",
-        type: "bytes32",
+        internalType: "bool",
+        name: "status",
+        type: "bool",
       },
     ],
-    name: "revokeRealmContext",
+    name: "setRealmStat",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "realm",
+        type: "bytes32",
+      },
+      {
+        internalType: "bool",
+        name: "status",
+        type: "bool",
+      },
+    ],
+    name: "setRealmUpgradeStat",
     outputs: [
       {
         internalType: "bool",

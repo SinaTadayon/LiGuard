@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.15 < 0.9.0;
+pragma solidity >=0.8.15 <0.9.0;
 
 import "./IBaseProxy.sol";
 import "./BaseProxy.sol";
@@ -7,6 +7,7 @@ import "./IERC1822.sol";
 import "./BaseUUPSStorage.sol";
 import "../lib/LAddress.sol";
 import "../lib/LStorageSlot.sol";
+
 // import "hardhat/console.sol";
 
 /**
@@ -17,7 +18,6 @@ import "../lib/LStorageSlot.sol";
  */
 
 contract Proxy is BaseUUPSStorage, BaseProxy, IBaseProxy {
-
     /**
      * @dev Initializes the upgradeable proxy with an initial implementation specified by `_logic`.
      *
@@ -36,13 +36,13 @@ contract Proxy is BaseUUPSStorage, BaseProxy, IBaseProxy {
      * and {_fallback} should delegate.
      */
     function _implementation() internal view override returns (address) {
-         return LStorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value;
+        return LStorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value;
     }
 
     /**
      * @dev Stores a new address in the EIP1967 implementation slot.
      */
-    function _setImplementation(address newImplementation) private {  
+    function _setImplementation(address newImplementation) private {
         LStorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value = newImplementation;
     }
 
@@ -64,11 +64,11 @@ contract Proxy is BaseUUPSStorage, BaseProxy, IBaseProxy {
     function _upgradeToAndCall(
         address newImplementation,
         bytes memory data,
-        bool forceCall 
+        bool forceCall
     ) private returns (bytes memory) {
         _upgradeTo(newImplementation);
         if (data.length > 0 || forceCall) {
-           return _functionDelegateCall(newImplementation, data);
+            return _functionDelegateCall(newImplementation, data);
         }
         return new bytes(0);
     }
@@ -95,11 +95,10 @@ contract Proxy is BaseUUPSStorage, BaseProxy, IBaseProxy {
             } catch {
                 revert("Contract Not UUPS");
             }
-            
+
             return _upgradeToAndCall(newImplementation, data, forceCall);
         }
     }
-
 
     /**
      * @dev Same as {xref-Address-functionCall-address-bytes-string-}[`functionCall`],

@@ -26,37 +26,6 @@ const _abi = [
         type: "address",
       },
       {
-        indexed: true,
-        internalType: "bytes32",
-        name: "realm",
-        type: "bytes32",
-      },
-      {
-        indexed: false,
-        internalType: "bool",
-        name: "value",
-        type: "bool",
-      },
-    ],
-    name: "ActivityChanged",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "sender",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "proxy",
-        type: "address",
-      },
-      {
         indexed: false,
         internalType: "address",
         name: "newAdmin",
@@ -139,11 +108,42 @@ const _abi = [
       {
         indexed: false,
         internalType: "bool",
-        name: "value",
+        name: "state",
         type: "bool",
       },
     ],
-    name: "UpgradabilityChanged",
+    name: "SafeModeStateChanged",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "proxy",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "realm",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "bool",
+        name: "state",
+        type: "bool",
+      },
+    ],
+    name: "UpgradeStateChanged",
     type: "event",
   },
   {
@@ -219,9 +219,9 @@ const _abi = [
     name: "contractRegisteration",
     outputs: [
       {
-        internalType: "bool",
+        internalType: "bytes32",
         name: "",
-        type: "bool",
+        type: "bytes32",
       },
     ],
     stateMutability: "nonpayable",
@@ -242,7 +242,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "getAccessControl",
+    name: "getAccessControlManager",
     outputs: [
       {
         internalType: "address",
@@ -281,7 +281,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "isActivated",
+    name: "isInitializing",
     outputs: [
       {
         internalType: "bool",
@@ -294,7 +294,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "isInitializing",
+    name: "isSafeMode",
     outputs: [
       {
         internalType: "bool",
@@ -334,25 +334,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bool",
-        name: "value",
-        type: "bool",
-      },
-    ],
-    name: "setActivity",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "address",
         name: "newAdmin",
         type: "address",
@@ -373,11 +354,30 @@ const _abi = [
     inputs: [
       {
         internalType: "bool",
-        name: "value",
+        name: "state",
         type: "bool",
       },
     ],
-    name: "setUpgradability",
+    name: "setSafeModeState",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bool",
+        name: "state",
+        type: "bool",
+      },
+    ],
+    name: "setUpgradeState",
     outputs: [
       {
         internalType: "bool",

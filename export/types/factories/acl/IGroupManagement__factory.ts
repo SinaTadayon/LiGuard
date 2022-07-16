@@ -25,44 +25,6 @@ const _abi = [
         name: "sender",
         type: "address",
       },
-    ],
-    name: "GroupDisabled",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "group",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "sender",
-        type: "address",
-      },
-    ],
-    name: "GroupEnabled",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "group",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "sender",
-        type: "address",
-      },
       {
         indexed: false,
         internalType: "string",
@@ -72,7 +34,7 @@ const _abi = [
       {
         indexed: false,
         internalType: "bool",
-        name: "isEnabled",
+        name: "status",
         type: "bool",
       },
     ],
@@ -90,106 +52,19 @@ const _abi = [
       },
       {
         indexed: true,
-        internalType: "bytes32",
-        name: "role",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
         internalType: "address",
         name: "sender",
         type: "address",
       },
+      {
+        indexed: false,
+        internalType: "bool",
+        name: "status",
+        type: "bool",
+      },
     ],
-    name: "GroupRoleGranted",
+    name: "GroupStatChanged",
     type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "group",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "role",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "sender",
-        type: "address",
-      },
-    ],
-    name: "GroupRoleRevoked",
-    type: "event",
-  },
-  {
-    inputs: [
-      {
-        internalType: "string",
-        name: "name",
-        type: "string",
-      },
-      {
-        internalType: "bool",
-        name: "isEnabled",
-        type: "bool",
-      },
-    ],
-    name: "addGroup",
-    outputs: [
-      {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "group",
-        type: "bytes32",
-      },
-    ],
-    name: "disabledGroup",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "group",
-        type: "bytes32",
-      },
-    ],
-    name: "enabledGroup",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
   },
   {
     inputs: [
@@ -247,30 +122,6 @@ const _abi = [
         type: "bytes32",
       },
     ],
-    name: "grantGroupRole",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "group",
-        type: "bytes32",
-      },
-      {
-        internalType: "bytes32",
-        name: "role",
-        type: "bytes32",
-      },
-    ],
     name: "hasGroupRole",
     outputs: [
       {
@@ -285,17 +136,41 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "string",
+        name: "name",
+        type: "string",
+      },
+      {
+        internalType: "bool",
+        name: "status",
+        type: "bool",
+      },
+    ],
+    name: "registerGroup",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes32",
         name: "group",
         type: "bytes32",
       },
       {
-        internalType: "bytes32",
-        name: "role",
-        type: "bytes32",
+        internalType: "bool",
+        name: "status",
+        type: "bool",
       },
     ],
-    name: "revokeGroupRole",
+    name: "setGroupStat",
     outputs: [
       {
         internalType: "bool",

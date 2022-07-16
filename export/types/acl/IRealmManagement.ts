@@ -28,71 +28,30 @@ import type {
 
 export interface IRealmManagementInterface extends utils.Interface {
   functions: {
-    "addRealm(string,bool)": FunctionFragment;
-    "disabledRealm(bytes32)": FunctionFragment;
-    "enableUpgradeRealm(bytes32)": FunctionFragment;
-    "enabledRealm(bytes32)": FunctionFragment;
     "getRealm(bytes32)": FunctionFragment;
-    "getRealmContextes(bytes32)": FunctionFragment;
-    "grantRealmContext(bytes32,bytes32)": FunctionFragment;
+    "getRealmContexts(bytes32)": FunctionFragment;
     "hasRealmContext(bytes32,bytes32)": FunctionFragment;
-    "revokeRealmContext(bytes32,bytes32)": FunctionFragment;
+    "registerRealm(string,bool,bool)": FunctionFragment;
+    "setRealmStat(bytes32,bool)": FunctionFragment;
+    "setRealmUpgradeStat(bytes32,bool)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "addRealm"
-      | "addRealm(string,bool)"
-      | "disabledRealm"
-      | "disabledRealm(bytes32)"
-      | "enableUpgradeRealm"
-      | "enableUpgradeRealm(bytes32)"
-      | "enabledRealm"
-      | "enabledRealm(bytes32)"
       | "getRealm"
       | "getRealm(bytes32)"
-      | "getRealmContextes"
-      | "getRealmContextes(bytes32)"
-      | "grantRealmContext"
-      | "grantRealmContext(bytes32,bytes32)"
+      | "getRealmContexts"
+      | "getRealmContexts(bytes32)"
       | "hasRealmContext"
       | "hasRealmContext(bytes32,bytes32)"
-      | "revokeRealmContext"
-      | "revokeRealmContext(bytes32,bytes32)"
+      | "registerRealm"
+      | "registerRealm(string,bool,bool)"
+      | "setRealmStat"
+      | "setRealmStat(bytes32,bool)"
+      | "setRealmUpgradeStat"
+      | "setRealmUpgradeStat(bytes32,bool)"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "addRealm",
-    values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "addRealm(string,bool)",
-    values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "disabledRealm",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "disabledRealm(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "enableUpgradeRealm",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "enableUpgradeRealm(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "enabledRealm",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "enabledRealm(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
   encodeFunctionData(
     functionFragment: "getRealm",
     values: [PromiseOrValue<BytesLike>]
@@ -102,20 +61,12 @@ export interface IRealmManagementInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "getRealmContextes",
+    functionFragment: "getRealmContexts",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "getRealmContextes(bytes32)",
+    functionFragment: "getRealmContexts(bytes32)",
     values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "grantRealmContext",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "grantRealmContext(bytes32,bytes32)",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "hasRealmContext",
@@ -126,62 +77,49 @@ export interface IRealmManagementInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "revokeRealmContext",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
+    functionFragment: "registerRealm",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<boolean>,
+      PromiseOrValue<boolean>
+    ]
   ): string;
   encodeFunctionData(
-    functionFragment: "revokeRealmContext(bytes32,bytes32)",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
+    functionFragment: "registerRealm(string,bool,bool)",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<boolean>,
+      PromiseOrValue<boolean>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setRealmStat",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setRealmStat(bytes32,bool)",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setRealmUpgradeStat",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setRealmUpgradeStat(bytes32,bool)",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
   ): string;
 
-  decodeFunctionResult(functionFragment: "addRealm", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "addRealm(string,bool)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "disabledRealm",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "disabledRealm(bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "enableUpgradeRealm",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "enableUpgradeRealm(bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "enabledRealm",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "enabledRealm(bytes32)",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "getRealm", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getRealm(bytes32)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getRealmContextes",
+    functionFragment: "getRealmContexts",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getRealmContextes(bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "grantRealmContext",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "grantRealmContext(bytes32,bytes32)",
+    functionFragment: "getRealmContexts(bytes32)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -193,121 +131,89 @@ export interface IRealmManagementInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "revokeRealmContext",
+    functionFragment: "registerRealm",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "revokeRealmContext(bytes32,bytes32)",
+    functionFragment: "registerRealm(string,bool,bool)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setRealmStat",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setRealmStat(bytes32,bool)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setRealmUpgradeStat",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setRealmUpgradeStat(bytes32,bool)",
     data: BytesLike
   ): Result;
 
   events: {
-    "RealmContextGranted(bytes32,bytes32,address)": EventFragment;
-    "RealmDisabled(bytes32,address)": EventFragment;
-    "RealmEnabled(bytes32,address)": EventFragment;
-    "RealmRegistered(bytes32,address,string,bool)": EventFragment;
-    "RealmRoleRevoked(bytes32,bytes32,address)": EventFragment;
-    "RealmUpgradeEnabled(bytes32,address)": EventFragment;
+    "RealmRegistered(bytes32,address,string,bool,bool)": EventFragment;
+    "RealmStatChanged(bytes32,address,bool)": EventFragment;
+    "RealmUpgradeStatChanged(bytes32,address,bool)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "RealmContextGranted"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "RealmContextGranted(bytes32,bytes32,address)"
-  ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RealmDisabled"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "RealmDisabled(bytes32,address)"
-  ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RealmEnabled"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "RealmEnabled(bytes32,address)"
-  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RealmRegistered"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "RealmRegistered(bytes32,address,string,bool)"
+    nameOrSignatureOrTopic: "RealmRegistered(bytes32,address,string,bool,bool)"
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RealmRoleRevoked"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RealmStatChanged"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "RealmRoleRevoked(bytes32,bytes32,address)"
+    nameOrSignatureOrTopic: "RealmStatChanged(bytes32,address,bool)"
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RealmUpgradeEnabled"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RealmUpgradeStatChanged"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "RealmUpgradeEnabled(bytes32,address)"
+    nameOrSignatureOrTopic: "RealmUpgradeStatChanged(bytes32,address,bool)"
   ): EventFragment;
 }
-
-export interface RealmContextGrantedEventObject {
-  realm: string;
-  context: string;
-  sender: string;
-}
-export type RealmContextGrantedEvent = TypedEvent<
-  [string, string, string],
-  RealmContextGrantedEventObject
->;
-
-export type RealmContextGrantedEventFilter =
-  TypedEventFilter<RealmContextGrantedEvent>;
-
-export interface RealmDisabledEventObject {
-  realm: string;
-  sender: string;
-}
-export type RealmDisabledEvent = TypedEvent<
-  [string, string],
-  RealmDisabledEventObject
->;
-
-export type RealmDisabledEventFilter = TypedEventFilter<RealmDisabledEvent>;
-
-export interface RealmEnabledEventObject {
-  realm: string;
-  sender: string;
-}
-export type RealmEnabledEvent = TypedEvent<
-  [string, string],
-  RealmEnabledEventObject
->;
-
-export type RealmEnabledEventFilter = TypedEventFilter<RealmEnabledEvent>;
 
 export interface RealmRegisteredEventObject {
   realm: string;
   sender: string;
   name: string;
-  isEnabled: boolean;
+  status: boolean;
+  isUpgradable: boolean;
 }
 export type RealmRegisteredEvent = TypedEvent<
-  [string, string, string, boolean],
+  [string, string, string, boolean, boolean],
   RealmRegisteredEventObject
 >;
 
 export type RealmRegisteredEventFilter = TypedEventFilter<RealmRegisteredEvent>;
 
-export interface RealmRoleRevokedEventObject {
-  realm: string;
-  context: string;
-  sender: string;
-}
-export type RealmRoleRevokedEvent = TypedEvent<
-  [string, string, string],
-  RealmRoleRevokedEventObject
->;
-
-export type RealmRoleRevokedEventFilter =
-  TypedEventFilter<RealmRoleRevokedEvent>;
-
-export interface RealmUpgradeEnabledEventObject {
+export interface RealmStatChangedEventObject {
   realm: string;
   sender: string;
+  status: boolean;
 }
-export type RealmUpgradeEnabledEvent = TypedEvent<
-  [string, string],
-  RealmUpgradeEnabledEventObject
+export type RealmStatChangedEvent = TypedEvent<
+  [string, string, boolean],
+  RealmStatChangedEventObject
 >;
 
-export type RealmUpgradeEnabledEventFilter =
-  TypedEventFilter<RealmUpgradeEnabledEvent>;
+export type RealmStatChangedEventFilter =
+  TypedEventFilter<RealmStatChangedEvent>;
+
+export interface RealmUpgradeStatChangedEventObject {
+  realm: string;
+  sender: string;
+  status: boolean;
+}
+export type RealmUpgradeStatChangedEvent = TypedEvent<
+  [string, string, boolean],
+  RealmUpgradeStatChangedEventObject
+>;
+
+export type RealmUpgradeStatChangedEventFilter =
+  TypedEventFilter<RealmUpgradeStatChangedEvent>;
 
 export interface IRealmManagement extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -336,79 +242,25 @@ export interface IRealmManagement extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    addRealm(
-      name: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "addRealm(string,bool)"(
-      name: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    disabledRealm(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "disabledRealm(bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    enableUpgradeRealm(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "enableUpgradeRealm(bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    enabledRealm(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "enabledRealm(bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     getRealm(
       realm: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<[string, boolean]>;
+    ): Promise<[string, boolean, boolean]>;
 
     "getRealm(bytes32)"(
       realm: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<[string, boolean]>;
+    ): Promise<[string, boolean, boolean]>;
 
-    getRealmContextes(
+    getRealmContexts(
       realm: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[string[]]>;
 
-    "getRealmContextes(bytes32)"(
+    "getRealmContexts(bytes32)"(
       realm: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[string[]]>;
-
-    grantRealmContext(
-      realm: PromiseOrValue<BytesLike>,
-      context: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "grantRealmContext(bytes32,bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      context: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
 
     hasRealmContext(
       realm: PromiseOrValue<BytesLike>,
@@ -422,92 +274,64 @@ export interface IRealmManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    revokeRealmContext(
-      realm: PromiseOrValue<BytesLike>,
-      context: PromiseOrValue<BytesLike>,
+    registerRealm(
+      name: PromiseOrValue<string>,
+      status: PromiseOrValue<boolean>,
+      isUpgradable: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "revokeRealmContext(bytes32,bytes32)"(
+    "registerRealm(string,bool,bool)"(
+      name: PromiseOrValue<string>,
+      status: PromiseOrValue<boolean>,
+      isUpgradable: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setRealmStat(
       realm: PromiseOrValue<BytesLike>,
-      context: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "setRealmStat(bytes32,bool)"(
+      realm: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setRealmUpgradeStat(
+      realm: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "setRealmUpgradeStat(bytes32,bool)"(
+      realm: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
-  addRealm(
-    name: PromiseOrValue<string>,
-    isEnabled: PromiseOrValue<boolean>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "addRealm(string,bool)"(
-    name: PromiseOrValue<string>,
-    isEnabled: PromiseOrValue<boolean>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  disabledRealm(
-    realm: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "disabledRealm(bytes32)"(
-    realm: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  enableUpgradeRealm(
-    realm: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "enableUpgradeRealm(bytes32)"(
-    realm: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  enabledRealm(
-    realm: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "enabledRealm(bytes32)"(
-    realm: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   getRealm(
     realm: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
-  ): Promise<[string, boolean]>;
+  ): Promise<[string, boolean, boolean]>;
 
   "getRealm(bytes32)"(
     realm: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
-  ): Promise<[string, boolean]>;
+  ): Promise<[string, boolean, boolean]>;
 
-  getRealmContextes(
+  getRealmContexts(
     realm: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<string[]>;
 
-  "getRealmContextes(bytes32)"(
+  "getRealmContexts(bytes32)"(
     realm: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<string[]>;
-
-  grantRealmContext(
-    realm: PromiseOrValue<BytesLike>,
-    context: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "grantRealmContext(bytes32,bytes32)"(
-    realm: PromiseOrValue<BytesLike>,
-    context: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   hasRealmContext(
     realm: PromiseOrValue<BytesLike>,
@@ -521,92 +345,64 @@ export interface IRealmManagement extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  revokeRealmContext(
-    realm: PromiseOrValue<BytesLike>,
-    context: PromiseOrValue<BytesLike>,
+  registerRealm(
+    name: PromiseOrValue<string>,
+    status: PromiseOrValue<boolean>,
+    isUpgradable: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "revokeRealmContext(bytes32,bytes32)"(
+  "registerRealm(string,bool,bool)"(
+    name: PromiseOrValue<string>,
+    status: PromiseOrValue<boolean>,
+    isUpgradable: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setRealmStat(
     realm: PromiseOrValue<BytesLike>,
-    context: PromiseOrValue<BytesLike>,
+    status: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "setRealmStat(bytes32,bool)"(
+    realm: PromiseOrValue<BytesLike>,
+    status: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setRealmUpgradeStat(
+    realm: PromiseOrValue<BytesLike>,
+    status: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "setRealmUpgradeStat(bytes32,bool)"(
+    realm: PromiseOrValue<BytesLike>,
+    status: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    addRealm(
-      name: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    "addRealm(string,bool)"(
-      name: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    disabledRealm(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "disabledRealm(bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    enableUpgradeRealm(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "enableUpgradeRealm(bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    enabledRealm(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "enabledRealm(bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     getRealm(
       realm: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<[string, boolean]>;
+    ): Promise<[string, boolean, boolean]>;
 
     "getRealm(bytes32)"(
       realm: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<[string, boolean]>;
+    ): Promise<[string, boolean, boolean]>;
 
-    getRealmContextes(
+    getRealmContexts(
       realm: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<string[]>;
 
-    "getRealmContextes(bytes32)"(
+    "getRealmContexts(bytes32)"(
       realm: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<string[]>;
-
-    grantRealmContext(
-      realm: PromiseOrValue<BytesLike>,
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "grantRealmContext(bytes32,bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
 
     hasRealmContext(
       realm: PromiseOrValue<BytesLike>,
@@ -620,126 +416,85 @@ export interface IRealmManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    revokeRealmContext(
+    registerRealm(
+      name: PromiseOrValue<string>,
+      status: PromiseOrValue<boolean>,
+      isUpgradable: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    "registerRealm(string,bool,bool)"(
+      name: PromiseOrValue<string>,
+      status: PromiseOrValue<boolean>,
+      isUpgradable: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    setRealmStat(
       realm: PromiseOrValue<BytesLike>,
-      context: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "revokeRealmContext(bytes32,bytes32)"(
+    "setRealmStat(bytes32,bool)"(
       realm: PromiseOrValue<BytesLike>,
-      context: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    setRealmUpgradeStat(
+      realm: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "setRealmUpgradeStat(bytes32,bool)"(
+      realm: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<boolean>;
   };
 
   filters: {
-    "RealmContextGranted(bytes32,bytes32,address)"(
-      realm?: PromiseOrValue<BytesLike> | null,
-      context?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null
-    ): RealmContextGrantedEventFilter;
-    RealmContextGranted(
-      realm?: PromiseOrValue<BytesLike> | null,
-      context?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null
-    ): RealmContextGrantedEventFilter;
-
-    "RealmDisabled(bytes32,address)"(
-      realm?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null
-    ): RealmDisabledEventFilter;
-    RealmDisabled(
-      realm?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null
-    ): RealmDisabledEventFilter;
-
-    "RealmEnabled(bytes32,address)"(
-      realm?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null
-    ): RealmEnabledEventFilter;
-    RealmEnabled(
-      realm?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null
-    ): RealmEnabledEventFilter;
-
-    "RealmRegistered(bytes32,address,string,bool)"(
+    "RealmRegistered(bytes32,address,string,bool,bool)"(
       realm?: PromiseOrValue<BytesLike> | null,
       sender?: PromiseOrValue<string> | null,
       name?: null,
-      isEnabled?: null
+      status?: null,
+      isUpgradable?: null
     ): RealmRegisteredEventFilter;
     RealmRegistered(
       realm?: PromiseOrValue<BytesLike> | null,
       sender?: PromiseOrValue<string> | null,
       name?: null,
-      isEnabled?: null
+      status?: null,
+      isUpgradable?: null
     ): RealmRegisteredEventFilter;
 
-    "RealmRoleRevoked(bytes32,bytes32,address)"(
+    "RealmStatChanged(bytes32,address,bool)"(
       realm?: PromiseOrValue<BytesLike> | null,
-      context?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null
-    ): RealmRoleRevokedEventFilter;
-    RealmRoleRevoked(
+      sender?: PromiseOrValue<string> | null,
+      status?: null
+    ): RealmStatChangedEventFilter;
+    RealmStatChanged(
       realm?: PromiseOrValue<BytesLike> | null,
-      context?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null
-    ): RealmRoleRevokedEventFilter;
+      sender?: PromiseOrValue<string> | null,
+      status?: null
+    ): RealmStatChangedEventFilter;
 
-    "RealmUpgradeEnabled(bytes32,address)"(
+    "RealmUpgradeStatChanged(bytes32,address,bool)"(
       realm?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null
-    ): RealmUpgradeEnabledEventFilter;
-    RealmUpgradeEnabled(
+      sender?: PromiseOrValue<string> | null,
+      status?: null
+    ): RealmUpgradeStatChangedEventFilter;
+    RealmUpgradeStatChanged(
       realm?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null
-    ): RealmUpgradeEnabledEventFilter;
+      sender?: PromiseOrValue<string> | null,
+      status?: null
+    ): RealmUpgradeStatChangedEventFilter;
   };
 
   estimateGas: {
-    addRealm(
-      name: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "addRealm(string,bool)"(
-      name: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    disabledRealm(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "disabledRealm(bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    enableUpgradeRealm(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "enableUpgradeRealm(bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    enabledRealm(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "enabledRealm(bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     getRealm(
       realm: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -750,26 +505,14 @@ export interface IRealmManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    getRealmContextes(
+    getRealmContexts(
       realm: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "getRealmContextes(bytes32)"(
+    "getRealmContexts(bytes32)"(
       realm: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    grantRealmContext(
-      realm: PromiseOrValue<BytesLike>,
-      context: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "grantRealmContext(bytes32,bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      context: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     hasRealmContext(
@@ -784,62 +527,46 @@ export interface IRealmManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    revokeRealmContext(
-      realm: PromiseOrValue<BytesLike>,
-      context: PromiseOrValue<BytesLike>,
+    registerRealm(
+      name: PromiseOrValue<string>,
+      status: PromiseOrValue<boolean>,
+      isUpgradable: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "revokeRealmContext(bytes32,bytes32)"(
+    "registerRealm(string,bool,bool)"(
+      name: PromiseOrValue<string>,
+      status: PromiseOrValue<boolean>,
+      isUpgradable: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setRealmStat(
       realm: PromiseOrValue<BytesLike>,
-      context: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "setRealmStat(bytes32,bool)"(
+      realm: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setRealmUpgradeStat(
+      realm: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "setRealmUpgradeStat(bytes32,bool)"(
+      realm: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    addRealm(
-      name: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "addRealm(string,bool)"(
-      name: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    disabledRealm(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "disabledRealm(bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    enableUpgradeRealm(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "enableUpgradeRealm(bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    enabledRealm(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "enabledRealm(bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     getRealm(
       realm: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -850,26 +577,14 @@ export interface IRealmManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    getRealmContextes(
+    getRealmContexts(
       realm: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "getRealmContextes(bytes32)"(
+    "getRealmContexts(bytes32)"(
       realm: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    grantRealmContext(
-      realm: PromiseOrValue<BytesLike>,
-      context: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "grantRealmContext(bytes32,bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      context: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     hasRealmContext(
@@ -884,15 +599,41 @@ export interface IRealmManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    revokeRealmContext(
-      realm: PromiseOrValue<BytesLike>,
-      context: PromiseOrValue<BytesLike>,
+    registerRealm(
+      name: PromiseOrValue<string>,
+      status: PromiseOrValue<boolean>,
+      isUpgradable: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "revokeRealmContext(bytes32,bytes32)"(
+    "registerRealm(string,bool,bool)"(
+      name: PromiseOrValue<string>,
+      status: PromiseOrValue<boolean>,
+      isUpgradable: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setRealmStat(
       realm: PromiseOrValue<BytesLike>,
-      context: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "setRealmStat(bytes32,bool)"(
+      realm: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setRealmUpgradeStat(
+      realm: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "setRealmUpgradeStat(bytes32,bool)"(
+      realm: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

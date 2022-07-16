@@ -12,6 +12,97 @@ import type {
 const _abi = [
   {
     inputs: [],
+    name: "ACCESS_CONTROL_NAME",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "ACCESS_CONTROL_VERSION",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "ANONYMOUSE_ROLE",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "CONTEXT_MANAGEMENT_NAME",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "CONTEXT_MANAGEMENT_VERSION",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "GROUP_MANAGEMENT_NAME",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "GROUP_MANAGEMENT_VERSION",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "LIVELY_ADMIN_ROLE",
     outputs: [
       {
@@ -51,7 +142,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "LIVELY_PUBLIC_ROLE",
+    name: "LIVELY_SYSTEM_ADMIN_ROLE",
     outputs: [
       {
         internalType: "bytes32",
@@ -64,7 +155,46 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "LIVELY_SYSTEM_ADMIN_ROLE",
+    name: "REALM_MANAGEMENT_NAME",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "REALM_MANAGEMENT_VERSION",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "ROLE_MANAGEMENT_NAME",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "ROLE_MANAGEMENT_VERSION",
     outputs: [
       {
         internalType: "bytes32",

@@ -1,37 +1,33 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.15 < 0.9.0;
+pragma solidity >=0.8.15 <0.9.0;
 
 interface IRealmManagement {
+    event RealmRegistered(bytes32 indexed realm, address indexed sender, string name, bool status, bool isUpgradable);
 
-    event RealmRegistered(bytes32 indexed realm, address indexed sender, string name, bool isEnabled);
+    event RealmStatChanged(bytes32 indexed realm, address indexed sender, bool status);
 
-    event RealmContextGranted(bytes32 indexed realm, bytes32 indexed context, address indexed sender);
+    event RealmUpgradeStatChanged(bytes32 indexed realm, address indexed sender, bool status);
 
-    event RealmRoleRevoked(bytes32 indexed realm, bytes32 indexed context, address indexed sender);
+    function registerRealm(
+        string calldata name,
+        bool status,
+        bool isUpgradable
+    ) external returns (bytes32);
 
-    event RealmEnabled(bytes32 indexed realm, address indexed sender);
+    function setRealmStat(bytes32 realm, bool status) external returns (bool);
 
-    event RealmDisabled(bytes32 indexed realm, address indexed sender);
-
-    event RealmUpgradeEnabled(bytes32 indexed realm, address indexed sender);
-
-    
-    function addRealm(string calldata name, bool isEnabled) external returns (bytes32);
-
-    function grantRealmContext(bytes32 realm, bytes32 context) external returns (bool);
-
-    function revokeRealmContext(bytes32 realm, bytes32 context) external returns (bool);
-
-    function enabledRealm(bytes32 realm) external returns (bool);
-
-    function disabledRealm(bytes32 realm) external returns (bool);
-
-    function enableUpgradeRealm(bytes32 realm) external returns (bool);
+    function setRealmUpgradeStat(bytes32 realm, bool status) external returns (bool);
 
     function hasRealmContext(bytes32 realm, bytes32 context) external view returns (bool);
 
-    function getRealm(bytes32 realm) external view returns (string calldata, bool);
+    function getRealm(bytes32 realm)
+        external
+        view
+        returns (
+            string memory,
+            bool,
+            bool
+        );
 
-    function getRealmContextes(bytes32 realm) external view returns (bytes32[] calldata);
-
+    function getRealmContexts(bytes32 realm) external view returns (bytes32[] memory);
 }

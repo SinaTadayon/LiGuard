@@ -22,28 +22,114 @@ import type {
 
 export interface AccessControlStorageInterface extends utils.Interface {
   functions: {
+    "ACCESS_CONTROL_NAME()": FunctionFragment;
+    "ACCESS_CONTROL_VERSION()": FunctionFragment;
+    "ANONYMOUSE_ROLE()": FunctionFragment;
+    "CONTEXT_MANAGEMENT_NAME()": FunctionFragment;
+    "CONTEXT_MANAGEMENT_VERSION()": FunctionFragment;
+    "GROUP_MANAGEMENT_NAME()": FunctionFragment;
+    "GROUP_MANAGEMENT_VERSION()": FunctionFragment;
     "LIVELY_ADMIN_ROLE()": FunctionFragment;
     "LIVELY_GENERAL_GROUP()": FunctionFragment;
     "LIVELY_GENERAL_REALM()": FunctionFragment;
-    "LIVELY_PUBLIC_ROLE()": FunctionFragment;
     "LIVELY_SYSTEM_ADMIN_ROLE()": FunctionFragment;
+    "REALM_MANAGEMENT_NAME()": FunctionFragment;
+    "REALM_MANAGEMENT_VERSION()": FunctionFragment;
+    "ROLE_MANAGEMENT_NAME()": FunctionFragment;
+    "ROLE_MANAGEMENT_VERSION()": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "ACCESS_CONTROL_NAME"
+      | "ACCESS_CONTROL_NAME()"
+      | "ACCESS_CONTROL_VERSION"
+      | "ACCESS_CONTROL_VERSION()"
+      | "ANONYMOUSE_ROLE"
+      | "ANONYMOUSE_ROLE()"
+      | "CONTEXT_MANAGEMENT_NAME"
+      | "CONTEXT_MANAGEMENT_NAME()"
+      | "CONTEXT_MANAGEMENT_VERSION"
+      | "CONTEXT_MANAGEMENT_VERSION()"
+      | "GROUP_MANAGEMENT_NAME"
+      | "GROUP_MANAGEMENT_NAME()"
+      | "GROUP_MANAGEMENT_VERSION"
+      | "GROUP_MANAGEMENT_VERSION()"
       | "LIVELY_ADMIN_ROLE"
       | "LIVELY_ADMIN_ROLE()"
       | "LIVELY_GENERAL_GROUP"
       | "LIVELY_GENERAL_GROUP()"
       | "LIVELY_GENERAL_REALM"
       | "LIVELY_GENERAL_REALM()"
-      | "LIVELY_PUBLIC_ROLE"
-      | "LIVELY_PUBLIC_ROLE()"
       | "LIVELY_SYSTEM_ADMIN_ROLE"
       | "LIVELY_SYSTEM_ADMIN_ROLE()"
+      | "REALM_MANAGEMENT_NAME"
+      | "REALM_MANAGEMENT_NAME()"
+      | "REALM_MANAGEMENT_VERSION"
+      | "REALM_MANAGEMENT_VERSION()"
+      | "ROLE_MANAGEMENT_NAME"
+      | "ROLE_MANAGEMENT_NAME()"
+      | "ROLE_MANAGEMENT_VERSION"
+      | "ROLE_MANAGEMENT_VERSION()"
   ): FunctionFragment;
 
   encodeFunctionData(
+    functionFragment: "ACCESS_CONTROL_NAME",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "ACCESS_CONTROL_NAME()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "ACCESS_CONTROL_VERSION",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "ACCESS_CONTROL_VERSION()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "ANONYMOUSE_ROLE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "ANONYMOUSE_ROLE()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "CONTEXT_MANAGEMENT_NAME",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "CONTEXT_MANAGEMENT_NAME()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "CONTEXT_MANAGEMENT_VERSION",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "CONTEXT_MANAGEMENT_VERSION()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "GROUP_MANAGEMENT_NAME",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "GROUP_MANAGEMENT_NAME()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "GROUP_MANAGEMENT_VERSION",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "GROUP_MANAGEMENT_VERSION()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "LIVELY_ADMIN_ROLE",
     values?: undefined
   ): string;
@@ -68,23 +154,103 @@ export interface AccessControlStorageInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "LIVELY_PUBLIC_ROLE",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_PUBLIC_ROLE()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "LIVELY_SYSTEM_ADMIN_ROLE",
     values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "LIVELY_SYSTEM_ADMIN_ROLE()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "REALM_MANAGEMENT_NAME",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "REALM_MANAGEMENT_NAME()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "REALM_MANAGEMENT_VERSION",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "REALM_MANAGEMENT_VERSION()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "ROLE_MANAGEMENT_NAME",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "ROLE_MANAGEMENT_NAME()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "ROLE_MANAGEMENT_VERSION",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "ROLE_MANAGEMENT_VERSION()",
     values?: undefined
   ): string;
 
   decodeFunctionResult(
+    functionFragment: "ACCESS_CONTROL_NAME",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "ACCESS_CONTROL_NAME()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "ACCESS_CONTROL_VERSION",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "ACCESS_CONTROL_VERSION()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "ANONYMOUSE_ROLE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "ANONYMOUSE_ROLE()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "CONTEXT_MANAGEMENT_NAME",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "CONTEXT_MANAGEMENT_NAME()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "CONTEXT_MANAGEMENT_VERSION",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "CONTEXT_MANAGEMENT_VERSION()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "GROUP_MANAGEMENT_NAME",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "GROUP_MANAGEMENT_NAME()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "GROUP_MANAGEMENT_VERSION",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "GROUP_MANAGEMENT_VERSION()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "LIVELY_ADMIN_ROLE",
     data: BytesLike
   ): Result;
@@ -109,19 +275,43 @@ export interface AccessControlStorageInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "LIVELY_PUBLIC_ROLE",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_PUBLIC_ROLE()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "LIVELY_SYSTEM_ADMIN_ROLE",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "LIVELY_SYSTEM_ADMIN_ROLE()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "REALM_MANAGEMENT_NAME",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "REALM_MANAGEMENT_NAME()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "REALM_MANAGEMENT_VERSION",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "REALM_MANAGEMENT_VERSION()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "ROLE_MANAGEMENT_NAME",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "ROLE_MANAGEMENT_NAME()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "ROLE_MANAGEMENT_VERSION",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "ROLE_MANAGEMENT_VERSION()",
     data: BytesLike
   ): Result;
 
@@ -155,6 +345,36 @@ export interface AccessControlStorage extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    ACCESS_CONTROL_NAME(overrides?: CallOverrides): Promise<[string]>;
+
+    "ACCESS_CONTROL_NAME()"(overrides?: CallOverrides): Promise<[string]>;
+
+    ACCESS_CONTROL_VERSION(overrides?: CallOverrides): Promise<[string]>;
+
+    "ACCESS_CONTROL_VERSION()"(overrides?: CallOverrides): Promise<[string]>;
+
+    ANONYMOUSE_ROLE(overrides?: CallOverrides): Promise<[string]>;
+
+    "ANONYMOUSE_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
+
+    CONTEXT_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<[string]>;
+
+    "CONTEXT_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<[string]>;
+
+    CONTEXT_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<[string]>;
+
+    "CONTEXT_MANAGEMENT_VERSION()"(
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    GROUP_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<[string]>;
+
+    "GROUP_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<[string]>;
+
+    GROUP_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<[string]>;
+
+    "GROUP_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<[string]>;
+
     LIVELY_ADMIN_ROLE(overrides?: CallOverrides): Promise<[string]>;
 
     "LIVELY_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
@@ -167,14 +387,54 @@ export interface AccessControlStorage extends BaseContract {
 
     "LIVELY_GENERAL_REALM()"(overrides?: CallOverrides): Promise<[string]>;
 
-    LIVELY_PUBLIC_ROLE(overrides?: CallOverrides): Promise<[string]>;
-
-    "LIVELY_PUBLIC_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
-
     LIVELY_SYSTEM_ADMIN_ROLE(overrides?: CallOverrides): Promise<[string]>;
 
     "LIVELY_SYSTEM_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
+
+    REALM_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<[string]>;
+
+    "REALM_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<[string]>;
+
+    REALM_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<[string]>;
+
+    "REALM_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<[string]>;
+
+    ROLE_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<[string]>;
+
+    "ROLE_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<[string]>;
+
+    ROLE_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<[string]>;
+
+    "ROLE_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<[string]>;
   };
+
+  ACCESS_CONTROL_NAME(overrides?: CallOverrides): Promise<string>;
+
+  "ACCESS_CONTROL_NAME()"(overrides?: CallOverrides): Promise<string>;
+
+  ACCESS_CONTROL_VERSION(overrides?: CallOverrides): Promise<string>;
+
+  "ACCESS_CONTROL_VERSION()"(overrides?: CallOverrides): Promise<string>;
+
+  ANONYMOUSE_ROLE(overrides?: CallOverrides): Promise<string>;
+
+  "ANONYMOUSE_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
+  CONTEXT_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<string>;
+
+  "CONTEXT_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<string>;
+
+  CONTEXT_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<string>;
+
+  "CONTEXT_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<string>;
+
+  GROUP_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<string>;
+
+  "GROUP_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<string>;
+
+  GROUP_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<string>;
+
+  "GROUP_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<string>;
 
   LIVELY_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
 
@@ -188,15 +448,55 @@ export interface AccessControlStorage extends BaseContract {
 
   "LIVELY_GENERAL_REALM()"(overrides?: CallOverrides): Promise<string>;
 
-  LIVELY_PUBLIC_ROLE(overrides?: CallOverrides): Promise<string>;
-
-  "LIVELY_PUBLIC_ROLE()"(overrides?: CallOverrides): Promise<string>;
-
   LIVELY_SYSTEM_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
 
   "LIVELY_SYSTEM_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
+  REALM_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<string>;
+
+  "REALM_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<string>;
+
+  REALM_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<string>;
+
+  "REALM_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<string>;
+
+  ROLE_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<string>;
+
+  "ROLE_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<string>;
+
+  ROLE_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<string>;
+
+  "ROLE_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<string>;
+
   callStatic: {
+    ACCESS_CONTROL_NAME(overrides?: CallOverrides): Promise<string>;
+
+    "ACCESS_CONTROL_NAME()"(overrides?: CallOverrides): Promise<string>;
+
+    ACCESS_CONTROL_VERSION(overrides?: CallOverrides): Promise<string>;
+
+    "ACCESS_CONTROL_VERSION()"(overrides?: CallOverrides): Promise<string>;
+
+    ANONYMOUSE_ROLE(overrides?: CallOverrides): Promise<string>;
+
+    "ANONYMOUSE_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
+    CONTEXT_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<string>;
+
+    "CONTEXT_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<string>;
+
+    CONTEXT_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<string>;
+
+    "CONTEXT_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<string>;
+
+    GROUP_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<string>;
+
+    "GROUP_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<string>;
+
+    GROUP_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<string>;
+
+    "GROUP_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<string>;
+
     LIVELY_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
 
     "LIVELY_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<string>;
@@ -209,18 +509,60 @@ export interface AccessControlStorage extends BaseContract {
 
     "LIVELY_GENERAL_REALM()"(overrides?: CallOverrides): Promise<string>;
 
-    LIVELY_PUBLIC_ROLE(overrides?: CallOverrides): Promise<string>;
-
-    "LIVELY_PUBLIC_ROLE()"(overrides?: CallOverrides): Promise<string>;
-
     LIVELY_SYSTEM_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
 
     "LIVELY_SYSTEM_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
+    REALM_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<string>;
+
+    "REALM_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<string>;
+
+    REALM_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<string>;
+
+    "REALM_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<string>;
+
+    ROLE_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<string>;
+
+    "ROLE_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<string>;
+
+    ROLE_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<string>;
+
+    "ROLE_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {};
 
   estimateGas: {
+    ACCESS_CONTROL_NAME(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "ACCESS_CONTROL_NAME()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    ACCESS_CONTROL_VERSION(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "ACCESS_CONTROL_VERSION()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    ANONYMOUSE_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "ANONYMOUSE_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    CONTEXT_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "CONTEXT_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    CONTEXT_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "CONTEXT_MANAGEMENT_VERSION()"(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    GROUP_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "GROUP_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    GROUP_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "GROUP_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     LIVELY_ADMIN_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
 
     "LIVELY_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -233,16 +575,82 @@ export interface AccessControlStorage extends BaseContract {
 
     "LIVELY_GENERAL_REALM()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    LIVELY_PUBLIC_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "LIVELY_PUBLIC_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     LIVELY_SYSTEM_ADMIN_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
 
     "LIVELY_SYSTEM_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    REALM_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "REALM_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    REALM_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "REALM_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    ROLE_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "ROLE_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    ROLE_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "ROLE_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
+    ACCESS_CONTROL_NAME(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "ACCESS_CONTROL_NAME()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    ACCESS_CONTROL_VERSION(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "ACCESS_CONTROL_VERSION()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    ANONYMOUSE_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "ANONYMOUSE_ROLE()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    CONTEXT_MANAGEMENT_NAME(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "CONTEXT_MANAGEMENT_NAME()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    CONTEXT_MANAGEMENT_VERSION(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "CONTEXT_MANAGEMENT_VERSION()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    GROUP_MANAGEMENT_NAME(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "GROUP_MANAGEMENT_NAME()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    GROUP_MANAGEMENT_VERSION(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "GROUP_MANAGEMENT_VERSION()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     LIVELY_ADMIN_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "LIVELY_ADMIN_ROLE()"(
@@ -265,19 +673,43 @@ export interface AccessControlStorage extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    LIVELY_PUBLIC_ROLE(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "LIVELY_PUBLIC_ROLE()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     LIVELY_SYSTEM_ADMIN_ROLE(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     "LIVELY_SYSTEM_ADMIN_ROLE()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    REALM_MANAGEMENT_NAME(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "REALM_MANAGEMENT_NAME()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    REALM_MANAGEMENT_VERSION(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "REALM_MANAGEMENT_VERSION()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    ROLE_MANAGEMENT_NAME(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "ROLE_MANAGEMENT_NAME()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    ROLE_MANAGEMENT_VERSION(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "ROLE_MANAGEMENT_VERSION()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };

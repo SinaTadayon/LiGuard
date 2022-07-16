@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.15 < 0.9.0;
+pragma solidity >=0.8.15 <0.9.0;
 
 import "../lib/LAddress.sol";
 
@@ -35,21 +35,6 @@ import "../lib/LAddress.sol";
  * CAUTION: When used with inheritance, manual care must be taken to not invoke a parent initializer twice, or to ensure
  * that all initializers are idempotent. This is not verified automatically as constructors are by Solidity.
  *
- * [CAUTION]
- * ====
- * Avoid leaving a contract uninitialized.
- *
- * An uninitialized contract can be taken over by an attacker. This applies to both a proxy and its implementation
- * contract, which may impact the proxy. To prevent the implementation contract from being used, you should invoke
- * the {_disableInitializers} function in the constructor to automatically lock it when it is deployed:
- *
- * [.hljs-theme-light.nopadding]
- * ```
- * constructor() {
- *     _disableInitializers();
- * }
- * ```
- * ====
  */
 abstract contract Initializable {
     /**
@@ -63,14 +48,13 @@ abstract contract Initializable {
      */
     bool private _initializing;
 
-
     function getInitializedCount() public view returns (uint16) {
         return _initialized;
     }
 
     function isInitializing() public view returns (bool) {
         return _initializing;
-    } 
+    }
 
     /**
      * @dev A modifier that defines a protected initializer function that can be invoked at most once. In its scope,
@@ -134,10 +118,7 @@ abstract contract Initializable {
         // inheritance patterns, but we only do this in the context of a constructor, and for the lowest level
         // of initializers, because in other contexts the contract may have been reentered.
         if (_initializing) {
-            require(
-                version == 1 && !LAddress.isContract(address(this)),
-                "Contract Already Initialized"
-            );
+            require(version == 1 && !LAddress.isContract(address(this)), "Contract Already Initialized");
             return false;
         } else {
             require(_initialized < version, "Illegal Initialize Version");

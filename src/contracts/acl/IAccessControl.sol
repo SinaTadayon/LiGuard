@@ -1,12 +1,16 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.15 < 0.9.0;
+pragma solidity >=0.8.15 <0.9.0;
 
 interface IAccessControl {
-    /** 
+    /**
      * @dev Function called by apps to check ACL on kernel or to check permission status
      * @return boolean indicating whether the ACL allows the role or not
      */
-    function hasAccess(bytes32 context, address account, bytes4 signature) external view returns (bool);
+    function hasAccess(
+        bytes32 context,
+        address account,
+        bytes4 signature
+    ) external view returns (bool);
 
     function hasSystemAdminRole(address account) external view returns (bool);
 
@@ -16,8 +20,7 @@ interface IAccessControl {
 
     function hasLivelyRealm(bytes32 context) external view returns (bool);
 
-    function isEnabled(bytes32 context) external view returns (bool);
+    function isSafeMode(bytes32 context) external view returns (bool);
 
-    function isUpgradeEnabled(bytes32 context) external view returns (bool);
-
+    function isUpgradable(bytes32 context) external view returns (bool);
 }

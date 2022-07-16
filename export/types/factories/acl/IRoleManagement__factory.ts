@@ -31,12 +31,6 @@ const _abi = [
         name: "sender",
         type: "address",
       },
-      {
-        indexed: false,
-        internalType: "bytes32",
-        name: "group",
-        type: "bytes32",
-      },
     ],
     name: "RoleAccountGranted",
     type: "event",
@@ -62,12 +56,6 @@ const _abi = [
         name: "sender",
         type: "address",
       },
-      {
-        indexed: false,
-        internalType: "bytes32",
-        name: "group",
-        type: "bytes32",
-      },
     ],
     name: "RoleAccountRevoked",
     type: "event",
@@ -90,36 +78,17 @@ const _abi = [
       {
         indexed: true,
         internalType: "bytes32",
-        name: "group",
+        name: "newGroup",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "bytes32",
+        name: "oldGroup",
         type: "bytes32",
       },
     ],
-    name: "RoleDisabled",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "role",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "sender",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "group",
-        type: "bytes32",
-      },
-    ],
-    name: "RoleEnabled",
+    name: "RoleGroupChanged",
     type: "event",
   },
   {
@@ -160,33 +129,35 @@ const _abi = [
     type: "event",
   },
   {
+    anonymous: false,
     inputs: [
       {
-        internalType: "string",
-        name: "name",
-        type: "string",
+        indexed: true,
+        internalType: "bytes32",
+        name: "role",
+        type: "bytes32",
       },
       {
-        internalType: "string",
+        indexed: true,
+        internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
         name: "group",
-        type: "string",
+        type: "bytes32",
       },
       {
+        indexed: false,
         internalType: "bool",
-        name: "isEnabled",
+        name: "status",
         type: "bool",
       },
     ],
-    name: "addRole",
-    outputs: [
-      {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
+    name: "RoleStatChanged",
+    type: "event",
   },
   {
     inputs: [
@@ -204,9 +175,9 @@ const _abi = [
         type: "string",
       },
       {
-        internalType: "string",
+        internalType: "bytes32",
         name: "",
-        type: "string",
+        type: "bytes32",
       },
       {
         internalType: "bool",
@@ -225,26 +196,7 @@ const _abi = [
         type: "bytes32",
       },
     ],
-    name: "getRoleContextes",
-    outputs: [
-      {
-        internalType: "bytes32[]",
-        name: "",
-        type: "bytes32[]",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "role",
-        type: "bytes32",
-      },
-    ],
-    name: "getRoleUsers",
+    name: "getRoleAccounts",
     outputs: [
       {
         internalType: "address[]",
@@ -306,6 +258,35 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "string",
+        name: "name",
+        type: "string",
+      },
+      {
+        internalType: "bytes32",
+        name: "group",
+        type: "bytes32",
+      },
+      {
+        internalType: "bool",
+        name: "status",
+        type: "bool",
+      },
+    ],
+    name: "registerRole",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes32",
         name: "role",
         type: "bytes32",
@@ -334,8 +315,13 @@ const _abi = [
         name: "role",
         type: "bytes32",
       },
+      {
+        internalType: "bytes32",
+        name: "group",
+        type: "bytes32",
+      },
     ],
-    name: "setDisabledRole",
+    name: "setRoleGroup",
     outputs: [
       {
         internalType: "bool",
@@ -353,8 +339,13 @@ const _abi = [
         name: "role",
         type: "bytes32",
       },
+      {
+        internalType: "bool",
+        name: "status",
+        type: "bool",
+      },
     ],
-    name: "setEnabledRole",
+    name: "setRoleStat",
     outputs: [
       {
         internalType: "bool",

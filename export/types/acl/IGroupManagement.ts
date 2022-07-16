@@ -28,60 +28,27 @@ import type {
 
 export interface IGroupManagementInterface extends utils.Interface {
   functions: {
-    "addGroup(string,bool)": FunctionFragment;
-    "disabledGroup(bytes32)": FunctionFragment;
-    "enabledGroup(bytes32)": FunctionFragment;
     "getGroup(bytes32)": FunctionFragment;
     "getGroupRoles(bytes32)": FunctionFragment;
-    "grantGroupRole(bytes32,bytes32)": FunctionFragment;
     "hasGroupRole(bytes32,bytes32)": FunctionFragment;
-    "revokeGroupRole(bytes32,bytes32)": FunctionFragment;
+    "registerGroup(string,bool)": FunctionFragment;
+    "setGroupStat(bytes32,bool)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "addGroup"
-      | "addGroup(string,bool)"
-      | "disabledGroup"
-      | "disabledGroup(bytes32)"
-      | "enabledGroup"
-      | "enabledGroup(bytes32)"
       | "getGroup"
       | "getGroup(bytes32)"
       | "getGroupRoles"
       | "getGroupRoles(bytes32)"
-      | "grantGroupRole"
-      | "grantGroupRole(bytes32,bytes32)"
       | "hasGroupRole"
       | "hasGroupRole(bytes32,bytes32)"
-      | "revokeGroupRole"
-      | "revokeGroupRole(bytes32,bytes32)"
+      | "registerGroup"
+      | "registerGroup(string,bool)"
+      | "setGroupStat"
+      | "setGroupStat(bytes32,bool)"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "addGroup",
-    values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "addGroup(string,bool)",
-    values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "disabledGroup",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "disabledGroup(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "enabledGroup",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "enabledGroup(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
   encodeFunctionData(
     functionFragment: "getGroup",
     values: [PromiseOrValue<BytesLike>]
@@ -99,14 +66,6 @@ export interface IGroupManagementInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "grantGroupRole",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "grantGroupRole(bytes32,bytes32)",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "hasGroupRole",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
   ): string;
@@ -115,35 +74,22 @@ export interface IGroupManagementInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "revokeGroupRole",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
+    functionFragment: "registerGroup",
+    values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
-    functionFragment: "revokeGroupRole(bytes32,bytes32)",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
+    functionFragment: "registerGroup(string,bool)",
+    values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setGroupStat",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setGroupStat(bytes32,bool)",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
   ): string;
 
-  decodeFunctionResult(functionFragment: "addGroup", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "addGroup(string,bool)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "disabledGroup",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "disabledGroup(bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "enabledGroup",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "enabledGroup(bytes32)",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "getGroup", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getGroup(bytes32)",
@@ -158,14 +104,6 @@ export interface IGroupManagementInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "grantGroupRole",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "grantGroupRole(bytes32,bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "hasGroupRole",
     data: BytesLike
   ): Result;
@@ -174,71 +112,42 @@ export interface IGroupManagementInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "revokeGroupRole",
+    functionFragment: "registerGroup",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "revokeGroupRole(bytes32,bytes32)",
+    functionFragment: "registerGroup(string,bool)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setGroupStat",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setGroupStat(bytes32,bool)",
     data: BytesLike
   ): Result;
 
   events: {
-    "GroupDisabled(bytes32,address)": EventFragment;
-    "GroupEnabled(bytes32,address)": EventFragment;
     "GroupRegistered(bytes32,address,string,bool)": EventFragment;
-    "GroupRoleGranted(bytes32,bytes32,address)": EventFragment;
-    "GroupRoleRevoked(bytes32,bytes32,address)": EventFragment;
+    "GroupStatChanged(bytes32,address,bool)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "GroupDisabled"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "GroupDisabled(bytes32,address)"
-  ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "GroupEnabled"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "GroupEnabled(bytes32,address)"
-  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "GroupRegistered"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "GroupRegistered(bytes32,address,string,bool)"
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "GroupRoleGranted"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "GroupStatChanged"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "GroupRoleGranted(bytes32,bytes32,address)"
-  ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "GroupRoleRevoked"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "GroupRoleRevoked(bytes32,bytes32,address)"
+    nameOrSignatureOrTopic: "GroupStatChanged(bytes32,address,bool)"
   ): EventFragment;
 }
-
-export interface GroupDisabledEventObject {
-  group: string;
-  sender: string;
-}
-export type GroupDisabledEvent = TypedEvent<
-  [string, string],
-  GroupDisabledEventObject
->;
-
-export type GroupDisabledEventFilter = TypedEventFilter<GroupDisabledEvent>;
-
-export interface GroupEnabledEventObject {
-  group: string;
-  sender: string;
-}
-export type GroupEnabledEvent = TypedEvent<
-  [string, string],
-  GroupEnabledEventObject
->;
-
-export type GroupEnabledEventFilter = TypedEventFilter<GroupEnabledEvent>;
 
 export interface GroupRegisteredEventObject {
   group: string;
   sender: string;
   name: string;
-  isEnabled: boolean;
+  status: boolean;
 }
 export type GroupRegisteredEvent = TypedEvent<
   [string, string, string, boolean],
@@ -247,31 +156,18 @@ export type GroupRegisteredEvent = TypedEvent<
 
 export type GroupRegisteredEventFilter = TypedEventFilter<GroupRegisteredEvent>;
 
-export interface GroupRoleGrantedEventObject {
+export interface GroupStatChangedEventObject {
   group: string;
-  role: string;
   sender: string;
+  status: boolean;
 }
-export type GroupRoleGrantedEvent = TypedEvent<
-  [string, string, string],
-  GroupRoleGrantedEventObject
+export type GroupStatChangedEvent = TypedEvent<
+  [string, string, boolean],
+  GroupStatChangedEventObject
 >;
 
-export type GroupRoleGrantedEventFilter =
-  TypedEventFilter<GroupRoleGrantedEvent>;
-
-export interface GroupRoleRevokedEventObject {
-  group: string;
-  role: string;
-  sender: string;
-}
-export type GroupRoleRevokedEvent = TypedEvent<
-  [string, string, string],
-  GroupRoleRevokedEventObject
->;
-
-export type GroupRoleRevokedEventFilter =
-  TypedEventFilter<GroupRoleRevokedEvent>;
+export type GroupStatChangedEventFilter =
+  TypedEventFilter<GroupStatChangedEvent>;
 
 export interface IGroupManagement extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -300,38 +196,6 @@ export interface IGroupManagement extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    addGroup(
-      name: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "addGroup(string,bool)"(
-      name: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    disabledGroup(
-      group: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "disabledGroup(bytes32)"(
-      group: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    enabledGroup(
-      group: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "enabledGroup(bytes32)"(
-      group: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     getGroup(
       group: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -352,18 +216,6 @@ export interface IGroupManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string[]]>;
 
-    grantGroupRole(
-      group: PromiseOrValue<BytesLike>,
-      role: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "grantGroupRole(bytes32,bytes32)"(
-      group: PromiseOrValue<BytesLike>,
-      role: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     hasGroupRole(
       group: PromiseOrValue<BytesLike>,
       role: PromiseOrValue<BytesLike>,
@@ -376,50 +228,30 @@ export interface IGroupManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    revokeGroupRole(
-      group: PromiseOrValue<BytesLike>,
-      role: PromiseOrValue<BytesLike>,
+    registerGroup(
+      name: PromiseOrValue<string>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "revokeGroupRole(bytes32,bytes32)"(
+    "registerGroup(string,bool)"(
+      name: PromiseOrValue<string>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setGroupStat(
       group: PromiseOrValue<BytesLike>,
-      role: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "setGroupStat(bytes32,bool)"(
+      group: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
-
-  addGroup(
-    name: PromiseOrValue<string>,
-    isEnabled: PromiseOrValue<boolean>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "addGroup(string,bool)"(
-    name: PromiseOrValue<string>,
-    isEnabled: PromiseOrValue<boolean>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  disabledGroup(
-    group: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "disabledGroup(bytes32)"(
-    group: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  enabledGroup(
-    group: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "enabledGroup(bytes32)"(
-    group: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   getGroup(
     group: PromiseOrValue<BytesLike>,
@@ -441,18 +273,6 @@ export interface IGroupManagement extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string[]>;
 
-  grantGroupRole(
-    group: PromiseOrValue<BytesLike>,
-    role: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "grantGroupRole(bytes32,bytes32)"(
-    group: PromiseOrValue<BytesLike>,
-    role: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   hasGroupRole(
     group: PromiseOrValue<BytesLike>,
     role: PromiseOrValue<BytesLike>,
@@ -465,51 +285,31 @@ export interface IGroupManagement extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  revokeGroupRole(
-    group: PromiseOrValue<BytesLike>,
-    role: PromiseOrValue<BytesLike>,
+  registerGroup(
+    name: PromiseOrValue<string>,
+    status: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "revokeGroupRole(bytes32,bytes32)"(
+  "registerGroup(string,bool)"(
+    name: PromiseOrValue<string>,
+    status: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setGroupStat(
     group: PromiseOrValue<BytesLike>,
-    role: PromiseOrValue<BytesLike>,
+    status: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "setGroupStat(bytes32,bool)"(
+    group: PromiseOrValue<BytesLike>,
+    status: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    addGroup(
-      name: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    "addGroup(string,bool)"(
-      name: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    disabledGroup(
-      group: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "disabledGroup(bytes32)"(
-      group: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    enabledGroup(
-      group: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "enabledGroup(bytes32)"(
-      group: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     getGroup(
       group: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -530,18 +330,6 @@ export interface IGroupManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string[]>;
 
-    grantGroupRole(
-      group: PromiseOrValue<BytesLike>,
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "grantGroupRole(bytes32,bytes32)"(
-      group: PromiseOrValue<BytesLike>,
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     hasGroupRole(
       group: PromiseOrValue<BytesLike>,
       role: PromiseOrValue<BytesLike>,
@@ -554,107 +342,58 @@ export interface IGroupManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    revokeGroupRole(
+    registerGroup(
+      name: PromiseOrValue<string>,
+      status: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    "registerGroup(string,bool)"(
+      name: PromiseOrValue<string>,
+      status: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    setGroupStat(
       group: PromiseOrValue<BytesLike>,
-      role: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "revokeGroupRole(bytes32,bytes32)"(
+    "setGroupStat(bytes32,bool)"(
       group: PromiseOrValue<BytesLike>,
-      role: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<boolean>;
   };
 
   filters: {
-    "GroupDisabled(bytes32,address)"(
-      group?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null
-    ): GroupDisabledEventFilter;
-    GroupDisabled(
-      group?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null
-    ): GroupDisabledEventFilter;
-
-    "GroupEnabled(bytes32,address)"(
-      group?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null
-    ): GroupEnabledEventFilter;
-    GroupEnabled(
-      group?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null
-    ): GroupEnabledEventFilter;
-
     "GroupRegistered(bytes32,address,string,bool)"(
       group?: PromiseOrValue<BytesLike> | null,
       sender?: PromiseOrValue<string> | null,
       name?: null,
-      isEnabled?: null
+      status?: null
     ): GroupRegisteredEventFilter;
     GroupRegistered(
       group?: PromiseOrValue<BytesLike> | null,
       sender?: PromiseOrValue<string> | null,
       name?: null,
-      isEnabled?: null
+      status?: null
     ): GroupRegisteredEventFilter;
 
-    "GroupRoleGranted(bytes32,bytes32,address)"(
+    "GroupStatChanged(bytes32,address,bool)"(
       group?: PromiseOrValue<BytesLike> | null,
-      role?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null
-    ): GroupRoleGrantedEventFilter;
-    GroupRoleGranted(
+      sender?: PromiseOrValue<string> | null,
+      status?: null
+    ): GroupStatChangedEventFilter;
+    GroupStatChanged(
       group?: PromiseOrValue<BytesLike> | null,
-      role?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null
-    ): GroupRoleGrantedEventFilter;
-
-    "GroupRoleRevoked(bytes32,bytes32,address)"(
-      group?: PromiseOrValue<BytesLike> | null,
-      role?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null
-    ): GroupRoleRevokedEventFilter;
-    GroupRoleRevoked(
-      group?: PromiseOrValue<BytesLike> | null,
-      role?: PromiseOrValue<BytesLike> | null,
-      sender?: PromiseOrValue<string> | null
-    ): GroupRoleRevokedEventFilter;
+      sender?: PromiseOrValue<string> | null,
+      status?: null
+    ): GroupStatChangedEventFilter;
   };
 
   estimateGas: {
-    addGroup(
-      name: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "addGroup(string,bool)"(
-      name: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    disabledGroup(
-      group: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "disabledGroup(bytes32)"(
-      group: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    enabledGroup(
-      group: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "enabledGroup(bytes32)"(
-      group: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     getGroup(
       group: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -675,18 +414,6 @@ export interface IGroupManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    grantGroupRole(
-      group: PromiseOrValue<BytesLike>,
-      role: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "grantGroupRole(bytes32,bytes32)"(
-      group: PromiseOrValue<BytesLike>,
-      role: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     hasGroupRole(
       group: PromiseOrValue<BytesLike>,
       role: PromiseOrValue<BytesLike>,
@@ -699,52 +426,32 @@ export interface IGroupManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    revokeGroupRole(
-      group: PromiseOrValue<BytesLike>,
-      role: PromiseOrValue<BytesLike>,
+    registerGroup(
+      name: PromiseOrValue<string>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "revokeGroupRole(bytes32,bytes32)"(
+    "registerGroup(string,bool)"(
+      name: PromiseOrValue<string>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setGroupStat(
       group: PromiseOrValue<BytesLike>,
-      role: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "setGroupStat(bytes32,bool)"(
+      group: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    addGroup(
-      name: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "addGroup(string,bool)"(
-      name: PromiseOrValue<string>,
-      isEnabled: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    disabledGroup(
-      group: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "disabledGroup(bytes32)"(
-      group: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    enabledGroup(
-      group: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "enabledGroup(bytes32)"(
-      group: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     getGroup(
       group: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -765,18 +472,6 @@ export interface IGroupManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    grantGroupRole(
-      group: PromiseOrValue<BytesLike>,
-      role: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "grantGroupRole(bytes32,bytes32)"(
-      group: PromiseOrValue<BytesLike>,
-      role: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     hasGroupRole(
       group: PromiseOrValue<BytesLike>,
       role: PromiseOrValue<BytesLike>,
@@ -789,15 +484,27 @@ export interface IGroupManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    revokeGroupRole(
-      group: PromiseOrValue<BytesLike>,
-      role: PromiseOrValue<BytesLike>,
+    registerGroup(
+      name: PromiseOrValue<string>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "revokeGroupRole(bytes32,bytes32)"(
+    "registerGroup(string,bool)"(
+      name: PromiseOrValue<string>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setGroupStat(
       group: PromiseOrValue<BytesLike>,
-      role: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "setGroupStat(bytes32,bool)"(
+      group: PromiseOrValue<BytesLike>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

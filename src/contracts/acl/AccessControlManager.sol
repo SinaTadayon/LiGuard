@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.8.15 < 0.9.0;
+pragma solidity >=0.8.15 <0.9.0;
 
 import "./IAccessControl.sol";
 import "./AccessControlStorage.sol";
@@ -10,12 +10,24 @@ import "./IContextManagement.sol";
 import "../lib/struct/LEnumerableSet.sol";
 import "../lib/struct/LEnumerableMap.sol";
 import "../lib/acl/LContextManagement.sol";
+import "../lib/acl/LRoleManagement.sol";
+import "../lib/acl/LGroupManagement.sol";
+import "../lib/acl/LRealmManagement.sol";
+import "../lib/acl/LAccessControl.sol";
 import "../proxy/Initializable.sol";
 import "../proxy/BaseUUPSProxy.sol";
+
 // import "hardhat/console.sol";
 
-contract AccessControlManager is AccessControlStorage, BaseUUPSProxy, IContextManagement, IAccessControl, IGroupManagement, IRealmManagement,IRoleManagement {
-
+contract AccessControlManager is
+    AccessControlStorage,
+    BaseUUPSProxy,
+    IContextManagement,
+    IAccessControl,
+    IGroupManagement,
+    IRealmManagement,
+    IRoleManagement
+{
     using LEnumerableSet for LEnumerableSet.AddressSet;
     using LEnumerableSet for LEnumerableSet.Bytes32Set;
     using LEnumerableMap for LEnumerableMap.Bytes32ToBytes32Map;
@@ -23,32 +35,108 @@ contract AccessControlManager is AccessControlStorage, BaseUUPSProxy, IContextMa
 
     constructor() {}
 
-    function initialize(string calldata domainName, string calldata domainVersion, string calldata domainRealm, address accessControlManager) public onlyAdmin initializer {
+    function initialize(
+        string calldata domainName,
+        string calldata domainVersion,
+        string calldata domainRealm,
+        address accessControlManager
+    ) public onlyAdmin initializer {
+        require(
+            LAccessControl.LIB_NAME == ACCESS_CONTROL_NAME && LAccessControl.LIB_VERSION == ACCESS_CONTROL_VERSION,
+            "ACL Invalid"
+        );
+        require(
+            LContextManagement.LIB_NAME == CONTEXT_MANAGEMENT_NAME &&
+                LContextManagement.LIB_VERSION == CONTEXT_MANAGEMENT_VERSION,
+            "CML Invalid"
+        );
+        require(
+            LRoleManagement.LIB_NAME == ROLE_MANAGEMENT_NAME && LRoleManagement.LIB_VERSION == ROLE_MANAGEMENT_VERSION,
+            "RML Invalid"
+        );
+        require(
+            LGroupManagement.LIB_NAME == GROUP_MANAGEMENT_NAME &&
+                LGroupManagement.LIB_VERSION == GROUP_MANAGEMENT_VERSION,
+            "GML Invalid"
+        );
+        require(
+            LRealmManagement.LIB_NAME == REALM_MANAGEMENT_NAME &&
+                LRealmManagement.LIB_VERSION == REALM_MANAGEMENT_VERSION,
+            "REML Invalid"
+        );
+
         bytes32 realm = keccak256(abi.encodePacked(domainRealm));
         __BASE_UUPS_init(domainName, domainVersion, realm, accessControlManager);
-        emit Initialized(_msgSender(), address(this), _implementation(), _domainName, _domainVersion, realm, getInitializedCount());
+        LAccessControl.initializeContext(_dataMaps);
+        emit Initialized(
+            _msgSender(),
+            address(this),
+            _implementation(),
+            _domainName,
+            _domainVersion,
+            realm,
+            getInitializedCount()
+        );
     }
 
-    // TODO should be complete.
-    function contractRegisteration() external onlyProxy onlyAdmin returns (bool) {}
-    //     // RequestContext memory reqCtx = RequestContext({
-    //     //     realm: keccak256(abi.encodePacked(_domainRealm)),
-    //     //     smca: address(this)
-    //     // });
+    function contractRegisteration() external onlyProxy onlyAdmin returns (bytes32) {
+        require(!_isSafeMode, "SafeMode: Call Rejected");
+        RequestContext[] memory rc = new RequestContext[](1);
+        rc[0] = LAccessControl.createRequestContext();
+        return LContextManagement.registerContext(_dataMaps, address(this), _domainRealm, rc);
+    }
 
-    //     RequestContext memory rc;
-    //     rc.role = LIVELY_ADMIN_ROLE;
-    //     rc.isEnabled = true;
-    //     rc.funcSelectors = new bytes4[](10);
-    //     rc.funcSelectors[0] = this.setUpgradability.selector;
-    //     rc.funcSelectors[1] = this.setActivity.selector;
-    //     rc.funcSelectors[2] = this.setAdmin.selector;
-    //     rc.funcSelectors[3] = this.upgradeTo.selector;
-    //     rc.funcSelectors[4] = this.initialize.selector;
-    // }
+    /**
+     * @dev See {IERC165-supportsInterface}.
+     */
+    function supportsInterface(bytes4 interfaceId) public view override returns (bool) {
+        return
+            interfaceId == type(IAccessControl).interfaceId ||
+            interfaceId == type(IContextManagement).interfaceId ||
+            interfaceId == type(IRoleManagement).interfaceId ||
+            interfaceId == type(IGroupManagement).interfaceId ||
+            interfaceId == type(IRealmManagement).interfaceId ||
+            super.supportsInterface(interfaceId);
+    }
+
+    function hasAccess(
+        bytes32 context,
+        address account,
+        bytes4 signature
+    ) external view returns (bool) {
+        return LAccessControl.hasAccess(_dataMaps, context, account, signature);
+    }
+
+    function hasSystemAdminRole(address account) external view returns (bool) {
+        return LAccessControl.hasSystemAdminRole(_dataMaps, account);
+    }
+
+    function hasLivelyAdminRole(address account) external view returns (bool) {
+        return LAccessControl.hasLivelyAdminRole(_dataMaps, account);
+    }
+
+    function hasLivelyGroup(bytes32 role) external view returns (bool) {
+        return LAccessControl.hasLivelyGroup(_dataMaps, role);
+    }
+
+    function hasLivelyRealm(bytes32 context) external view returns (bool) {
+        return LAccessControl.hasLivelyRealm(_dataMaps, context);
+    }
+
+    function isSafeMode(bytes32 context) external view returns (bool) {
+        return LAccessControl.isSafeMode(_dataMaps, context);
+    }
+
+    function isUpgradable(bytes32 context) external view returns (bool) {
+        return LAccessControl.isUpgradable(_dataMaps, context);
+    }
 
     // TODO hasPermission call this  function by SYSTEM_ADMIN
-    function registerContext(address newContract, bytes32 realm, RequestContext[] calldata rc) external returns (bytes32) {
+    function registerContext(
+        address newContract,
+        bytes32 realm,
+        RequestContext[] calldata rc
+    ) external returns (bytes32) {
         bytes32 context = LContextManagement.registerContext(_dataMaps, newContract, realm, rc);
         emit ContextRegistered(context, newContract, msg.sender, realm);
         return context;
@@ -61,31 +149,45 @@ contract AccessControlManager is AccessControlStorage, BaseUUPSProxy, IContextMa
         return scma;
     }
 
-    function grantContextRole(bytes32 ctx, bytes4 functionSelector, bytes32 role) external returns (bool) {
+    function grantContextRole(
+        bytes32 ctx,
+        bytes4 functionSelector,
+        bytes32 role
+    ) external returns (bool) {
         bytes32 realm = LContextManagement.grantContextRole(_dataMaps, ctx, functionSelector, role);
         emit ContextRoleGranted(ctx, role, msg.sender, functionSelector, realm);
         return true;
     }
 
-    function revokeContextRole(bytes32 ctx, bytes4 functionSelector, bytes32 role) external returns (bool) {
+    function revokeContextRole(
+        bytes32 ctx,
+        bytes4 functionSelector,
+        bytes32 role
+    ) external returns (bool) {
         bytes32 realm = LContextManagement.revokeContextRole(_dataMaps, ctx, functionSelector, role);
         emit ContextRoleRevoked(ctx, role, msg.sender, functionSelector, realm);
         return true;
     }
 
-    function enableContext(bytes32 ctx) external returns (bool) {
-        return LContextManagement.enableContext(_dataMaps, ctx);
+    function setContextSafeMode(bytes32 ctx, bool state) external returns (bool) {
+        return LContextManagement.setContextSafeMode(_dataMaps, ctx, state);
     }
 
-    function disableContext(bytes32 ctx) external returns (bool) {
-        return LContextManagement.disableContext(_dataMaps, ctx);
+    function setContextRealm(bytes32 ctx, bytes32 realm) external returns (bool) {
+        (bool success, bytes32 oldRealm) = LContextManagement.setContextRealm(_dataMaps, ctx, realm);
+        emit ContextRealmChanged(ctx, _msgSender(), realm, oldRealm);
+        return success;
     }
 
-    function enableUpgradeContext(bytes32 ctx) external returns (bool) {
-        return LContextManagement.enableUpgradeContext(_dataMaps, ctx);
+    function setContextUpgradeState(bytes32 ctx, bool state) external returns (bool) {
+        return LContextManagement.setContextUpgradeState(_dataMaps, ctx, state);
     }
 
-    function hasContextRole(bytes32 ctx, bytes32 role, bytes4 functionSelector) external view returns (bool) {
+    function hasContextRole(
+        bytes32 ctx,
+        bytes32 role,
+        bytes4 functionSelector
+    ) external view returns (bool) {
         return LContextManagement.hasContextRole(_dataMaps, ctx, role, functionSelector);
     }
 
@@ -97,98 +199,118 @@ contract AccessControlManager is AccessControlStorage, BaseUUPSProxy, IContextMa
         return LContextManagement.getContextFuncs(_dataMaps, ctx);
     }
 
-
-
-    function hasAccess(bytes32 context, address account, bytes4 signature) external view returns (bool) {
-        return true;
+    function registerGroup(string calldata name, bool status) external returns (bytes32) {
+        bytes32 group = LGroupManagement.registerGroup(_dataMaps, name, status);
+        emit GroupRegistered(group, _msgSender(), name, status);
+        return group;
     }
 
-    function hasSystemAdminRole(address account) external view returns (bool) {}
+    function setGroupStat(bytes32 group, bool status) external returns (bool) {
+        emit GroupStatChanged(group, _msgSender(), status);
+        return LGroupManagement.setGroupStat(_dataMaps, group, status);
+    }
 
-    function hasLivelyAdminRole(address account) external view returns (bool) {}
+    function hasGroupRole(bytes32 group, bytes32 role) external view returns (bool) {
+        return LGroupManagement.hasGroupRole(_dataMaps, group, role);
+    }
 
-    function hasLivelyGroup(bytes32 role) external view returns (bool) {}
+    function getGroup(bytes32 group) external view returns (string memory, bool) {
+        return LGroupManagement.getGroup(_dataMaps, group);
+    }
 
-    function hasLivelyRealm(bytes32 context) external view returns (bool) {}
+    function getGroupRoles(bytes32 group) external view returns (bytes32[] memory) {
+        return LGroupManagement.getGroupRoles(_dataMaps, group);
+    }
 
-    function isEnabled(bytes32 context) external view returns (bool) {}
+    function registerRealm(
+        string calldata name,
+        bool status,
+        bool isUpgradable
+    ) external returns (bytes32) {
+        bytes32 realm = LRealmManagement.registerRealm(_dataMaps, name, status, isUpgradable);
+        emit RealmRegistered(realm, _msgSender(), name, status, isUpgradable);
+        return realm;
+    }
 
-    function isUpgradeEnabled(bytes32 context) external view returns (bool) {}
+    function setRealmStat(bytes32 realm, bool status) external returns (bool) {
+        emit RealmStatChanged(realm, _msgSender(), status);
+        return LRealmManagement.setRealmStat(_dataMaps, realm, status);
+    }
 
-      function addGroup(string calldata name, bool isEnabled) external returns (bytes32) {} 
+    function setRealmUpgradeStat(bytes32 realm, bool status) external returns (bool) {
+        emit RealmUpgradeStatChanged(realm, _msgSender(), status);
+        return LRealmManagement.setRealmUpgradeStat(_dataMaps, realm, status);
+    }
 
-    function grantGroupRole(bytes32 group, bytes32 role) external returns (bool) {} 
+    function hasRealmContext(bytes32 realm, bytes32 context) external view returns (bool) {
+        return LRealmManagement.hasRealmContext(_dataMaps, realm, context);
+    }
 
-    function revokeGroupRole(bytes32 group, bytes32 role) external returns (bool) {}
+    function getRealm(bytes32 realm)
+        external
+        view
+        returns (
+            string memory,
+            bool,
+            bool
+        )
+    {
+        return LRealmManagement.getRealm(_dataMaps, realm);
+    }
 
-    function enabledGroup(bytes32 group) external returns (bool) {}
+    function getRealmContexts(bytes32 realm) external view returns (bytes32[] memory) {
+        return LRealmManagement.getRealmContexts(_dataMaps, realm);
+    }
 
-    function disabledGroup(bytes32 group) external returns (bool) {}
+    function grantRoleAccount(bytes32 role, address account) external returns (bool) {
+        emit RoleAccountGranted(role, account, _msgSender());
+        return LRoleManagement.grantRoleAccount(_dataMaps, role, account);
+    }
 
-    function hasGroupRole(bytes32 group, bytes32 role) external view returns (bool) {}
+    function revokeRoleAccount(bytes32 role, address account) external returns (bool) {
+        emit RoleAccountRevoked(role, account, _msgSender());
+        return LRoleManagement.revokeRoleAccount(_dataMaps, role, account);
+    }
 
-    function getGroup(bytes32 group) external view returns (string memory, bool) {}
+    function registerRole(
+        string calldata name,
+        bytes32 group,
+        bool status
+    ) external returns (bytes32) {
+        bytes32 role = LRoleManagement.registerRole(_dataMaps, name, group, status);
+        emit RoleRegistered(role, name, _msgSender(), group, status);
+        return role;
+    }
 
-    function getGroupRoles(bytes32 group) external view returns (bytes32[] memory) {}
+    function setRoleStat(bytes32 role, bool status) external returns (bool) {
+        (bool success, bytes32 group) = LRoleManagement.setRoleStat(_dataMaps, role, status);
+        emit RoleStatChanged(role, _msgSender(), group, status);
+        return success;
+    }
 
-     function addRealm(string calldata name, bool isEnabled) external returns (bytes32) {}
+    function setRoleGroup(bytes32 role, bytes32 group) external returns (bool) {
+        (bool success, bytes32 oldGroup) = LRoleManagement.setRoleGroup(_dataMaps, role, group);
+        emit RoleGroupChanged(role, _msgSender(), group, oldGroup);
+        return success;
+    }
 
-    function grantRealmContext(bytes32 realm, bytes32 context) external returns (bool) {}
+    function getRole(bytes32 role)
+        external
+        view
+        returns (
+            string memory,
+            bytes32,
+            bool
+        )
+    {
+        return LRoleManagement.getRole(_dataMaps, role);
+    }
 
-    function revokeRealmContext(bytes32 realm, bytes32 context) external returns (bool) {}
+    function getRoleAccounts(bytes32 role) external view returns (address[] memory) {
+        return LRoleManagement.getRoleAccounts(_dataMaps, role);
+    }
 
-    function enabledRealm(bytes32 realm) external returns (bool) {}
-
-    function disabledRealm(bytes32 realm) external returns (bool) {}
-
-    function enableUpgradeRealm(bytes32 realm) external returns (bool) {}
-
-    function hasRealmContext(bytes32 realm, bytes32 context) external view returns (bool) {}
-
-    function getRealm(bytes32 realm) external view returns (string memory, bool) {}
-
-    function getRealmContextes(bytes32 realm) external view returns (bytes32[] memory) {}
-
-
-    function grantRoleAccount(bytes32 role, address account) external returns (bool) {}
-
-    /**
-     * @dev Revokes `role` from `account`.
-     *
-     * If `account` had been granted `role`, emits a {RoleRevoked} event.
-     *
-     * Requirements:
-     *
-     * - the caller must have ``role``'s admin role.
-     */
-    function revokeRoleAccount(bytes32 role, address account) external returns (bool) {}
-
-    /**
-     * 
-     */
-    function addRole(string calldata name, string calldata group, bool isEnabled) external returns (bytes32) {}
-
-    /**
-     * 
-     */
-    function setEnabledRole(bytes32 role) external returns (bool) {}
-
-    /**
-     * 
-     */
-    function setDisabledRole(bytes32 role) external returns (bool) {}
-
-
-    function getRole(bytes32 role) external view returns (string memory, string memory, bool) {}
-
-    function getRoleUsers(bytes32 role) external view returns (address[] memory) {}
-
-    function getRoleContextes(bytes32 role) external view returns (bytes32[] memory) {}
-
-
-    /**
-     * @dev Returns `true` if `account` has been granted `role`.
-     */
-    function hasAccountRole(bytes32 role, address account) external view returns (bool) {}
-
+    function hasAccountRole(bytes32 role, address account) external view returns (bool) {
+        return LRoleManagement.hasAccountRole(_dataMaps, role, account);
+    }
 }

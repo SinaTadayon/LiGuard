@@ -22,6 +22,37 @@ const _abi = [
       {
         indexed: true,
         internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "newRealm",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "bytes32",
+        name: "oldRealm",
+        type: "bytes32",
+      },
+    ],
+    name: "ContextRealmChanged",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "context",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "address",
         name: "scma",
         type: "address",
       },
@@ -154,63 +185,6 @@ const _abi = [
         type: "bytes32",
       },
     ],
-    name: "disableContext",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "ctx",
-        type: "bytes32",
-      },
-    ],
-    name: "enableContext",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "ctx",
-        type: "bytes32",
-      },
-    ],
-    name: "enableUpgradeContext",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "ctx",
-        type: "bytes32",
-      },
-    ],
     name: "getContextFuncs",
     outputs: [
       {
@@ -256,7 +230,7 @@ const _abi = [
           },
           {
             internalType: "bool",
-            name: "isEnabled",
+            name: "isSafeMode",
             type: "bool",
           },
           {
@@ -396,6 +370,78 @@ const _abi = [
       },
     ],
     name: "revokeContextRole",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "ctx",
+        type: "bytes32",
+      },
+      {
+        internalType: "bytes32",
+        name: "realm",
+        type: "bytes32",
+      },
+    ],
+    name: "setContextRealm",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "ctx",
+        type: "bytes32",
+      },
+      {
+        internalType: "bool",
+        name: "state",
+        type: "bool",
+      },
+    ],
+    name: "setContextSafeMode",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "ctx",
+        type: "bytes32",
+      },
+      {
+        internalType: "bool",
+        name: "state",
+        type: "bool",
+      },
+    ],
+    name: "setContextUpgradeState",
     outputs: [
       {
         internalType: "bool",
