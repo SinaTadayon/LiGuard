@@ -9,6 +9,8 @@ import "../../acl/AccessControlStorage.sol";
 import "../struct/LEnumerableSet.sol";
 import "../../proxy/IProxy.sol";
 
+import "hardhat/console.sol";
+
 library LAccessControl {
     using LEnumerableSet for LEnumerableSet.Bytes32Set;
     using LEnumerableSet for LEnumerableSet.AddressSet;
@@ -46,33 +48,37 @@ library LAccessControl {
         data.realmMap[LIVELY_GENERAL_REALM].isUpgradable = true;
     }
 
-    function createRequestContext() external pure returns (IContextManagement.RequestContext memory) {
-        IContextManagement.RequestContext memory rc;
-        rc.role = LIVELY_ADMIN_ROLE;
-        rc.isEnabled = true;
-        rc.funcSelectors = new bytes4[](30);
-        rc.funcSelectors[0] = IProxy.setUpgradeState.selector;
-        rc.funcSelectors[1] = IProxy.setSafeModeState.selector;
-        rc.funcSelectors[2] = IProxy.setAdmin.selector;
-        rc.funcSelectors[3] = IProxy.upgradeTo.selector;
-        rc.funcSelectors[4] = IProxy.contractRegisteration.selector;
-        rc.funcSelectors[5] = IContextManagement.registerContext.selector;
-        rc.funcSelectors[6] = IContextManagement.updateContext.selector;
-        rc.funcSelectors[7] = IContextManagement.grantContextRole.selector;
-        rc.funcSelectors[8] = IContextManagement.revokeContextRole.selector;
-        rc.funcSelectors[9] = IContextManagement.setContextSafeMode.selector;
-        rc.funcSelectors[10] = IContextManagement.setContextRealm.selector;
-        rc.funcSelectors[11] = IContextManagement.setContextUpgradeState.selector;
-        rc.funcSelectors[12] = IRoleManagement.registerRole.selector;
-        rc.funcSelectors[13] = IRoleManagement.grantRoleAccount.selector;
-        rc.funcSelectors[14] = IRoleManagement.revokeRoleAccount.selector;
-        rc.funcSelectors[15] = IRoleManagement.setRoleStat.selector;
-        rc.funcSelectors[16] = IRoleManagement.setRoleGroup.selector;
-        rc.funcSelectors[17] = IGroupManagement.registerGroup.selector;
-        rc.funcSelectors[18] = IGroupManagement.setGroupStat.selector;
-        rc.funcSelectors[19] = IRealmManagement.registerRealm.selector;
-        rc.funcSelectors[20] = IRealmManagement.setRealmStat.selector;
-        rc.funcSelectors[21] = IRealmManagement.setRealmUpgradeStat.selector;
+    function createRequestContext() external pure returns (IContextManagement.RequestContext[] memory) {
+
+        IContextManagement.RequestContext[] memory rc = new IContextManagement.RequestContext[](2);        
+        rc[0].role = LIVELY_ADMIN_ROLE;
+        rc[0].isEnabled = true;
+        rc[0].funcSelectors = new bytes4[](19);
+        rc[0].funcSelectors[0] = IProxy.setAdmin.selector;
+        rc[0].funcSelectors[1] = IProxy.setUpgradeState.selector;        
+        rc[0].funcSelectors[2] = IContextManagement.registerContext.selector;
+        rc[0].funcSelectors[3] = IContextManagement.updateContext.selector;
+        rc[0].funcSelectors[4] = IContextManagement.grantContextRole.selector;
+        rc[0].funcSelectors[5] = IContextManagement.revokeContextRole.selector;
+        rc[0].funcSelectors[6] = IContextManagement.setContextSafeMode.selector;
+        rc[0].funcSelectors[7] = IContextManagement.setContextRealm.selector;
+        rc[0].funcSelectors[8] = IContextManagement.setContextUpgradeState.selector;
+        rc[0].funcSelectors[9] = IRoleManagement.registerRole.selector;
+        rc[0].funcSelectors[10] = IRoleManagement.grantRoleAccount.selector;
+        rc[0].funcSelectors[11] = IRoleManagement.revokeRoleAccount.selector;
+        rc[0].funcSelectors[12] = IRoleManagement.setRoleStat.selector;
+        rc[0].funcSelectors[13] = IRoleManagement.setRoleGroup.selector;
+        rc[0].funcSelectors[14] = IGroupManagement.registerGroup.selector;
+        rc[0].funcSelectors[15] = IGroupManagement.setGroupStat.selector;
+        rc[0].funcSelectors[16] = IRealmManagement.registerRealm.selector;
+        rc[0].funcSelectors[17] = IRealmManagement.setRealmStat.selector;
+        rc[0].funcSelectors[18] = IRealmManagement.setRealmUpgradeStat.selector;
+
+        rc[1].role = LIVELY_SYSTEM_ADMIN_ROLE;
+        rc[1].isEnabled = true;
+        rc[1].funcSelectors = new bytes4[](2);
+        rc[1].funcSelectors[0] = IProxy.setSafeMode.selector;
+        rc[1].funcSelectors[1] = IProxy.upgradeTo.selector;
         return rc;
     }
 
@@ -83,10 +89,33 @@ library LAccessControl {
         bytes4 signature
     ) external view returns (bool) {
         bytes32 role = data.ctxMap[context].resources[signature].role;
+        // console.log("hasAccess called, address: %s", account);
+        
+        // console.log("data.ctxMap[context].smca: %s", data.ctxMap[context].smca);
+        // console.log("data.ctxMap[context].isEnabled:");
+        // console.logBool(data.ctxMap[context].isEnabled);
+        // console.log("data.ctxMap[context].realm: ");
+        // console.logBytes32(data.ctxMap[context].realm);
+        // console.log("data.ctxMap[context].resources[signature].status: ");
+        // console.logBytes1(bytes1(uint8(data.ctxMap[context].resources[signature].status)));
+        // console.log("data.ctxMap[context].resources[signature].role: ");
+        // console.logBytes32(data.ctxMap[context].resources[signature].role);
+
+        // console.log("data.realmMap[data.ctxMap[context].realm].name: %s", data.realmMap[data.ctxMap[context].realm].name);
+        // console.log("data.realmMap[data.ctxMap[context].realm].isEnabled: ");
+        // console.logBool(data.realmMap[data.ctxMap[context].realm].isEnabled);
+
+        // console.log("data.groupMap[data.roleMap[role].group].name: %s", data.groupMap[data.roleMap[role].group].name);
+        // console.log("data.groupMap[data.roleMap[role].group].isEnabled: ");
+        // console.logBool(data.groupMap[data.roleMap[role].group].isEnabled);
+
+        // console.log("data.accountMap[account][role]: ");
+        // console.logBytes1(bytes1(uint8(data.accountMap[account][role])));
+
         return
             data.ctxMap[context].isEnabled &&
-            data.realmMap[data.ctxMap[context].realm].isEnabled &&
             data.ctxMap[context].resources[signature].status == AccessControlStorage.Status.ENABLED &&
+            data.realmMap[data.ctxMap[context].realm].isEnabled &&            
             data.groupMap[data.roleMap[role].group].isEnabled &&
             data.accountMap[account][role] == AccessControlStorage.Status.ENABLED;
     }
@@ -115,11 +144,19 @@ library LAccessControl {
         return data.realmMap[LIVELY_GENERAL_REALM].ctxSet.contains(context);
     }
 
-    function isSafeMode(AccessControlStorage.DataMaps storage data, bytes32 context) external view returns (bool) {
+    function isContextSafeMode(AccessControlStorage.DataMaps storage data, bytes32 context)
+        external
+        view
+        returns (bool)
+    {
         return IProxy(data.ctxMap[context].smca).isSafeMode();
     }
 
-    function isUpgradable(AccessControlStorage.DataMaps storage data, bytes32 context) external view returns (bool) {
+    function isContextUpgradable(AccessControlStorage.DataMaps storage data, bytes32 context)
+        external
+        view
+        returns (bool)
+    {
         return IProxy(data.ctxMap[context].smca).isUpgradable();
     }
 }

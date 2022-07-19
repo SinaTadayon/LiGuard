@@ -6,5 +6,4 @@ export { BaseProxy__factory } from "./BaseProxy__factory";
 export { BaseUUPSProxy__factory } from "./BaseUUPSProxy__factory";
 export { IBaseProxy__factory } from "./IBaseProxy__factory";
 export { IProxy__factory } from "./IProxy__factory";
-export { Initializable__factory } from "./Initializable__factory";
 export { Proxy__factory } from "./Proxy__factory";

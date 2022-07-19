@@ -16,8 +16,7 @@ import "../lib/acl/LRealmManagement.sol";
 import "../lib/acl/LAccessControl.sol";
 import "../proxy/Initializable.sol";
 import "../proxy/BaseUUPSProxy.sol";
-
-// import "hardhat/console.sol";
+import "hardhat/console.sol";
 
 contract AccessControlManager is
     AccessControlStorage,
@@ -66,8 +65,10 @@ contract AccessControlManager is
         );
 
         bytes32 realm = keccak256(abi.encodePacked(domainRealm));
-        __BASE_UUPS_init(domainName, domainVersion, realm, accessControlManager);
         LAccessControl.initializeContext(_dataMaps);
+        RequestContext[] memory rc = LAccessControl.createRequestContext();
+        LContextManagement.registerAccessControlManagerContext(_dataMaps, address(this), realm, rc);
+        __BASE_UUPS_init(domainName, domainVersion, realm, accessControlManager);
         emit Initialized(
             _msgSender(),
             address(this),
@@ -75,20 +76,13 @@ contract AccessControlManager is
             _domainName,
             _domainVersion,
             realm,
-            getInitializedCount()
+            _getInitializedCount()
         );
-    }
-
-    function contractRegisteration() external onlyProxy onlyAdmin returns (bytes32) {
-        require(!_isSafeMode, "SafeMode: Call Rejected");
-        RequestContext[] memory rc = new RequestContext[](1);
-        rc[0] = LAccessControl.createRequestContext();
-        return LContextManagement.registerContext(_dataMaps, address(this), _domainRealm, rc);
     }
 
     /**
      * @dev See {IERC165-supportsInterface}.
-     */
+     */         
     function supportsInterface(bytes4 interfaceId) public view override returns (bool) {
         return
             interfaceId == type(IAccessControl).interfaceId ||
@@ -123,30 +117,29 @@ contract AccessControlManager is
         return LAccessControl.hasLivelyRealm(_dataMaps, context);
     }
 
-    function isSafeMode(bytes32 context) external view returns (bool) {
-        return LAccessControl.isSafeMode(_dataMaps, context);
+    function isContextSafeMode(bytes32 context) external view returns (bool) {
+        return LAccessControl.isContextSafeMode(_dataMaps, context);
     }
 
-    function isUpgradable(bytes32 context) external view returns (bool) {
-        return LAccessControl.isUpgradable(_dataMaps, context);
+    function isContextUpgradable(bytes32 context) external view returns (bool) {
+        return LAccessControl.isContextUpgradable(_dataMaps, context);
     }
 
-    // TODO hasPermission call this  function by SYSTEM_ADMIN
     function registerContext(
         address newContract,
         bytes32 realm,
+        bool state,
         RequestContext[] calldata rc
     ) external returns (bytes32) {
-        bytes32 context = LContextManagement.registerContext(_dataMaps, newContract, realm, rc);
-        emit ContextRegistered(context, newContract, msg.sender, realm);
-        return context;
+        bytes32 context = LContextManagement.registerContext(_dataMaps, newContract, realm, state, rc);
+        emit ContextRegistered(context, newContract, msg.sender, realm, state);
+        return context;        
     }
 
-    // TODO hasPermission call this  function by SYSTEM_ADMIN
-    function updateContext(bytes32 ctx, RequestContext[] calldata rc) external returns (address) {
-        (address scma, bytes32 realm) = LContextManagement.updateContext(_dataMaps, ctx, rc);
-        emit ContextUpdated(ctx, scma, msg.sender, realm);
-        return scma;
+    function updateContext(bytes32 ctx, bytes32 realm, bool state, RequestContext[] calldata rc) external returns (address) {
+        address smca = LContextManagement.updateContext(_dataMaps, ctx, realm, state, rc);
+        emit ContextUpdated(ctx, smca, msg.sender, realm, state);
+        return smca;
     }
 
     function grantContextRole(
@@ -171,6 +164,12 @@ contract AccessControlManager is
 
     function setContextSafeMode(bytes32 ctx, bool state) external returns (bool) {
         return LContextManagement.setContextSafeMode(_dataMaps, ctx, state);
+    }
+
+    function setContextState(bytes32 ctx, bool state) external returns (bool) {
+        (bool success, bytes32 realm) = LContextManagement.setContextState(_dataMaps, ctx, state);
+        emit ContextStateChanged(ctx, _msgSender(), realm, state);
+        return success;        
     }
 
     function setContextRealm(bytes32 ctx, bytes32 realm) external returns (bool) {

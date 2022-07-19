@@ -27,8 +27,8 @@ export interface IAccessControlInterface extends utils.Interface {
     "hasLivelyGroup(bytes32)": FunctionFragment;
     "hasLivelyRealm(bytes32)": FunctionFragment;
     "hasSystemAdminRole(address)": FunctionFragment;
-    "isSafeMode(bytes32)": FunctionFragment;
-    "isUpgradable(bytes32)": FunctionFragment;
+    "isContextSafeMode(bytes32)": FunctionFragment;
+    "isContextUpgradable(bytes32)": FunctionFragment;
   };
 
   getFunction(
@@ -43,10 +43,10 @@ export interface IAccessControlInterface extends utils.Interface {
       | "hasLivelyRealm(bytes32)"
       | "hasSystemAdminRole"
       | "hasSystemAdminRole(address)"
-      | "isSafeMode"
-      | "isSafeMode(bytes32)"
-      | "isUpgradable"
-      | "isUpgradable(bytes32)"
+      | "isContextSafeMode"
+      | "isContextSafeMode(bytes32)"
+      | "isContextUpgradable"
+      | "isContextUpgradable(bytes32)"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -98,19 +98,19 @@ export interface IAccessControlInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "isSafeMode",
+    functionFragment: "isContextSafeMode",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "isSafeMode(bytes32)",
+    functionFragment: "isContextSafeMode(bytes32)",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "isUpgradable",
+    functionFragment: "isContextUpgradable",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "isUpgradable(bytes32)",
+    functionFragment: "isContextUpgradable(bytes32)",
     values: [PromiseOrValue<BytesLike>]
   ): string;
 
@@ -151,17 +151,20 @@ export interface IAccessControlInterface extends utils.Interface {
     functionFragment: "hasSystemAdminRole(address)",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "isSafeMode", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "isSafeMode(bytes32)",
+    functionFragment: "isContextSafeMode",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "isUpgradable",
+    functionFragment: "isContextSafeMode(bytes32)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "isUpgradable(bytes32)",
+    functionFragment: "isContextUpgradable",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isContextUpgradable(bytes32)",
     data: BytesLike
   ): Result;
 
@@ -249,22 +252,22 @@ export interface IAccessControl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    isSafeMode(
+    isContextSafeMode(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    "isSafeMode(bytes32)"(
+    "isContextSafeMode(bytes32)"(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    isUpgradable(
+    isContextUpgradable(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    "isUpgradable(bytes32)"(
+    "isContextUpgradable(bytes32)"(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
@@ -324,22 +327,22 @@ export interface IAccessControl extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  isSafeMode(
+  isContextSafeMode(
     context: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  "isSafeMode(bytes32)"(
+  "isContextSafeMode(bytes32)"(
     context: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  isUpgradable(
+  isContextUpgradable(
     context: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  "isUpgradable(bytes32)"(
+  "isContextUpgradable(bytes32)"(
     context: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
@@ -399,22 +402,22 @@ export interface IAccessControl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    isSafeMode(
+    isContextSafeMode(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "isSafeMode(bytes32)"(
+    "isContextSafeMode(bytes32)"(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    isUpgradable(
+    isContextUpgradable(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "isUpgradable(bytes32)"(
+    "isContextUpgradable(bytes32)"(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
@@ -477,22 +480,22 @@ export interface IAccessControl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    isSafeMode(
+    isContextSafeMode(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "isSafeMode(bytes32)"(
+    "isContextSafeMode(bytes32)"(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    isUpgradable(
+    isContextUpgradable(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "isUpgradable(bytes32)"(
+    "isContextUpgradable(bytes32)"(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -553,22 +556,22 @@ export interface IAccessControl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    isSafeMode(
+    isContextSafeMode(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "isSafeMode(bytes32)"(
+    "isContextSafeMode(bytes32)"(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    isUpgradable(
+    isContextUpgradable(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "isUpgradable(bytes32)"(
+    "isContextUpgradable(bytes32)"(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;

@@ -123,7 +123,7 @@ const _abi = [
         type: "bytes32",
       },
     ],
-    name: "isSafeMode",
+    name: "isContextSafeMode",
     outputs: [
       {
         internalType: "bool",
@@ -142,7 +142,7 @@ const _abi = [
         type: "bytes32",
       },
     ],
-    name: "isUpgradable",
+    name: "isContextUpgradable",
     outputs: [
       {
         internalType: "bool",

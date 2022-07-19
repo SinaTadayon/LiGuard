@@ -109,7 +109,7 @@ const _abi = [
         type: "bool",
       },
     ],
-    name: "SafeModeStateChanged",
+    name: "SafeModeChanged",
     type: "event",
   },
   {
@@ -209,19 +209,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "contractRegisteration",
-    outputs: [
-      {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
     name: "contractVersion",
     outputs: [
       {
@@ -254,6 +241,32 @@ const _abi = [
         internalType: "address",
         name: "",
         type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getInitializeState",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getInitializedVersion",
+    outputs: [
+      {
+        internalType: "uint16",
+        name: "",
+        type: "uint16",
       },
     ],
     stateMutability: "view",
@@ -312,7 +325,7 @@ const _abi = [
         type: "bool",
       },
     ],
-    name: "setSafeModeState",
+    name: "setSafeMode",
     outputs: [
       {
         internalType: "bool",

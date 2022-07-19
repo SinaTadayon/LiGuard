@@ -6,10 +6,37 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
 
-  const contextManagementLib = await deploy("ContextManagementLib", {
-    contract: "ContextManagementLib",
+  const acl = await deploy("ACL", {
+    contract: "LAccessControl",
     from: deployer,
-    args: [],
+    log: true,
+    skipIfAlreadyDeployed: true,
+  });
+
+  const cml = await deploy("CML", {
+    contract: "LContextManagement",
+    from: deployer,
+    log: true,
+    skipIfAlreadyDeployed: true,
+  });
+
+  const rml = await deploy("RML", {
+    contract: "LRoleManagement",
+    from: deployer,
+    log: true,
+    skipIfAlreadyDeployed: true,
+  });
+
+  const reml = await deploy("REML", {
+    contract: "LRealmManagement",
+    from: deployer,
+    log: true,
+    skipIfAlreadyDeployed: true,
+  });
+
+  const gml = await deploy("GML", {
+    contract: "LGroupManagement",
+    from: deployer,
     log: true,
     skipIfAlreadyDeployed: true,
   });
@@ -23,7 +50,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       log: true,
       skipIfAlreadyDeployed: true,
       libraries: {
-        ContextManagementLib: contextManagementLib.address,
+        LAccessControl: acl.address,
+        LContextManagement: cml.address,
+        LRoleManagement: rml.address, 
+        LGroupManagement: gml.address,
+        LRealmManagement: reml.address,
       },
     }
   );
@@ -31,7 +62,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const iface = new ethers.utils.Interface(accessControlManagerSubject.abi);
   const data = iface.encodeFunctionData("initialize", [
     "AccessControlManager",
-    "v0.0.1",
+    "1.0.0",
     "LIVELY_GENERAL_REALM",
     accessControlManagerSubject.address,
   ]);
@@ -45,5 +76,5 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   });
 };
 
-func.tags = ["AccessControlManagerSubject", "AccessControlManagerProxy"];
+func.tags = ["AccessControlManagerSubject", "AccessControlManagerProxy", "ACL", "CML", "RML", "GML", "REML"];
 export default func;

@@ -7,5 +7,4 @@ export type { BaseProxy } from "./BaseProxy";
 export type { BaseUUPSProxy } from "./BaseUUPSProxy";
 export type { IBaseProxy } from "./IBaseProxy";
 export type { IProxy } from "./IProxy";
-export type { Initializable } from "./Initializable";
 export type { Proxy } from "./Proxy";

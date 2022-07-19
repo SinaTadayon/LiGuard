@@ -20,7 +20,7 @@ interface IAccessControl {
 
     function hasLivelyRealm(bytes32 context) external view returns (bool);
 
-    function isSafeMode(bytes32 context) external view returns (bool);
+    function isContextSafeMode(bytes32 context) external view returns (bool);
 
-    function isUpgradable(bytes32 context) external view returns (bool);
+    function isContextUpgradable(bytes32 context) external view returns (bool);
 }

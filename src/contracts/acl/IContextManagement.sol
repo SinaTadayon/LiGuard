@@ -17,9 +17,11 @@ interface IContextManagement {
         bool isUpgradable;
     }
 
-    event ContextRegistered(bytes32 indexed context, address indexed scma, address indexed sender, bytes32 realm);
+    event ContextRegistered(bytes32 indexed context, address indexed scma, address indexed sender, bytes32 realm, bool state);
 
-    event ContextUpdated(bytes32 indexed context, address indexed scma, address indexed sender, bytes32 realm);
+    event ContextUpdated(bytes32 indexed context, address indexed scma, address indexed sender, bytes32 realm, bool state);
+
+    event ContextStateChanged(bytes32 indexed context, address indexed sender, bytes32 indexed realm, bool state);
 
     event ContextRoleGranted(
         bytes32 indexed context,
@@ -47,10 +49,11 @@ interface IContextManagement {
     function registerContext(
         address newContract,
         bytes32 realm,
+        bool state,
         RequestContext[] calldata rc
     ) external returns (bytes32);
 
-    function updateContext(bytes32 ctx, RequestContext[] calldata rc) external returns (address);
+    function updateContext(bytes32 ctx, bytes32 realm, bool state, RequestContext[] calldata rc) external returns (address);
 
     function grantContextRole(
         bytes32 ctx,
@@ -65,6 +68,8 @@ interface IContextManagement {
     ) external returns (bool);
 
     function setContextRealm(bytes32 ctx, bytes32 realm) external returns (bool);
+
+    function setContextState(bytes32 ctx, bool state) external returns (bool);
 
     function setContextSafeMode(bytes32 ctx, bool state) external returns (bool);
 

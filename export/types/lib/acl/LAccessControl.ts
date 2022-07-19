@@ -247,11 +247,11 @@ export interface LAccessControl extends BaseContract {
 
     createRequestContext(
       overrides?: CallOverrides
-    ): Promise<[IContextManagement.RequestContextStructOutput]>;
+    ): Promise<[IContextManagement.RequestContextStructOutput[]]>;
 
     "createRequestContext()"(
       overrides?: CallOverrides
-    ): Promise<[IContextManagement.RequestContextStructOutput]>;
+    ): Promise<[IContextManagement.RequestContextStructOutput[]]>;
   };
 
   ANONYMOUSE_ROLE(overrides?: CallOverrides): Promise<string>;
@@ -284,11 +284,11 @@ export interface LAccessControl extends BaseContract {
 
   createRequestContext(
     overrides?: CallOverrides
-  ): Promise<IContextManagement.RequestContextStructOutput>;
+  ): Promise<IContextManagement.RequestContextStructOutput[]>;
 
   "createRequestContext()"(
     overrides?: CallOverrides
-  ): Promise<IContextManagement.RequestContextStructOutput>;
+  ): Promise<IContextManagement.RequestContextStructOutput[]>;
 
   callStatic: {
     ANONYMOUSE_ROLE(overrides?: CallOverrides): Promise<string>;
@@ -321,11 +321,11 @@ export interface LAccessControl extends BaseContract {
 
     createRequestContext(
       overrides?: CallOverrides
-    ): Promise<IContextManagement.RequestContextStructOutput>;
+    ): Promise<IContextManagement.RequestContextStructOutput[]>;
 
     "createRequestContext()"(
       overrides?: CallOverrides
-    ): Promise<IContextManagement.RequestContextStructOutput>;
+    ): Promise<IContextManagement.RequestContextStructOutput[]>;
   };
 
   filters: {};

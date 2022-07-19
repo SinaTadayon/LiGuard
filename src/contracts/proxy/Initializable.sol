@@ -48,20 +48,17 @@ abstract contract Initializable {
      */
     bool private _initializing;
 
-    function getInitializedCount() public view returns (uint16) {
-        return _initialized;
-    }
-
-    function isInitializing() public view returns (bool) {
-        return _initializing;
-    }
-
-    /**
+     /**
      * @dev A modifier that defines a protected initializer function that can be invoked at most once. In its scope,
      * `onlyInitializing` functions can be used to initialize parent contracts. Equivalent to `reinitializer(1)`.
      */
     modifier initializer() {
-        bool isTopLevelCall = _setInitializedVersion(1);
+        bool isTopLevelCall = !_initializing;
+        require(
+            (isTopLevelCall && _initialized < 1) || (!LAddress.isContract(address(this)) && _initialized == 1),
+            "Contract Already Initialized"
+        );
+        _initialized = 1;
         if (isTopLevelCall) {
             _initializing = true;
         }
@@ -84,14 +81,11 @@ abstract contract Initializable {
      * a contract, executing them in the right order is up to the developer or operator.
      */
     modifier reinitializer(uint16 version) {
-        bool isTopLevelCall = _setInitializedVersion(version);
-        if (isTopLevelCall) {
-            _initializing = true;
-        }
+        require(!_initializing && _initialized < version, "Contract Already Initialized");
+        _initialized = version;
+        _initializing = true;
         _;
-        if (isTopLevelCall) {
-            _initializing = false;
-        }
+        _initializing = false;
     }
 
     /**
@@ -103,27 +97,24 @@ abstract contract Initializable {
         _;
     }
 
-    /**
+     /**
      * @dev Locks the contract, preventing any future reinitialization. This cannot be part of an initializer call.
      * Calling this in the constructor of a contract will prevent that contract from being initialized or reinitialized
      * to any version. It is recommended to use this to lock implementation contracts that are designed to be called
      * through proxies.
      */
     function _disableInitializers() internal virtual {
-        _setInitializedVersion(type(uint16).max);
+        require(!_initializing, "Contract Initializing Invalid");
+        if (_initialized < type(uint16).max) {
+            _initialized = type(uint16).max;
+        }
     }
 
-    function _setInitializedVersion(uint16 version) private returns (bool) {
-        // If the contract is initializing we ignore whether _initialized is set in order to support multiple
-        // inheritance patterns, but we only do this in the context of a constructor, and for the lowest level
-        // of initializers, because in other contexts the contract may have been reentered.
-        if (_initializing) {
-            require(version == 1 && !LAddress.isContract(address(this)), "Contract Already Initialized");
-            return false;
-        } else {
-            require(_initialized < version, "Illegal Initialize Version");
-            _initialized = version;
-            return true;
-        }
+    function _getInitializedCount() internal view returns (uint16) {
+        return _initialized;
+    }
+
+    function _isInitializing() internal view returns (bool) {
+        return _initializing;
     }
 }

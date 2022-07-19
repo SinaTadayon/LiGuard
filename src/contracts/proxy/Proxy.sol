@@ -22,12 +22,13 @@ contract Proxy is BaseUUPSStorage, BaseProxy, IBaseProxy {
      * @dev Initializes the upgradeable proxy with an initial implementation specified by `_logic`.
      *
      * If `_data` is nonempty, it's used as data in a delegate call to `_logic`. This will typically be an encoded
-     * function call, and allows initializating the storage of the proxy like a Solidity constructor.
+     * function call, and allows initializing the storage of the proxy like a Solidity constructor.
      */
     constructor(address logic, bytes memory data) payable {
         assert(_IMPLEMENTATION_SLOT == bytes32(uint256(keccak256("eip1967.proxy.implementation")) - 1));
         assert(_ADMIN_SLOT == bytes32(uint256(keccak256("eip1967.proxy.admin")) - 1));
         LStorageSlot.getAddressSlot(_ADMIN_SLOT).value = msg.sender;
+        _isSafeMode = true;
         _upgradeToAndCallUUPS(logic, data, false);
     }
 
@@ -91,11 +92,10 @@ contract Proxy is BaseUUPSStorage, BaseProxy, IBaseProxy {
             return new bytes(0);
         } else {
             try IERC1822Proxiable(newImplementation).proxiableUUID() returns (bytes32 slot) {
-                require(slot == _IMPLEMENTATION_SLOT, "UUPS Contract Invalid");
+                require(slot == _IMPLEMENTATION_SLOT, "Invalid UUPS Contract");
             } catch {
-                revert("Contract Not UUPS");
+                revert("Illegal UUPS Contract");
             }
-
             return _upgradeToAndCall(newImplementation, data, forceCall);
         }
     }

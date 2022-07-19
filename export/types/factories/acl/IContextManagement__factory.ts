@@ -68,6 +68,12 @@ const _abi = [
         name: "realm",
         type: "bytes32",
       },
+      {
+        indexed: false,
+        internalType: "bool",
+        name: "state",
+        type: "bool",
+      },
     ],
     name: "ContextRegistered",
     type: "event",
@@ -158,6 +164,37 @@ const _abi = [
       {
         indexed: true,
         internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "realm",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "bool",
+        name: "state",
+        type: "bool",
+      },
+    ],
+    name: "ContextStateChanged",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "context",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "address",
         name: "scma",
         type: "address",
       },
@@ -172,6 +209,12 @@ const _abi = [
         internalType: "bytes32",
         name: "realm",
         type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "bool",
+        name: "state",
+        type: "bool",
       },
     ],
     name: "ContextUpdated",
@@ -318,6 +361,11 @@ const _abi = [
         type: "bytes32",
       },
       {
+        internalType: "bool",
+        name: "state",
+        type: "bool",
+      },
+      {
         components: [
           {
             internalType: "bytes32",
@@ -441,6 +489,30 @@ const _abi = [
         type: "bool",
       },
     ],
+    name: "setContextState",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "ctx",
+        type: "bytes32",
+      },
+      {
+        internalType: "bool",
+        name: "state",
+        type: "bool",
+      },
+    ],
     name: "setContextUpgradeState",
     outputs: [
       {
@@ -458,6 +530,16 @@ const _abi = [
         internalType: "bytes32",
         name: "ctx",
         type: "bytes32",
+      },
+      {
+        internalType: "bytes32",
+        name: "realm",
+        type: "bytes32",
+      },
+      {
+        internalType: "bool",
+        name: "state",
+        type: "bool",
       },
       {
         components: [

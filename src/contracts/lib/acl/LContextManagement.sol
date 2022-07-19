@@ -7,6 +7,7 @@ import "../struct/LEnumerableSet.sol";
 import "../../proxy/IProxy.sol";
 import "../LContextUtils.sol";
 import "./LAccessControl.sol";
+import "hardhat/console.sol";
 
 library LContextManagement {
     using LEnumerableSet for LEnumerableSet.Bytes32Set;
@@ -15,10 +16,20 @@ library LContextManagement {
     bytes32 public constant LIB_VERSION = keccak256(abi.encodePacked("1.0.0"));
 
     // TODO check convert bytes4 to bytes32
+    function registerAccessControlManagerContext(
+        AccessControlStorage.DataMaps storage data,
+        address newContract,
+        bytes32 realm,
+        IContextManagement.RequestContext[] calldata rc
+    ) external returns (bytes32) {
+        return _registerContext(data, newContract, realm, true, rc);    
+    }
+
     function registerContext(
         AccessControlStorage.DataMaps storage data,
         address newContract,
         bytes32 realm,
+        bool state,
         IContextManagement.RequestContext[] calldata rc
     ) external returns (bytes32) {
         require(!IProxy(address(this)).isSafeMode(), "SafeMode: Call Rejected");
@@ -31,13 +42,23 @@ library LContextManagement {
             ),
             "Access Denied"
         );
-        require(bytes(data.realmMap[realm].name).length != 0, "Realm Not Found");
+        return _registerContext(data, newContract, realm, state, rc);    
+    }
 
+    function _registerContext(
+        AccessControlStorage.DataMaps storage data,
+        address newContract,
+        bytes32 realm,
+        bool state,
+        IContextManagement.RequestContext[] calldata rc
+    ) private returns (bytes32) {
+
+        require(bytes(data.realmMap[realm].name).length != 0, "Realm Not Found");
         bytes32 ctx = LContextUtils.generateCtx(newContract);
-        require(data.ctxMap[ctx].smca == address(0), "Context Already Registered");
         AccessControlStorage.Context storage newContext = data.ctxMap[ctx];
         newContext.realm = realm;
         newContext.smca = newContract;
+        newContext.isEnabled = state;
 
         for (uint256 i = 0; i < rc.length; i++) {
             require(bytes(data.roleMap[rc[i].role].name).length != 0, "Role Not Found");
@@ -56,8 +77,10 @@ library LContextManagement {
     function updateContext(
         AccessControlStorage.DataMaps storage data,
         bytes32 ctx,
+        bytes32 realm,
+        bool state,
         IContextManagement.RequestContext[] calldata rc
-    ) external returns (address, bytes32) {
+    ) external returns (address) {
         require(!IProxy(address(this)).isSafeMode(), "SafeMode: Call Rejected");
         require(
             LAccessControl.hasAccess(
@@ -72,6 +95,9 @@ library LContextManagement {
         address smca = data.ctxMap[ctx].smca;
         require(smca != address(0), "Context Not Found");
         require(smca != msg.sender, "Context Update Forbidden");
+        require(bytes(data.realmMap[realm].name).length != 0, "Realm Not Found");
+        data.ctxMap[ctx].isEnabled = state;
+        data.ctxMap[ctx].realm = realm;
 
         for (uint256 i = 0; i < rc.length; i++) {
             require(bytes(data.roleMap[rc[i].role].name).length != 0, "Role Not Found");
@@ -85,7 +111,7 @@ library LContextManagement {
                 }
             }
         }
-        return (smca, data.ctxMap[ctx].realm);
+        return smca;
     }
 
     function grantContextRole(
@@ -151,7 +177,23 @@ library LContextManagement {
             "Access Denied"
         );
         require(data.ctxMap[ctx].smca != address(0), "Context Not Found");
-        return IProxy(data.ctxMap[ctx].smca).setSafeModeState(state);
+        return IProxy(data.ctxMap[ctx].smca).setSafeMode(state);
+    }
+
+    function setContextState(AccessControlStorage.DataMaps storage data, bytes32 ctx, bool state) external returns (bool, bytes32) {
+        require(!IProxy(address(this)).isSafeMode(), "SafeMode: Call Rejected");
+        require(
+            LAccessControl.hasAccess(
+                data,
+                LContextUtils.generateCtx(address(this)),
+                msg.sender,
+                IContextManagement.setContextSafeMode.selector
+            ),
+            "Access Denied"
+        );
+        require(data.ctxMap[ctx].smca != address(0), "Context Not Found");
+        data.ctxMap[ctx].isEnabled = state;
+        return (true, data.ctxMap[ctx].realm);
     }
 
     function setContextRealm(

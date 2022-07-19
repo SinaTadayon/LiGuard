@@ -85,7 +85,6 @@ export interface AccessControlManagerInterface extends utils.Interface {
     "contractContext()": FunctionFragment;
     "contractName()": FunctionFragment;
     "contractRealm()": FunctionFragment;
-    "contractRegisteration()": FunctionFragment;
     "contractVersion()": FunctionFragment;
     "getAccessControlManager()": FunctionFragment;
     "getAdmin()": FunctionFragment;
@@ -93,7 +92,8 @@ export interface AccessControlManagerInterface extends utils.Interface {
     "getContextInfo(bytes32)": FunctionFragment;
     "getGroup(bytes32)": FunctionFragment;
     "getGroupRoles(bytes32)": FunctionFragment;
-    "getInitializedCount()": FunctionFragment;
+    "getInitializeState()": FunctionFragment;
+    "getInitializedVersion()": FunctionFragment;
     "getRealm(bytes32)": FunctionFragment;
     "getRealmContexts(bytes32)": FunctionFragment;
     "getRole(bytes32)": FunctionFragment;
@@ -110,13 +110,12 @@ export interface AccessControlManagerInterface extends utils.Interface {
     "hasRealmContext(bytes32,bytes32)": FunctionFragment;
     "hasSystemAdminRole(address)": FunctionFragment;
     "initialize(string,string,string,address)": FunctionFragment;
-    "isInitializing()": FunctionFragment;
-    "isSafeMode(bytes32)": FunctionFragment;
+    "isContextSafeMode(bytes32)": FunctionFragment;
+    "isContextUpgradable(bytes32)": FunctionFragment;
     "isSafeMode()": FunctionFragment;
-    "isUpgradable(bytes32)": FunctionFragment;
     "isUpgradable()": FunctionFragment;
     "proxiableUUID()": FunctionFragment;
-    "registerContext(address,bytes32,(bytes32,bytes4[],bool)[])": FunctionFragment;
+    "registerContext(address,bytes32,bool,(bytes32,bytes4[],bool)[])": FunctionFragment;
     "registerGroup(string,bool)": FunctionFragment;
     "registerRealm(string,bool,bool)": FunctionFragment;
     "registerRole(string,bytes32,bool)": FunctionFragment;
@@ -125,17 +124,18 @@ export interface AccessControlManagerInterface extends utils.Interface {
     "setAdmin(address)": FunctionFragment;
     "setContextRealm(bytes32,bytes32)": FunctionFragment;
     "setContextSafeMode(bytes32,bool)": FunctionFragment;
+    "setContextState(bytes32,bool)": FunctionFragment;
     "setContextUpgradeState(bytes32,bool)": FunctionFragment;
     "setGroupStat(bytes32,bool)": FunctionFragment;
     "setRealmStat(bytes32,bool)": FunctionFragment;
     "setRealmUpgradeStat(bytes32,bool)": FunctionFragment;
     "setRoleGroup(bytes32,bytes32)": FunctionFragment;
     "setRoleStat(bytes32,bool)": FunctionFragment;
-    "setSafeModeState(bool)": FunctionFragment;
+    "setSafeMode(bool)": FunctionFragment;
     "setUpgradeState(bool)": FunctionFragment;
     "subjectAddress()": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
-    "updateContext(bytes32,(bytes32,bytes4[],bool)[])": FunctionFragment;
+    "updateContext(bytes32,bytes32,bool,(bytes32,bytes4[],bool)[])": FunctionFragment;
     "upgradeTo(address,bytes,bool)": FunctionFragment;
   };
 
@@ -177,8 +177,6 @@ export interface AccessControlManagerInterface extends utils.Interface {
       | "contractName()"
       | "contractRealm"
       | "contractRealm()"
-      | "contractRegisteration"
-      | "contractRegisteration()"
       | "contractVersion"
       | "contractVersion()"
       | "getAccessControlManager"
@@ -193,8 +191,10 @@ export interface AccessControlManagerInterface extends utils.Interface {
       | "getGroup(bytes32)"
       | "getGroupRoles"
       | "getGroupRoles(bytes32)"
-      | "getInitializedCount"
-      | "getInitializedCount()"
+      | "getInitializeState"
+      | "getInitializeState()"
+      | "getInitializedVersion"
+      | "getInitializedVersion()"
       | "getRealm"
       | "getRealm(bytes32)"
       | "getRealmContexts"
@@ -227,16 +227,18 @@ export interface AccessControlManagerInterface extends utils.Interface {
       | "hasSystemAdminRole(address)"
       | "initialize"
       | "initialize(string,string,string,address)"
-      | "isInitializing"
-      | "isInitializing()"
-      | "isSafeMode(bytes32)"
+      | "isContextSafeMode"
+      | "isContextSafeMode(bytes32)"
+      | "isContextUpgradable"
+      | "isContextUpgradable(bytes32)"
+      | "isSafeMode"
       | "isSafeMode()"
-      | "isUpgradable(bytes32)"
+      | "isUpgradable"
       | "isUpgradable()"
       | "proxiableUUID"
       | "proxiableUUID()"
       | "registerContext"
-      | "registerContext(address,bytes32,(bytes32,bytes4[],bool)[])"
+      | "registerContext(address,bytes32,bool,(bytes32,bytes4[],bool)[])"
       | "registerGroup"
       | "registerGroup(string,bool)"
       | "registerRealm"
@@ -253,6 +255,8 @@ export interface AccessControlManagerInterface extends utils.Interface {
       | "setContextRealm(bytes32,bytes32)"
       | "setContextSafeMode"
       | "setContextSafeMode(bytes32,bool)"
+      | "setContextState"
+      | "setContextState(bytes32,bool)"
       | "setContextUpgradeState"
       | "setContextUpgradeState(bytes32,bool)"
       | "setGroupStat"
@@ -265,8 +269,8 @@ export interface AccessControlManagerInterface extends utils.Interface {
       | "setRoleGroup(bytes32,bytes32)"
       | "setRoleStat"
       | "setRoleStat(bytes32,bool)"
-      | "setSafeModeState"
-      | "setSafeModeState(bool)"
+      | "setSafeMode"
+      | "setSafeMode(bool)"
       | "setUpgradeState"
       | "setUpgradeState(bool)"
       | "subjectAddress"
@@ -274,7 +278,7 @@ export interface AccessControlManagerInterface extends utils.Interface {
       | "supportsInterface"
       | "supportsInterface(bytes4)"
       | "updateContext"
-      | "updateContext(bytes32,(bytes32,bytes4[],bool)[])"
+      | "updateContext(bytes32,bytes32,bool,(bytes32,bytes4[],bool)[])"
       | "upgradeTo"
       | "upgradeTo(address,bytes,bool)"
   ): FunctionFragment;
@@ -424,14 +428,6 @@ export interface AccessControlManagerInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "contractRegisteration",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "contractRegisteration()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "contractVersion",
     values?: undefined
   ): string;
@@ -485,11 +481,19 @@ export interface AccessControlManagerInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "getInitializedCount",
+    functionFragment: "getInitializeState",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getInitializedCount()",
+    functionFragment: "getInitializeState()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getInitializedVersion",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getInitializedVersion()",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -655,24 +659,32 @@ export interface AccessControlManagerInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "isInitializing",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isInitializing()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isSafeMode(bytes32)",
+    functionFragment: "isContextSafeMode",
     values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isContextSafeMode(bytes32)",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isContextUpgradable",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isContextUpgradable(bytes32)",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isSafeMode",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "isSafeMode()",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "isUpgradable(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
+    functionFragment: "isUpgradable",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "isUpgradable()",
@@ -691,14 +703,16 @@ export interface AccessControlManagerInterface extends utils.Interface {
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<BytesLike>,
+      PromiseOrValue<boolean>,
       IContextManagement.RequestContextStruct[]
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "registerContext(address,bytes32,(bytes32,bytes4[],bool)[])",
+    functionFragment: "registerContext(address,bytes32,bool,(bytes32,bytes4[],bool)[])",
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<BytesLike>,
+      PromiseOrValue<boolean>,
       IContextManagement.RequestContextStruct[]
     ]
   ): string;
@@ -791,6 +805,14 @@ export interface AccessControlManagerInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
+    functionFragment: "setContextState",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setContextState(bytes32,bool)",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setContextUpgradeState",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
   ): string;
@@ -839,11 +861,11 @@ export interface AccessControlManagerInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setSafeModeState",
+    functionFragment: "setSafeMode",
     values: [PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setSafeModeState(bool)",
+    functionFragment: "setSafeMode(bool)",
     values: [PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
@@ -874,13 +896,17 @@ export interface AccessControlManagerInterface extends utils.Interface {
     functionFragment: "updateContext",
     values: [
       PromiseOrValue<BytesLike>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<boolean>,
       IContextManagement.RequestContextStruct[]
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "updateContext(bytes32,(bytes32,bytes4[],bool)[])",
+    functionFragment: "updateContext(bytes32,bytes32,bool,(bytes32,bytes4[],bool)[])",
     values: [
       PromiseOrValue<BytesLike>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<boolean>,
       IContextManagement.RequestContextStruct[]
     ]
   ): string;
@@ -1046,14 +1072,6 @@ export interface AccessControlManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "contractRegisteration",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "contractRegisteration()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "contractVersion",
     data: BytesLike
   ): Result;
@@ -1101,11 +1119,19 @@ export interface AccessControlManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getInitializedCount",
+    functionFragment: "getInitializeState",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getInitializedCount()",
+    functionFragment: "getInitializeState()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getInitializedVersion",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getInitializedVersion()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "getRealm", data: BytesLike): Result;
@@ -1225,23 +1251,28 @@ export interface AccessControlManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "isInitializing",
+    functionFragment: "isContextSafeMode",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "isInitializing()",
+    functionFragment: "isContextSafeMode(bytes32)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "isSafeMode(bytes32)",
+    functionFragment: "isContextUpgradable",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "isContextUpgradable(bytes32)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "isSafeMode", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "isSafeMode()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "isUpgradable(bytes32)",
+    functionFragment: "isUpgradable",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1261,7 +1292,7 @@ export interface AccessControlManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "registerContext(address,bytes32,(bytes32,bytes4[],bool)[])",
+    functionFragment: "registerContext(address,bytes32,bool,(bytes32,bytes4[],bool)[])",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1326,6 +1357,14 @@ export interface AccessControlManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "setContextState",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setContextState(bytes32,bool)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setContextUpgradeState",
     data: BytesLike
   ): Result;
@@ -1374,11 +1413,11 @@ export interface AccessControlManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setSafeModeState",
+    functionFragment: "setSafeMode",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setSafeModeState(bool)",
+    functionFragment: "setSafeMode(bool)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1410,7 +1449,7 @@ export interface AccessControlManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "updateContext(bytes32,(bytes32,bytes4[],bool)[])",
+    functionFragment: "updateContext(bytes32,bytes32,bool,(bytes32,bytes4[],bool)[])",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "upgradeTo", data: BytesLike): Result;
@@ -1422,10 +1461,11 @@ export interface AccessControlManagerInterface extends utils.Interface {
   events: {
     "AdminChanged(address,address,address)": EventFragment;
     "ContextRealmChanged(bytes32,address,bytes32,bytes32)": EventFragment;
-    "ContextRegistered(bytes32,address,address,bytes32)": EventFragment;
+    "ContextRegistered(bytes32,address,address,bytes32,bool)": EventFragment;
     "ContextRoleGranted(bytes32,bytes32,address,bytes4,bytes32)": EventFragment;
     "ContextRoleRevoked(bytes32,bytes32,address,bytes4,bytes32)": EventFragment;
-    "ContextUpdated(bytes32,address,address,bytes32)": EventFragment;
+    "ContextStateChanged(bytes32,address,bytes32,bool)": EventFragment;
+    "ContextUpdated(bytes32,address,address,bytes32,bool)": EventFragment;
     "GroupRegistered(bytes32,address,string,bool)": EventFragment;
     "GroupStatChanged(bytes32,address,bool)": EventFragment;
     "Initialized(address,address,address,string,string,bytes32,uint16)": EventFragment;
@@ -1437,7 +1477,7 @@ export interface AccessControlManagerInterface extends utils.Interface {
     "RoleGroupChanged(bytes32,address,bytes32,bytes32)": EventFragment;
     "RoleRegistered(bytes32,string,address,bytes32,bool)": EventFragment;
     "RoleStatChanged(bytes32,address,bytes32,bool)": EventFragment;
-    "SafeModeStateChanged(address,address,bytes32,bool)": EventFragment;
+    "SafeModeChanged(address,address,bytes32,bool)": EventFragment;
     "UpgradeStateChanged(address,address,bytes32,bool)": EventFragment;
     "Upgraded(address,address,address)": EventFragment;
   };
@@ -1452,7 +1492,7 @@ export interface AccessControlManagerInterface extends utils.Interface {
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ContextRegistered"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "ContextRegistered(bytes32,address,address,bytes32)"
+    nameOrSignatureOrTopic: "ContextRegistered(bytes32,address,address,bytes32,bool)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ContextRoleGranted"): EventFragment;
   getEvent(
@@ -1462,9 +1502,13 @@ export interface AccessControlManagerInterface extends utils.Interface {
   getEvent(
     nameOrSignatureOrTopic: "ContextRoleRevoked(bytes32,bytes32,address,bytes4,bytes32)"
   ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ContextStateChanged"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "ContextStateChanged(bytes32,address,bytes32,bool)"
+  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ContextUpdated"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "ContextUpdated(bytes32,address,address,bytes32)"
+    nameOrSignatureOrTopic: "ContextUpdated(bytes32,address,address,bytes32,bool)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "GroupRegistered"): EventFragment;
   getEvent(
@@ -1510,9 +1554,9 @@ export interface AccessControlManagerInterface extends utils.Interface {
   getEvent(
     nameOrSignatureOrTopic: "RoleStatChanged(bytes32,address,bytes32,bool)"
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "SafeModeStateChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SafeModeChanged"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "SafeModeStateChanged(address,address,bytes32,bool)"
+    nameOrSignatureOrTopic: "SafeModeChanged(address,address,bytes32,bool)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "UpgradeStateChanged"): EventFragment;
   getEvent(
@@ -1555,9 +1599,10 @@ export interface ContextRegisteredEventObject {
   scma: string;
   sender: string;
   realm: string;
+  state: boolean;
 }
 export type ContextRegisteredEvent = TypedEvent<
-  [string, string, string, string],
+  [string, string, string, string, boolean],
   ContextRegisteredEventObject
 >;
 
@@ -1594,14 +1639,29 @@ export type ContextRoleRevokedEvent = TypedEvent<
 export type ContextRoleRevokedEventFilter =
   TypedEventFilter<ContextRoleRevokedEvent>;
 
+export interface ContextStateChangedEventObject {
+  context: string;
+  sender: string;
+  realm: string;
+  state: boolean;
+}
+export type ContextStateChangedEvent = TypedEvent<
+  [string, string, string, boolean],
+  ContextStateChangedEventObject
+>;
+
+export type ContextStateChangedEventFilter =
+  TypedEventFilter<ContextStateChangedEvent>;
+
 export interface ContextUpdatedEventObject {
   context: string;
   scma: string;
   sender: string;
   realm: string;
+  state: boolean;
 }
 export type ContextUpdatedEvent = TypedEvent<
-  [string, string, string, string],
+  [string, string, string, string, boolean],
   ContextUpdatedEventObject
 >;
 
@@ -1756,19 +1816,18 @@ export type RoleStatChangedEvent = TypedEvent<
 
 export type RoleStatChangedEventFilter = TypedEventFilter<RoleStatChangedEvent>;
 
-export interface SafeModeStateChangedEventObject {
+export interface SafeModeChangedEventObject {
   sender: string;
   proxy: string;
   realm: string;
   state: boolean;
 }
-export type SafeModeStateChangedEvent = TypedEvent<
+export type SafeModeChangedEvent = TypedEvent<
   [string, string, string, boolean],
-  SafeModeStateChangedEventObject
+  SafeModeChangedEventObject
 >;
 
-export type SafeModeStateChangedEventFilter =
-  TypedEventFilter<SafeModeStateChangedEvent>;
+export type SafeModeChangedEventFilter = TypedEventFilter<SafeModeChangedEvent>;
 
 export interface UpgradeStateChangedEventObject {
   sender: string;
@@ -1897,14 +1956,6 @@ export interface AccessControlManager extends BaseContract {
 
     "contractRealm()"(overrides?: CallOverrides): Promise<[string]>;
 
-    contractRegisteration(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "contractRegisteration()"(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     contractVersion(overrides?: CallOverrides): Promise<[string]>;
 
     "contractVersion()"(overrides?: CallOverrides): Promise<[string]>;
@@ -1957,9 +2008,13 @@ export interface AccessControlManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string[]]>;
 
-    getInitializedCount(overrides?: CallOverrides): Promise<[number]>;
+    getInitializeState(overrides?: CallOverrides): Promise<[boolean]>;
 
-    "getInitializedCount()"(overrides?: CallOverrides): Promise<[number]>;
+    "getInitializeState()"(overrides?: CallOverrides): Promise<[boolean]>;
+
+    getInitializedVersion(overrides?: CallOverrides): Promise<[number]>;
+
+    "getInitializedVersion()"(overrides?: CallOverrides): Promise<[number]>;
 
     getRealm(
       realm: PromiseOrValue<BytesLike>,
@@ -2147,21 +2202,31 @@ export interface AccessControlManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    isInitializing(overrides?: CallOverrides): Promise<[boolean]>;
-
-    "isInitializing()"(overrides?: CallOverrides): Promise<[boolean]>;
-
-    "isSafeMode(bytes32)"(
+    isContextSafeMode(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
+
+    "isContextSafeMode(bytes32)"(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    isContextUpgradable(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    "isContextUpgradable(bytes32)"(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    isSafeMode(overrides?: CallOverrides): Promise<[boolean]>;
 
     "isSafeMode()"(overrides?: CallOverrides): Promise<[boolean]>;
 
-    "isUpgradable(bytes32)"(
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
+    isUpgradable(overrides?: CallOverrides): Promise<[boolean]>;
 
     "isUpgradable()"(overrides?: CallOverrides): Promise<[boolean]>;
 
@@ -2172,13 +2237,15 @@ export interface AccessControlManager extends BaseContract {
     registerContext(
       newContract: PromiseOrValue<string>,
       realm: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
       rc: IContextManagement.RequestContextStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "registerContext(address,bytes32,(bytes32,bytes4[],bool)[])"(
+    "registerContext(address,bytes32,bool,(bytes32,bytes4[],bool)[])"(
       newContract: PromiseOrValue<string>,
       realm: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
       rc: IContextManagement.RequestContextStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -2283,6 +2350,18 @@ export interface AccessControlManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    setContextState(
+      ctx: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "setContextState(bytes32,bool)"(
+      ctx: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     setContextUpgradeState(
       ctx: PromiseOrValue<BytesLike>,
       state: PromiseOrValue<boolean>,
@@ -2355,12 +2434,12 @@ export interface AccessControlManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setSafeModeState(
+    setSafeMode(
       state: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "setSafeModeState(bool)"(
+    "setSafeMode(bool)"(
       state: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -2391,12 +2470,16 @@ export interface AccessControlManager extends BaseContract {
 
     updateContext(
       ctx: PromiseOrValue<BytesLike>,
+      realm: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
       rc: IContextManagement.RequestContextStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "updateContext(bytes32,(bytes32,bytes4[],bool)[])"(
+    "updateContext(bytes32,bytes32,bool,(bytes32,bytes4[],bool)[])"(
       ctx: PromiseOrValue<BytesLike>,
+      realm: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
       rc: IContextManagement.RequestContextStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -2488,14 +2571,6 @@ export interface AccessControlManager extends BaseContract {
 
   "contractRealm()"(overrides?: CallOverrides): Promise<string>;
 
-  contractRegisteration(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "contractRegisteration()"(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   contractVersion(overrides?: CallOverrides): Promise<string>;
 
   "contractVersion()"(overrides?: CallOverrides): Promise<string>;
@@ -2548,9 +2623,13 @@ export interface AccessControlManager extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string[]>;
 
-  getInitializedCount(overrides?: CallOverrides): Promise<number>;
+  getInitializeState(overrides?: CallOverrides): Promise<boolean>;
 
-  "getInitializedCount()"(overrides?: CallOverrides): Promise<number>;
+  "getInitializeState()"(overrides?: CallOverrides): Promise<boolean>;
+
+  getInitializedVersion(overrides?: CallOverrides): Promise<number>;
+
+  "getInitializedVersion()"(overrides?: CallOverrides): Promise<number>;
 
   getRealm(
     realm: PromiseOrValue<BytesLike>,
@@ -2738,21 +2817,31 @@ export interface AccessControlManager extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  isInitializing(overrides?: CallOverrides): Promise<boolean>;
-
-  "isInitializing()"(overrides?: CallOverrides): Promise<boolean>;
-
-  "isSafeMode(bytes32)"(
+  isContextSafeMode(
     context: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
+
+  "isContextSafeMode(bytes32)"(
+    context: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  isContextUpgradable(
+    context: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  "isContextUpgradable(bytes32)"(
+    context: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  isSafeMode(overrides?: CallOverrides): Promise<boolean>;
 
   "isSafeMode()"(overrides?: CallOverrides): Promise<boolean>;
 
-  "isUpgradable(bytes32)"(
-    context: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
+  isUpgradable(overrides?: CallOverrides): Promise<boolean>;
 
   "isUpgradable()"(overrides?: CallOverrides): Promise<boolean>;
 
@@ -2763,13 +2852,15 @@ export interface AccessControlManager extends BaseContract {
   registerContext(
     newContract: PromiseOrValue<string>,
     realm: PromiseOrValue<BytesLike>,
+    state: PromiseOrValue<boolean>,
     rc: IContextManagement.RequestContextStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "registerContext(address,bytes32,(bytes32,bytes4[],bool)[])"(
+  "registerContext(address,bytes32,bool,(bytes32,bytes4[],bool)[])"(
     newContract: PromiseOrValue<string>,
     realm: PromiseOrValue<BytesLike>,
+    state: PromiseOrValue<boolean>,
     rc: IContextManagement.RequestContextStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -2874,6 +2965,18 @@ export interface AccessControlManager extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  setContextState(
+    ctx: PromiseOrValue<BytesLike>,
+    state: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "setContextState(bytes32,bool)"(
+    ctx: PromiseOrValue<BytesLike>,
+    state: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   setContextUpgradeState(
     ctx: PromiseOrValue<BytesLike>,
     state: PromiseOrValue<boolean>,
@@ -2946,12 +3049,12 @@ export interface AccessControlManager extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setSafeModeState(
+  setSafeMode(
     state: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "setSafeModeState(bool)"(
+  "setSafeMode(bool)"(
     state: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -2982,12 +3085,16 @@ export interface AccessControlManager extends BaseContract {
 
   updateContext(
     ctx: PromiseOrValue<BytesLike>,
+    realm: PromiseOrValue<BytesLike>,
+    state: PromiseOrValue<boolean>,
     rc: IContextManagement.RequestContextStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "updateContext(bytes32,(bytes32,bytes4[],bool)[])"(
+  "updateContext(bytes32,bytes32,bool,(bytes32,bytes4[],bool)[])"(
     ctx: PromiseOrValue<BytesLike>,
+    realm: PromiseOrValue<BytesLike>,
+    state: PromiseOrValue<boolean>,
     rc: IContextManagement.RequestContextStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -3079,10 +3186,6 @@ export interface AccessControlManager extends BaseContract {
 
     "contractRealm()"(overrides?: CallOverrides): Promise<string>;
 
-    contractRegisteration(overrides?: CallOverrides): Promise<string>;
-
-    "contractRegisteration()"(overrides?: CallOverrides): Promise<string>;
-
     contractVersion(overrides?: CallOverrides): Promise<string>;
 
     "contractVersion()"(overrides?: CallOverrides): Promise<string>;
@@ -3135,9 +3238,13 @@ export interface AccessControlManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string[]>;
 
-    getInitializedCount(overrides?: CallOverrides): Promise<number>;
+    getInitializeState(overrides?: CallOverrides): Promise<boolean>;
 
-    "getInitializedCount()"(overrides?: CallOverrides): Promise<number>;
+    "getInitializeState()"(overrides?: CallOverrides): Promise<boolean>;
+
+    getInitializedVersion(overrides?: CallOverrides): Promise<number>;
+
+    "getInitializedVersion()"(overrides?: CallOverrides): Promise<number>;
 
     getRealm(
       realm: PromiseOrValue<BytesLike>,
@@ -3325,21 +3432,31 @@ export interface AccessControlManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    isInitializing(overrides?: CallOverrides): Promise<boolean>;
-
-    "isInitializing()"(overrides?: CallOverrides): Promise<boolean>;
-
-    "isSafeMode(bytes32)"(
+    isContextSafeMode(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    "isContextSafeMode(bytes32)"(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    isContextUpgradable(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "isContextUpgradable(bytes32)"(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    isSafeMode(overrides?: CallOverrides): Promise<boolean>;
 
     "isSafeMode()"(overrides?: CallOverrides): Promise<boolean>;
 
-    "isUpgradable(bytes32)"(
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    isUpgradable(overrides?: CallOverrides): Promise<boolean>;
 
     "isUpgradable()"(overrides?: CallOverrides): Promise<boolean>;
 
@@ -3350,13 +3467,15 @@ export interface AccessControlManager extends BaseContract {
     registerContext(
       newContract: PromiseOrValue<string>,
       realm: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
       rc: IContextManagement.RequestContextStruct[],
       overrides?: CallOverrides
     ): Promise<string>;
 
-    "registerContext(address,bytes32,(bytes32,bytes4[],bool)[])"(
+    "registerContext(address,bytes32,bool,(bytes32,bytes4[],bool)[])"(
       newContract: PromiseOrValue<string>,
       realm: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
       rc: IContextManagement.RequestContextStruct[],
       overrides?: CallOverrides
     ): Promise<string>;
@@ -3461,6 +3580,18 @@ export interface AccessControlManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
+    setContextState(
+      ctx: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "setContextState(bytes32,bool)"(
+      ctx: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
     setContextUpgradeState(
       ctx: PromiseOrValue<BytesLike>,
       state: PromiseOrValue<boolean>,
@@ -3533,12 +3664,12 @@ export interface AccessControlManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    setSafeModeState(
+    setSafeMode(
       state: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "setSafeModeState(bool)"(
+    "setSafeMode(bool)"(
       state: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<boolean>;
@@ -3569,12 +3700,16 @@ export interface AccessControlManager extends BaseContract {
 
     updateContext(
       ctx: PromiseOrValue<BytesLike>,
+      realm: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
       rc: IContextManagement.RequestContextStruct[],
       overrides?: CallOverrides
     ): Promise<string>;
 
-    "updateContext(bytes32,(bytes32,bytes4[],bool)[])"(
+    "updateContext(bytes32,bytes32,bool,(bytes32,bytes4[],bool)[])"(
       ctx: PromiseOrValue<BytesLike>,
+      realm: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
       rc: IContextManagement.RequestContextStruct[],
       overrides?: CallOverrides
     ): Promise<string>;
@@ -3619,17 +3754,19 @@ export interface AccessControlManager extends BaseContract {
       oldRealm?: null
     ): ContextRealmChangedEventFilter;
 
-    "ContextRegistered(bytes32,address,address,bytes32)"(
+    "ContextRegistered(bytes32,address,address,bytes32,bool)"(
       context?: PromiseOrValue<BytesLike> | null,
       scma?: PromiseOrValue<string> | null,
       sender?: PromiseOrValue<string> | null,
-      realm?: null
+      realm?: null,
+      state?: null
     ): ContextRegisteredEventFilter;
     ContextRegistered(
       context?: PromiseOrValue<BytesLike> | null,
       scma?: PromiseOrValue<string> | null,
       sender?: PromiseOrValue<string> | null,
-      realm?: null
+      realm?: null,
+      state?: null
     ): ContextRegisteredEventFilter;
 
     "ContextRoleGranted(bytes32,bytes32,address,bytes4,bytes32)"(
@@ -3662,17 +3799,32 @@ export interface AccessControlManager extends BaseContract {
       realm?: null
     ): ContextRoleRevokedEventFilter;
 
-    "ContextUpdated(bytes32,address,address,bytes32)"(
+    "ContextStateChanged(bytes32,address,bytes32,bool)"(
+      context?: PromiseOrValue<BytesLike> | null,
+      sender?: PromiseOrValue<string> | null,
+      realm?: PromiseOrValue<BytesLike> | null,
+      state?: null
+    ): ContextStateChangedEventFilter;
+    ContextStateChanged(
+      context?: PromiseOrValue<BytesLike> | null,
+      sender?: PromiseOrValue<string> | null,
+      realm?: PromiseOrValue<BytesLike> | null,
+      state?: null
+    ): ContextStateChangedEventFilter;
+
+    "ContextUpdated(bytes32,address,address,bytes32,bool)"(
       context?: PromiseOrValue<BytesLike> | null,
       scma?: PromiseOrValue<string> | null,
       sender?: PromiseOrValue<string> | null,
-      realm?: null
+      realm?: null,
+      state?: null
     ): ContextUpdatedEventFilter;
     ContextUpdated(
       context?: PromiseOrValue<BytesLike> | null,
       scma?: PromiseOrValue<string> | null,
       sender?: PromiseOrValue<string> | null,
-      realm?: null
+      realm?: null,
+      state?: null
     ): ContextUpdatedEventFilter;
 
     "GroupRegistered(bytes32,address,string,bool)"(
@@ -3818,18 +3970,18 @@ export interface AccessControlManager extends BaseContract {
       status?: null
     ): RoleStatChangedEventFilter;
 
-    "SafeModeStateChanged(address,address,bytes32,bool)"(
+    "SafeModeChanged(address,address,bytes32,bool)"(
       sender?: PromiseOrValue<string> | null,
       proxy?: PromiseOrValue<string> | null,
       realm?: PromiseOrValue<BytesLike> | null,
       state?: null
-    ): SafeModeStateChangedEventFilter;
-    SafeModeStateChanged(
+    ): SafeModeChangedEventFilter;
+    SafeModeChanged(
       sender?: PromiseOrValue<string> | null,
       proxy?: PromiseOrValue<string> | null,
       realm?: PromiseOrValue<BytesLike> | null,
       state?: null
-    ): SafeModeStateChangedEventFilter;
+    ): SafeModeChangedEventFilter;
 
     "UpgradeStateChanged(address,address,bytes32,bool)"(
       sender?: PromiseOrValue<string> | null,
@@ -3931,14 +4083,6 @@ export interface AccessControlManager extends BaseContract {
 
     "contractRealm()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    contractRegisteration(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "contractRegisteration()"(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     contractVersion(overrides?: CallOverrides): Promise<BigNumber>;
 
     "contractVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -3991,9 +4135,13 @@ export interface AccessControlManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    getInitializedCount(overrides?: CallOverrides): Promise<BigNumber>;
+    getInitializeState(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "getInitializedCount()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "getInitializeState()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getInitializedVersion(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "getInitializedVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     getRealm(
       realm: PromiseOrValue<BytesLike>,
@@ -4181,21 +4329,31 @@ export interface AccessControlManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    isInitializing(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "isInitializing()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "isSafeMode(bytes32)"(
+    isContextSafeMode(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    "isContextSafeMode(bytes32)"(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    isContextUpgradable(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "isContextUpgradable(bytes32)"(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    isSafeMode(overrides?: CallOverrides): Promise<BigNumber>;
 
     "isSafeMode()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "isUpgradable(bytes32)"(
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    isUpgradable(overrides?: CallOverrides): Promise<BigNumber>;
 
     "isUpgradable()"(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -4206,13 +4364,15 @@ export interface AccessControlManager extends BaseContract {
     registerContext(
       newContract: PromiseOrValue<string>,
       realm: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
       rc: IContextManagement.RequestContextStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "registerContext(address,bytes32,(bytes32,bytes4[],bool)[])"(
+    "registerContext(address,bytes32,bool,(bytes32,bytes4[],bool)[])"(
       newContract: PromiseOrValue<string>,
       realm: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
       rc: IContextManagement.RequestContextStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -4317,6 +4477,18 @@ export interface AccessControlManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    setContextState(
+      ctx: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "setContextState(bytes32,bool)"(
+      ctx: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     setContextUpgradeState(
       ctx: PromiseOrValue<BytesLike>,
       state: PromiseOrValue<boolean>,
@@ -4389,12 +4561,12 @@ export interface AccessControlManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setSafeModeState(
+    setSafeMode(
       state: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "setSafeModeState(bool)"(
+    "setSafeMode(bool)"(
       state: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -4425,12 +4597,16 @@ export interface AccessControlManager extends BaseContract {
 
     updateContext(
       ctx: PromiseOrValue<BytesLike>,
+      realm: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
       rc: IContextManagement.RequestContextStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "updateContext(bytes32,(bytes32,bytes4[],bool)[])"(
+    "updateContext(bytes32,bytes32,bool,(bytes32,bytes4[],bool)[])"(
       ctx: PromiseOrValue<BytesLike>,
+      realm: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
       rc: IContextManagement.RequestContextStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -4581,14 +4757,6 @@ export interface AccessControlManager extends BaseContract {
 
     "contractRealm()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    contractRegisteration(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "contractRegisteration()"(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     contractVersion(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "contractVersion()"(
@@ -4647,11 +4815,19 @@ export interface AccessControlManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    getInitializedCount(
+    getInitializeState(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "getInitializedCount()"(
+    "getInitializeState()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getInitializedVersion(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "getInitializedVersion()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -4841,23 +5017,31 @@ export interface AccessControlManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    isInitializing(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "isInitializing()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "isSafeMode(bytes32)"(
+    isContextSafeMode(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    "isContextSafeMode(bytes32)"(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    isContextUpgradable(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "isContextUpgradable(bytes32)"(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    isSafeMode(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "isSafeMode()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "isUpgradable(bytes32)"(
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    isUpgradable(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "isUpgradable()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -4868,13 +5052,15 @@ export interface AccessControlManager extends BaseContract {
     registerContext(
       newContract: PromiseOrValue<string>,
       realm: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
       rc: IContextManagement.RequestContextStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "registerContext(address,bytes32,(bytes32,bytes4[],bool)[])"(
+    "registerContext(address,bytes32,bool,(bytes32,bytes4[],bool)[])"(
       newContract: PromiseOrValue<string>,
       realm: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
       rc: IContextManagement.RequestContextStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
@@ -4979,6 +5165,18 @@ export interface AccessControlManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    setContextState(
+      ctx: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "setContextState(bytes32,bool)"(
+      ctx: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     setContextUpgradeState(
       ctx: PromiseOrValue<BytesLike>,
       state: PromiseOrValue<boolean>,
@@ -5051,12 +5249,12 @@ export interface AccessControlManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setSafeModeState(
+    setSafeMode(
       state: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "setSafeModeState(bool)"(
+    "setSafeMode(bool)"(
       state: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
@@ -5089,12 +5287,16 @@ export interface AccessControlManager extends BaseContract {
 
     updateContext(
       ctx: PromiseOrValue<BytesLike>,
+      realm: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
       rc: IContextManagement.RequestContextStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "updateContext(bytes32,(bytes32,bytes4[],bool)[])"(
+    "updateContext(bytes32,bytes32,bool,(bytes32,bytes4[],bool)[])"(
       ctx: PromiseOrValue<BytesLike>,
+      realm: PromiseOrValue<BytesLike>,
+      state: PromiseOrValue<boolean>,
       rc: IContextManagement.RequestContextStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;

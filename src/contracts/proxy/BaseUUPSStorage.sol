@@ -46,7 +46,7 @@ abstract contract BaseUUPSStorage {
 
     /// @custom:oz-upgrades-unsafe-allow state-variable-immutable state-variable-assignment
     address internal immutable __self = address(this);
-    address internal _accessControl;
+    address internal _accessControlManager;
     string internal _domainName;
     string internal _domainVersion;
     bytes32 internal _domainRealm;
