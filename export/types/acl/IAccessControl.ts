@@ -23,30 +23,63 @@ import type {
 export interface IAccessControlInterface extends utils.Interface {
   functions: {
     "hasAccess(bytes32,address,bytes4)": FunctionFragment;
-    "hasLivelyAdminRole(address)": FunctionFragment;
-    "hasLivelyGroup(bytes32)": FunctionFragment;
-    "hasLivelyRealm(bytes32)": FunctionFragment;
-    "hasSystemAdminRole(address)": FunctionFragment;
+    "isContextEnabled(bytes32)": FunctionFragment;
+    "isContextExists(bytes32)": FunctionFragment;
+    "isContextFunctionEnabled(bytes32,bytes4)": FunctionFragment;
+    "isContextFunctionExists(bytes32,bytes4)": FunctionFragment;
     "isContextSafeMode(bytes32)": FunctionFragment;
     "isContextUpgradable(bytes32)": FunctionFragment;
+    "isGroupEnabled(bytes32)": FunctionFragment;
+    "isGroupExists(bytes32)": FunctionFragment;
+    "isLivelyAdmin(address)": FunctionFragment;
+    "isLivelyGeneralGroup(bytes32)": FunctionFragment;
+    "isLivelyGeneralRealm(bytes32)": FunctionFragment;
+    "isLivelySystemAdmin(address)": FunctionFragment;
+    "isRealmEnabled(bytes32)": FunctionFragment;
+    "isRealmExists(bytes32)": FunctionFragment;
+    "isRealmUpgradable(bytes32)": FunctionFragment;
+    "isRoleEnabled(bytes32)": FunctionFragment;
+    "isRoleExists(bytes32)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
       | "hasAccess"
       | "hasAccess(bytes32,address,bytes4)"
-      | "hasLivelyAdminRole"
-      | "hasLivelyAdminRole(address)"
-      | "hasLivelyGroup"
-      | "hasLivelyGroup(bytes32)"
-      | "hasLivelyRealm"
-      | "hasLivelyRealm(bytes32)"
-      | "hasSystemAdminRole"
-      | "hasSystemAdminRole(address)"
+      | "isContextEnabled"
+      | "isContextEnabled(bytes32)"
+      | "isContextExists"
+      | "isContextExists(bytes32)"
+      | "isContextFunctionEnabled"
+      | "isContextFunctionEnabled(bytes32,bytes4)"
+      | "isContextFunctionExists"
+      | "isContextFunctionExists(bytes32,bytes4)"
       | "isContextSafeMode"
       | "isContextSafeMode(bytes32)"
       | "isContextUpgradable"
       | "isContextUpgradable(bytes32)"
+      | "isGroupEnabled"
+      | "isGroupEnabled(bytes32)"
+      | "isGroupExists"
+      | "isGroupExists(bytes32)"
+      | "isLivelyAdmin"
+      | "isLivelyAdmin(address)"
+      | "isLivelyGeneralGroup"
+      | "isLivelyGeneralGroup(bytes32)"
+      | "isLivelyGeneralRealm"
+      | "isLivelyGeneralRealm(bytes32)"
+      | "isLivelySystemAdmin"
+      | "isLivelySystemAdmin(address)"
+      | "isRealmEnabled"
+      | "isRealmEnabled(bytes32)"
+      | "isRealmExists"
+      | "isRealmExists(bytes32)"
+      | "isRealmUpgradable"
+      | "isRealmUpgradable(bytes32)"
+      | "isRoleEnabled"
+      | "isRoleEnabled(bytes32)"
+      | "isRoleExists"
+      | "isRoleExists(bytes32)"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -66,36 +99,36 @@ export interface IAccessControlInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "hasLivelyAdminRole",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "hasLivelyAdminRole(address)",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "hasLivelyGroup",
+    functionFragment: "isContextEnabled",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "hasLivelyGroup(bytes32)",
+    functionFragment: "isContextEnabled(bytes32)",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "hasLivelyRealm",
+    functionFragment: "isContextExists",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "hasLivelyRealm(bytes32)",
+    functionFragment: "isContextExists(bytes32)",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "hasSystemAdminRole",
-    values: [PromiseOrValue<string>]
+    functionFragment: "isContextFunctionEnabled",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "hasSystemAdminRole(address)",
-    values: [PromiseOrValue<string>]
+    functionFragment: "isContextFunctionEnabled(bytes32,bytes4)",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isContextFunctionExists",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isContextFunctionExists(bytes32,bytes4)",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "isContextSafeMode",
@@ -111,6 +144,94 @@ export interface IAccessControlInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "isContextUpgradable(bytes32)",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isGroupEnabled",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isGroupEnabled(bytes32)",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isGroupExists",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isGroupExists(bytes32)",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isLivelyAdmin",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isLivelyAdmin(address)",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isLivelyGeneralGroup",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isLivelyGeneralGroup(bytes32)",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isLivelyGeneralRealm",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isLivelyGeneralRealm(bytes32)",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isLivelySystemAdmin",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isLivelySystemAdmin(address)",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isRealmEnabled",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isRealmEnabled(bytes32)",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isRealmExists",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isRealmExists(bytes32)",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isRealmUpgradable",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isRealmUpgradable(bytes32)",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isRoleEnabled",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isRoleEnabled(bytes32)",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isRoleExists",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isRoleExists(bytes32)",
     values: [PromiseOrValue<BytesLike>]
   ): string;
 
@@ -120,35 +241,35 @@ export interface IAccessControlInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "hasLivelyAdminRole",
+    functionFragment: "isContextEnabled",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "hasLivelyAdminRole(address)",
+    functionFragment: "isContextEnabled(bytes32)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "hasLivelyGroup",
+    functionFragment: "isContextExists",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "hasLivelyGroup(bytes32)",
+    functionFragment: "isContextExists(bytes32)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "hasLivelyRealm",
+    functionFragment: "isContextFunctionEnabled",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "hasLivelyRealm(bytes32)",
+    functionFragment: "isContextFunctionEnabled(bytes32,bytes4)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "hasSystemAdminRole",
+    functionFragment: "isContextFunctionExists",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "hasSystemAdminRole(address)",
+    functionFragment: "isContextFunctionExists(bytes32,bytes4)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -165,6 +286,94 @@ export interface IAccessControlInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "isContextUpgradable(bytes32)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isGroupEnabled",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isGroupEnabled(bytes32)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isGroupExists",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isGroupExists(bytes32)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isLivelyAdmin",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isLivelyAdmin(address)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isLivelyGeneralGroup",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isLivelyGeneralGroup(bytes32)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isLivelyGeneralRealm",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isLivelyGeneralRealm(bytes32)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isLivelySystemAdmin",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isLivelySystemAdmin(address)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isRealmEnabled",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isRealmEnabled(bytes32)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isRealmExists",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isRealmExists(bytes32)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isRealmUpgradable",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isRealmUpgradable(bytes32)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isRoleEnabled",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isRoleEnabled(bytes32)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isRoleExists",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isRoleExists(bytes32)",
     data: BytesLike
   ): Result;
 
@@ -212,43 +421,47 @@ export interface IAccessControl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    hasLivelyAdminRole(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    "hasLivelyAdminRole(address)"(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    hasLivelyGroup(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    "hasLivelyGroup(bytes32)"(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    hasLivelyRealm(
+    isContextEnabled(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    "hasLivelyRealm(bytes32)"(
+    "isContextEnabled(bytes32)"(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    hasSystemAdminRole(
-      account: PromiseOrValue<string>,
+    isContextExists(
+      context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    "hasSystemAdminRole(address)"(
-      account: PromiseOrValue<string>,
+    "isContextExists(bytes32)"(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    isContextFunctionEnabled(
+      context: PromiseOrValue<BytesLike>,
+      functionSelector: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    "isContextFunctionEnabled(bytes32,bytes4)"(
+      context: PromiseOrValue<BytesLike>,
+      functionSelector: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    isContextFunctionExists(
+      context: PromiseOrValue<BytesLike>,
+      functionSelector: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    "isContextFunctionExists(bytes32,bytes4)"(
+      context: PromiseOrValue<BytesLike>,
+      functionSelector: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
@@ -271,6 +484,116 @@ export interface IAccessControl extends BaseContract {
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
+
+    isGroupEnabled(
+      group: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    "isGroupEnabled(bytes32)"(
+      group: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    isGroupExists(
+      group: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    "isGroupExists(bytes32)"(
+      group: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    isLivelyAdmin(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    "isLivelyAdmin(address)"(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    isLivelyGeneralGroup(
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    "isLivelyGeneralGroup(bytes32)"(
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    isLivelyGeneralRealm(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    "isLivelyGeneralRealm(bytes32)"(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    isLivelySystemAdmin(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    "isLivelySystemAdmin(address)"(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    isRealmEnabled(
+      realm: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    "isRealmEnabled(bytes32)"(
+      realm: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    isRealmExists(
+      realm: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    "isRealmExists(bytes32)"(
+      realm: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    isRealmUpgradable(
+      realm: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    "isRealmUpgradable(bytes32)"(
+      realm: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    isRoleEnabled(
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    "isRoleEnabled(bytes32)"(
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    isRoleExists(
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    "isRoleExists(bytes32)"(
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
   };
 
   hasAccess(
@@ -287,43 +610,47 @@ export interface IAccessControl extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  hasLivelyAdminRole(
-    account: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  "hasLivelyAdminRole(address)"(
-    account: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  hasLivelyGroup(
-    role: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  "hasLivelyGroup(bytes32)"(
-    role: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  hasLivelyRealm(
+  isContextEnabled(
     context: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  "hasLivelyRealm(bytes32)"(
+  "isContextEnabled(bytes32)"(
     context: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  hasSystemAdminRole(
-    account: PromiseOrValue<string>,
+  isContextExists(
+    context: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  "hasSystemAdminRole(address)"(
-    account: PromiseOrValue<string>,
+  "isContextExists(bytes32)"(
+    context: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  isContextFunctionEnabled(
+    context: PromiseOrValue<BytesLike>,
+    functionSelector: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  "isContextFunctionEnabled(bytes32,bytes4)"(
+    context: PromiseOrValue<BytesLike>,
+    functionSelector: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  isContextFunctionExists(
+    context: PromiseOrValue<BytesLike>,
+    functionSelector: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  "isContextFunctionExists(bytes32,bytes4)"(
+    context: PromiseOrValue<BytesLike>,
+    functionSelector: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
@@ -347,6 +674,116 @@ export interface IAccessControl extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  isGroupEnabled(
+    group: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  "isGroupEnabled(bytes32)"(
+    group: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  isGroupExists(
+    group: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  "isGroupExists(bytes32)"(
+    group: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  isLivelyAdmin(
+    account: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  "isLivelyAdmin(address)"(
+    account: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  isLivelyGeneralGroup(
+    role: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  "isLivelyGeneralGroup(bytes32)"(
+    role: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  isLivelyGeneralRealm(
+    context: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  "isLivelyGeneralRealm(bytes32)"(
+    context: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  isLivelySystemAdmin(
+    account: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  "isLivelySystemAdmin(address)"(
+    account: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  isRealmEnabled(
+    realm: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  "isRealmEnabled(bytes32)"(
+    realm: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  isRealmExists(
+    realm: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  "isRealmExists(bytes32)"(
+    realm: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  isRealmUpgradable(
+    realm: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  "isRealmUpgradable(bytes32)"(
+    realm: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  isRoleEnabled(
+    role: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  "isRoleEnabled(bytes32)"(
+    role: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  isRoleExists(
+    role: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  "isRoleExists(bytes32)"(
+    role: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   callStatic: {
     hasAccess(
       context: PromiseOrValue<BytesLike>,
@@ -362,43 +799,47 @@ export interface IAccessControl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    hasLivelyAdminRole(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "hasLivelyAdminRole(address)"(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    hasLivelyGroup(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "hasLivelyGroup(bytes32)"(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    hasLivelyRealm(
+    isContextEnabled(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "hasLivelyRealm(bytes32)"(
+    "isContextEnabled(bytes32)"(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    hasSystemAdminRole(
-      account: PromiseOrValue<string>,
+    isContextExists(
+      context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "hasSystemAdminRole(address)"(
-      account: PromiseOrValue<string>,
+    "isContextExists(bytes32)"(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    isContextFunctionEnabled(
+      context: PromiseOrValue<BytesLike>,
+      functionSelector: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "isContextFunctionEnabled(bytes32,bytes4)"(
+      context: PromiseOrValue<BytesLike>,
+      functionSelector: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    isContextFunctionExists(
+      context: PromiseOrValue<BytesLike>,
+      functionSelector: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "isContextFunctionExists(bytes32,bytes4)"(
+      context: PromiseOrValue<BytesLike>,
+      functionSelector: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -419,6 +860,116 @@ export interface IAccessControl extends BaseContract {
 
     "isContextUpgradable(bytes32)"(
       context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    isGroupEnabled(
+      group: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "isGroupEnabled(bytes32)"(
+      group: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    isGroupExists(
+      group: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "isGroupExists(bytes32)"(
+      group: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    isLivelyAdmin(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "isLivelyAdmin(address)"(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    isLivelyGeneralGroup(
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "isLivelyGeneralGroup(bytes32)"(
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    isLivelyGeneralRealm(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "isLivelyGeneralRealm(bytes32)"(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    isLivelySystemAdmin(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "isLivelySystemAdmin(address)"(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    isRealmEnabled(
+      realm: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "isRealmEnabled(bytes32)"(
+      realm: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    isRealmExists(
+      realm: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "isRealmExists(bytes32)"(
+      realm: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    isRealmUpgradable(
+      realm: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "isRealmUpgradable(bytes32)"(
+      realm: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    isRoleEnabled(
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "isRoleEnabled(bytes32)"(
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    isRoleExists(
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "isRoleExists(bytes32)"(
+      role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
   };
@@ -440,43 +991,47 @@ export interface IAccessControl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    hasLivelyAdminRole(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "hasLivelyAdminRole(address)"(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    hasLivelyGroup(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "hasLivelyGroup(bytes32)"(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    hasLivelyRealm(
+    isContextEnabled(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "hasLivelyRealm(bytes32)"(
+    "isContextEnabled(bytes32)"(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    hasSystemAdminRole(
-      account: PromiseOrValue<string>,
+    isContextExists(
+      context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "hasSystemAdminRole(address)"(
-      account: PromiseOrValue<string>,
+    "isContextExists(bytes32)"(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    isContextFunctionEnabled(
+      context: PromiseOrValue<BytesLike>,
+      functionSelector: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "isContextFunctionEnabled(bytes32,bytes4)"(
+      context: PromiseOrValue<BytesLike>,
+      functionSelector: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    isContextFunctionExists(
+      context: PromiseOrValue<BytesLike>,
+      functionSelector: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "isContextFunctionExists(bytes32,bytes4)"(
+      context: PromiseOrValue<BytesLike>,
+      functionSelector: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -497,6 +1052,116 @@ export interface IAccessControl extends BaseContract {
 
     "isContextUpgradable(bytes32)"(
       context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    isGroupEnabled(
+      group: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "isGroupEnabled(bytes32)"(
+      group: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    isGroupExists(
+      group: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "isGroupExists(bytes32)"(
+      group: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    isLivelyAdmin(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "isLivelyAdmin(address)"(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    isLivelyGeneralGroup(
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "isLivelyGeneralGroup(bytes32)"(
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    isLivelyGeneralRealm(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "isLivelyGeneralRealm(bytes32)"(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    isLivelySystemAdmin(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "isLivelySystemAdmin(address)"(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    isRealmEnabled(
+      realm: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "isRealmEnabled(bytes32)"(
+      realm: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    isRealmExists(
+      realm: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "isRealmExists(bytes32)"(
+      realm: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    isRealmUpgradable(
+      realm: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "isRealmUpgradable(bytes32)"(
+      realm: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    isRoleEnabled(
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "isRoleEnabled(bytes32)"(
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    isRoleExists(
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "isRoleExists(bytes32)"(
+      role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
@@ -516,43 +1181,47 @@ export interface IAccessControl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    hasLivelyAdminRole(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "hasLivelyAdminRole(address)"(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    hasLivelyGroup(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "hasLivelyGroup(bytes32)"(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    hasLivelyRealm(
+    isContextEnabled(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "hasLivelyRealm(bytes32)"(
+    "isContextEnabled(bytes32)"(
       context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    hasSystemAdminRole(
-      account: PromiseOrValue<string>,
+    isContextExists(
+      context: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "hasSystemAdminRole(address)"(
-      account: PromiseOrValue<string>,
+    "isContextExists(bytes32)"(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    isContextFunctionEnabled(
+      context: PromiseOrValue<BytesLike>,
+      functionSelector: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "isContextFunctionEnabled(bytes32,bytes4)"(
+      context: PromiseOrValue<BytesLike>,
+      functionSelector: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    isContextFunctionExists(
+      context: PromiseOrValue<BytesLike>,
+      functionSelector: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "isContextFunctionExists(bytes32,bytes4)"(
+      context: PromiseOrValue<BytesLike>,
+      functionSelector: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -573,6 +1242,116 @@ export interface IAccessControl extends BaseContract {
 
     "isContextUpgradable(bytes32)"(
       context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    isGroupEnabled(
+      group: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "isGroupEnabled(bytes32)"(
+      group: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    isGroupExists(
+      group: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "isGroupExists(bytes32)"(
+      group: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    isLivelyAdmin(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "isLivelyAdmin(address)"(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    isLivelyGeneralGroup(
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "isLivelyGeneralGroup(bytes32)"(
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    isLivelyGeneralRealm(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "isLivelyGeneralRealm(bytes32)"(
+      context: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    isLivelySystemAdmin(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "isLivelySystemAdmin(address)"(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    isRealmEnabled(
+      realm: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "isRealmEnabled(bytes32)"(
+      realm: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    isRealmExists(
+      realm: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "isRealmExists(bytes32)"(
+      realm: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    isRealmUpgradable(
+      realm: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "isRealmUpgradable(bytes32)"(
+      realm: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    isRoleEnabled(
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "isRoleEnabled(bytes32)"(
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    isRoleExists(
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "isRoleExists(bytes32)"(
+      role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };

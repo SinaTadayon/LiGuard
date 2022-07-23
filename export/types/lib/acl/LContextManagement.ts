@@ -24,6 +24,8 @@ export interface LContextManagementInterface extends utils.Interface {
   functions: {
     "LIB_NAME()": FunctionFragment;
     "LIB_VERSION()": FunctionFragment;
+    "MESSAGE_TYPEHASH()": FunctionFragment;
+    "TYPE_HASH()": FunctionFragment;
   };
 
   getFunction(
@@ -32,6 +34,10 @@ export interface LContextManagementInterface extends utils.Interface {
       | "LIB_NAME()"
       | "LIB_VERSION"
       | "LIB_VERSION()"
+      | "MESSAGE_TYPEHASH"
+      | "MESSAGE_TYPEHASH()"
+      | "TYPE_HASH"
+      | "TYPE_HASH()"
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "LIB_NAME", values?: undefined): string;
@@ -47,6 +53,19 @@ export interface LContextManagementInterface extends utils.Interface {
     functionFragment: "LIB_VERSION()",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "MESSAGE_TYPEHASH",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "MESSAGE_TYPEHASH()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "TYPE_HASH", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "TYPE_HASH()",
+    values?: undefined
+  ): string;
 
   decodeFunctionResult(functionFragment: "LIB_NAME", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "LIB_NAME()", data: BytesLike): Result;
@@ -56,6 +75,19 @@ export interface LContextManagementInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "LIB_VERSION()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "MESSAGE_TYPEHASH",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "MESSAGE_TYPEHASH()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "TYPE_HASH", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "TYPE_HASH()",
     data: BytesLike
   ): Result;
 
@@ -96,6 +128,14 @@ export interface LContextManagement extends BaseContract {
     LIB_VERSION(overrides?: CallOverrides): Promise<[string]>;
 
     "LIB_VERSION()"(overrides?: CallOverrides): Promise<[string]>;
+
+    MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<[string]>;
+
+    "MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<[string]>;
+
+    TYPE_HASH(overrides?: CallOverrides): Promise<[string]>;
+
+    "TYPE_HASH()"(overrides?: CallOverrides): Promise<[string]>;
   };
 
   LIB_NAME(overrides?: CallOverrides): Promise<string>;
@@ -106,6 +146,14 @@ export interface LContextManagement extends BaseContract {
 
   "LIB_VERSION()"(overrides?: CallOverrides): Promise<string>;
 
+  MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<string>;
+
+  "MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
+
+  TYPE_HASH(overrides?: CallOverrides): Promise<string>;
+
+  "TYPE_HASH()"(overrides?: CallOverrides): Promise<string>;
+
   callStatic: {
     LIB_NAME(overrides?: CallOverrides): Promise<string>;
 
@@ -114,6 +162,14 @@ export interface LContextManagement extends BaseContract {
     LIB_VERSION(overrides?: CallOverrides): Promise<string>;
 
     "LIB_VERSION()"(overrides?: CallOverrides): Promise<string>;
+
+    MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<string>;
+
+    "MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
+
+    TYPE_HASH(overrides?: CallOverrides): Promise<string>;
+
+    "TYPE_HASH()"(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {};
@@ -126,6 +182,14 @@ export interface LContextManagement extends BaseContract {
     LIB_VERSION(overrides?: CallOverrides): Promise<BigNumber>;
 
     "LIB_VERSION()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    TYPE_HASH(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "TYPE_HASH()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -136,5 +200,15 @@ export interface LContextManagement extends BaseContract {
     LIB_VERSION(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "LIB_VERSION()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "MESSAGE_TYPEHASH()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    TYPE_HASH(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "TYPE_HASH()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

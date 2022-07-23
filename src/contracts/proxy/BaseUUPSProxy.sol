@@ -56,7 +56,7 @@ abstract contract BaseUUPSProxy is
     /**
      * @dev Throws if called by any account other than the owner.
      */
-    modifier onlyAdmin() {
+    modifier onlyLocalAdmin() {
         require(_getAdmin() == _msgSender(), "Caller Not Authorized");
         _;
     }
@@ -78,7 +78,7 @@ abstract contract BaseUUPSProxy is
                 msg.sender,
                 selector
             );
-            bytes memory returndata = _functionDelegateCall(_implementation(), data, "Delegatecall hasAccess Failed");
+            bytes memory returndata = LAddress.functionDelegateCall(_implementation(), data, "Delegatecall hasAccess Failed");
             return uint8(returndata[returndata.length - 1]) == 1;
         } else {
             return
@@ -87,6 +87,20 @@ abstract contract BaseUUPSProxy is
                     msg.sender,
                     selector
                 );
+        }
+    }
+
+    function _isRealmUpgradable() internal returns (bool) {
+        if (address(this) == _accessControlManager) {
+            bytes memory data = abi.encodeWithSelector(
+                IAccessControl.isRealmUpgradable.selector,
+                _domainRealm
+            );
+            bytes memory returndata = LAddress.functionDelegateCall(_implementation(), data, "Delegatecall isRealmUpgradable Failed");
+            return uint8(returndata[returndata.length - 1]) == 1;
+        } else {
+            return
+                IAccessControl(_accessControlManager).isRealmUpgradable(_domainRealm);
         }
     }
 
@@ -122,9 +136,9 @@ abstract contract BaseUUPSProxy is
         string calldata domainVersion,
         bytes32 domainRealm,
         address accessControlManager
-    ) internal onlyProxy onlyInitializing {
-        _domainName = domainName;
-        _domainVersion = domainVersion;
+    ) internal onlyInitializing {
+        _domainName = keccak256(abi.encodePacked(domainName));
+        _domainVersion = keccak256(abi.encodePacked(domainVersion));
         _domainRealm = domainRealm;
         if (accessControlManager == address(0)) {
             _accessControlManager = address(this);
@@ -138,7 +152,7 @@ abstract contract BaseUUPSProxy is
         }
         _isUpgradable = false;
         _isSafeMode = false;
-        _setAdmin(_accessControlManager);
+        _setAdmin(_msgSender());
     }
 
     /**
@@ -188,7 +202,7 @@ abstract contract BaseUUPSProxy is
     ) internal returns (bytes memory) {
         _upgradeTo(newImplementation);
         if (data.length > 0 || forceCall) {
-            return _functionDelegateCall(newImplementation, data, "Delegatecall Failed");
+            return LAddress.functionDelegateCall(newImplementation, data, "Delegatecall Failed");
         }
         return new bytes(0);
     }
@@ -217,23 +231,6 @@ abstract contract BaseUUPSProxy is
             }
             return _upgradeToAndCall(newImplementation, data, forceCall);
         }
-    }
-
-    /**
-     * @dev Same as {xref-Address-functionCall-address-bytes-string-}[`functionCall`],
-     * but performing a delegate call.
-     *
-     */
-    function _functionDelegateCall(
-        address target,
-        bytes memory data,
-        string memory message
-    ) private returns (bytes memory) {
-        require(LAddress.isContract(target), "Illegal Contract Address");
-
-        // solhint-disable-next-line avoid-low-level-calls
-        (bool success, bytes memory returndata) = target.delegatecall(data);
-        return LAddress.verifyCallResult(success, returndata, message);
     }
 
     /**
@@ -278,7 +275,10 @@ abstract contract BaseUUPSProxy is
         return _getAdmin();
     }
 
-    function setAdmin(address newAdmin) external returns (bool) {
+    function setAdmin(address newAdmin) external onlyProxy returns (bool) {
+        require(!_isSafeMode, "SafeMode: Call Rejected");
+        require(_hasPermission(this.setAdmin.selector), "SetAdmin Forbidden");
+        require(newAdmin != address(0), "Address Invalid");
         _setAdmin(newAdmin);
         return true;
     }
@@ -293,36 +293,34 @@ abstract contract BaseUUPSProxy is
     /**
      * @dev Stores a new address in the EIP1967 admin slot.
      */
-    function _setAdmin(address newAdmin) internal onlyProxy {
-        require(!_isSafeMode, "SafeMode: Call Rejected");
-        require(_hasPermission(this.setAdmin.selector), "SetAdmin Forbidden");
-        require(newAdmin != address(0), "Address Invalid");
+    function _setAdmin(address newAdmin) internal {
         LStorageSlot.getAddressSlot(_ADMIN_SLOT).value = newAdmin;
         emit AdminChanged(_msgSender(), address(this), newAdmin);
     }
 
     // In each upgrade the initialize requirement must be changed
-    function setSafeMode(bool state) external onlyProxy returns (bool) {
-        require(_getInitializedCount() == 1, "Contract Not Initialized");
-        require(_hasPermission(this.setSafeMode.selector), "SetSafeMode Call Forbidden");
-        _isSafeMode = state;
-        emit SafeModeChanged(_msgSender(), address(this), _domainRealm, state);
-        return state;
+    function setSafeMode(bool status) external onlyProxy returns (bool) {
+        require(_getInitializedCount() > 0, "Contract Not Initialized");
+        require(_hasPermission(this.setSafeMode.selector), "SetSafeMode Forbidden");
+        _isSafeMode = status;
+        emit SafeModeChanged(_msgSender(), address(this), _domainRealm, status);
+        return status;
     }
 
-    function setUpgradeState(bool state) external onlyProxy returns (bool) {
+    function setUpgradeStatus(bool status) external onlyProxy returns (bool) {
         require(!_isSafeMode, "SafeMode: Call Rejected");
-        require(_hasPermission(this.setUpgradeState.selector), "SetUpgradeState Forbidden");
-        _isUpgradable = state;
-        emit UpgradeStateChanged(_msgSender(), address(this), _domainRealm, state);
-        return state;
+        require(_hasPermission(this.setUpgradeStatus.selector), "SetUpgradeStatus Forbidden");
+        require(_isRealmUpgradable(), "Realm Upgrade Forbidden");
+        _isUpgradable = status;
+        emit UpgradeStatusChanged(_msgSender(), address(this), _domainRealm, status);
+        return status;
     }
 
-    function contractName() external view returns (string memory) {
+    function contractName() external view returns (bytes32) {
         return _domainName;
     }
 
-    function contractVersion() external view returns (string memory) {
+    function contractVersion() external view returns (bytes32) {
         return _domainVersion;
     }
 
@@ -354,7 +352,7 @@ abstract contract BaseUUPSProxy is
         return _getInitializedCount();
     }
 
-    function getInitializeState() external view returns (bool) {
+    function getInitializeStatus() external view returns (bool) {
         return _isInitializing();
     }
 

@@ -14,7 +14,6 @@ library LRoleManagement {
     bytes32 public constant LIB_NAME = keccak256(abi.encodePacked("LRoleManagement"));
     bytes32 public constant LIB_VERSION = keccak256(abi.encodePacked("1.0.0"));
 
-    // if group empty add to default group
     function registerRole(
         AccessControlStorage.DataMaps storage data,
         string calldata name,
@@ -29,16 +28,14 @@ library LRoleManagement {
                 msg.sender,
                 IRoleManagement.registerRole.selector
             ),
-            "Access Denied"
+            "RegisterRole Access Denied"
         );
         require(bytes(data.groupMap[group].name).length != 0, "Group Not Found");
         require(bytes(name).length != 0, "Role Name Invalid");
         bytes32 roleKey = keccak256(abi.encodePacked(name));
         require(bytes(data.roleMap[roleKey].name).length == 0, "Role Already Registered");
 
-        // add to group
         data.groupMap[group].roleSet.add(roleKey);
-
         AccessControlStorage.Role storage newRole = data.roleMap[roleKey];
         newRole.name = name;
         newRole.group = group;
@@ -59,8 +56,9 @@ library LRoleManagement {
                 msg.sender,
                 IRoleManagement.grantRoleAccount.selector
             ),
-            "Access Denied"
+            "GrantRoleAccount Access Denied"
         );
+        require(role != LAccessControl.ANONYMOUS_ROLE, "Illegal Grant Anonymous Role");
         require(bytes(data.roleMap[role].name).length != 0, "Role Not Found");
         require(account != address(0), "Address Invalid");
         data.accountMap[account][role] = AccessControlStorage.Status.ENABLED;
@@ -83,20 +81,24 @@ library LRoleManagement {
                 msg.sender,
                 IRoleManagement.revokeRoleAccount.selector
             ),
-            "Access Denied"
+            "RevokeRoleAccount Access Denied"
         );
+        if (role == LAccessControl.LIVELY_ADMIN_ROLE || role == LAccessControl.LIVELY_SYSTEM_ADMIN_ROLE) {
+            require(data.roleMap[role].accountSet.length() > 1, "Illegal Revoke Role Account");
+        }
         require(bytes(data.roleMap[role].name).length != 0, "Role Not Found");
         require(account != address(0), "Address Invalid");
         require(data.roleMap[role].accountSet.contains(account), "Account Not Found");
-        require(data.accountMap[account][role] != AccessControlStorage.Status.NONE, "User Role Not Found");
+        require(data.accountMap[account][role] != AccessControlStorage.Status.NONE, "Account Role Not Found");
         data.accountMap[account][role] = AccessControlStorage.Status.DISABLED;
+        data.roleMap[role].accountSet.remove(account);
         return true;
     }
 
-    function setRoleStat(
+    function setRoleStatus(
         AccessControlStorage.DataMaps storage data,
         bytes32 role,
-        bool isEnabled
+        bool status
     ) external returns (bool, bytes32) {
         require(!IProxy(address(this)).isSafeMode(), "SafeMode: Call Rejected");
         require(
@@ -104,12 +106,17 @@ library LRoleManagement {
                 data,
                 LContextUtils.generateCtx(address(this)),
                 msg.sender,
-                IRoleManagement.setRoleStat.selector
+                IRoleManagement.setRoleStatus.selector
             ),
-            "Access Denied"
+            "SetRoleStatus Access Denied"
+        );
+        require(
+            role != LAccessControl.ANONYMOUS_ROLE &&
+            role != LAccessControl.LIVELY_ADMIN_ROLE &&
+            role != LAccessControl.LIVELY_SYSTEM_ADMIN_ROLE , "Illegal Change Role Status"
         );
         require(bytes(data.roleMap[role].name).length != 0, "Role Not Found");
-        data.roleMap[role].isEnabled = isEnabled;
+        data.roleMap[role].isEnabled = status;
         return (true, data.roleMap[role].group);
     }
 
@@ -126,10 +133,11 @@ library LRoleManagement {
                 msg.sender,
                 IRoleManagement.setRoleGroup.selector
             ),
-            "Access Denied"
+            "SetRoleGroup Access Denied"
         );
         require(bytes(data.roleMap[role].name).length != 0, "Role Not Found");
         require(bytes(data.groupMap[group].name).length != 0, "Group Not Found");
+        require(data.roleMap[role].group != group, "Illegal Group Duplication");
         bytes32 oldGroup = data.roleMap[role].group;
         data.groupMap[data.roleMap[role].group].roleSet.remove(role);
         data.groupMap[group].roleSet.add(role);
@@ -137,7 +145,7 @@ library LRoleManagement {
         return (true, oldGroup);
     }
 
-    function getRole(AccessControlStorage.DataMaps storage data, bytes32 role)
+    function getRoleInfo(AccessControlStorage.DataMaps storage data, bytes32 role)
         external
         view
         returns (
@@ -158,13 +166,13 @@ library LRoleManagement {
         return data.roleMap[role].accountSet.values();
     }
 
-    function hasAccountRole(
+    function hasRoleAccount(
         AccessControlStorage.DataMaps storage data,
         bytes32 role,
         address account
     ) external view returns (bool) {
-        if (bytes(data.roleMap[role].name).length == 0) return false;
-        if (account != address(0)) return false;
-        return data.accountMap[account][role] == AccessControlStorage.Status.ENABLED;
+        return  bytes(data.roleMap[role].name).length != 0 && 
+                account != address(0) &&
+                data.accountMap[account][role] == AccessControlStorage.Status.ENABLED;
     }
 }

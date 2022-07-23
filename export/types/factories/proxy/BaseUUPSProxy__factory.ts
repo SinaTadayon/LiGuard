@@ -108,7 +108,7 @@ const _abi = [
       {
         indexed: false,
         internalType: "bool",
-        name: "state",
+        name: "status",
         type: "bool",
       },
     ],
@@ -139,11 +139,11 @@ const _abi = [
       {
         indexed: false,
         internalType: "bool",
-        name: "state",
+        name: "status",
         type: "bool",
       },
     ],
-    name: "UpgradeStateChanged",
+    name: "UpgradeStatusChanged",
     type: "event",
   },
   {
@@ -193,9 +193,9 @@ const _abi = [
     name: "contractName",
     outputs: [
       {
-        internalType: "string",
+        internalType: "bytes32",
         name: "",
-        type: "string",
+        type: "bytes32",
       },
     ],
     stateMutability: "view",
@@ -219,9 +219,9 @@ const _abi = [
     name: "contractVersion",
     outputs: [
       {
-        internalType: "string",
+        internalType: "bytes32",
         name: "",
-        type: "string",
+        type: "bytes32",
       },
     ],
     stateMutability: "view",
@@ -255,7 +255,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "getInitializeState",
+    name: "getInitializeStatus",
     outputs: [
       {
         internalType: "bool",
@@ -341,7 +341,7 @@ const _abi = [
     inputs: [
       {
         internalType: "bool",
-        name: "state",
+        name: "status",
         type: "bool",
       },
     ],
@@ -360,11 +360,11 @@ const _abi = [
     inputs: [
       {
         internalType: "bool",
-        name: "state",
+        name: "status",
         type: "bool",
       },
     ],
-    name: "setUpgradeState",
+    name: "setUpgradeStatus",
     outputs: [
       {
         internalType: "bool",

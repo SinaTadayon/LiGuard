@@ -59,10 +59,10 @@ library LAddress {
      * https://solidity.readthedocs.io/en/v0.5.11/security-considerations.html#use-the-checks-effects-interactions-pattern[checks-effects-interactions pattern].
      */
     function sendValue(address payable recipient, uint256 amount) internal {
-        require(address(this).balance >= amount, "Address: insufficient balance");
+        require(address(this).balance >= amount, "Insufficient balance");
 
         (bool success, ) = recipient.call{value: amount}("");
-        require(success, "Address: unable to send value, recipient may have reverted");
+        require(success, "SendValue Failed");
     }
 
     /**
@@ -80,18 +80,14 @@ library LAddress {
      *
      * - `target` must be a contract.
      * - calling `target` with `data` must not revert.
-     *
-     * _Available since v3.1._
      */
     function functionCall(address target, bytes memory data) internal returns (bytes memory) {
-        return functionCall(target, data, "Address: low-level call failed");
+        return functionCall(target, data, "Call Failed");
     }
 
     /**
      * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`], but with
      * `errorMessage` as a fallback revert reason when `target` reverts.
-     *
-     * _Available since v3.1._
      */
     function functionCall(
         address target,
@@ -109,22 +105,18 @@ library LAddress {
      *
      * - the calling contract must have an ETH balance of at least `value`.
      * - the called Solidity function must be `payable`.
-     *
-     * _Available since v3.1._
      */
     function functionCallWithValue(
         address target,
         bytes memory data,
         uint256 value
     ) internal returns (bytes memory) {
-        return functionCallWithValue(target, data, value, "Address: low-level call with value failed");
+        return functionCallWithValue(target, data, value, "Call With Value Failed");
     }
 
     /**
      * @dev Same as {xref-Address-functionCallWithValue-address-bytes-uint256-}[`functionCallWithValue`], but
      * with `errorMessage` as a fallback revert reason when `target` reverts.
-     *
-     * _Available since v3.1._
      */
     function functionCallWithValue(
         address target,
@@ -132,8 +124,8 @@ library LAddress {
         uint256 value,
         string memory errorMessage
     ) internal returns (bytes memory) {
-        require(address(this).balance >= value, "Address: insufficient balance for call");
-        require(isContract(target), "Address: call to non-contract");
+        require(address(this).balance >= value, "Insufficient Balance For Call");
+        require(LAddress.isContract(target), "Illegal Contract Address");
 
         (bool success, bytes memory returndata) = target.call{value: value}(data);
         return verifyCallResult(success, returndata, errorMessage);
@@ -142,25 +134,21 @@ library LAddress {
     /**
      * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`],
      * but performing a static call.
-     *
-     * _Available since v3.3._
      */
     function functionStaticCall(address target, bytes memory data) internal view returns (bytes memory) {
-        return functionStaticCall(target, data, "Address: low-level static call failed");
+        return functionStaticCall(target, data, "Static Call Failed");
     }
 
     /**
      * @dev Same as {xref-Address-functionCall-address-bytes-string-}[`functionCall`],
      * but performing a static call.
-     *
-     * _Available since v3.3._
      */
     function functionStaticCall(
         address target,
         bytes memory data,
         string memory errorMessage
     ) internal view returns (bytes memory) {
-        require(isContract(target), "Address: static call to non-contract");
+        require(LAddress.isContract(target), "Illegal Contract Address");
 
         (bool success, bytes memory returndata) = target.staticcall(data);
         return verifyCallResult(success, returndata, errorMessage);
@@ -169,35 +157,30 @@ library LAddress {
     /**
      * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`],
      * but performing a delegate call.
-     *
-     * _Available since v3.4._
      */
     function functionDelegateCall(address target, bytes memory data) internal returns (bytes memory) {
-        return functionDelegateCall(target, data, "Address: low-level delegate call failed");
+        return functionDelegateCall(target, data, "Delegate Call Failed");
     }
 
     /**
      * @dev Same as {xref-Address-functionCall-address-bytes-string-}[`functionCall`],
      * but performing a delegate call.
-     *
-     * _Available since v3.4._
      */
     function functionDelegateCall(
         address target,
         bytes memory data,
-        string memory errorMessage
+        string memory message
     ) internal returns (bytes memory) {
-        require(isContract(target), "Address: delegate call to non-contract");
+        require(LAddress.isContract(target), "Illegal Contract Address");
 
+        // solhint-disable-next-line avoid-low-level-calls
         (bool success, bytes memory returndata) = target.delegatecall(data);
-        return verifyCallResult(success, returndata, errorMessage);
+        return LAddress.verifyCallResult(success, returndata, message);
     }
 
     /**
      * @dev Tool to verifies that a low level call was successful, and revert if it wasn't, either by bubbling the
      * revert reason using the provided one.
-     *
-     * _Available since v4.3._
      */
     function verifyCallResult(
         bool success,

@@ -28,33 +28,33 @@ import type {
 
 export interface IGroupManagementInterface extends utils.Interface {
   functions: {
-    "getGroup(bytes32)": FunctionFragment;
+    "getGroupInfo(bytes32)": FunctionFragment;
     "getGroupRoles(bytes32)": FunctionFragment;
     "hasGroupRole(bytes32,bytes32)": FunctionFragment;
     "registerGroup(string,bool)": FunctionFragment;
-    "setGroupStat(bytes32,bool)": FunctionFragment;
+    "setGroupStatus(bytes32,bool)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "getGroup"
-      | "getGroup(bytes32)"
+      | "getGroupInfo"
+      | "getGroupInfo(bytes32)"
       | "getGroupRoles"
       | "getGroupRoles(bytes32)"
       | "hasGroupRole"
       | "hasGroupRole(bytes32,bytes32)"
       | "registerGroup"
       | "registerGroup(string,bool)"
-      | "setGroupStat"
-      | "setGroupStat(bytes32,bool)"
+      | "setGroupStatus"
+      | "setGroupStatus(bytes32,bool)"
   ): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "getGroup",
+    functionFragment: "getGroupInfo",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "getGroup(bytes32)",
+    functionFragment: "getGroupInfo(bytes32)",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
@@ -82,17 +82,20 @@ export interface IGroupManagementInterface extends utils.Interface {
     values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setGroupStat",
+    functionFragment: "setGroupStatus",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setGroupStat(bytes32,bool)",
+    functionFragment: "setGroupStatus(bytes32,bool)",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
   ): string;
 
-  decodeFunctionResult(functionFragment: "getGroup", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "getGroup(bytes32)",
+    functionFragment: "getGroupInfo",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getGroupInfo(bytes32)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -120,26 +123,26 @@ export interface IGroupManagementInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setGroupStat",
+    functionFragment: "setGroupStatus",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setGroupStat(bytes32,bool)",
+    functionFragment: "setGroupStatus(bytes32,bool)",
     data: BytesLike
   ): Result;
 
   events: {
     "GroupRegistered(bytes32,address,string,bool)": EventFragment;
-    "GroupStatChanged(bytes32,address,bool)": EventFragment;
+    "GroupStatusChanged(bytes32,address,bool)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "GroupRegistered"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "GroupRegistered(bytes32,address,string,bool)"
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "GroupStatChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "GroupStatusChanged"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "GroupStatChanged(bytes32,address,bool)"
+    nameOrSignatureOrTopic: "GroupStatusChanged(bytes32,address,bool)"
   ): EventFragment;
 }
 
@@ -156,18 +159,18 @@ export type GroupRegisteredEvent = TypedEvent<
 
 export type GroupRegisteredEventFilter = TypedEventFilter<GroupRegisteredEvent>;
 
-export interface GroupStatChangedEventObject {
+export interface GroupStatusChangedEventObject {
   group: string;
   sender: string;
   status: boolean;
 }
-export type GroupStatChangedEvent = TypedEvent<
+export type GroupStatusChangedEvent = TypedEvent<
   [string, string, boolean],
-  GroupStatChangedEventObject
+  GroupStatusChangedEventObject
 >;
 
-export type GroupStatChangedEventFilter =
-  TypedEventFilter<GroupStatChangedEvent>;
+export type GroupStatusChangedEventFilter =
+  TypedEventFilter<GroupStatusChangedEvent>;
 
 export interface IGroupManagement extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -196,12 +199,12 @@ export interface IGroupManagement extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    getGroup(
+    getGroupInfo(
       group: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[string, boolean]>;
 
-    "getGroup(bytes32)"(
+    "getGroupInfo(bytes32)"(
       group: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[string, boolean]>;
@@ -240,25 +243,25 @@ export interface IGroupManagement extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setGroupStat(
+    setGroupStatus(
       group: PromiseOrValue<BytesLike>,
       status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "setGroupStat(bytes32,bool)"(
+    "setGroupStatus(bytes32,bool)"(
       group: PromiseOrValue<BytesLike>,
       status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
-  getGroup(
+  getGroupInfo(
     group: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<[string, boolean]>;
 
-  "getGroup(bytes32)"(
+  "getGroupInfo(bytes32)"(
     group: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<[string, boolean]>;
@@ -297,25 +300,25 @@ export interface IGroupManagement extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setGroupStat(
+  setGroupStatus(
     group: PromiseOrValue<BytesLike>,
     status: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "setGroupStat(bytes32,bool)"(
+  "setGroupStatus(bytes32,bool)"(
     group: PromiseOrValue<BytesLike>,
     status: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    getGroup(
+    getGroupInfo(
       group: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[string, boolean]>;
 
-    "getGroup(bytes32)"(
+    "getGroupInfo(bytes32)"(
       group: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[string, boolean]>;
@@ -354,13 +357,13 @@ export interface IGroupManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
-    setGroupStat(
+    setGroupStatus(
       group: PromiseOrValue<BytesLike>,
       status: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "setGroupStat(bytes32,bool)"(
+    "setGroupStatus(bytes32,bool)"(
       group: PromiseOrValue<BytesLike>,
       status: PromiseOrValue<boolean>,
       overrides?: CallOverrides
@@ -381,25 +384,25 @@ export interface IGroupManagement extends BaseContract {
       status?: null
     ): GroupRegisteredEventFilter;
 
-    "GroupStatChanged(bytes32,address,bool)"(
+    "GroupStatusChanged(bytes32,address,bool)"(
       group?: PromiseOrValue<BytesLike> | null,
       sender?: PromiseOrValue<string> | null,
       status?: null
-    ): GroupStatChangedEventFilter;
-    GroupStatChanged(
+    ): GroupStatusChangedEventFilter;
+    GroupStatusChanged(
       group?: PromiseOrValue<BytesLike> | null,
       sender?: PromiseOrValue<string> | null,
       status?: null
-    ): GroupStatChangedEventFilter;
+    ): GroupStatusChangedEventFilter;
   };
 
   estimateGas: {
-    getGroup(
+    getGroupInfo(
       group: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "getGroup(bytes32)"(
+    "getGroupInfo(bytes32)"(
       group: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -438,13 +441,13 @@ export interface IGroupManagement extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setGroupStat(
+    setGroupStatus(
       group: PromiseOrValue<BytesLike>,
       status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "setGroupStat(bytes32,bool)"(
+    "setGroupStatus(bytes32,bool)"(
       group: PromiseOrValue<BytesLike>,
       status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -452,12 +455,12 @@ export interface IGroupManagement extends BaseContract {
   };
 
   populateTransaction: {
-    getGroup(
+    getGroupInfo(
       group: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "getGroup(bytes32)"(
+    "getGroupInfo(bytes32)"(
       group: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -496,13 +499,13 @@ export interface IGroupManagement extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setGroupStat(
+    setGroupStatus(
       group: PromiseOrValue<BytesLike>,
       status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "setGroupStat(bytes32,bool)"(
+    "setGroupStatus(bytes32,bool)"(
       group: PromiseOrValue<BytesLike>,
       status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }

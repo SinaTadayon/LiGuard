@@ -14,7 +14,7 @@ interface IRoleManagement {
         bool isEnabled
     );
 
-    event RoleStatChanged(bytes32 indexed role, address indexed sender, bytes32 indexed group, bool status);
+    event RoleStatusChanged(bytes32 indexed role, address indexed sender, bytes32 indexed group, bool status);
 
     event RoleGroupChanged(bytes32 indexed role, address indexed sender, bytes32 indexed newGroup, bytes32 oldGroup);
 
@@ -28,11 +28,11 @@ interface IRoleManagement {
 
     function revokeRoleAccount(bytes32 role, address account) external returns (bool);
 
-    function setRoleStat(bytes32 role, bool status) external returns (bool);
+    function setRoleStatus(bytes32 role, bool status) external returns (bool);
 
     function setRoleGroup(bytes32 role, bytes32 group) external returns (bool);
 
-    function getRole(bytes32 role)
+    function getRoleInfo(bytes32 role)
         external
         view
         returns (
@@ -43,5 +43,5 @@ interface IRoleManagement {
 
     function getRoleAccounts(bytes32 role) external view returns (address[] memory);
 
-    function hasAccountRole(bytes32 role, address account) external view returns (bool);
+    function hasRoleAccount(bytes32 role, address account) external view returns (bool);
 }

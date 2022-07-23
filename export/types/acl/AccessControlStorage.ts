@@ -24,7 +24,7 @@ export interface AccessControlStorageInterface extends utils.Interface {
   functions: {
     "ACCESS_CONTROL_NAME()": FunctionFragment;
     "ACCESS_CONTROL_VERSION()": FunctionFragment;
-    "ANONYMOUSE_ROLE()": FunctionFragment;
+    "ANONYMOUS_ROLE()": FunctionFragment;
     "CONTEXT_MANAGEMENT_NAME()": FunctionFragment;
     "CONTEXT_MANAGEMENT_VERSION()": FunctionFragment;
     "GROUP_MANAGEMENT_NAME()": FunctionFragment;
@@ -45,8 +45,8 @@ export interface AccessControlStorageInterface extends utils.Interface {
       | "ACCESS_CONTROL_NAME()"
       | "ACCESS_CONTROL_VERSION"
       | "ACCESS_CONTROL_VERSION()"
-      | "ANONYMOUSE_ROLE"
-      | "ANONYMOUSE_ROLE()"
+      | "ANONYMOUS_ROLE"
+      | "ANONYMOUS_ROLE()"
       | "CONTEXT_MANAGEMENT_NAME"
       | "CONTEXT_MANAGEMENT_NAME()"
       | "CONTEXT_MANAGEMENT_VERSION"
@@ -90,11 +90,11 @@ export interface AccessControlStorageInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "ANONYMOUSE_ROLE",
+    functionFragment: "ANONYMOUS_ROLE",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "ANONYMOUSE_ROLE()",
+    functionFragment: "ANONYMOUS_ROLE()",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -211,11 +211,11 @@ export interface AccessControlStorageInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "ANONYMOUSE_ROLE",
+    functionFragment: "ANONYMOUS_ROLE",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "ANONYMOUSE_ROLE()",
+    functionFragment: "ANONYMOUS_ROLE()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -353,9 +353,9 @@ export interface AccessControlStorage extends BaseContract {
 
     "ACCESS_CONTROL_VERSION()"(overrides?: CallOverrides): Promise<[string]>;
 
-    ANONYMOUSE_ROLE(overrides?: CallOverrides): Promise<[string]>;
+    ANONYMOUS_ROLE(overrides?: CallOverrides): Promise<[string]>;
 
-    "ANONYMOUSE_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
+    "ANONYMOUS_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
 
     CONTEXT_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<[string]>;
 
@@ -416,9 +416,9 @@ export interface AccessControlStorage extends BaseContract {
 
   "ACCESS_CONTROL_VERSION()"(overrides?: CallOverrides): Promise<string>;
 
-  ANONYMOUSE_ROLE(overrides?: CallOverrides): Promise<string>;
+  ANONYMOUS_ROLE(overrides?: CallOverrides): Promise<string>;
 
-  "ANONYMOUSE_ROLE()"(overrides?: CallOverrides): Promise<string>;
+  "ANONYMOUS_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
   CONTEXT_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<string>;
 
@@ -477,9 +477,9 @@ export interface AccessControlStorage extends BaseContract {
 
     "ACCESS_CONTROL_VERSION()"(overrides?: CallOverrides): Promise<string>;
 
-    ANONYMOUSE_ROLE(overrides?: CallOverrides): Promise<string>;
+    ANONYMOUS_ROLE(overrides?: CallOverrides): Promise<string>;
 
-    "ANONYMOUSE_ROLE()"(overrides?: CallOverrides): Promise<string>;
+    "ANONYMOUS_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
     CONTEXT_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<string>;
 
@@ -541,9 +541,9 @@ export interface AccessControlStorage extends BaseContract {
 
     "ACCESS_CONTROL_VERSION()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    ANONYMOUSE_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+    ANONYMOUS_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "ANONYMOUSE_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "ANONYMOUS_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     CONTEXT_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -613,9 +613,9 @@ export interface AccessControlStorage extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    ANONYMOUSE_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    ANONYMOUS_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "ANONYMOUSE_ROLE()"(
+    "ANONYMOUS_ROLE()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

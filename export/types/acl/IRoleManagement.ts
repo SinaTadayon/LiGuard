@@ -28,50 +28,50 @@ import type {
 
 export interface IRoleManagementInterface extends utils.Interface {
   functions: {
-    "getRole(bytes32)": FunctionFragment;
     "getRoleAccounts(bytes32)": FunctionFragment;
+    "getRoleInfo(bytes32)": FunctionFragment;
     "grantRoleAccount(bytes32,address)": FunctionFragment;
-    "hasAccountRole(bytes32,address)": FunctionFragment;
+    "hasRoleAccount(bytes32,address)": FunctionFragment;
     "registerRole(string,bytes32,bool)": FunctionFragment;
     "revokeRoleAccount(bytes32,address)": FunctionFragment;
     "setRoleGroup(bytes32,bytes32)": FunctionFragment;
-    "setRoleStat(bytes32,bool)": FunctionFragment;
+    "setRoleStatus(bytes32,bool)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "getRole"
-      | "getRole(bytes32)"
       | "getRoleAccounts"
       | "getRoleAccounts(bytes32)"
+      | "getRoleInfo"
+      | "getRoleInfo(bytes32)"
       | "grantRoleAccount"
       | "grantRoleAccount(bytes32,address)"
-      | "hasAccountRole"
-      | "hasAccountRole(bytes32,address)"
+      | "hasRoleAccount"
+      | "hasRoleAccount(bytes32,address)"
       | "registerRole"
       | "registerRole(string,bytes32,bool)"
       | "revokeRoleAccount"
       | "revokeRoleAccount(bytes32,address)"
       | "setRoleGroup"
       | "setRoleGroup(bytes32,bytes32)"
-      | "setRoleStat"
-      | "setRoleStat(bytes32,bool)"
+      | "setRoleStatus"
+      | "setRoleStatus(bytes32,bool)"
   ): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "getRole",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getRole(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "getRoleAccounts",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "getRoleAccounts(bytes32)",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getRoleInfo",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getRoleInfo(bytes32)",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
@@ -83,11 +83,11 @@ export interface IRoleManagementInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "hasAccountRole",
+    functionFragment: "hasRoleAccount",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "hasAccountRole(bytes32,address)",
+    functionFragment: "hasRoleAccount(bytes32,address)",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -123,25 +123,28 @@ export interface IRoleManagementInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setRoleStat",
+    functionFragment: "setRoleStatus",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setRoleStat(bytes32,bool)",
+    functionFragment: "setRoleStatus(bytes32,bool)",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
   ): string;
 
-  decodeFunctionResult(functionFragment: "getRole", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "getRole(bytes32)",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "getRoleAccounts",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "getRoleAccounts(bytes32)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getRoleInfo",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getRoleInfo(bytes32)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -153,11 +156,11 @@ export interface IRoleManagementInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "hasAccountRole",
+    functionFragment: "hasRoleAccount",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "hasAccountRole(bytes32,address)",
+    functionFragment: "hasRoleAccount(bytes32,address)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -185,11 +188,11 @@ export interface IRoleManagementInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setRoleStat",
+    functionFragment: "setRoleStatus",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setRoleStat(bytes32,bool)",
+    functionFragment: "setRoleStatus(bytes32,bool)",
     data: BytesLike
   ): Result;
 
@@ -198,7 +201,7 @@ export interface IRoleManagementInterface extends utils.Interface {
     "RoleAccountRevoked(bytes32,address,address)": EventFragment;
     "RoleGroupChanged(bytes32,address,bytes32,bytes32)": EventFragment;
     "RoleRegistered(bytes32,string,address,bytes32,bool)": EventFragment;
-    "RoleStatChanged(bytes32,address,bytes32,bool)": EventFragment;
+    "RoleStatusChanged(bytes32,address,bytes32,bool)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "RoleAccountGranted"): EventFragment;
@@ -217,9 +220,9 @@ export interface IRoleManagementInterface extends utils.Interface {
   getEvent(
     nameOrSignatureOrTopic: "RoleRegistered(bytes32,string,address,bytes32,bool)"
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RoleStatChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RoleStatusChanged"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "RoleStatChanged(bytes32,address,bytes32,bool)"
+    nameOrSignatureOrTopic: "RoleStatusChanged(bytes32,address,bytes32,bool)"
   ): EventFragment;
 }
 
@@ -277,18 +280,19 @@ export type RoleRegisteredEvent = TypedEvent<
 
 export type RoleRegisteredEventFilter = TypedEventFilter<RoleRegisteredEvent>;
 
-export interface RoleStatChangedEventObject {
+export interface RoleStatusChangedEventObject {
   role: string;
   sender: string;
   group: string;
   status: boolean;
 }
-export type RoleStatChangedEvent = TypedEvent<
+export type RoleStatusChangedEvent = TypedEvent<
   [string, string, string, boolean],
-  RoleStatChangedEventObject
+  RoleStatusChangedEventObject
 >;
 
-export type RoleStatChangedEventFilter = TypedEventFilter<RoleStatChangedEvent>;
+export type RoleStatusChangedEventFilter =
+  TypedEventFilter<RoleStatusChangedEvent>;
 
 export interface IRoleManagement extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -317,16 +321,6 @@ export interface IRoleManagement extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    getRole(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[string, string, boolean]>;
-
-    "getRole(bytes32)"(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[string, string, boolean]>;
-
     getRoleAccounts(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -336,6 +330,16 @@ export interface IRoleManagement extends BaseContract {
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[string[]]>;
+
+    getRoleInfo(
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[string, string, boolean]>;
+
+    "getRoleInfo(bytes32)"(
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[string, string, boolean]>;
 
     grantRoleAccount(
       role: PromiseOrValue<BytesLike>,
@@ -349,13 +353,13 @@ export interface IRoleManagement extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    hasAccountRole(
+    hasRoleAccount(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    "hasAccountRole(bytes32,address)"(
+    "hasRoleAccount(bytes32,address)"(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -399,28 +403,18 @@ export interface IRoleManagement extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setRoleStat(
+    setRoleStatus(
       role: PromiseOrValue<BytesLike>,
       status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "setRoleStat(bytes32,bool)"(
+    "setRoleStatus(bytes32,bool)"(
       role: PromiseOrValue<BytesLike>,
       status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
-
-  getRole(
-    role: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<[string, string, boolean]>;
-
-  "getRole(bytes32)"(
-    role: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<[string, string, boolean]>;
 
   getRoleAccounts(
     role: PromiseOrValue<BytesLike>,
@@ -431,6 +425,16 @@ export interface IRoleManagement extends BaseContract {
     role: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<string[]>;
+
+  getRoleInfo(
+    role: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<[string, string, boolean]>;
+
+  "getRoleInfo(bytes32)"(
+    role: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<[string, string, boolean]>;
 
   grantRoleAccount(
     role: PromiseOrValue<BytesLike>,
@@ -444,13 +448,13 @@ export interface IRoleManagement extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  hasAccountRole(
+  hasRoleAccount(
     role: PromiseOrValue<BytesLike>,
     account: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  "hasAccountRole(bytes32,address)"(
+  "hasRoleAccount(bytes32,address)"(
     role: PromiseOrValue<BytesLike>,
     account: PromiseOrValue<string>,
     overrides?: CallOverrides
@@ -494,29 +498,19 @@ export interface IRoleManagement extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setRoleStat(
+  setRoleStatus(
     role: PromiseOrValue<BytesLike>,
     status: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "setRoleStat(bytes32,bool)"(
+  "setRoleStatus(bytes32,bool)"(
     role: PromiseOrValue<BytesLike>,
     status: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    getRole(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[string, string, boolean]>;
-
-    "getRole(bytes32)"(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[string, string, boolean]>;
-
     getRoleAccounts(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -526,6 +520,16 @@ export interface IRoleManagement extends BaseContract {
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<string[]>;
+
+    getRoleInfo(
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[string, string, boolean]>;
+
+    "getRoleInfo(bytes32)"(
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[string, string, boolean]>;
 
     grantRoleAccount(
       role: PromiseOrValue<BytesLike>,
@@ -539,13 +543,13 @@ export interface IRoleManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    hasAccountRole(
+    hasRoleAccount(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "hasAccountRole(bytes32,address)"(
+    "hasRoleAccount(bytes32,address)"(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -589,13 +593,13 @@ export interface IRoleManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    setRoleStat(
+    setRoleStatus(
       role: PromiseOrValue<BytesLike>,
       status: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "setRoleStat(bytes32,bool)"(
+    "setRoleStatus(bytes32,bool)"(
       role: PromiseOrValue<BytesLike>,
       status: PromiseOrValue<boolean>,
       overrides?: CallOverrides
@@ -653,37 +657,37 @@ export interface IRoleManagement extends BaseContract {
       isEnabled?: null
     ): RoleRegisteredEventFilter;
 
-    "RoleStatChanged(bytes32,address,bytes32,bool)"(
+    "RoleStatusChanged(bytes32,address,bytes32,bool)"(
       role?: PromiseOrValue<BytesLike> | null,
       sender?: PromiseOrValue<string> | null,
       group?: PromiseOrValue<BytesLike> | null,
       status?: null
-    ): RoleStatChangedEventFilter;
-    RoleStatChanged(
+    ): RoleStatusChangedEventFilter;
+    RoleStatusChanged(
       role?: PromiseOrValue<BytesLike> | null,
       sender?: PromiseOrValue<string> | null,
       group?: PromiseOrValue<BytesLike> | null,
       status?: null
-    ): RoleStatChangedEventFilter;
+    ): RoleStatusChangedEventFilter;
   };
 
   estimateGas: {
-    getRole(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "getRole(bytes32)"(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     getRoleAccounts(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     "getRoleAccounts(bytes32)"(
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getRoleInfo(
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "getRoleInfo(bytes32)"(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -700,13 +704,13 @@ export interface IRoleManagement extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    hasAccountRole(
+    hasRoleAccount(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "hasAccountRole(bytes32,address)"(
+    "hasRoleAccount(bytes32,address)"(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -750,13 +754,13 @@ export interface IRoleManagement extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setRoleStat(
+    setRoleStatus(
       role: PromiseOrValue<BytesLike>,
       status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "setRoleStat(bytes32,bool)"(
+    "setRoleStatus(bytes32,bool)"(
       role: PromiseOrValue<BytesLike>,
       status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -764,22 +768,22 @@ export interface IRoleManagement extends BaseContract {
   };
 
   populateTransaction: {
-    getRole(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "getRole(bytes32)"(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     getRoleAccounts(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     "getRoleAccounts(bytes32)"(
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getRoleInfo(
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "getRoleInfo(bytes32)"(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -796,13 +800,13 @@ export interface IRoleManagement extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    hasAccountRole(
+    hasRoleAccount(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "hasAccountRole(bytes32,address)"(
+    "hasRoleAccount(bytes32,address)"(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -846,13 +850,13 @@ export interface IRoleManagement extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setRoleStat(
+    setRoleStatus(
       role: PromiseOrValue<BytesLike>,
       status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "setRoleStat(bytes32,bool)"(
+    "setRoleStatus(bytes32,bool)"(
       role: PromiseOrValue<BytesLike>,
       status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }

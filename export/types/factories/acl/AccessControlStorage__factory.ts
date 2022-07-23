@@ -38,7 +38,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "ANONYMOUSE_ROLE",
+    name: "ANONYMOUS_ROLE",
     outputs: [
       {
         internalType: "bytes32",

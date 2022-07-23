@@ -21,22 +21,22 @@ import type {
 } from "../../common";
 
 export declare namespace IContextManagement {
-  export type RequestContextStruct = {
+  export type RequestRegisterContextStruct = {
     role: PromiseOrValue<BytesLike>;
     funcSelectors: PromiseOrValue<BytesLike>[];
     isEnabled: PromiseOrValue<boolean>;
   };
 
-  export type RequestContextStructOutput = [string, string[], boolean] & {
-    role: string;
-    funcSelectors: string[];
-    isEnabled: boolean;
-  };
+  export type RequestRegisterContextStructOutput = [
+    string,
+    string[],
+    boolean
+  ] & { role: string; funcSelectors: string[]; isEnabled: boolean };
 }
 
 export interface LAccessControlInterface extends utils.Interface {
   functions: {
-    "ANONYMOUSE_ROLE()": FunctionFragment;
+    "ANONYMOUS_ROLE()": FunctionFragment;
     "LIB_NAME()": FunctionFragment;
     "LIB_VERSION()": FunctionFragment;
     "LIVELY_ADMIN_ROLE()": FunctionFragment;
@@ -48,8 +48,8 @@ export interface LAccessControlInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "ANONYMOUSE_ROLE"
-      | "ANONYMOUSE_ROLE()"
+      | "ANONYMOUS_ROLE"
+      | "ANONYMOUS_ROLE()"
       | "LIB_NAME"
       | "LIB_NAME()"
       | "LIB_VERSION"
@@ -67,11 +67,11 @@ export interface LAccessControlInterface extends utils.Interface {
   ): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "ANONYMOUSE_ROLE",
+    functionFragment: "ANONYMOUS_ROLE",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "ANONYMOUSE_ROLE()",
+    functionFragment: "ANONYMOUS_ROLE()",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "LIB_NAME", values?: undefined): string;
@@ -129,11 +129,11 @@ export interface LAccessControlInterface extends utils.Interface {
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "ANONYMOUSE_ROLE",
+    functionFragment: "ANONYMOUS_ROLE",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "ANONYMOUSE_ROLE()",
+    functionFragment: "ANONYMOUS_ROLE()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "LIB_NAME", data: BytesLike): Result;
@@ -217,9 +217,9 @@ export interface LAccessControl extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    ANONYMOUSE_ROLE(overrides?: CallOverrides): Promise<[string]>;
+    ANONYMOUS_ROLE(overrides?: CallOverrides): Promise<[string]>;
 
-    "ANONYMOUSE_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
+    "ANONYMOUS_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
 
     LIB_NAME(overrides?: CallOverrides): Promise<[string]>;
 
@@ -247,16 +247,16 @@ export interface LAccessControl extends BaseContract {
 
     createRequestContext(
       overrides?: CallOverrides
-    ): Promise<[IContextManagement.RequestContextStructOutput[]]>;
+    ): Promise<[IContextManagement.RequestRegisterContextStructOutput[]]>;
 
     "createRequestContext()"(
       overrides?: CallOverrides
-    ): Promise<[IContextManagement.RequestContextStructOutput[]]>;
+    ): Promise<[IContextManagement.RequestRegisterContextStructOutput[]]>;
   };
 
-  ANONYMOUSE_ROLE(overrides?: CallOverrides): Promise<string>;
+  ANONYMOUS_ROLE(overrides?: CallOverrides): Promise<string>;
 
-  "ANONYMOUSE_ROLE()"(overrides?: CallOverrides): Promise<string>;
+  "ANONYMOUS_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
   LIB_NAME(overrides?: CallOverrides): Promise<string>;
 
@@ -284,16 +284,16 @@ export interface LAccessControl extends BaseContract {
 
   createRequestContext(
     overrides?: CallOverrides
-  ): Promise<IContextManagement.RequestContextStructOutput[]>;
+  ): Promise<IContextManagement.RequestRegisterContextStructOutput[]>;
 
   "createRequestContext()"(
     overrides?: CallOverrides
-  ): Promise<IContextManagement.RequestContextStructOutput[]>;
+  ): Promise<IContextManagement.RequestRegisterContextStructOutput[]>;
 
   callStatic: {
-    ANONYMOUSE_ROLE(overrides?: CallOverrides): Promise<string>;
+    ANONYMOUS_ROLE(overrides?: CallOverrides): Promise<string>;
 
-    "ANONYMOUSE_ROLE()"(overrides?: CallOverrides): Promise<string>;
+    "ANONYMOUS_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
     LIB_NAME(overrides?: CallOverrides): Promise<string>;
 
@@ -321,19 +321,19 @@ export interface LAccessControl extends BaseContract {
 
     createRequestContext(
       overrides?: CallOverrides
-    ): Promise<IContextManagement.RequestContextStructOutput[]>;
+    ): Promise<IContextManagement.RequestRegisterContextStructOutput[]>;
 
     "createRequestContext()"(
       overrides?: CallOverrides
-    ): Promise<IContextManagement.RequestContextStructOutput[]>;
+    ): Promise<IContextManagement.RequestRegisterContextStructOutput[]>;
   };
 
   filters: {};
 
   estimateGas: {
-    ANONYMOUSE_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+    ANONYMOUS_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "ANONYMOUSE_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "ANONYMOUS_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     LIB_NAME(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -365,9 +365,9 @@ export interface LAccessControl extends BaseContract {
   };
 
   populateTransaction: {
-    ANONYMOUSE_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    ANONYMOUS_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "ANONYMOUSE_ROLE()"(
+    "ANONYMOUS_ROLE()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

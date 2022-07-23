@@ -69,7 +69,7 @@ contract Proxy is BaseUUPSStorage, BaseProxy, IBaseProxy {
     ) private returns (bytes memory) {
         _upgradeTo(newImplementation);
         if (data.length > 0 || forceCall) {
-            return _functionDelegateCall(newImplementation, data);
+            return LAddress.functionDelegateCall(newImplementation, data);
         }
         return new bytes(0);
     }
@@ -98,17 +98,5 @@ contract Proxy is BaseUUPSStorage, BaseProxy, IBaseProxy {
             }
             return _upgradeToAndCall(newImplementation, data, forceCall);
         }
-    }
-
-    /**
-     * @dev Same as {xref-Address-functionCall-address-bytes-string-}[`functionCall`],
-     * but performing a delegate call.
-     */
-    function _functionDelegateCall(address target, bytes memory data) private returns (bytes memory) {
-        require(LAddress.isContract(target), "Illegal Contract Address");
-
-        // solhint-disable-next-line avoid-low-level-calls
-        (bool success, bytes memory returndata) = target.delegatecall(data);
-        return LAddress.verifyCallResult(success, returndata, "Delegatecall Failed");
     }
 }

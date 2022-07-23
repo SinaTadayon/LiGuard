@@ -29,30 +29,42 @@ import type {
 
 export interface BaseUUPSProxyTestInterface extends utils.Interface {
   functions: {
+    "LIVELY_ADMIN_ROLE()": FunctionFragment;
+    "LIVELY_SYSTEM_ADMIN_ROLE()": FunctionFragment;
     "contractContext()": FunctionFragment;
     "contractName()": FunctionFragment;
     "contractRealm()": FunctionFragment;
     "contractVersion()": FunctionFragment;
     "getAccessControlManager()": FunctionFragment;
     "getAdmin()": FunctionFragment;
-    "getInitializeState()": FunctionFragment;
+    "getInitializeStatus()": FunctionFragment;
     "getInitializedVersion()": FunctionFragment;
-    "initialize(string,string,string,address)": FunctionFragment;
+    "initialize(string,string,string,bytes,address)": FunctionFragment;
+    "initializeWithInvalidRealm(string,string,string,bytes,address)": FunctionFragment;
+    "initializeWithInvalidRole(string,string,string,bytes,address)": FunctionFragment;
     "isSafeMode()": FunctionFragment;
     "isUpgradable()": FunctionFragment;
     "proxiableUUID()": FunctionFragment;
+    "reInitialize(bytes)": FunctionFragment;
+    "reInitializeWithInvalidRealm(bytes)": FunctionFragment;
+    "reInitializeWithInvalidRole(bytes)": FunctionFragment;
     "setAdmin(address)": FunctionFragment;
     "setSafeMode(bool)": FunctionFragment;
-    "setUpgradeState(bool)": FunctionFragment;
+    "setUpgradeStatus(bool)": FunctionFragment;
     "subjectAddress()": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
-    "upgradeTo(address)": FunctionFragment;
     "upgradeTo(address,bytes,bool)": FunctionFragment;
     "upgradeToAndCall(address,bytes)": FunctionFragment;
+    "upgradeToAnonymousRole(address)": FunctionFragment;
+    "upgradeToTesterRole(address)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "LIVELY_ADMIN_ROLE"
+      | "LIVELY_ADMIN_ROLE()"
+      | "LIVELY_SYSTEM_ADMIN_ROLE"
+      | "LIVELY_SYSTEM_ADMIN_ROLE()"
       | "contractContext"
       | "contractContext()"
       | "contractName"
@@ -65,34 +77,64 @@ export interface BaseUUPSProxyTestInterface extends utils.Interface {
       | "getAccessControlManager()"
       | "getAdmin"
       | "getAdmin()"
-      | "getInitializeState"
-      | "getInitializeState()"
+      | "getInitializeStatus"
+      | "getInitializeStatus()"
       | "getInitializedVersion"
       | "getInitializedVersion()"
       | "initialize"
-      | "initialize(string,string,string,address)"
+      | "initialize(string,string,string,bytes,address)"
+      | "initializeWithInvalidRealm"
+      | "initializeWithInvalidRealm(string,string,string,bytes,address)"
+      | "initializeWithInvalidRole"
+      | "initializeWithInvalidRole(string,string,string,bytes,address)"
       | "isSafeMode"
       | "isSafeMode()"
       | "isUpgradable"
       | "isUpgradable()"
       | "proxiableUUID"
       | "proxiableUUID()"
+      | "reInitialize"
+      | "reInitialize(bytes)"
+      | "reInitializeWithInvalidRealm"
+      | "reInitializeWithInvalidRealm(bytes)"
+      | "reInitializeWithInvalidRole"
+      | "reInitializeWithInvalidRole(bytes)"
       | "setAdmin"
       | "setAdmin(address)"
       | "setSafeMode"
       | "setSafeMode(bool)"
-      | "setUpgradeState"
-      | "setUpgradeState(bool)"
+      | "setUpgradeStatus"
+      | "setUpgradeStatus(bool)"
       | "subjectAddress"
       | "subjectAddress()"
       | "supportsInterface"
       | "supportsInterface(bytes4)"
-      | "upgradeTo(address)"
+      | "upgradeTo"
       | "upgradeTo(address,bytes,bool)"
       | "upgradeToAndCall"
       | "upgradeToAndCall(address,bytes)"
+      | "upgradeToAnonymousRole"
+      | "upgradeToAnonymousRole(address)"
+      | "upgradeToTesterRole"
+      | "upgradeToTesterRole(address)"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "LIVELY_ADMIN_ROLE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_ADMIN_ROLE()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_SYSTEM_ADMIN_ROLE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_SYSTEM_ADMIN_ROLE()",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "contractContext",
     values?: undefined
@@ -139,11 +181,11 @@ export interface BaseUUPSProxyTestInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getInitializeState",
+    functionFragment: "getInitializeStatus",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getInitializeState()",
+    functionFragment: "getInitializeStatus()",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -160,15 +202,57 @@ export interface BaseUUPSProxyTestInterface extends utils.Interface {
       PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<string>,
+      PromiseOrValue<BytesLike>,
       PromiseOrValue<string>
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "initialize(string,string,string,address)",
+    functionFragment: "initialize(string,string,string,bytes,address)",
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<string>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<string>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initializeWithInvalidRealm",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<string>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initializeWithInvalidRealm(string,string,string,bytes,address)",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<string>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initializeWithInvalidRole",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<string>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initializeWithInvalidRole(string,string,string,bytes,address)",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BytesLike>,
       PromiseOrValue<string>
     ]
   ): string;
@@ -197,6 +281,30 @@ export interface BaseUUPSProxyTestInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "reInitialize",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "reInitialize(bytes)",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "reInitializeWithInvalidRealm",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "reInitializeWithInvalidRealm(bytes)",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "reInitializeWithInvalidRole",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "reInitializeWithInvalidRole(bytes)",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setAdmin",
     values: [PromiseOrValue<string>]
   ): string;
@@ -213,11 +321,11 @@ export interface BaseUUPSProxyTestInterface extends utils.Interface {
     values: [PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setUpgradeState",
+    functionFragment: "setUpgradeStatus",
     values: [PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setUpgradeState(bool)",
+    functionFragment: "setUpgradeStatus(bool)",
     values: [PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
@@ -237,8 +345,12 @@ export interface BaseUUPSProxyTestInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "upgradeTo(address)",
-    values: [PromiseOrValue<string>]
+    functionFragment: "upgradeTo",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<boolean>
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "upgradeTo(address,bytes,bool)",
@@ -256,7 +368,39 @@ export interface BaseUUPSProxyTestInterface extends utils.Interface {
     functionFragment: "upgradeToAndCall(address,bytes)",
     values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]
   ): string;
+  encodeFunctionData(
+    functionFragment: "upgradeToAnonymousRole",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "upgradeToAnonymousRole(address)",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "upgradeToTesterRole",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "upgradeToTesterRole(address)",
+    values: [PromiseOrValue<string>]
+  ): string;
 
+  decodeFunctionResult(
+    functionFragment: "LIVELY_ADMIN_ROLE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_ADMIN_ROLE()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_SYSTEM_ADMIN_ROLE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_SYSTEM_ADMIN_ROLE()",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "contractContext",
     data: BytesLike
@@ -300,11 +444,11 @@ export interface BaseUUPSProxyTestInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "getAdmin", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getAdmin()", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "getInitializeState",
+    functionFragment: "getInitializeStatus",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getInitializeState()",
+    functionFragment: "getInitializeStatus()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -317,7 +461,23 @@ export interface BaseUUPSProxyTestInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "initialize(string,string,string,address)",
+    functionFragment: "initialize(string,string,string,bytes,address)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "initializeWithInvalidRealm",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "initializeWithInvalidRealm(string,string,string,bytes,address)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "initializeWithInvalidRole",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "initializeWithInvalidRole(string,string,string,bytes,address)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "isSafeMode", data: BytesLike): Result;
@@ -341,6 +501,30 @@ export interface BaseUUPSProxyTestInterface extends utils.Interface {
     functionFragment: "proxiableUUID()",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "reInitialize",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "reInitialize(bytes)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "reInitializeWithInvalidRealm",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "reInitializeWithInvalidRealm(bytes)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "reInitializeWithInvalidRole",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "reInitializeWithInvalidRole(bytes)",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "setAdmin", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setAdmin(address)",
@@ -355,11 +539,11 @@ export interface BaseUUPSProxyTestInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setUpgradeState",
+    functionFragment: "setUpgradeStatus",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setUpgradeState(bool)",
+    functionFragment: "setUpgradeStatus(bool)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -378,10 +562,7 @@ export interface BaseUUPSProxyTestInterface extends utils.Interface {
     functionFragment: "supportsInterface(bytes4)",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "upgradeTo(address)",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "upgradeTo", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "upgradeTo(address,bytes,bool)",
     data: BytesLike
@@ -394,12 +575,30 @@ export interface BaseUUPSProxyTestInterface extends utils.Interface {
     functionFragment: "upgradeToAndCall(address,bytes)",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "upgradeToAnonymousRole",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "upgradeToAnonymousRole(address)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "upgradeToTesterRole",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "upgradeToTesterRole(address)",
+    data: BytesLike
+  ): Result;
 
   events: {
     "AdminChanged(address,address,address)": EventFragment;
     "Initialized(address,address,address,string,string,bytes32,uint16)": EventFragment;
     "SafeModeChanged(address,address,bytes32,bool)": EventFragment;
-    "UpgradeStateChanged(address,address,bytes32,bool)": EventFragment;
+    "UpgradeStatusChanged(address,address,bytes32,bool)": EventFragment;
+    "UpgradeToAnonymous(address,address)": EventFragment;
+    "UpgradeToTester(address,address)": EventFragment;
     "Upgraded(address,address,address)": EventFragment;
   };
 
@@ -415,9 +614,17 @@ export interface BaseUUPSProxyTestInterface extends utils.Interface {
   getEvent(
     nameOrSignatureOrTopic: "SafeModeChanged(address,address,bytes32,bool)"
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "UpgradeStateChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "UpgradeStatusChanged"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "UpgradeStateChanged(address,address,bytes32,bool)"
+    nameOrSignatureOrTopic: "UpgradeStatusChanged(address,address,bytes32,bool)"
+  ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "UpgradeToAnonymous"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "UpgradeToAnonymous(address,address)"
+  ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "UpgradeToTester"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "UpgradeToTester(address,address)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Upgraded"): EventFragment;
   getEvent(
@@ -457,7 +664,7 @@ export interface SafeModeChangedEventObject {
   sender: string;
   proxy: string;
   realm: string;
-  state: boolean;
+  status: boolean;
 }
 export type SafeModeChangedEvent = TypedEvent<
   [string, string, string, boolean],
@@ -466,19 +673,42 @@ export type SafeModeChangedEvent = TypedEvent<
 
 export type SafeModeChangedEventFilter = TypedEventFilter<SafeModeChangedEvent>;
 
-export interface UpgradeStateChangedEventObject {
+export interface UpgradeStatusChangedEventObject {
   sender: string;
   proxy: string;
   realm: string;
-  state: boolean;
+  status: boolean;
 }
-export type UpgradeStateChangedEvent = TypedEvent<
+export type UpgradeStatusChangedEvent = TypedEvent<
   [string, string, string, boolean],
-  UpgradeStateChangedEventObject
+  UpgradeStatusChangedEventObject
 >;
 
-export type UpgradeStateChangedEventFilter =
-  TypedEventFilter<UpgradeStateChangedEvent>;
+export type UpgradeStatusChangedEventFilter =
+  TypedEventFilter<UpgradeStatusChangedEvent>;
+
+export interface UpgradeToAnonymousEventObject {
+  sender: string;
+  newImplementation: string;
+}
+export type UpgradeToAnonymousEvent = TypedEvent<
+  [string, string],
+  UpgradeToAnonymousEventObject
+>;
+
+export type UpgradeToAnonymousEventFilter =
+  TypedEventFilter<UpgradeToAnonymousEvent>;
+
+export interface UpgradeToTesterEventObject {
+  sender: string;
+  newImplementation: string;
+}
+export type UpgradeToTesterEvent = TypedEvent<
+  [string, string],
+  UpgradeToTesterEventObject
+>;
+
+export type UpgradeToTesterEventFilter = TypedEventFilter<UpgradeToTesterEvent>;
 
 export interface UpgradedEventObject {
   sender: string;
@@ -519,6 +749,14 @@ export interface BaseUUPSProxyTest extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    LIVELY_ADMIN_ROLE(overrides?: CallOverrides): Promise<[string]>;
+
+    "LIVELY_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
+
+    LIVELY_SYSTEM_ADMIN_ROLE(overrides?: CallOverrides): Promise<[string]>;
+
+    "LIVELY_SYSTEM_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
+
     contractContext(overrides?: CallOverrides): Promise<[string]>;
 
     "contractContext()"(overrides?: CallOverrides): Promise<[string]>;
@@ -543,9 +781,9 @@ export interface BaseUUPSProxyTest extends BaseContract {
 
     "getAdmin()"(overrides?: CallOverrides): Promise<[string]>;
 
-    getInitializeState(overrides?: CallOverrides): Promise<[boolean]>;
+    getInitializeStatus(overrides?: CallOverrides): Promise<[boolean]>;
 
-    "getInitializeState()"(overrides?: CallOverrides): Promise<[boolean]>;
+    "getInitializeStatus()"(overrides?: CallOverrides): Promise<[boolean]>;
 
     getInitializedVersion(overrides?: CallOverrides): Promise<[number]>;
 
@@ -555,14 +793,52 @@ export interface BaseUUPSProxyTest extends BaseContract {
       domainName: PromiseOrValue<string>,
       domainVersion: PromiseOrValue<string>,
       domainRealm: PromiseOrValue<string>,
+      signature: PromiseOrValue<BytesLike>,
       accessControlManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "initialize(string,string,string,address)"(
+    "initialize(string,string,string,bytes,address)"(
       domainName: PromiseOrValue<string>,
       domainVersion: PromiseOrValue<string>,
       domainRealm: PromiseOrValue<string>,
+      signature: PromiseOrValue<BytesLike>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    initializeWithInvalidRealm(
+      domainName: PromiseOrValue<string>,
+      domainVersion: PromiseOrValue<string>,
+      domainRealm: PromiseOrValue<string>,
+      signature: PromiseOrValue<BytesLike>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "initializeWithInvalidRealm(string,string,string,bytes,address)"(
+      domainName: PromiseOrValue<string>,
+      domainVersion: PromiseOrValue<string>,
+      domainRealm: PromiseOrValue<string>,
+      signature: PromiseOrValue<BytesLike>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    initializeWithInvalidRole(
+      domainName: PromiseOrValue<string>,
+      domainVersion: PromiseOrValue<string>,
+      domainRealm: PromiseOrValue<string>,
+      signature: PromiseOrValue<BytesLike>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "initializeWithInvalidRole(string,string,string,bytes,address)"(
+      domainName: PromiseOrValue<string>,
+      domainVersion: PromiseOrValue<string>,
+      domainRealm: PromiseOrValue<string>,
+      signature: PromiseOrValue<BytesLike>,
       accessControlManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -579,6 +855,36 @@ export interface BaseUUPSProxyTest extends BaseContract {
 
     "proxiableUUID()"(overrides?: CallOverrides): Promise<[string]>;
 
+    reInitialize(
+      signature: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "reInitialize(bytes)"(
+      signature: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    reInitializeWithInvalidRealm(
+      signature: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "reInitializeWithInvalidRealm(bytes)"(
+      signature: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    reInitializeWithInvalidRole(
+      signature: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "reInitializeWithInvalidRole(bytes)"(
+      signature: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     setAdmin(
       newAdmin: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -590,22 +896,22 @@ export interface BaseUUPSProxyTest extends BaseContract {
     ): Promise<ContractTransaction>;
 
     setSafeMode(
-      state: PromiseOrValue<boolean>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "setSafeMode(bool)"(
-      state: PromiseOrValue<boolean>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setUpgradeState(
-      state: PromiseOrValue<boolean>,
+    setUpgradeStatus(
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "setUpgradeState(bool)"(
-      state: PromiseOrValue<boolean>,
+    "setUpgradeStatus(bool)"(
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -623,8 +929,10 @@ export interface BaseUUPSProxyTest extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    "upgradeTo(address)"(
+    upgradeTo(
       newImplementation: PromiseOrValue<string>,
+      data: PromiseOrValue<BytesLike>,
+      forceCall: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -646,7 +954,35 @@ export interface BaseUUPSProxyTest extends BaseContract {
       data: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    upgradeToAnonymousRole(
+      newImplementation: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "upgradeToAnonymousRole(address)"(
+      newImplementation: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    upgradeToTesterRole(
+      newImplementation: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "upgradeToTesterRole(address)"(
+      newImplementation: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
+
+  LIVELY_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
+
+  "LIVELY_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
+  LIVELY_SYSTEM_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
+
+  "LIVELY_SYSTEM_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
   contractContext(overrides?: CallOverrides): Promise<string>;
 
@@ -672,9 +1008,9 @@ export interface BaseUUPSProxyTest extends BaseContract {
 
   "getAdmin()"(overrides?: CallOverrides): Promise<string>;
 
-  getInitializeState(overrides?: CallOverrides): Promise<boolean>;
+  getInitializeStatus(overrides?: CallOverrides): Promise<boolean>;
 
-  "getInitializeState()"(overrides?: CallOverrides): Promise<boolean>;
+  "getInitializeStatus()"(overrides?: CallOverrides): Promise<boolean>;
 
   getInitializedVersion(overrides?: CallOverrides): Promise<number>;
 
@@ -684,14 +1020,52 @@ export interface BaseUUPSProxyTest extends BaseContract {
     domainName: PromiseOrValue<string>,
     domainVersion: PromiseOrValue<string>,
     domainRealm: PromiseOrValue<string>,
+    signature: PromiseOrValue<BytesLike>,
     accessControlManager: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "initialize(string,string,string,address)"(
+  "initialize(string,string,string,bytes,address)"(
     domainName: PromiseOrValue<string>,
     domainVersion: PromiseOrValue<string>,
     domainRealm: PromiseOrValue<string>,
+    signature: PromiseOrValue<BytesLike>,
+    accessControlManager: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  initializeWithInvalidRealm(
+    domainName: PromiseOrValue<string>,
+    domainVersion: PromiseOrValue<string>,
+    domainRealm: PromiseOrValue<string>,
+    signature: PromiseOrValue<BytesLike>,
+    accessControlManager: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "initializeWithInvalidRealm(string,string,string,bytes,address)"(
+    domainName: PromiseOrValue<string>,
+    domainVersion: PromiseOrValue<string>,
+    domainRealm: PromiseOrValue<string>,
+    signature: PromiseOrValue<BytesLike>,
+    accessControlManager: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  initializeWithInvalidRole(
+    domainName: PromiseOrValue<string>,
+    domainVersion: PromiseOrValue<string>,
+    domainRealm: PromiseOrValue<string>,
+    signature: PromiseOrValue<BytesLike>,
+    accessControlManager: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "initializeWithInvalidRole(string,string,string,bytes,address)"(
+    domainName: PromiseOrValue<string>,
+    domainVersion: PromiseOrValue<string>,
+    domainRealm: PromiseOrValue<string>,
+    signature: PromiseOrValue<BytesLike>,
     accessControlManager: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -708,6 +1082,36 @@ export interface BaseUUPSProxyTest extends BaseContract {
 
   "proxiableUUID()"(overrides?: CallOverrides): Promise<string>;
 
+  reInitialize(
+    signature: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "reInitialize(bytes)"(
+    signature: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  reInitializeWithInvalidRealm(
+    signature: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "reInitializeWithInvalidRealm(bytes)"(
+    signature: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  reInitializeWithInvalidRole(
+    signature: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "reInitializeWithInvalidRole(bytes)"(
+    signature: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   setAdmin(
     newAdmin: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -719,22 +1123,22 @@ export interface BaseUUPSProxyTest extends BaseContract {
   ): Promise<ContractTransaction>;
 
   setSafeMode(
-    state: PromiseOrValue<boolean>,
+    status: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "setSafeMode(bool)"(
-    state: PromiseOrValue<boolean>,
+    status: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setUpgradeState(
-    state: PromiseOrValue<boolean>,
+  setUpgradeStatus(
+    status: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "setUpgradeState(bool)"(
-    state: PromiseOrValue<boolean>,
+  "setUpgradeStatus(bool)"(
+    status: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -752,8 +1156,10 @@ export interface BaseUUPSProxyTest extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  "upgradeTo(address)"(
+  upgradeTo(
     newImplementation: PromiseOrValue<string>,
+    data: PromiseOrValue<BytesLike>,
+    forceCall: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -776,7 +1182,35 @@ export interface BaseUUPSProxyTest extends BaseContract {
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  upgradeToAnonymousRole(
+    newImplementation: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "upgradeToAnonymousRole(address)"(
+    newImplementation: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  upgradeToTesterRole(
+    newImplementation: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "upgradeToTesterRole(address)"(
+    newImplementation: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
+    LIVELY_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
+
+    "LIVELY_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
+    LIVELY_SYSTEM_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
+
+    "LIVELY_SYSTEM_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
     contractContext(overrides?: CallOverrides): Promise<string>;
 
     "contractContext()"(overrides?: CallOverrides): Promise<string>;
@@ -801,9 +1235,9 @@ export interface BaseUUPSProxyTest extends BaseContract {
 
     "getAdmin()"(overrides?: CallOverrides): Promise<string>;
 
-    getInitializeState(overrides?: CallOverrides): Promise<boolean>;
+    getInitializeStatus(overrides?: CallOverrides): Promise<boolean>;
 
-    "getInitializeState()"(overrides?: CallOverrides): Promise<boolean>;
+    "getInitializeStatus()"(overrides?: CallOverrides): Promise<boolean>;
 
     getInitializedVersion(overrides?: CallOverrides): Promise<number>;
 
@@ -813,14 +1247,52 @@ export interface BaseUUPSProxyTest extends BaseContract {
       domainName: PromiseOrValue<string>,
       domainVersion: PromiseOrValue<string>,
       domainRealm: PromiseOrValue<string>,
+      signature: PromiseOrValue<BytesLike>,
       accessControlManager: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "initialize(string,string,string,address)"(
+    "initialize(string,string,string,bytes,address)"(
       domainName: PromiseOrValue<string>,
       domainVersion: PromiseOrValue<string>,
       domainRealm: PromiseOrValue<string>,
+      signature: PromiseOrValue<BytesLike>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    initializeWithInvalidRealm(
+      domainName: PromiseOrValue<string>,
+      domainVersion: PromiseOrValue<string>,
+      domainRealm: PromiseOrValue<string>,
+      signature: PromiseOrValue<BytesLike>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "initializeWithInvalidRealm(string,string,string,bytes,address)"(
+      domainName: PromiseOrValue<string>,
+      domainVersion: PromiseOrValue<string>,
+      domainRealm: PromiseOrValue<string>,
+      signature: PromiseOrValue<BytesLike>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    initializeWithInvalidRole(
+      domainName: PromiseOrValue<string>,
+      domainVersion: PromiseOrValue<string>,
+      domainRealm: PromiseOrValue<string>,
+      signature: PromiseOrValue<BytesLike>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "initializeWithInvalidRole(string,string,string,bytes,address)"(
+      domainName: PromiseOrValue<string>,
+      domainVersion: PromiseOrValue<string>,
+      domainRealm: PromiseOrValue<string>,
+      signature: PromiseOrValue<BytesLike>,
       accessControlManager: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -837,6 +1309,36 @@ export interface BaseUUPSProxyTest extends BaseContract {
 
     "proxiableUUID()"(overrides?: CallOverrides): Promise<string>;
 
+    reInitialize(
+      signature: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "reInitialize(bytes)"(
+      signature: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    reInitializeWithInvalidRealm(
+      signature: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "reInitializeWithInvalidRealm(bytes)"(
+      signature: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    reInitializeWithInvalidRole(
+      signature: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "reInitializeWithInvalidRole(bytes)"(
+      signature: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setAdmin(
       newAdmin: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -848,22 +1350,22 @@ export interface BaseUUPSProxyTest extends BaseContract {
     ): Promise<boolean>;
 
     setSafeMode(
-      state: PromiseOrValue<boolean>,
+      status: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     "setSafeMode(bool)"(
-      state: PromiseOrValue<boolean>,
+      status: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    setUpgradeState(
-      state: PromiseOrValue<boolean>,
+    setUpgradeStatus(
+      status: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "setUpgradeState(bool)"(
-      state: PromiseOrValue<boolean>,
+    "setUpgradeStatus(bool)"(
+      status: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -881,10 +1383,12 @@ export interface BaseUUPSProxyTest extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "upgradeTo(address)"(
+    upgradeTo(
       newImplementation: PromiseOrValue<string>,
+      data: PromiseOrValue<BytesLike>,
+      forceCall: PromiseOrValue<boolean>,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<string>;
 
     "upgradeTo(address,bytes,bool)"(
       newImplementation: PromiseOrValue<string>,
@@ -902,6 +1406,26 @@ export interface BaseUUPSProxyTest extends BaseContract {
     "upgradeToAndCall(address,bytes)"(
       newImplementation: PromiseOrValue<string>,
       data: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    upgradeToAnonymousRole(
+      newImplementation: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "upgradeToAnonymousRole(address)"(
+      newImplementation: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    upgradeToTesterRole(
+      newImplementation: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "upgradeToTesterRole(address)"(
+      newImplementation: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -941,27 +1465,45 @@ export interface BaseUUPSProxyTest extends BaseContract {
       sender?: PromiseOrValue<string> | null,
       proxy?: PromiseOrValue<string> | null,
       realm?: PromiseOrValue<BytesLike> | null,
-      state?: null
+      status?: null
     ): SafeModeChangedEventFilter;
     SafeModeChanged(
       sender?: PromiseOrValue<string> | null,
       proxy?: PromiseOrValue<string> | null,
       realm?: PromiseOrValue<BytesLike> | null,
-      state?: null
+      status?: null
     ): SafeModeChangedEventFilter;
 
-    "UpgradeStateChanged(address,address,bytes32,bool)"(
+    "UpgradeStatusChanged(address,address,bytes32,bool)"(
       sender?: PromiseOrValue<string> | null,
       proxy?: PromiseOrValue<string> | null,
       realm?: PromiseOrValue<BytesLike> | null,
-      state?: null
-    ): UpgradeStateChangedEventFilter;
-    UpgradeStateChanged(
+      status?: null
+    ): UpgradeStatusChangedEventFilter;
+    UpgradeStatusChanged(
       sender?: PromiseOrValue<string> | null,
       proxy?: PromiseOrValue<string> | null,
       realm?: PromiseOrValue<BytesLike> | null,
-      state?: null
-    ): UpgradeStateChangedEventFilter;
+      status?: null
+    ): UpgradeStatusChangedEventFilter;
+
+    "UpgradeToAnonymous(address,address)"(
+      sender?: PromiseOrValue<string> | null,
+      newImplementation?: PromiseOrValue<string> | null
+    ): UpgradeToAnonymousEventFilter;
+    UpgradeToAnonymous(
+      sender?: PromiseOrValue<string> | null,
+      newImplementation?: PromiseOrValue<string> | null
+    ): UpgradeToAnonymousEventFilter;
+
+    "UpgradeToTester(address,address)"(
+      sender?: PromiseOrValue<string> | null,
+      newImplementation?: PromiseOrValue<string> | null
+    ): UpgradeToTesterEventFilter;
+    UpgradeToTester(
+      sender?: PromiseOrValue<string> | null,
+      newImplementation?: PromiseOrValue<string> | null
+    ): UpgradeToTesterEventFilter;
 
     "Upgraded(address,address,address)"(
       sender?: PromiseOrValue<string> | null,
@@ -976,6 +1518,14 @@ export interface BaseUUPSProxyTest extends BaseContract {
   };
 
   estimateGas: {
+    LIVELY_ADMIN_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "LIVELY_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    LIVELY_SYSTEM_ADMIN_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "LIVELY_SYSTEM_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     contractContext(overrides?: CallOverrides): Promise<BigNumber>;
 
     "contractContext()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1000,9 +1550,9 @@ export interface BaseUUPSProxyTest extends BaseContract {
 
     "getAdmin()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getInitializeState(overrides?: CallOverrides): Promise<BigNumber>;
+    getInitializeStatus(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "getInitializeState()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "getInitializeStatus()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     getInitializedVersion(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1012,14 +1562,52 @@ export interface BaseUUPSProxyTest extends BaseContract {
       domainName: PromiseOrValue<string>,
       domainVersion: PromiseOrValue<string>,
       domainRealm: PromiseOrValue<string>,
+      signature: PromiseOrValue<BytesLike>,
       accessControlManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "initialize(string,string,string,address)"(
+    "initialize(string,string,string,bytes,address)"(
       domainName: PromiseOrValue<string>,
       domainVersion: PromiseOrValue<string>,
       domainRealm: PromiseOrValue<string>,
+      signature: PromiseOrValue<BytesLike>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    initializeWithInvalidRealm(
+      domainName: PromiseOrValue<string>,
+      domainVersion: PromiseOrValue<string>,
+      domainRealm: PromiseOrValue<string>,
+      signature: PromiseOrValue<BytesLike>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "initializeWithInvalidRealm(string,string,string,bytes,address)"(
+      domainName: PromiseOrValue<string>,
+      domainVersion: PromiseOrValue<string>,
+      domainRealm: PromiseOrValue<string>,
+      signature: PromiseOrValue<BytesLike>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    initializeWithInvalidRole(
+      domainName: PromiseOrValue<string>,
+      domainVersion: PromiseOrValue<string>,
+      domainRealm: PromiseOrValue<string>,
+      signature: PromiseOrValue<BytesLike>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "initializeWithInvalidRole(string,string,string,bytes,address)"(
+      domainName: PromiseOrValue<string>,
+      domainVersion: PromiseOrValue<string>,
+      domainRealm: PromiseOrValue<string>,
+      signature: PromiseOrValue<BytesLike>,
       accessControlManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -1036,6 +1624,36 @@ export interface BaseUUPSProxyTest extends BaseContract {
 
     "proxiableUUID()"(overrides?: CallOverrides): Promise<BigNumber>;
 
+    reInitialize(
+      signature: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "reInitialize(bytes)"(
+      signature: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    reInitializeWithInvalidRealm(
+      signature: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "reInitializeWithInvalidRealm(bytes)"(
+      signature: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    reInitializeWithInvalidRole(
+      signature: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "reInitializeWithInvalidRole(bytes)"(
+      signature: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     setAdmin(
       newAdmin: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1047,22 +1665,22 @@ export interface BaseUUPSProxyTest extends BaseContract {
     ): Promise<BigNumber>;
 
     setSafeMode(
-      state: PromiseOrValue<boolean>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "setSafeMode(bool)"(
-      state: PromiseOrValue<boolean>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setUpgradeState(
-      state: PromiseOrValue<boolean>,
+    setUpgradeStatus(
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "setUpgradeState(bool)"(
-      state: PromiseOrValue<boolean>,
+    "setUpgradeStatus(bool)"(
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1080,8 +1698,10 @@ export interface BaseUUPSProxyTest extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "upgradeTo(address)"(
+    upgradeTo(
       newImplementation: PromiseOrValue<string>,
+      data: PromiseOrValue<BytesLike>,
+      forceCall: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1103,9 +1723,43 @@ export interface BaseUUPSProxyTest extends BaseContract {
       data: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    upgradeToAnonymousRole(
+      newImplementation: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "upgradeToAnonymousRole(address)"(
+      newImplementation: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    upgradeToTesterRole(
+      newImplementation: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "upgradeToTesterRole(address)"(
+      newImplementation: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
+    LIVELY_ADMIN_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "LIVELY_ADMIN_ROLE()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    LIVELY_SYSTEM_ADMIN_ROLE(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "LIVELY_SYSTEM_ADMIN_ROLE()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     contractContext(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "contractContext()"(
@@ -1138,11 +1792,11 @@ export interface BaseUUPSProxyTest extends BaseContract {
 
     "getAdmin()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    getInitializeState(
+    getInitializeStatus(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "getInitializeState()"(
+    "getInitializeStatus()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -1158,14 +1812,52 @@ export interface BaseUUPSProxyTest extends BaseContract {
       domainName: PromiseOrValue<string>,
       domainVersion: PromiseOrValue<string>,
       domainRealm: PromiseOrValue<string>,
+      signature: PromiseOrValue<BytesLike>,
       accessControlManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "initialize(string,string,string,address)"(
+    "initialize(string,string,string,bytes,address)"(
       domainName: PromiseOrValue<string>,
       domainVersion: PromiseOrValue<string>,
       domainRealm: PromiseOrValue<string>,
+      signature: PromiseOrValue<BytesLike>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    initializeWithInvalidRealm(
+      domainName: PromiseOrValue<string>,
+      domainVersion: PromiseOrValue<string>,
+      domainRealm: PromiseOrValue<string>,
+      signature: PromiseOrValue<BytesLike>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "initializeWithInvalidRealm(string,string,string,bytes,address)"(
+      domainName: PromiseOrValue<string>,
+      domainVersion: PromiseOrValue<string>,
+      domainRealm: PromiseOrValue<string>,
+      signature: PromiseOrValue<BytesLike>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    initializeWithInvalidRole(
+      domainName: PromiseOrValue<string>,
+      domainVersion: PromiseOrValue<string>,
+      domainRealm: PromiseOrValue<string>,
+      signature: PromiseOrValue<BytesLike>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "initializeWithInvalidRole(string,string,string,bytes,address)"(
+      domainName: PromiseOrValue<string>,
+      domainVersion: PromiseOrValue<string>,
+      domainRealm: PromiseOrValue<string>,
+      signature: PromiseOrValue<BytesLike>,
       accessControlManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
@@ -1182,6 +1874,36 @@ export interface BaseUUPSProxyTest extends BaseContract {
 
     "proxiableUUID()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    reInitialize(
+      signature: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "reInitialize(bytes)"(
+      signature: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    reInitializeWithInvalidRealm(
+      signature: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "reInitializeWithInvalidRealm(bytes)"(
+      signature: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    reInitializeWithInvalidRole(
+      signature: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "reInitializeWithInvalidRole(bytes)"(
+      signature: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     setAdmin(
       newAdmin: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1193,22 +1915,22 @@ export interface BaseUUPSProxyTest extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     setSafeMode(
-      state: PromiseOrValue<boolean>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "setSafeMode(bool)"(
-      state: PromiseOrValue<boolean>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setUpgradeState(
-      state: PromiseOrValue<boolean>,
+    setUpgradeStatus(
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "setUpgradeState(bool)"(
-      state: PromiseOrValue<boolean>,
+    "setUpgradeStatus(bool)"(
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1228,8 +1950,10 @@ export interface BaseUUPSProxyTest extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "upgradeTo(address)"(
+    upgradeTo(
       newImplementation: PromiseOrValue<string>,
+      data: PromiseOrValue<BytesLike>,
+      forceCall: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1250,6 +1974,26 @@ export interface BaseUUPSProxyTest extends BaseContract {
       newImplementation: PromiseOrValue<string>,
       data: PromiseOrValue<BytesLike>,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    upgradeToAnonymousRole(
+      newImplementation: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "upgradeToAnonymousRole(address)"(
+      newImplementation: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    upgradeToTesterRole(
+      newImplementation: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "upgradeToTesterRole(address)"(
+      newImplementation: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };
 }

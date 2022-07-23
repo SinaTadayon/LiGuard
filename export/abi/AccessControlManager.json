@@ -45,9 +45,77 @@
         "type": "address"
       },
       {
+        "indexed": false,
+        "internalType": "bytes4",
+        "name": "functionSelector",
+        "type": "bytes4"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "realm",
+        "type": "bytes32"
+      }
+    ],
+    "name": "ContextFuncRemoved",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": true,
         "internalType": "bytes32",
-        "name": "newRealm",
+        "name": "context",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes4",
+        "name": "functionSelector",
+        "type": "bytes4"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "realm",
+        "type": "bytes32"
+      }
+    ],
+    "name": "ContextFuncRoleAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "context",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "realm",
         "type": "bytes32"
       },
       {
@@ -86,12 +154,6 @@
         "internalType": "bytes32",
         "name": "realm",
         "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "state",
-        "type": "bool"
       }
     ],
     "name": "ContextRegistered",
@@ -195,11 +257,11 @@
       {
         "indexed": false,
         "internalType": "bool",
-        "name": "state",
+        "name": "status",
         "type": "bool"
       }
     ],
-    "name": "ContextStateChanged",
+    "name": "ContextStatusChanged",
     "type": "event"
   },
   {
@@ -228,12 +290,6 @@
         "internalType": "bytes32",
         "name": "realm",
         "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "bool",
-        "name": "state",
-        "type": "bool"
       }
     ],
     "name": "ContextUpdated",
@@ -292,7 +348,7 @@
         "type": "bool"
       }
     ],
-    "name": "GroupStatChanged",
+    "name": "GroupStatusChanged",
     "type": "event"
   },
   {
@@ -403,7 +459,7 @@
         "type": "bool"
       }
     ],
-    "name": "RealmStatChanged",
+    "name": "RealmStatusChanged",
     "type": "event"
   },
   {
@@ -428,7 +484,7 @@
         "type": "bool"
       }
     ],
-    "name": "RealmUpgradeStatChanged",
+    "name": "RealmUpgradeStatusChanged",
     "type": "event"
   },
   {
@@ -577,7 +633,7 @@
         "type": "bool"
       }
     ],
-    "name": "RoleStatChanged",
+    "name": "RoleStatusChanged",
     "type": "event"
   },
   {
@@ -604,7 +660,7 @@
       {
         "indexed": false,
         "internalType": "bool",
-        "name": "state",
+        "name": "status",
         "type": "bool"
       }
     ],
@@ -635,11 +691,11 @@
       {
         "indexed": false,
         "internalType": "bool",
-        "name": "state",
+        "name": "status",
         "type": "bool"
       }
     ],
-    "name": "UpgradeStateChanged",
+    "name": "UpgradeStatusChanged",
     "type": "event"
   },
   {
@@ -699,7 +755,7 @@
   },
   {
     "inputs": [],
-    "name": "ANONYMOUSE_ROLE",
+    "name": "ANONYMOUS_ROLE",
     "outputs": [
       {
         "internalType": "bytes32",
@@ -867,6 +923,35 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "ctx",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes4",
+        "name": "functionSelector",
+        "type": "bytes4"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      }
+    ],
+    "name": "addContextFuncRole",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "contractContext",
     "outputs": [
@@ -884,9 +969,9 @@
     "name": "contractName",
     "outputs": [
       {
-        "internalType": "string",
+        "internalType": "bytes32",
         "name": "",
-        "type": "string"
+        "type": "bytes32"
       }
     ],
     "stateMutability": "view",
@@ -910,9 +995,9 @@
     "name": "contractVersion",
     "outputs": [
       {
-        "internalType": "string",
+        "internalType": "bytes32",
         "name": "",
-        "type": "string"
+        "type": "bytes32"
       }
     ],
     "stateMutability": "view",
@@ -976,24 +1061,24 @@
       {
         "components": [
           {
-            "internalType": "string",
+            "internalType": "bytes32",
             "name": "name",
-            "type": "string"
+            "type": "bytes32"
           },
           {
-            "internalType": "string",
+            "internalType": "bytes32",
             "name": "version",
-            "type": "string"
-          },
-          {
-            "internalType": "address",
-            "name": "smca",
-            "type": "address"
+            "type": "bytes32"
           },
           {
             "internalType": "bytes32",
             "name": "realm",
             "type": "bytes32"
+          },
+          {
+            "internalType": "address",
+            "name": "smca",
+            "type": "address"
           },
           {
             "internalType": "bool",
@@ -1022,7 +1107,7 @@
         "type": "bytes32"
       }
     ],
-    "name": "getGroup",
+    "name": "getGroupInfo",
     "outputs": [
       {
         "internalType": "string",
@@ -1059,7 +1144,7 @@
   },
   {
     "inputs": [],
-    "name": "getInitializeState",
+    "name": "getInitializeStatus",
     "outputs": [
       {
         "internalType": "bool",
@@ -1091,35 +1176,6 @@
         "type": "bytes32"
       }
     ],
-    "name": "getRealm",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      },
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "realm",
-        "type": "bytes32"
-      }
-    ],
     "name": "getRealmContexts",
     "outputs": [
       {
@@ -1135,11 +1191,11 @@
     "inputs": [
       {
         "internalType": "bytes32",
-        "name": "role",
+        "name": "realm",
         "type": "bytes32"
       }
     ],
-    "name": "getRole",
+    "name": "getRealmInfo",
     "outputs": [
       {
         "internalType": "string",
@@ -1147,9 +1203,9 @@
         "type": "string"
       },
       {
-        "internalType": "bytes32",
+        "internalType": "bool",
         "name": "",
-        "type": "bytes32"
+        "type": "bool"
       },
       {
         "internalType": "bool",
@@ -1174,6 +1230,35 @@
         "internalType": "address[]",
         "name": "",
         "type": "address[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getRoleInfo",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -1265,30 +1350,6 @@
     "inputs": [
       {
         "internalType": "bytes32",
-        "name": "role",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "hasAccountRole",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
         "name": "ctx",
         "type": "bytes32"
       },
@@ -1341,63 +1402,6 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "hasLivelyAdminRole",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "role",
-        "type": "bytes32"
-      }
-    ],
-    "name": "hasLivelyGroup",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "context",
-        "type": "bytes32"
-      }
-    ],
-    "name": "hasLivelyRealm",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "bytes32",
         "name": "realm",
         "type": "bytes32"
@@ -1422,12 +1426,17 @@
   {
     "inputs": [
       {
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
         "internalType": "address",
         "name": "account",
         "type": "address"
       }
     ],
-    "name": "hasSystemAdminRole",
+    "name": "hasRoleAccount",
     "outputs": [
       {
         "internalType": "bool",
@@ -1474,6 +1483,92 @@
         "type": "bytes32"
       }
     ],
+    "name": "isContextEnabled",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "context",
+        "type": "bytes32"
+      }
+    ],
+    "name": "isContextExists",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "context",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes4",
+        "name": "functionSelector",
+        "type": "bytes4"
+      }
+    ],
+    "name": "isContextFunctionEnabled",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "context",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes4",
+        "name": "functionSelector",
+        "type": "bytes4"
+      }
+    ],
+    "name": "isContextFunctionExists",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "context",
+        "type": "bytes32"
+      }
+    ],
     "name": "isContextSafeMode",
     "outputs": [
       {
@@ -1494,6 +1589,215 @@
       }
     ],
     "name": "isContextUpgradable",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "group",
+        "type": "bytes32"
+      }
+    ],
+    "name": "isGroupEnabled",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "group",
+        "type": "bytes32"
+      }
+    ],
+    "name": "isGroupExists",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "isLivelyAdmin",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      }
+    ],
+    "name": "isLivelyGeneralGroup",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "context",
+        "type": "bytes32"
+      }
+    ],
+    "name": "isLivelyGeneralRealm",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "isLivelySystemAdmin",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "realm",
+        "type": "bytes32"
+      }
+    ],
+    "name": "isRealmEnabled",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "realm",
+        "type": "bytes32"
+      }
+    ],
+    "name": "isRealmExists",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "realm",
+        "type": "bytes32"
+      }
+    ],
+    "name": "isRealmUpgradable",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      }
+    ],
+    "name": "isRoleEnabled",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      }
+    ],
+    "name": "isRoleExists",
     "outputs": [
       {
         "internalType": "bool",
@@ -1546,19 +1850,41 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "newContract",
-        "type": "address"
+        "internalType": "bytes",
+        "name": "signature",
+        "type": "bytes"
       },
       {
-        "internalType": "bytes32",
-        "name": "realm",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bool",
-        "name": "state",
-        "type": "bool"
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "name",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "version",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "realm",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "address",
+            "name": "smca",
+            "type": "address"
+          },
+          {
+            "internalType": "bool",
+            "name": "status",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct IContextManagement.RequestContext",
+        "name": "rc",
+        "type": "tuple"
       },
       {
         "components": [
@@ -1578,8 +1904,8 @@
             "type": "bool"
           }
         ],
-        "internalType": "struct IContextManagement.RequestContext[]",
-        "name": "rc",
+        "internalType": "struct IContextManagement.RequestRegisterContext[]",
+        "name": "rcr",
         "type": "tuple[]"
       }
     ],
@@ -1671,6 +1997,30 @@
         "internalType": "bytes32",
         "name": "",
         "type": "bytes32"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "ctx",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes4",
+        "name": "functionSelector",
+        "type": "bytes4"
+      }
+    ],
+    "name": "removeContextFunc",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
       }
     ],
     "stateMutability": "nonpayable",
@@ -1781,59 +2131,11 @@
       },
       {
         "internalType": "bool",
-        "name": "state",
+        "name": "status",
         "type": "bool"
       }
     ],
-    "name": "setContextSafeMode",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "ctx",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bool",
-        "name": "state",
-        "type": "bool"
-      }
-    ],
-    "name": "setContextState",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "ctx",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bool",
-        "name": "state",
-        "type": "bool"
-      }
-    ],
-    "name": "setContextUpgradeState",
+    "name": "setContextStatus",
     "outputs": [
       {
         "internalType": "bool",
@@ -1857,7 +2159,7 @@
         "type": "bool"
       }
     ],
-    "name": "setGroupStat",
+    "name": "setGroupStatus",
     "outputs": [
       {
         "internalType": "bool",
@@ -1881,7 +2183,7 @@
         "type": "bool"
       }
     ],
-    "name": "setRealmStat",
+    "name": "setRealmStatus",
     "outputs": [
       {
         "internalType": "bool",
@@ -1905,7 +2207,7 @@
         "type": "bool"
       }
     ],
-    "name": "setRealmUpgradeStat",
+    "name": "setRealmUpgradeStatus",
     "outputs": [
       {
         "internalType": "bool",
@@ -1953,7 +2255,7 @@
         "type": "bool"
       }
     ],
-    "name": "setRoleStat",
+    "name": "setRoleStatus",
     "outputs": [
       {
         "internalType": "bool",
@@ -1968,7 +2270,7 @@
     "inputs": [
       {
         "internalType": "bool",
-        "name": "state",
+        "name": "status",
         "type": "bool"
       }
     ],
@@ -1987,11 +2289,11 @@
     "inputs": [
       {
         "internalType": "bool",
-        "name": "state",
+        "name": "status",
         "type": "bool"
       }
     ],
-    "name": "setUpgradeState",
+    "name": "setUpgradeStatus",
     "outputs": [
       {
         "internalType": "bool",
@@ -2042,14 +2344,41 @@
         "type": "bytes32"
       },
       {
-        "internalType": "bytes32",
-        "name": "realm",
-        "type": "bytes32"
+        "internalType": "bytes",
+        "name": "signature",
+        "type": "bytes"
       },
       {
-        "internalType": "bool",
-        "name": "state",
-        "type": "bool"
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "name",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "version",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "realm",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "address",
+            "name": "smca",
+            "type": "address"
+          },
+          {
+            "internalType": "bool",
+            "name": "status",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct IContextManagement.RequestContext",
+        "name": "rc",
+        "type": "tuple"
       },
       {
         "components": [
@@ -2064,13 +2393,13 @@
             "type": "bytes4[]"
           },
           {
-            "internalType": "bool",
-            "name": "isEnabled",
-            "type": "bool"
+            "internalType": "enum IContextManagement.UpdateContextStatus",
+            "name": "updateStatus",
+            "type": "uint8"
           }
         ],
-        "internalType": "struct IContextManagement.RequestContext[]",
-        "name": "rc",
+        "internalType": "struct IContextManagement.RequestUpdateContext[]",
+        "name": "rcr",
         "type": "tuple[]"
       }
     ],

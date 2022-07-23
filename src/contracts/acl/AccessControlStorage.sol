@@ -62,7 +62,7 @@ abstract contract AccessControlStorage is BaseUUPSStorage {
     bytes32 public constant LIVELY_GENERAL_GROUP = keccak256(abi.encodePacked("LIVELY_GENERAL_GROUP"));
     bytes32 public constant LIVELY_ADMIN_ROLE = keccak256(abi.encodePacked("LIVELY_ADMIN_ROLE"));
     bytes32 public constant LIVELY_SYSTEM_ADMIN_ROLE = keccak256(abi.encodePacked("LIVELY_SYSTEM_ADMIN_ROLE"));
-    bytes32 public constant ANONYMOUSE_ROLE = keccak256(abi.encodePacked("ANONYMOUSE_ROLE"));
+    bytes32 public constant ANONYMOUS_ROLE = keccak256(abi.encodePacked("ANONYMOUS_ROLE"));
 
     bytes32 public constant ACCESS_CONTROL_NAME = keccak256(abi.encodePacked("LAccessControl"));
     bytes32 public constant ACCESS_CONTROL_VERSION = keccak256(abi.encodePacked("1.0.0"));

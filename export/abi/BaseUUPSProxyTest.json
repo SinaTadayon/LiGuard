@@ -97,7 +97,7 @@
       {
         "indexed": false,
         "internalType": "bool",
-        "name": "state",
+        "name": "status",
         "type": "bool"
       }
     ],
@@ -128,11 +128,49 @@
       {
         "indexed": false,
         "internalType": "bool",
-        "name": "state",
+        "name": "status",
         "type": "bool"
       }
     ],
-    "name": "UpgradeStateChanged",
+    "name": "UpgradeStatusChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newImplementation",
+        "type": "address"
+      }
+    ],
+    "name": "UpgradeToAnonymous",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newImplementation",
+        "type": "address"
+      }
+    ],
+    "name": "UpgradeToTester",
     "type": "event"
   },
   {
@@ -166,6 +204,32 @@
   },
   {
     "inputs": [],
+    "name": "LIVELY_ADMIN_ROLE",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "LIVELY_SYSTEM_ADMIN_ROLE",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "contractContext",
     "outputs": [
       {
@@ -182,9 +246,9 @@
     "name": "contractName",
     "outputs": [
       {
-        "internalType": "string",
+        "internalType": "bytes32",
         "name": "",
-        "type": "string"
+        "type": "bytes32"
       }
     ],
     "stateMutability": "view",
@@ -208,9 +272,9 @@
     "name": "contractVersion",
     "outputs": [
       {
-        "internalType": "string",
+        "internalType": "bytes32",
         "name": "",
-        "type": "string"
+        "type": "bytes32"
       }
     ],
     "stateMutability": "view",
@@ -244,7 +308,7 @@
   },
   {
     "inputs": [],
-    "name": "getInitializeState",
+    "name": "getInitializeStatus",
     "outputs": [
       {
         "internalType": "bool",
@@ -286,12 +350,83 @@
         "type": "string"
       },
       {
+        "internalType": "bytes",
+        "name": "signature",
+        "type": "bytes"
+      },
+      {
         "internalType": "address",
         "name": "accessControlManager",
         "type": "address"
       }
     ],
     "name": "initialize",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "domainName",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "domainVersion",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "domainRealm",
+        "type": "string"
+      },
+      {
+        "internalType": "bytes",
+        "name": "signature",
+        "type": "bytes"
+      },
+      {
+        "internalType": "address",
+        "name": "accessControlManager",
+        "type": "address"
+      }
+    ],
+    "name": "initializeWithInvalidRealm",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "domainName",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "domainVersion",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "domainRealm",
+        "type": "string"
+      },
+      {
+        "internalType": "bytes",
+        "name": "signature",
+        "type": "bytes"
+      },
+      {
+        "internalType": "address",
+        "name": "accessControlManager",
+        "type": "address"
+      }
+    ],
+    "name": "initializeWithInvalidRole",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -338,6 +473,45 @@
   {
     "inputs": [
       {
+        "internalType": "bytes",
+        "name": "signature",
+        "type": "bytes"
+      }
+    ],
+    "name": "reInitialize",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes",
+        "name": "signature",
+        "type": "bytes"
+      }
+    ],
+    "name": "reInitializeWithInvalidRealm",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes",
+        "name": "signature",
+        "type": "bytes"
+      }
+    ],
+    "name": "reInitializeWithInvalidRole",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "newAdmin",
         "type": "address"
@@ -358,7 +532,7 @@
     "inputs": [
       {
         "internalType": "bool",
-        "name": "state",
+        "name": "status",
         "type": "bool"
       }
     ],
@@ -377,11 +551,11 @@
     "inputs": [
       {
         "internalType": "bool",
-        "name": "state",
+        "name": "status",
         "type": "bool"
       }
     ],
-    "name": "setUpgradeState",
+    "name": "setUpgradeStatus",
     "outputs": [
       {
         "internalType": "bool",
@@ -430,19 +604,6 @@
         "internalType": "address",
         "name": "newImplementation",
         "type": "address"
-      }
-    ],
-    "name": "upgradeTo",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "newImplementation",
-        "type": "address"
       },
       {
         "internalType": "bytes",
@@ -482,6 +643,32 @@
     "name": "upgradeToAndCall",
     "outputs": [],
     "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newImplementation",
+        "type": "address"
+      }
+    ],
+    "name": "upgradeToAnonymousRole",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newImplementation",
+        "type": "address"
+      }
+    ],
+    "name": "upgradeToTesterRole",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

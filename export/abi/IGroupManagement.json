@@ -52,7 +52,7 @@
         "type": "bool"
       }
     ],
-    "name": "GroupStatChanged",
+    "name": "GroupStatusChanged",
     "type": "event"
   },
   {
@@ -63,7 +63,7 @@
         "type": "bytes32"
       }
     ],
-    "name": "getGroup",
+    "name": "getGroupInfo",
     "outputs": [
       {
         "internalType": "string",
@@ -159,7 +159,7 @@
         "type": "bool"
       }
     ],
-    "name": "setGroupStat",
+    "name": "setGroupStatus",
     "outputs": [
       {
         "internalType": "bool",

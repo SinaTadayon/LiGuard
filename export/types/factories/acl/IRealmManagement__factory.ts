@@ -69,7 +69,7 @@ const _abi = [
         type: "bool",
       },
     ],
-    name: "RealmStatChanged",
+    name: "RealmStatusChanged",
     type: "event",
   },
   {
@@ -94,37 +94,8 @@ const _abi = [
         type: "bool",
       },
     ],
-    name: "RealmUpgradeStatChanged",
+    name: "RealmUpgradeStatusChanged",
     type: "event",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "realm",
-        type: "bytes32",
-      },
-    ],
-    name: "getRealm",
-    outputs: [
-      {
-        internalType: "string",
-        name: "",
-        type: "string",
-      },
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
   },
   {
     inputs: [
@@ -140,6 +111,35 @@ const _abi = [
         internalType: "bytes32[]",
         name: "",
         type: "bytes32[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "realm",
+        type: "bytes32",
+      },
+    ],
+    name: "getRealmInfo",
+    outputs: [
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
       },
     ],
     stateMutability: "view",
@@ -211,7 +211,7 @@ const _abi = [
         type: "bool",
       },
     ],
-    name: "setRealmStat",
+    name: "setRealmStatus",
     outputs: [
       {
         internalType: "bool",
@@ -235,7 +235,7 @@ const _abi = [
         type: "bool",
       },
     ],
-    name: "setRealmUpgradeStat",
+    name: "setRealmUpgradeStatus",
     outputs: [
       {
         internalType: "bool",

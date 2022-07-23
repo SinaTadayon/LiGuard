@@ -63,7 +63,7 @@ const _abi = [
         type: "bool",
       },
     ],
-    name: "GroupStatChanged",
+    name: "GroupStatusChanged",
     type: "event",
   },
   {
@@ -74,7 +74,7 @@ const _abi = [
         type: "bytes32",
       },
     ],
-    name: "getGroup",
+    name: "getGroupInfo",
     outputs: [
       {
         internalType: "string",
@@ -170,7 +170,7 @@ const _abi = [
         type: "bool",
       },
     ],
-    name: "setGroupStat",
+    name: "setGroupStatus",
     outputs: [
       {
         internalType: "bool",

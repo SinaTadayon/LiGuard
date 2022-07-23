@@ -34,13 +34,13 @@ export interface IProxyInterface extends utils.Interface {
     "contractVersion()": FunctionFragment;
     "getAccessControlManager()": FunctionFragment;
     "getAdmin()": FunctionFragment;
-    "getInitializeState()": FunctionFragment;
+    "getInitializeStatus()": FunctionFragment;
     "getInitializedVersion()": FunctionFragment;
     "isSafeMode()": FunctionFragment;
     "isUpgradable()": FunctionFragment;
     "setAdmin(address)": FunctionFragment;
     "setSafeMode(bool)": FunctionFragment;
-    "setUpgradeState(bool)": FunctionFragment;
+    "setUpgradeStatus(bool)": FunctionFragment;
     "subjectAddress()": FunctionFragment;
     "upgradeTo(address,bytes,bool)": FunctionFragment;
   };
@@ -59,8 +59,8 @@ export interface IProxyInterface extends utils.Interface {
       | "getAccessControlManager()"
       | "getAdmin"
       | "getAdmin()"
-      | "getInitializeState"
-      | "getInitializeState()"
+      | "getInitializeStatus"
+      | "getInitializeStatus()"
       | "getInitializedVersion"
       | "getInitializedVersion()"
       | "isSafeMode"
@@ -71,8 +71,8 @@ export interface IProxyInterface extends utils.Interface {
       | "setAdmin(address)"
       | "setSafeMode"
       | "setSafeMode(bool)"
-      | "setUpgradeState"
-      | "setUpgradeState(bool)"
+      | "setUpgradeStatus"
+      | "setUpgradeStatus(bool)"
       | "subjectAddress"
       | "subjectAddress()"
       | "upgradeTo"
@@ -125,11 +125,11 @@ export interface IProxyInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getInitializeState",
+    functionFragment: "getInitializeStatus",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getInitializeState()",
+    functionFragment: "getInitializeStatus()",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -173,11 +173,11 @@ export interface IProxyInterface extends utils.Interface {
     values: [PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setUpgradeState",
+    functionFragment: "setUpgradeStatus",
     values: [PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setUpgradeState(bool)",
+    functionFragment: "setUpgradeStatus(bool)",
     values: [PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
@@ -248,11 +248,11 @@ export interface IProxyInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "getAdmin", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getAdmin()", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "getInitializeState",
+    functionFragment: "getInitializeStatus",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getInitializeState()",
+    functionFragment: "getInitializeStatus()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -290,11 +290,11 @@ export interface IProxyInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setUpgradeState",
+    functionFragment: "setUpgradeStatus",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setUpgradeState(bool)",
+    functionFragment: "setUpgradeStatus(bool)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -315,7 +315,7 @@ export interface IProxyInterface extends utils.Interface {
     "AdminChanged(address,address,address)": EventFragment;
     "Initialized(address,address,address,string,string,bytes32,uint16)": EventFragment;
     "SafeModeChanged(address,address,bytes32,bool)": EventFragment;
-    "UpgradeStateChanged(address,address,bytes32,bool)": EventFragment;
+    "UpgradeStatusChanged(address,address,bytes32,bool)": EventFragment;
     "Upgraded(address,address,address)": EventFragment;
   };
 
@@ -331,9 +331,9 @@ export interface IProxyInterface extends utils.Interface {
   getEvent(
     nameOrSignatureOrTopic: "SafeModeChanged(address,address,bytes32,bool)"
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "UpgradeStateChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "UpgradeStatusChanged"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "UpgradeStateChanged(address,address,bytes32,bool)"
+    nameOrSignatureOrTopic: "UpgradeStatusChanged(address,address,bytes32,bool)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Upgraded"): EventFragment;
   getEvent(
@@ -373,7 +373,7 @@ export interface SafeModeChangedEventObject {
   sender: string;
   proxy: string;
   realm: string;
-  state: boolean;
+  status: boolean;
 }
 export type SafeModeChangedEvent = TypedEvent<
   [string, string, string, boolean],
@@ -382,19 +382,19 @@ export type SafeModeChangedEvent = TypedEvent<
 
 export type SafeModeChangedEventFilter = TypedEventFilter<SafeModeChangedEvent>;
 
-export interface UpgradeStateChangedEventObject {
+export interface UpgradeStatusChangedEventObject {
   sender: string;
   proxy: string;
   realm: string;
-  state: boolean;
+  status: boolean;
 }
-export type UpgradeStateChangedEvent = TypedEvent<
+export type UpgradeStatusChangedEvent = TypedEvent<
   [string, string, string, boolean],
-  UpgradeStateChangedEventObject
+  UpgradeStatusChangedEventObject
 >;
 
-export type UpgradeStateChangedEventFilter =
-  TypedEventFilter<UpgradeStateChangedEvent>;
+export type UpgradeStatusChangedEventFilter =
+  TypedEventFilter<UpgradeStatusChangedEvent>;
 
 export interface UpgradedEventObject {
   sender: string;
@@ -459,9 +459,9 @@ export interface IProxy extends BaseContract {
 
     "getAdmin()"(overrides?: CallOverrides): Promise<[string]>;
 
-    getInitializeState(overrides?: CallOverrides): Promise<[boolean]>;
+    getInitializeStatus(overrides?: CallOverrides): Promise<[boolean]>;
 
-    "getInitializeState()"(overrides?: CallOverrides): Promise<[boolean]>;
+    "getInitializeStatus()"(overrides?: CallOverrides): Promise<[boolean]>;
 
     getInitializedVersion(overrides?: CallOverrides): Promise<[number]>;
 
@@ -486,22 +486,22 @@ export interface IProxy extends BaseContract {
     ): Promise<ContractTransaction>;
 
     setSafeMode(
-      state: PromiseOrValue<boolean>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "setSafeMode(bool)"(
-      state: PromiseOrValue<boolean>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setUpgradeState(
-      state: PromiseOrValue<boolean>,
+    setUpgradeStatus(
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "setUpgradeState(bool)"(
-      state: PromiseOrValue<boolean>,
+    "setUpgradeStatus(bool)"(
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -548,9 +548,9 @@ export interface IProxy extends BaseContract {
 
   "getAdmin()"(overrides?: CallOverrides): Promise<string>;
 
-  getInitializeState(overrides?: CallOverrides): Promise<boolean>;
+  getInitializeStatus(overrides?: CallOverrides): Promise<boolean>;
 
-  "getInitializeState()"(overrides?: CallOverrides): Promise<boolean>;
+  "getInitializeStatus()"(overrides?: CallOverrides): Promise<boolean>;
 
   getInitializedVersion(overrides?: CallOverrides): Promise<number>;
 
@@ -575,22 +575,22 @@ export interface IProxy extends BaseContract {
   ): Promise<ContractTransaction>;
 
   setSafeMode(
-    state: PromiseOrValue<boolean>,
+    status: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "setSafeMode(bool)"(
-    state: PromiseOrValue<boolean>,
+    status: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setUpgradeState(
-    state: PromiseOrValue<boolean>,
+  setUpgradeStatus(
+    status: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "setUpgradeState(bool)"(
-    state: PromiseOrValue<boolean>,
+  "setUpgradeStatus(bool)"(
+    status: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -637,9 +637,9 @@ export interface IProxy extends BaseContract {
 
     "getAdmin()"(overrides?: CallOverrides): Promise<string>;
 
-    getInitializeState(overrides?: CallOverrides): Promise<boolean>;
+    getInitializeStatus(overrides?: CallOverrides): Promise<boolean>;
 
-    "getInitializeState()"(overrides?: CallOverrides): Promise<boolean>;
+    "getInitializeStatus()"(overrides?: CallOverrides): Promise<boolean>;
 
     getInitializedVersion(overrides?: CallOverrides): Promise<number>;
 
@@ -664,22 +664,22 @@ export interface IProxy extends BaseContract {
     ): Promise<boolean>;
 
     setSafeMode(
-      state: PromiseOrValue<boolean>,
+      status: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     "setSafeMode(bool)"(
-      state: PromiseOrValue<boolean>,
+      status: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    setUpgradeState(
-      state: PromiseOrValue<boolean>,
+    setUpgradeStatus(
+      status: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "setUpgradeState(bool)"(
-      state: PromiseOrValue<boolean>,
+    "setUpgradeStatus(bool)"(
+      status: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -737,27 +737,27 @@ export interface IProxy extends BaseContract {
       sender?: PromiseOrValue<string> | null,
       proxy?: PromiseOrValue<string> | null,
       realm?: PromiseOrValue<BytesLike> | null,
-      state?: null
+      status?: null
     ): SafeModeChangedEventFilter;
     SafeModeChanged(
       sender?: PromiseOrValue<string> | null,
       proxy?: PromiseOrValue<string> | null,
       realm?: PromiseOrValue<BytesLike> | null,
-      state?: null
+      status?: null
     ): SafeModeChangedEventFilter;
 
-    "UpgradeStateChanged(address,address,bytes32,bool)"(
+    "UpgradeStatusChanged(address,address,bytes32,bool)"(
       sender?: PromiseOrValue<string> | null,
       proxy?: PromiseOrValue<string> | null,
       realm?: PromiseOrValue<BytesLike> | null,
-      state?: null
-    ): UpgradeStateChangedEventFilter;
-    UpgradeStateChanged(
+      status?: null
+    ): UpgradeStatusChangedEventFilter;
+    UpgradeStatusChanged(
       sender?: PromiseOrValue<string> | null,
       proxy?: PromiseOrValue<string> | null,
       realm?: PromiseOrValue<BytesLike> | null,
-      state?: null
-    ): UpgradeStateChangedEventFilter;
+      status?: null
+    ): UpgradeStatusChangedEventFilter;
 
     "Upgraded(address,address,address)"(
       sender?: PromiseOrValue<string> | null,
@@ -796,9 +796,9 @@ export interface IProxy extends BaseContract {
 
     "getAdmin()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getInitializeState(overrides?: CallOverrides): Promise<BigNumber>;
+    getInitializeStatus(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "getInitializeState()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "getInitializeStatus()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     getInitializedVersion(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -823,22 +823,22 @@ export interface IProxy extends BaseContract {
     ): Promise<BigNumber>;
 
     setSafeMode(
-      state: PromiseOrValue<boolean>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "setSafeMode(bool)"(
-      state: PromiseOrValue<boolean>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setUpgradeState(
-      state: PromiseOrValue<boolean>,
+    setUpgradeStatus(
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "setUpgradeState(bool)"(
-      state: PromiseOrValue<boolean>,
+    "setUpgradeStatus(bool)"(
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -894,11 +894,11 @@ export interface IProxy extends BaseContract {
 
     "getAdmin()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    getInitializeState(
+    getInitializeStatus(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "getInitializeState()"(
+    "getInitializeStatus()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -929,22 +929,22 @@ export interface IProxy extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     setSafeMode(
-      state: PromiseOrValue<boolean>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "setSafeMode(bool)"(
-      state: PromiseOrValue<boolean>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setUpgradeState(
-      state: PromiseOrValue<boolean>,
+    setUpgradeStatus(
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "setUpgradeState(bool)"(
-      state: PromiseOrValue<boolean>,
+    "setUpgradeStatus(bool)"(
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

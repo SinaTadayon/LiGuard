@@ -26,9 +26,77 @@ const _abi = [
         type: "address",
       },
       {
+        indexed: false,
+        internalType: "bytes4",
+        name: "functionSelector",
+        type: "bytes4",
+      },
+      {
+        indexed: false,
+        internalType: "bytes32",
+        name: "realm",
+        type: "bytes32",
+      },
+    ],
+    name: "ContextFuncRemoved",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
         indexed: true,
         internalType: "bytes32",
-        name: "newRealm",
+        name: "context",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "role",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "bytes4",
+        name: "functionSelector",
+        type: "bytes4",
+      },
+      {
+        indexed: false,
+        internalType: "bytes32",
+        name: "realm",
+        type: "bytes32",
+      },
+    ],
+    name: "ContextFuncRoleAdded",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "context",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "realm",
         type: "bytes32",
       },
       {
@@ -67,12 +135,6 @@ const _abi = [
         internalType: "bytes32",
         name: "realm",
         type: "bytes32",
-      },
-      {
-        indexed: false,
-        internalType: "bool",
-        name: "state",
-        type: "bool",
       },
     ],
     name: "ContextRegistered",
@@ -176,11 +238,11 @@ const _abi = [
       {
         indexed: false,
         internalType: "bool",
-        name: "state",
+        name: "status",
         type: "bool",
       },
     ],
-    name: "ContextStateChanged",
+    name: "ContextStatusChanged",
     type: "event",
   },
   {
@@ -210,15 +272,38 @@ const _abi = [
         name: "realm",
         type: "bytes32",
       },
-      {
-        indexed: false,
-        internalType: "bool",
-        name: "state",
-        type: "bool",
-      },
     ],
     name: "ContextUpdated",
     type: "event",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "ctx",
+        type: "bytes32",
+      },
+      {
+        internalType: "bytes4",
+        name: "functionSelector",
+        type: "bytes4",
+      },
+      {
+        internalType: "bytes32",
+        name: "role",
+        type: "bytes32",
+      },
+    ],
+    name: "addContextFuncRole",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
     inputs: [
@@ -252,24 +337,24 @@ const _abi = [
       {
         components: [
           {
-            internalType: "string",
+            internalType: "bytes32",
             name: "name",
-            type: "string",
+            type: "bytes32",
           },
           {
-            internalType: "string",
+            internalType: "bytes32",
             name: "version",
-            type: "string",
-          },
-          {
-            internalType: "address",
-            name: "smca",
-            type: "address",
+            type: "bytes32",
           },
           {
             internalType: "bytes32",
             name: "realm",
             type: "bytes32",
+          },
+          {
+            internalType: "address",
+            name: "smca",
+            type: "address",
           },
           {
             internalType: "bool",
@@ -351,19 +436,41 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "newContract",
-        type: "address",
+        internalType: "bytes",
+        name: "signature",
+        type: "bytes",
       },
       {
-        internalType: "bytes32",
-        name: "realm",
-        type: "bytes32",
-      },
-      {
-        internalType: "bool",
-        name: "state",
-        type: "bool",
+        components: [
+          {
+            internalType: "bytes32",
+            name: "name",
+            type: "bytes32",
+          },
+          {
+            internalType: "bytes32",
+            name: "version",
+            type: "bytes32",
+          },
+          {
+            internalType: "bytes32",
+            name: "realm",
+            type: "bytes32",
+          },
+          {
+            internalType: "address",
+            name: "smca",
+            type: "address",
+          },
+          {
+            internalType: "bool",
+            name: "status",
+            type: "bool",
+          },
+        ],
+        internalType: "struct IContextManagement.RequestContext",
+        name: "rc",
+        type: "tuple",
       },
       {
         components: [
@@ -383,8 +490,8 @@ const _abi = [
             type: "bool",
           },
         ],
-        internalType: "struct IContextManagement.RequestContext[]",
-        name: "rc",
+        internalType: "struct IContextManagement.RequestRegisterContext[]",
+        name: "rcr",
         type: "tuple[]",
       },
     ],
@@ -394,6 +501,30 @@ const _abi = [
         internalType: "bytes32",
         name: "",
         type: "bytes32",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "ctx",
+        type: "bytes32",
+      },
+      {
+        internalType: "bytes4",
+        name: "functionSelector",
+        type: "bytes4",
+      },
+    ],
+    name: "removeContextFunc",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
       },
     ],
     stateMutability: "nonpayable",
@@ -461,11 +592,11 @@ const _abi = [
       },
       {
         internalType: "bool",
-        name: "state",
+        name: "status",
         type: "bool",
       },
     ],
-    name: "setContextSafeMode",
+    name: "setContextStatus",
     outputs: [
       {
         internalType: "bool",
@@ -484,62 +615,41 @@ const _abi = [
         type: "bytes32",
       },
       {
-        internalType: "bool",
-        name: "state",
-        type: "bool",
-      },
-    ],
-    name: "setContextState",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "ctx",
-        type: "bytes32",
+        internalType: "bytes",
+        name: "signature",
+        type: "bytes",
       },
       {
-        internalType: "bool",
-        name: "state",
-        type: "bool",
-      },
-    ],
-    name: "setContextUpgradeState",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "ctx",
-        type: "bytes32",
-      },
-      {
-        internalType: "bytes32",
-        name: "realm",
-        type: "bytes32",
-      },
-      {
-        internalType: "bool",
-        name: "state",
-        type: "bool",
+        components: [
+          {
+            internalType: "bytes32",
+            name: "name",
+            type: "bytes32",
+          },
+          {
+            internalType: "bytes32",
+            name: "version",
+            type: "bytes32",
+          },
+          {
+            internalType: "bytes32",
+            name: "realm",
+            type: "bytes32",
+          },
+          {
+            internalType: "address",
+            name: "smca",
+            type: "address",
+          },
+          {
+            internalType: "bool",
+            name: "status",
+            type: "bool",
+          },
+        ],
+        internalType: "struct IContextManagement.RequestContext",
+        name: "rc",
+        type: "tuple",
       },
       {
         components: [
@@ -554,13 +664,13 @@ const _abi = [
             type: "bytes4[]",
           },
           {
-            internalType: "bool",
-            name: "isEnabled",
-            type: "bool",
+            internalType: "enum IContextManagement.UpdateContextStatus",
+            name: "updateStatus",
+            type: "uint8",
           },
         ],
-        internalType: "struct IContextManagement.RequestContext[]",
-        name: "rc",
+        internalType: "struct IContextManagement.RequestUpdateContext[]",
+        name: "ruc",
         type: "tuple[]",
       },
     ],

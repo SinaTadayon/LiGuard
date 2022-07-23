@@ -4,6 +4,7 @@
 import type {
   BaseContract,
   BigNumber,
+  BigNumberish,
   BytesLike,
   CallOverrides,
   ContractTransaction,
@@ -28,10 +29,10 @@ import type {
 
 export declare namespace IContextManagement {
   export type ResponseContextStruct = {
-    name: PromiseOrValue<string>;
-    version: PromiseOrValue<string>;
-    smca: PromiseOrValue<string>;
+    name: PromiseOrValue<BytesLike>;
+    version: PromiseOrValue<BytesLike>;
     realm: PromiseOrValue<BytesLike>;
+    smca: PromiseOrValue<string>;
     isSafeMode: PromiseOrValue<boolean>;
     isUpgradable: PromiseOrValue<boolean>;
   };
@@ -46,42 +47,78 @@ export declare namespace IContextManagement {
   ] & {
     name: string;
     version: string;
-    smca: string;
     realm: string;
+    smca: string;
     isSafeMode: boolean;
     isUpgradable: boolean;
   };
 
   export type RequestContextStruct = {
+    name: PromiseOrValue<BytesLike>;
+    version: PromiseOrValue<BytesLike>;
+    realm: PromiseOrValue<BytesLike>;
+    smca: PromiseOrValue<string>;
+    status: PromiseOrValue<boolean>;
+  };
+
+  export type RequestContextStructOutput = [
+    string,
+    string,
+    string,
+    string,
+    boolean
+  ] & {
+    name: string;
+    version: string;
+    realm: string;
+    smca: string;
+    status: boolean;
+  };
+
+  export type RequestRegisterContextStruct = {
     role: PromiseOrValue<BytesLike>;
     funcSelectors: PromiseOrValue<BytesLike>[];
     isEnabled: PromiseOrValue<boolean>;
   };
 
-  export type RequestContextStructOutput = [string, string[], boolean] & {
+  export type RequestRegisterContextStructOutput = [
+    string,
+    string[],
+    boolean
+  ] & { role: string; funcSelectors: string[]; isEnabled: boolean };
+
+  export type RequestUpdateContextStruct = {
+    role: PromiseOrValue<BytesLike>;
+    funcSelectors: PromiseOrValue<BytesLike>[];
+    updateStatus: PromiseOrValue<BigNumberish>;
+  };
+
+  export type RequestUpdateContextStructOutput = [string, string[], number] & {
     role: string;
     funcSelectors: string[];
-    isEnabled: boolean;
+    updateStatus: number;
   };
 }
 
 export interface IContextManagementInterface extends utils.Interface {
   functions: {
+    "addContextFuncRole(bytes32,bytes4,bytes32)": FunctionFragment;
     "getContextFuncs(bytes32)": FunctionFragment;
     "getContextInfo(bytes32)": FunctionFragment;
     "grantContextRole(bytes32,bytes4,bytes32)": FunctionFragment;
     "hasContextRole(bytes32,bytes32,bytes4)": FunctionFragment;
-    "registerContext(address,bytes32,bool,(bytes32,bytes4[],bool)[])": FunctionFragment;
+    "registerContext(bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])": FunctionFragment;
+    "removeContextFunc(bytes32,bytes4)": FunctionFragment;
     "revokeContextRole(bytes32,bytes4,bytes32)": FunctionFragment;
     "setContextRealm(bytes32,bytes32)": FunctionFragment;
-    "setContextSafeMode(bytes32,bool)": FunctionFragment;
-    "setContextState(bytes32,bool)": FunctionFragment;
-    "setContextUpgradeState(bytes32,bool)": FunctionFragment;
-    "updateContext(bytes32,bytes32,bool,(bytes32,bytes4[],bool)[])": FunctionFragment;
+    "setContextStatus(bytes32,bool)": FunctionFragment;
+    "updateContext(bytes32,bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],uint8)[])": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "addContextFuncRole"
+      | "addContextFuncRole(bytes32,bytes4,bytes32)"
       | "getContextFuncs"
       | "getContextFuncs(bytes32)"
       | "getContextInfo"
@@ -91,22 +128,36 @@ export interface IContextManagementInterface extends utils.Interface {
       | "hasContextRole"
       | "hasContextRole(bytes32,bytes32,bytes4)"
       | "registerContext"
-      | "registerContext(address,bytes32,bool,(bytes32,bytes4[],bool)[])"
+      | "registerContext(bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])"
+      | "removeContextFunc"
+      | "removeContextFunc(bytes32,bytes4)"
       | "revokeContextRole"
       | "revokeContextRole(bytes32,bytes4,bytes32)"
       | "setContextRealm"
       | "setContextRealm(bytes32,bytes32)"
-      | "setContextSafeMode"
-      | "setContextSafeMode(bytes32,bool)"
-      | "setContextState"
-      | "setContextState(bytes32,bool)"
-      | "setContextUpgradeState"
-      | "setContextUpgradeState(bytes32,bool)"
+      | "setContextStatus"
+      | "setContextStatus(bytes32,bool)"
       | "updateContext"
-      | "updateContext(bytes32,bytes32,bool,(bytes32,bytes4[],bool)[])"
+      | "updateContext(bytes32,bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],uint8)[])"
   ): FunctionFragment;
 
   encodeFunctionData(
+    functionFragment: "addContextFuncRole",
+    values: [
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BytesLike>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "addContextFuncRole(bytes32,bytes4,bytes32)",
+    values: [
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BytesLike>
+    ]
+  ): string;
+  encodeFunctionData(
     functionFragment: "getContextFuncs",
     values: [PromiseOrValue<BytesLike>]
   ): string;
@@ -157,20 +208,26 @@ export interface IContextManagementInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "registerContext",
     values: [
-      PromiseOrValue<string>,
       PromiseOrValue<BytesLike>,
-      PromiseOrValue<boolean>,
-      IContextManagement.RequestContextStruct[]
+      IContextManagement.RequestContextStruct,
+      IContextManagement.RequestRegisterContextStruct[]
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "registerContext(address,bytes32,bool,(bytes32,bytes4[],bool)[])",
+    functionFragment: "registerContext(bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])",
     values: [
-      PromiseOrValue<string>,
       PromiseOrValue<BytesLike>,
-      PromiseOrValue<boolean>,
-      IContextManagement.RequestContextStruct[]
+      IContextManagement.RequestContextStruct,
+      IContextManagement.RequestRegisterContextStruct[]
     ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "removeContextFunc",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "removeContextFunc(bytes32,bytes4)",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "revokeContextRole",
@@ -197,27 +254,11 @@ export interface IContextManagementInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setContextSafeMode",
+    functionFragment: "setContextStatus",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setContextSafeMode(bytes32,bool)",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setContextState",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setContextState(bytes32,bool)",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setContextUpgradeState",
-    values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setContextUpgradeState(bytes32,bool)",
+    functionFragment: "setContextStatus(bytes32,bool)",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
@@ -225,21 +266,29 @@ export interface IContextManagementInterface extends utils.Interface {
     values: [
       PromiseOrValue<BytesLike>,
       PromiseOrValue<BytesLike>,
-      PromiseOrValue<boolean>,
-      IContextManagement.RequestContextStruct[]
+      IContextManagement.RequestContextStruct,
+      IContextManagement.RequestUpdateContextStruct[]
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "updateContext(bytes32,bytes32,bool,(bytes32,bytes4[],bool)[])",
+    functionFragment: "updateContext(bytes32,bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],uint8)[])",
     values: [
       PromiseOrValue<BytesLike>,
       PromiseOrValue<BytesLike>,
-      PromiseOrValue<boolean>,
-      IContextManagement.RequestContextStruct[]
+      IContextManagement.RequestContextStruct,
+      IContextManagement.RequestUpdateContextStruct[]
     ]
   ): string;
 
   decodeFunctionResult(
+    functionFragment: "addContextFuncRole",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "addContextFuncRole(bytes32,bytes4,bytes32)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getContextFuncs",
     data: BytesLike
   ): Result;
@@ -276,7 +325,15 @@ export interface IContextManagementInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "registerContext(address,bytes32,bool,(bytes32,bytes4[],bool)[])",
+    functionFragment: "registerContext(bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "removeContextFunc",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "removeContextFunc(bytes32,bytes4)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -296,27 +353,11 @@ export interface IContextManagementInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setContextSafeMode",
+    functionFragment: "setContextStatus",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "setContextSafeMode(bytes32,bool)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setContextState",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setContextState(bytes32,bool)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setContextUpgradeState",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setContextUpgradeState(bytes32,bool)",
+    functionFragment: "setContextStatus(bytes32,bool)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -324,26 +365,36 @@ export interface IContextManagementInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "updateContext(bytes32,bytes32,bool,(bytes32,bytes4[],bool)[])",
+    functionFragment: "updateContext(bytes32,bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],uint8)[])",
     data: BytesLike
   ): Result;
 
   events: {
+    "ContextFuncRemoved(bytes32,address,bytes4,bytes32)": EventFragment;
+    "ContextFuncRoleAdded(bytes32,bytes32,address,bytes4,bytes32)": EventFragment;
     "ContextRealmChanged(bytes32,address,bytes32,bytes32)": EventFragment;
-    "ContextRegistered(bytes32,address,address,bytes32,bool)": EventFragment;
+    "ContextRegistered(bytes32,address,address,bytes32)": EventFragment;
     "ContextRoleGranted(bytes32,bytes32,address,bytes4,bytes32)": EventFragment;
     "ContextRoleRevoked(bytes32,bytes32,address,bytes4,bytes32)": EventFragment;
-    "ContextStateChanged(bytes32,address,bytes32,bool)": EventFragment;
-    "ContextUpdated(bytes32,address,address,bytes32,bool)": EventFragment;
+    "ContextStatusChanged(bytes32,address,bytes32,bool)": EventFragment;
+    "ContextUpdated(bytes32,address,address,bytes32)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "ContextFuncRemoved"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "ContextFuncRemoved(bytes32,address,bytes4,bytes32)"
+  ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ContextFuncRoleAdded"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "ContextFuncRoleAdded(bytes32,bytes32,address,bytes4,bytes32)"
+  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ContextRealmChanged"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "ContextRealmChanged(bytes32,address,bytes32,bytes32)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ContextRegistered"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "ContextRegistered(bytes32,address,address,bytes32,bool)"
+    nameOrSignatureOrTopic: "ContextRegistered(bytes32,address,address,bytes32)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ContextRoleGranted"): EventFragment;
   getEvent(
@@ -353,20 +404,49 @@ export interface IContextManagementInterface extends utils.Interface {
   getEvent(
     nameOrSignatureOrTopic: "ContextRoleRevoked(bytes32,bytes32,address,bytes4,bytes32)"
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ContextStateChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ContextStatusChanged"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "ContextStateChanged(bytes32,address,bytes32,bool)"
+    nameOrSignatureOrTopic: "ContextStatusChanged(bytes32,address,bytes32,bool)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ContextUpdated"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "ContextUpdated(bytes32,address,address,bytes32,bool)"
+    nameOrSignatureOrTopic: "ContextUpdated(bytes32,address,address,bytes32)"
   ): EventFragment;
 }
+
+export interface ContextFuncRemovedEventObject {
+  context: string;
+  sender: string;
+  functionSelector: string;
+  realm: string;
+}
+export type ContextFuncRemovedEvent = TypedEvent<
+  [string, string, string, string],
+  ContextFuncRemovedEventObject
+>;
+
+export type ContextFuncRemovedEventFilter =
+  TypedEventFilter<ContextFuncRemovedEvent>;
+
+export interface ContextFuncRoleAddedEventObject {
+  context: string;
+  role: string;
+  sender: string;
+  functionSelector: string;
+  realm: string;
+}
+export type ContextFuncRoleAddedEvent = TypedEvent<
+  [string, string, string, string, string],
+  ContextFuncRoleAddedEventObject
+>;
+
+export type ContextFuncRoleAddedEventFilter =
+  TypedEventFilter<ContextFuncRoleAddedEvent>;
 
 export interface ContextRealmChangedEventObject {
   context: string;
   sender: string;
-  newRealm: string;
+  realm: string;
   oldRealm: string;
 }
 export type ContextRealmChangedEvent = TypedEvent<
@@ -382,10 +462,9 @@ export interface ContextRegisteredEventObject {
   scma: string;
   sender: string;
   realm: string;
-  state: boolean;
 }
 export type ContextRegisteredEvent = TypedEvent<
-  [string, string, string, string, boolean],
+  [string, string, string, string],
   ContextRegisteredEventObject
 >;
 
@@ -422,29 +501,28 @@ export type ContextRoleRevokedEvent = TypedEvent<
 export type ContextRoleRevokedEventFilter =
   TypedEventFilter<ContextRoleRevokedEvent>;
 
-export interface ContextStateChangedEventObject {
+export interface ContextStatusChangedEventObject {
   context: string;
   sender: string;
   realm: string;
-  state: boolean;
+  status: boolean;
 }
-export type ContextStateChangedEvent = TypedEvent<
+export type ContextStatusChangedEvent = TypedEvent<
   [string, string, string, boolean],
-  ContextStateChangedEventObject
+  ContextStatusChangedEventObject
 >;
 
-export type ContextStateChangedEventFilter =
-  TypedEventFilter<ContextStateChangedEvent>;
+export type ContextStatusChangedEventFilter =
+  TypedEventFilter<ContextStatusChangedEvent>;
 
 export interface ContextUpdatedEventObject {
   context: string;
   scma: string;
   sender: string;
   realm: string;
-  state: boolean;
 }
 export type ContextUpdatedEvent = TypedEvent<
-  [string, string, string, string, boolean],
+  [string, string, string, string],
   ContextUpdatedEventObject
 >;
 
@@ -477,6 +555,20 @@ export interface IContextManagement extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    addContextFuncRole(
+      ctx: PromiseOrValue<BytesLike>,
+      functionSelector: PromiseOrValue<BytesLike>,
+      role: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "addContextFuncRole(bytes32,bytes4,bytes32)"(
+      ctx: PromiseOrValue<BytesLike>,
+      functionSelector: PromiseOrValue<BytesLike>,
+      role: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     getContextFuncs(
       ctx: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -526,18 +618,28 @@ export interface IContextManagement extends BaseContract {
     ): Promise<[boolean]>;
 
     registerContext(
-      newContract: PromiseOrValue<string>,
-      realm: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
-      rc: IContextManagement.RequestContextStruct[],
+      signature: PromiseOrValue<BytesLike>,
+      rc: IContextManagement.RequestContextStruct,
+      rcr: IContextManagement.RequestRegisterContextStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "registerContext(address,bytes32,bool,(bytes32,bytes4[],bool)[])"(
-      newContract: PromiseOrValue<string>,
-      realm: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
-      rc: IContextManagement.RequestContextStruct[],
+    "registerContext(bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])"(
+      signature: PromiseOrValue<BytesLike>,
+      rc: IContextManagement.RequestContextStruct,
+      rcr: IContextManagement.RequestRegisterContextStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    removeContextFunc(
+      ctx: PromiseOrValue<BytesLike>,
+      functionSelector: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "removeContextFunc(bytes32,bytes4)"(
+      ctx: PromiseOrValue<BytesLike>,
+      functionSelector: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -567,58 +669,48 @@ export interface IContextManagement extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setContextSafeMode(
+    setContextStatus(
       ctx: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "setContextSafeMode(bytes32,bool)"(
+    "setContextStatus(bytes32,bool)"(
       ctx: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setContextState(
-      ctx: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "setContextState(bytes32,bool)"(
-      ctx: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setContextUpgradeState(
-      ctx: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "setContextUpgradeState(bytes32,bool)"(
-      ctx: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     updateContext(
       ctx: PromiseOrValue<BytesLike>,
-      realm: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
-      rc: IContextManagement.RequestContextStruct[],
+      signature: PromiseOrValue<BytesLike>,
+      rc: IContextManagement.RequestContextStruct,
+      ruc: IContextManagement.RequestUpdateContextStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "updateContext(bytes32,bytes32,bool,(bytes32,bytes4[],bool)[])"(
+    "updateContext(bytes32,bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],uint8)[])"(
       ctx: PromiseOrValue<BytesLike>,
-      realm: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
-      rc: IContextManagement.RequestContextStruct[],
+      signature: PromiseOrValue<BytesLike>,
+      rc: IContextManagement.RequestContextStruct,
+      ruc: IContextManagement.RequestUpdateContextStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
+
+  addContextFuncRole(
+    ctx: PromiseOrValue<BytesLike>,
+    functionSelector: PromiseOrValue<BytesLike>,
+    role: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "addContextFuncRole(bytes32,bytes4,bytes32)"(
+    ctx: PromiseOrValue<BytesLike>,
+    functionSelector: PromiseOrValue<BytesLike>,
+    role: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   getContextFuncs(
     ctx: PromiseOrValue<BytesLike>,
@@ -669,18 +761,28 @@ export interface IContextManagement extends BaseContract {
   ): Promise<boolean>;
 
   registerContext(
-    newContract: PromiseOrValue<string>,
-    realm: PromiseOrValue<BytesLike>,
-    state: PromiseOrValue<boolean>,
-    rc: IContextManagement.RequestContextStruct[],
+    signature: PromiseOrValue<BytesLike>,
+    rc: IContextManagement.RequestContextStruct,
+    rcr: IContextManagement.RequestRegisterContextStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "registerContext(address,bytes32,bool,(bytes32,bytes4[],bool)[])"(
-    newContract: PromiseOrValue<string>,
-    realm: PromiseOrValue<BytesLike>,
-    state: PromiseOrValue<boolean>,
-    rc: IContextManagement.RequestContextStruct[],
+  "registerContext(bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])"(
+    signature: PromiseOrValue<BytesLike>,
+    rc: IContextManagement.RequestContextStruct,
+    rcr: IContextManagement.RequestRegisterContextStruct[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  removeContextFunc(
+    ctx: PromiseOrValue<BytesLike>,
+    functionSelector: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "removeContextFunc(bytes32,bytes4)"(
+    ctx: PromiseOrValue<BytesLike>,
+    functionSelector: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -710,59 +812,49 @@ export interface IContextManagement extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setContextSafeMode(
+  setContextStatus(
     ctx: PromiseOrValue<BytesLike>,
-    state: PromiseOrValue<boolean>,
+    status: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "setContextSafeMode(bytes32,bool)"(
+  "setContextStatus(bytes32,bool)"(
     ctx: PromiseOrValue<BytesLike>,
-    state: PromiseOrValue<boolean>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setContextState(
-    ctx: PromiseOrValue<BytesLike>,
-    state: PromiseOrValue<boolean>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "setContextState(bytes32,bool)"(
-    ctx: PromiseOrValue<BytesLike>,
-    state: PromiseOrValue<boolean>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setContextUpgradeState(
-    ctx: PromiseOrValue<BytesLike>,
-    state: PromiseOrValue<boolean>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "setContextUpgradeState(bytes32,bool)"(
-    ctx: PromiseOrValue<BytesLike>,
-    state: PromiseOrValue<boolean>,
+    status: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   updateContext(
     ctx: PromiseOrValue<BytesLike>,
-    realm: PromiseOrValue<BytesLike>,
-    state: PromiseOrValue<boolean>,
-    rc: IContextManagement.RequestContextStruct[],
+    signature: PromiseOrValue<BytesLike>,
+    rc: IContextManagement.RequestContextStruct,
+    ruc: IContextManagement.RequestUpdateContextStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "updateContext(bytes32,bytes32,bool,(bytes32,bytes4[],bool)[])"(
+  "updateContext(bytes32,bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],uint8)[])"(
     ctx: PromiseOrValue<BytesLike>,
-    realm: PromiseOrValue<BytesLike>,
-    state: PromiseOrValue<boolean>,
-    rc: IContextManagement.RequestContextStruct[],
+    signature: PromiseOrValue<BytesLike>,
+    rc: IContextManagement.RequestContextStruct,
+    ruc: IContextManagement.RequestUpdateContextStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    addContextFuncRole(
+      ctx: PromiseOrValue<BytesLike>,
+      functionSelector: PromiseOrValue<BytesLike>,
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "addContextFuncRole(bytes32,bytes4,bytes32)"(
+      ctx: PromiseOrValue<BytesLike>,
+      functionSelector: PromiseOrValue<BytesLike>,
+      role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
     getContextFuncs(
       ctx: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -812,20 +904,30 @@ export interface IContextManagement extends BaseContract {
     ): Promise<boolean>;
 
     registerContext(
-      newContract: PromiseOrValue<string>,
-      realm: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
-      rc: IContextManagement.RequestContextStruct[],
+      signature: PromiseOrValue<BytesLike>,
+      rc: IContextManagement.RequestContextStruct,
+      rcr: IContextManagement.RequestRegisterContextStruct[],
       overrides?: CallOverrides
     ): Promise<string>;
 
-    "registerContext(address,bytes32,bool,(bytes32,bytes4[],bool)[])"(
-      newContract: PromiseOrValue<string>,
-      realm: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
-      rc: IContextManagement.RequestContextStruct[],
+    "registerContext(bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])"(
+      signature: PromiseOrValue<BytesLike>,
+      rc: IContextManagement.RequestContextStruct,
+      rcr: IContextManagement.RequestRegisterContextStruct[],
       overrides?: CallOverrides
     ): Promise<string>;
+
+    removeContextFunc(
+      ctx: PromiseOrValue<BytesLike>,
+      functionSelector: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "removeContextFunc(bytes32,bytes4)"(
+      ctx: PromiseOrValue<BytesLike>,
+      functionSelector: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     revokeContextRole(
       ctx: PromiseOrValue<BytesLike>,
@@ -853,86 +955,88 @@ export interface IContextManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    setContextSafeMode(
+    setContextStatus(
       ctx: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
+      status: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "setContextSafeMode(bytes32,bool)"(
+    "setContextStatus(bytes32,bool)"(
       ctx: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    setContextState(
-      ctx: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "setContextState(bytes32,bool)"(
-      ctx: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    setContextUpgradeState(
-      ctx: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "setContextUpgradeState(bytes32,bool)"(
-      ctx: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
+      status: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     updateContext(
       ctx: PromiseOrValue<BytesLike>,
-      realm: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
-      rc: IContextManagement.RequestContextStruct[],
+      signature: PromiseOrValue<BytesLike>,
+      rc: IContextManagement.RequestContextStruct,
+      ruc: IContextManagement.RequestUpdateContextStruct[],
       overrides?: CallOverrides
     ): Promise<string>;
 
-    "updateContext(bytes32,bytes32,bool,(bytes32,bytes4[],bool)[])"(
+    "updateContext(bytes32,bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],uint8)[])"(
       ctx: PromiseOrValue<BytesLike>,
-      realm: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
-      rc: IContextManagement.RequestContextStruct[],
+      signature: PromiseOrValue<BytesLike>,
+      rc: IContextManagement.RequestContextStruct,
+      ruc: IContextManagement.RequestUpdateContextStruct[],
       overrides?: CallOverrides
     ): Promise<string>;
   };
 
   filters: {
+    "ContextFuncRemoved(bytes32,address,bytes4,bytes32)"(
+      context?: PromiseOrValue<BytesLike> | null,
+      sender?: PromiseOrValue<string> | null,
+      functionSelector?: null,
+      realm?: null
+    ): ContextFuncRemovedEventFilter;
+    ContextFuncRemoved(
+      context?: PromiseOrValue<BytesLike> | null,
+      sender?: PromiseOrValue<string> | null,
+      functionSelector?: null,
+      realm?: null
+    ): ContextFuncRemovedEventFilter;
+
+    "ContextFuncRoleAdded(bytes32,bytes32,address,bytes4,bytes32)"(
+      context?: PromiseOrValue<BytesLike> | null,
+      role?: PromiseOrValue<BytesLike> | null,
+      sender?: PromiseOrValue<string> | null,
+      functionSelector?: null,
+      realm?: null
+    ): ContextFuncRoleAddedEventFilter;
+    ContextFuncRoleAdded(
+      context?: PromiseOrValue<BytesLike> | null,
+      role?: PromiseOrValue<BytesLike> | null,
+      sender?: PromiseOrValue<string> | null,
+      functionSelector?: null,
+      realm?: null
+    ): ContextFuncRoleAddedEventFilter;
+
     "ContextRealmChanged(bytes32,address,bytes32,bytes32)"(
       context?: PromiseOrValue<BytesLike> | null,
       sender?: PromiseOrValue<string> | null,
-      newRealm?: PromiseOrValue<BytesLike> | null,
+      realm?: PromiseOrValue<BytesLike> | null,
       oldRealm?: null
     ): ContextRealmChangedEventFilter;
     ContextRealmChanged(
       context?: PromiseOrValue<BytesLike> | null,
       sender?: PromiseOrValue<string> | null,
-      newRealm?: PromiseOrValue<BytesLike> | null,
+      realm?: PromiseOrValue<BytesLike> | null,
       oldRealm?: null
     ): ContextRealmChangedEventFilter;
 
-    "ContextRegistered(bytes32,address,address,bytes32,bool)"(
+    "ContextRegistered(bytes32,address,address,bytes32)"(
       context?: PromiseOrValue<BytesLike> | null,
       scma?: PromiseOrValue<string> | null,
       sender?: PromiseOrValue<string> | null,
-      realm?: null,
-      state?: null
+      realm?: null
     ): ContextRegisteredEventFilter;
     ContextRegistered(
       context?: PromiseOrValue<BytesLike> | null,
       scma?: PromiseOrValue<string> | null,
       sender?: PromiseOrValue<string> | null,
-      realm?: null,
-      state?: null
+      realm?: null
     ): ContextRegisteredEventFilter;
 
     "ContextRoleGranted(bytes32,bytes32,address,bytes4,bytes32)"(
@@ -965,36 +1069,48 @@ export interface IContextManagement extends BaseContract {
       realm?: null
     ): ContextRoleRevokedEventFilter;
 
-    "ContextStateChanged(bytes32,address,bytes32,bool)"(
+    "ContextStatusChanged(bytes32,address,bytes32,bool)"(
       context?: PromiseOrValue<BytesLike> | null,
       sender?: PromiseOrValue<string> | null,
       realm?: PromiseOrValue<BytesLike> | null,
-      state?: null
-    ): ContextStateChangedEventFilter;
-    ContextStateChanged(
+      status?: null
+    ): ContextStatusChangedEventFilter;
+    ContextStatusChanged(
       context?: PromiseOrValue<BytesLike> | null,
       sender?: PromiseOrValue<string> | null,
       realm?: PromiseOrValue<BytesLike> | null,
-      state?: null
-    ): ContextStateChangedEventFilter;
+      status?: null
+    ): ContextStatusChangedEventFilter;
 
-    "ContextUpdated(bytes32,address,address,bytes32,bool)"(
+    "ContextUpdated(bytes32,address,address,bytes32)"(
       context?: PromiseOrValue<BytesLike> | null,
       scma?: PromiseOrValue<string> | null,
       sender?: PromiseOrValue<string> | null,
-      realm?: null,
-      state?: null
+      realm?: null
     ): ContextUpdatedEventFilter;
     ContextUpdated(
       context?: PromiseOrValue<BytesLike> | null,
       scma?: PromiseOrValue<string> | null,
       sender?: PromiseOrValue<string> | null,
-      realm?: null,
-      state?: null
+      realm?: null
     ): ContextUpdatedEventFilter;
   };
 
   estimateGas: {
+    addContextFuncRole(
+      ctx: PromiseOrValue<BytesLike>,
+      functionSelector: PromiseOrValue<BytesLike>,
+      role: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "addContextFuncRole(bytes32,bytes4,bytes32)"(
+      ctx: PromiseOrValue<BytesLike>,
+      functionSelector: PromiseOrValue<BytesLike>,
+      role: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     getContextFuncs(
       ctx: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1044,18 +1160,28 @@ export interface IContextManagement extends BaseContract {
     ): Promise<BigNumber>;
 
     registerContext(
-      newContract: PromiseOrValue<string>,
-      realm: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
-      rc: IContextManagement.RequestContextStruct[],
+      signature: PromiseOrValue<BytesLike>,
+      rc: IContextManagement.RequestContextStruct,
+      rcr: IContextManagement.RequestRegisterContextStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "registerContext(address,bytes32,bool,(bytes32,bytes4[],bool)[])"(
-      newContract: PromiseOrValue<string>,
-      realm: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
-      rc: IContextManagement.RequestContextStruct[],
+    "registerContext(bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])"(
+      signature: PromiseOrValue<BytesLike>,
+      rc: IContextManagement.RequestContextStruct,
+      rcr: IContextManagement.RequestRegisterContextStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    removeContextFunc(
+      ctx: PromiseOrValue<BytesLike>,
+      functionSelector: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "removeContextFunc(bytes32,bytes4)"(
+      ctx: PromiseOrValue<BytesLike>,
+      functionSelector: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1085,60 +1211,50 @@ export interface IContextManagement extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setContextSafeMode(
+    setContextStatus(
       ctx: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "setContextSafeMode(bytes32,bool)"(
+    "setContextStatus(bytes32,bool)"(
       ctx: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setContextState(
-      ctx: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "setContextState(bytes32,bool)"(
-      ctx: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setContextUpgradeState(
-      ctx: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "setContextUpgradeState(bytes32,bool)"(
-      ctx: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     updateContext(
       ctx: PromiseOrValue<BytesLike>,
-      realm: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
-      rc: IContextManagement.RequestContextStruct[],
+      signature: PromiseOrValue<BytesLike>,
+      rc: IContextManagement.RequestContextStruct,
+      ruc: IContextManagement.RequestUpdateContextStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "updateContext(bytes32,bytes32,bool,(bytes32,bytes4[],bool)[])"(
+    "updateContext(bytes32,bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],uint8)[])"(
       ctx: PromiseOrValue<BytesLike>,
-      realm: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
-      rc: IContextManagement.RequestContextStruct[],
+      signature: PromiseOrValue<BytesLike>,
+      rc: IContextManagement.RequestContextStruct,
+      ruc: IContextManagement.RequestUpdateContextStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
+    addContextFuncRole(
+      ctx: PromiseOrValue<BytesLike>,
+      functionSelector: PromiseOrValue<BytesLike>,
+      role: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "addContextFuncRole(bytes32,bytes4,bytes32)"(
+      ctx: PromiseOrValue<BytesLike>,
+      functionSelector: PromiseOrValue<BytesLike>,
+      role: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     getContextFuncs(
       ctx: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1188,18 +1304,28 @@ export interface IContextManagement extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     registerContext(
-      newContract: PromiseOrValue<string>,
-      realm: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
-      rc: IContextManagement.RequestContextStruct[],
+      signature: PromiseOrValue<BytesLike>,
+      rc: IContextManagement.RequestContextStruct,
+      rcr: IContextManagement.RequestRegisterContextStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "registerContext(address,bytes32,bool,(bytes32,bytes4[],bool)[])"(
-      newContract: PromiseOrValue<string>,
-      realm: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
-      rc: IContextManagement.RequestContextStruct[],
+    "registerContext(bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])"(
+      signature: PromiseOrValue<BytesLike>,
+      rc: IContextManagement.RequestContextStruct,
+      rcr: IContextManagement.RequestRegisterContextStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    removeContextFunc(
+      ctx: PromiseOrValue<BytesLike>,
+      functionSelector: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "removeContextFunc(bytes32,bytes4)"(
+      ctx: PromiseOrValue<BytesLike>,
+      functionSelector: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1229,55 +1355,31 @@ export interface IContextManagement extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setContextSafeMode(
+    setContextStatus(
       ctx: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "setContextSafeMode(bytes32,bool)"(
+    "setContextStatus(bytes32,bool)"(
       ctx: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setContextState(
-      ctx: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "setContextState(bytes32,bool)"(
-      ctx: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    setContextUpgradeState(
-      ctx: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "setContextUpgradeState(bytes32,bool)"(
-      ctx: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     updateContext(
       ctx: PromiseOrValue<BytesLike>,
-      realm: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
-      rc: IContextManagement.RequestContextStruct[],
+      signature: PromiseOrValue<BytesLike>,
+      rc: IContextManagement.RequestContextStruct,
+      ruc: IContextManagement.RequestUpdateContextStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "updateContext(bytes32,bytes32,bool,(bytes32,bytes4[],bool)[])"(
+    "updateContext(bytes32,bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],uint8)[])"(
       ctx: PromiseOrValue<BytesLike>,
-      realm: PromiseOrValue<BytesLike>,
-      state: PromiseOrValue<boolean>,
-      rc: IContextManagement.RequestContextStruct[],
+      signature: PromiseOrValue<BytesLike>,
+      rc: IContextManagement.RequestContextStruct,
+      ruc: IContextManagement.RequestUpdateContextStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

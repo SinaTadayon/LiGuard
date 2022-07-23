@@ -58,5 +58,7 @@ export type { UUPSUpgradeableTest } from "./test/proxy/UUPSUpgradeableTest";
 export { UUPSUpgradeableTest__factory } from "./factories/test/proxy/UUPSUpgradeableTest__factory";
 export type { ERC165 } from "./utils/ERC165";
 export { ERC165__factory } from "./factories/utils/ERC165__factory";
+export type { IERC1271 } from "./utils/IERC1271";
+export { IERC1271__factory } from "./factories/utils/IERC1271__factory";
 export type { IERC165 } from "./utils/IERC165";
 export { IERC165__factory } from "./factories/utils/IERC165__factory";

@@ -9,13 +9,13 @@ interface IProxy is IBaseProxy {
      */
     event AdminChanged(address indexed sender, address indexed proxy, address newAdmin);
 
-    event SafeModeChanged(address indexed sender, address indexed proxy, bytes32 indexed realm, bool state);
+    event SafeModeChanged(address indexed sender, address indexed proxy, bytes32 indexed realm, bool status);
 
-    event UpgradeStateChanged(address indexed sender, address indexed proxy, bytes32 indexed realm, bool state);
+    event UpgradeStatusChanged(address indexed sender, address indexed proxy, bytes32 indexed realm, bool status);
 
-    // /**
-    //  * @dev Triggered when the contract has been initialized or reinitialized.
-    //  */
+    /**
+     * @dev Triggered when the contract has been initialized or reinitialized.
+     */
     event Initialized(
         address indexed sender,
         address indexed proxy,
@@ -32,15 +32,15 @@ interface IProxy is IBaseProxy {
         bool forceCall
     ) external returns (bytes memory);
 
-    function setSafeMode(bool state) external returns (bool);
+    function setSafeMode(bool status) external returns (bool);
 
-    function setUpgradeState(bool state) external returns (bool);
+    function setUpgradeStatus(bool status) external returns (bool);
 
     function setAdmin(address newAdmin) external returns (bool);
 
-    function contractName() external view returns (string memory);
+    function contractName() external view returns (bytes32);
 
-    function contractVersion() external view returns (string memory);
+    function contractVersion() external view returns (bytes32);
 
     function contractRealm() external view returns (bytes32);
 
@@ -58,5 +58,5 @@ interface IProxy is IBaseProxy {
 
     function getInitializedVersion() external view returns (uint16);
 
-    function getInitializeState() external view returns (bool);
+    function getInitializeStatus() external view returns (bool);
 }

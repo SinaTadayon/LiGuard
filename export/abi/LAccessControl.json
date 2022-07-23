@@ -1,7 +1,7 @@
 [
   {
     "inputs": [],
-    "name": "ANONYMOUSE_ROLE",
+    "name": "ANONYMOUS_ROLE",
     "outputs": [
       {
         "internalType": "bytes32",
@@ -112,7 +112,7 @@
             "type": "bool"
           }
         ],
-        "internalType": "struct IContextManagement.RequestContext[]",
+        "internalType": "struct IContextManagement.RequestRegisterContext[]",
         "name": "",
         "type": "tuple[]"
       }

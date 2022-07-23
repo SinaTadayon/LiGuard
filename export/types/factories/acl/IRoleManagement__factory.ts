@@ -156,37 +156,8 @@ const _abi = [
         type: "bool",
       },
     ],
-    name: "RoleStatChanged",
+    name: "RoleStatusChanged",
     type: "event",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "role",
-        type: "bytes32",
-      },
-    ],
-    name: "getRole",
-    outputs: [
-      {
-        internalType: "string",
-        name: "",
-        type: "string",
-      },
-      {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
   },
   {
     inputs: [
@@ -202,6 +173,35 @@ const _abi = [
         internalType: "address[]",
         name: "",
         type: "address[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "role",
+        type: "bytes32",
+      },
+    ],
+    name: "getRoleInfo",
+    outputs: [
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
       },
     ],
     stateMutability: "view",
@@ -244,7 +244,7 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "hasAccountRole",
+    name: "hasRoleAccount",
     outputs: [
       {
         internalType: "bool",
@@ -345,7 +345,7 @@ const _abi = [
         type: "bool",
       },
     ],
-    name: "setRoleStat",
+    name: "setRoleStatus",
     outputs: [
       {
         internalType: "bool",
