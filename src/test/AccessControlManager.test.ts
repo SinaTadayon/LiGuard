@@ -529,7 +529,7 @@ describe("AccessControlManager Tests", function () {
         .to.revertedWith("Upgrade Context Forbidden")
     });
 
-    it("Should upgrade proxy by admin with invalid subject failed", async () => {
+    it("Should upgrade proxy by admin with invalid uups subject failed", async () => {
       // given
       const baseUUPSProxy = await deployments.getArtifact("UUPSUpgradeableTest");
       const invalidUUPS = await deployMockContract(admin, baseUUPSProxy.abi);
@@ -541,6 +541,19 @@ describe("AccessControlManager Tests", function () {
         .to.revertedWith("Invalid UUPS Contract")
     });
 
+    it("Should upgrade proxy by admin with invalid IProxy subject failed", async () => {
+      // given
+      const baseUUPSProxy = await deployments.getArtifact("UUPSUpgradeableTest");
+      const invalidProxy = await deployMockContract(admin, baseUUPSProxy.abi);
+      await invalidProxy.mock.proxiableUUID.returns("0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc");
+      await invalidProxy.mock.supportsInterface.returns(false);
+      const typedArray1 = new Int8Array(0);
+
+      // when and then
+      await expect(accessControlManagerProxy.connect(admin).upgradeTo(invalidProxy.address, typedArray1, false))
+        .to.revertedWith("Invalid IProxy Contract")
+    });
+
     it("Should upgrade proxy by admin with Illegal subject failed", async () => {
       // given
       const iBaseProxy = await deployments.getArtifact("IBaseProxy");
@@ -550,6 +563,18 @@ describe("AccessControlManager Tests", function () {
       // when and then
       await expect(accessControlManagerProxy.connect(admin).upgradeTo(illegalUUPS.address, typedArray1, false))
         .to.revertedWith("Illegal UUPS Contract")
+    });
+
+    it("Should upgrade proxy by admin with invalid IProxy subject failed", async () => {
+      // given
+      const baseUUPSProxy = await deployments.getArtifact("UUPSUpgradeableTest");
+      const invalidProxy = await deployMockContract(admin, baseUUPSProxy.abi);
+      await invalidProxy.mock.proxiableUUID.returns("0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc");
+      const typedArray1 = new Int8Array(0);
+
+      // when and then
+      await expect(accessControlManagerProxy.connect(admin).upgradeTo(invalidProxy.address, typedArray1, false))
+        .to.revertedWith("Illegal IProxy Contract")
     });
 
     it("Should upgrade proxy by admin success", async () => {
@@ -722,6 +747,12 @@ describe("AccessControlManager Tests", function () {
       // when and then
       await expect(accessControlManagerProxy.connect(user1).revokeRoleAccount(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_ADMIN_ROLE")), adminAddress))
         .to.revertedWith("RevokeRoleAccount Access Denied");
+    });
+
+    it("Should revoke admin account from LIVELY_ADMIN_ROLE by admin failed", async() => {
+      // when and then
+      await expect(accessControlManagerProxy.connect(admin).revokeRoleAccount(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_ADMIN_ROLE")), adminAddress))
+        .to.revertedWith("Illegal Revoke Role Account");
     });
 
     it("Should disable status of LIVELY_ADMIN_ROLE role by user1 failed", async() => {
@@ -1418,6 +1449,12 @@ describe("AccessControlManager Tests", function () {
           ethers.utils.keccak256(ethers.utils.toUtf8Bytes('LIVELY_VERSE_REALM')));
 
       // then
+      expect(await accessControlManagerProxy.isContextEnabled(ethers.utils.keccak256(baseUupsProxy.address))).to.be.true;
+      expect(await accessControlManagerProxy.isContextExists(ethers.utils.keccak256(baseUupsProxy.address))).to.be.true;
+      expect(await accessControlManagerProxy.isContextUpgradable(ethers.utils.keccak256(baseUupsProxy.address))).to.be.true;
+      expect(await accessControlManagerProxy.isContextSafeMode(ethers.utils.keccak256(baseUupsProxy.address))).to.be.false;
+
+      // and
       let iface = new ethers.utils.Interface(baseUUPSProxyArtifact.abi);
       let method_selector = iface.getSighash("upgradeTo(address, bytes memory, bool)");
       expect(await accessControlManagerProxy.hasAccess(ethers.utils.keccak256(baseUupsProxy.address), adminAddress, method_selector)).to.be.false;
@@ -1526,6 +1563,12 @@ describe("AccessControlManager Tests", function () {
       expect(await accessControlManagerProxy.hasRealmContext(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_VERSE_REALM")), ethers.utils.keccak256(baseUupsProxy.address))).to.be.true;
     })
 
+    it("Should change realm of ACL by admin failed", async() => {
+      // when
+      await expect(accessControlManagerProxy.connect(admin).setContextRealm(ethers.utils.keccak256(accessControlManagerProxy.address), ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_GENERAL_REALM"))))
+        .to.revertedWith("Illegal Change ACL Context Realm")
+    })
+
     it("Should change realm of BaseUUPSContractTest to LIVELY_GENERAL_REALM by admin success", async() => {
       // when
       await expect(accessControlManagerProxy.connect(admin).setContextRealm(ethers.utils.keccak256(baseUupsProxy.address), ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_GENERAL_REALM"))))
@@ -1570,6 +1613,19 @@ describe("AccessControlManager Tests", function () {
       await expect(baseUupsProxy.connect(admin).setUpgradeStatus(false))
         .to.revertedWith("SetUpgradeStatus Forbidden")
     })
+
+    it("Should check status of ACL success", async() => {
+      // when and then
+      expect(await accessControlManagerProxy.isRoleEnabled(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TESTER_ROLE")))).to.be.true;
+      expect(await accessControlManagerProxy.isRoleExists(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TESTER_ROLE")))).to.be.true;
+      expect(await accessControlManagerProxy.isLivelyGeneralGroup(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TESTER_ROLE")))).to.be.false;
+      expect(await accessControlManagerProxy.isLivelyGeneralRealm(ethers.utils.keccak256(baseUupsProxy.address))).to.be.true;
+      expect(await accessControlManagerProxy.isLivelyGeneralRealm(ethers.utils.keccak256(accessControlManagerProxy.address))).to.be.true;
+      expect(await accessControlManagerProxy.isLivelyAdmin(adminAddress)).to.be.true;
+      expect(await accessControlManagerProxy.isLivelyAdmin(userAddress1)).to.be.false;
+      expect(await accessControlManagerProxy.isLivelySystemAdmin(adminAddress)).to.be.true;
+      expect(await accessControlManagerProxy.isLivelySystemAdmin(userAddress1)).to.be.false;
+    });
   })
 });
 

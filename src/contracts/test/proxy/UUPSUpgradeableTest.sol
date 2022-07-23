@@ -3,8 +3,9 @@ pragma solidity  >= 0.8.15 < 0.9.0;
 
 import "../../proxy/IERC1822.sol";
 import "./ERC1967UpgradeTest.sol";
+import "../../utils/ERC165.sol";
 
-contract UUPSUpgradeableTest is IERC1822Proxiable, ERC1967UpgradeTest {
+contract UUPSUpgradeableTest is IERC1822Proxiable, ERC1967UpgradeTest, ERC165 {
     /// @custom:oz-upgrades-unsafe-allow state-variable-immutable state-variable-assignment
     address private immutable __self = address(this);
 

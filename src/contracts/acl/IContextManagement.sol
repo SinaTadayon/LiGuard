@@ -43,10 +43,6 @@ interface IContextManagement {
 
     event ContextStatusChanged(bytes32 indexed context, address indexed sender, bytes32 indexed realm, bool status);
 
-    // event ContextSafeModeChanged(bytes32 indexed context, address indexed sender, bool state);
-
-    // event ContextUpgradeStateChanged(bytes32 indexed context, address indexed sender, bool state);
-
      event ContextFuncRoleAdded(
         bytes32 indexed context,
         bytes32 indexed role,
@@ -117,10 +113,6 @@ interface IContextManagement {
     function setContextRealm(bytes32 ctx, bytes32 realm) external returns (bool);
 
     function setContextStatus(bytes32 ctx, bool status) external returns (bool);
-
-    // function setContextSafeMode(bytes32 ctx, bool state) external returns (bool);
-
-    // function setContextUpgradeState(bytes32 ctx, bool state) external returns (bool);
 
     function hasContextRole(
         bytes32 ctx,

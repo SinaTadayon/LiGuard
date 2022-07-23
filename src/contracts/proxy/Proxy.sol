@@ -4,9 +4,11 @@ pragma solidity >=0.8.15 <0.9.0;
 import "./IBaseProxy.sol";
 import "./BaseProxy.sol";
 import "./IERC1822.sol";
+import "./IProxy.sol";
 import "./BaseUUPSStorage.sol";
 import "../lib/LAddress.sol";
 import "../lib/LStorageSlot.sol";
+import "../utils/IERC165.sol";
 
 // import "hardhat/console.sol";
 
@@ -95,6 +97,12 @@ contract Proxy is BaseUUPSStorage, BaseProxy, IBaseProxy {
                 require(slot == _IMPLEMENTATION_SLOT, "Invalid UUPS Contract");
             } catch {
                 revert("Illegal UUPS Contract");
+            }
+
+            try IERC165(newImplementation).supportsInterface(type(IProxy).interfaceId) returns (bool isSupported) {
+                require(isSupported, "Invalid IProxy Contract");
+            } catch {
+                revert("Illegal IProxy Contract");
             }
             return _upgradeToAndCall(newImplementation, data, forceCall);
         }

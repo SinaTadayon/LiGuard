@@ -30,6 +30,7 @@ import type {
 export interface UUPSUpgradeableTestInterface extends utils.Interface {
   functions: {
     "proxiableUUID()": FunctionFragment;
+    "supportsInterface(bytes4)": FunctionFragment;
     "upgradeTo(address)": FunctionFragment;
     "upgradeToAndCall(address,bytes)": FunctionFragment;
   };
@@ -38,6 +39,8 @@ export interface UUPSUpgradeableTestInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "proxiableUUID"
       | "proxiableUUID()"
+      | "supportsInterface"
+      | "supportsInterface(bytes4)"
       | "upgradeTo"
       | "upgradeTo(address)"
       | "upgradeToAndCall"
@@ -51,6 +54,14 @@ export interface UUPSUpgradeableTestInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "proxiableUUID()",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "supportsInterface",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "supportsInterface(bytes4)",
+    values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "upgradeTo",
@@ -75,6 +86,14 @@ export interface UUPSUpgradeableTestInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "proxiableUUID()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "supportsInterface",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "supportsInterface(bytes4)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "upgradeTo", data: BytesLike): Result;
@@ -153,6 +172,16 @@ export interface UUPSUpgradeableTest extends BaseContract {
 
     "proxiableUUID()"(overrides?: CallOverrides): Promise<[string]>;
 
+    supportsInterface(
+      interfaceId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    "supportsInterface(bytes4)"(
+      interfaceId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     upgradeTo(
       newImplementation: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -180,6 +209,16 @@ export interface UUPSUpgradeableTest extends BaseContract {
 
   "proxiableUUID()"(overrides?: CallOverrides): Promise<string>;
 
+  supportsInterface(
+    interfaceId: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  "supportsInterface(bytes4)"(
+    interfaceId: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   upgradeTo(
     newImplementation: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -206,6 +245,16 @@ export interface UUPSUpgradeableTest extends BaseContract {
     proxiableUUID(overrides?: CallOverrides): Promise<string>;
 
     "proxiableUUID()"(overrides?: CallOverrides): Promise<string>;
+
+    supportsInterface(
+      interfaceId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "supportsInterface(bytes4)"(
+      interfaceId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     upgradeTo(
       newImplementation: PromiseOrValue<string>,
@@ -253,6 +302,16 @@ export interface UUPSUpgradeableTest extends BaseContract {
 
     "proxiableUUID()"(overrides?: CallOverrides): Promise<BigNumber>;
 
+    supportsInterface(
+      interfaceId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "supportsInterface(bytes4)"(
+      interfaceId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     upgradeTo(
       newImplementation: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -280,6 +339,16 @@ export interface UUPSUpgradeableTest extends BaseContract {
     proxiableUUID(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "proxiableUUID()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    supportsInterface(
+      interfaceId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "supportsInterface(bytes4)"(
+      interfaceId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     upgradeTo(
       newImplementation: PromiseOrValue<string>,

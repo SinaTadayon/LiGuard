@@ -229,6 +229,13 @@ abstract contract BaseUUPSProxy is
             } catch {
                 revert("Illegal UUPS Contract");
             }
+
+            try IERC165(newImplementation).supportsInterface(type(IProxy).interfaceId) returns (bool isSupported) {
+                require(isSupported, "Invalid IProxy Contract");
+            } catch {
+                revert("Illegal IProxy Contract");
+            }
+
             return _upgradeToAndCall(newImplementation, data, forceCall);
         }
     }

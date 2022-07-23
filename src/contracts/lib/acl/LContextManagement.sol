@@ -264,24 +264,6 @@ library LContextManagement {
         return data.ctxMap[ctx].realm;
     }
 
-    // function setContextSafeMode(
-    //     AccessControlStorage.DataMaps storage data,
-    //     bytes32 ctx,
-    //     bool status
-    // ) external returns (bool) {
-    //     require(!IProxy(address(this)).isSafeMode(), "SafeMode: Call Rejected");
-    //     require(
-    //         LAccessControl.hasAccess(
-    //             data,
-    //             LContextUtils.generateCtx(address(this)),
-    //             msg.sender,
-    //             IContextManagement.setContextSafeMode.selector
-    //         ),
-    //         "SetContextSafeMode Access Denied"
-    //     );
-    //     require(data.ctxMap[ctx].smca != address(0), "Context Not Found");    
-    //     return IProxy(data.ctxMap[ctx].smca).setSafeMode(status);
-    // }
     function setContextStatus(AccessControlStorage.DataMaps storage data, bytes32 ctx, bool status) external returns (bool, bytes32) {
         require(!IProxy(address(this)).isSafeMode(), "SafeMode: Call Rejected");
         require(
@@ -324,25 +306,6 @@ library LContextManagement {
         data.realmMap[data.ctxMap[ctx].realm].ctxSet.remove(ctx);
         return (true, oldRealm);
     }
-
-    // function setContextUpgradeStatus(
-    //     AccessControlStorage.DataMaps storage data,
-    //     bytes32 ctx,
-    //     bool status
-    // ) external returns (bool) {
-    //     require(!IProxy(address(this)).isSafeMode(), "SafeMode: Call Rejected");
-    //     require(
-    //         LAccessControl.hasAccess(
-    //             data,
-    //             LContextUtils.generateCtx(address(this)),
-    //             msg.sender,
-    //             IContextManagement.setContextUpgradeStatus.selector
-    //         ),
-    //         "SetContextUpgradeStatus Access Denied"
-    //     );
-    //     require(data.ctxMap[ctx].smca != address(0), "Context Not Found");
-    //     return IProxy(data.ctxMap[ctx].smca).setUpgradeStatus(status);
-    // }
 
     function hasContextRole(
         AccessControlStorage.DataMaps storage data,
