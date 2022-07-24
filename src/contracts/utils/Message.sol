@@ -12,11 +12,11 @@ pragma solidity >=0.8.15 <0.9.0;
  * This contract is only required for intermediate, library-like contracts.
  */
 abstract contract Message {
-    function _msgSender() internal view virtual returns (address) {
-        return msg.sender;
-    }
+  function _msgSender() internal view virtual returns (address) {
+    return msg.sender;
+  }
 
-    function _msgData() internal view virtual returns (bytes calldata) {
-        return msg.data;
-    }
+  function _msgData() internal view virtual returns (bytes calldata) {
+    return msg.data;
+  }
 }

@@ -41,23 +41,20 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     skipIfAlreadyDeployed: true,
   });
 
-  const accessControlManagerSubject = await deploy(
-    "AccessControlManagerSubject",
-    {
-      contract: "AccessControlManager",
-      from: deployer,
-      args: [],
-      log: true,
-      skipIfAlreadyDeployed: true,
-      libraries: {
-        LAccessControl: acl.address,
-        LContextManagement: cml.address,
-        LRoleManagement: rml.address, 
-        LGroupManagement: gml.address,
-        LRealmManagement: reml.address,
-      },
-    }
-  );
+  const accessControlManagerSubject = await deploy("AccessControlManagerSubject", {
+    contract: "AccessControlManager",
+    from: deployer,
+    args: [],
+    log: true,
+    skipIfAlreadyDeployed: true,
+    libraries: {
+      LAccessControl: acl.address,
+      LContextManagement: cml.address,
+      LRoleManagement: rml.address,
+      LGroupManagement: gml.address,
+      LRealmManagement: reml.address,
+    },
+  });
 
   const iface = new ethers.utils.Interface(accessControlManagerSubject.abi);
   const data = iface.encodeFunctionData("initialize", [
@@ -67,7 +64,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     accessControlManagerSubject.address,
   ]);
 
-  const AccessControlManagerProxy = await deploy("AccessControlManagerProxy", {
+  await deploy("AccessControlManagerProxy", {
     contract: "Proxy",
     from: deployer,
     args: [accessControlManagerSubject.address, data],

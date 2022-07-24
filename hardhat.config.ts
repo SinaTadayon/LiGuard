@@ -16,11 +16,7 @@ dotenv.config();
 const mnemonic = process.env.MNEMONIC;
 const privateKey = process.env.PRIVATE_KEY;
 
-const netAccounts = mnemonic
-  ? { mnemonic }
-  : privateKey
-  ? [{ privateKey: `0x${privateKey}`, balance: "" }]
-  : undefined;
+const netAccounts = mnemonic ? { mnemonic } : privateKey ? [{ privateKey: `0x${privateKey}`, balance: "" }] : undefined;
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
