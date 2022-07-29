@@ -26,8 +26,6 @@ library LSafeCast {
    * Requirements:
    *
    * - input must fit into 248 bits
-   *
-   * _Available since v4.7._
    */
   function toUint248(uint256 value) internal pure returns (uint248) {
     require(value <= type(uint248).max, "SafeCast: value doesn't fit in 248 bits");

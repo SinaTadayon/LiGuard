@@ -2,7 +2,6 @@
 /* tslint:disable */
 /* eslint-disable */
 export { AccessControlManager__factory } from "./AccessControlManager__factory";
-export { AccessControlStorage__factory } from "./AccessControlStorage__factory";
 export { IAccessControl__factory } from "./IAccessControl__factory";
 export { IContextManagement__factory } from "./IContextManagement__factory";
 export { IGroupManagement__factory } from "./IGroupManagement__factory";

@@ -222,6 +222,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "domainSeperator",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "getAccessControlManager",
     outputs: [
       {

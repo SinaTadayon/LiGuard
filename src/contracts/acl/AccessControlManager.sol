@@ -23,7 +23,7 @@ contract AccessControlManager is
   AccessControlStorage,
   BaseUUPSProxy,
   IContextManagement,
-  IAccessControl,
+  IAccessControl,  
   IGroupManagement,
   IRealmManagement,
   IRoleManagement
@@ -41,33 +41,15 @@ contract AccessControlManager is
     string calldata domainRealm,
     address accessControlManager
   ) public onlyProxy onlyLocalAdmin initializer {
-    require(
-      LAccessControl.LIB_NAME == ACCESS_CONTROL_NAME && LAccessControl.LIB_VERSION == ACCESS_CONTROL_VERSION,
-      "ACL Invalid"
-    );
-    require(
-      LContextManagement.LIB_NAME == CONTEXT_MANAGEMENT_NAME &&
-        LContextManagement.LIB_VERSION == CONTEXT_MANAGEMENT_VERSION,
-      "CML Invalid"
-    );
-    require(
-      LRoleManagement.LIB_NAME == ROLE_MANAGEMENT_NAME && LRoleManagement.LIB_VERSION == ROLE_MANAGEMENT_VERSION,
-      "RML Invalid"
-    );
-    require(
-      LGroupManagement.LIB_NAME == GROUP_MANAGEMENT_NAME && LGroupManagement.LIB_VERSION == GROUP_MANAGEMENT_VERSION,
-      "GML Invalid"
-    );
-    require(
-      LRealmManagement.LIB_NAME == REALM_MANAGEMENT_NAME && LRealmManagement.LIB_VERSION == REALM_MANAGEMENT_VERSION,
-      "REML Invalid"
-    );
-
     bytes32 realm = keccak256(abi.encodePacked(domainRealm));
+
     LAccessControl.initializeContext(_dataMaps);
-    RequestRegisterContext[] memory rc = LAccessControl.createRequestContext();
-    LContextManagement.registerAccessControlManagerContext(_dataMaps, address(this), realm, rc);
+    
     __BASE_UUPS_init(domainName, domainVersion, realm, accessControlManager);
+
+    RequestRegisterContext[] memory rc = LAccessControl.createRequestContext();    
+    LContextManagement.registerAccessControlManagerContext(_dataMaps, address(this), realm, rc);
+
     emit Initialized(
       _msgSender(),
       address(this),
@@ -237,16 +219,6 @@ contract AccessControlManager is
     return success;
   }
 
-  // function setContextSafeMode(bytes32 ctx, bool status) external returns (bool) {
-  //     emit ContextSafeModeChanged(ctx, _msgSender(), status);
-  //     return LContextManagement.setContextSafeMode(_dataMaps, ctx, status);
-  // }
-
-  // function setContextUpgradeStatus(bytes32 ctx, bool status) external returns (bool) {
-  //     emit ContextUpgradeStatusChanged(ctx, _msgSender(), status);
-  //     return LContextManagement.setContextUpgradeStatus(_dataMaps, ctx, status);
-  // }
-
   function hasContextRole(
     bytes32 ctx,
     bytes32 role,
@@ -377,4 +349,26 @@ contract AccessControlManager is
   function hasRoleAccount(bytes32 role, address account) external view returns (bool) {
     return LRoleManagement.hasRoleAccount(_dataMaps, role, account);
   }
+
+  function livelyGeneralRealmRole() external pure returns (bytes32) {
+    return _LIVELY_GENERAL_REALM;
+  }
+
+  function livelyGeneralGroupRole() external pure returns (bytes32) {
+    return _LIVELY_GENERAL_GROUP;
+  }
+
+  function livelySystemAdminRole() external pure returns (bytes32) {
+    return _LIVELY_SYSTEM_ADMIN_ROLE;
+  }
+
+  function livelyAdminRole() external pure returns (bytes32) {
+    return _LIVELY_ADMIN_ROLE;
+  }
+
+  function livelyAnonymousRole() external pure returns (bytes32) {
+    return _LIVELY_ANONYMOUS_ROLE;
+  }
+
+
 }

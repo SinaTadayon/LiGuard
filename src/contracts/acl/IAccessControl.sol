@@ -45,4 +45,14 @@ interface IAccessControl {
   function isRealmEnabled(bytes32 realm) external view returns (bool);
 
   function isRealmUpgradable(bytes32 realm) external view returns (bool);
+
+  function livelyGeneralRealmRole() external pure returns (bytes32);
+
+  function livelyGeneralGroupRole() external pure returns (bytes32);
+
+  function livelySystemAdminRole() external pure returns (bytes32);
+
+  function livelyAdminRole() external pure returns (bytes32);
+
+  function livelyAnonymousRole() external pure returns (bytes32);
 }

@@ -58,7 +58,7 @@ library LRoleManagement {
       ),
       "GrantRoleAccount Access Denied"
     );
-    require(role != LAccessControl.ANONYMOUS_ROLE, "Illegal Grant Anonymous Role");
+    require(role != LAccessControl.LIVELY_ANONYMOUS_ROLE, "Illegal Grant Anonymous Role");
     require(bytes(data.roleMap[role].name).length != 0, "Role Not Found");
     require(account != address(0), "Address Invalid");
     data.accountMap[account][role] = AccessControlStorage.Status.ENABLED;
@@ -111,7 +111,7 @@ library LRoleManagement {
       "SetRoleStatus Access Denied"
     );
     require(
-      role != LAccessControl.ANONYMOUS_ROLE &&
+      role != LAccessControl.LIVELY_ANONYMOUS_ROLE &&
         role != LAccessControl.LIVELY_ADMIN_ROLE &&
         role != LAccessControl.LIVELY_SYSTEM_ADMIN_ROLE,
       "Illegal Change Role Status"

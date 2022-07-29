@@ -56,6 +56,8 @@ interface IProxy is IBaseProxy {
 
   function getAdmin() external view returns (address);
 
+  function domainSeperator() external view returns (bytes32);
+
   function getInitializedVersion() external view returns (uint16);
 
   function getInitializeStatus() external view returns (bool);

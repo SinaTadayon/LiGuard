@@ -71,6 +71,11 @@ abstract contract BaseUUPSProxy is
     _;
   }
 
+  modifier safeModeCheck() {
+    require(!_isSafeMode, "SafeMode: Call Rejected");
+    _;
+  }
+
   function _hasPermission(bytes4 selector) internal returns (bool) {
     if (address(this) == _accessControlManager) {
       bytes memory data = abi.encodeWithSelector(
@@ -114,7 +119,7 @@ abstract contract BaseUUPSProxy is
     // set contract Admin (implementation contract)
     LStorageSlot.getAddressSlot(_ADMIN_SLOT).value = _msgSender();
 
-    // set _isUpgradable and _isEnabled of contact
+    // set _isUpgradable and _isSafeMode of contact
     _isUpgradable = false;
     _isSafeMode = true;
   }
@@ -352,6 +357,14 @@ abstract contract BaseUUPSProxy is
     return _isUpgradable;
   }
 
+  function domainSeperator() external view returns (bytes32) {
+    return _domainSeparatorV4();
+  }
+
+  function _domainSeparatorV4() internal view returns (bytes32) { 
+    return keccak256(abi.encode(_TYPE_HASH, _domainName, _domainVersion, block.chainid, address(this)));  
+  }
+
   function getInitializedVersion() external view returns (uint16) {
     return _getInitializedCount();
   }
@@ -359,4 +372,16 @@ abstract contract BaseUUPSProxy is
   function getInitializeStatus() external view returns (bool) {
     return _isInitializing();
   }
+
+  function withdrawBalance(address recepient) public {
+      require(!_isSafeMode, "SafeMode: Call Rejected");
+      require(_hasPermission(this.withdrawBalance.selector), "Withdraw Balance Forbidden");
+      payable(recepient).transfer(address(this).balance);
+  }
+
+  // solhint-disable-next-line
+  receive() external override payable {}
+
+  // solhint-disable-next-line
+  fallback() external override payable {}
 }

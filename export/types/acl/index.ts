@@ -2,7 +2,6 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { AccessControlManager } from "./AccessControlManager";
-export type { AccessControlStorage } from "./AccessControlStorage";
 export type { IAccessControl } from "./IAccessControl";
 export type { IContextManagement } from "./IContextManagement";
 export type { IGroupManagement } from "./IGroupManagement";

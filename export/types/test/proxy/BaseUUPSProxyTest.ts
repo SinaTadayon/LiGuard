@@ -35,6 +35,7 @@ export interface BaseUUPSProxyTestInterface extends utils.Interface {
     "contractName()": FunctionFragment;
     "contractRealm()": FunctionFragment;
     "contractVersion()": FunctionFragment;
+    "domainSeperator()": FunctionFragment;
     "getAccessControlManager()": FunctionFragment;
     "getAdmin()": FunctionFragment;
     "getInitializeStatus()": FunctionFragment;
@@ -57,6 +58,7 @@ export interface BaseUUPSProxyTestInterface extends utils.Interface {
     "upgradeToAndCall(address,bytes)": FunctionFragment;
     "upgradeToAnonymousRole(address)": FunctionFragment;
     "upgradeToTesterRole(address)": FunctionFragment;
+    "withdrawBalance(address)": FunctionFragment;
   };
 
   getFunction(
@@ -73,6 +75,8 @@ export interface BaseUUPSProxyTestInterface extends utils.Interface {
       | "contractRealm()"
       | "contractVersion"
       | "contractVersion()"
+      | "domainSeperator"
+      | "domainSeperator()"
       | "getAccessControlManager"
       | "getAccessControlManager()"
       | "getAdmin"
@@ -117,6 +121,8 @@ export interface BaseUUPSProxyTestInterface extends utils.Interface {
       | "upgradeToAnonymousRole(address)"
       | "upgradeToTesterRole"
       | "upgradeToTesterRole(address)"
+      | "withdrawBalance"
+      | "withdrawBalance(address)"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -165,6 +171,14 @@ export interface BaseUUPSProxyTestInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "contractVersion()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "domainSeperator",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "domainSeperator()",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -384,6 +398,14 @@ export interface BaseUUPSProxyTestInterface extends utils.Interface {
     functionFragment: "upgradeToTesterRole(address)",
     values: [PromiseOrValue<string>]
   ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawBalance",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawBalance(address)",
+    values: [PromiseOrValue<string>]
+  ): string;
 
   decodeFunctionResult(
     functionFragment: "LIVELY_ADMIN_ROLE",
@@ -431,6 +453,14 @@ export interface BaseUUPSProxyTestInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "contractVersion()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "domainSeperator",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "domainSeperator()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -589,6 +619,14 @@ export interface BaseUUPSProxyTestInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "upgradeToTesterRole(address)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawBalance",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawBalance(address)",
     data: BytesLike
   ): Result;
 
@@ -772,6 +810,10 @@ export interface BaseUUPSProxyTest extends BaseContract {
     contractVersion(overrides?: CallOverrides): Promise<[string]>;
 
     "contractVersion()"(overrides?: CallOverrides): Promise<[string]>;
+
+    domainSeperator(overrides?: CallOverrides): Promise<[string]>;
+
+    "domainSeperator()"(overrides?: CallOverrides): Promise<[string]>;
 
     getAccessControlManager(overrides?: CallOverrides): Promise<[string]>;
 
@@ -974,6 +1016,16 @@ export interface BaseUUPSProxyTest extends BaseContract {
       newImplementation: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    withdrawBalance(
+      recepient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "withdrawBalance(address)"(
+      recepient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
 
   LIVELY_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
@@ -999,6 +1051,10 @@ export interface BaseUUPSProxyTest extends BaseContract {
   contractVersion(overrides?: CallOverrides): Promise<string>;
 
   "contractVersion()"(overrides?: CallOverrides): Promise<string>;
+
+  domainSeperator(overrides?: CallOverrides): Promise<string>;
+
+  "domainSeperator()"(overrides?: CallOverrides): Promise<string>;
 
   getAccessControlManager(overrides?: CallOverrides): Promise<string>;
 
@@ -1202,6 +1258,16 @@ export interface BaseUUPSProxyTest extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  withdrawBalance(
+    recepient: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "withdrawBalance(address)"(
+    recepient: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
     LIVELY_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
 
@@ -1226,6 +1292,10 @@ export interface BaseUUPSProxyTest extends BaseContract {
     contractVersion(overrides?: CallOverrides): Promise<string>;
 
     "contractVersion()"(overrides?: CallOverrides): Promise<string>;
+
+    domainSeperator(overrides?: CallOverrides): Promise<string>;
+
+    "domainSeperator()"(overrides?: CallOverrides): Promise<string>;
 
     getAccessControlManager(overrides?: CallOverrides): Promise<string>;
 
@@ -1428,6 +1498,16 @@ export interface BaseUUPSProxyTest extends BaseContract {
       newImplementation: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    withdrawBalance(
+      recepient: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "withdrawBalance(address)"(
+      recepient: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {
@@ -1541,6 +1621,10 @@ export interface BaseUUPSProxyTest extends BaseContract {
     contractVersion(overrides?: CallOverrides): Promise<BigNumber>;
 
     "contractVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    domainSeperator(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "domainSeperator()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     getAccessControlManager(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1743,6 +1827,16 @@ export interface BaseUUPSProxyTest extends BaseContract {
       newImplementation: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    withdrawBalance(
+      recepient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "withdrawBalance(address)"(
+      recepient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -1777,6 +1871,12 @@ export interface BaseUUPSProxyTest extends BaseContract {
     contractVersion(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "contractVersion()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    domainSeperator(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "domainSeperator()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -1993,6 +2093,16 @@ export interface BaseUUPSProxyTest extends BaseContract {
 
     "upgradeToTesterRole(address)"(
       newImplementation: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    withdrawBalance(
+      recepient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "withdrawBalance(address)"(
+      recepient: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

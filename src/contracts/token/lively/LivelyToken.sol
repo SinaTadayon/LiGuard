@@ -1,0 +1,381 @@
+// SPDX-License-Identifier: MIT
+pragma solidity >= 0.8.15 < 0.9.0;
+
+import "./IERC20.sol";
+import "./IERC20Extra.sol";
+import "./IPausable.sol";
+import "./LivelyStorage.sol";
+import "../../proxy/BaseUUPSProxy.sol";
+import "../../lib/cryptography/LECDSA.sol";
+import "../../lib/LCounters.sol";
+import "../../lib/math/LBasisPointsMath.sol";
+import "../../lib/math/LSafeMath.sol";
+import "../../lib/struct/LEnumerableSet.sol";
+import "../../acl/IContextManagement.sol";
+
+
+contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IPausable { 
+    using LEnumerableSet for LEnumerableSet.AddressSet;
+    using LCounters for LCounters.Counter;
+    using LBasisPointsMath for uint256;
+    using LSafeMath for uint256;
+
+    constructor() {}
+
+    function initialize(
+        string calldata domainName,
+        string calldata domainVersion,
+        string calldata domainRealm,
+        address accessControlManager,
+        address taxTreasuryAddress,
+        uint256 taxRateValue,
+        bytes calldata signature
+    ) public onlyProxy onlyLocalAdmin initializer {
+        bytes32 realm = keccak256(abi.encodePacked(domainRealm));      
+        __BASE_UUPS_init(domainName, domainVersion, realm, accessControlManager);
+
+        _taxRate = taxRateValue;
+        _taxTreasury = taxTreasuryAddress;
+        initContext(domainName, domainVersion, realm, signature);
+    }
+
+    function initContext(        
+        string calldata domainName,
+        string calldata domainVersion,
+        bytes32 realm,
+        bytes calldata signature
+    ) internal {
+        IContextManagement.RequestRegisterContext[] memory rrc = new IContextManagement.RequestRegisterContext[](3);
+        rrc[0].role = IAccessControl(_accessControlManager).livelyAnonymousRole();
+        rrc[0].isEnabled = true;
+        rrc[0].funcSelectors = new bytes4[](8);
+        rrc[0].funcSelectors[0] = IERC20.transfer.selector;
+        rrc[0].funcSelectors[1] = IERC20.transferFrom.selector;
+        rrc[0].funcSelectors[2] = IERC20.approve.selector;
+        rrc[0].funcSelectors[3] = IERC20Extra.batchTransfer.selector;
+        rrc[0].funcSelectors[4] = IERC20Extra.batchTransferFrom.selector;
+        rrc[0].funcSelectors[5] = IERC20Extra.decreaseAllowance.selector;
+        rrc[0].funcSelectors[6] = IERC20Extra.increaseAllowance.selector;
+        rrc[0].funcSelectors[7] = IERC20Extra.permit.selector;
+        
+        rrc[1].role = IAccessControl(_accessControlManager).livelyAdminRole();
+        rrc[1].isEnabled = true;
+        rrc[1].funcSelectors = new bytes4[](9);
+        rrc[1].funcSelectors[0] = IProxy.setUpgradeStatus.selector;
+        rrc[1].funcSelectors[1] = IERC20Extra.burn.selector;
+        rrc[1].funcSelectors[2] = IERC20Extra.mint.selector;
+        rrc[1].funcSelectors[3] = IERC20Extra.updateTaxRate.selector;
+        rrc[1].funcSelectors[4] = IERC20Extra.updateTaxWhitelist.selector;
+        rrc[1].funcSelectors[5] = IPausable.pause.selector;
+        rrc[1].funcSelectors[6] = IPausable.unpause.selector;
+        rrc[1].funcSelectors[7] = IPausable.pauseAll.selector;
+        rrc[1].funcSelectors[8] = IPausable.unpauseAll.selector;
+                
+        rrc[2].role = IAccessControl(_accessControlManager).livelySystemAdminRole();
+        rrc[2].isEnabled = true;
+        rrc[2].funcSelectors = new bytes4[](3);
+        rrc[2].funcSelectors[0] = IProxy.setAdmin.selector;
+        rrc[2].funcSelectors[1] = IProxy.setSafeMode.selector;
+        rrc[2].funcSelectors[2] = IProxy.upgradeTo.selector;
+        rrc[2].funcSelectors[3] = withdrawBalance.selector;
+
+        IContextManagement.RequestContext memory rc = IContextManagement.RequestContext({
+            name: _domainName,
+            version: _domainVersion,
+            realm: _domainRealm, 
+            smca: address(this),
+            status:true
+        });
+
+        IContextManagement(_accessControlManager).registerContext(signature, rc, rrc);
+
+        emit Initialized(
+            _msgSender(),
+            address(this),
+            _implementation(),
+            domainName,
+            domainVersion,
+            realm,
+            _getInitializedCount()
+        );        
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override
+        returns (bool)
+    {
+        return
+            interfaceId == type(IERC20).interfaceId ||
+            interfaceId == type(IERC20Extra).interfaceId ||
+            interfaceId == type(IPausable).interfaceId ||
+            super.supportsInterface(interfaceId);
+    }
+
+
+    modifier whenNotPaused() {
+        require(!_isPaused, "Pausable: Call Rejected");
+        _;
+    }
+
+    modifier whenAccountNotPaused(address account) {
+        require(!_pausedList.contains(account), "Pausable: Account Suspended");
+        _;
+    }
+
+    function pause(address account) external safeModeCheck {
+        require(account != address(0), "Invalid Account Address");
+        require(!_pausedList.contains(account), "Account Already Paused");
+        _pausedList.add(account);
+        emit Paused(_msgSender(), account);
+    }
+
+    function unpause(address account) external safeModeCheck {
+        require(account != address(0), "Invalid Account Address");
+        require(_pausedList.contains(account), "Account Not Found");
+        _pausedList.remove(account);
+        emit Unpaused(_msgSender(), account);
+    }
+
+    function pauseAll() external safeModeCheck {
+        _isPaused = true;
+        emit PausedAll(_msgSender());
+    }
+
+    function unpauseAll() external safeModeCheck {
+        _isPaused = false;
+        emit UnpausedAll(_msgSender());
+    }
+
+    function isPaused(address account) external view returns (bool) {
+        return account != address(0) && _pausedList.contains(account);
+    }
+
+    function isPausedAll() external view returns (bool) {
+        return _isPaused;
+    }
+
+    function pausedAccounts() external view returns (address[] memory) {
+        return _pausedList.values();
+    }
+
+
+    function updateTaxRate(uint256 rate) external safeModeCheck returns (bool) {
+        _taxRate = rate;
+        emit TaxRateUpdated(_msgSender(), rate);
+        return true;
+    }
+
+    function updateTaxWhitelist(address account, bool isDeleted) external safeModeCheck returns(bool) {
+        require(account != address(0), "Invalid Account Address");
+        if(isDeleted) {
+            require(_taxWhitelist.contains(account), "Account Not Found");
+            _taxWhitelist.remove(account);
+        } else {
+            require(!_taxWhitelist.contains(account), "Account Already Exists");
+            _taxWhitelist.add(account);
+        }
+
+        emit TaxWhitelistUpdated(_msgSender(), account, isDeleted);
+        return true;
+    }
+
+    function taxRate() external view returns (uint256) {
+        return _taxRate;
+    }
+
+    function taxTreasury() external view returns (address) {
+        return _taxTreasury;
+    }
+
+    function taxWhitelist() external view returns(address[] memory) {
+        return _taxWhitelist.values();
+    }
+
+    function permit(
+        address owner,
+        address spender,
+        uint256 value,
+        uint256 deadline,
+        bytes calldata signature
+    ) external returns (bool) {
+        require(block.timestamp <= deadline, "Permit Expired Deadline");
+
+        bytes32 structHash = keccak256(abi.encode(_PERMIT_TYPEHASH, owner, spender, value, _useNonce(owner), deadline));
+        bytes32 hash = LECDSA.toTypedDataHash(_domainSeparatorV4(), structHash);
+        address signer = LECDSA.recover(hash, signature);
+        require(signer == owner, "Illegal ECDASA Signature");
+
+        _approve(owner, spender, value);
+        return true;
+    }
+
+    function nonces(address owner) external view returns (uint256) {
+        return _accounts[owner].nonce.current();
+    }
+
+    function _useNonce(address owner) internal returns (uint256 current) {
+        LCounters.Counter storage nonce = _accounts[owner].nonce;
+        current = nonce.current();
+        nonce.increment();
+    }
+
+    function name() external view returns (string memory) {
+        return _name;
+    }
+
+    function symbol() external view returns (string memory) {
+        return _symbol;
+    }
+
+    function decimals() external pure returns (uint8) {
+        return 18;
+    }
+
+    function totalSupply() external view returns (uint256) {
+        return _totalSupply;
+    }
+
+    function balanceOf(address account) external view returns (uint256) {
+        return _accounts[account].balance;
+    }
+
+    function allowance(address owner, address spender) external view returns (uint256){
+        return _allowance(owner, spender);
+    }
+
+    function approve(address spender, uint256 amount) external returns (bool) {
+        _approve(_msgSender(), spender, amount);
+        return true;
+    }
+
+    function transfer(address recipient, uint256 amount) external returns (bool) {
+        if (_taxRate > 0 && !_taxWhitelist.contains(_msgSender())) {
+            _taxTransfer(_msgSender(), recipient, amount);
+        } else {
+            _transfer(_msgSender(), recipient, amount);
+        }
+        return true;
+    }
+
+    function transferFrom(address source, address recipient, uint256 amount) external returns (bool) {
+        return _transferFrom(source, recipient, amount);
+    }
+
+    function batchTransfer(BatchTransferRequest[] calldata request) external returns (bool) {
+        for (uint256 i = 0; i < request.length; i++) {
+            _transfer(_msgSender(), request[i].recipient, request[i].amount);
+        }
+        return true;
+    }
+
+    function batchTransferFrom(BatchTransferFromRequest[] calldata request) external returns (bool) {    
+        for (uint256 i = 0; i < request.length; i++) {
+            _transferFrom(request[i].source, request[i].recipient, request[i].amount);
+        }
+        return true;
+    }
+
+    function increaseAllowance(address spender, uint256 value) external returns (uint256) {
+       address owner = _msgSender();
+       uint256 currentAllowance = _allowance(owner, spender) + value;
+        _approve(owner, spender, currentAllowance);
+        return currentAllowance;
+    }
+
+    function decreaseAllowance(address spender, uint256 value) external returns (uint256){
+        address owner = _msgSender();
+        uint256 currentAllowance = _allowance(owner, spender);
+        require(currentAllowance >= value, "Isufficient Account Allowance");
+        unchecked {
+            currentAllowance = currentAllowance - value;
+        }
+        _approve(owner, spender, currentAllowance);
+        return currentAllowance;
+    }
+
+    function mint(address account, uint256 amount) external safeModeCheck whenNotPaused returns (uint256) {
+        require(account != address(0), "Invalid Account Address");
+        _totalSupply += amount;
+        _accounts[account].balance += amount;
+        emit Mint(_msgSender(), account, amount, _totalSupply);
+        return _totalSupply;
+    }
+
+    function burn(address account, uint256 amount) external safeModeCheck whenNotPaused returns (uint256) {
+         require(account != address(0), "Invalid Account Address");
+
+        uint256 accountBalance = _accounts[account].balance;
+        require(accountBalance >= amount, "Insufficient Account Balance");
+        unchecked {
+            _accounts[account].balance = accountBalance - amount;
+        }
+        _totalSupply -= amount;
+        emit Burn(_msgSender(), account, amount, _totalSupply);
+        return _totalSupply;
+    }
+
+    function _transfer(address src, address dest, uint256 amount) internal safeModeCheck whenNotPaused whenAccountNotPaused(src) {
+        require(src != address(0), "Invalid Source Address");
+        require(dest != address(0), "Invalid Destination Address");
+        require(src != dest, "Illegal Self Transfer");
+        require(amount > 0, "Invalid Transfer Amount");
+
+        uint256 srcBalance = _accounts[src].balance;
+        require(srcBalance >= amount, "Insufficient Account Balance");
+        unchecked {
+            _accounts[src].balance = srcBalance - amount;
+        }
+        _accounts[dest].balance += amount;
+
+        emit Transfer(src, dest, amount);
+    }
+
+    function _taxTransfer(address source, address recipient, uint256 amount) internal {
+        uint256 tax = amount.mulBP(_taxRate);
+        uint256 tokensToTransfer = amount.sub(tax, "Insufficient Transfer Amount");
+
+        _transfer(source, _taxTreasury, tax);
+        _transfer(source, recipient, tokensToTransfer);
+    }
+
+    function _transferFrom(address source, address recipient, uint256 amount) internal returns (bool) {
+        address spender = _msgSender();
+        _spendAllowance(source, spender, amount);
+        if (_taxRate > 0 && !_taxWhitelist.contains(_msgSender())) {
+            _taxTransfer(source, recipient, amount);
+        } else {
+            _transfer(source, recipient, amount);
+        }
+        
+        emit TransferFrom(spender, source, recipient, amount);
+        return true;
+    }
+
+
+    function _approve(address owner, address spender, uint256 amount) internal safeModeCheck whenNotPaused whenAccountNotPaused(owner) {
+        require(owner != address(0), "Invalid Owner Address");
+        require(spender != address(0), "Invalid Spender Address");
+        require(amount > 0, "Invalid Approve Amount");
+
+        _allowances[owner][spender] = amount;
+        emit Approval(owner, spender, amount);
+    }
+
+     function _spendAllowance(address owner, address spender, uint256 amount) internal {
+        uint256 currentAllowance = _allowance(owner, spender);
+        if (currentAllowance != type(uint256).max) {
+            require(currentAllowance >= amount, "Insufficient Account Allowance");
+            unchecked {
+                _approve(owner, spender, currentAllowance - amount);
+            }
+        }
+    }
+
+    function _allowance(address owner, address spender) internal view returns (uint256){
+        return _allowances[owner][spender];
+    }
+
+}

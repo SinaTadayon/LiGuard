@@ -229,6 +229,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "domainSeperator",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "getAccessControlManager",
     outputs: [
       {
@@ -433,6 +446,19 @@ const _abi = [
         type: "bytes",
       },
     ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "recepient",
+        type: "address",
+      },
+    ],
+    name: "withdrawBalance",
+    outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },

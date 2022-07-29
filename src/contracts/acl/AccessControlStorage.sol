@@ -58,22 +58,11 @@ abstract contract AccessControlStorage is BaseUUPSStorage {
     mapping(bytes32 => Group) groupMap;
   }
 
-  bytes32 public constant LIVELY_GENERAL_REALM = keccak256(abi.encodePacked("LIVELY_GENERAL_REALM"));
-  bytes32 public constant LIVELY_GENERAL_GROUP = keccak256(abi.encodePacked("LIVELY_GENERAL_GROUP"));
-  bytes32 public constant LIVELY_ADMIN_ROLE = keccak256(abi.encodePacked("LIVELY_ADMIN_ROLE"));
-  bytes32 public constant LIVELY_SYSTEM_ADMIN_ROLE = keccak256(abi.encodePacked("LIVELY_SYSTEM_ADMIN_ROLE"));
-  bytes32 public constant ANONYMOUS_ROLE = keccak256(abi.encodePacked("ANONYMOUS_ROLE"));
-
-  bytes32 public constant ACCESS_CONTROL_NAME = keccak256(abi.encodePacked("LAccessControl"));
-  bytes32 public constant ACCESS_CONTROL_VERSION = keccak256(abi.encodePacked("1.0.0"));
-  bytes32 public constant CONTEXT_MANAGEMENT_NAME = keccak256(abi.encodePacked("LContextManagement"));
-  bytes32 public constant CONTEXT_MANAGEMENT_VERSION = keccak256(abi.encodePacked("1.0.0"));
-  bytes32 public constant ROLE_MANAGEMENT_NAME = keccak256(abi.encodePacked("LRoleManagement"));
-  bytes32 public constant ROLE_MANAGEMENT_VERSION = keccak256(abi.encodePacked("1.0.0"));
-  bytes32 public constant GROUP_MANAGEMENT_NAME = keccak256(abi.encodePacked("LGroupManagement"));
-  bytes32 public constant GROUP_MANAGEMENT_VERSION = keccak256(abi.encodePacked("1.0.0"));
-  bytes32 public constant REALM_MANAGEMENT_NAME = keccak256(abi.encodePacked("LRealmManagement"));
-  bytes32 public constant REALM_MANAGEMENT_VERSION = keccak256(abi.encodePacked("1.0.0"));
+  bytes32 internal constant _LIVELY_GENERAL_REALM = keccak256(abi.encodePacked("LIVELY_GENERAL_REALM"));
+  bytes32 internal constant _LIVELY_GENERAL_GROUP = keccak256(abi.encodePacked("LIVELY_GENERAL_GROUP"));
+  bytes32 internal constant _LIVELY_ADMIN_ROLE = keccak256(abi.encodePacked("LIVELY_ADMIN_ROLE"));
+  bytes32 internal constant _LIVELY_SYSTEM_ADMIN_ROLE = keccak256(abi.encodePacked("LIVELY_SYSTEM_ADMIN_ROLE"));
+  bytes32 internal constant _LIVELY_ANONYMOUS_ROLE = keccak256(abi.encodePacked("LIVELY_ANONYMOUS_ROLE"));
 
   DataMaps internal _dataMaps;
 }

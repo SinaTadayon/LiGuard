@@ -32,6 +32,7 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
     "contractName()": FunctionFragment;
     "contractRealm()": FunctionFragment;
     "contractVersion()": FunctionFragment;
+    "domainSeperator()": FunctionFragment;
     "getAccessControlManager()": FunctionFragment;
     "getAdmin()": FunctionFragment;
     "getInitializeStatus()": FunctionFragment;
@@ -45,6 +46,7 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
     "subjectAddress()": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
     "upgradeTo(address,bytes,bool)": FunctionFragment;
+    "withdrawBalance(address)": FunctionFragment;
   };
 
   getFunction(
@@ -57,6 +59,8 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
       | "contractRealm()"
       | "contractVersion"
       | "contractVersion()"
+      | "domainSeperator"
+      | "domainSeperator()"
       | "getAccessControlManager"
       | "getAccessControlManager()"
       | "getAdmin"
@@ -83,6 +87,8 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
       | "supportsInterface(bytes4)"
       | "upgradeTo"
       | "upgradeTo(address,bytes,bool)"
+      | "withdrawBalance"
+      | "withdrawBalance(address)"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -115,6 +121,14 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "contractVersion()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "domainSeperator",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "domainSeperator()",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -226,6 +240,14 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
       PromiseOrValue<boolean>
     ]
   ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawBalance",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawBalance(address)",
+    values: [PromiseOrValue<string>]
+  ): string;
 
   decodeFunctionResult(
     functionFragment: "contractContext",
@@ -257,6 +279,14 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "contractVersion()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "domainSeperator",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "domainSeperator()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -346,6 +376,14 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "upgradeTo", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "upgradeTo(address,bytes,bool)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawBalance",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawBalance(address)",
     data: BytesLike
   ): Result;
 
@@ -489,6 +527,10 @@ export interface BaseUUPSProxy extends BaseContract {
 
     "contractVersion()"(overrides?: CallOverrides): Promise<[string]>;
 
+    domainSeperator(overrides?: CallOverrides): Promise<[string]>;
+
+    "domainSeperator()"(overrides?: CallOverrides): Promise<[string]>;
+
     getAccessControlManager(overrides?: CallOverrides): Promise<[string]>;
 
     "getAccessControlManager()"(overrides?: CallOverrides): Promise<[string]>;
@@ -574,6 +616,16 @@ export interface BaseUUPSProxy extends BaseContract {
       forceCall: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    withdrawBalance(
+      recepient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "withdrawBalance(address)"(
+      recepient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
 
   contractContext(overrides?: CallOverrides): Promise<string>;
@@ -591,6 +643,10 @@ export interface BaseUUPSProxy extends BaseContract {
   contractVersion(overrides?: CallOverrides): Promise<string>;
 
   "contractVersion()"(overrides?: CallOverrides): Promise<string>;
+
+  domainSeperator(overrides?: CallOverrides): Promise<string>;
+
+  "domainSeperator()"(overrides?: CallOverrides): Promise<string>;
 
   getAccessControlManager(overrides?: CallOverrides): Promise<string>;
 
@@ -678,6 +734,16 @@ export interface BaseUUPSProxy extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  withdrawBalance(
+    recepient: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "withdrawBalance(address)"(
+    recepient: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
     contractContext(overrides?: CallOverrides): Promise<string>;
 
@@ -694,6 +760,10 @@ export interface BaseUUPSProxy extends BaseContract {
     contractVersion(overrides?: CallOverrides): Promise<string>;
 
     "contractVersion()"(overrides?: CallOverrides): Promise<string>;
+
+    domainSeperator(overrides?: CallOverrides): Promise<string>;
+
+    "domainSeperator()"(overrides?: CallOverrides): Promise<string>;
 
     getAccessControlManager(overrides?: CallOverrides): Promise<string>;
 
@@ -780,6 +850,16 @@ export interface BaseUUPSProxy extends BaseContract {
       forceCall: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<string>;
+
+    withdrawBalance(
+      recepient: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "withdrawBalance(address)"(
+      recepient: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {
@@ -868,6 +948,10 @@ export interface BaseUUPSProxy extends BaseContract {
 
     "contractVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
 
+    domainSeperator(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "domainSeperator()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     getAccessControlManager(overrides?: CallOverrides): Promise<BigNumber>;
 
     "getAccessControlManager()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -953,6 +1037,16 @@ export interface BaseUUPSProxy extends BaseContract {
       forceCall: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    withdrawBalance(
+      recepient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "withdrawBalance(address)"(
+      recepient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -973,6 +1067,12 @@ export interface BaseUUPSProxy extends BaseContract {
     contractVersion(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "contractVersion()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    domainSeperator(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "domainSeperator()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -1073,6 +1173,16 @@ export interface BaseUUPSProxy extends BaseContract {
       newImplementation: PromiseOrValue<string>,
       data: PromiseOrValue<BytesLike>,
       forceCall: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    withdrawBalance(
+      recepient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "withdrawBalance(address)"(
+      recepient: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

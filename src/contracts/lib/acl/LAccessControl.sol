@@ -23,7 +23,7 @@ library LAccessControl {
   bytes32 public constant LIVELY_GENERAL_GROUP = keccak256(abi.encodePacked("LIVELY_GENERAL_GROUP"));
   bytes32 public constant LIVELY_ADMIN_ROLE = keccak256(abi.encodePacked("LIVELY_ADMIN_ROLE"));
   bytes32 public constant LIVELY_SYSTEM_ADMIN_ROLE = keccak256(abi.encodePacked("LIVELY_SYSTEM_ADMIN_ROLE"));
-  bytes32 public constant ANONYMOUS_ROLE = keccak256(abi.encodePacked("ANONYMOUS_ROLE"));
+  bytes32 public constant LIVELY_ANONYMOUS_ROLE = keccak256(abi.encodePacked("LIVELY_ANONYMOUS_ROLE"));
 
   function initializeContext(AccessControlStorage.DataMaps storage data) external {
     data.accountMap[msg.sender][LIVELY_ADMIN_ROLE] = AccessControlStorage.Status.ENABLED;
@@ -39,10 +39,10 @@ library LAccessControl {
     data.roleMap[LIVELY_SYSTEM_ADMIN_ROLE].group = LIVELY_GENERAL_GROUP;
     data.roleMap[LIVELY_SYSTEM_ADMIN_ROLE].accountSet.add(msg.sender);
 
-    data.roleMap[ANONYMOUS_ROLE].name = "ANONYMOUS_ROLE";
-    data.roleMap[ANONYMOUS_ROLE].isEnabled = true;
-    data.roleMap[ANONYMOUS_ROLE].group = LIVELY_GENERAL_GROUP;
-    data.roleMap[ANONYMOUS_ROLE].accountSet.add(msg.sender);
+    data.roleMap[LIVELY_ANONYMOUS_ROLE].name = "LIVELY_ANONYMOUS_ROLE";
+    data.roleMap[LIVELY_ANONYMOUS_ROLE].isEnabled = true;
+    data.roleMap[LIVELY_ANONYMOUS_ROLE].group = LIVELY_GENERAL_GROUP;
+    data.roleMap[LIVELY_ANONYMOUS_ROLE].accountSet.add(msg.sender);
 
     data.groupMap[LIVELY_GENERAL_GROUP].name = "LIVELY_GENERAL_GROUP";
     data.groupMap[LIVELY_GENERAL_GROUP].isEnabled = true;
@@ -59,33 +59,33 @@ library LAccessControl {
     IContextManagement.RequestRegisterContext[] memory rc = new IContextManagement.RequestRegisterContext[](2);
     rc[0].role = LIVELY_ADMIN_ROLE;
     rc[0].isEnabled = true;
-    rc[0].funcSelectors = new bytes4[](20);
-    rc[0].funcSelectors[0] = IProxy.setAdmin.selector;
-    rc[0].funcSelectors[1] = IProxy.setUpgradeStatus.selector;
-    rc[0].funcSelectors[2] = IContextManagement.registerContext.selector;
-    rc[0].funcSelectors[3] = IContextManagement.updateContext.selector;
-    rc[0].funcSelectors[4] = IContextManagement.addContextFuncRole.selector;
-    rc[0].funcSelectors[5] = IContextManagement.removeContextFunc.selector;
-    rc[0].funcSelectors[6] = IContextManagement.grantContextRole.selector;
-    rc[0].funcSelectors[7] = IContextManagement.revokeContextRole.selector;
-    rc[0].funcSelectors[8] = IContextManagement.setContextRealm.selector;
-    rc[0].funcSelectors[9] = IContextManagement.setContextStatus.selector;
-    rc[0].funcSelectors[10] = IRoleManagement.registerRole.selector;
-    rc[0].funcSelectors[11] = IRoleManagement.grantRoleAccount.selector;
-    rc[0].funcSelectors[12] = IRoleManagement.revokeRoleAccount.selector;
-    rc[0].funcSelectors[13] = IRoleManagement.setRoleStatus.selector;
-    rc[0].funcSelectors[14] = IRoleManagement.setRoleGroup.selector;
-    rc[0].funcSelectors[15] = IGroupManagement.registerGroup.selector;
-    rc[0].funcSelectors[16] = IGroupManagement.setGroupStatus.selector;
-    rc[0].funcSelectors[17] = IRealmManagement.registerRealm.selector;
-    rc[0].funcSelectors[18] = IRealmManagement.setRealmStatus.selector;
-    rc[0].funcSelectors[19] = IRealmManagement.setRealmUpgradeStatus.selector;
+    rc[0].funcSelectors = new bytes4[](19);
+    rc[0].funcSelectors[0] = IProxy.setUpgradeStatus.selector;
+    rc[0].funcSelectors[1] = IContextManagement.registerContext.selector;
+    rc[0].funcSelectors[2] = IContextManagement.updateContext.selector;
+    rc[0].funcSelectors[3] = IContextManagement.addContextFuncRole.selector;
+    rc[0].funcSelectors[4] = IContextManagement.removeContextFunc.selector;
+    rc[0].funcSelectors[5] = IContextManagement.grantContextRole.selector;
+    rc[0].funcSelectors[6] = IContextManagement.revokeContextRole.selector;
+    rc[0].funcSelectors[7] = IContextManagement.setContextRealm.selector;
+    rc[0].funcSelectors[8] = IContextManagement.setContextStatus.selector;
+    rc[0].funcSelectors[9] = IRoleManagement.registerRole.selector;
+    rc[0].funcSelectors[10] = IRoleManagement.grantRoleAccount.selector;
+    rc[0].funcSelectors[11] = IRoleManagement.revokeRoleAccount.selector;
+    rc[0].funcSelectors[12] = IRoleManagement.setRoleStatus.selector;
+    rc[0].funcSelectors[13] = IRoleManagement.setRoleGroup.selector;
+    rc[0].funcSelectors[14] = IGroupManagement.registerGroup.selector;
+    rc[0].funcSelectors[15] = IGroupManagement.setGroupStatus.selector;
+    rc[0].funcSelectors[16] = IRealmManagement.registerRealm.selector;
+    rc[0].funcSelectors[17] = IRealmManagement.setRealmStatus.selector;
+    rc[0].funcSelectors[18] = IRealmManagement.setRealmUpgradeStatus.selector;
 
     rc[1].role = LIVELY_SYSTEM_ADMIN_ROLE;
     rc[1].isEnabled = true;
-    rc[1].funcSelectors = new bytes4[](2);
-    rc[1].funcSelectors[0] = IProxy.setSafeMode.selector;
-    rc[1].funcSelectors[1] = IProxy.upgradeTo.selector;
+    rc[1].funcSelectors = new bytes4[](3);
+    rc[1].funcSelectors[0] = IProxy.setAdmin.selector;
+    rc[1].funcSelectors[1] = IProxy.setSafeMode.selector;
+    rc[1].funcSelectors[2] = IProxy.upgradeTo.selector;
     return rc;
   }
 
@@ -119,7 +119,7 @@ library LAccessControl {
     // console.log("data.accountMap[account][role]: ");
     // console.logBytes1(bytes1(uint8(data.accountMap[account][role])));
 
-    if (role == ANONYMOUS_ROLE) {
+    if (role == LIVELY_ANONYMOUS_ROLE) {
       return
         data.ctxMap[context].isEnabled &&
         data.ctxMap[context].resources[signature].status == AccessControlStorage.Status.ENABLED;

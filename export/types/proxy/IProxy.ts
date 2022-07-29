@@ -32,6 +32,7 @@ export interface IProxyInterface extends utils.Interface {
     "contractName()": FunctionFragment;
     "contractRealm()": FunctionFragment;
     "contractVersion()": FunctionFragment;
+    "domainSeperator()": FunctionFragment;
     "getAccessControlManager()": FunctionFragment;
     "getAdmin()": FunctionFragment;
     "getInitializeStatus()": FunctionFragment;
@@ -55,6 +56,8 @@ export interface IProxyInterface extends utils.Interface {
       | "contractRealm()"
       | "contractVersion"
       | "contractVersion()"
+      | "domainSeperator"
+      | "domainSeperator()"
       | "getAccessControlManager"
       | "getAccessControlManager()"
       | "getAdmin"
@@ -109,6 +112,14 @@ export interface IProxyInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "contractVersion()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "domainSeperator",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "domainSeperator()",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -235,6 +246,14 @@ export interface IProxyInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "contractVersion()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "domainSeperator",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "domainSeperator()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -451,6 +470,10 @@ export interface IProxy extends BaseContract {
 
     "contractVersion()"(overrides?: CallOverrides): Promise<[string]>;
 
+    domainSeperator(overrides?: CallOverrides): Promise<[string]>;
+
+    "domainSeperator()"(overrides?: CallOverrides): Promise<[string]>;
+
     getAccessControlManager(overrides?: CallOverrides): Promise<[string]>;
 
     "getAccessControlManager()"(overrides?: CallOverrides): Promise<[string]>;
@@ -540,6 +563,10 @@ export interface IProxy extends BaseContract {
 
   "contractVersion()"(overrides?: CallOverrides): Promise<string>;
 
+  domainSeperator(overrides?: CallOverrides): Promise<string>;
+
+  "domainSeperator()"(overrides?: CallOverrides): Promise<string>;
+
   getAccessControlManager(overrides?: CallOverrides): Promise<string>;
 
   "getAccessControlManager()"(overrides?: CallOverrides): Promise<string>;
@@ -628,6 +655,10 @@ export interface IProxy extends BaseContract {
     contractVersion(overrides?: CallOverrides): Promise<string>;
 
     "contractVersion()"(overrides?: CallOverrides): Promise<string>;
+
+    domainSeperator(overrides?: CallOverrides): Promise<string>;
+
+    "domainSeperator()"(overrides?: CallOverrides): Promise<string>;
 
     getAccessControlManager(overrides?: CallOverrides): Promise<string>;
 
@@ -788,6 +819,10 @@ export interface IProxy extends BaseContract {
 
     "contractVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
 
+    domainSeperator(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "domainSeperator()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     getAccessControlManager(overrides?: CallOverrides): Promise<BigNumber>;
 
     "getAccessControlManager()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -879,6 +914,12 @@ export interface IProxy extends BaseContract {
     contractVersion(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "contractVersion()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    domainSeperator(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "domainSeperator()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

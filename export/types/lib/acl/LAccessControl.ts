@@ -36,10 +36,10 @@ export declare namespace IContextManagement {
 
 export interface LAccessControlInterface extends utils.Interface {
   functions: {
-    "ANONYMOUS_ROLE()": FunctionFragment;
     "LIB_NAME()": FunctionFragment;
     "LIB_VERSION()": FunctionFragment;
     "LIVELY_ADMIN_ROLE()": FunctionFragment;
+    "LIVELY_ANONYMOUS_ROLE()": FunctionFragment;
     "LIVELY_GENERAL_GROUP()": FunctionFragment;
     "LIVELY_GENERAL_REALM()": FunctionFragment;
     "LIVELY_SYSTEM_ADMIN_ROLE()": FunctionFragment;
@@ -48,14 +48,14 @@ export interface LAccessControlInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "ANONYMOUS_ROLE"
-      | "ANONYMOUS_ROLE()"
       | "LIB_NAME"
       | "LIB_NAME()"
       | "LIB_VERSION"
       | "LIB_VERSION()"
       | "LIVELY_ADMIN_ROLE"
       | "LIVELY_ADMIN_ROLE()"
+      | "LIVELY_ANONYMOUS_ROLE"
+      | "LIVELY_ANONYMOUS_ROLE()"
       | "LIVELY_GENERAL_GROUP"
       | "LIVELY_GENERAL_GROUP()"
       | "LIVELY_GENERAL_REALM"
@@ -66,14 +66,6 @@ export interface LAccessControlInterface extends utils.Interface {
       | "createRequestContext()"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "ANONYMOUS_ROLE",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "ANONYMOUS_ROLE()",
-    values?: undefined
-  ): string;
   encodeFunctionData(functionFragment: "LIB_NAME", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "LIB_NAME()",
@@ -93,6 +85,14 @@ export interface LAccessControlInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "LIVELY_ADMIN_ROLE()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_ANONYMOUS_ROLE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_ANONYMOUS_ROLE()",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -128,14 +128,6 @@ export interface LAccessControlInterface extends utils.Interface {
     values?: undefined
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "ANONYMOUS_ROLE",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "ANONYMOUS_ROLE()",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "LIB_NAME", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "LIB_NAME()", data: BytesLike): Result;
   decodeFunctionResult(
@@ -152,6 +144,14 @@ export interface LAccessControlInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "LIVELY_ADMIN_ROLE()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_ANONYMOUS_ROLE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_ANONYMOUS_ROLE()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -217,10 +217,6 @@ export interface LAccessControl extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    ANONYMOUS_ROLE(overrides?: CallOverrides): Promise<[string]>;
-
-    "ANONYMOUS_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
-
     LIB_NAME(overrides?: CallOverrides): Promise<[string]>;
 
     "LIB_NAME()"(overrides?: CallOverrides): Promise<[string]>;
@@ -232,6 +228,10 @@ export interface LAccessControl extends BaseContract {
     LIVELY_ADMIN_ROLE(overrides?: CallOverrides): Promise<[string]>;
 
     "LIVELY_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
+
+    LIVELY_ANONYMOUS_ROLE(overrides?: CallOverrides): Promise<[string]>;
+
+    "LIVELY_ANONYMOUS_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
 
     LIVELY_GENERAL_GROUP(overrides?: CallOverrides): Promise<[string]>;
 
@@ -254,10 +254,6 @@ export interface LAccessControl extends BaseContract {
     ): Promise<[IContextManagement.RequestRegisterContextStructOutput[]]>;
   };
 
-  ANONYMOUS_ROLE(overrides?: CallOverrides): Promise<string>;
-
-  "ANONYMOUS_ROLE()"(overrides?: CallOverrides): Promise<string>;
-
   LIB_NAME(overrides?: CallOverrides): Promise<string>;
 
   "LIB_NAME()"(overrides?: CallOverrides): Promise<string>;
@@ -269,6 +265,10 @@ export interface LAccessControl extends BaseContract {
   LIVELY_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
 
   "LIVELY_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
+  LIVELY_ANONYMOUS_ROLE(overrides?: CallOverrides): Promise<string>;
+
+  "LIVELY_ANONYMOUS_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
   LIVELY_GENERAL_GROUP(overrides?: CallOverrides): Promise<string>;
 
@@ -291,10 +291,6 @@ export interface LAccessControl extends BaseContract {
   ): Promise<IContextManagement.RequestRegisterContextStructOutput[]>;
 
   callStatic: {
-    ANONYMOUS_ROLE(overrides?: CallOverrides): Promise<string>;
-
-    "ANONYMOUS_ROLE()"(overrides?: CallOverrides): Promise<string>;
-
     LIB_NAME(overrides?: CallOverrides): Promise<string>;
 
     "LIB_NAME()"(overrides?: CallOverrides): Promise<string>;
@@ -306,6 +302,10 @@ export interface LAccessControl extends BaseContract {
     LIVELY_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
 
     "LIVELY_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
+    LIVELY_ANONYMOUS_ROLE(overrides?: CallOverrides): Promise<string>;
+
+    "LIVELY_ANONYMOUS_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
     LIVELY_GENERAL_GROUP(overrides?: CallOverrides): Promise<string>;
 
@@ -331,10 +331,6 @@ export interface LAccessControl extends BaseContract {
   filters: {};
 
   estimateGas: {
-    ANONYMOUS_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "ANONYMOUS_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     LIB_NAME(overrides?: CallOverrides): Promise<BigNumber>;
 
     "LIB_NAME()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -346,6 +342,10 @@ export interface LAccessControl extends BaseContract {
     LIVELY_ADMIN_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
 
     "LIVELY_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    LIVELY_ANONYMOUS_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "LIVELY_ANONYMOUS_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     LIVELY_GENERAL_GROUP(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -365,12 +365,6 @@ export interface LAccessControl extends BaseContract {
   };
 
   populateTransaction: {
-    ANONYMOUS_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "ANONYMOUS_ROLE()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     LIB_NAME(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "LIB_NAME()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -382,6 +376,14 @@ export interface LAccessControl extends BaseContract {
     LIVELY_ADMIN_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "LIVELY_ADMIN_ROLE()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    LIVELY_ANONYMOUS_ROLE(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "LIVELY_ANONYMOUS_ROLE()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

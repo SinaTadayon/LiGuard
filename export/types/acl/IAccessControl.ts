@@ -40,6 +40,11 @@ export interface IAccessControlInterface extends utils.Interface {
     "isRealmUpgradable(bytes32)": FunctionFragment;
     "isRoleEnabled(bytes32)": FunctionFragment;
     "isRoleExists(bytes32)": FunctionFragment;
+    "livelyAdminRole()": FunctionFragment;
+    "livelyAnonymousRole()": FunctionFragment;
+    "livelyGeneralGroupRole()": FunctionFragment;
+    "livelyGeneralRealmRole()": FunctionFragment;
+    "livelySystemAdminRole()": FunctionFragment;
   };
 
   getFunction(
@@ -80,6 +85,16 @@ export interface IAccessControlInterface extends utils.Interface {
       | "isRoleEnabled(bytes32)"
       | "isRoleExists"
       | "isRoleExists(bytes32)"
+      | "livelyAdminRole"
+      | "livelyAdminRole()"
+      | "livelyAnonymousRole"
+      | "livelyAnonymousRole()"
+      | "livelyGeneralGroupRole"
+      | "livelyGeneralGroupRole()"
+      | "livelyGeneralRealmRole"
+      | "livelyGeneralRealmRole()"
+      | "livelySystemAdminRole"
+      | "livelySystemAdminRole()"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -234,6 +249,46 @@ export interface IAccessControlInterface extends utils.Interface {
     functionFragment: "isRoleExists(bytes32)",
     values: [PromiseOrValue<BytesLike>]
   ): string;
+  encodeFunctionData(
+    functionFragment: "livelyAdminRole",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "livelyAdminRole()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "livelyAnonymousRole",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "livelyAnonymousRole()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "livelyGeneralGroupRole",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "livelyGeneralGroupRole()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "livelyGeneralRealmRole",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "livelyGeneralRealmRole()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "livelySystemAdminRole",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "livelySystemAdminRole()",
+    values?: undefined
+  ): string;
 
   decodeFunctionResult(functionFragment: "hasAccess", data: BytesLike): Result;
   decodeFunctionResult(
@@ -374,6 +429,46 @@ export interface IAccessControlInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "isRoleExists(bytes32)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "livelyAdminRole",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "livelyAdminRole()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "livelyAnonymousRole",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "livelyAnonymousRole()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "livelyGeneralGroupRole",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "livelyGeneralGroupRole()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "livelyGeneralRealmRole",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "livelyGeneralRealmRole()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "livelySystemAdminRole",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "livelySystemAdminRole()",
     data: BytesLike
   ): Result;
 
@@ -594,6 +689,26 @@ export interface IAccessControl extends BaseContract {
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
+
+    livelyAdminRole(overrides?: CallOverrides): Promise<[string]>;
+
+    "livelyAdminRole()"(overrides?: CallOverrides): Promise<[string]>;
+
+    livelyAnonymousRole(overrides?: CallOverrides): Promise<[string]>;
+
+    "livelyAnonymousRole()"(overrides?: CallOverrides): Promise<[string]>;
+
+    livelyGeneralGroupRole(overrides?: CallOverrides): Promise<[string]>;
+
+    "livelyGeneralGroupRole()"(overrides?: CallOverrides): Promise<[string]>;
+
+    livelyGeneralRealmRole(overrides?: CallOverrides): Promise<[string]>;
+
+    "livelyGeneralRealmRole()"(overrides?: CallOverrides): Promise<[string]>;
+
+    livelySystemAdminRole(overrides?: CallOverrides): Promise<[string]>;
+
+    "livelySystemAdminRole()"(overrides?: CallOverrides): Promise<[string]>;
   };
 
   hasAccess(
@@ -784,6 +899,26 @@ export interface IAccessControl extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  livelyAdminRole(overrides?: CallOverrides): Promise<string>;
+
+  "livelyAdminRole()"(overrides?: CallOverrides): Promise<string>;
+
+  livelyAnonymousRole(overrides?: CallOverrides): Promise<string>;
+
+  "livelyAnonymousRole()"(overrides?: CallOverrides): Promise<string>;
+
+  livelyGeneralGroupRole(overrides?: CallOverrides): Promise<string>;
+
+  "livelyGeneralGroupRole()"(overrides?: CallOverrides): Promise<string>;
+
+  livelyGeneralRealmRole(overrides?: CallOverrides): Promise<string>;
+
+  "livelyGeneralRealmRole()"(overrides?: CallOverrides): Promise<string>;
+
+  livelySystemAdminRole(overrides?: CallOverrides): Promise<string>;
+
+  "livelySystemAdminRole()"(overrides?: CallOverrides): Promise<string>;
+
   callStatic: {
     hasAccess(
       context: PromiseOrValue<BytesLike>,
@@ -972,6 +1107,26 @@ export interface IAccessControl extends BaseContract {
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    livelyAdminRole(overrides?: CallOverrides): Promise<string>;
+
+    "livelyAdminRole()"(overrides?: CallOverrides): Promise<string>;
+
+    livelyAnonymousRole(overrides?: CallOverrides): Promise<string>;
+
+    "livelyAnonymousRole()"(overrides?: CallOverrides): Promise<string>;
+
+    livelyGeneralGroupRole(overrides?: CallOverrides): Promise<string>;
+
+    "livelyGeneralGroupRole()"(overrides?: CallOverrides): Promise<string>;
+
+    livelyGeneralRealmRole(overrides?: CallOverrides): Promise<string>;
+
+    "livelyGeneralRealmRole()"(overrides?: CallOverrides): Promise<string>;
+
+    livelySystemAdminRole(overrides?: CallOverrides): Promise<string>;
+
+    "livelySystemAdminRole()"(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {};
@@ -1164,6 +1319,26 @@ export interface IAccessControl extends BaseContract {
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    livelyAdminRole(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "livelyAdminRole()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    livelyAnonymousRole(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "livelyAnonymousRole()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    livelyGeneralGroupRole(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "livelyGeneralGroupRole()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    livelyGeneralRealmRole(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "livelyGeneralRealmRole()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    livelySystemAdminRole(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "livelySystemAdminRole()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -1352,6 +1527,44 @@ export interface IAccessControl extends BaseContract {
 
     "isRoleExists(bytes32)"(
       role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    livelyAdminRole(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "livelyAdminRole()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    livelyAnonymousRole(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "livelyAnonymousRole()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    livelyGeneralGroupRole(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "livelyGeneralGroupRole()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    livelyGeneralRealmRole(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "livelyGeneralRealmRole()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    livelySystemAdminRole(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "livelySystemAdminRole()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };

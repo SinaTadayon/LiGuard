@@ -102,26 +102,12 @@ export declare namespace IContextManagement {
 
 export interface AccessControlManagerInterface extends utils.Interface {
   functions: {
-    "ACCESS_CONTROL_NAME()": FunctionFragment;
-    "ACCESS_CONTROL_VERSION()": FunctionFragment;
-    "ANONYMOUS_ROLE()": FunctionFragment;
-    "CONTEXT_MANAGEMENT_NAME()": FunctionFragment;
-    "CONTEXT_MANAGEMENT_VERSION()": FunctionFragment;
-    "GROUP_MANAGEMENT_NAME()": FunctionFragment;
-    "GROUP_MANAGEMENT_VERSION()": FunctionFragment;
-    "LIVELY_ADMIN_ROLE()": FunctionFragment;
-    "LIVELY_GENERAL_GROUP()": FunctionFragment;
-    "LIVELY_GENERAL_REALM()": FunctionFragment;
-    "LIVELY_SYSTEM_ADMIN_ROLE()": FunctionFragment;
-    "REALM_MANAGEMENT_NAME()": FunctionFragment;
-    "REALM_MANAGEMENT_VERSION()": FunctionFragment;
-    "ROLE_MANAGEMENT_NAME()": FunctionFragment;
-    "ROLE_MANAGEMENT_VERSION()": FunctionFragment;
     "addContextFuncRole(bytes32,bytes4,bytes32)": FunctionFragment;
     "contractContext()": FunctionFragment;
     "contractName()": FunctionFragment;
     "contractRealm()": FunctionFragment;
     "contractVersion()": FunctionFragment;
+    "domainSeperator()": FunctionFragment;
     "getAccessControlManager()": FunctionFragment;
     "getAdmin()": FunctionFragment;
     "getContextFuncs(bytes32)": FunctionFragment;
@@ -161,6 +147,11 @@ export interface AccessControlManagerInterface extends utils.Interface {
     "isRoleExists(bytes32)": FunctionFragment;
     "isSafeMode()": FunctionFragment;
     "isUpgradable()": FunctionFragment;
+    "livelyAdminRole()": FunctionFragment;
+    "livelyAnonymousRole()": FunctionFragment;
+    "livelyGeneralGroupRole()": FunctionFragment;
+    "livelyGeneralRealmRole()": FunctionFragment;
+    "livelySystemAdminRole()": FunctionFragment;
     "proxiableUUID()": FunctionFragment;
     "registerContext(bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])": FunctionFragment;
     "registerGroup(string,bool)": FunctionFragment;
@@ -183,40 +174,11 @@ export interface AccessControlManagerInterface extends utils.Interface {
     "supportsInterface(bytes4)": FunctionFragment;
     "updateContext(bytes32,bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],uint8)[])": FunctionFragment;
     "upgradeTo(address,bytes,bool)": FunctionFragment;
+    "withdrawBalance(address)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "ACCESS_CONTROL_NAME"
-      | "ACCESS_CONTROL_NAME()"
-      | "ACCESS_CONTROL_VERSION"
-      | "ACCESS_CONTROL_VERSION()"
-      | "ANONYMOUS_ROLE"
-      | "ANONYMOUS_ROLE()"
-      | "CONTEXT_MANAGEMENT_NAME"
-      | "CONTEXT_MANAGEMENT_NAME()"
-      | "CONTEXT_MANAGEMENT_VERSION"
-      | "CONTEXT_MANAGEMENT_VERSION()"
-      | "GROUP_MANAGEMENT_NAME"
-      | "GROUP_MANAGEMENT_NAME()"
-      | "GROUP_MANAGEMENT_VERSION"
-      | "GROUP_MANAGEMENT_VERSION()"
-      | "LIVELY_ADMIN_ROLE"
-      | "LIVELY_ADMIN_ROLE()"
-      | "LIVELY_GENERAL_GROUP"
-      | "LIVELY_GENERAL_GROUP()"
-      | "LIVELY_GENERAL_REALM"
-      | "LIVELY_GENERAL_REALM()"
-      | "LIVELY_SYSTEM_ADMIN_ROLE"
-      | "LIVELY_SYSTEM_ADMIN_ROLE()"
-      | "REALM_MANAGEMENT_NAME"
-      | "REALM_MANAGEMENT_NAME()"
-      | "REALM_MANAGEMENT_VERSION"
-      | "REALM_MANAGEMENT_VERSION()"
-      | "ROLE_MANAGEMENT_NAME"
-      | "ROLE_MANAGEMENT_NAME()"
-      | "ROLE_MANAGEMENT_VERSION"
-      | "ROLE_MANAGEMENT_VERSION()"
       | "addContextFuncRole"
       | "addContextFuncRole(bytes32,bytes4,bytes32)"
       | "contractContext"
@@ -227,6 +189,8 @@ export interface AccessControlManagerInterface extends utils.Interface {
       | "contractRealm()"
       | "contractVersion"
       | "contractVersion()"
+      | "domainSeperator"
+      | "domainSeperator()"
       | "getAccessControlManager"
       | "getAccessControlManager()"
       | "getAdmin"
@@ -305,6 +269,16 @@ export interface AccessControlManagerInterface extends utils.Interface {
       | "isSafeMode()"
       | "isUpgradable"
       | "isUpgradable()"
+      | "livelyAdminRole"
+      | "livelyAdminRole()"
+      | "livelyAnonymousRole"
+      | "livelyAnonymousRole()"
+      | "livelyGeneralGroupRole"
+      | "livelyGeneralGroupRole()"
+      | "livelyGeneralRealmRole"
+      | "livelyGeneralRealmRole()"
+      | "livelySystemAdminRole"
+      | "livelySystemAdminRole()"
       | "proxiableUUID"
       | "proxiableUUID()"
       | "registerContext"
@@ -349,128 +323,10 @@ export interface AccessControlManagerInterface extends utils.Interface {
       | "updateContext(bytes32,bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],uint8)[])"
       | "upgradeTo"
       | "upgradeTo(address,bytes,bool)"
+      | "withdrawBalance"
+      | "withdrawBalance(address)"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "ACCESS_CONTROL_NAME",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "ACCESS_CONTROL_NAME()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "ACCESS_CONTROL_VERSION",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "ACCESS_CONTROL_VERSION()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "ANONYMOUS_ROLE",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "ANONYMOUS_ROLE()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "CONTEXT_MANAGEMENT_NAME",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "CONTEXT_MANAGEMENT_NAME()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "CONTEXT_MANAGEMENT_VERSION",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "CONTEXT_MANAGEMENT_VERSION()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "GROUP_MANAGEMENT_NAME",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "GROUP_MANAGEMENT_NAME()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "GROUP_MANAGEMENT_VERSION",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "GROUP_MANAGEMENT_VERSION()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_ADMIN_ROLE",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_ADMIN_ROLE()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_GENERAL_GROUP",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_GENERAL_GROUP()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_GENERAL_REALM",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_GENERAL_REALM()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_SYSTEM_ADMIN_ROLE",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_SYSTEM_ADMIN_ROLE()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "REALM_MANAGEMENT_NAME",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "REALM_MANAGEMENT_NAME()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "REALM_MANAGEMENT_VERSION",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "REALM_MANAGEMENT_VERSION()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "ROLE_MANAGEMENT_NAME",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "ROLE_MANAGEMENT_NAME()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "ROLE_MANAGEMENT_VERSION",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "ROLE_MANAGEMENT_VERSION()",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "addContextFuncRole",
     values: [
@@ -517,6 +373,14 @@ export interface AccessControlManagerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "contractVersion()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "domainSeperator",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "domainSeperator()",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -863,6 +727,46 @@ export interface AccessControlManagerInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "livelyAdminRole",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "livelyAdminRole()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "livelyAnonymousRole",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "livelyAnonymousRole()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "livelyGeneralGroupRole",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "livelyGeneralGroupRole()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "livelyGeneralRealmRole",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "livelyGeneralRealmRole()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "livelySystemAdminRole",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "livelySystemAdminRole()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "proxiableUUID",
     values?: undefined
   ): string;
@@ -1088,127 +992,15 @@ export interface AccessControlManagerInterface extends utils.Interface {
       PromiseOrValue<boolean>
     ]
   ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawBalance",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawBalance(address)",
+    values: [PromiseOrValue<string>]
+  ): string;
 
-  decodeFunctionResult(
-    functionFragment: "ACCESS_CONTROL_NAME",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "ACCESS_CONTROL_NAME()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "ACCESS_CONTROL_VERSION",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "ACCESS_CONTROL_VERSION()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "ANONYMOUS_ROLE",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "ANONYMOUS_ROLE()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "CONTEXT_MANAGEMENT_NAME",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "CONTEXT_MANAGEMENT_NAME()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "CONTEXT_MANAGEMENT_VERSION",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "CONTEXT_MANAGEMENT_VERSION()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "GROUP_MANAGEMENT_NAME",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "GROUP_MANAGEMENT_NAME()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "GROUP_MANAGEMENT_VERSION",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "GROUP_MANAGEMENT_VERSION()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_ADMIN_ROLE",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_ADMIN_ROLE()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_GENERAL_GROUP",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_GENERAL_GROUP()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_GENERAL_REALM",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_GENERAL_REALM()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_SYSTEM_ADMIN_ROLE",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_SYSTEM_ADMIN_ROLE()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "REALM_MANAGEMENT_NAME",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "REALM_MANAGEMENT_NAME()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "REALM_MANAGEMENT_VERSION",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "REALM_MANAGEMENT_VERSION()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "ROLE_MANAGEMENT_NAME",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "ROLE_MANAGEMENT_NAME()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "ROLE_MANAGEMENT_VERSION",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "ROLE_MANAGEMENT_VERSION()",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "addContextFuncRole",
     data: BytesLike
@@ -1247,6 +1039,14 @@ export interface AccessControlManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "contractVersion()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "domainSeperator",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "domainSeperator()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1547,6 +1347,46 @@ export interface AccessControlManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "livelyAdminRole",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "livelyAdminRole()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "livelyAnonymousRole",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "livelyAnonymousRole()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "livelyGeneralGroupRole",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "livelyGeneralGroupRole()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "livelyGeneralRealmRole",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "livelyGeneralRealmRole()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "livelySystemAdminRole",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "livelySystemAdminRole()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "proxiableUUID",
     data: BytesLike
   ): Result;
@@ -1714,6 +1554,14 @@ export interface AccessControlManagerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "upgradeTo", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "upgradeTo(address,bytes,bool)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawBalance",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawBalance(address)",
     data: BytesLike
   ): Result;
 
@@ -2179,68 +2027,6 @@ export interface AccessControlManager extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    ACCESS_CONTROL_NAME(overrides?: CallOverrides): Promise<[string]>;
-
-    "ACCESS_CONTROL_NAME()"(overrides?: CallOverrides): Promise<[string]>;
-
-    ACCESS_CONTROL_VERSION(overrides?: CallOverrides): Promise<[string]>;
-
-    "ACCESS_CONTROL_VERSION()"(overrides?: CallOverrides): Promise<[string]>;
-
-    ANONYMOUS_ROLE(overrides?: CallOverrides): Promise<[string]>;
-
-    "ANONYMOUS_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
-
-    CONTEXT_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<[string]>;
-
-    "CONTEXT_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<[string]>;
-
-    CONTEXT_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<[string]>;
-
-    "CONTEXT_MANAGEMENT_VERSION()"(
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    GROUP_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<[string]>;
-
-    "GROUP_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<[string]>;
-
-    GROUP_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<[string]>;
-
-    "GROUP_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<[string]>;
-
-    LIVELY_ADMIN_ROLE(overrides?: CallOverrides): Promise<[string]>;
-
-    "LIVELY_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
-
-    LIVELY_GENERAL_GROUP(overrides?: CallOverrides): Promise<[string]>;
-
-    "LIVELY_GENERAL_GROUP()"(overrides?: CallOverrides): Promise<[string]>;
-
-    LIVELY_GENERAL_REALM(overrides?: CallOverrides): Promise<[string]>;
-
-    "LIVELY_GENERAL_REALM()"(overrides?: CallOverrides): Promise<[string]>;
-
-    LIVELY_SYSTEM_ADMIN_ROLE(overrides?: CallOverrides): Promise<[string]>;
-
-    "LIVELY_SYSTEM_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
-
-    REALM_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<[string]>;
-
-    "REALM_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<[string]>;
-
-    REALM_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<[string]>;
-
-    "REALM_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<[string]>;
-
-    ROLE_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<[string]>;
-
-    "ROLE_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<[string]>;
-
-    ROLE_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<[string]>;
-
-    "ROLE_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<[string]>;
-
     addContextFuncRole(
       ctx: PromiseOrValue<BytesLike>,
       functionSelector: PromiseOrValue<BytesLike>,
@@ -2270,6 +2056,10 @@ export interface AccessControlManager extends BaseContract {
     contractVersion(overrides?: CallOverrides): Promise<[string]>;
 
     "contractVersion()"(overrides?: CallOverrides): Promise<[string]>;
+
+    domainSeperator(overrides?: CallOverrides): Promise<[string]>;
+
+    "domainSeperator()"(overrides?: CallOverrides): Promise<[string]>;
 
     getAccessControlManager(overrides?: CallOverrides): Promise<[string]>;
 
@@ -2655,6 +2445,26 @@ export interface AccessControlManager extends BaseContract {
 
     "isUpgradable()"(overrides?: CallOverrides): Promise<[boolean]>;
 
+    livelyAdminRole(overrides?: CallOverrides): Promise<[string]>;
+
+    "livelyAdminRole()"(overrides?: CallOverrides): Promise<[string]>;
+
+    livelyAnonymousRole(overrides?: CallOverrides): Promise<[string]>;
+
+    "livelyAnonymousRole()"(overrides?: CallOverrides): Promise<[string]>;
+
+    livelyGeneralGroupRole(overrides?: CallOverrides): Promise<[string]>;
+
+    "livelyGeneralGroupRole()"(overrides?: CallOverrides): Promise<[string]>;
+
+    livelyGeneralRealmRole(overrides?: CallOverrides): Promise<[string]>;
+
+    "livelyGeneralRealmRole()"(overrides?: CallOverrides): Promise<[string]>;
+
+    livelySystemAdminRole(overrides?: CallOverrides): Promise<[string]>;
+
+    "livelySystemAdminRole()"(overrides?: CallOverrides): Promise<[string]>;
+
     proxiableUUID(overrides?: CallOverrides): Promise<[string]>;
 
     "proxiableUUID()"(overrides?: CallOverrides): Promise<[string]>;
@@ -2908,67 +2718,17 @@ export interface AccessControlManager extends BaseContract {
       forceCall: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    withdrawBalance(
+      recepient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "withdrawBalance(address)"(
+      recepient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
-
-  ACCESS_CONTROL_NAME(overrides?: CallOverrides): Promise<string>;
-
-  "ACCESS_CONTROL_NAME()"(overrides?: CallOverrides): Promise<string>;
-
-  ACCESS_CONTROL_VERSION(overrides?: CallOverrides): Promise<string>;
-
-  "ACCESS_CONTROL_VERSION()"(overrides?: CallOverrides): Promise<string>;
-
-  ANONYMOUS_ROLE(overrides?: CallOverrides): Promise<string>;
-
-  "ANONYMOUS_ROLE()"(overrides?: CallOverrides): Promise<string>;
-
-  CONTEXT_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<string>;
-
-  "CONTEXT_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<string>;
-
-  CONTEXT_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<string>;
-
-  "CONTEXT_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<string>;
-
-  GROUP_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<string>;
-
-  "GROUP_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<string>;
-
-  GROUP_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<string>;
-
-  "GROUP_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<string>;
-
-  LIVELY_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
-
-  "LIVELY_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<string>;
-
-  LIVELY_GENERAL_GROUP(overrides?: CallOverrides): Promise<string>;
-
-  "LIVELY_GENERAL_GROUP()"(overrides?: CallOverrides): Promise<string>;
-
-  LIVELY_GENERAL_REALM(overrides?: CallOverrides): Promise<string>;
-
-  "LIVELY_GENERAL_REALM()"(overrides?: CallOverrides): Promise<string>;
-
-  LIVELY_SYSTEM_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
-
-  "LIVELY_SYSTEM_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<string>;
-
-  REALM_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<string>;
-
-  "REALM_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<string>;
-
-  REALM_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<string>;
-
-  "REALM_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<string>;
-
-  ROLE_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<string>;
-
-  "ROLE_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<string>;
-
-  ROLE_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<string>;
-
-  "ROLE_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<string>;
 
   addContextFuncRole(
     ctx: PromiseOrValue<BytesLike>,
@@ -2999,6 +2759,10 @@ export interface AccessControlManager extends BaseContract {
   contractVersion(overrides?: CallOverrides): Promise<string>;
 
   "contractVersion()"(overrides?: CallOverrides): Promise<string>;
+
+  domainSeperator(overrides?: CallOverrides): Promise<string>;
+
+  "domainSeperator()"(overrides?: CallOverrides): Promise<string>;
 
   getAccessControlManager(overrides?: CallOverrides): Promise<string>;
 
@@ -3384,6 +3148,26 @@ export interface AccessControlManager extends BaseContract {
 
   "isUpgradable()"(overrides?: CallOverrides): Promise<boolean>;
 
+  livelyAdminRole(overrides?: CallOverrides): Promise<string>;
+
+  "livelyAdminRole()"(overrides?: CallOverrides): Promise<string>;
+
+  livelyAnonymousRole(overrides?: CallOverrides): Promise<string>;
+
+  "livelyAnonymousRole()"(overrides?: CallOverrides): Promise<string>;
+
+  livelyGeneralGroupRole(overrides?: CallOverrides): Promise<string>;
+
+  "livelyGeneralGroupRole()"(overrides?: CallOverrides): Promise<string>;
+
+  livelyGeneralRealmRole(overrides?: CallOverrides): Promise<string>;
+
+  "livelyGeneralRealmRole()"(overrides?: CallOverrides): Promise<string>;
+
+  livelySystemAdminRole(overrides?: CallOverrides): Promise<string>;
+
+  "livelySystemAdminRole()"(overrides?: CallOverrides): Promise<string>;
+
   proxiableUUID(overrides?: CallOverrides): Promise<string>;
 
   "proxiableUUID()"(overrides?: CallOverrides): Promise<string>;
@@ -3638,67 +3422,17 @@ export interface AccessControlManager extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  withdrawBalance(
+    recepient: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "withdrawBalance(address)"(
+    recepient: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
-    ACCESS_CONTROL_NAME(overrides?: CallOverrides): Promise<string>;
-
-    "ACCESS_CONTROL_NAME()"(overrides?: CallOverrides): Promise<string>;
-
-    ACCESS_CONTROL_VERSION(overrides?: CallOverrides): Promise<string>;
-
-    "ACCESS_CONTROL_VERSION()"(overrides?: CallOverrides): Promise<string>;
-
-    ANONYMOUS_ROLE(overrides?: CallOverrides): Promise<string>;
-
-    "ANONYMOUS_ROLE()"(overrides?: CallOverrides): Promise<string>;
-
-    CONTEXT_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<string>;
-
-    "CONTEXT_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<string>;
-
-    CONTEXT_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<string>;
-
-    "CONTEXT_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<string>;
-
-    GROUP_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<string>;
-
-    "GROUP_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<string>;
-
-    GROUP_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<string>;
-
-    "GROUP_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<string>;
-
-    LIVELY_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
-
-    "LIVELY_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<string>;
-
-    LIVELY_GENERAL_GROUP(overrides?: CallOverrides): Promise<string>;
-
-    "LIVELY_GENERAL_GROUP()"(overrides?: CallOverrides): Promise<string>;
-
-    LIVELY_GENERAL_REALM(overrides?: CallOverrides): Promise<string>;
-
-    "LIVELY_GENERAL_REALM()"(overrides?: CallOverrides): Promise<string>;
-
-    LIVELY_SYSTEM_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
-
-    "LIVELY_SYSTEM_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<string>;
-
-    REALM_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<string>;
-
-    "REALM_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<string>;
-
-    REALM_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<string>;
-
-    "REALM_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<string>;
-
-    ROLE_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<string>;
-
-    "ROLE_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<string>;
-
-    ROLE_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<string>;
-
-    "ROLE_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<string>;
-
     addContextFuncRole(
       ctx: PromiseOrValue<BytesLike>,
       functionSelector: PromiseOrValue<BytesLike>,
@@ -3728,6 +3462,10 @@ export interface AccessControlManager extends BaseContract {
     contractVersion(overrides?: CallOverrides): Promise<string>;
 
     "contractVersion()"(overrides?: CallOverrides): Promise<string>;
+
+    domainSeperator(overrides?: CallOverrides): Promise<string>;
+
+    "domainSeperator()"(overrides?: CallOverrides): Promise<string>;
 
     getAccessControlManager(overrides?: CallOverrides): Promise<string>;
 
@@ -4113,6 +3851,26 @@ export interface AccessControlManager extends BaseContract {
 
     "isUpgradable()"(overrides?: CallOverrides): Promise<boolean>;
 
+    livelyAdminRole(overrides?: CallOverrides): Promise<string>;
+
+    "livelyAdminRole()"(overrides?: CallOverrides): Promise<string>;
+
+    livelyAnonymousRole(overrides?: CallOverrides): Promise<string>;
+
+    "livelyAnonymousRole()"(overrides?: CallOverrides): Promise<string>;
+
+    livelyGeneralGroupRole(overrides?: CallOverrides): Promise<string>;
+
+    "livelyGeneralGroupRole()"(overrides?: CallOverrides): Promise<string>;
+
+    livelyGeneralRealmRole(overrides?: CallOverrides): Promise<string>;
+
+    "livelyGeneralRealmRole()"(overrides?: CallOverrides): Promise<string>;
+
+    livelySystemAdminRole(overrides?: CallOverrides): Promise<string>;
+
+    "livelySystemAdminRole()"(overrides?: CallOverrides): Promise<string>;
+
     proxiableUUID(overrides?: CallOverrides): Promise<string>;
 
     "proxiableUUID()"(overrides?: CallOverrides): Promise<string>;
@@ -4366,6 +4124,16 @@ export interface AccessControlManager extends BaseContract {
       forceCall: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<string>;
+
+    withdrawBalance(
+      recepient: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "withdrawBalance(address)"(
+      recepient: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
   };
 
   filters: {
@@ -4672,68 +4440,6 @@ export interface AccessControlManager extends BaseContract {
   };
 
   estimateGas: {
-    ACCESS_CONTROL_NAME(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "ACCESS_CONTROL_NAME()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    ACCESS_CONTROL_VERSION(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "ACCESS_CONTROL_VERSION()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    ANONYMOUS_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "ANONYMOUS_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    CONTEXT_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "CONTEXT_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    CONTEXT_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "CONTEXT_MANAGEMENT_VERSION()"(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    GROUP_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "GROUP_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    GROUP_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "GROUP_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    LIVELY_ADMIN_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "LIVELY_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    LIVELY_GENERAL_GROUP(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "LIVELY_GENERAL_GROUP()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    LIVELY_GENERAL_REALM(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "LIVELY_GENERAL_REALM()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    LIVELY_SYSTEM_ADMIN_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "LIVELY_SYSTEM_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    REALM_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "REALM_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    REALM_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "REALM_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    ROLE_MANAGEMENT_NAME(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "ROLE_MANAGEMENT_NAME()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    ROLE_MANAGEMENT_VERSION(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "ROLE_MANAGEMENT_VERSION()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     addContextFuncRole(
       ctx: PromiseOrValue<BytesLike>,
       functionSelector: PromiseOrValue<BytesLike>,
@@ -4763,6 +4469,10 @@ export interface AccessControlManager extends BaseContract {
     contractVersion(overrides?: CallOverrides): Promise<BigNumber>;
 
     "contractVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    domainSeperator(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "domainSeperator()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     getAccessControlManager(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -5148,6 +4858,26 @@ export interface AccessControlManager extends BaseContract {
 
     "isUpgradable()"(overrides?: CallOverrides): Promise<BigNumber>;
 
+    livelyAdminRole(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "livelyAdminRole()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    livelyAnonymousRole(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "livelyAnonymousRole()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    livelyGeneralGroupRole(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "livelyGeneralGroupRole()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    livelyGeneralRealmRole(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "livelyGeneralRealmRole()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    livelySystemAdminRole(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "livelySystemAdminRole()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     proxiableUUID(overrides?: CallOverrides): Promise<BigNumber>;
 
     "proxiableUUID()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -5401,125 +5131,19 @@ export interface AccessControlManager extends BaseContract {
       forceCall: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    withdrawBalance(
+      recepient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "withdrawBalance(address)"(
+      recepient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    ACCESS_CONTROL_NAME(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "ACCESS_CONTROL_NAME()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    ACCESS_CONTROL_VERSION(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "ACCESS_CONTROL_VERSION()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    ANONYMOUS_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "ANONYMOUS_ROLE()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    CONTEXT_MANAGEMENT_NAME(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "CONTEXT_MANAGEMENT_NAME()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    CONTEXT_MANAGEMENT_VERSION(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "CONTEXT_MANAGEMENT_VERSION()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    GROUP_MANAGEMENT_NAME(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "GROUP_MANAGEMENT_NAME()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    GROUP_MANAGEMENT_VERSION(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "GROUP_MANAGEMENT_VERSION()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    LIVELY_ADMIN_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "LIVELY_ADMIN_ROLE()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    LIVELY_GENERAL_GROUP(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "LIVELY_GENERAL_GROUP()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    LIVELY_GENERAL_REALM(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "LIVELY_GENERAL_REALM()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    LIVELY_SYSTEM_ADMIN_ROLE(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "LIVELY_SYSTEM_ADMIN_ROLE()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    REALM_MANAGEMENT_NAME(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "REALM_MANAGEMENT_NAME()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    REALM_MANAGEMENT_VERSION(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "REALM_MANAGEMENT_VERSION()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    ROLE_MANAGEMENT_NAME(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "ROLE_MANAGEMENT_NAME()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    ROLE_MANAGEMENT_VERSION(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "ROLE_MANAGEMENT_VERSION()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     addContextFuncRole(
       ctx: PromiseOrValue<BytesLike>,
       functionSelector: PromiseOrValue<BytesLike>,
@@ -5551,6 +5175,12 @@ export interface AccessControlManager extends BaseContract {
     contractVersion(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "contractVersion()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    domainSeperator(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "domainSeperator()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -5950,6 +5580,44 @@ export interface AccessControlManager extends BaseContract {
 
     "isUpgradable()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    livelyAdminRole(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "livelyAdminRole()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    livelyAnonymousRole(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "livelyAnonymousRole()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    livelyGeneralGroupRole(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "livelyGeneralGroupRole()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    livelyGeneralRealmRole(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "livelyGeneralRealmRole()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    livelySystemAdminRole(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "livelySystemAdminRole()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     proxiableUUID(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "proxiableUUID()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -6203,6 +5871,16 @@ export interface AccessControlManager extends BaseContract {
       newImplementation: PromiseOrValue<string>,
       data: PromiseOrValue<BytesLike>,
       forceCall: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    withdrawBalance(
+      recepient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "withdrawBalance(address)"(
+      recepient: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

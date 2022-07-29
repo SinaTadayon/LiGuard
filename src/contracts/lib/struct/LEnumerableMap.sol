@@ -146,7 +146,6 @@ library LEnumerableMap {
   }
 
   // UintToAddressMap
-
   struct UintToAddressMap {
     Bytes32ToBytes32Map _inner;
   }
@@ -240,7 +239,6 @@ library LEnumerableMap {
   }
 
   // AddressToUintMap
-
   struct AddressToUintMap {
     Bytes32ToBytes32Map _inner;
   }
