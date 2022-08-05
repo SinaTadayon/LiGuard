@@ -36,6 +36,8 @@ export type { LRealmManagement } from "./lib/acl/LRealmManagement";
 export { LRealmManagement__factory } from "./factories/lib/acl/LRealmManagement__factory";
 export type { LRoleManagement } from "./lib/acl/LRoleManagement";
 export { LRoleManagement__factory } from "./factories/lib/acl/LRoleManagement__factory";
+export type { LTokenERC20 } from "./lib/token/LTokenERC20";
+export { LTokenERC20__factory } from "./factories/lib/token/LTokenERC20__factory";
 export type { BaseProxy } from "./proxy/BaseProxy";
 export { BaseProxy__factory } from "./factories/proxy/BaseProxy__factory";
 export type { BaseUUPSProxy } from "./proxy/BaseUUPSProxy";

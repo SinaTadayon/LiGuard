@@ -43,6 +43,11 @@ interface IERC20Extra {
         uint256 amount;
     }
 
+    struct BatchUpdateTaxWhitelistRequest {
+        address account;
+        bool isDeleted;
+    }
+
     function increaseAllowance(address spender, uint256 value) external returns (uint256);
 
     function decreaseAllowance(address spender, uint256 value) external returns (uint256);
@@ -58,6 +63,8 @@ interface IERC20Extra {
     function updateTaxRate(uint256 taxRate) external returns (bool);
 
     function updateTaxWhitelist(address account, bool isDeleted) external returns(bool);
+
+    function batchUpdateTaxWhitelist(BatchUpdateTaxWhitelistRequest[] calldata request) external ;
 
     function taxRate() external view returns (uint256);
 

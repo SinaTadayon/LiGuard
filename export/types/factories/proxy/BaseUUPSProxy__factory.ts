@@ -26,31 +26,6 @@ const _abi = [
         type: "address",
       },
       {
-        indexed: false,
-        internalType: "address",
-        name: "newAdmin",
-        type: "address",
-      },
-    ],
-    name: "AdminChanged",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "sender",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "proxy",
-        type: "address",
-      },
-      {
         indexed: true,
         internalType: "address",
         name: "subject",
@@ -77,11 +52,36 @@ const _abi = [
       {
         indexed: false,
         internalType: "uint16",
-        name: "initializedCount",
+        name: "initCount",
         type: "uint16",
       },
     ],
     name: "Initialized",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "proxy",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "newAdmin",
+        type: "address",
+      },
+    ],
+    name: "LocalAdminChanged",
     type: "event",
   },
   {
@@ -177,6 +177,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "accessControlManager",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "contractContext",
     outputs: [
       {
@@ -229,7 +242,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "domainSeperator",
+    name: "domainSeparator",
     outputs: [
       {
         internalType: "bytes32",
@@ -242,33 +255,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "getAccessControlManager",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "getAdmin",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "getInitializeStatus",
+    name: "initStatus",
     outputs: [
       {
         internalType: "bool",
@@ -281,7 +268,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "getInitializedVersion",
+    name: "initVersion",
     outputs: [
       {
         internalType: "uint16",
@@ -320,6 +307,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "localAdmin",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "proxiableUUID",
     outputs: [
       {
@@ -335,11 +335,11 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "newAdmin",
+        name: "newLocalAdmin",
         type: "address",
       },
     ],
-    name: "setAdmin",
+    name: "setLocalAdmin",
     outputs: [
       {
         internalType: "bool",

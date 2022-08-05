@@ -7,7 +7,7 @@ interface IProxy is IBaseProxy {
   /**
    * @dev Emitted when the admin account has changed.
    */
-  event AdminChanged(address indexed sender, address indexed proxy, address newAdmin);
+  event LocalAdminChanged(address indexed sender, address indexed proxy, address newAdmin);
 
   event SafeModeChanged(address indexed sender, address indexed proxy, bytes32 indexed realm, bool status);
 
@@ -23,7 +23,7 @@ interface IProxy is IBaseProxy {
     string name,
     string version,
     bytes32 realm,
-    uint16 initializedCount
+    uint16 initCount
   );
 
   function upgradeTo(
@@ -36,7 +36,7 @@ interface IProxy is IBaseProxy {
 
   function setUpgradeStatus(bool status) external returns (bool);
 
-  function setAdmin(address newAdmin) external returns (bool);
+  function setLocalAdmin(address newAdmin) external returns (bool);
 
   function contractName() external view returns (bytes32);
 
@@ -46,7 +46,7 @@ interface IProxy is IBaseProxy {
 
   function contractContext() external view returns (bytes32);
 
-  function getAccessControlManager() external view returns (address);
+  function accessControlManager() external view returns (address);
 
   function subjectAddress() external view returns (address);
 
@@ -54,11 +54,11 @@ interface IProxy is IBaseProxy {
 
   function isUpgradable() external view returns (bool);
 
-  function getAdmin() external view returns (address);
+  function localAdmin() external view returns (address);
 
-  function domainSeperator() external view returns (bytes32);
+  function domainSeparator() external view returns (bytes32);
 
-  function getInitializedVersion() external view returns (uint16);
-
-  function getInitializeStatus() external view returns (bool);
+  function initVersion() external view returns (uint16);
+  
+  function initStatus() external view returns (bool);
 }

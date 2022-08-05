@@ -279,6 +279,31 @@ const _abi = [
   {
     inputs: [
       {
+        components: [
+          {
+            internalType: "address",
+            name: "account",
+            type: "address",
+          },
+          {
+            internalType: "bool",
+            name: "isDeleted",
+            type: "bool",
+          },
+        ],
+        internalType: "struct IERC20Extra.BatchUpdateTaxWhitelistRequest[]",
+        name: "request",
+        type: "tuple[]",
+      },
+    ],
+    name: "batchUpdateTaxWhitelist",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "address",
         name: "account",
         type: "address",

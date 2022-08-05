@@ -49,12 +49,23 @@ export declare namespace IERC20Extra {
     string,
     BigNumber
   ] & { source: string; recipient: string; amount: BigNumber };
+
+  export type BatchUpdateTaxWhitelistRequestStruct = {
+    account: PromiseOrValue<string>;
+    isDeleted: PromiseOrValue<boolean>;
+  };
+
+  export type BatchUpdateTaxWhitelistRequestStructOutput = [string, boolean] & {
+    account: string;
+    isDeleted: boolean;
+  };
 }
 
 export interface IERC20ExtraInterface extends utils.Interface {
   functions: {
     "batchTransfer((address,uint256)[])": FunctionFragment;
     "batchTransferFrom((address,address,uint256)[])": FunctionFragment;
+    "batchUpdateTaxWhitelist((address,bool)[])": FunctionFragment;
     "burn(address,uint256)": FunctionFragment;
     "decreaseAllowance(address,uint256)": FunctionFragment;
     "increaseAllowance(address,uint256)": FunctionFragment;
@@ -74,6 +85,8 @@ export interface IERC20ExtraInterface extends utils.Interface {
       | "batchTransfer((address,uint256)[])"
       | "batchTransferFrom"
       | "batchTransferFrom((address,address,uint256)[])"
+      | "batchUpdateTaxWhitelist"
+      | "batchUpdateTaxWhitelist((address,bool)[])"
       | "burn"
       | "burn(address,uint256)"
       | "decreaseAllowance"
@@ -113,6 +126,14 @@ export interface IERC20ExtraInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "batchTransferFrom((address,address,uint256)[])",
     values: [IERC20Extra.BatchTransferFromRequestStruct[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "batchUpdateTaxWhitelist",
+    values: [IERC20Extra.BatchUpdateTaxWhitelistRequestStruct[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "batchUpdateTaxWhitelist((address,bool)[])",
+    values: [IERC20Extra.BatchUpdateTaxWhitelistRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "burn",
@@ -223,6 +244,14 @@ export interface IERC20ExtraInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "batchTransferFrom((address,address,uint256)[])",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "batchUpdateTaxWhitelist",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "batchUpdateTaxWhitelist((address,bool)[])",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "burn", data: BytesLike): Result;
@@ -474,6 +503,16 @@ export interface IERC20Extra extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    batchUpdateTaxWhitelist(
+      request: IERC20Extra.BatchUpdateTaxWhitelistRequestStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "batchUpdateTaxWhitelist((address,bool)[])"(
+      request: IERC20Extra.BatchUpdateTaxWhitelistRequestStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     burn(
       account: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
@@ -602,6 +641,16 @@ export interface IERC20Extra extends BaseContract {
 
   "batchTransferFrom((address,address,uint256)[])"(
     request: IERC20Extra.BatchTransferFromRequestStruct[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  batchUpdateTaxWhitelist(
+    request: IERC20Extra.BatchUpdateTaxWhitelistRequestStruct[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "batchUpdateTaxWhitelist((address,bool)[])"(
+    request: IERC20Extra.BatchUpdateTaxWhitelistRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -735,6 +784,16 @@ export interface IERC20Extra extends BaseContract {
       request: IERC20Extra.BatchTransferFromRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    batchUpdateTaxWhitelist(
+      request: IERC20Extra.BatchUpdateTaxWhitelistRequestStruct[],
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "batchUpdateTaxWhitelist((address,bool)[])"(
+      request: IERC20Extra.BatchUpdateTaxWhitelistRequestStruct[],
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     burn(
       account: PromiseOrValue<string>,
@@ -955,6 +1014,16 @@ export interface IERC20Extra extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    batchUpdateTaxWhitelist(
+      request: IERC20Extra.BatchUpdateTaxWhitelistRequestStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "batchUpdateTaxWhitelist((address,bool)[])"(
+      request: IERC20Extra.BatchUpdateTaxWhitelistRequestStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     burn(
       account: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
@@ -1084,6 +1153,16 @@ export interface IERC20Extra extends BaseContract {
 
     "batchTransferFrom((address,address,uint256)[])"(
       request: IERC20Extra.BatchTransferFromRequestStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    batchUpdateTaxWhitelist(
+      request: IERC20Extra.BatchUpdateTaxWhitelistRequestStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "batchUpdateTaxWhitelist((address,bool)[])"(
+      request: IERC20Extra.BatchUpdateTaxWhitelistRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

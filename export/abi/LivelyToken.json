@@ -10,31 +10,6 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "sender",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "proxy",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "newAdmin",
-        "type": "address"
-      }
-    ],
-    "name": "AdminChanged",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
         "name": "owner",
         "type": "address"
       },
@@ -189,11 +164,36 @@
       {
         "indexed": false,
         "internalType": "uint16",
-        "name": "initializedCount",
+        "name": "initCount",
         "type": "uint16"
       }
     ],
     "name": "Initialized",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "proxy",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newAdmin",
+        "type": "address"
+      }
+    ],
+    "name": "LocalAdminChanged",
     "type": "event"
   },
   {
@@ -483,6 +483,19 @@
     "type": "fallback"
   },
   {
+    "inputs": [],
+    "name": "accessControlManager",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -619,6 +632,31 @@
   {
     "inputs": [
       {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "account",
+            "type": "address"
+          },
+          {
+            "internalType": "bool",
+            "name": "isDeleted",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct IERC20Extra.BatchUpdateTaxWhitelistRequest[]",
+        "name": "request",
+        "type": "tuple[]"
+      }
+    ],
+    "name": "batchUpdateTaxWhitelist",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "account",
         "type": "address"
@@ -731,46 +769,7 @@
   },
   {
     "inputs": [],
-    "name": "domainSeperator",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getAccessControlManager",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getAdmin",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getInitializeStatus",
+    "name": "distributeToken",
     "outputs": [
       {
         "internalType": "bool",
@@ -783,12 +782,12 @@
   },
   {
     "inputs": [],
-    "name": "getInitializedVersion",
+    "name": "domainSeparator",
     "outputs": [
       {
-        "internalType": "uint16",
+        "internalType": "bytes32",
         "name": "",
-        "type": "uint16"
+        "type": "bytes32"
       }
     ],
     "stateMutability": "view",
@@ -819,41 +818,79 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "initStatus",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "initVersion",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
-        "internalType": "string",
-        "name": "domainName",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "domainVersion",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "domainRealm",
-        "type": "string"
-      },
-      {
-        "internalType": "address",
-        "name": "accessControlManager",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "taxTreasuryAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "taxRateValue",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bytes",
-        "name": "signature",
-        "type": "bytes"
+        "components": [
+          {
+            "internalType": "string",
+            "name": "domainName",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "domainVersion",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "domainRealm",
+            "type": "string"
+          },
+          {
+            "internalType": "bytes",
+            "name": "signature",
+            "type": "bytes"
+          },
+          {
+            "internalType": "uint256",
+            "name": "taxRateValue",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "totalSupplyAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "accessControlManager",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "taxTreasuryAddress",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct LivelyToken.InitRequest",
+        "name": "request",
+        "type": "tuple"
       }
     ],
     "name": "initialize",
@@ -914,6 +951,19 @@
         "internalType": "bool",
         "name": "",
         "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "localAdmin",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -1064,11 +1114,11 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "newAdmin",
+        "name": "newLocalAdmin",
         "type": "address"
       }
     ],
-    "name": "setAdmin",
+    "name": "setLocalAdmin",
     "outputs": [
       {
         "internalType": "bool",

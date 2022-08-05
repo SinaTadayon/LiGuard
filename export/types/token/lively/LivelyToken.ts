@@ -49,15 +49,60 @@ export declare namespace IERC20Extra {
     string,
     BigNumber
   ] & { source: string; recipient: string; amount: BigNumber };
+
+  export type BatchUpdateTaxWhitelistRequestStruct = {
+    account: PromiseOrValue<string>;
+    isDeleted: PromiseOrValue<boolean>;
+  };
+
+  export type BatchUpdateTaxWhitelistRequestStructOutput = [string, boolean] & {
+    account: string;
+    isDeleted: boolean;
+  };
+}
+
+export declare namespace LivelyToken {
+  export type InitRequestStruct = {
+    domainName: PromiseOrValue<string>;
+    domainVersion: PromiseOrValue<string>;
+    domainRealm: PromiseOrValue<string>;
+    signature: PromiseOrValue<BytesLike>;
+    taxRateValue: PromiseOrValue<BigNumberish>;
+    totalSupplyAmount: PromiseOrValue<BigNumberish>;
+    accessControlManager: PromiseOrValue<string>;
+    taxTreasuryAddress: PromiseOrValue<string>;
+  };
+
+  export type InitRequestStructOutput = [
+    string,
+    string,
+    string,
+    string,
+    BigNumber,
+    BigNumber,
+    string,
+    string
+  ] & {
+    domainName: string;
+    domainVersion: string;
+    domainRealm: string;
+    signature: string;
+    taxRateValue: BigNumber;
+    totalSupplyAmount: BigNumber;
+    accessControlManager: string;
+    taxTreasuryAddress: string;
+  };
 }
 
 export interface LivelyTokenInterface extends utils.Interface {
   functions: {
+    "accessControlManager()": FunctionFragment;
     "allowance(address,address)": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "batchTransfer((address,uint256)[])": FunctionFragment;
     "batchTransferFrom((address,address,uint256)[])": FunctionFragment;
+    "batchUpdateTaxWhitelist((address,bool)[])": FunctionFragment;
     "burn(address,uint256)": FunctionFragment;
     "contractContext()": FunctionFragment;
     "contractName()": FunctionFragment;
@@ -65,17 +110,17 @@ export interface LivelyTokenInterface extends utils.Interface {
     "contractVersion()": FunctionFragment;
     "decimals()": FunctionFragment;
     "decreaseAllowance(address,uint256)": FunctionFragment;
-    "domainSeperator()": FunctionFragment;
-    "getAccessControlManager()": FunctionFragment;
-    "getAdmin()": FunctionFragment;
-    "getInitializeStatus()": FunctionFragment;
-    "getInitializedVersion()": FunctionFragment;
+    "distributeToken()": FunctionFragment;
+    "domainSeparator()": FunctionFragment;
     "increaseAllowance(address,uint256)": FunctionFragment;
-    "initialize(string,string,string,address,address,uint256,bytes)": FunctionFragment;
+    "initStatus()": FunctionFragment;
+    "initVersion()": FunctionFragment;
+    "initialize((string,string,string,bytes,uint256,uint256,address,address))": FunctionFragment;
     "isPaused(address)": FunctionFragment;
     "isPausedAll()": FunctionFragment;
     "isSafeMode()": FunctionFragment;
     "isUpgradable()": FunctionFragment;
+    "localAdmin()": FunctionFragment;
     "mint(address,uint256)": FunctionFragment;
     "name()": FunctionFragment;
     "nonces(address)": FunctionFragment;
@@ -84,7 +129,7 @@ export interface LivelyTokenInterface extends utils.Interface {
     "pausedAccounts()": FunctionFragment;
     "permit(address,address,uint256,uint256,bytes)": FunctionFragment;
     "proxiableUUID()": FunctionFragment;
-    "setAdmin(address)": FunctionFragment;
+    "setLocalAdmin(address)": FunctionFragment;
     "setSafeMode(bool)": FunctionFragment;
     "setUpgradeStatus(bool)": FunctionFragment;
     "subjectAddress()": FunctionFragment;
@@ -106,6 +151,8 @@ export interface LivelyTokenInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "accessControlManager"
+      | "accessControlManager()"
       | "allowance"
       | "allowance(address,address)"
       | "approve"
@@ -116,6 +163,8 @@ export interface LivelyTokenInterface extends utils.Interface {
       | "batchTransfer((address,uint256)[])"
       | "batchTransferFrom"
       | "batchTransferFrom((address,address,uint256)[])"
+      | "batchUpdateTaxWhitelist"
+      | "batchUpdateTaxWhitelist((address,bool)[])"
       | "burn"
       | "burn(address,uint256)"
       | "contractContext"
@@ -130,20 +179,18 @@ export interface LivelyTokenInterface extends utils.Interface {
       | "decimals()"
       | "decreaseAllowance"
       | "decreaseAllowance(address,uint256)"
-      | "domainSeperator"
-      | "domainSeperator()"
-      | "getAccessControlManager"
-      | "getAccessControlManager()"
-      | "getAdmin"
-      | "getAdmin()"
-      | "getInitializeStatus"
-      | "getInitializeStatus()"
-      | "getInitializedVersion"
-      | "getInitializedVersion()"
+      | "distributeToken"
+      | "distributeToken()"
+      | "domainSeparator"
+      | "domainSeparator()"
       | "increaseAllowance"
       | "increaseAllowance(address,uint256)"
+      | "initStatus"
+      | "initStatus()"
+      | "initVersion"
+      | "initVersion()"
       | "initialize"
-      | "initialize(string,string,string,address,address,uint256,bytes)"
+      | "initialize((string,string,string,bytes,uint256,uint256,address,address))"
       | "isPaused"
       | "isPaused(address)"
       | "isPausedAll"
@@ -152,6 +199,8 @@ export interface LivelyTokenInterface extends utils.Interface {
       | "isSafeMode()"
       | "isUpgradable"
       | "isUpgradable()"
+      | "localAdmin"
+      | "localAdmin()"
       | "mint"
       | "mint(address,uint256)"
       | "name"
@@ -168,8 +217,8 @@ export interface LivelyTokenInterface extends utils.Interface {
       | "permit(address,address,uint256,uint256,bytes)"
       | "proxiableUUID"
       | "proxiableUUID()"
-      | "setAdmin"
-      | "setAdmin(address)"
+      | "setLocalAdmin"
+      | "setLocalAdmin(address)"
       | "setSafeMode"
       | "setSafeMode(bool)"
       | "setUpgradeStatus"
@@ -206,6 +255,14 @@ export interface LivelyTokenInterface extends utils.Interface {
       | "withdrawBalance(address)"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "accessControlManager",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "accessControlManager()",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "allowance",
     values: [PromiseOrValue<string>, PromiseOrValue<string>]
@@ -245,6 +302,14 @@ export interface LivelyTokenInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "batchTransferFrom((address,address,uint256)[])",
     values: [IERC20Extra.BatchTransferFromRequestStruct[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "batchUpdateTaxWhitelist",
+    values: [IERC20Extra.BatchUpdateTaxWhitelistRequestStruct[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "batchUpdateTaxWhitelist((address,bool)[])",
+    values: [IERC20Extra.BatchUpdateTaxWhitelistRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "burn",
@@ -300,40 +365,19 @@ export interface LivelyTokenInterface extends utils.Interface {
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "domainSeperator",
+    functionFragment: "distributeToken",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "domainSeperator()",
+    functionFragment: "distributeToken()",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getAccessControlManager",
+    functionFragment: "domainSeparator",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getAccessControlManager()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "getAdmin", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "getAdmin()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getInitializeStatus",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getInitializeStatus()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getInitializedVersion",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getInitializedVersion()",
+    functionFragment: "domainSeparator()",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -345,28 +389,28 @@ export interface LivelyTokenInterface extends utils.Interface {
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "initialize",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BytesLike>
-    ]
+    functionFragment: "initStatus",
+    values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "initialize(string,string,string,address,address,uint256,bytes)",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BytesLike>
-    ]
+    functionFragment: "initStatus()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initVersion",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initVersion()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initialize",
+    values: [LivelyToken.InitRequestStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initialize((string,string,string,bytes,uint256,uint256,address,address))",
+    values: [LivelyToken.InitRequestStruct]
   ): string;
   encodeFunctionData(
     functionFragment: "isPaused",
@@ -398,6 +442,14 @@ export interface LivelyTokenInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "isUpgradable()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "localAdmin",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "localAdmin()",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -468,11 +520,11 @@ export interface LivelyTokenInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "setAdmin",
+    functionFragment: "setLocalAdmin",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setAdmin(address)",
+    functionFragment: "setLocalAdmin(address)",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -616,6 +668,14 @@ export interface LivelyTokenInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "accessControlManager",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "accessControlManager()",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "allowance(address,address)",
@@ -645,6 +705,14 @@ export interface LivelyTokenInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "batchTransferFrom((address,address,uint256)[])",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "batchUpdateTaxWhitelist",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "batchUpdateTaxWhitelist((address,bool)[])",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "burn", data: BytesLike): Result;
@@ -695,37 +763,19 @@ export interface LivelyTokenInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "domainSeperator",
+    functionFragment: "distributeToken",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "domainSeperator()",
+    functionFragment: "distributeToken()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getAccessControlManager",
+    functionFragment: "domainSeparator",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getAccessControlManager()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "getAdmin", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getAdmin()", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "getInitializeStatus",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getInitializeStatus()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getInitializedVersion",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getInitializedVersion()",
+    functionFragment: "domainSeparator()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -736,9 +786,22 @@ export interface LivelyTokenInterface extends utils.Interface {
     functionFragment: "increaseAllowance(address,uint256)",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "initStatus", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "initStatus()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "initVersion",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "initVersion()",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "initialize(string,string,string,address,address,uint256,bytes)",
+    functionFragment: "initialize((string,string,string,bytes,uint256,uint256,address,address))",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "isPaused", data: BytesLike): Result;
@@ -765,6 +828,11 @@ export interface LivelyTokenInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "isUpgradable()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "localAdmin", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "localAdmin()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
@@ -807,9 +875,12 @@ export interface LivelyTokenInterface extends utils.Interface {
     functionFragment: "proxiableUUID()",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "setAdmin", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "setAdmin(address)",
+    functionFragment: "setLocalAdmin",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setLocalAdmin(address)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -926,12 +997,12 @@ export interface LivelyTokenInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "AdminChanged(address,address,address)": EventFragment;
     "Approval(address,address,uint256)": EventFragment;
     "ApprovalDecresed(address,address,uint256,uint256)": EventFragment;
     "ApprovalIncremented(address,address,uint256,uint256)": EventFragment;
     "Burn(address,address,uint256,uint256)": EventFragment;
     "Initialized(address,address,address,string,string,bytes32,uint16)": EventFragment;
+    "LocalAdminChanged(address,address,address)": EventFragment;
     "Mint(address,address,uint256,uint256)": EventFragment;
     "Paused(address,address)": EventFragment;
     "PausedAll(address)": EventFragment;
@@ -946,10 +1017,6 @@ export interface LivelyTokenInterface extends utils.Interface {
     "Upgraded(address,address,address)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "AdminChanged"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "AdminChanged(address,address,address)"
-  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "Approval(address,address,uint256)"
@@ -969,6 +1036,10 @@ export interface LivelyTokenInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "Initialized(address,address,address,string,string,bytes32,uint16)"
+  ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "LocalAdminChanged"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "LocalAdminChanged(address,address,address)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Mint"): EventFragment;
   getEvent(
@@ -1011,18 +1082,6 @@ export interface LivelyTokenInterface extends utils.Interface {
     nameOrSignatureOrTopic: "Upgraded(address,address,address)"
   ): EventFragment;
 }
-
-export interface AdminChangedEventObject {
-  sender: string;
-  proxy: string;
-  newAdmin: string;
-}
-export type AdminChangedEvent = TypedEvent<
-  [string, string, string],
-  AdminChangedEventObject
->;
-
-export type AdminChangedEventFilter = TypedEventFilter<AdminChangedEvent>;
 
 export interface ApprovalEventObject {
   owner: string;
@@ -1084,7 +1143,7 @@ export interface InitializedEventObject {
   name: string;
   version: string;
   realm: string;
-  initializedCount: number;
+  initCount: number;
 }
 export type InitializedEvent = TypedEvent<
   [string, string, string, string, string, string, number],
@@ -1092,6 +1151,19 @@ export type InitializedEvent = TypedEvent<
 >;
 
 export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
+
+export interface LocalAdminChangedEventObject {
+  sender: string;
+  proxy: string;
+  newAdmin: string;
+}
+export type LocalAdminChangedEvent = TypedEvent<
+  [string, string, string],
+  LocalAdminChangedEventObject
+>;
+
+export type LocalAdminChangedEventFilter =
+  TypedEventFilter<LocalAdminChangedEvent>;
 
 export interface MintEventObject {
   sender: string;
@@ -1251,6 +1323,10 @@ export interface LivelyToken extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    accessControlManager(overrides?: CallOverrides): Promise<[string]>;
+
+    "accessControlManager()"(overrides?: CallOverrides): Promise<[string]>;
+
     allowance(
       owner: PromiseOrValue<string>,
       spender: PromiseOrValue<string>,
@@ -1305,6 +1381,16 @@ export interface LivelyToken extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    batchUpdateTaxWhitelist(
+      request: IERC20Extra.BatchUpdateTaxWhitelistRequestStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "batchUpdateTaxWhitelist((address,bool)[])"(
+      request: IERC20Extra.BatchUpdateTaxWhitelistRequestStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     burn(
       account: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
@@ -1349,25 +1435,13 @@ export interface LivelyToken extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    domainSeperator(overrides?: CallOverrides): Promise<[string]>;
+    distributeToken(overrides?: CallOverrides): Promise<[boolean]>;
 
-    "domainSeperator()"(overrides?: CallOverrides): Promise<[string]>;
+    "distributeToken()"(overrides?: CallOverrides): Promise<[boolean]>;
 
-    getAccessControlManager(overrides?: CallOverrides): Promise<[string]>;
+    domainSeparator(overrides?: CallOverrides): Promise<[string]>;
 
-    "getAccessControlManager()"(overrides?: CallOverrides): Promise<[string]>;
-
-    getAdmin(overrides?: CallOverrides): Promise<[string]>;
-
-    "getAdmin()"(overrides?: CallOverrides): Promise<[string]>;
-
-    getInitializeStatus(overrides?: CallOverrides): Promise<[boolean]>;
-
-    "getInitializeStatus()"(overrides?: CallOverrides): Promise<[boolean]>;
-
-    getInitializedVersion(overrides?: CallOverrides): Promise<[number]>;
-
-    "getInitializedVersion()"(overrides?: CallOverrides): Promise<[number]>;
+    "domainSeparator()"(overrides?: CallOverrides): Promise<[string]>;
 
     increaseAllowance(
       spender: PromiseOrValue<string>,
@@ -1381,25 +1455,21 @@ export interface LivelyToken extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    initStatus(overrides?: CallOverrides): Promise<[boolean]>;
+
+    "initStatus()"(overrides?: CallOverrides): Promise<[boolean]>;
+
+    initVersion(overrides?: CallOverrides): Promise<[number]>;
+
+    "initVersion()"(overrides?: CallOverrides): Promise<[number]>;
+
     initialize(
-      domainName: PromiseOrValue<string>,
-      domainVersion: PromiseOrValue<string>,
-      domainRealm: PromiseOrValue<string>,
-      accessControlManager: PromiseOrValue<string>,
-      taxTreasuryAddress: PromiseOrValue<string>,
-      taxRateValue: PromiseOrValue<BigNumberish>,
-      signature: PromiseOrValue<BytesLike>,
+      request: LivelyToken.InitRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "initialize(string,string,string,address,address,uint256,bytes)"(
-      domainName: PromiseOrValue<string>,
-      domainVersion: PromiseOrValue<string>,
-      domainRealm: PromiseOrValue<string>,
-      accessControlManager: PromiseOrValue<string>,
-      taxTreasuryAddress: PromiseOrValue<string>,
-      taxRateValue: PromiseOrValue<BigNumberish>,
-      signature: PromiseOrValue<BytesLike>,
+    "initialize((string,string,string,bytes,uint256,uint256,address,address))"(
+      request: LivelyToken.InitRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -1424,6 +1494,10 @@ export interface LivelyToken extends BaseContract {
     isUpgradable(overrides?: CallOverrides): Promise<[boolean]>;
 
     "isUpgradable()"(overrides?: CallOverrides): Promise<[boolean]>;
+
+    localAdmin(overrides?: CallOverrides): Promise<[string]>;
+
+    "localAdmin()"(overrides?: CallOverrides): Promise<[string]>;
 
     mint(
       account: PromiseOrValue<string>,
@@ -1495,13 +1569,13 @@ export interface LivelyToken extends BaseContract {
 
     "proxiableUUID()"(overrides?: CallOverrides): Promise<[string]>;
 
-    setAdmin(
-      newAdmin: PromiseOrValue<string>,
+    setLocalAdmin(
+      newLocalAdmin: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "setAdmin(address)"(
-      newAdmin: PromiseOrValue<string>,
+    "setLocalAdmin(address)"(
+      newLocalAdmin: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -1650,6 +1724,10 @@ export interface LivelyToken extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
+  accessControlManager(overrides?: CallOverrides): Promise<string>;
+
+  "accessControlManager()"(overrides?: CallOverrides): Promise<string>;
+
   allowance(
     owner: PromiseOrValue<string>,
     spender: PromiseOrValue<string>,
@@ -1704,6 +1782,16 @@ export interface LivelyToken extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  batchUpdateTaxWhitelist(
+    request: IERC20Extra.BatchUpdateTaxWhitelistRequestStruct[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "batchUpdateTaxWhitelist((address,bool)[])"(
+    request: IERC20Extra.BatchUpdateTaxWhitelistRequestStruct[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   burn(
     account: PromiseOrValue<string>,
     amount: PromiseOrValue<BigNumberish>,
@@ -1748,25 +1836,13 @@ export interface LivelyToken extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  domainSeperator(overrides?: CallOverrides): Promise<string>;
+  distributeToken(overrides?: CallOverrides): Promise<boolean>;
 
-  "domainSeperator()"(overrides?: CallOverrides): Promise<string>;
+  "distributeToken()"(overrides?: CallOverrides): Promise<boolean>;
 
-  getAccessControlManager(overrides?: CallOverrides): Promise<string>;
+  domainSeparator(overrides?: CallOverrides): Promise<string>;
 
-  "getAccessControlManager()"(overrides?: CallOverrides): Promise<string>;
-
-  getAdmin(overrides?: CallOverrides): Promise<string>;
-
-  "getAdmin()"(overrides?: CallOverrides): Promise<string>;
-
-  getInitializeStatus(overrides?: CallOverrides): Promise<boolean>;
-
-  "getInitializeStatus()"(overrides?: CallOverrides): Promise<boolean>;
-
-  getInitializedVersion(overrides?: CallOverrides): Promise<number>;
-
-  "getInitializedVersion()"(overrides?: CallOverrides): Promise<number>;
+  "domainSeparator()"(overrides?: CallOverrides): Promise<string>;
 
   increaseAllowance(
     spender: PromiseOrValue<string>,
@@ -1780,25 +1856,21 @@ export interface LivelyToken extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  initStatus(overrides?: CallOverrides): Promise<boolean>;
+
+  "initStatus()"(overrides?: CallOverrides): Promise<boolean>;
+
+  initVersion(overrides?: CallOverrides): Promise<number>;
+
+  "initVersion()"(overrides?: CallOverrides): Promise<number>;
+
   initialize(
-    domainName: PromiseOrValue<string>,
-    domainVersion: PromiseOrValue<string>,
-    domainRealm: PromiseOrValue<string>,
-    accessControlManager: PromiseOrValue<string>,
-    taxTreasuryAddress: PromiseOrValue<string>,
-    taxRateValue: PromiseOrValue<BigNumberish>,
-    signature: PromiseOrValue<BytesLike>,
+    request: LivelyToken.InitRequestStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "initialize(string,string,string,address,address,uint256,bytes)"(
-    domainName: PromiseOrValue<string>,
-    domainVersion: PromiseOrValue<string>,
-    domainRealm: PromiseOrValue<string>,
-    accessControlManager: PromiseOrValue<string>,
-    taxTreasuryAddress: PromiseOrValue<string>,
-    taxRateValue: PromiseOrValue<BigNumberish>,
-    signature: PromiseOrValue<BytesLike>,
+  "initialize((string,string,string,bytes,uint256,uint256,address,address))"(
+    request: LivelyToken.InitRequestStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1823,6 +1895,10 @@ export interface LivelyToken extends BaseContract {
   isUpgradable(overrides?: CallOverrides): Promise<boolean>;
 
   "isUpgradable()"(overrides?: CallOverrides): Promise<boolean>;
+
+  localAdmin(overrides?: CallOverrides): Promise<string>;
+
+  "localAdmin()"(overrides?: CallOverrides): Promise<string>;
 
   mint(
     account: PromiseOrValue<string>,
@@ -1894,13 +1970,13 @@ export interface LivelyToken extends BaseContract {
 
   "proxiableUUID()"(overrides?: CallOverrides): Promise<string>;
 
-  setAdmin(
-    newAdmin: PromiseOrValue<string>,
+  setLocalAdmin(
+    newLocalAdmin: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "setAdmin(address)"(
-    newAdmin: PromiseOrValue<string>,
+  "setLocalAdmin(address)"(
+    newLocalAdmin: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -2049,6 +2125,10 @@ export interface LivelyToken extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    accessControlManager(overrides?: CallOverrides): Promise<string>;
+
+    "accessControlManager()"(overrides?: CallOverrides): Promise<string>;
+
     allowance(
       owner: PromiseOrValue<string>,
       spender: PromiseOrValue<string>,
@@ -2103,6 +2183,16 @@ export interface LivelyToken extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
+    batchUpdateTaxWhitelist(
+      request: IERC20Extra.BatchUpdateTaxWhitelistRequestStruct[],
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "batchUpdateTaxWhitelist((address,bool)[])"(
+      request: IERC20Extra.BatchUpdateTaxWhitelistRequestStruct[],
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     burn(
       account: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
@@ -2147,25 +2237,13 @@ export interface LivelyToken extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    domainSeperator(overrides?: CallOverrides): Promise<string>;
+    distributeToken(overrides?: CallOverrides): Promise<boolean>;
 
-    "domainSeperator()"(overrides?: CallOverrides): Promise<string>;
+    "distributeToken()"(overrides?: CallOverrides): Promise<boolean>;
 
-    getAccessControlManager(overrides?: CallOverrides): Promise<string>;
+    domainSeparator(overrides?: CallOverrides): Promise<string>;
 
-    "getAccessControlManager()"(overrides?: CallOverrides): Promise<string>;
-
-    getAdmin(overrides?: CallOverrides): Promise<string>;
-
-    "getAdmin()"(overrides?: CallOverrides): Promise<string>;
-
-    getInitializeStatus(overrides?: CallOverrides): Promise<boolean>;
-
-    "getInitializeStatus()"(overrides?: CallOverrides): Promise<boolean>;
-
-    getInitializedVersion(overrides?: CallOverrides): Promise<number>;
-
-    "getInitializedVersion()"(overrides?: CallOverrides): Promise<number>;
+    "domainSeparator()"(overrides?: CallOverrides): Promise<string>;
 
     increaseAllowance(
       spender: PromiseOrValue<string>,
@@ -2179,25 +2257,21 @@ export interface LivelyToken extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    initStatus(overrides?: CallOverrides): Promise<boolean>;
+
+    "initStatus()"(overrides?: CallOverrides): Promise<boolean>;
+
+    initVersion(overrides?: CallOverrides): Promise<number>;
+
+    "initVersion()"(overrides?: CallOverrides): Promise<number>;
+
     initialize(
-      domainName: PromiseOrValue<string>,
-      domainVersion: PromiseOrValue<string>,
-      domainRealm: PromiseOrValue<string>,
-      accessControlManager: PromiseOrValue<string>,
-      taxTreasuryAddress: PromiseOrValue<string>,
-      taxRateValue: PromiseOrValue<BigNumberish>,
-      signature: PromiseOrValue<BytesLike>,
+      request: LivelyToken.InitRequestStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "initialize(string,string,string,address,address,uint256,bytes)"(
-      domainName: PromiseOrValue<string>,
-      domainVersion: PromiseOrValue<string>,
-      domainRealm: PromiseOrValue<string>,
-      accessControlManager: PromiseOrValue<string>,
-      taxTreasuryAddress: PromiseOrValue<string>,
-      taxRateValue: PromiseOrValue<BigNumberish>,
-      signature: PromiseOrValue<BytesLike>,
+    "initialize((string,string,string,bytes,uint256,uint256,address,address))"(
+      request: LivelyToken.InitRequestStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -2222,6 +2296,10 @@ export interface LivelyToken extends BaseContract {
     isUpgradable(overrides?: CallOverrides): Promise<boolean>;
 
     "isUpgradable()"(overrides?: CallOverrides): Promise<boolean>;
+
+    localAdmin(overrides?: CallOverrides): Promise<string>;
+
+    "localAdmin()"(overrides?: CallOverrides): Promise<string>;
 
     mint(
       account: PromiseOrValue<string>,
@@ -2289,13 +2367,13 @@ export interface LivelyToken extends BaseContract {
 
     "proxiableUUID()"(overrides?: CallOverrides): Promise<string>;
 
-    setAdmin(
-      newAdmin: PromiseOrValue<string>,
+    setLocalAdmin(
+      newLocalAdmin: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "setAdmin(address)"(
-      newAdmin: PromiseOrValue<string>,
+    "setLocalAdmin(address)"(
+      newLocalAdmin: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -2441,17 +2519,6 @@ export interface LivelyToken extends BaseContract {
   };
 
   filters: {
-    "AdminChanged(address,address,address)"(
-      sender?: PromiseOrValue<string> | null,
-      proxy?: PromiseOrValue<string> | null,
-      newAdmin?: null
-    ): AdminChangedEventFilter;
-    AdminChanged(
-      sender?: PromiseOrValue<string> | null,
-      proxy?: PromiseOrValue<string> | null,
-      newAdmin?: null
-    ): AdminChangedEventFilter;
-
     "Approval(address,address,uint256)"(
       owner?: PromiseOrValue<string> | null,
       spender?: PromiseOrValue<string> | null,
@@ -2509,7 +2576,7 @@ export interface LivelyToken extends BaseContract {
       name?: null,
       version?: null,
       realm?: null,
-      initializedCount?: null
+      initCount?: null
     ): InitializedEventFilter;
     Initialized(
       sender?: PromiseOrValue<string> | null,
@@ -2518,8 +2585,19 @@ export interface LivelyToken extends BaseContract {
       name?: null,
       version?: null,
       realm?: null,
-      initializedCount?: null
+      initCount?: null
     ): InitializedEventFilter;
+
+    "LocalAdminChanged(address,address,address)"(
+      sender?: PromiseOrValue<string> | null,
+      proxy?: PromiseOrValue<string> | null,
+      newAdmin?: null
+    ): LocalAdminChangedEventFilter;
+    LocalAdminChanged(
+      sender?: PromiseOrValue<string> | null,
+      proxy?: PromiseOrValue<string> | null,
+      newAdmin?: null
+    ): LocalAdminChangedEventFilter;
 
     "Mint(address,address,uint256,uint256)"(
       sender?: PromiseOrValue<string> | null,
@@ -2645,6 +2723,10 @@ export interface LivelyToken extends BaseContract {
   };
 
   estimateGas: {
+    accessControlManager(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "accessControlManager()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     allowance(
       owner: PromiseOrValue<string>,
       spender: PromiseOrValue<string>,
@@ -2699,6 +2781,16 @@ export interface LivelyToken extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    batchUpdateTaxWhitelist(
+      request: IERC20Extra.BatchUpdateTaxWhitelistRequestStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "batchUpdateTaxWhitelist((address,bool)[])"(
+      request: IERC20Extra.BatchUpdateTaxWhitelistRequestStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     burn(
       account: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
@@ -2743,25 +2835,13 @@ export interface LivelyToken extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    domainSeperator(overrides?: CallOverrides): Promise<BigNumber>;
+    distributeToken(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "domainSeperator()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "distributeToken()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getAccessControlManager(overrides?: CallOverrides): Promise<BigNumber>;
+    domainSeparator(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "getAccessControlManager()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getAdmin(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "getAdmin()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getInitializeStatus(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "getInitializeStatus()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getInitializedVersion(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "getInitializedVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "domainSeparator()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     increaseAllowance(
       spender: PromiseOrValue<string>,
@@ -2775,25 +2855,21 @@ export interface LivelyToken extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    initStatus(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "initStatus()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    initVersion(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "initVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     initialize(
-      domainName: PromiseOrValue<string>,
-      domainVersion: PromiseOrValue<string>,
-      domainRealm: PromiseOrValue<string>,
-      accessControlManager: PromiseOrValue<string>,
-      taxTreasuryAddress: PromiseOrValue<string>,
-      taxRateValue: PromiseOrValue<BigNumberish>,
-      signature: PromiseOrValue<BytesLike>,
+      request: LivelyToken.InitRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "initialize(string,string,string,address,address,uint256,bytes)"(
-      domainName: PromiseOrValue<string>,
-      domainVersion: PromiseOrValue<string>,
-      domainRealm: PromiseOrValue<string>,
-      accessControlManager: PromiseOrValue<string>,
-      taxTreasuryAddress: PromiseOrValue<string>,
-      taxRateValue: PromiseOrValue<BigNumberish>,
-      signature: PromiseOrValue<BytesLike>,
+    "initialize((string,string,string,bytes,uint256,uint256,address,address))"(
+      request: LivelyToken.InitRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -2818,6 +2894,10 @@ export interface LivelyToken extends BaseContract {
     isUpgradable(overrides?: CallOverrides): Promise<BigNumber>;
 
     "isUpgradable()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    localAdmin(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "localAdmin()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     mint(
       account: PromiseOrValue<string>,
@@ -2889,13 +2969,13 @@ export interface LivelyToken extends BaseContract {
 
     "proxiableUUID()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    setAdmin(
-      newAdmin: PromiseOrValue<string>,
+    setLocalAdmin(
+      newLocalAdmin: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "setAdmin(address)"(
-      newAdmin: PromiseOrValue<string>,
+    "setLocalAdmin(address)"(
+      newLocalAdmin: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -3045,6 +3125,14 @@ export interface LivelyToken extends BaseContract {
   };
 
   populateTransaction: {
+    accessControlManager(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "accessControlManager()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     allowance(
       owner: PromiseOrValue<string>,
       spender: PromiseOrValue<string>,
@@ -3099,6 +3187,16 @@ export interface LivelyToken extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    batchUpdateTaxWhitelist(
+      request: IERC20Extra.BatchUpdateTaxWhitelistRequestStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "batchUpdateTaxWhitelist((address,bool)[])"(
+      request: IERC20Extra.BatchUpdateTaxWhitelistRequestStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     burn(
       account: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
@@ -3147,37 +3245,15 @@ export interface LivelyToken extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    domainSeperator(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    distributeToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "domainSeperator()"(
+    "distributeToken()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    getAccessControlManager(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    domainSeparator(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "getAccessControlManager()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getAdmin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "getAdmin()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getInitializeStatus(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "getInitializeStatus()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getInitializedVersion(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "getInitializedVersion()"(
+    "domainSeparator()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -3193,25 +3269,21 @@ export interface LivelyToken extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    initStatus(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "initStatus()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    initVersion(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "initVersion()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     initialize(
-      domainName: PromiseOrValue<string>,
-      domainVersion: PromiseOrValue<string>,
-      domainRealm: PromiseOrValue<string>,
-      accessControlManager: PromiseOrValue<string>,
-      taxTreasuryAddress: PromiseOrValue<string>,
-      taxRateValue: PromiseOrValue<BigNumberish>,
-      signature: PromiseOrValue<BytesLike>,
+      request: LivelyToken.InitRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "initialize(string,string,string,address,address,uint256,bytes)"(
-      domainName: PromiseOrValue<string>,
-      domainVersion: PromiseOrValue<string>,
-      domainRealm: PromiseOrValue<string>,
-      accessControlManager: PromiseOrValue<string>,
-      taxTreasuryAddress: PromiseOrValue<string>,
-      taxRateValue: PromiseOrValue<BigNumberish>,
-      signature: PromiseOrValue<BytesLike>,
+    "initialize((string,string,string,bytes,uint256,uint256,address,address))"(
+      request: LivelyToken.InitRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -3236,6 +3308,10 @@ export interface LivelyToken extends BaseContract {
     isUpgradable(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "isUpgradable()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    localAdmin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "localAdmin()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     mint(
       account: PromiseOrValue<string>,
@@ -3309,13 +3385,13 @@ export interface LivelyToken extends BaseContract {
 
     "proxiableUUID()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    setAdmin(
-      newAdmin: PromiseOrValue<string>,
+    setLocalAdmin(
+      newLocalAdmin: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "setAdmin(address)"(
-      newAdmin: PromiseOrValue<string>,
+    "setLocalAdmin(address)"(
+      newLocalAdmin: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

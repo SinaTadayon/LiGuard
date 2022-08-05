@@ -6,6 +6,7 @@ import "./IERC20Extra.sol";
 import "./IPausable.sol";
 import "./LivelyStorage.sol";
 import "../../proxy/BaseUUPSProxy.sol";
+import "../../lib/token/LTokenERC20.sol";
 import "../../lib/cryptography/LECDSA.sol";
 import "../../lib/LCounters.sol";
 import "../../lib/math/LBasisPointsMath.sol";
@@ -20,23 +21,29 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IPaus
     using LBasisPointsMath for uint256;
     using LSafeMath for uint256;
 
+    struct InitRequest {
+        string domainName;
+        string domainVersion;
+        string domainRealm;
+        bytes signature;
+        uint256 taxRateValue;
+        uint256 totalSupplyAmount;
+        address accessControlManager;
+        address taxTreasuryAddress;
+    }
+
     constructor() {}
 
-    function initialize(
-        string calldata domainName,
-        string calldata domainVersion,
-        string calldata domainRealm,
-        address accessControlManager,
-        address taxTreasuryAddress,
-        uint256 taxRateValue,
-        bytes calldata signature
-    ) public onlyProxy onlyLocalAdmin initializer {
-        bytes32 realm = keccak256(abi.encodePacked(domainRealm));      
-        __BASE_UUPS_init(domainName, domainVersion, realm, accessControlManager);
+    function initialize(InitRequest calldata request) public onlyProxy onlyLocalAdmin initializer {
+        bytes32 realm = keccak256(abi.encodePacked(request.domainRealm));      
+        __BASE_UUPS_init(request.domainName, request.domainVersion, realm, request.accessControlManager);
 
-        _taxRate = taxRateValue;
-        _taxTreasury = taxTreasuryAddress;
-        initContext(domainName, domainVersion, realm, signature);
+       _name = "LIVELY";
+       _symbol = "LVL";
+       _taxRate = request.taxRateValue;
+       _taxTreasury = request.taxTreasuryAddress;
+       _mint(_msgSender(), request.totalSupplyAmount);
+        initContext(request.domainName, request.domainVersion, realm, request.signature);
     }
 
     function initContext(        
@@ -45,47 +52,8 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IPaus
         bytes32 realm,
         bytes calldata signature
     ) internal {
-        IContextManagement.RequestRegisterContext[] memory rrc = new IContextManagement.RequestRegisterContext[](3);
-        rrc[0].role = IAccessControl(_accessControlManager).livelyAnonymousRole();
-        rrc[0].isEnabled = true;
-        rrc[0].funcSelectors = new bytes4[](8);
-        rrc[0].funcSelectors[0] = IERC20.transfer.selector;
-        rrc[0].funcSelectors[1] = IERC20.transferFrom.selector;
-        rrc[0].funcSelectors[2] = IERC20.approve.selector;
-        rrc[0].funcSelectors[3] = IERC20Extra.batchTransfer.selector;
-        rrc[0].funcSelectors[4] = IERC20Extra.batchTransferFrom.selector;
-        rrc[0].funcSelectors[5] = IERC20Extra.decreaseAllowance.selector;
-        rrc[0].funcSelectors[6] = IERC20Extra.increaseAllowance.selector;
-        rrc[0].funcSelectors[7] = IERC20Extra.permit.selector;
-        
-        rrc[1].role = IAccessControl(_accessControlManager).livelyAdminRole();
-        rrc[1].isEnabled = true;
-        rrc[1].funcSelectors = new bytes4[](9);
-        rrc[1].funcSelectors[0] = IProxy.setUpgradeStatus.selector;
-        rrc[1].funcSelectors[1] = IERC20Extra.burn.selector;
-        rrc[1].funcSelectors[2] = IERC20Extra.mint.selector;
-        rrc[1].funcSelectors[3] = IERC20Extra.updateTaxRate.selector;
-        rrc[1].funcSelectors[4] = IERC20Extra.updateTaxWhitelist.selector;
-        rrc[1].funcSelectors[5] = IPausable.pause.selector;
-        rrc[1].funcSelectors[6] = IPausable.unpause.selector;
-        rrc[1].funcSelectors[7] = IPausable.pauseAll.selector;
-        rrc[1].funcSelectors[8] = IPausable.unpauseAll.selector;
-                
-        rrc[2].role = IAccessControl(_accessControlManager).livelySystemAdminRole();
-        rrc[2].isEnabled = true;
-        rrc[2].funcSelectors = new bytes4[](3);
-        rrc[2].funcSelectors[0] = IProxy.setAdmin.selector;
-        rrc[2].funcSelectors[1] = IProxy.setSafeMode.selector;
-        rrc[2].funcSelectors[2] = IProxy.upgradeTo.selector;
-        rrc[2].funcSelectors[3] = withdrawBalance.selector;
-
-        IContextManagement.RequestContext memory rc = IContextManagement.RequestContext({
-            name: _domainName,
-            version: _domainVersion,
-            realm: _domainRealm, 
-            smca: address(this),
-            status:true
-        });
+      
+        (IContextManagement.RequestContext memory rc, IContextManagement.RequestRegisterContext[] memory rrc) = LTokenERC20.createRequestContext(_domainName, _domainVersion, _domainRealm);
 
         IContextManagement(_accessControlManager).registerContext(signature, rc, rrc);
 
@@ -98,6 +66,11 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IPaus
             realm,
             _getInitializedCount()
         );        
+    }
+
+    function distributeToken() public view onlyProxy onlyLocalAdmin safeModeCheck returns (bool) {
+        require(_getInitializedCount() == 1, "Token Already Distributed");
+        return true;
     }
 
     function supportsInterface(bytes4 interfaceId)
@@ -125,26 +98,26 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IPaus
         _;
     }
 
-    function pause(address account) external safeModeCheck {
+    function pause(address account) external safeModeCheck aclCheck(this.pause.selector) {
         require(account != address(0), "Invalid Account Address");
         require(!_pausedList.contains(account), "Account Already Paused");
         _pausedList.add(account);
         emit Paused(_msgSender(), account);
     }
 
-    function unpause(address account) external safeModeCheck {
+    function unpause(address account) external safeModeCheck aclCheck(this.unpause.selector) {
         require(account != address(0), "Invalid Account Address");
         require(_pausedList.contains(account), "Account Not Found");
         _pausedList.remove(account);
         emit Unpaused(_msgSender(), account);
     }
 
-    function pauseAll() external safeModeCheck {
+    function pauseAll() external safeModeCheck aclCheck(this.pauseAll.selector) {
         _isPaused = true;
         emit PausedAll(_msgSender());
     }
 
-    function unpauseAll() external safeModeCheck {
+    function unpauseAll() external safeModeCheck aclCheck(this.unpauseAll.selector) {
         _isPaused = false;
         emit UnpausedAll(_msgSender());
     }
@@ -162,13 +135,23 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IPaus
     }
 
 
-    function updateTaxRate(uint256 rate) external safeModeCheck returns (bool) {
+    function updateTaxRate(uint256 rate) external safeModeCheck aclCheck(this.updateTaxRate.selector) returns (bool) {
         _taxRate = rate;
         emit TaxRateUpdated(_msgSender(), rate);
         return true;
     }
 
-    function updateTaxWhitelist(address account, bool isDeleted) external safeModeCheck returns(bool) {
+    function batchUpdateTaxWhitelist(BatchUpdateTaxWhitelistRequest[] calldata request) external {
+        for (uint256 i = 0; i < request.length; i++) {
+            _updateTaxWhitelist(request[i].account, request[i].isDeleted);
+        }
+    }
+
+    function updateTaxWhitelist(address account, bool isDeleted) external returns(bool) {
+        return _updateTaxWhitelist(account, isDeleted);
+    }
+
+    function _updateTaxWhitelist(address account, bool isDeleted) internal safeModeCheck aclCheck(this.updateTaxWhitelist.selector) returns(bool) {
         require(account != address(0), "Invalid Account Address");
         if(isDeleted) {
             require(_taxWhitelist.contains(account), "Account Not Found");
@@ -202,7 +185,6 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IPaus
         bytes calldata signature
     ) external returns (bool) {
         require(block.timestamp <= deadline, "Permit Expired Deadline");
-
         bytes32 structHash = keccak256(abi.encode(_PERMIT_TYPEHASH, owner, spender, value, _useNonce(owner), deadline));
         bytes32 hash = LECDSA.toTypedDataHash(_domainSeparatorV4(), structHash);
         address signer = LECDSA.recover(hash, signature);
@@ -296,7 +278,11 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IPaus
         return currentAllowance;
     }
 
-    function mint(address account, uint256 amount) external safeModeCheck whenNotPaused returns (uint256) {
+    function mint(address account, uint256 amount) external safeModeCheck whenNotPaused aclCheck(this.mint.selector) returns (uint256) {
+        return _mint(account, amount);
+    }
+
+    function _mint(address account, uint256 amount) internal returns (uint256) {
         require(account != address(0), "Invalid Account Address");
         _totalSupply += amount;
         _accounts[account].balance += amount;
@@ -304,9 +290,8 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IPaus
         return _totalSupply;
     }
 
-    function burn(address account, uint256 amount) external safeModeCheck whenNotPaused returns (uint256) {
-         require(account != address(0), "Invalid Account Address");
-
+    function burn(address account, uint256 amount) external safeModeCheck whenNotPaused aclCheck(this.burn.selector) returns (uint256) {    
+        require(account != address(0), "Invalid Account Address");
         uint256 accountBalance = _accounts[account].balance;
         require(accountBalance >= amount, "Insufficient Account Balance");
         unchecked {
@@ -317,7 +302,7 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IPaus
         return _totalSupply;
     }
 
-    function _transfer(address src, address dest, uint256 amount) internal safeModeCheck whenNotPaused whenAccountNotPaused(src) {
+    function _transfer(address src, address dest, uint256 amount) internal safeModeCheck whenNotPaused whenAccountNotPaused(src) aclCheck(this.transfer.selector) {      
         require(src != address(0), "Invalid Source Address");
         require(dest != address(0), "Invalid Destination Address");
         require(src != dest, "Illegal Self Transfer");
@@ -355,7 +340,7 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IPaus
     }
 
 
-    function _approve(address owner, address spender, uint256 amount) internal safeModeCheck whenNotPaused whenAccountNotPaused(owner) {
+    function _approve(address owner, address spender, uint256 amount) internal safeModeCheck whenNotPaused whenAccountNotPaused(owner) aclCheck(this.approve.selector) {
         require(owner != address(0), "Invalid Owner Address");
         require(spender != address(0), "Invalid Spender Address");
         require(amount > 0, "Invalid Approve Amount");

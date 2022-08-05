@@ -102,20 +102,17 @@ export declare namespace IContextManagement {
 
 export interface AccessControlManagerInterface extends utils.Interface {
   functions: {
+    "accessControlManager()": FunctionFragment;
     "addContextFuncRole(bytes32,bytes4,bytes32)": FunctionFragment;
     "contractContext()": FunctionFragment;
     "contractName()": FunctionFragment;
     "contractRealm()": FunctionFragment;
     "contractVersion()": FunctionFragment;
-    "domainSeperator()": FunctionFragment;
-    "getAccessControlManager()": FunctionFragment;
-    "getAdmin()": FunctionFragment;
+    "domainSeparator()": FunctionFragment;
     "getContextFuncs(bytes32)": FunctionFragment;
     "getContextInfo(bytes32)": FunctionFragment;
     "getGroupInfo(bytes32)": FunctionFragment;
     "getGroupRoles(bytes32)": FunctionFragment;
-    "getInitializeStatus()": FunctionFragment;
-    "getInitializedVersion()": FunctionFragment;
     "getRealmContexts(bytes32)": FunctionFragment;
     "getRealmInfo(bytes32)": FunctionFragment;
     "getRoleAccounts(bytes32)": FunctionFragment;
@@ -127,6 +124,8 @@ export interface AccessControlManagerInterface extends utils.Interface {
     "hasGroupRole(bytes32,bytes32)": FunctionFragment;
     "hasRealmContext(bytes32,bytes32)": FunctionFragment;
     "hasRoleAccount(bytes32,address)": FunctionFragment;
+    "initStatus()": FunctionFragment;
+    "initVersion()": FunctionFragment;
     "initialize(string,string,string,address)": FunctionFragment;
     "isContextEnabled(bytes32)": FunctionFragment;
     "isContextExists(bytes32)": FunctionFragment;
@@ -152,6 +151,7 @@ export interface AccessControlManagerInterface extends utils.Interface {
     "livelyGeneralGroupRole()": FunctionFragment;
     "livelyGeneralRealmRole()": FunctionFragment;
     "livelySystemAdminRole()": FunctionFragment;
+    "localAdmin()": FunctionFragment;
     "proxiableUUID()": FunctionFragment;
     "registerContext(bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])": FunctionFragment;
     "registerGroup(string,bool)": FunctionFragment;
@@ -160,10 +160,10 @@ export interface AccessControlManagerInterface extends utils.Interface {
     "removeContextFunc(bytes32,bytes4)": FunctionFragment;
     "revokeContextRole(bytes32,bytes4,bytes32)": FunctionFragment;
     "revokeRoleAccount(bytes32,address)": FunctionFragment;
-    "setAdmin(address)": FunctionFragment;
     "setContextRealm(bytes32,bytes32)": FunctionFragment;
     "setContextStatus(bytes32,bool)": FunctionFragment;
     "setGroupStatus(bytes32,bool)": FunctionFragment;
+    "setLocalAdmin(address)": FunctionFragment;
     "setRealmStatus(bytes32,bool)": FunctionFragment;
     "setRealmUpgradeStatus(bytes32,bool)": FunctionFragment;
     "setRoleGroup(bytes32,bytes32)": FunctionFragment;
@@ -179,6 +179,8 @@ export interface AccessControlManagerInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "accessControlManager"
+      | "accessControlManager()"
       | "addContextFuncRole"
       | "addContextFuncRole(bytes32,bytes4,bytes32)"
       | "contractContext"
@@ -189,12 +191,8 @@ export interface AccessControlManagerInterface extends utils.Interface {
       | "contractRealm()"
       | "contractVersion"
       | "contractVersion()"
-      | "domainSeperator"
-      | "domainSeperator()"
-      | "getAccessControlManager"
-      | "getAccessControlManager()"
-      | "getAdmin"
-      | "getAdmin()"
+      | "domainSeparator"
+      | "domainSeparator()"
       | "getContextFuncs"
       | "getContextFuncs(bytes32)"
       | "getContextInfo"
@@ -203,10 +201,6 @@ export interface AccessControlManagerInterface extends utils.Interface {
       | "getGroupInfo(bytes32)"
       | "getGroupRoles"
       | "getGroupRoles(bytes32)"
-      | "getInitializeStatus"
-      | "getInitializeStatus()"
-      | "getInitializedVersion"
-      | "getInitializedVersion()"
       | "getRealmContexts"
       | "getRealmContexts(bytes32)"
       | "getRealmInfo"
@@ -229,6 +223,10 @@ export interface AccessControlManagerInterface extends utils.Interface {
       | "hasRealmContext(bytes32,bytes32)"
       | "hasRoleAccount"
       | "hasRoleAccount(bytes32,address)"
+      | "initStatus"
+      | "initStatus()"
+      | "initVersion"
+      | "initVersion()"
       | "initialize"
       | "initialize(string,string,string,address)"
       | "isContextEnabled"
@@ -279,6 +277,8 @@ export interface AccessControlManagerInterface extends utils.Interface {
       | "livelyGeneralRealmRole()"
       | "livelySystemAdminRole"
       | "livelySystemAdminRole()"
+      | "localAdmin"
+      | "localAdmin()"
       | "proxiableUUID"
       | "proxiableUUID()"
       | "registerContext"
@@ -295,14 +295,14 @@ export interface AccessControlManagerInterface extends utils.Interface {
       | "revokeContextRole(bytes32,bytes4,bytes32)"
       | "revokeRoleAccount"
       | "revokeRoleAccount(bytes32,address)"
-      | "setAdmin"
-      | "setAdmin(address)"
       | "setContextRealm"
       | "setContextRealm(bytes32,bytes32)"
       | "setContextStatus"
       | "setContextStatus(bytes32,bool)"
       | "setGroupStatus"
       | "setGroupStatus(bytes32,bool)"
+      | "setLocalAdmin"
+      | "setLocalAdmin(address)"
       | "setRealmStatus"
       | "setRealmStatus(bytes32,bool)"
       | "setRealmUpgradeStatus"
@@ -327,6 +327,14 @@ export interface AccessControlManagerInterface extends utils.Interface {
       | "withdrawBalance(address)"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "accessControlManager",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "accessControlManager()",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "addContextFuncRole",
     values: [
@@ -376,24 +384,11 @@ export interface AccessControlManagerInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "domainSeperator",
+    functionFragment: "domainSeparator",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "domainSeperator()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getAccessControlManager",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getAccessControlManager()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "getAdmin", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "getAdmin()",
+    functionFragment: "domainSeparator()",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -427,22 +422,6 @@ export interface AccessControlManagerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "getGroupRoles(bytes32)",
     values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getInitializeStatus",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getInitializeStatus()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getInitializedVersion",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getInitializedVersion()",
-    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "getRealmContexts",
@@ -555,6 +534,22 @@ export interface AccessControlManagerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "hasRoleAccount(bytes32,address)",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initStatus",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initStatus()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initVersion",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initVersion()",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "initialize",
@@ -767,6 +762,14 @@ export interface AccessControlManagerInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "localAdmin",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "localAdmin()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "proxiableUUID",
     values?: undefined
   ): string;
@@ -863,14 +866,6 @@ export interface AccessControlManagerInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setAdmin",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setAdmin(address)",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "setContextRealm",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
   ): string;
@@ -893,6 +888,14 @@ export interface AccessControlManagerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "setGroupStatus(bytes32,bool)",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setLocalAdmin",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setLocalAdmin(address)",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "setRealmStatus",
@@ -1002,6 +1005,14 @@ export interface AccessControlManagerInterface extends utils.Interface {
   ): string;
 
   decodeFunctionResult(
+    functionFragment: "accessControlManager",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "accessControlManager()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "addContextFuncRole",
     data: BytesLike
   ): Result;
@@ -1042,23 +1053,13 @@ export interface AccessControlManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "domainSeperator",
+    functionFragment: "domainSeparator",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "domainSeperator()",
+    functionFragment: "domainSeparator()",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "getAccessControlManager",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getAccessControlManager()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "getAdmin", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getAdmin()", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getContextFuncs",
     data: BytesLike
@@ -1089,22 +1090,6 @@ export interface AccessControlManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getGroupRoles(bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getInitializeStatus",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getInitializeStatus()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getInitializedVersion",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getInitializedVersion()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1190,6 +1175,19 @@ export interface AccessControlManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "hasRoleAccount(bytes32,address)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "initStatus", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "initStatus()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "initVersion",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "initVersion()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
@@ -1386,6 +1384,11 @@ export interface AccessControlManagerInterface extends utils.Interface {
     functionFragment: "livelySystemAdminRole()",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "localAdmin", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "localAdmin()",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "proxiableUUID",
     data: BytesLike
@@ -1450,11 +1453,6 @@ export interface AccessControlManagerInterface extends utils.Interface {
     functionFragment: "revokeRoleAccount(bytes32,address)",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "setAdmin", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setAdmin(address)",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "setContextRealm",
     data: BytesLike
@@ -1477,6 +1475,14 @@ export interface AccessControlManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setGroupStatus(bytes32,bool)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setLocalAdmin",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setLocalAdmin(address)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1566,7 +1572,6 @@ export interface AccessControlManagerInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "AdminChanged(address,address,address)": EventFragment;
     "ContextFuncRemoved(bytes32,address,bytes4,bytes32)": EventFragment;
     "ContextFuncRoleAdded(bytes32,bytes32,address,bytes4,bytes32)": EventFragment;
     "ContextRealmChanged(bytes32,address,bytes32,bytes32)": EventFragment;
@@ -1578,6 +1583,7 @@ export interface AccessControlManagerInterface extends utils.Interface {
     "GroupRegistered(bytes32,address,string,bool)": EventFragment;
     "GroupStatusChanged(bytes32,address,bool)": EventFragment;
     "Initialized(address,address,address,string,string,bytes32,uint16)": EventFragment;
+    "LocalAdminChanged(address,address,address)": EventFragment;
     "RealmRegistered(bytes32,address,string,bool,bool)": EventFragment;
     "RealmStatusChanged(bytes32,address,bool)": EventFragment;
     "RealmUpgradeStatusChanged(bytes32,address,bool)": EventFragment;
@@ -1591,10 +1597,6 @@ export interface AccessControlManagerInterface extends utils.Interface {
     "Upgraded(address,address,address)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "AdminChanged"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "AdminChanged(address,address,address)"
-  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ContextFuncRemoved"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "ContextFuncRemoved(bytes32,address,bytes4,bytes32)"
@@ -1638,6 +1640,10 @@ export interface AccessControlManagerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "Initialized(address,address,address,string,string,bytes32,uint16)"
+  ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "LocalAdminChanged"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "LocalAdminChanged(address,address,address)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RealmRegistered"): EventFragment;
   getEvent(
@@ -1684,18 +1690,6 @@ export interface AccessControlManagerInterface extends utils.Interface {
     nameOrSignatureOrTopic: "Upgraded(address,address,address)"
   ): EventFragment;
 }
-
-export interface AdminChangedEventObject {
-  sender: string;
-  proxy: string;
-  newAdmin: string;
-}
-export type AdminChangedEvent = TypedEvent<
-  [string, string, string],
-  AdminChangedEventObject
->;
-
-export type AdminChangedEventFilter = TypedEventFilter<AdminChangedEvent>;
 
 export interface ContextFuncRemovedEventObject {
   context: string;
@@ -1844,7 +1838,7 @@ export interface InitializedEventObject {
   name: string;
   version: string;
   realm: string;
-  initializedCount: number;
+  initCount: number;
 }
 export type InitializedEvent = TypedEvent<
   [string, string, string, string, string, string, number],
@@ -1852,6 +1846,19 @@ export type InitializedEvent = TypedEvent<
 >;
 
 export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
+
+export interface LocalAdminChangedEventObject {
+  sender: string;
+  proxy: string;
+  newAdmin: string;
+}
+export type LocalAdminChangedEvent = TypedEvent<
+  [string, string, string],
+  LocalAdminChangedEventObject
+>;
+
+export type LocalAdminChangedEventFilter =
+  TypedEventFilter<LocalAdminChangedEvent>;
 
 export interface RealmRegisteredEventObject {
   realm: string;
@@ -2027,6 +2034,10 @@ export interface AccessControlManager extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    accessControlManager(overrides?: CallOverrides): Promise<[string]>;
+
+    "accessControlManager()"(overrides?: CallOverrides): Promise<[string]>;
+
     addContextFuncRole(
       ctx: PromiseOrValue<BytesLike>,
       functionSelector: PromiseOrValue<BytesLike>,
@@ -2057,17 +2068,9 @@ export interface AccessControlManager extends BaseContract {
 
     "contractVersion()"(overrides?: CallOverrides): Promise<[string]>;
 
-    domainSeperator(overrides?: CallOverrides): Promise<[string]>;
+    domainSeparator(overrides?: CallOverrides): Promise<[string]>;
 
-    "domainSeperator()"(overrides?: CallOverrides): Promise<[string]>;
-
-    getAccessControlManager(overrides?: CallOverrides): Promise<[string]>;
-
-    "getAccessControlManager()"(overrides?: CallOverrides): Promise<[string]>;
-
-    getAdmin(overrides?: CallOverrides): Promise<[string]>;
-
-    "getAdmin()"(overrides?: CallOverrides): Promise<[string]>;
+    "domainSeparator()"(overrides?: CallOverrides): Promise<[string]>;
 
     getContextFuncs(
       ctx: PromiseOrValue<BytesLike>,
@@ -2108,14 +2111,6 @@ export interface AccessControlManager extends BaseContract {
       group: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[string[]]>;
-
-    getInitializeStatus(overrides?: CallOverrides): Promise<[boolean]>;
-
-    "getInitializeStatus()"(overrides?: CallOverrides): Promise<[boolean]>;
-
-    getInitializedVersion(overrides?: CallOverrides): Promise<[number]>;
-
-    "getInitializedVersion()"(overrides?: CallOverrides): Promise<[number]>;
 
     getRealmContexts(
       realm: PromiseOrValue<BytesLike>,
@@ -2246,6 +2241,14 @@ export interface AccessControlManager extends BaseContract {
       account: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
+
+    initStatus(overrides?: CallOverrides): Promise<[boolean]>;
+
+    "initStatus()"(overrides?: CallOverrides): Promise<[boolean]>;
+
+    initVersion(overrides?: CallOverrides): Promise<[number]>;
+
+    "initVersion()"(overrides?: CallOverrides): Promise<[number]>;
 
     initialize(
       domainName: PromiseOrValue<string>,
@@ -2465,6 +2468,10 @@ export interface AccessControlManager extends BaseContract {
 
     "livelySystemAdminRole()"(overrides?: CallOverrides): Promise<[string]>;
 
+    localAdmin(overrides?: CallOverrides): Promise<[string]>;
+
+    "localAdmin()"(overrides?: CallOverrides): Promise<[string]>;
+
     proxiableUUID(overrides?: CallOverrides): Promise<[string]>;
 
     "proxiableUUID()"(overrides?: CallOverrides): Promise<[string]>;
@@ -2561,16 +2568,6 @@ export interface AccessControlManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    setAdmin(
-      newAdmin: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "setAdmin(address)"(
-      newAdmin: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     setContextRealm(
       ctx: PromiseOrValue<BytesLike>,
       realm: PromiseOrValue<BytesLike>,
@@ -2604,6 +2601,16 @@ export interface AccessControlManager extends BaseContract {
     "setGroupStatus(bytes32,bool)"(
       group: PromiseOrValue<BytesLike>,
       status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setLocalAdmin(
+      newLocalAdmin: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "setLocalAdmin(address)"(
+      newLocalAdmin: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2730,6 +2737,10 @@ export interface AccessControlManager extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
+  accessControlManager(overrides?: CallOverrides): Promise<string>;
+
+  "accessControlManager()"(overrides?: CallOverrides): Promise<string>;
+
   addContextFuncRole(
     ctx: PromiseOrValue<BytesLike>,
     functionSelector: PromiseOrValue<BytesLike>,
@@ -2760,17 +2771,9 @@ export interface AccessControlManager extends BaseContract {
 
   "contractVersion()"(overrides?: CallOverrides): Promise<string>;
 
-  domainSeperator(overrides?: CallOverrides): Promise<string>;
+  domainSeparator(overrides?: CallOverrides): Promise<string>;
 
-  "domainSeperator()"(overrides?: CallOverrides): Promise<string>;
-
-  getAccessControlManager(overrides?: CallOverrides): Promise<string>;
-
-  "getAccessControlManager()"(overrides?: CallOverrides): Promise<string>;
-
-  getAdmin(overrides?: CallOverrides): Promise<string>;
-
-  "getAdmin()"(overrides?: CallOverrides): Promise<string>;
+  "domainSeparator()"(overrides?: CallOverrides): Promise<string>;
 
   getContextFuncs(
     ctx: PromiseOrValue<BytesLike>,
@@ -2811,14 +2814,6 @@ export interface AccessControlManager extends BaseContract {
     group: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<string[]>;
-
-  getInitializeStatus(overrides?: CallOverrides): Promise<boolean>;
-
-  "getInitializeStatus()"(overrides?: CallOverrides): Promise<boolean>;
-
-  getInitializedVersion(overrides?: CallOverrides): Promise<number>;
-
-  "getInitializedVersion()"(overrides?: CallOverrides): Promise<number>;
 
   getRealmContexts(
     realm: PromiseOrValue<BytesLike>,
@@ -2949,6 +2944,14 @@ export interface AccessControlManager extends BaseContract {
     account: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<boolean>;
+
+  initStatus(overrides?: CallOverrides): Promise<boolean>;
+
+  "initStatus()"(overrides?: CallOverrides): Promise<boolean>;
+
+  initVersion(overrides?: CallOverrides): Promise<number>;
+
+  "initVersion()"(overrides?: CallOverrides): Promise<number>;
 
   initialize(
     domainName: PromiseOrValue<string>,
@@ -3168,6 +3171,10 @@ export interface AccessControlManager extends BaseContract {
 
   "livelySystemAdminRole()"(overrides?: CallOverrides): Promise<string>;
 
+  localAdmin(overrides?: CallOverrides): Promise<string>;
+
+  "localAdmin()"(overrides?: CallOverrides): Promise<string>;
+
   proxiableUUID(overrides?: CallOverrides): Promise<string>;
 
   "proxiableUUID()"(overrides?: CallOverrides): Promise<string>;
@@ -3264,16 +3271,6 @@ export interface AccessControlManager extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  setAdmin(
-    newAdmin: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "setAdmin(address)"(
-    newAdmin: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   setContextRealm(
     ctx: PromiseOrValue<BytesLike>,
     realm: PromiseOrValue<BytesLike>,
@@ -3307,6 +3304,16 @@ export interface AccessControlManager extends BaseContract {
   "setGroupStatus(bytes32,bool)"(
     group: PromiseOrValue<BytesLike>,
     status: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setLocalAdmin(
+    newLocalAdmin: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "setLocalAdmin(address)"(
+    newLocalAdmin: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -3433,6 +3440,10 @@ export interface AccessControlManager extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    accessControlManager(overrides?: CallOverrides): Promise<string>;
+
+    "accessControlManager()"(overrides?: CallOverrides): Promise<string>;
+
     addContextFuncRole(
       ctx: PromiseOrValue<BytesLike>,
       functionSelector: PromiseOrValue<BytesLike>,
@@ -3463,17 +3474,9 @@ export interface AccessControlManager extends BaseContract {
 
     "contractVersion()"(overrides?: CallOverrides): Promise<string>;
 
-    domainSeperator(overrides?: CallOverrides): Promise<string>;
+    domainSeparator(overrides?: CallOverrides): Promise<string>;
 
-    "domainSeperator()"(overrides?: CallOverrides): Promise<string>;
-
-    getAccessControlManager(overrides?: CallOverrides): Promise<string>;
-
-    "getAccessControlManager()"(overrides?: CallOverrides): Promise<string>;
-
-    getAdmin(overrides?: CallOverrides): Promise<string>;
-
-    "getAdmin()"(overrides?: CallOverrides): Promise<string>;
+    "domainSeparator()"(overrides?: CallOverrides): Promise<string>;
 
     getContextFuncs(
       ctx: PromiseOrValue<BytesLike>,
@@ -3514,14 +3517,6 @@ export interface AccessControlManager extends BaseContract {
       group: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<string[]>;
-
-    getInitializeStatus(overrides?: CallOverrides): Promise<boolean>;
-
-    "getInitializeStatus()"(overrides?: CallOverrides): Promise<boolean>;
-
-    getInitializedVersion(overrides?: CallOverrides): Promise<number>;
-
-    "getInitializedVersion()"(overrides?: CallOverrides): Promise<number>;
 
     getRealmContexts(
       realm: PromiseOrValue<BytesLike>,
@@ -3652,6 +3647,14 @@ export interface AccessControlManager extends BaseContract {
       account: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    initStatus(overrides?: CallOverrides): Promise<boolean>;
+
+    "initStatus()"(overrides?: CallOverrides): Promise<boolean>;
+
+    initVersion(overrides?: CallOverrides): Promise<number>;
+
+    "initVersion()"(overrides?: CallOverrides): Promise<number>;
 
     initialize(
       domainName: PromiseOrValue<string>,
@@ -3871,6 +3874,10 @@ export interface AccessControlManager extends BaseContract {
 
     "livelySystemAdminRole()"(overrides?: CallOverrides): Promise<string>;
 
+    localAdmin(overrides?: CallOverrides): Promise<string>;
+
+    "localAdmin()"(overrides?: CallOverrides): Promise<string>;
+
     proxiableUUID(overrides?: CallOverrides): Promise<string>;
 
     "proxiableUUID()"(overrides?: CallOverrides): Promise<string>;
@@ -3967,16 +3974,6 @@ export interface AccessControlManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    setAdmin(
-      newAdmin: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "setAdmin(address)"(
-      newAdmin: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     setContextRealm(
       ctx: PromiseOrValue<BytesLike>,
       realm: PromiseOrValue<BytesLike>,
@@ -4010,6 +4007,16 @@ export interface AccessControlManager extends BaseContract {
     "setGroupStatus(bytes32,bool)"(
       group: PromiseOrValue<BytesLike>,
       status: PromiseOrValue<boolean>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    setLocalAdmin(
+      newLocalAdmin: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "setLocalAdmin(address)"(
+      newLocalAdmin: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -4137,17 +4144,6 @@ export interface AccessControlManager extends BaseContract {
   };
 
   filters: {
-    "AdminChanged(address,address,address)"(
-      sender?: PromiseOrValue<string> | null,
-      proxy?: PromiseOrValue<string> | null,
-      newAdmin?: null
-    ): AdminChangedEventFilter;
-    AdminChanged(
-      sender?: PromiseOrValue<string> | null,
-      proxy?: PromiseOrValue<string> | null,
-      newAdmin?: null
-    ): AdminChangedEventFilter;
-
     "ContextFuncRemoved(bytes32,address,bytes4,bytes32)"(
       context?: PromiseOrValue<BytesLike> | null,
       sender?: PromiseOrValue<string> | null,
@@ -4289,7 +4285,7 @@ export interface AccessControlManager extends BaseContract {
       name?: null,
       version?: null,
       realm?: null,
-      initializedCount?: null
+      initCount?: null
     ): InitializedEventFilter;
     Initialized(
       sender?: PromiseOrValue<string> | null,
@@ -4298,8 +4294,19 @@ export interface AccessControlManager extends BaseContract {
       name?: null,
       version?: null,
       realm?: null,
-      initializedCount?: null
+      initCount?: null
     ): InitializedEventFilter;
+
+    "LocalAdminChanged(address,address,address)"(
+      sender?: PromiseOrValue<string> | null,
+      proxy?: PromiseOrValue<string> | null,
+      newAdmin?: null
+    ): LocalAdminChangedEventFilter;
+    LocalAdminChanged(
+      sender?: PromiseOrValue<string> | null,
+      proxy?: PromiseOrValue<string> | null,
+      newAdmin?: null
+    ): LocalAdminChangedEventFilter;
 
     "RealmRegistered(bytes32,address,string,bool,bool)"(
       realm?: PromiseOrValue<BytesLike> | null,
@@ -4440,6 +4447,10 @@ export interface AccessControlManager extends BaseContract {
   };
 
   estimateGas: {
+    accessControlManager(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "accessControlManager()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     addContextFuncRole(
       ctx: PromiseOrValue<BytesLike>,
       functionSelector: PromiseOrValue<BytesLike>,
@@ -4470,17 +4481,9 @@ export interface AccessControlManager extends BaseContract {
 
     "contractVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    domainSeperator(overrides?: CallOverrides): Promise<BigNumber>;
+    domainSeparator(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "domainSeperator()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getAccessControlManager(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "getAccessControlManager()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getAdmin(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "getAdmin()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "domainSeparator()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     getContextFuncs(
       ctx: PromiseOrValue<BytesLike>,
@@ -4521,14 +4524,6 @@ export interface AccessControlManager extends BaseContract {
       group: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    getInitializeStatus(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "getInitializeStatus()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getInitializedVersion(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "getInitializedVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     getRealmContexts(
       realm: PromiseOrValue<BytesLike>,
@@ -4659,6 +4654,14 @@ export interface AccessControlManager extends BaseContract {
       account: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    initStatus(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "initStatus()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    initVersion(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "initVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     initialize(
       domainName: PromiseOrValue<string>,
@@ -4878,6 +4881,10 @@ export interface AccessControlManager extends BaseContract {
 
     "livelySystemAdminRole()"(overrides?: CallOverrides): Promise<BigNumber>;
 
+    localAdmin(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "localAdmin()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     proxiableUUID(overrides?: CallOverrides): Promise<BigNumber>;
 
     "proxiableUUID()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -4974,16 +4981,6 @@ export interface AccessControlManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    setAdmin(
-      newAdmin: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "setAdmin(address)"(
-      newAdmin: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     setContextRealm(
       ctx: PromiseOrValue<BytesLike>,
       realm: PromiseOrValue<BytesLike>,
@@ -5017,6 +5014,16 @@ export interface AccessControlManager extends BaseContract {
     "setGroupStatus(bytes32,bool)"(
       group: PromiseOrValue<BytesLike>,
       status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setLocalAdmin(
+      newLocalAdmin: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "setLocalAdmin(address)"(
+      newLocalAdmin: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -5144,6 +5151,14 @@ export interface AccessControlManager extends BaseContract {
   };
 
   populateTransaction: {
+    accessControlManager(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "accessControlManager()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     addContextFuncRole(
       ctx: PromiseOrValue<BytesLike>,
       functionSelector: PromiseOrValue<BytesLike>,
@@ -5178,23 +5193,11 @@ export interface AccessControlManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    domainSeperator(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    domainSeparator(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "domainSeperator()"(
+    "domainSeparator()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
-
-    getAccessControlManager(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "getAccessControlManager()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getAdmin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "getAdmin()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getContextFuncs(
       ctx: PromiseOrValue<BytesLike>,
@@ -5233,22 +5236,6 @@ export interface AccessControlManager extends BaseContract {
 
     "getGroupRoles(bytes32)"(
       group: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getInitializeStatus(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "getInitializeStatus()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getInitializedVersion(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "getInitializedVersion()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -5381,6 +5368,14 @@ export interface AccessControlManager extends BaseContract {
       account: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    initStatus(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "initStatus()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    initVersion(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "initVersion()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     initialize(
       domainName: PromiseOrValue<string>,
@@ -5618,6 +5613,10 @@ export interface AccessControlManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    localAdmin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "localAdmin()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     proxiableUUID(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "proxiableUUID()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -5714,16 +5713,6 @@ export interface AccessControlManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setAdmin(
-      newAdmin: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "setAdmin(address)"(
-      newAdmin: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     setContextRealm(
       ctx: PromiseOrValue<BytesLike>,
       realm: PromiseOrValue<BytesLike>,
@@ -5757,6 +5746,16 @@ export interface AccessControlManager extends BaseContract {
     "setGroupStatus(bytes32,bool)"(
       group: PromiseOrValue<BytesLike>,
       status: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setLocalAdmin(
+      newLocalAdmin: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "setLocalAdmin(address)"(
+      newLocalAdmin: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

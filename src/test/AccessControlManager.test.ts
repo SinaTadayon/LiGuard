@@ -22,7 +22,7 @@ import {
 } from "../../export/types";
 import {
   UpgradedEventObject,
-  AdminChangedEventObject,
+  LocalAdminChangedEventObject,
   InitializedEventObject,
   IContextManagement,
 } from "../../export/types/acl/AccessControlManager";
@@ -33,17 +33,15 @@ import { LRealmManagementLibraryAddresses } from "../../export/types/factories/l
 import { LRoleManagementLibraryAddresses } from "../../export/types/factories/lib/acl/LRoleManagement__factory";
 import { Address } from "hardhat-deploy/dist/types";
 import ResponseContextStruct = IContextManagement.ResponseContextStruct;
+import {
+  generateDomainSeparator,
+  generateDomainSignatureByHardhat,
+  generateDomainSignatureManually
+} from "./TestUtils";
 
 // ethers.utils.keccak256(ethers.utils.toUtf8Bytes("src/contracts/lib/acl/ContextManagementLib.sol:ContextManagementLib")) => 0x0304621006bd13fe54dc5f6b75a37ec856740450109fd223c2bfb60db9095cad => __$0304621006bd13fe54dc5f6b75a37ec856$__ ( library placeholder)
 // const { provider, deployMockContract, deployContract } = waffle;
 const { provider, deployMockContract } = waffle;
-
-export const DOMAIN_HASH: string = ethers.utils.keccak256(
-  ethers.utils.toUtf8Bytes("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)")
-);
-export const MESSAGE_TYPE_HASH: string = ethers.utils.keccak256(
-  ethers.utils.toUtf8Bytes("Context(address contract,bytes32 name,bytes32 version,bytes32 realm)")
-);
 
 describe("AccessControlManager Tests", function () {
   let admin: Signer;
@@ -183,7 +181,7 @@ describe("AccessControlManager Tests", function () {
       expect(accessControlManagerSubject.address).not.null;
       expect(await accessControlManagerSubject.isSafeMode()).to.be.true;
       expect(await accessControlManagerSubject.isUpgradable()).to.be.false;
-      expect(await accessControlManagerSubject.getInitializedVersion()).to.be.equal(0);
+      expect(await accessControlManagerSubject.initVersion()).to.be.equal(0);
     });
 
     it("Should initialize raise exception", async () => {
@@ -214,7 +212,7 @@ describe("AccessControlManager Tests", function () {
       const address = await user1.getAddress();
 
       // when and then
-      await expect(accessControlManagerSubject.connect(admin).setAdmin(address)).to.be.revertedWith(
+      await expect(accessControlManagerSubject.connect(admin).setLocalAdmin(address)).to.be.revertedWith(
         "Illegal Contract Call"
       );
     });
@@ -283,7 +281,7 @@ describe("AccessControlManager Tests", function () {
       // and
       expect(await accessControlManagerProxy.isSafeMode(), "Invalid SafeMode").to.be.true;
       expect(await accessControlManagerProxy.isUpgradable(), "Invalid Upgrade").to.be.false;
-      expect(await accessControlManagerProxy.getInitializedVersion(), "Invalid Initialized Version").to.be.equal(0);
+      expect(await accessControlManagerProxy.initVersion(), "Invalid Initialized Version").to.be.equal(0);
     });
 
     it("Should enable SafeMode of proxy by admin failed when not initialized", async () => {
@@ -300,9 +298,9 @@ describe("AccessControlManager Tests", function () {
       );
     });
 
-    it("Should setAdmin of proxy by admin failed when not initialized", async () => {
+    it("Should setLocalAdmin of proxy by admin failed when not initialized", async () => {
       // when and then
-      await expect(accessControlManagerProxy.connect(admin).setAdmin(userAddress1)).to.revertedWith(
+      await expect(accessControlManagerProxy.connect(admin).setLocalAdmin(userAddress1)).to.revertedWith(
         "SafeMode: Call Rejected"
       );
     });
@@ -317,15 +315,16 @@ describe("AccessControlManager Tests", function () {
       ).to.revertedWith("SafeMode: Call Rejected");
     });
 
-    it("Should deploy and initialize proxy success (js)", async () => {
+    it("Should deploy and initialize proxy success (etherjs)", async () => {
       // given
+      const networkChainId = await provider.send("eth_chainId", []);
       const accessControlFactory = await ethers.getContractFactory("AccessControlManager", {
         libraries: {
-          LAccessControl: acl.address,
           LContextManagement: cml.address,
-          LRoleManagement: rml.address,
-          LGroupManagement: gml.address,
+          LAccessControl: acl.address,
           LRealmManagement: reml.address,
+          LGroupManagement: gml.address,
+          LRoleManagement: rml.address,
         },
       });
       const accessControlSubject = await accessControlFactory.connect(admin).deploy();
@@ -349,9 +348,9 @@ describe("AccessControlManager Tests", function () {
       // and
       expect(await accessControlManager.isSafeMode(), "Invalid SafeMode").to.be.false;
       expect(await accessControlManager.isUpgradable(), "Invalid Upgradable").to.be.false;
-      expect(await accessControlManager.getInitializedVersion(), "Invalid Initialized Version").to.be.equal(1);
-      expect(await accessControlManager.getInitializeStatus(), "Invalid Initialize State").to.be.false;
-      expect(await accessControlManager.getAdmin(), "Invalid Admin").to.be.hexEqual(adminAddress);
+      expect(await accessControlManager.initVersion(), "Invalid Initialized Version").to.be.equal(1);
+      expect(await accessControlManager.initStatus(), "Invalid Initialize State").to.be.false;
+      expect(await accessControlManager.localAdmin(), "Invalid Admin").to.be.hexEqual(adminAddress);
       expect(await accessControlManager.contractName(), "Invalid Name").to.be.hexEqual(
         ethers.utils.keccak256(ethers.utils.toUtf8Bytes("AccessControlManager"))
       );
@@ -361,7 +360,7 @@ describe("AccessControlManager Tests", function () {
       expect(await accessControlManager.contractRealm(), "Invalid Realm").to.be.hexEqual(
         ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_GENERAL_REALM"))
       );
-      expect(await accessControlManager.getAccessControlManager(), "Invalid Access Control Manager").to.be.hexEqual(
+      expect(await accessControlManager.accessControlManager(), "Invalid Access Control Manager").to.be.hexEqual(
         acmProxy.address
       );
       expect(await accessControlManager.contractContext(), "Invalid Context").to.be.hexEqual(
@@ -370,6 +369,9 @@ describe("AccessControlManager Tests", function () {
       expect(await accessControlManager.subjectAddress(), "Invalid Subject Address").to.be.hexEqual(
         accessControlSubject.address
       );
+
+      expect(await accessControlManager.domainSeparator()).to.be
+        .hexEqual(generateDomainSeparator("AccessControlManager", "1.0.0", accessControlManager.address, networkChainId))
     });
 
     it("Should proxy raising events when deployment and initialization were successful", async () => {
@@ -400,7 +402,7 @@ describe("AccessControlManager Tests", function () {
 
       // and
       logDesc = accessControlSubject.interface.parseLog(txReceipt.logs[1]);
-      const adminChangedEvent: AdminChangedEventObject = <AdminChangedEventObject>(<unknown>logDesc.args);
+      const adminChangedEvent: LocalAdminChangedEventObject = <LocalAdminChangedEventObject>(<unknown>logDesc.args);
       expect(adminChangedEvent.sender, "Invalid Sender Address").to.be.hexEqual(adminAddress);
       expect(adminChangedEvent.proxy, "Invalid Proxy Address").to.be.hexEqual(accessControlProxy.address);
       expect(adminChangedEvent.newAdmin, "Invalid New Admin Address").to.be.hexEqual(adminAddress);
@@ -416,7 +418,7 @@ describe("AccessControlManager Tests", function () {
       expect(initializedEvent.realm, "Invalid Realm").to.be.hexEqual(
         ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_GENERAL_REALM"))
       );
-      expect(initializedEvent.initializedCount, "Invalid InitializedCount").to.be.equal(1);
+      expect(initializedEvent.initCount, "Invalid InitializedCount").to.be.equal(1);
     });
 
     it("Should initialize proxy with Invalid AccessControlManager failed", async () => {
@@ -462,6 +464,7 @@ describe("AccessControlManager Tests", function () {
 
     it("Should deploy and initialize proxy success (typechain)", async () => {
       // given
+      const networkChainId = await provider.send("eth_chainId", []);
       const accessControlManagerSubjectFactory = new AccessControlManager__factory(linkLibraryAddresses, admin);
       const proxyFactory = new Proxy__factory(admin);
       accessControlManagerSubject = await accessControlManagerSubjectFactory.deploy();
@@ -475,10 +478,10 @@ describe("AccessControlManager Tests", function () {
 
       // then
       expect(await accessControlManagerProxy.isSafeMode(), "Invalid SafeMode").to.be.false;
-      expect(await accessControlManagerProxy.isUpgradable(), "Invalid Upgradablability").to.be.false;
-      expect(await accessControlManagerProxy.getInitializedVersion(), "Invalid InitailizedVersion").to.be.equal(1);
-      expect(await accessControlManagerProxy.getInitializeStatus(), "Invalid Initialize State").to.be.false;
-      expect(await accessControlManagerProxy.getAdmin(), "Invalid Admin").to.be.hexEqual(adminAddress);
+      expect(await accessControlManagerProxy.isUpgradable(), "Invalid Upgradability").to.be.false;
+      expect(await accessControlManagerProxy.initVersion(), "Invalid Init Version").to.be.equal(1);
+      expect(await accessControlManagerProxy.initStatus(), "Invalid Init State").to.be.false;
+      expect(await accessControlManagerProxy.localAdmin(), "Invalid Local Admin").to.be.hexEqual(adminAddress);
       expect(await accessControlManagerProxy.contractName(), "Invalid Name").to.be.hexEqual(
         ethers.utils.keccak256(ethers.utils.toUtf8Bytes("AccessControlManager"))
       );
@@ -488,7 +491,7 @@ describe("AccessControlManager Tests", function () {
       expect(await accessControlManagerProxy.contractRealm(), "Invalid Realm").to.be.hexEqual(
         ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_GENERAL_REALM"))
       );
-      expect(await accessControlManagerProxy.getAccessControlManager(), "Invalid Access Control").to.be.hexEqual(
+      expect(await accessControlManagerProxy.accessControlManager(), "Invalid Access Control").to.be.hexEqual(
         acmProxy.address
       );
       expect(await accessControlManagerProxy.contractContext(), "Invalid Context").to.be.hexEqual(
@@ -497,6 +500,8 @@ describe("AccessControlManager Tests", function () {
       expect(await accessControlManagerProxy.subjectAddress(), "Invalid Subject Address").to.be.hexEqual(
         accessControlManagerSubject.address
       );
+      expect(await accessControlManagerProxy.domainSeparator()).to.be
+        .equal(generateDomainSeparator("AccessControlManager", "1.0.0", accessControlManagerProxy.address, networkChainId))
     });
 
     it("Should call proxyableUUID from proxy failed", async () => {
@@ -627,8 +632,8 @@ describe("AccessControlManager Tests", function () {
 
     it("Should setAdmin proxy to new account success", async () => {
       // when and then
-      await expect(accessControlManagerProxy.connect(admin).setAdmin(userAddress1))
-        .to.emit(accessControlManagerProxy, "AdminChanged")
+      await expect(accessControlManagerProxy.connect(admin).setLocalAdmin(userAddress1))
+        .to.emit(accessControlManagerProxy, "LocalAdminChanged")
         .withArgs(adminAddress, accessControlManagerProxy.address, userAddress1);
     });
 
@@ -663,7 +668,7 @@ describe("AccessControlManager Tests", function () {
       const address = await user1.getAddress();
 
       // when and then
-      await expect(accessControlManagerProxy.connect(admin).setAdmin(address)).to.revertedWith(
+      await expect(accessControlManagerProxy.connect(admin).setLocalAdmin(address)).to.revertedWith(
         "SafeMode: Call Rejected"
       );
     });
@@ -873,12 +878,12 @@ describe("AccessControlManager Tests", function () {
       ).to.revertedWith("Illegal Change Role Status");
     });
 
-    it("Should grant new account to role of ANONYMOUS_ROLE role by admin failed", async () => {
+    it("Should grant new account to role of LIVELY_ANONYMOUS_ROLE role by admin failed", async () => {
       // when and then
       await expect(
         accessControlManagerProxy
           .connect(admin)
-          .grantRoleAccount(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("ANONYMOUS_ROLE")), userAddress2)
+          .grantRoleAccount(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_ANONYMOUS_ROLE")), userAddress2)
       ).to.revertedWith("Illegal Grant Anonymous Role");
     });
 
@@ -1560,7 +1565,7 @@ describe("AccessControlManager Tests", function () {
       const proxyFactory = new Proxy__factory(user1);
       const typedArray1 = new Int8Array(0);
       const proxy = await proxyFactory.connect(user1).deploy(baseUupsProxy.address, typedArray1);
-      const signature = await signDataByHardhat(
+      const signature = await generateDomainSignatureByHardhat(
         proxy.address,
         "BaseUUPSContractTest",
         "1.0.0",
@@ -1593,7 +1598,7 @@ describe("AccessControlManager Tests", function () {
       const proxyFactory = new Proxy__factory(admin);
       const typedArray1 = new Int8Array(0);
       const proxy = await proxyFactory.connect(admin).deploy(baseUupsProxy.address, typedArray1);
-      const signature = await signDataByHardhat(
+      const signature = await generateDomainSignatureByHardhat(
         proxy.address,
         "BaseUUPSContractTest",
         "1.0.0",
@@ -1626,7 +1631,7 @@ describe("AccessControlManager Tests", function () {
       const proxyFactory = new Proxy__factory(admin);
       const typedArray1 = new Int8Array(0);
       const proxy = await proxyFactory.connect(admin).deploy(baseUupsProxy.address, typedArray1);
-      const signature = await signDataByHardhat(
+      const signature = await generateDomainSignatureByHardhat(
         proxy.address,
         "BaseUUPSContractTest",
         "1.0.0",
@@ -1660,7 +1665,7 @@ describe("AccessControlManager Tests", function () {
       const proxyFactory = new Proxy__factory(admin);
       const typedArray1 = new Int8Array(0);
       const proxy = await proxyFactory.connect(admin).deploy(baseUupsProxy.address, typedArray1);
-      const signature = await signDataByHardhat(
+      const signature = await generateDomainSignatureByHardhat(
         proxy.address,
         "BaseUUPSContractTest",
         "1.0.0",
@@ -1766,7 +1771,7 @@ describe("AccessControlManager Tests", function () {
       ).to.be.false;
 
       // and
-      method_selector = iface.getSighash("setAdmin(address)");
+      method_selector = iface.getSighash("setLocalAdmin(address)");
       expect(
         await accessControlManagerProxy.hasAccess(
           ethers.utils.keccak256(baseUupsProxy.address),
@@ -1846,13 +1851,13 @@ describe("AccessControlManager Tests", function () {
           .addContextFuncRole(
             ethers.utils.keccak256(baseUupsProxy.address),
             method_selector,
-            ethers.utils.keccak256(ethers.utils.toUtf8Bytes("ANONYMOUS_ROLE"))
+            ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_ANONYMOUS_ROLE"))
           )
       )
         .to.emit(accessControlManagerProxy, "ContextFuncRoleAdded")
         .withArgs(
           ethers.utils.keccak256(baseUupsProxy.address),
-          ethers.utils.keccak256(ethers.utils.toUtf8Bytes("ANONYMOUS_ROLE")),
+          ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_ANONYMOUS_ROLE")),
           adminAddress,
           method_selector,
           ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_GENERAL_REALM"))
@@ -1862,7 +1867,7 @@ describe("AccessControlManager Tests", function () {
       expect(
         await accessControlManagerProxy.hasContextRole(
           ethers.utils.keccak256(baseUupsProxy.address),
-          ethers.utils.keccak256(ethers.utils.toUtf8Bytes("ANONYMOUS_ROLE")),
+          ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_ANONYMOUS_ROLE")),
           method_selector
         )
       ).to.be.true;
@@ -2016,7 +2021,7 @@ describe("AccessControlManager Tests", function () {
     it("Should update BaseUUPSContractTest context with by user1 failed", async () => {
       // given
       const networkChainId = await provider.send("eth_chainId", []);
-      const signature = await signDataManually(
+      const signature = await generateDomainSignatureManually(
         baseUupsProxy.address,
         "BaseUUPSContractTest",
         "1.0.0",
@@ -2033,7 +2038,7 @@ describe("AccessControlManager Tests", function () {
     it("Should update BaseUUPSContractTest context with Invalid Realm failed", async () => {
       // given
       const networkChainId = await provider.send("eth_chainId", []);
-      const signature = await signDataByHardhat(
+      const signature = await generateDomainSignatureByHardhat(
         baseUupsProxy.address,
         "BaseUUPSContractTest",
         "1.0.0",
@@ -2052,7 +2057,7 @@ describe("AccessControlManager Tests", function () {
     it("Should update BaseUUPSContractTest context with Invalid Role failed", async () => {
       // given
       const networkChainId = await provider.send("eth_chainId", []);
-      const signature = await signDataManually(
+      const signature = await generateDomainSignatureManually(
         baseUupsProxy.address,
         "BaseUUPSContractTest",
         "1.0.0",
@@ -2073,7 +2078,7 @@ describe("AccessControlManager Tests", function () {
       // given
       const networkChainId = await provider.send("eth_chainId", []);
       const baseUUPSProxyArtifact = await deployments.getArtifact("BaseUUPSProxyTest");
-      const signature = await signDataManually(
+      const signature = await generateDomainSignatureManually(
         baseUupsProxy.address,
         "BaseUUPSContractTest",
         "1.0.0",
@@ -2196,7 +2201,7 @@ describe("AccessControlManager Tests", function () {
       ).to.be.true;
 
       // and
-      method_selector = iface.getSighash("setAdmin(address)");
+      method_selector = iface.getSighash("setLocalAdmin(address)");
       expect(
         await accessControlManagerProxy.hasAccess(
           ethers.utils.keccak256(baseUupsProxy.address),
@@ -2500,93 +2505,3 @@ describe("AccessControlManager Tests", function () {
   });
 });
 
-async function signDataByHardhat(
-  contractAddress: Address,
-  contractName: string,
-  contractVersion: string,
-  contractRealm: string,
-  verifyingContract: Address,
-  signerAddress: Address,
-  chainId: BigNumber
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): Promise<string> {
-  const messageParams = JSON.stringify({
-    types: {
-      EIP712Domain: [
-        { name: "name", type: "string" },
-        { name: "version", type: "string" },
-        { name: "chainId", type: "uint256" },
-        { name: "verifyingContract", type: "address" },
-      ],
-      Context: [
-        { name: "contract", type: "address" },
-        { name: "name", type: "bytes32" },
-        { name: "version", type: "bytes32" },
-        { name: "realm", type: "bytes32" },
-      ],
-    },
-    primaryType: "Context",
-    domain: {
-      name: "LContextManagement",
-      version: "1.0.0",
-      chainId,
-      verifyingContract,
-    },
-    message: {
-      contract: contractAddress,
-      name: ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [contractName])),
-      version: ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [contractVersion])),
-      realm: ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [contractRealm])),
-    },
-  });
-
-  const signature = await provider.send("eth_signTypedData_v4", [signerAddress, messageParams]);
-
-  return signature;
-}
-
-async function signDataManually(
-  contractAddress: Address,
-  contractName: string,
-  contractVersion: string,
-  contractRealm: string,
-  verifyingContract: Address,
-  signerAddress: Wallet,
-  chainId: BigNumber
-): Promise<string> {
-  const abiCoder = ethers.utils.defaultAbiCoder;
-  const domainAbiEncode = abiCoder.encode(
-    ["bytes32", "bytes32", "bytes32", "uint256", "address"],
-    [
-      DOMAIN_HASH,
-      ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["LContextManagement"])),
-      ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["1.0.0"])),
-      chainId,
-      verifyingContract,
-    ]
-  );
-  const domainEncode = ethers.utils.keccak256(domainAbiEncode);
-
-  const messageAbiEncode = abiCoder.encode(
-    ["bytes32", "address", "bytes32", "bytes32", "bytes32"],
-    [
-      MESSAGE_TYPE_HASH,
-      contractAddress,
-      ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [contractName])),
-      ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [contractVersion])),
-      ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [contractRealm])),
-    ]
-  );
-  const msgEncode = ethers.utils.keccak256(messageAbiEncode);
-  const domainMessageHash = ethers.utils.keccak256(
-    ethers.utils.solidityPack(["string", "bytes32", "bytes32"], ["\x19\x01", domainEncode, msgEncode])
-  );
-  const signature = signerAddress._signingKey().signDigest(domainMessageHash);
-
-  // console.log(`\ndomainEncode: ${domainEncode}\nmessageEnode: ${msgEncode}\ndomainMessageHash: ${domainMessageHash}\n`);
-  // console.log(`signature: r: ${signature.r}, s: ${signature.s}, v: ${signature.v}, compact: ${signature.compact}\n`);
-  // Recover the address from signature
-  // const recoveredAddress = ethers.utils.verifyMessage(domainMessageHash, signature);
-  // console.log(`recoveredAddress: ${recoveredAddress}`);
-  return signature.compact;
-}

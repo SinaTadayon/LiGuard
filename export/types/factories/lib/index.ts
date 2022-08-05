@@ -2,3 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as acl from "./acl";
+export * as token from "./token";

@@ -28,19 +28,19 @@ import type {
 
 export interface BaseUUPSProxyInterface extends utils.Interface {
   functions: {
+    "accessControlManager()": FunctionFragment;
     "contractContext()": FunctionFragment;
     "contractName()": FunctionFragment;
     "contractRealm()": FunctionFragment;
     "contractVersion()": FunctionFragment;
-    "domainSeperator()": FunctionFragment;
-    "getAccessControlManager()": FunctionFragment;
-    "getAdmin()": FunctionFragment;
-    "getInitializeStatus()": FunctionFragment;
-    "getInitializedVersion()": FunctionFragment;
+    "domainSeparator()": FunctionFragment;
+    "initStatus()": FunctionFragment;
+    "initVersion()": FunctionFragment;
     "isSafeMode()": FunctionFragment;
     "isUpgradable()": FunctionFragment;
+    "localAdmin()": FunctionFragment;
     "proxiableUUID()": FunctionFragment;
-    "setAdmin(address)": FunctionFragment;
+    "setLocalAdmin(address)": FunctionFragment;
     "setSafeMode(bool)": FunctionFragment;
     "setUpgradeStatus(bool)": FunctionFragment;
     "subjectAddress()": FunctionFragment;
@@ -51,6 +51,8 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "accessControlManager"
+      | "accessControlManager()"
       | "contractContext"
       | "contractContext()"
       | "contractName"
@@ -59,24 +61,22 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
       | "contractRealm()"
       | "contractVersion"
       | "contractVersion()"
-      | "domainSeperator"
-      | "domainSeperator()"
-      | "getAccessControlManager"
-      | "getAccessControlManager()"
-      | "getAdmin"
-      | "getAdmin()"
-      | "getInitializeStatus"
-      | "getInitializeStatus()"
-      | "getInitializedVersion"
-      | "getInitializedVersion()"
+      | "domainSeparator"
+      | "domainSeparator()"
+      | "initStatus"
+      | "initStatus()"
+      | "initVersion"
+      | "initVersion()"
       | "isSafeMode"
       | "isSafeMode()"
       | "isUpgradable"
       | "isUpgradable()"
+      | "localAdmin"
+      | "localAdmin()"
       | "proxiableUUID"
       | "proxiableUUID()"
-      | "setAdmin"
-      | "setAdmin(address)"
+      | "setLocalAdmin"
+      | "setLocalAdmin(address)"
       | "setSafeMode"
       | "setSafeMode(bool)"
       | "setUpgradeStatus"
@@ -91,6 +91,14 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
       | "withdrawBalance(address)"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "accessControlManager",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "accessControlManager()",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "contractContext",
     values?: undefined
@@ -124,40 +132,27 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "domainSeperator",
+    functionFragment: "domainSeparator",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "domainSeperator()",
+    functionFragment: "domainSeparator()",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getAccessControlManager",
+    functionFragment: "initStatus",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getAccessControlManager()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "getAdmin", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "getAdmin()",
+    functionFragment: "initStatus()",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getInitializeStatus",
+    functionFragment: "initVersion",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getInitializeStatus()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getInitializedVersion",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getInitializedVersion()",
+    functionFragment: "initVersion()",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -177,6 +172,14 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "localAdmin",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "localAdmin()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "proxiableUUID",
     values?: undefined
   ): string;
@@ -185,11 +188,11 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "setAdmin",
+    functionFragment: "setLocalAdmin",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setAdmin(address)",
+    functionFragment: "setLocalAdmin(address)",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -250,6 +253,14 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
   ): string;
 
   decodeFunctionResult(
+    functionFragment: "accessControlManager",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "accessControlManager()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "contractContext",
     data: BytesLike
   ): Result;
@@ -282,37 +293,24 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "domainSeperator",
+    functionFragment: "domainSeparator",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "domainSeperator()",
+    functionFragment: "domainSeparator()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "initStatus", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "initStatus()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getAccessControlManager",
+    functionFragment: "initVersion",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getAccessControlManager()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "getAdmin", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getAdmin()", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "getInitializeStatus",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getInitializeStatus()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getInitializedVersion",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getInitializedVersion()",
+    functionFragment: "initVersion()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "isSafeMode", data: BytesLike): Result;
@@ -328,6 +326,11 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
     functionFragment: "isUpgradable()",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "localAdmin", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "localAdmin()",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "proxiableUUID",
     data: BytesLike
@@ -336,9 +339,12 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
     functionFragment: "proxiableUUID()",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "setAdmin", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "setAdmin(address)",
+    functionFragment: "setLocalAdmin",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setLocalAdmin(address)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -388,20 +394,20 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "AdminChanged(address,address,address)": EventFragment;
     "Initialized(address,address,address,string,string,bytes32,uint16)": EventFragment;
+    "LocalAdminChanged(address,address,address)": EventFragment;
     "SafeModeChanged(address,address,bytes32,bool)": EventFragment;
     "UpgradeStatusChanged(address,address,bytes32,bool)": EventFragment;
     "Upgraded(address,address,address)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "AdminChanged"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "AdminChanged(address,address,address)"
-  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "Initialized(address,address,address,string,string,bytes32,uint16)"
+  ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "LocalAdminChanged"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "LocalAdminChanged(address,address,address)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SafeModeChanged"): EventFragment;
   getEvent(
@@ -417,18 +423,6 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
   ): EventFragment;
 }
 
-export interface AdminChangedEventObject {
-  sender: string;
-  proxy: string;
-  newAdmin: string;
-}
-export type AdminChangedEvent = TypedEvent<
-  [string, string, string],
-  AdminChangedEventObject
->;
-
-export type AdminChangedEventFilter = TypedEventFilter<AdminChangedEvent>;
-
 export interface InitializedEventObject {
   sender: string;
   proxy: string;
@@ -436,7 +430,7 @@ export interface InitializedEventObject {
   name: string;
   version: string;
   realm: string;
-  initializedCount: number;
+  initCount: number;
 }
 export type InitializedEvent = TypedEvent<
   [string, string, string, string, string, string, number],
@@ -444,6 +438,19 @@ export type InitializedEvent = TypedEvent<
 >;
 
 export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
+
+export interface LocalAdminChangedEventObject {
+  sender: string;
+  proxy: string;
+  newAdmin: string;
+}
+export type LocalAdminChangedEvent = TypedEvent<
+  [string, string, string],
+  LocalAdminChangedEventObject
+>;
+
+export type LocalAdminChangedEventFilter =
+  TypedEventFilter<LocalAdminChangedEvent>;
 
 export interface SafeModeChangedEventObject {
   sender: string;
@@ -511,6 +518,10 @@ export interface BaseUUPSProxy extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    accessControlManager(overrides?: CallOverrides): Promise<[string]>;
+
+    "accessControlManager()"(overrides?: CallOverrides): Promise<[string]>;
+
     contractContext(overrides?: CallOverrides): Promise<[string]>;
 
     "contractContext()"(overrides?: CallOverrides): Promise<[string]>;
@@ -527,25 +538,17 @@ export interface BaseUUPSProxy extends BaseContract {
 
     "contractVersion()"(overrides?: CallOverrides): Promise<[string]>;
 
-    domainSeperator(overrides?: CallOverrides): Promise<[string]>;
+    domainSeparator(overrides?: CallOverrides): Promise<[string]>;
 
-    "domainSeperator()"(overrides?: CallOverrides): Promise<[string]>;
+    "domainSeparator()"(overrides?: CallOverrides): Promise<[string]>;
 
-    getAccessControlManager(overrides?: CallOverrides): Promise<[string]>;
+    initStatus(overrides?: CallOverrides): Promise<[boolean]>;
 
-    "getAccessControlManager()"(overrides?: CallOverrides): Promise<[string]>;
+    "initStatus()"(overrides?: CallOverrides): Promise<[boolean]>;
 
-    getAdmin(overrides?: CallOverrides): Promise<[string]>;
+    initVersion(overrides?: CallOverrides): Promise<[number]>;
 
-    "getAdmin()"(overrides?: CallOverrides): Promise<[string]>;
-
-    getInitializeStatus(overrides?: CallOverrides): Promise<[boolean]>;
-
-    "getInitializeStatus()"(overrides?: CallOverrides): Promise<[boolean]>;
-
-    getInitializedVersion(overrides?: CallOverrides): Promise<[number]>;
-
-    "getInitializedVersion()"(overrides?: CallOverrides): Promise<[number]>;
+    "initVersion()"(overrides?: CallOverrides): Promise<[number]>;
 
     isSafeMode(overrides?: CallOverrides): Promise<[boolean]>;
 
@@ -555,17 +558,21 @@ export interface BaseUUPSProxy extends BaseContract {
 
     "isUpgradable()"(overrides?: CallOverrides): Promise<[boolean]>;
 
+    localAdmin(overrides?: CallOverrides): Promise<[string]>;
+
+    "localAdmin()"(overrides?: CallOverrides): Promise<[string]>;
+
     proxiableUUID(overrides?: CallOverrides): Promise<[string]>;
 
     "proxiableUUID()"(overrides?: CallOverrides): Promise<[string]>;
 
-    setAdmin(
-      newAdmin: PromiseOrValue<string>,
+    setLocalAdmin(
+      newLocalAdmin: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "setAdmin(address)"(
-      newAdmin: PromiseOrValue<string>,
+    "setLocalAdmin(address)"(
+      newLocalAdmin: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -628,6 +635,10 @@ export interface BaseUUPSProxy extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
+  accessControlManager(overrides?: CallOverrides): Promise<string>;
+
+  "accessControlManager()"(overrides?: CallOverrides): Promise<string>;
+
   contractContext(overrides?: CallOverrides): Promise<string>;
 
   "contractContext()"(overrides?: CallOverrides): Promise<string>;
@@ -644,25 +655,17 @@ export interface BaseUUPSProxy extends BaseContract {
 
   "contractVersion()"(overrides?: CallOverrides): Promise<string>;
 
-  domainSeperator(overrides?: CallOverrides): Promise<string>;
+  domainSeparator(overrides?: CallOverrides): Promise<string>;
 
-  "domainSeperator()"(overrides?: CallOverrides): Promise<string>;
+  "domainSeparator()"(overrides?: CallOverrides): Promise<string>;
 
-  getAccessControlManager(overrides?: CallOverrides): Promise<string>;
+  initStatus(overrides?: CallOverrides): Promise<boolean>;
 
-  "getAccessControlManager()"(overrides?: CallOverrides): Promise<string>;
+  "initStatus()"(overrides?: CallOverrides): Promise<boolean>;
 
-  getAdmin(overrides?: CallOverrides): Promise<string>;
+  initVersion(overrides?: CallOverrides): Promise<number>;
 
-  "getAdmin()"(overrides?: CallOverrides): Promise<string>;
-
-  getInitializeStatus(overrides?: CallOverrides): Promise<boolean>;
-
-  "getInitializeStatus()"(overrides?: CallOverrides): Promise<boolean>;
-
-  getInitializedVersion(overrides?: CallOverrides): Promise<number>;
-
-  "getInitializedVersion()"(overrides?: CallOverrides): Promise<number>;
+  "initVersion()"(overrides?: CallOverrides): Promise<number>;
 
   isSafeMode(overrides?: CallOverrides): Promise<boolean>;
 
@@ -672,17 +675,21 @@ export interface BaseUUPSProxy extends BaseContract {
 
   "isUpgradable()"(overrides?: CallOverrides): Promise<boolean>;
 
+  localAdmin(overrides?: CallOverrides): Promise<string>;
+
+  "localAdmin()"(overrides?: CallOverrides): Promise<string>;
+
   proxiableUUID(overrides?: CallOverrides): Promise<string>;
 
   "proxiableUUID()"(overrides?: CallOverrides): Promise<string>;
 
-  setAdmin(
-    newAdmin: PromiseOrValue<string>,
+  setLocalAdmin(
+    newLocalAdmin: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "setAdmin(address)"(
-    newAdmin: PromiseOrValue<string>,
+  "setLocalAdmin(address)"(
+    newLocalAdmin: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -745,6 +752,10 @@ export interface BaseUUPSProxy extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    accessControlManager(overrides?: CallOverrides): Promise<string>;
+
+    "accessControlManager()"(overrides?: CallOverrides): Promise<string>;
+
     contractContext(overrides?: CallOverrides): Promise<string>;
 
     "contractContext()"(overrides?: CallOverrides): Promise<string>;
@@ -761,25 +772,17 @@ export interface BaseUUPSProxy extends BaseContract {
 
     "contractVersion()"(overrides?: CallOverrides): Promise<string>;
 
-    domainSeperator(overrides?: CallOverrides): Promise<string>;
+    domainSeparator(overrides?: CallOverrides): Promise<string>;
 
-    "domainSeperator()"(overrides?: CallOverrides): Promise<string>;
+    "domainSeparator()"(overrides?: CallOverrides): Promise<string>;
 
-    getAccessControlManager(overrides?: CallOverrides): Promise<string>;
+    initStatus(overrides?: CallOverrides): Promise<boolean>;
 
-    "getAccessControlManager()"(overrides?: CallOverrides): Promise<string>;
+    "initStatus()"(overrides?: CallOverrides): Promise<boolean>;
 
-    getAdmin(overrides?: CallOverrides): Promise<string>;
+    initVersion(overrides?: CallOverrides): Promise<number>;
 
-    "getAdmin()"(overrides?: CallOverrides): Promise<string>;
-
-    getInitializeStatus(overrides?: CallOverrides): Promise<boolean>;
-
-    "getInitializeStatus()"(overrides?: CallOverrides): Promise<boolean>;
-
-    getInitializedVersion(overrides?: CallOverrides): Promise<number>;
-
-    "getInitializedVersion()"(overrides?: CallOverrides): Promise<number>;
+    "initVersion()"(overrides?: CallOverrides): Promise<number>;
 
     isSafeMode(overrides?: CallOverrides): Promise<boolean>;
 
@@ -789,17 +792,21 @@ export interface BaseUUPSProxy extends BaseContract {
 
     "isUpgradable()"(overrides?: CallOverrides): Promise<boolean>;
 
+    localAdmin(overrides?: CallOverrides): Promise<string>;
+
+    "localAdmin()"(overrides?: CallOverrides): Promise<string>;
+
     proxiableUUID(overrides?: CallOverrides): Promise<string>;
 
     "proxiableUUID()"(overrides?: CallOverrides): Promise<string>;
 
-    setAdmin(
-      newAdmin: PromiseOrValue<string>,
+    setLocalAdmin(
+      newLocalAdmin: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "setAdmin(address)"(
-      newAdmin: PromiseOrValue<string>,
+    "setLocalAdmin(address)"(
+      newLocalAdmin: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -863,17 +870,6 @@ export interface BaseUUPSProxy extends BaseContract {
   };
 
   filters: {
-    "AdminChanged(address,address,address)"(
-      sender?: PromiseOrValue<string> | null,
-      proxy?: PromiseOrValue<string> | null,
-      newAdmin?: null
-    ): AdminChangedEventFilter;
-    AdminChanged(
-      sender?: PromiseOrValue<string> | null,
-      proxy?: PromiseOrValue<string> | null,
-      newAdmin?: null
-    ): AdminChangedEventFilter;
-
     "Initialized(address,address,address,string,string,bytes32,uint16)"(
       sender?: PromiseOrValue<string> | null,
       proxy?: PromiseOrValue<string> | null,
@@ -881,7 +877,7 @@ export interface BaseUUPSProxy extends BaseContract {
       name?: null,
       version?: null,
       realm?: null,
-      initializedCount?: null
+      initCount?: null
     ): InitializedEventFilter;
     Initialized(
       sender?: PromiseOrValue<string> | null,
@@ -890,8 +886,19 @@ export interface BaseUUPSProxy extends BaseContract {
       name?: null,
       version?: null,
       realm?: null,
-      initializedCount?: null
+      initCount?: null
     ): InitializedEventFilter;
+
+    "LocalAdminChanged(address,address,address)"(
+      sender?: PromiseOrValue<string> | null,
+      proxy?: PromiseOrValue<string> | null,
+      newAdmin?: null
+    ): LocalAdminChangedEventFilter;
+    LocalAdminChanged(
+      sender?: PromiseOrValue<string> | null,
+      proxy?: PromiseOrValue<string> | null,
+      newAdmin?: null
+    ): LocalAdminChangedEventFilter;
 
     "SafeModeChanged(address,address,bytes32,bool)"(
       sender?: PromiseOrValue<string> | null,
@@ -932,6 +939,10 @@ export interface BaseUUPSProxy extends BaseContract {
   };
 
   estimateGas: {
+    accessControlManager(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "accessControlManager()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     contractContext(overrides?: CallOverrides): Promise<BigNumber>;
 
     "contractContext()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -948,25 +959,17 @@ export interface BaseUUPSProxy extends BaseContract {
 
     "contractVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    domainSeperator(overrides?: CallOverrides): Promise<BigNumber>;
+    domainSeparator(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "domainSeperator()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "domainSeparator()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getAccessControlManager(overrides?: CallOverrides): Promise<BigNumber>;
+    initStatus(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "getAccessControlManager()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "initStatus()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getAdmin(overrides?: CallOverrides): Promise<BigNumber>;
+    initVersion(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "getAdmin()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getInitializeStatus(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "getInitializeStatus()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getInitializedVersion(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "getInitializedVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "initVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     isSafeMode(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -976,17 +979,21 @@ export interface BaseUUPSProxy extends BaseContract {
 
     "isUpgradable()"(overrides?: CallOverrides): Promise<BigNumber>;
 
+    localAdmin(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "localAdmin()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     proxiableUUID(overrides?: CallOverrides): Promise<BigNumber>;
 
     "proxiableUUID()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    setAdmin(
-      newAdmin: PromiseOrValue<string>,
+    setLocalAdmin(
+      newLocalAdmin: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "setAdmin(address)"(
-      newAdmin: PromiseOrValue<string>,
+    "setLocalAdmin(address)"(
+      newLocalAdmin: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1050,6 +1057,14 @@ export interface BaseUUPSProxy extends BaseContract {
   };
 
   populateTransaction: {
+    accessControlManager(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "accessControlManager()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     contractContext(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "contractContext()"(
@@ -1070,39 +1085,19 @@ export interface BaseUUPSProxy extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    domainSeperator(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    domainSeparator(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "domainSeperator()"(
+    "domainSeparator()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    getAccessControlManager(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    initStatus(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "getAccessControlManager()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    "initStatus()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    getAdmin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    initVersion(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "getAdmin()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getInitializeStatus(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "getInitializeStatus()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getInitializedVersion(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "getInitializedVersion()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    "initVersion()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     isSafeMode(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1112,17 +1107,21 @@ export interface BaseUUPSProxy extends BaseContract {
 
     "isUpgradable()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    localAdmin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "localAdmin()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     proxiableUUID(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "proxiableUUID()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    setAdmin(
-      newAdmin: PromiseOrValue<string>,
+    setLocalAdmin(
+      newLocalAdmin: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "setAdmin(address)"(
-      newAdmin: PromiseOrValue<string>,
+    "setLocalAdmin(address)"(
+      newLocalAdmin: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

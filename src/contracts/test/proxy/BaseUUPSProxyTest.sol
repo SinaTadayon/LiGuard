@@ -33,7 +33,7 @@ contract BaseUUPSProxyTest is BaseUUPSProxy {
     rrc[0].role = LIVELY_ADMIN_ROLE;
     rrc[0].isEnabled = true;
     rrc[0].funcSelectors = new bytes4[](2);
-    rrc[0].funcSelectors[0] = IProxy.setAdmin.selector;
+    rrc[0].funcSelectors[0] = IProxy.setLocalAdmin.selector;
     rrc[0].funcSelectors[1] = IProxy.setUpgradeStatus.selector;
 
     rrc[1].role = LIVELY_SYSTEM_ADMIN_ROLE;
@@ -80,7 +80,7 @@ contract BaseUUPSProxyTest is BaseUUPSProxy {
     rrc[0].role = LIVELY_ADMIN_ROLE;
     rrc[0].isEnabled = true;
     rrc[0].funcSelectors = new bytes4[](2);
-    rrc[0].funcSelectors[0] = IProxy.setAdmin.selector;
+    rrc[0].funcSelectors[0] = IProxy.setLocalAdmin.selector;
     rrc[0].funcSelectors[1] = IProxy.setUpgradeStatus.selector;
 
     rrc[1].role = LIVELY_SYSTEM_ADMIN_ROLE;
@@ -113,7 +113,7 @@ contract BaseUUPSProxyTest is BaseUUPSProxy {
     rrc[0].role = keccak256(abi.encodePacked("LIVELY_WORLD_ADMIN"));
     rrc[0].isEnabled = true;
     rrc[0].funcSelectors = new bytes4[](2);
-    rrc[0].funcSelectors[0] = IProxy.setAdmin.selector;
+    rrc[0].funcSelectors[0] = IProxy.setLocalAdmin.selector;
     rrc[0].funcSelectors[1] = IProxy.setUpgradeStatus.selector;
 
     IContextManagement(accessControlManager).registerContext(signature, rc, rrc);
@@ -145,7 +145,7 @@ contract BaseUUPSProxyTest is BaseUUPSProxy {
     ruc[2].funcSelectors = new bytes4[](1);
     ruc[2].funcSelectors[0] = this.upgradeToTesterRole.selector;
 
-    ruc[3].role = keccak256(abi.encodePacked("ANONYMOUS_ROLE"));
+    ruc[3].role = keccak256(abi.encodePacked("LIVELY_ANONYMOUS_ROLE"));
     ruc[3].updateStatus = IContextManagement.UpdateContextStatus.ENABLE;
     ruc[3].funcSelectors = new bytes4[](1);
     ruc[3].funcSelectors[0] = this.upgradeToAnonymousRole.selector;
@@ -153,7 +153,7 @@ contract BaseUUPSProxyTest is BaseUUPSProxy {
     ruc[4].role = LIVELY_SYSTEM_ADMIN_ROLE;
     ruc[4].updateStatus = IContextManagement.UpdateContextStatus.REMOVE;
     ruc[4].funcSelectors = new bytes4[](1);
-    ruc[4].funcSelectors[0] = IProxy.setAdmin.selector;
+    ruc[4].funcSelectors[0] = IProxy.setLocalAdmin.selector;
 
     IContextManagement(_accessControlManager).updateContext(
       LContextUtils.generateCtx(address(this)),

@@ -1,5 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
+import { ethers } from "hardhat";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, ethers } = hre;
@@ -18,6 +19,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     from: deployer,
     log: true,
     skipIfAlreadyDeployed: true,
+    libraries: {
+      LAccessControl: acl.address
+    }
   });
 
   const rml = await deploy("RML", {
@@ -25,6 +29,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     from: deployer,
     log: true,
     skipIfAlreadyDeployed: true,
+    libraries: {
+      LAccessControl: acl.address
+    }
   });
 
   const reml = await deploy("REML", {
@@ -32,6 +39,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     from: deployer,
     log: true,
     skipIfAlreadyDeployed: true,
+    libraries: {
+      LAccessControl: acl.address
+    }
   });
 
   const gml = await deploy("GML", {
@@ -39,6 +49,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     from: deployer,
     log: true,
     skipIfAlreadyDeployed: true,
+    libraries: {
+      LAccessControl: acl.address
+    }
   });
 
   const accessControlManagerSubject = await deploy("AccessControlManagerSubject", {
@@ -48,11 +61,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     log: true,
     skipIfAlreadyDeployed: true,
     libraries: {
-      LAccessControl: acl.address,
       LContextManagement: cml.address,
-      LRoleManagement: rml.address,
-      LGroupManagement: gml.address,
+      LAccessControl: acl.address,
       LRealmManagement: reml.address,
+      LGroupManagement: gml.address,
+      LRoleManagement: rml.address,
     },
   });
 
@@ -61,7 +74,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     "AccessControlManager",
     "1.0.0",
     "LIVELY_GENERAL_REALM",
-    accessControlManagerSubject.address,
+    ethers.constants.AddressZero,
   ]);
 
   await deploy("AccessControlManagerProxy", {

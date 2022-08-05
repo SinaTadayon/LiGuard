@@ -9,7 +9,7 @@ import "../LContextUtils.sol";
 import "./LAccessControl.sol";
 import "../cryptography/LECDSA.sol";
 
-// import "hardhat/console.sol";
+import "hardhat/console.sol";
 
 library LContextManagement {
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
@@ -20,7 +20,7 @@ library LContextManagement {
   bytes32 public constant TYPE_HASH =
     keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
   bytes32 public constant MESSAGE_TYPEHASH =
-    keccak256("Context(address contract,bytes32 name,bytes32 version,bytes32 realm)");
+    keccak256("Context(address contract,string name,string version,string realm)");
 
   function registerAccessControlManagerContext(
     AccessControlStorage.DataMaps storage data,
@@ -42,8 +42,14 @@ library LContextManagement {
     bytes32 structHash = _getMessageHash(rc.smca, rc.name, rc.version, rc.realm);
     bytes32 msgDigest = _hashTypedDataV4(structHash);
     (address msgSigner, LECDSA.RecoverError recoverErr) = LECDSA.tryRecover(msgDigest, signature);
-
+    
     require(recoverErr == LECDSA.RecoverError.NoError, "Illegal ECDASA Signature");
+
+    // console.log("blockchain id: %d", block.chainid);
+    // console.log("msgDigest id");
+    // console.logBytes32(msgDigest);
+    // console.log("registerContext msgSigner is %s", msgSigner);
+
     require(
       LAccessControl.hasAccess(
         data,
@@ -70,7 +76,7 @@ library LContextManagement {
   }
 
   function _domainSeparatorV4() internal view returns (bytes32) {
-    return keccak256(abi.encode(TYPE_HASH, LIB_NAME, LIB_VERSION, block.chainid, address(this)));
+    return keccak256(abi.encode(TYPE_HASH, IProxy(address(this)).contractName(), IProxy(address(this)).contractVersion(), block.chainid, address(this)));
   }
 
   function _registerContext(

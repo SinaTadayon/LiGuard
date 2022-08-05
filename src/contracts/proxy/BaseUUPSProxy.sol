@@ -58,7 +58,7 @@ abstract contract BaseUUPSProxy is
    * @dev Throws if called by any account other than the owner.
    */
   modifier onlyLocalAdmin() {
-    require(_getAdmin() == _msgSender(), "Caller Not Authorized");
+    require(_getLocalAdmin() == _msgSender(), "Caller Not Authorized");
     _;
   }
 
@@ -76,19 +76,24 @@ abstract contract BaseUUPSProxy is
     _;
   }
 
+  modifier aclCheck(bytes4 selector) {
+    require(_hasPermission(selector), "Access Denied");
+    _;
+  }
+
   function _hasPermission(bytes4 selector) internal returns (bool) {
     if (address(this) == _accessControlManager) {
       bytes memory data = abi.encodeWithSelector(
         IAccessControl.hasAccess.selector,
         LContextUtils.generateCtx(address(this)),
-        msg.sender,
+        _msgSender(),
         selector
       );
       bytes memory returndata = LAddress.functionDelegateCall(_implementation(), data, "Delegatecall hasAccess Failed");
       return uint8(returndata[returndata.length - 1]) == 1;
     } else {
       return
-        IAccessControl(_accessControlManager).hasAccess(LContextUtils.generateCtx(address(this)), msg.sender, selector);
+        IAccessControl(_accessControlManager).hasAccess(LContextUtils.generateCtx(address(this)), _msgSender(), selector);
     }
   }
 
@@ -128,33 +133,33 @@ abstract contract BaseUUPSProxy is
     string calldata domainName,
     string calldata domainVersion,
     bytes32 domainRealm,
-    address accessControlManager
+    address accessControl
   ) internal {
-    __BASE_UUPS_init_unchained(domainName, domainVersion, domainRealm, accessControlManager);
+    __BASE_UUPS_init_unchained(domainName, domainVersion, domainRealm, accessControl);
   }
 
   function __BASE_UUPS_init_unchained(
     string calldata domainName,
     string calldata domainVersion,
     bytes32 domainRealm,
-    address accessControlManager
+    address accessControl
   ) internal onlyInitializing {
     _domainName = keccak256(abi.encodePacked(domainName));
     _domainVersion = keccak256(abi.encodePacked(domainVersion));
     _domainRealm = domainRealm;
-    if (accessControlManager == address(0)) {
+    if (accessControl == address(0)) {
       _accessControlManager = address(this);
     } else {
-      try IERC165(accessControlManager).supportsInterface(type(IAccessControl).interfaceId) returns (bool isSupported) {
+      try IERC165(accessControl).supportsInterface(type(IAccessControl).interfaceId) returns (bool isSupported) {
         require(isSupported, "Invalid AccessControlManager");
       } catch {
         revert("Illegal AccessControlManager");
       }
-      _accessControlManager = accessControlManager;
+      _accessControlManager = accessControl;
     }
     _isUpgradable = false;
     _isSafeMode = false;
-    _setAdmin(_msgSender());
+    _setLocalAdmin(_msgSender());
   }
 
   /**
@@ -280,31 +285,31 @@ abstract contract BaseUUPSProxy is
     require(_hasPermission(this.upgradeTo.selector), "Upgrade Context Forbidden");
   }
 
-  function getAdmin() external view returns (address) {
-    return _getAdmin();
+  function localAdmin() external view returns (address) {
+    return _getLocalAdmin();
   }
 
-  function setAdmin(address newAdmin) external onlyProxy returns (bool) {
+  function setLocalAdmin(address newLocalAdmin) external onlyProxy returns (bool) {
     require(!_isSafeMode, "SafeMode: Call Rejected");
-    require(_hasPermission(this.setAdmin.selector), "SetAdmin Forbidden");
-    require(newAdmin != address(0), "Address Invalid");
-    _setAdmin(newAdmin);
+    require(_hasPermission(this.setLocalAdmin.selector), "SetLocalAdmin Forbidden");
+    require(newLocalAdmin != address(0), "Address Invalid");
+    _setLocalAdmin(newLocalAdmin);
     return true;
   }
 
   /**
    * @dev Returns the current admin.require(!_isSafeMode, "SafeMode: Call Rejected");
    */
-  function _getAdmin() internal view returns (address) {
+  function _getLocalAdmin() internal view returns (address) {
     return LStorageSlot.getAddressSlot(_ADMIN_SLOT).value;
   }
 
   /**
    * @dev Stores a new address in the EIP1967 admin slot.
    */
-  function _setAdmin(address newAdmin) internal {
+  function _setLocalAdmin(address newAdmin) internal {
     LStorageSlot.getAddressSlot(_ADMIN_SLOT).value = newAdmin;
-    emit AdminChanged(_msgSender(), address(this), newAdmin);
+    emit LocalAdminChanged(_msgSender(), address(this), newAdmin);
   }
 
   // In each upgrade the initialize requirement must be changed
@@ -341,7 +346,7 @@ abstract contract BaseUUPSProxy is
     return LContextUtils.generateCtx(address(this));
   }
 
-  function getAccessControlManager() external view returns (address) {
+  function accessControlManager() external view returns (address) {
     return _accessControlManager;
   }
 
@@ -357,7 +362,7 @@ abstract contract BaseUUPSProxy is
     return _isUpgradable;
   }
 
-  function domainSeperator() external view returns (bytes32) {
+  function domainSeparator() external view returns (bytes32) {
     return _domainSeparatorV4();
   }
 
@@ -365,17 +370,17 @@ abstract contract BaseUUPSProxy is
     return keccak256(abi.encode(_TYPE_HASH, _domainName, _domainVersion, block.chainid, address(this)));  
   }
 
-  function getInitializedVersion() external view returns (uint16) {
+  function initVersion() external view returns (uint16) {
     return _getInitializedCount();
   }
 
-  function getInitializeStatus() external view returns (bool) {
+  function initStatus() external view returns (bool) {
     return _isInitializing();
   }
 
   function withdrawBalance(address recepient) public {
       require(!_isSafeMode, "SafeMode: Call Rejected");
-      require(_hasPermission(this.withdrawBalance.selector), "Withdraw Balance Forbidden");
+      require(_hasPermission(this.withdrawBalance.selector), "Withdraw Balance Forbidden");      
       payable(recepient).transfer(address(this).balance);
   }
 
