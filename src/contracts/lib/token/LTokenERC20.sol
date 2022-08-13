@@ -3,7 +3,7 @@ pragma solidity >= 0.8.15 < 0.9.0;
 
 import "../../token/lively/IERC20.sol";
 import "../../token/lively/IERC20Extra.sol";
-import "../../token/lively/IPausable.sol";
+import "../../token/lively/IERC20Pause.sol";
 import "../../proxy/IProxy.sol";
 import "../../acl/IContextManagement.sol";
 import "../../acl/IAccessControl.sol";
@@ -30,10 +30,10 @@ library LTokenERC20 {
     rrc[1].funcSelectors[2] = IERC20Extra.mint.selector;
     rrc[1].funcSelectors[3] = IERC20Extra.updateTaxRate.selector;
     rrc[1].funcSelectors[4] = IERC20Extra.updateTaxWhitelist.selector;
-    rrc[1].funcSelectors[5] = IPausable.pause.selector;
-    rrc[1].funcSelectors[6] = IPausable.unpause.selector;
-    rrc[1].funcSelectors[7] = IPausable.pauseAll.selector;
-    rrc[1].funcSelectors[8] = IPausable.unpauseAll.selector;
+    rrc[1].funcSelectors[5] = IERC20Pause.pause.selector;
+    rrc[1].funcSelectors[6] = IERC20Pause.unpause.selector;
+    rrc[1].funcSelectors[7] = IERC20Pause.pauseAll.selector;
+    rrc[1].funcSelectors[8] = IERC20Pause.unpauseAll.selector;
     rrc[1].funcSelectors[9] = bytes4(keccak256("withdrawBalance(address)"));
             
     rrc[2].role = IAccessControl(IProxy(address(this)).accessControlManager()).livelySystemAdminRole();

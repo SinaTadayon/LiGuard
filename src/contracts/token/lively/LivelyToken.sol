@@ -3,7 +3,7 @@ pragma solidity >= 0.8.15 < 0.9.0;
 
 import "./IERC20.sol";
 import "./IERC20Extra.sol";
-import "./IPausable.sol";
+import "./IERC20Pause.sol";
 import "./LivelyStorage.sol";
 import "../../proxy/BaseUUPSProxy.sol";
 import "../../lib/token/LTokenERC20.sol";
@@ -14,8 +14,10 @@ import "../../lib/math/LSafeMath.sol";
 import "../../lib/struct/LEnumerableSet.sol";
 import "../../acl/IContextManagement.sol";
 
+import "hardhat/console.sol";
 
-contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IPausable { 
+
+contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC20Pause {
     using LEnumerableSet for LEnumerableSet.AddressSet;
     using LCounters for LCounters.Counter;
     using LBasisPointsMath for uint256;
@@ -30,6 +32,7 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IPaus
         uint256 totalSupplyAmount;
         address accessControlManager;
         address taxTreasuryAddress;
+        address assetManager;
     }
 
     constructor() {}
@@ -42,8 +45,8 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IPaus
        _symbol = "LVL";
        _taxRate = request.taxRateValue;
        _taxTreasury = request.taxTreasuryAddress;
-       _mint(_msgSender(), request.totalSupplyAmount);
-        initContext(request.domainName, request.domainVersion, realm, request.signature);
+       _mint(request.assetManager, request.totalSupplyAmount);
+       initContext(request.domainName, request.domainVersion, realm, request.signature);
     }
 
     function initContext(        
@@ -83,18 +86,18 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IPaus
         return
             interfaceId == type(IERC20).interfaceId ||
             interfaceId == type(IERC20Extra).interfaceId ||
-            interfaceId == type(IPausable).interfaceId ||
+            interfaceId == type(IERC20Pause).interfaceId ||
             super.supportsInterface(interfaceId);
     }
 
 
     modifier whenNotPaused() {
-        require(!_isPaused, "Pausable: Call Rejected");
+        require(!_isPaused, "ERC20Pause: Call Rejected");
         _;
     }
 
     modifier whenAccountNotPaused(address account) {
-        require(!_pausedList.contains(account), "Pausable: Account Suspended");
+        require(!_pausedList.contains(account), "ERC20Pause: Account Suspended");
         _;
     }
 
@@ -188,20 +191,23 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IPaus
         bytes32 structHash = keccak256(abi.encode(_PERMIT_TYPEHASH, owner, spender, value, _useNonce(owner), deadline));
         bytes32 hash = LECDSA.toTypedDataHash(_domainSeparatorV4(), structHash);
         address signer = LECDSA.recover(hash, signature);
+
+        // console.log("singer address: %s, nonce: %d", signer, this.nonce(owner));
+
         require(signer == owner, "Illegal ECDASA Signature");
 
         _approve(owner, spender, value);
         return true;
     }
 
-    function nonces(address owner) external view returns (uint256) {
+    function nonce(address owner) external view returns (uint256) {
         return _accounts[owner].nonce.current();
     }
 
     function _useNonce(address owner) internal returns (uint256 current) {
-        LCounters.Counter storage nonce = _accounts[owner].nonce;
-        current = nonce.current();
-        nonce.increment();
+        LCounters.Counter storage localNonce = _accounts[owner].nonce;
+        current = localNonce.current();
+        localNonce.increment();
     }
 
     function name() external view returns (string memory) {
@@ -260,25 +266,22 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IPaus
         return true;
     }
 
-    function increaseAllowance(address spender, uint256 value) external returns (uint256) {
+    function increaseAllowance(address spender, uint256 amount) external returns (uint256) {
        address owner = _msgSender();
-       uint256 currentAllowance = _allowance(owner, spender) + value;
-        _approve(owner, spender, currentAllowance);
-        return currentAllowance;
+       uint256 currentAllowance = _allowance(owner, spender) + amount;
+       _approve(owner, spender, currentAllowance);
+       emit ApprovalIncremented(owner, spender, amount);
+       return currentAllowance;
     }
 
-    function decreaseAllowance(address spender, uint256 value) external returns (uint256){
+    function decreaseAllowance(address spender, uint256 amount) external returns (uint256){
         address owner = _msgSender();
-        uint256 currentAllowance = _allowance(owner, spender);
-        require(currentAllowance >= value, "Isufficient Account Allowance");
-        unchecked {
-            currentAllowance = currentAllowance - value;
-        }
-        _approve(owner, spender, currentAllowance);
-        return currentAllowance;
+         _spendAllowance(owner, spender, amount);
+        emit ApprovalDecresed(owner, spender, amount);
+        return _allowance(owner, spender);
     }
 
-    function mint(address account, uint256 amount) external safeModeCheck whenNotPaused aclCheck(this.mint.selector) returns (uint256) {
+    function mint(address account, uint256 amount) external safeModeCheck whenNotPaused whenAccountNotPaused(account) aclCheck(this.mint.selector) returns (uint256) {
         return _mint(account, amount);
     }
 
@@ -290,7 +293,7 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IPaus
         return _totalSupply;
     }
 
-    function burn(address account, uint256 amount) external safeModeCheck whenNotPaused aclCheck(this.burn.selector) returns (uint256) {    
+    function burn(address account, uint256 amount) external safeModeCheck whenNotPaused whenAccountNotPaused(account) aclCheck(this.burn.selector) returns (uint256) {    
         require(account != address(0), "Invalid Account Address");
         uint256 accountBalance = _accounts[account].balance;
         require(accountBalance >= amount, "Insufficient Account Balance");
@@ -328,12 +331,12 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IPaus
 
     function _transferFrom(address source, address recipient, uint256 amount) internal returns (bool) {
         address spender = _msgSender();
-        _spendAllowance(source, spender, amount);
         if (_taxRate > 0 && !_taxWhitelist.contains(_msgSender())) {
             _taxTransfer(source, recipient, amount);
         } else {
             _transfer(source, recipient, amount);
         }
+        _spendAllowance(source, spender, amount);
         
         emit TransferFrom(spender, source, recipient, amount);
         return true;
@@ -343,19 +346,16 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IPaus
     function _approve(address owner, address spender, uint256 amount) internal safeModeCheck whenNotPaused whenAccountNotPaused(owner) aclCheck(this.approve.selector) {
         require(owner != address(0), "Invalid Owner Address");
         require(spender != address(0), "Invalid Spender Address");
-        require(amount > 0, "Invalid Approve Amount");
 
         _allowances[owner][spender] = amount;
         emit Approval(owner, spender, amount);
     }
 
-     function _spendAllowance(address owner, address spender, uint256 amount) internal {
+    function _spendAllowance(address owner, address spender, uint256 amount) internal {
         uint256 currentAllowance = _allowance(owner, spender);
-        if (currentAllowance != type(uint256).max) {
-            require(currentAllowance >= amount, "Insufficient Account Allowance");
-            unchecked {
-                _approve(owner, spender, currentAllowance - amount);
-            }
+        require(currentAllowance >= amount, "Insufficient Account Allowance");
+        unchecked {
+            _approve(owner, spender, currentAllowance - amount);
         }
     }
 

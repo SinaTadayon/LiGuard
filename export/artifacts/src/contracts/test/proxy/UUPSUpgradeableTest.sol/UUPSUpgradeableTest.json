@@ -201,9 +201,9 @@
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@supportsInterface_23212": {
+        "@supportsInterface_23195": {
           "entryPoint": null,
-          "id": 23212,
+          "id": 23195,
           "parameterSlots": 1,
           "returnSlots": 1
         },

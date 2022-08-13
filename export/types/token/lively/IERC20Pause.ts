@@ -26,7 +26,7 @@ import type {
   PromiseOrValue,
 } from "../../common";
 
-export interface IPausableInterface extends utils.Interface {
+export interface IERC20PauseInterface extends utils.Interface {
   functions: {
     "isPaused(address)": FunctionFragment;
     "isPausedAll()": FunctionFragment;
@@ -195,12 +195,12 @@ export type UnpausedAllEvent = TypedEvent<[string], UnpausedAllEventObject>;
 
 export type UnpausedAllEventFilter = TypedEventFilter<UnpausedAllEvent>;
 
-export interface IPausable extends BaseContract {
+export interface IERC20Pause extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: IPausableInterface;
+  interface: IERC20PauseInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,

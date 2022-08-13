@@ -71,6 +71,7 @@ export declare namespace LivelyToken {
     totalSupplyAmount: PromiseOrValue<BigNumberish>;
     accessControlManager: PromiseOrValue<string>;
     taxTreasuryAddress: PromiseOrValue<string>;
+    assetManager: PromiseOrValue<string>;
   };
 
   export type InitRequestStructOutput = [
@@ -80,6 +81,7 @@ export declare namespace LivelyToken {
     string,
     BigNumber,
     BigNumber,
+    string,
     string,
     string
   ] & {
@@ -91,6 +93,7 @@ export declare namespace LivelyToken {
     totalSupplyAmount: BigNumber;
     accessControlManager: string;
     taxTreasuryAddress: string;
+    assetManager: string;
   };
 }
 
@@ -115,7 +118,7 @@ export interface LivelyTokenInterface extends utils.Interface {
     "increaseAllowance(address,uint256)": FunctionFragment;
     "initStatus()": FunctionFragment;
     "initVersion()": FunctionFragment;
-    "initialize((string,string,string,bytes,uint256,uint256,address,address))": FunctionFragment;
+    "initialize((string,string,string,bytes,uint256,uint256,address,address,address))": FunctionFragment;
     "isPaused(address)": FunctionFragment;
     "isPausedAll()": FunctionFragment;
     "isSafeMode()": FunctionFragment;
@@ -123,7 +126,7 @@ export interface LivelyTokenInterface extends utils.Interface {
     "localAdmin()": FunctionFragment;
     "mint(address,uint256)": FunctionFragment;
     "name()": FunctionFragment;
-    "nonces(address)": FunctionFragment;
+    "nonce(address)": FunctionFragment;
     "pause(address)": FunctionFragment;
     "pauseAll()": FunctionFragment;
     "pausedAccounts()": FunctionFragment;
@@ -190,7 +193,7 @@ export interface LivelyTokenInterface extends utils.Interface {
       | "initVersion"
       | "initVersion()"
       | "initialize"
-      | "initialize((string,string,string,bytes,uint256,uint256,address,address))"
+      | "initialize((string,string,string,bytes,uint256,uint256,address,address,address))"
       | "isPaused"
       | "isPaused(address)"
       | "isPausedAll"
@@ -205,8 +208,8 @@ export interface LivelyTokenInterface extends utils.Interface {
       | "mint(address,uint256)"
       | "name"
       | "name()"
-      | "nonces"
-      | "nonces(address)"
+      | "nonce"
+      | "nonce(address)"
       | "pause"
       | "pause(address)"
       | "pauseAll"
@@ -409,7 +412,7 @@ export interface LivelyTokenInterface extends utils.Interface {
     values: [LivelyToken.InitRequestStruct]
   ): string;
   encodeFunctionData(
-    functionFragment: "initialize((string,string,string,bytes,uint256,uint256,address,address))",
+    functionFragment: "initialize((string,string,string,bytes,uint256,uint256,address,address,address))",
     values: [LivelyToken.InitRequestStruct]
   ): string;
   encodeFunctionData(
@@ -463,11 +466,11 @@ export interface LivelyTokenInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(functionFragment: "name()", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "nonces",
+    functionFragment: "nonce",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "nonces(address)",
+    functionFragment: "nonce(address)",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -801,7 +804,7 @@ export interface LivelyTokenInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "initialize((string,string,string,bytes,uint256,uint256,address,address))",
+    functionFragment: "initialize((string,string,string,bytes,uint256,uint256,address,address,address))",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "isPaused", data: BytesLike): Result;
@@ -842,9 +845,9 @@ export interface LivelyTokenInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "name()", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "nonces", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "nonce", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "nonces(address)",
+    functionFragment: "nonce(address)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "pause", data: BytesLike): Result;
@@ -998,8 +1001,8 @@ export interface LivelyTokenInterface extends utils.Interface {
 
   events: {
     "Approval(address,address,uint256)": EventFragment;
-    "ApprovalDecresed(address,address,uint256,uint256)": EventFragment;
-    "ApprovalIncremented(address,address,uint256,uint256)": EventFragment;
+    "ApprovalDecresed(address,address,uint256)": EventFragment;
+    "ApprovalIncremented(address,address,uint256)": EventFragment;
     "Burn(address,address,uint256,uint256)": EventFragment;
     "Initialized(address,address,address,string,string,bytes32,uint16)": EventFragment;
     "LocalAdminChanged(address,address,address)": EventFragment;
@@ -1023,11 +1026,11 @@ export interface LivelyTokenInterface extends utils.Interface {
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ApprovalDecresed"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "ApprovalDecresed(address,address,uint256,uint256)"
+    nameOrSignatureOrTopic: "ApprovalDecresed(address,address,uint256)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ApprovalIncremented"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "ApprovalIncremented(address,address,uint256,uint256)"
+    nameOrSignatureOrTopic: "ApprovalIncremented(address,address,uint256)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Burn"): EventFragment;
   getEvent(
@@ -1099,10 +1102,9 @@ export interface ApprovalDecresedEventObject {
   owner: string;
   spender: string;
   amount: BigNumber;
-  totalSupply: BigNumber;
 }
 export type ApprovalDecresedEvent = TypedEvent<
-  [string, string, BigNumber, BigNumber],
+  [string, string, BigNumber],
   ApprovalDecresedEventObject
 >;
 
@@ -1113,10 +1115,9 @@ export interface ApprovalIncrementedEventObject {
   owner: string;
   spender: string;
   amount: BigNumber;
-  totalSupply: BigNumber;
 }
 export type ApprovalIncrementedEvent = TypedEvent<
-  [string, string, BigNumber, BigNumber],
+  [string, string, BigNumber],
   ApprovalIncrementedEventObject
 >;
 
@@ -1425,13 +1426,13 @@ export interface LivelyToken extends BaseContract {
 
     decreaseAllowance(
       spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "decreaseAllowance(address,uint256)"(
       spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -1445,13 +1446,13 @@ export interface LivelyToken extends BaseContract {
 
     increaseAllowance(
       spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "increaseAllowance(address,uint256)"(
       spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -1468,7 +1469,7 @@ export interface LivelyToken extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "initialize((string,string,string,bytes,uint256,uint256,address,address))"(
+    "initialize((string,string,string,bytes,uint256,uint256,address,address,address))"(
       request: LivelyToken.InitRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -1515,12 +1516,12 @@ export interface LivelyToken extends BaseContract {
 
     "name()"(overrides?: CallOverrides): Promise<[string]>;
 
-    nonces(
+    nonce(
       owner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    "nonces(address)"(
+    "nonce(address)"(
       owner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
@@ -1826,13 +1827,13 @@ export interface LivelyToken extends BaseContract {
 
   decreaseAllowance(
     spender: PromiseOrValue<string>,
-    value: PromiseOrValue<BigNumberish>,
+    amount: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "decreaseAllowance(address,uint256)"(
     spender: PromiseOrValue<string>,
-    value: PromiseOrValue<BigNumberish>,
+    amount: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1846,13 +1847,13 @@ export interface LivelyToken extends BaseContract {
 
   increaseAllowance(
     spender: PromiseOrValue<string>,
-    value: PromiseOrValue<BigNumberish>,
+    amount: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "increaseAllowance(address,uint256)"(
     spender: PromiseOrValue<string>,
-    value: PromiseOrValue<BigNumberish>,
+    amount: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1869,7 +1870,7 @@ export interface LivelyToken extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "initialize((string,string,string,bytes,uint256,uint256,address,address))"(
+  "initialize((string,string,string,bytes,uint256,uint256,address,address,address))"(
     request: LivelyToken.InitRequestStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -1916,12 +1917,12 @@ export interface LivelyToken extends BaseContract {
 
   "name()"(overrides?: CallOverrides): Promise<string>;
 
-  nonces(
+  nonce(
     owner: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  "nonces(address)"(
+  "nonce(address)"(
     owner: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
@@ -2227,13 +2228,13 @@ export interface LivelyToken extends BaseContract {
 
     decreaseAllowance(
       spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     "decreaseAllowance(address,uint256)"(
       spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -2247,13 +2248,13 @@ export interface LivelyToken extends BaseContract {
 
     increaseAllowance(
       spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     "increaseAllowance(address,uint256)"(
       spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -2270,7 +2271,7 @@ export interface LivelyToken extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "initialize((string,string,string,bytes,uint256,uint256,address,address))"(
+    "initialize((string,string,string,bytes,uint256,uint256,address,address,address))"(
       request: LivelyToken.InitRequestStruct,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -2317,12 +2318,12 @@ export interface LivelyToken extends BaseContract {
 
     "name()"(overrides?: CallOverrides): Promise<string>;
 
-    nonces(
+    nonce(
       owner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "nonces(address)"(
+    "nonce(address)"(
       owner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -2530,30 +2531,26 @@ export interface LivelyToken extends BaseContract {
       amount?: null
     ): ApprovalEventFilter;
 
-    "ApprovalDecresed(address,address,uint256,uint256)"(
+    "ApprovalDecresed(address,address,uint256)"(
       owner?: PromiseOrValue<string> | null,
       spender?: PromiseOrValue<string> | null,
-      amount?: null,
-      totalSupply?: null
+      amount?: null
     ): ApprovalDecresedEventFilter;
     ApprovalDecresed(
       owner?: PromiseOrValue<string> | null,
       spender?: PromiseOrValue<string> | null,
-      amount?: null,
-      totalSupply?: null
+      amount?: null
     ): ApprovalDecresedEventFilter;
 
-    "ApprovalIncremented(address,address,uint256,uint256)"(
+    "ApprovalIncremented(address,address,uint256)"(
       owner?: PromiseOrValue<string> | null,
       spender?: PromiseOrValue<string> | null,
-      amount?: null,
-      totalSupply?: null
+      amount?: null
     ): ApprovalIncrementedEventFilter;
     ApprovalIncremented(
       owner?: PromiseOrValue<string> | null,
       spender?: PromiseOrValue<string> | null,
-      amount?: null,
-      totalSupply?: null
+      amount?: null
     ): ApprovalIncrementedEventFilter;
 
     "Burn(address,address,uint256,uint256)"(
@@ -2825,13 +2822,13 @@ export interface LivelyToken extends BaseContract {
 
     decreaseAllowance(
       spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "decreaseAllowance(address,uint256)"(
       spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -2845,13 +2842,13 @@ export interface LivelyToken extends BaseContract {
 
     increaseAllowance(
       spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "increaseAllowance(address,uint256)"(
       spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -2868,7 +2865,7 @@ export interface LivelyToken extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "initialize((string,string,string,bytes,uint256,uint256,address,address))"(
+    "initialize((string,string,string,bytes,uint256,uint256,address,address,address))"(
       request: LivelyToken.InitRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -2915,12 +2912,12 @@ export interface LivelyToken extends BaseContract {
 
     "name()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    nonces(
+    nonce(
       owner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "nonces(address)"(
+    "nonce(address)"(
       owner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -3235,13 +3232,13 @@ export interface LivelyToken extends BaseContract {
 
     decreaseAllowance(
       spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "decreaseAllowance(address,uint256)"(
       spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -3259,13 +3256,13 @@ export interface LivelyToken extends BaseContract {
 
     increaseAllowance(
       spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "increaseAllowance(address,uint256)"(
       spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -3282,7 +3279,7 @@ export interface LivelyToken extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "initialize((string,string,string,bytes,uint256,uint256,address,address))"(
+    "initialize((string,string,string,bytes,uint256,uint256,address,address,address))"(
       request: LivelyToken.InitRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
@@ -3329,12 +3326,12 @@ export interface LivelyToken extends BaseContract {
 
     "name()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    nonces(
+    nonce(
       owner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "nonces(address)"(
+    "nonce(address)"(
       owner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;

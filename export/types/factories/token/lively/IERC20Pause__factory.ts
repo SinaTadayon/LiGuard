@@ -5,9 +5,9 @@
 import { Contract, Signer, utils } from "ethers";
 import type { Provider } from "@ethersproject/providers";
 import type {
-  IPausable,
-  IPausableInterface,
-} from "../../../token/lively/IPausable";
+  IERC20Pause,
+  IERC20PauseInterface,
+} from "../../../token/lively/IERC20Pause";
 
 const _abi = [
   {
@@ -161,15 +161,15 @@ const _abi = [
   },
 ];
 
-export class IPausable__factory {
+export class IERC20Pause__factory {
   static readonly abi = _abi;
-  static createInterface(): IPausableInterface {
-    return new utils.Interface(_abi) as IPausableInterface;
+  static createInterface(): IERC20PauseInterface {
+    return new utils.Interface(_abi) as IERC20PauseInterface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): IPausable {
-    return new Contract(address, _abi, signerOrProvider) as IPausable;
+  ): IERC20Pause {
+    return new Contract(address, _abi, signerOrProvider) as IERC20Pause;
   }
 }

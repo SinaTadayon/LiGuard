@@ -70,7 +70,7 @@ export interface IERC20ExtraInterface extends utils.Interface {
     "decreaseAllowance(address,uint256)": FunctionFragment;
     "increaseAllowance(address,uint256)": FunctionFragment;
     "mint(address,uint256)": FunctionFragment;
-    "nonces(address)": FunctionFragment;
+    "nonce(address)": FunctionFragment;
     "permit(address,address,uint256,uint256,bytes)": FunctionFragment;
     "taxRate()": FunctionFragment;
     "taxTreasury()": FunctionFragment;
@@ -95,8 +95,8 @@ export interface IERC20ExtraInterface extends utils.Interface {
       | "increaseAllowance(address,uint256)"
       | "mint"
       | "mint(address,uint256)"
-      | "nonces"
-      | "nonces(address)"
+      | "nonce"
+      | "nonce(address)"
       | "permit"
       | "permit(address,address,uint256,uint256,bytes)"
       | "taxRate"
@@ -168,11 +168,11 @@ export interface IERC20ExtraInterface extends utils.Interface {
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "nonces",
+    functionFragment: "nonce",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "nonces(address)",
+    functionFragment: "nonce(address)",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -280,9 +280,9 @@ export interface IERC20ExtraInterface extends utils.Interface {
     functionFragment: "mint(address,uint256)",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "nonces", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "nonce", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "nonces(address)",
+    functionFragment: "nonce(address)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "permit", data: BytesLike): Result;
@@ -326,8 +326,8 @@ export interface IERC20ExtraInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "ApprovalDecresed(address,address,uint256,uint256)": EventFragment;
-    "ApprovalIncremented(address,address,uint256,uint256)": EventFragment;
+    "ApprovalDecresed(address,address,uint256)": EventFragment;
+    "ApprovalIncremented(address,address,uint256)": EventFragment;
     "Burn(address,address,uint256,uint256)": EventFragment;
     "Mint(address,address,uint256,uint256)": EventFragment;
     "TaxRateUpdated(address,uint256)": EventFragment;
@@ -337,11 +337,11 @@ export interface IERC20ExtraInterface extends utils.Interface {
 
   getEvent(nameOrSignatureOrTopic: "ApprovalDecresed"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "ApprovalDecresed(address,address,uint256,uint256)"
+    nameOrSignatureOrTopic: "ApprovalDecresed(address,address,uint256)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ApprovalIncremented"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "ApprovalIncremented(address,address,uint256,uint256)"
+    nameOrSignatureOrTopic: "ApprovalIncremented(address,address,uint256)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Burn"): EventFragment;
   getEvent(
@@ -369,10 +369,9 @@ export interface ApprovalDecresedEventObject {
   owner: string;
   spender: string;
   amount: BigNumber;
-  totalSupply: BigNumber;
 }
 export type ApprovalDecresedEvent = TypedEvent<
-  [string, string, BigNumber, BigNumber],
+  [string, string, BigNumber],
   ApprovalDecresedEventObject
 >;
 
@@ -383,10 +382,9 @@ export interface ApprovalIncrementedEventObject {
   owner: string;
   spender: string;
   amount: BigNumber;
-  totalSupply: BigNumber;
 }
 export type ApprovalIncrementedEvent = TypedEvent<
-  [string, string, BigNumber, BigNumber],
+  [string, string, BigNumber],
   ApprovalIncrementedEventObject
 >;
 
@@ -561,12 +559,12 @@ export interface IERC20Extra extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    nonces(
+    nonce(
       owner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    "nonces(address)"(
+    "nonce(address)"(
       owner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
@@ -702,12 +700,12 @@ export interface IERC20Extra extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  nonces(
+  nonce(
     owner: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  "nonces(address)"(
+  "nonce(address)"(
     owner: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
@@ -843,12 +841,12 @@ export interface IERC20Extra extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    nonces(
+    nonce(
       owner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "nonces(address)"(
+    "nonce(address)"(
       owner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -907,30 +905,26 @@ export interface IERC20Extra extends BaseContract {
   };
 
   filters: {
-    "ApprovalDecresed(address,address,uint256,uint256)"(
+    "ApprovalDecresed(address,address,uint256)"(
       owner?: PromiseOrValue<string> | null,
       spender?: PromiseOrValue<string> | null,
-      amount?: null,
-      totalSupply?: null
+      amount?: null
     ): ApprovalDecresedEventFilter;
     ApprovalDecresed(
       owner?: PromiseOrValue<string> | null,
       spender?: PromiseOrValue<string> | null,
-      amount?: null,
-      totalSupply?: null
+      amount?: null
     ): ApprovalDecresedEventFilter;
 
-    "ApprovalIncremented(address,address,uint256,uint256)"(
+    "ApprovalIncremented(address,address,uint256)"(
       owner?: PromiseOrValue<string> | null,
       spender?: PromiseOrValue<string> | null,
-      amount?: null,
-      totalSupply?: null
+      amount?: null
     ): ApprovalIncrementedEventFilter;
     ApprovalIncremented(
       owner?: PromiseOrValue<string> | null,
       spender?: PromiseOrValue<string> | null,
-      amount?: null,
-      totalSupply?: null
+      amount?: null
     ): ApprovalIncrementedEventFilter;
 
     "Burn(address,address,uint256,uint256)"(
@@ -1072,12 +1066,12 @@ export interface IERC20Extra extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    nonces(
+    nonce(
       owner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "nonces(address)"(
+    "nonce(address)"(
       owner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -1214,12 +1208,12 @@ export interface IERC20Extra extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    nonces(
+    nonce(
       owner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "nonces(address)"(
+    "nonce(address)"(
       owner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;

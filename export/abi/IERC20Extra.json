@@ -19,12 +19,6 @@
         "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "totalSupply",
-        "type": "uint256"
       }
     ],
     "name": "ApprovalDecresed",
@@ -49,12 +43,6 @@
         "indexed": false,
         "internalType": "uint256",
         "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "totalSupply",
         "type": "uint256"
       }
     ],
@@ -394,7 +382,7 @@
         "type": "address"
       }
     ],
-    "name": "nonces",
+    "name": "nonce",
     "outputs": [
       {
         "internalType": "uint256",

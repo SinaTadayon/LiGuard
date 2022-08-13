@@ -35,8 +35,8 @@ import { Address } from "hardhat-deploy/dist/types";
 import ResponseContextStruct = IContextManagement.ResponseContextStruct;
 import {
   generateDomainSeparator,
-  generateDomainSignatureByHardhat,
-  generateDomainSignatureManually
+  generateContextDomainSignatureByHardhat,
+  generateContextDomainSignatureManually
 } from "./TestUtils";
 
 // ethers.utils.keccak256(ethers.utils.toUtf8Bytes("src/contracts/lib/acl/ContextManagementLib.sol:ContextManagementLib")) => 0x0304621006bd13fe54dc5f6b75a37ec856740450109fd223c2bfb60db9095cad => __$0304621006bd13fe54dc5f6b75a37ec856$__ ( library placeholder)
@@ -1565,7 +1565,7 @@ describe("AccessControlManager Tests", function () {
       const proxyFactory = new Proxy__factory(user1);
       const typedArray1 = new Int8Array(0);
       const proxy = await proxyFactory.connect(user1).deploy(baseUupsProxy.address, typedArray1);
-      const signature = await generateDomainSignatureByHardhat(
+      const signature = await generateContextDomainSignatureByHardhat(
         proxy.address,
         "BaseUUPSContractTest",
         "1.0.0",
@@ -1598,7 +1598,7 @@ describe("AccessControlManager Tests", function () {
       const proxyFactory = new Proxy__factory(admin);
       const typedArray1 = new Int8Array(0);
       const proxy = await proxyFactory.connect(admin).deploy(baseUupsProxy.address, typedArray1);
-      const signature = await generateDomainSignatureByHardhat(
+      const signature = await generateContextDomainSignatureByHardhat(
         proxy.address,
         "BaseUUPSContractTest",
         "1.0.0",
@@ -1631,7 +1631,7 @@ describe("AccessControlManager Tests", function () {
       const proxyFactory = new Proxy__factory(admin);
       const typedArray1 = new Int8Array(0);
       const proxy = await proxyFactory.connect(admin).deploy(baseUupsProxy.address, typedArray1);
-      const signature = await generateDomainSignatureByHardhat(
+      const signature = await generateContextDomainSignatureByHardhat(
         proxy.address,
         "BaseUUPSContractTest",
         "1.0.0",
@@ -1665,7 +1665,7 @@ describe("AccessControlManager Tests", function () {
       const proxyFactory = new Proxy__factory(admin);
       const typedArray1 = new Int8Array(0);
       const proxy = await proxyFactory.connect(admin).deploy(baseUupsProxy.address, typedArray1);
-      const signature = await generateDomainSignatureByHardhat(
+      const signature = await generateContextDomainSignatureByHardhat(
         proxy.address,
         "BaseUUPSContractTest",
         "1.0.0",
@@ -2021,7 +2021,7 @@ describe("AccessControlManager Tests", function () {
     it("Should update BaseUUPSContractTest context with by user1 failed", async () => {
       // given
       const networkChainId = await provider.send("eth_chainId", []);
-      const signature = await generateDomainSignatureManually(
+      const signature = await generateContextDomainSignatureManually(
         baseUupsProxy.address,
         "BaseUUPSContractTest",
         "1.0.0",
@@ -2038,7 +2038,7 @@ describe("AccessControlManager Tests", function () {
     it("Should update BaseUUPSContractTest context with Invalid Realm failed", async () => {
       // given
       const networkChainId = await provider.send("eth_chainId", []);
-      const signature = await generateDomainSignatureByHardhat(
+      const signature = await generateContextDomainSignatureByHardhat(
         baseUupsProxy.address,
         "BaseUUPSContractTest",
         "1.0.0",
@@ -2057,7 +2057,7 @@ describe("AccessControlManager Tests", function () {
     it("Should update BaseUUPSContractTest context with Invalid Role failed", async () => {
       // given
       const networkChainId = await provider.send("eth_chainId", []);
-      const signature = await generateDomainSignatureManually(
+      const signature = await generateContextDomainSignatureManually(
         baseUupsProxy.address,
         "BaseUUPSContractTest",
         "1.0.0",
@@ -2078,7 +2078,7 @@ describe("AccessControlManager Tests", function () {
       // given
       const networkChainId = await provider.send("eth_chainId", []);
       const baseUUPSProxyArtifact = await deployments.getArtifact("BaseUUPSProxyTest");
-      const signature = await generateDomainSignatureManually(
+      const signature = await generateContextDomainSignatureManually(
         baseUupsProxy.address,
         "BaseUUPSContractTest",
         "1.0.0",

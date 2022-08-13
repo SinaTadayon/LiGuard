@@ -6,15 +6,13 @@ interface IERC20Extra {
     event ApprovalIncremented(
         address indexed owner,
         address indexed spender,
-        uint256 amount,
-        uint256 totalSupply
+        uint256 amount      
     );
 
     event ApprovalDecresed(
         address indexed owner,
         address indexed spender,
-        uint256 amount,
-        uint256 totalSupply
+        uint256 amount
     );
 
     event TransferFrom(
@@ -81,6 +79,6 @@ interface IERC20Extra {
         bytes calldata signature
     ) external returns (bool);
 
-    function nonces(address owner) external view returns (uint256);
+    function nonce(address owner) external view returns (uint256);
     
 }

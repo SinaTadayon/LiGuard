@@ -31,12 +31,6 @@ const _abi = [
         name: "amount",
         type: "uint256",
       },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "totalSupply",
-        type: "uint256",
-      },
     ],
     name: "ApprovalDecresed",
     type: "event",
@@ -60,12 +54,6 @@ const _abi = [
         indexed: false,
         internalType: "uint256",
         name: "amount",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "totalSupply",
         type: "uint256",
       },
     ],
@@ -405,7 +393,7 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "nonces",
+    name: "nonce",
     outputs: [
       {
         internalType: "uint256",

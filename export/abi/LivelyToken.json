@@ -49,12 +49,6 @@
         "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "totalSupply",
-        "type": "uint256"
       }
     ],
     "name": "ApprovalDecresed",
@@ -79,12 +73,6 @@
         "indexed": false,
         "internalType": "uint256",
         "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "totalSupply",
         "type": "uint256"
       }
     ],
@@ -752,7 +740,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "value",
+        "name": "amount",
         "type": "uint256"
       }
     ],
@@ -802,7 +790,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "value",
+        "name": "amount",
         "type": "uint256"
       }
     ],
@@ -885,6 +873,11 @@
           {
             "internalType": "address",
             "name": "taxTreasuryAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "assetManager",
             "type": "address"
           }
         ],
@@ -1014,7 +1007,7 @@
         "type": "address"
       }
     ],
-    "name": "nonces",
+    "name": "nonce",
     "outputs": [
       {
         "internalType": "uint256",

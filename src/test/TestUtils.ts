@@ -9,6 +9,10 @@ export const MESSAGE_TYPE_HASH: string = ethers.utils.keccak256(
   ethers.utils.toUtf8Bytes("Context(address contract,string name,string version,string realm)")
 );
 
+export const PERMIT_TYPE_HASH: string = ethers.utils.keccak256(
+  ethers.utils.toUtf8Bytes("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)")
+);
+
 // export const MESSAGE_TYPE_HASH: string = ethers.utils.keccak256(
 //   ethers.utils.toUtf8Bytes("Context(address contract,bytes32 name,bytes32 version,bytes32 realm)")
 // );
@@ -16,7 +20,7 @@ export const MESSAGE_TYPE_HASH: string = ethers.utils.keccak256(
 
 const { provider } = waffle;
 
-export async function generateDomainSignatureByHardhat(
+export async function generateContextDomainSignatureByHardhat(
   contractAddress: Address,
   contractName: string,
   contractVersion: string,
@@ -59,7 +63,53 @@ export async function generateDomainSignatureByHardhat(
   return await provider.send("eth_signTypedData_v4", [signerAddress, messageParams]);
 }
 
-export async function generateDomainSignatureManually(
+export async function generatePermitDomainSignatureByHardhat(
+  owner: Address,
+  spender: Address,
+  value: BigNumber,
+  nonce: BigNumber,
+  deadline: BigNumber,
+  verifyingContract: Address,
+  signerAddress: Address,
+  chainId: number
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): Promise<string> {
+  const messageParams = JSON.stringify({
+    types: {
+      EIP712Domain: [
+        { name: "name", type: "string" },
+        { name: "version", type: "string" },
+        { name: "chainId", type: "uint256" },
+        { name: "verifyingContract", type: "address" },
+      ],
+      Permit: [
+        { name: "owner", type: "address" },
+        { name: "spender", type: "address" },
+        { name: "value", type: "uint256" },
+        { name: "nonce", type: "uint256" },
+        { name: "deadline", type: "uint256" },
+      ],
+    },
+    primaryType: "Permit",
+    domain: {
+      name: "LivelyToken",
+      version: "1.0.0",
+      chainId,
+      verifyingContract,
+    },
+    message: {
+      owner: owner,
+      spender: spender,
+      value: value.toString(),
+      nonce: nonce.toString(),
+      deadline: deadline.toString()
+    },
+  });
+
+  return await provider.send("eth_signTypedData_v4", [signerAddress, messageParams]);
+}
+
+export async function generateContextDomainSignatureManually(
   contractAddress: Address,
   contractName: string,
   contractVersion: string,
