@@ -59,6 +59,6 @@ interface IProxy is IBaseProxy {
   function domainSeparator() external view returns (bytes32);
 
   function initVersion() external view returns (uint16);
-  
+
   function initStatus() external view returns (bool);
 }

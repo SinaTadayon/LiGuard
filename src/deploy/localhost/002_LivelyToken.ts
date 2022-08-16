@@ -1,20 +1,24 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { ethers } from "hardhat";
+// import { ethers } from "hardhat";
 import { Address } from "hardhat-deploy/dist/types";
 import { EthereumProvider } from "hardhat/src/types/provider";
+
+/* eslint-disable  node/no-unpublished-import */
 import { BigNumber } from "ethers";
+
+/* eslint-disable node/no-extraneous-import */
 import { TransactionRequest } from "@ethersproject/abstract-provider";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, getUnnamedAccounts, ethers, getChainId, network } = hre;
   const { deploy } = deployments;
-  const [ deployerSigner ] = await ethers.getSigners();
+  const [deployerSigner] = await ethers.getSigners();
   const deployerSignerAddress = await deployerSigner.getAddress();
   const { deployer } = await getNamedAccounts();
   const accounts = await getUnnamedAccounts();
   const accessControlManager = await deployments.get("AccessControlManagerProxy");
-  const chainId = await getChainId()
+  const chainId = await getChainId();
   const tokenDecimal = BigNumber.from(10).pow(BigNumber.from(18));
   const typedArray1 = new Int8Array(0);
 
@@ -32,9 +36,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     log: true,
     skipIfAlreadyDeployed: true,
     libraries: {
-      LTokenERC20: lTokenERC20.address
-    }
-  })
+      LTokenERC20: lTokenERC20.address,
+    },
+  });
 
   const livelyTokenProxy = await deploy("LivelyTokenProxy", {
     contract: "Proxy",
@@ -42,7 +46,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     args: [livelyTokenSubject.address, typedArray1],
     log: true,
     skipIfAlreadyDeployed: true,
-  })
+  });
 
   console.log(`deployer address: ${deployer}`);
   console.log(`deployerSigner address: ${deployerSignerAddress}`);
@@ -59,7 +63,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     deployer,
     parseInt(chainId),
     network.provider
-  )
+  );
 
   console.log(`signature: ${signature}`);
 
@@ -73,22 +77,21 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       BigNumber.from(0),
       BigNumber.from(5000000000).mul(tokenDecimal), // TODO must will be changed
       accessControlManager.address,
-      accounts[0],      // TODO must will be changed
-      accounts[1],      // TODO must will be changed
-    ]
+      accounts[0], // TODO must will be changed
+      accounts[1], // TODO must will be changed
+    ],
   ]);
 
   const transaction: TransactionRequest = {
     to: livelyTokenProxy.address,
     data: initData,
-  }
+  };
 
   const response = await deployerSigner.sendTransaction(transaction);
   const receiptTx = await ethers.provider.getTransactionReceipt(response.hash);
 
   console.log(`livelyToken initialize, txHash: ${receiptTx.transactionHash}, status: ${receiptTx.status}`);
-
-}
+};
 
 export async function generateContextDomainSignatureByHardhat(
   contractAddress: Address,
@@ -134,6 +137,6 @@ export async function generateContextDomainSignatureByHardhat(
   return await provider.send("eth_signTypedData_v4", [signerAddress, messageParams]);
 }
 
-func.tags = ["LivelyTokenSubject", "LivelyTokenProxy"]
-func.dependencies = ["AccessControlManagerProxy"]
+func.tags = ["LivelyTokenSubject", "LivelyTokenProxy"];
+func.dependencies = ["AccessControlManagerProxy"];
 export default func;

@@ -17,7 +17,6 @@ export const PERMIT_TYPE_HASH: string = ethers.utils.keccak256(
 //   ethers.utils.toUtf8Bytes("Context(address contract,bytes32 name,bytes32 version,bytes32 realm)")
 // );
 
-
 const { provider } = waffle;
 
 export async function generateContextDomainSignatureByHardhat(
@@ -98,11 +97,11 @@ export async function generatePermitDomainSignatureByHardhat(
       verifyingContract,
     },
     message: {
-      owner: owner,
-      spender: spender,
+      owner,
+      spender,
       value: value.toString(),
       nonce: nonce.toString(),
-      deadline: deadline.toString()
+      deadline: deadline.toString(),
     },
   });
 

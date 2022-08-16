@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { Signer, BigNumber, Wallet } from "ethers";
+import { Signer, Wallet } from "ethers";
 import { ethers, waffle, deployments } from "hardhat";
 
 /* eslint-disable camelcase */
@@ -36,7 +36,7 @@ import ResponseContextStruct = IContextManagement.ResponseContextStruct;
 import {
   generateDomainSeparator,
   generateContextDomainSignatureByHardhat,
-  generateContextDomainSignatureManually
+  generateContextDomainSignatureManually,
 } from "./TestUtils";
 
 // ethers.utils.keccak256(ethers.utils.toUtf8Bytes("src/contracts/lib/acl/ContextManagementLib.sol:ContextManagementLib")) => 0x0304621006bd13fe54dc5f6b75a37ec856740450109fd223c2bfb60db9095cad => __$0304621006bd13fe54dc5f6b75a37ec856$__ ( library placeholder)
@@ -370,8 +370,9 @@ describe("AccessControlManager Tests", function () {
         accessControlSubject.address
       );
 
-      expect(await accessControlManager.domainSeparator()).to.be
-        .hexEqual(generateDomainSeparator("AccessControlManager", "1.0.0", accessControlManager.address, networkChainId))
+      expect(await accessControlManager.domainSeparator()).to.be.hexEqual(
+        generateDomainSeparator("AccessControlManager", "1.0.0", accessControlManager.address, networkChainId)
+      );
     });
 
     it("Should proxy raising events when deployment and initialization were successful", async () => {
@@ -500,8 +501,9 @@ describe("AccessControlManager Tests", function () {
       expect(await accessControlManagerProxy.subjectAddress(), "Invalid Subject Address").to.be.hexEqual(
         accessControlManagerSubject.address
       );
-      expect(await accessControlManagerProxy.domainSeparator()).to.be
-        .equal(generateDomainSeparator("AccessControlManager", "1.0.0", accessControlManagerProxy.address, networkChainId))
+      expect(await accessControlManagerProxy.domainSeparator()).to.be.equal(
+        generateDomainSeparator("AccessControlManager", "1.0.0", accessControlManagerProxy.address, networkChainId)
+      );
     });
 
     it("Should call proxyableUUID from proxy failed", async () => {
@@ -2504,4 +2506,3 @@ describe("AccessControlManager Tests", function () {
     });
   });
 });
-

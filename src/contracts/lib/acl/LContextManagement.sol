@@ -42,7 +42,7 @@ library LContextManagement {
     bytes32 structHash = _getMessageHash(rc.smca, rc.name, rc.version, rc.realm);
     bytes32 msgDigest = _hashTypedDataV4(structHash);
     (address msgSigner, LECDSA.RecoverError recoverErr) = LECDSA.tryRecover(msgDigest, signature);
-    
+
     require(recoverErr == LECDSA.RecoverError.NoError, "Illegal ECDASA Signature");
 
     // console.log("blockchain id: %d", block.chainid);
@@ -76,7 +76,16 @@ library LContextManagement {
   }
 
   function _domainSeparatorV4() internal view returns (bytes32) {
-    return keccak256(abi.encode(TYPE_HASH, IProxy(address(this)).contractName(), IProxy(address(this)).contractVersion(), block.chainid, address(this)));
+    return
+      keccak256(
+        abi.encode(
+          TYPE_HASH,
+          IProxy(address(this)).contractName(),
+          IProxy(address(this)).contractVersion(),
+          block.chainid,
+          address(this)
+        )
+      );
   }
 
   function _registerContext(

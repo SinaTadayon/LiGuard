@@ -93,7 +93,11 @@ abstract contract BaseUUPSProxy is
       return uint8(returndata[returndata.length - 1]) == 1;
     } else {
       return
-        IAccessControl(_accessControlManager).hasAccess(LContextUtils.generateCtx(address(this)), _msgSender(), selector);
+        IAccessControl(_accessControlManager).hasAccess(
+          LContextUtils.generateCtx(address(this)),
+          _msgSender(),
+          selector
+        );
     }
   }
 
@@ -366,8 +370,8 @@ abstract contract BaseUUPSProxy is
     return _domainSeparatorV4();
   }
 
-  function _domainSeparatorV4() internal view returns (bytes32) { 
-    return keccak256(abi.encode(_TYPE_HASH, _domainName, _domainVersion, block.chainid, address(this)));  
+  function _domainSeparatorV4() internal view returns (bytes32) {
+    return keccak256(abi.encode(_TYPE_HASH, _domainName, _domainVersion, block.chainid, address(this)));
   }
 
   function initVersion() external view returns (uint16) {
@@ -379,14 +383,14 @@ abstract contract BaseUUPSProxy is
   }
 
   function withdrawBalance(address recepient) public {
-      require(!_isSafeMode, "SafeMode: Call Rejected");
-      require(_hasPermission(this.withdrawBalance.selector), "Withdraw Balance Forbidden");      
-      payable(recepient).transfer(address(this).balance);
+    require(!_isSafeMode, "SafeMode: Call Rejected");
+    require(_hasPermission(this.withdrawBalance.selector), "Withdraw Balance Forbidden");
+    payable(recepient).transfer(address(this).balance);
   }
 
   // solhint-disable-next-line
-  receive() external override payable {}
+  receive() external payable override {}
 
   // solhint-disable-next-line
-  fallback() external override payable {}
+  fallback() external payable override {}
 }

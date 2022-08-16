@@ -23,7 +23,7 @@ contract AccessControlManager is
   AccessControlStorage,
   BaseUUPSProxy,
   IContextManagement,
-  IAccessControl,  
+  IAccessControl,
   IGroupManagement,
   IRealmManagement,
   IRoleManagement
@@ -44,10 +44,10 @@ contract AccessControlManager is
     bytes32 realm = keccak256(abi.encodePacked(domainRealm));
 
     LAccessControl.initializeContext(_dataMaps);
-    
+
     __BASE_UUPS_init(domainName, domainVersion, realm, accessControlManager);
 
-    RequestRegisterContext[] memory rc = LAccessControl.createRequestContext();    
+    RequestRegisterContext[] memory rc = LAccessControl.createRequestContext();
     LContextManagement.registerAccessControlManagerContext(_dataMaps, address(this), realm, rc);
 
     emit Initialized(
@@ -369,6 +369,4 @@ contract AccessControlManager is
   function livelyAnonymousRole() external pure returns (bytes32) {
     return _LIVELY_ANONYMOUS_ROLE;
   }
-
-
 }

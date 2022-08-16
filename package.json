@@ -1,7 +1,7 @@
 {
-  "name": "lively-core-onchain",
+  "name": "@livelyverse/lively-core-onchain",
   "version": "1.0.0",
-  "description": "Lively Core On-Chain Contracts",
+  "description": "Lively Core On-Chain Contracts and Utilities",
   "scripts": {
     "accounts": "yarn run hardhat accounts",
     "compile": "yarn run hardhat compile && tsc",
@@ -63,7 +63,10 @@
   "bugs": {
     "url": "https://github.com/Livelyplanet/lively-core-onchain/issues"
   },
-  "homepage": "https://livelyplanet.io",
+  "engines": {
+    "node": ">=16.15.0"
+  },
+  "homepage": "https://livelyverse.io",
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.1",
     "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers",
