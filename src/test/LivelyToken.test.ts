@@ -17,8 +17,8 @@ import {
   LTokenERC20,
   LTokenERC20__factory,
   Proxy__factory,
-} from "../../export/types";
-import { LivelyTokenLibraryAddresses } from "../../export/types/factories/token/lively/LivelyToken__factory";
+} from "../../typechain/types";
+import { LivelyTokenLibraryAddresses } from "../../typechain/types/factories/token/lively/LivelyToken__factory";
 import {
   generateDomainSeparator,
   generateContextDomainSignatureManually,

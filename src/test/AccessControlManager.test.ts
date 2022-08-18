@@ -19,18 +19,18 @@ import {
   LRoleManagement__factory,
   // Proxy,
   Proxy__factory,
-} from "../../export/types";
+} from "../../typechain/types";
 import {
   UpgradedEventObject,
   LocalAdminChangedEventObject,
   InitializedEventObject,
   IContextManagement,
-} from "../../export/types/acl/AccessControlManager";
-import { AccessControlManagerLibraryAddresses } from "../../export/types/factories/acl/AccessControlManager__factory";
-import { LContextManagementLibraryAddresses } from "../../export/types/factories/lib/acl/LContextManagement__factory";
-import { LGroupManagementLibraryAddresses } from "../../export/types/factories/lib/acl/LGroupManagement__factory";
-import { LRealmManagementLibraryAddresses } from "../../export/types/factories/lib/acl/LRealmManagement__factory";
-import { LRoleManagementLibraryAddresses } from "../../export/types/factories/lib/acl/LRoleManagement__factory";
+} from "../../typechain/types/acl/AccessControlManager";
+import { AccessControlManagerLibraryAddresses } from "../../typechain/types/factories/acl/AccessControlManager__factory";
+import { LContextManagementLibraryAddresses } from "../../typechain/types/factories/lib/acl/LContextManagement__factory";
+import { LGroupManagementLibraryAddresses } from "../../typechain/types/factories/lib/acl/LGroupManagement__factory";
+import { LRealmManagementLibraryAddresses } from "../../typechain/types/factories/lib/acl/LRealmManagement__factory";
+import { LRoleManagementLibraryAddresses } from "../../typechain/types/factories/lib/acl/LRoleManagement__factory";
 import { Address } from "hardhat-deploy/dist/types";
 import ResponseContextStruct = IContextManagement.ResponseContextStruct;
 import {

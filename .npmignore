@@ -12,3 +12,6 @@ coverage.json
 .solcover.js
 .solhint.json
 .solhintignore
+.env
+tsconfig.json
+typechain

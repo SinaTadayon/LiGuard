@@ -1,11 +1,12 @@
 {
   "name": "@livelyverse/lively-core-onchain",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Lively Core On-Chain Contracts and Utilities",
   "scripts": {
     "accounts": "yarn run hardhat accounts",
     "compile": "yarn run hardhat compile && tsc",
-    "clean": "rimraf build coverage export coverage.json",
+    "clean": "rimraf build coverage typechain export coverage.json",
+    "copy-typechain": "copyfiles -u 2 \"./build/typechain/types/**/*\" export/",
     "console": "yarn run hardhat console",
     "start": "yarn run hardhat node",
     "guide": "yarn run hardhat help",
@@ -21,9 +22,9 @@
     "prettier:fix": "yarn run prettier '**/*.{json,sol,md}' --write",
     "solhint:check": "yarn run solhint 'contracts/**/*.sol'",
     "solhint:fix": "yarn run solhint 'contracts/**/*.sol' --fix",
-    "export": "yarn run hardhat export-artifacts ./export/artifacts",
+    "export-artifact": "yarn run hardhat export-artifacts ./export/artifacts",
     "export-abi": "yarn run hardhat export-abi",
-    "build": "run-s clean compile export export-abi",
+    "build": "run-s clean compile copy-typechain export-artifact export-abi",
     "preRelease": "run-s eslint:fix solhint:fix prettier:fix",
     "remixd": "remixd -s $INIT_CWD --remix-ide https://remix.ethereum.org"
   },
