@@ -253,16 +253,24 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
   }
 
   function batchTransfer(BatchTransferRequest[] calldata request) external returns (bool) {
+    uint256 totalAmount = 0;
     for (uint256 i = 0; i < request.length; i++) {
+      totalAmount += request[i].amount;
       _transfer(_msgSender(), request[i].recipient, request[i].amount);
     }
+
+    emit BatchTransfer(_msgSender(), totalAmount);
     return true;
   }
 
   function batchTransferFrom(BatchTransferFromRequest[] calldata request) external returns (bool) {
+    uint256 totalAmount = 0;
     for (uint256 i = 0; i < request.length; i++) {
+      totalAmount += request[i].amount;
       _transferFrom(request[i].source, request[i].recipient, request[i].amount);
     }
+
+    emit BatchTransferFrom(_msgSender(), totalAmount);
     return true;
   }
 

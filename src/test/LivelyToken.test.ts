@@ -1022,7 +1022,9 @@ describe("Lively Token Tests", function () {
       // when
       expect(await livelyTokenProxy.connect(user1).batchTransfer([batchTransfer]))
         .to.emit(livelyTokenProxy, "Transfer")
-        .withArgs(userAddress1, userAddress2, batchTransfer.amount);
+        .withArgs(userAddress1, userAddress2, batchTransfer.amount)
+        .to.emit(livelyTokenProxy, "BatchTransfer")
+        .withArgs(userAddress1, batchTransfer.amount);
 
       // then
       const user1BalanceAfter = await livelyTokenProxy.balanceOf(userAddress1);
@@ -1052,7 +1054,9 @@ describe("Lively Token Tests", function () {
         .to.emit(livelyTokenProxy, "TransferFrom")
         .withArgs(userAddress2, userAddress1, adminAddress, value)
         .to.emit(livelyTokenProxy, "Approval")
-        .withArgs(userAddress1, userAddress2, finalAllowance);
+        .withArgs(userAddress1, userAddress2, finalAllowance)
+        .to.emit(livelyTokenProxy, "BatchTransferFrom")
+        .withArgs(userAddress2, value);
 
       // then
       user1Allowance = await livelyTokenProxy.allowance(userAddress1, userAddress2);

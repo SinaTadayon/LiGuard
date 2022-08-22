@@ -328,6 +328,8 @@ export interface IERC20ExtraInterface extends utils.Interface {
   events: {
     "ApprovalDecresed(address,address,uint256)": EventFragment;
     "ApprovalIncremented(address,address,uint256)": EventFragment;
+    "BatchTransfer(address,uint256)": EventFragment;
+    "BatchTransferFrom(address,uint256)": EventFragment;
     "Burn(address,address,uint256,uint256)": EventFragment;
     "Mint(address,address,uint256,uint256)": EventFragment;
     "TaxRateUpdated(address,uint256)": EventFragment;
@@ -342,6 +344,14 @@ export interface IERC20ExtraInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "ApprovalIncremented"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "ApprovalIncremented(address,address,uint256)"
+  ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "BatchTransfer"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "BatchTransfer(address,uint256)"
+  ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "BatchTransferFrom"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "BatchTransferFrom(address,uint256)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Burn"): EventFragment;
   getEvent(
@@ -390,6 +400,29 @@ export type ApprovalIncrementedEvent = TypedEvent<
 
 export type ApprovalIncrementedEventFilter =
   TypedEventFilter<ApprovalIncrementedEvent>;
+
+export interface BatchTransferEventObject {
+  sender: string;
+  totalAmount: BigNumber;
+}
+export type BatchTransferEvent = TypedEvent<
+  [string, BigNumber],
+  BatchTransferEventObject
+>;
+
+export type BatchTransferEventFilter = TypedEventFilter<BatchTransferEvent>;
+
+export interface BatchTransferFromEventObject {
+  sender: string;
+  totalAmount: BigNumber;
+}
+export type BatchTransferFromEvent = TypedEvent<
+  [string, BigNumber],
+  BatchTransferFromEventObject
+>;
+
+export type BatchTransferFromEventFilter =
+  TypedEventFilter<BatchTransferFromEvent>;
 
 export interface BurnEventObject {
   sender: string;
@@ -926,6 +959,24 @@ export interface IERC20Extra extends BaseContract {
       spender?: PromiseOrValue<string> | null,
       amount?: null
     ): ApprovalIncrementedEventFilter;
+
+    "BatchTransfer(address,uint256)"(
+      sender?: PromiseOrValue<string> | null,
+      totalAmount?: null
+    ): BatchTransferEventFilter;
+    BatchTransfer(
+      sender?: PromiseOrValue<string> | null,
+      totalAmount?: null
+    ): BatchTransferEventFilter;
+
+    "BatchTransferFrom(address,uint256)"(
+      sender?: PromiseOrValue<string> | null,
+      totalAmount?: null
+    ): BatchTransferFromEventFilter;
+    BatchTransferFrom(
+      sender?: PromiseOrValue<string> | null,
+      totalAmount?: null
+    ): BatchTransferFromEventFilter;
 
     "Burn(address,address,uint256,uint256)"(
       sender?: PromiseOrValue<string> | null,

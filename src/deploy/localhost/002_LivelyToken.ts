@@ -77,7 +77,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       BigNumber.from(0),
       BigNumber.from(5000000000).mul(tokenDecimal), // TODO must will be changed
       accessControlManager.address,
-      accounts[0], // TODO must will be changed
+      accounts[0], // TODO must, will be changed
       accounts[1], // TODO must will be changed
     ],
   ]);

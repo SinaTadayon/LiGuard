@@ -8,6 +8,10 @@ interface IERC20Extra {
 
   event TransferFrom(address indexed sender, address indexed from, address indexed to, uint256 amount);
 
+  event BatchTransfer(address indexed sender, uint256 totalAmount);
+
+  event BatchTransferFrom(address indexed sender, uint256 totalAmount);
+
   event TaxRateUpdated(address indexed sender, uint256 rate);
 
   event TaxWhitelistUpdated(address indexed sender, address indexed account, bool isDeleted);
