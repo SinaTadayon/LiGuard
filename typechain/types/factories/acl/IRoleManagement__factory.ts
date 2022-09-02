@@ -15,6 +15,12 @@ const _abi = [
     inputs: [
       {
         indexed: true,
+        internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+      {
+        indexed: true,
         internalType: "bytes32",
         name: "role",
         type: "bytes32",
@@ -23,12 +29,6 @@ const _abi = [
         indexed: true,
         internalType: "address",
         name: "account",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "sender",
         type: "address",
       },
     ],
@@ -40,6 +40,12 @@ const _abi = [
     inputs: [
       {
         indexed: true,
+        internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+      {
+        indexed: true,
         internalType: "bytes32",
         name: "role",
         type: "bytes32",
@@ -48,12 +54,6 @@ const _abi = [
         indexed: true,
         internalType: "address",
         name: "account",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "sender",
         type: "address",
       },
     ],
@@ -65,15 +65,15 @@ const _abi = [
     inputs: [
       {
         indexed: true,
-        internalType: "bytes32",
-        name: "role",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
         internalType: "address",
         name: "sender",
         type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "role",
+        type: "bytes32",
       },
       {
         indexed: true,
@@ -96,6 +96,12 @@ const _abi = [
     inputs: [
       {
         indexed: true,
+        internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+      {
+        indexed: true,
         internalType: "bytes32",
         name: "role",
         type: "bytes32",
@@ -105,12 +111,6 @@ const _abi = [
         internalType: "string",
         name: "name",
         type: "string",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "sender",
-        type: "address",
       },
       {
         indexed: false,
@@ -133,15 +133,15 @@ const _abi = [
     inputs: [
       {
         indexed: true,
-        internalType: "bytes32",
-        name: "role",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
         internalType: "address",
         name: "sender",
         type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "role",
+        type: "bytes32",
       },
       {
         indexed: true,

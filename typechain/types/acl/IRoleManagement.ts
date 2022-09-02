@@ -197,39 +197,39 @@ export interface IRoleManagementInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "RoleAccountGranted(bytes32,address,address)": EventFragment;
-    "RoleAccountRevoked(bytes32,address,address)": EventFragment;
-    "RoleGroupChanged(bytes32,address,bytes32,bytes32)": EventFragment;
-    "RoleRegistered(bytes32,string,address,bytes32,bool)": EventFragment;
-    "RoleStatusChanged(bytes32,address,bytes32,bool)": EventFragment;
+    "RoleAccountGranted(address,bytes32,address)": EventFragment;
+    "RoleAccountRevoked(address,bytes32,address)": EventFragment;
+    "RoleGroupChanged(address,bytes32,bytes32,bytes32)": EventFragment;
+    "RoleRegistered(address,bytes32,string,bytes32,bool)": EventFragment;
+    "RoleStatusChanged(address,bytes32,bytes32,bool)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "RoleAccountGranted"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "RoleAccountGranted(bytes32,address,address)"
+    nameOrSignatureOrTopic: "RoleAccountGranted(address,bytes32,address)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleAccountRevoked"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "RoleAccountRevoked(bytes32,address,address)"
+    nameOrSignatureOrTopic: "RoleAccountRevoked(address,bytes32,address)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleGroupChanged"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "RoleGroupChanged(bytes32,address,bytes32,bytes32)"
+    nameOrSignatureOrTopic: "RoleGroupChanged(address,bytes32,bytes32,bytes32)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleRegistered"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "RoleRegistered(bytes32,string,address,bytes32,bool)"
+    nameOrSignatureOrTopic: "RoleRegistered(address,bytes32,string,bytes32,bool)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleStatusChanged"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "RoleStatusChanged(bytes32,address,bytes32,bool)"
+    nameOrSignatureOrTopic: "RoleStatusChanged(address,bytes32,bytes32,bool)"
   ): EventFragment;
 }
 
 export interface RoleAccountGrantedEventObject {
+  sender: string;
   role: string;
   account: string;
-  sender: string;
 }
 export type RoleAccountGrantedEvent = TypedEvent<
   [string, string, string],
@@ -240,9 +240,9 @@ export type RoleAccountGrantedEventFilter =
   TypedEventFilter<RoleAccountGrantedEvent>;
 
 export interface RoleAccountRevokedEventObject {
+  sender: string;
   role: string;
   account: string;
-  sender: string;
 }
 export type RoleAccountRevokedEvent = TypedEvent<
   [string, string, string],
@@ -253,8 +253,8 @@ export type RoleAccountRevokedEventFilter =
   TypedEventFilter<RoleAccountRevokedEvent>;
 
 export interface RoleGroupChangedEventObject {
-  role: string;
   sender: string;
+  role: string;
   newGroup: string;
   oldGroup: string;
 }
@@ -267,9 +267,9 @@ export type RoleGroupChangedEventFilter =
   TypedEventFilter<RoleGroupChangedEvent>;
 
 export interface RoleRegisteredEventObject {
+  sender: string;
   role: string;
   name: string;
-  sender: string;
   group: string;
   isEnabled: boolean;
 }
@@ -281,8 +281,8 @@ export type RoleRegisteredEvent = TypedEvent<
 export type RoleRegisteredEventFilter = TypedEventFilter<RoleRegisteredEvent>;
 
 export interface RoleStatusChangedEventObject {
-  role: string;
   sender: string;
+  role: string;
   group: string;
   status: boolean;
 }
@@ -607,65 +607,65 @@ export interface IRoleManagement extends BaseContract {
   };
 
   filters: {
-    "RoleAccountGranted(bytes32,address,address)"(
+    "RoleAccountGranted(address,bytes32,address)"(
+      sender?: PromiseOrValue<string> | null,
       role?: PromiseOrValue<BytesLike> | null,
-      account?: PromiseOrValue<string> | null,
-      sender?: PromiseOrValue<string> | null
+      account?: PromiseOrValue<string> | null
     ): RoleAccountGrantedEventFilter;
     RoleAccountGranted(
+      sender?: PromiseOrValue<string> | null,
       role?: PromiseOrValue<BytesLike> | null,
-      account?: PromiseOrValue<string> | null,
-      sender?: PromiseOrValue<string> | null
+      account?: PromiseOrValue<string> | null
     ): RoleAccountGrantedEventFilter;
 
-    "RoleAccountRevoked(bytes32,address,address)"(
+    "RoleAccountRevoked(address,bytes32,address)"(
+      sender?: PromiseOrValue<string> | null,
       role?: PromiseOrValue<BytesLike> | null,
-      account?: PromiseOrValue<string> | null,
-      sender?: PromiseOrValue<string> | null
+      account?: PromiseOrValue<string> | null
     ): RoleAccountRevokedEventFilter;
     RoleAccountRevoked(
+      sender?: PromiseOrValue<string> | null,
       role?: PromiseOrValue<BytesLike> | null,
-      account?: PromiseOrValue<string> | null,
-      sender?: PromiseOrValue<string> | null
+      account?: PromiseOrValue<string> | null
     ): RoleAccountRevokedEventFilter;
 
-    "RoleGroupChanged(bytes32,address,bytes32,bytes32)"(
-      role?: PromiseOrValue<BytesLike> | null,
+    "RoleGroupChanged(address,bytes32,bytes32,bytes32)"(
       sender?: PromiseOrValue<string> | null,
+      role?: PromiseOrValue<BytesLike> | null,
       newGroup?: PromiseOrValue<BytesLike> | null,
       oldGroup?: null
     ): RoleGroupChangedEventFilter;
     RoleGroupChanged(
-      role?: PromiseOrValue<BytesLike> | null,
       sender?: PromiseOrValue<string> | null,
+      role?: PromiseOrValue<BytesLike> | null,
       newGroup?: PromiseOrValue<BytesLike> | null,
       oldGroup?: null
     ): RoleGroupChangedEventFilter;
 
-    "RoleRegistered(bytes32,string,address,bytes32,bool)"(
+    "RoleRegistered(address,bytes32,string,bytes32,bool)"(
+      sender?: PromiseOrValue<string> | null,
       role?: PromiseOrValue<BytesLike> | null,
       name?: PromiseOrValue<string> | null,
-      sender?: PromiseOrValue<string> | null,
       group?: null,
       isEnabled?: null
     ): RoleRegisteredEventFilter;
     RoleRegistered(
+      sender?: PromiseOrValue<string> | null,
       role?: PromiseOrValue<BytesLike> | null,
       name?: PromiseOrValue<string> | null,
-      sender?: PromiseOrValue<string> | null,
       group?: null,
       isEnabled?: null
     ): RoleRegisteredEventFilter;
 
-    "RoleStatusChanged(bytes32,address,bytes32,bool)"(
-      role?: PromiseOrValue<BytesLike> | null,
+    "RoleStatusChanged(address,bytes32,bytes32,bool)"(
       sender?: PromiseOrValue<string> | null,
+      role?: PromiseOrValue<BytesLike> | null,
       group?: PromiseOrValue<BytesLike> | null,
       status?: null
     ): RoleStatusChangedEventFilter;
     RoleStatusChanged(
-      role?: PromiseOrValue<BytesLike> | null,
       sender?: PromiseOrValue<string> | null,
+      role?: PromiseOrValue<BytesLike> | null,
       group?: PromiseOrValue<BytesLike> | null,
       status?: null
     ): RoleStatusChangedEventFilter;

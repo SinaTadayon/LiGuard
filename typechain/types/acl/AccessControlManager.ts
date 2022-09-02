@@ -136,6 +136,9 @@ export interface AccessControlManagerInterface extends utils.Interface {
     "isGroupEnabled(bytes32)": FunctionFragment;
     "isGroupExists(bytes32)": FunctionFragment;
     "isLivelyAdmin(address)": FunctionFragment;
+    "isLivelyAssetManager(address)": FunctionFragment;
+    "isLivelyDao(address)": FunctionFragment;
+    "isLivelyDaoExecutor(address)": FunctionFragment;
     "isLivelyGeneralGroup(bytes32)": FunctionFragment;
     "isLivelyGeneralRealm(bytes32)": FunctionFragment;
     "isLivelySystemAdmin(address)": FunctionFragment;
@@ -148,6 +151,9 @@ export interface AccessControlManagerInterface extends utils.Interface {
     "isUpgradable()": FunctionFragment;
     "livelyAdminRole()": FunctionFragment;
     "livelyAnonymousRole()": FunctionFragment;
+    "livelyAssetManagerRole()": FunctionFragment;
+    "livelyDaoExecutorRole()": FunctionFragment;
+    "livelyDaoRole()": FunctionFragment;
     "livelyGeneralGroupRole()": FunctionFragment;
     "livelyGeneralRealmRole()": FunctionFragment;
     "livelySystemAdminRole()": FunctionFragment;
@@ -247,6 +253,12 @@ export interface AccessControlManagerInterface extends utils.Interface {
       | "isGroupExists(bytes32)"
       | "isLivelyAdmin"
       | "isLivelyAdmin(address)"
+      | "isLivelyAssetManager"
+      | "isLivelyAssetManager(address)"
+      | "isLivelyDao"
+      | "isLivelyDao(address)"
+      | "isLivelyDaoExecutor"
+      | "isLivelyDaoExecutor(address)"
       | "isLivelyGeneralGroup"
       | "isLivelyGeneralGroup(bytes32)"
       | "isLivelyGeneralRealm"
@@ -271,6 +283,12 @@ export interface AccessControlManagerInterface extends utils.Interface {
       | "livelyAdminRole()"
       | "livelyAnonymousRole"
       | "livelyAnonymousRole()"
+      | "livelyAssetManagerRole"
+      | "livelyAssetManagerRole()"
+      | "livelyDaoExecutorRole"
+      | "livelyDaoExecutorRole()"
+      | "livelyDaoRole"
+      | "livelyDaoRole()"
       | "livelyGeneralGroupRole"
       | "livelyGeneralGroupRole()"
       | "livelyGeneralRealmRole"
@@ -642,6 +660,30 @@ export interface AccessControlManagerInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
+    functionFragment: "isLivelyAssetManager",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isLivelyAssetManager(address)",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isLivelyDao",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isLivelyDao(address)",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isLivelyDaoExecutor",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isLivelyDaoExecutor(address)",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "isLivelyGeneralGroup",
     values: [PromiseOrValue<BytesLike>]
   ): string;
@@ -735,6 +777,30 @@ export interface AccessControlManagerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "livelyAnonymousRole()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "livelyAssetManagerRole",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "livelyAssetManagerRole()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "livelyDaoExecutorRole",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "livelyDaoExecutorRole()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "livelyDaoRole",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "livelyDaoRole()",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -1268,6 +1334,30 @@ export interface AccessControlManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "isLivelyAssetManager",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isLivelyAssetManager(address)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isLivelyDao",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isLivelyDao(address)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isLivelyDaoExecutor",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isLivelyDaoExecutor(address)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "isLivelyGeneralGroup",
     data: BytesLike
   ): Result;
@@ -1358,6 +1448,30 @@ export interface AccessControlManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "livelyAnonymousRole()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "livelyAssetManagerRole",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "livelyAssetManagerRole()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "livelyDaoExecutorRole",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "livelyDaoExecutorRole()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "livelyDaoRole",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "livelyDaoRole()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1587,11 +1701,11 @@ export interface AccessControlManagerInterface extends utils.Interface {
     "RealmRegistered(bytes32,address,string,bool,bool)": EventFragment;
     "RealmStatusChanged(bytes32,address,bool)": EventFragment;
     "RealmUpgradeStatusChanged(bytes32,address,bool)": EventFragment;
-    "RoleAccountGranted(bytes32,address,address)": EventFragment;
-    "RoleAccountRevoked(bytes32,address,address)": EventFragment;
-    "RoleGroupChanged(bytes32,address,bytes32,bytes32)": EventFragment;
-    "RoleRegistered(bytes32,string,address,bytes32,bool)": EventFragment;
-    "RoleStatusChanged(bytes32,address,bytes32,bool)": EventFragment;
+    "RoleAccountGranted(address,bytes32,address)": EventFragment;
+    "RoleAccountRevoked(address,bytes32,address)": EventFragment;
+    "RoleGroupChanged(address,bytes32,bytes32,bytes32)": EventFragment;
+    "RoleRegistered(address,bytes32,string,bytes32,bool)": EventFragment;
+    "RoleStatusChanged(address,bytes32,bytes32,bool)": EventFragment;
     "SafeModeChanged(address,address,bytes32,bool)": EventFragment;
     "UpgradeStatusChanged(address,address,bytes32,bool)": EventFragment;
     "Upgraded(address,address,address)": EventFragment;
@@ -1659,23 +1773,23 @@ export interface AccessControlManagerInterface extends utils.Interface {
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleAccountGranted"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "RoleAccountGranted(bytes32,address,address)"
+    nameOrSignatureOrTopic: "RoleAccountGranted(address,bytes32,address)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleAccountRevoked"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "RoleAccountRevoked(bytes32,address,address)"
+    nameOrSignatureOrTopic: "RoleAccountRevoked(address,bytes32,address)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleGroupChanged"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "RoleGroupChanged(bytes32,address,bytes32,bytes32)"
+    nameOrSignatureOrTopic: "RoleGroupChanged(address,bytes32,bytes32,bytes32)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleRegistered"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "RoleRegistered(bytes32,string,address,bytes32,bool)"
+    nameOrSignatureOrTopic: "RoleRegistered(address,bytes32,string,bytes32,bool)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleStatusChanged"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "RoleStatusChanged(bytes32,address,bytes32,bool)"
+    nameOrSignatureOrTopic: "RoleStatusChanged(address,bytes32,bytes32,bool)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SafeModeChanged"): EventFragment;
   getEvent(
@@ -1901,9 +2015,9 @@ export type RealmUpgradeStatusChangedEventFilter =
   TypedEventFilter<RealmUpgradeStatusChangedEvent>;
 
 export interface RoleAccountGrantedEventObject {
+  sender: string;
   role: string;
   account: string;
-  sender: string;
 }
 export type RoleAccountGrantedEvent = TypedEvent<
   [string, string, string],
@@ -1914,9 +2028,9 @@ export type RoleAccountGrantedEventFilter =
   TypedEventFilter<RoleAccountGrantedEvent>;
 
 export interface RoleAccountRevokedEventObject {
+  sender: string;
   role: string;
   account: string;
-  sender: string;
 }
 export type RoleAccountRevokedEvent = TypedEvent<
   [string, string, string],
@@ -1927,8 +2041,8 @@ export type RoleAccountRevokedEventFilter =
   TypedEventFilter<RoleAccountRevokedEvent>;
 
 export interface RoleGroupChangedEventObject {
-  role: string;
   sender: string;
+  role: string;
   newGroup: string;
   oldGroup: string;
 }
@@ -1941,9 +2055,9 @@ export type RoleGroupChangedEventFilter =
   TypedEventFilter<RoleGroupChangedEvent>;
 
 export interface RoleRegisteredEventObject {
+  sender: string;
   role: string;
   name: string;
-  sender: string;
   group: string;
   isEnabled: boolean;
 }
@@ -1955,8 +2069,8 @@ export type RoleRegisteredEvent = TypedEvent<
 export type RoleRegisteredEventFilter = TypedEventFilter<RoleRegisteredEvent>;
 
 export interface RoleStatusChangedEventObject {
-  role: string;
   sender: string;
+  role: string;
   group: string;
   status: boolean;
 }
@@ -2360,6 +2474,36 @@ export interface AccessControlManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    isLivelyAssetManager(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    "isLivelyAssetManager(address)"(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    isLivelyDao(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    "isLivelyDao(address)"(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    isLivelyDaoExecutor(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    "isLivelyDaoExecutor(address)"(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     isLivelyGeneralGroup(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -2455,6 +2599,18 @@ export interface AccessControlManager extends BaseContract {
     livelyAnonymousRole(overrides?: CallOverrides): Promise<[string]>;
 
     "livelyAnonymousRole()"(overrides?: CallOverrides): Promise<[string]>;
+
+    livelyAssetManagerRole(overrides?: CallOverrides): Promise<[string]>;
+
+    "livelyAssetManagerRole()"(overrides?: CallOverrides): Promise<[string]>;
+
+    livelyDaoExecutorRole(overrides?: CallOverrides): Promise<[string]>;
+
+    "livelyDaoExecutorRole()"(overrides?: CallOverrides): Promise<[string]>;
+
+    livelyDaoRole(overrides?: CallOverrides): Promise<[string]>;
+
+    "livelyDaoRole()"(overrides?: CallOverrides): Promise<[string]>;
 
     livelyGeneralGroupRole(overrides?: CallOverrides): Promise<[string]>;
 
@@ -3063,6 +3219,36 @@ export interface AccessControlManager extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  isLivelyAssetManager(
+    account: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  "isLivelyAssetManager(address)"(
+    account: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  isLivelyDao(
+    account: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  "isLivelyDao(address)"(
+    account: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  isLivelyDaoExecutor(
+    account: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  "isLivelyDaoExecutor(address)"(
+    account: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   isLivelyGeneralGroup(
     role: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
@@ -3158,6 +3344,18 @@ export interface AccessControlManager extends BaseContract {
   livelyAnonymousRole(overrides?: CallOverrides): Promise<string>;
 
   "livelyAnonymousRole()"(overrides?: CallOverrides): Promise<string>;
+
+  livelyAssetManagerRole(overrides?: CallOverrides): Promise<string>;
+
+  "livelyAssetManagerRole()"(overrides?: CallOverrides): Promise<string>;
+
+  livelyDaoExecutorRole(overrides?: CallOverrides): Promise<string>;
+
+  "livelyDaoExecutorRole()"(overrides?: CallOverrides): Promise<string>;
+
+  livelyDaoRole(overrides?: CallOverrides): Promise<string>;
+
+  "livelyDaoRole()"(overrides?: CallOverrides): Promise<string>;
 
   livelyGeneralGroupRole(overrides?: CallOverrides): Promise<string>;
 
@@ -3766,6 +3964,36 @@ export interface AccessControlManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
+    isLivelyAssetManager(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "isLivelyAssetManager(address)"(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    isLivelyDao(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "isLivelyDao(address)"(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    isLivelyDaoExecutor(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "isLivelyDaoExecutor(address)"(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
     isLivelyGeneralGroup(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -3861,6 +4089,18 @@ export interface AccessControlManager extends BaseContract {
     livelyAnonymousRole(overrides?: CallOverrides): Promise<string>;
 
     "livelyAnonymousRole()"(overrides?: CallOverrides): Promise<string>;
+
+    livelyAssetManagerRole(overrides?: CallOverrides): Promise<string>;
+
+    "livelyAssetManagerRole()"(overrides?: CallOverrides): Promise<string>;
+
+    livelyDaoExecutorRole(overrides?: CallOverrides): Promise<string>;
+
+    "livelyDaoExecutorRole()"(overrides?: CallOverrides): Promise<string>;
+
+    livelyDaoRole(overrides?: CallOverrides): Promise<string>;
+
+    "livelyDaoRole()"(overrides?: CallOverrides): Promise<string>;
 
     livelyGeneralGroupRole(overrides?: CallOverrides): Promise<string>;
 
@@ -4345,65 +4585,65 @@ export interface AccessControlManager extends BaseContract {
       status?: null
     ): RealmUpgradeStatusChangedEventFilter;
 
-    "RoleAccountGranted(bytes32,address,address)"(
+    "RoleAccountGranted(address,bytes32,address)"(
+      sender?: PromiseOrValue<string> | null,
       role?: PromiseOrValue<BytesLike> | null,
-      account?: PromiseOrValue<string> | null,
-      sender?: PromiseOrValue<string> | null
+      account?: PromiseOrValue<string> | null
     ): RoleAccountGrantedEventFilter;
     RoleAccountGranted(
+      sender?: PromiseOrValue<string> | null,
       role?: PromiseOrValue<BytesLike> | null,
-      account?: PromiseOrValue<string> | null,
-      sender?: PromiseOrValue<string> | null
+      account?: PromiseOrValue<string> | null
     ): RoleAccountGrantedEventFilter;
 
-    "RoleAccountRevoked(bytes32,address,address)"(
+    "RoleAccountRevoked(address,bytes32,address)"(
+      sender?: PromiseOrValue<string> | null,
       role?: PromiseOrValue<BytesLike> | null,
-      account?: PromiseOrValue<string> | null,
-      sender?: PromiseOrValue<string> | null
+      account?: PromiseOrValue<string> | null
     ): RoleAccountRevokedEventFilter;
     RoleAccountRevoked(
+      sender?: PromiseOrValue<string> | null,
       role?: PromiseOrValue<BytesLike> | null,
-      account?: PromiseOrValue<string> | null,
-      sender?: PromiseOrValue<string> | null
+      account?: PromiseOrValue<string> | null
     ): RoleAccountRevokedEventFilter;
 
-    "RoleGroupChanged(bytes32,address,bytes32,bytes32)"(
-      role?: PromiseOrValue<BytesLike> | null,
+    "RoleGroupChanged(address,bytes32,bytes32,bytes32)"(
       sender?: PromiseOrValue<string> | null,
+      role?: PromiseOrValue<BytesLike> | null,
       newGroup?: PromiseOrValue<BytesLike> | null,
       oldGroup?: null
     ): RoleGroupChangedEventFilter;
     RoleGroupChanged(
-      role?: PromiseOrValue<BytesLike> | null,
       sender?: PromiseOrValue<string> | null,
+      role?: PromiseOrValue<BytesLike> | null,
       newGroup?: PromiseOrValue<BytesLike> | null,
       oldGroup?: null
     ): RoleGroupChangedEventFilter;
 
-    "RoleRegistered(bytes32,string,address,bytes32,bool)"(
+    "RoleRegistered(address,bytes32,string,bytes32,bool)"(
+      sender?: PromiseOrValue<string> | null,
       role?: PromiseOrValue<BytesLike> | null,
       name?: PromiseOrValue<string> | null,
-      sender?: PromiseOrValue<string> | null,
       group?: null,
       isEnabled?: null
     ): RoleRegisteredEventFilter;
     RoleRegistered(
+      sender?: PromiseOrValue<string> | null,
       role?: PromiseOrValue<BytesLike> | null,
       name?: PromiseOrValue<string> | null,
-      sender?: PromiseOrValue<string> | null,
       group?: null,
       isEnabled?: null
     ): RoleRegisteredEventFilter;
 
-    "RoleStatusChanged(bytes32,address,bytes32,bool)"(
-      role?: PromiseOrValue<BytesLike> | null,
+    "RoleStatusChanged(address,bytes32,bytes32,bool)"(
       sender?: PromiseOrValue<string> | null,
+      role?: PromiseOrValue<BytesLike> | null,
       group?: PromiseOrValue<BytesLike> | null,
       status?: null
     ): RoleStatusChangedEventFilter;
     RoleStatusChanged(
-      role?: PromiseOrValue<BytesLike> | null,
       sender?: PromiseOrValue<string> | null,
+      role?: PromiseOrValue<BytesLike> | null,
       group?: PromiseOrValue<BytesLike> | null,
       status?: null
     ): RoleStatusChangedEventFilter;
@@ -4773,6 +5013,36 @@ export interface AccessControlManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    isLivelyAssetManager(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "isLivelyAssetManager(address)"(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    isLivelyDao(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "isLivelyDao(address)"(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    isLivelyDaoExecutor(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "isLivelyDaoExecutor(address)"(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     isLivelyGeneralGroup(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -4868,6 +5138,18 @@ export interface AccessControlManager extends BaseContract {
     livelyAnonymousRole(overrides?: CallOverrides): Promise<BigNumber>;
 
     "livelyAnonymousRole()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    livelyAssetManagerRole(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "livelyAssetManagerRole()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    livelyDaoExecutorRole(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "livelyDaoExecutorRole()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    livelyDaoRole(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "livelyDaoRole()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     livelyGeneralGroupRole(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -5487,6 +5769,36 @@ export interface AccessControlManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    isLivelyAssetManager(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "isLivelyAssetManager(address)"(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    isLivelyDao(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "isLivelyDao(address)"(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    isLivelyDaoExecutor(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "isLivelyDaoExecutor(address)"(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     isLivelyGeneralGroup(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -5588,6 +5900,26 @@ export interface AccessControlManager extends BaseContract {
     "livelyAnonymousRole()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    livelyAssetManagerRole(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "livelyAssetManagerRole()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    livelyDaoExecutorRole(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "livelyDaoExecutorRole()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    livelyDaoRole(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "livelyDaoRole()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     livelyGeneralGroupRole(
       overrides?: CallOverrides

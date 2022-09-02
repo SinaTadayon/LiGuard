@@ -32,7 +32,7 @@ const _abi = [
         type: "uint256",
       },
     ],
-    name: "ApprovalDecresed",
+    name: "ApprovalDecreased",
     type: "event",
   },
   {
@@ -57,7 +57,7 @@ const _abi = [
         type: "uint256",
       },
     ],
-    name: "ApprovalIncremented",
+    name: "ApprovalIncreased",
     type: "event",
   },
   {

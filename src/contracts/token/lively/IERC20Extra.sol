@@ -2,9 +2,9 @@
 pragma solidity >=0.8.15 <0.9.0;
 
 interface IERC20Extra {
-  event ApprovalIncremented(address indexed owner, address indexed spender, uint256 amount);
+  event ApprovalIncreased(address indexed owner, address indexed spender, uint256 amount);
 
-  event ApprovalDecresed(address indexed owner, address indexed spender, uint256 amount);
+  event ApprovalDecreased(address indexed owner, address indexed spender, uint256 amount);
 
   event TransferFrom(address indexed sender, address indexed from, address indexed to, uint256 amount);
 

@@ -954,9 +954,9 @@ describe("AccessControlManager Tests", function () {
       )
         .to.emit(accessControlManagerProxy, "RoleRegistered")
         .withArgs(
+          adminAddress,
           ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TESTER_ROLE")),
           "TESTER_ROLE",
-          adminAddress,
           ethers.utils.keccak256(ethers.utils.toUtf8Bytes("INOVERS_GROUP")),
           true
         );
@@ -978,7 +978,7 @@ describe("AccessControlManager Tests", function () {
           .grantRoleAccount(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TESTER_ROLE")), userAddress1)
       )
         .to.emit(accessControlManagerProxy, "RoleAccountGranted")
-        .withArgs(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TESTER_ROLE")), userAddress1, adminAddress);
+        .withArgs(adminAddress, ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TESTER_ROLE")), userAddress1);
 
       // then
       expect(
@@ -1003,7 +1003,7 @@ describe("AccessControlManager Tests", function () {
           .revokeRoleAccount(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TESTER_ROLE")), userAddress1)
       )
         .to.emit(accessControlManagerProxy, "RoleAccountRevoked")
-        .withArgs(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TESTER_ROLE")), userAddress1, adminAddress);
+        .withArgs(adminAddress, ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TESTER_ROLE")), userAddress1);
 
       // then
       expect(
@@ -1028,7 +1028,7 @@ describe("AccessControlManager Tests", function () {
           .grantRoleAccount(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TESTER_ROLE")), userAddress2)
       )
         .to.emit(accessControlManagerProxy, "RoleAccountGranted")
-        .withArgs(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TESTER_ROLE")), userAddress2, adminAddress);
+        .withArgs(adminAddress, ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TESTER_ROLE")), userAddress2);
 
       // then
       expect(
@@ -1054,8 +1054,8 @@ describe("AccessControlManager Tests", function () {
       )
         .to.emit(accessControlManagerProxy, "RoleStatusChanged")
         .withArgs(
-          ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TESTER_ROLE")),
           adminAddress,
+          ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TESTER_ROLE")),
           ethers.utils.keccak256(ethers.utils.toUtf8Bytes("INOVERS_GROUP")),
           false
         );
@@ -1079,8 +1079,8 @@ describe("AccessControlManager Tests", function () {
       )
         .to.emit(accessControlManagerProxy, "RoleStatusChanged")
         .withArgs(
-          ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TESTER_ROLE")),
           adminAddress,
+          ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TESTER_ROLE")),
           ethers.utils.keccak256(ethers.utils.toUtf8Bytes("INOVERS_GROUP")),
           true
         );
@@ -1098,8 +1098,8 @@ describe("AccessControlManager Tests", function () {
       )
         .to.emit(accessControlManagerProxy, "RoleGroupChanged")
         .withArgs(
-          ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TESTER_ROLE")),
           adminAddress,
+          ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TESTER_ROLE")),
           ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_GENERAL_GROUP")),
           ethers.utils.keccak256(ethers.utils.toUtf8Bytes("INOVERS_GROUP"))
         );
@@ -1137,8 +1137,8 @@ describe("AccessControlManager Tests", function () {
       )
         .to.emit(accessControlManagerProxy, "RoleGroupChanged")
         .withArgs(
-          ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TESTER_ROLE")),
           adminAddress,
+          ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TESTER_ROLE")),
           ethers.utils.keccak256(ethers.utils.toUtf8Bytes("INOVERS_GROUP")),
           ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_GENERAL_GROUP"))
         );

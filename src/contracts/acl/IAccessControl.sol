@@ -16,6 +16,12 @@ interface IAccessControl {
 
   function isLivelyAdmin(address account) external view returns (bool);
 
+  function isLivelyAssetManager(address account) external view returns (bool);
+
+  function isLivelyDao(address account) external view returns (bool);
+
+  function isLivelyDaoExecutor(address account) external view returns (bool);
+
   function isLivelyGeneralGroup(bytes32 role) external view returns (bool);
 
   function isLivelyGeneralRealm(bytes32 context) external view returns (bool);
@@ -53,6 +59,12 @@ interface IAccessControl {
   function livelySystemAdminRole() external pure returns (bytes32);
 
   function livelyAdminRole() external pure returns (bytes32);
+
+  function livelyAssetManagerRole() external pure returns (bytes32);
+
+  function livelyDaoRole() external pure returns (bytes32);
+
+  function livelyDaoExecutorRole() external pure returns (bytes32);
 
   function livelyAnonymousRole() external pure returns (bytes32);
 }

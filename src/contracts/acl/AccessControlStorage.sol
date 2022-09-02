@@ -58,11 +58,5 @@ abstract contract AccessControlStorage is BaseUUPSStorage {
     mapping(bytes32 => Group) groupMap;
   }
 
-  bytes32 internal constant _LIVELY_GENERAL_REALM = keccak256(abi.encodePacked("LIVELY_GENERAL_REALM"));
-  bytes32 internal constant _LIVELY_GENERAL_GROUP = keccak256(abi.encodePacked("LIVELY_GENERAL_GROUP"));
-  bytes32 internal constant _LIVELY_ADMIN_ROLE = keccak256(abi.encodePacked("LIVELY_ADMIN_ROLE"));
-  bytes32 internal constant _LIVELY_SYSTEM_ADMIN_ROLE = keccak256(abi.encodePacked("LIVELY_SYSTEM_ADMIN_ROLE"));
-  bytes32 internal constant _LIVELY_ANONYMOUS_ROLE = keccak256(abi.encodePacked("LIVELY_ANONYMOUS_ROLE"));
-
   DataMaps internal _dataMaps;
 }

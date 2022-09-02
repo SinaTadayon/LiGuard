@@ -23,6 +23,9 @@ library LAccessControl {
   bytes32 public constant LIVELY_GENERAL_GROUP = keccak256(abi.encodePacked("LIVELY_GENERAL_GROUP"));
   bytes32 public constant LIVELY_ADMIN_ROLE = keccak256(abi.encodePacked("LIVELY_ADMIN_ROLE"));
   bytes32 public constant LIVELY_SYSTEM_ADMIN_ROLE = keccak256(abi.encodePacked("LIVELY_SYSTEM_ADMIN_ROLE"));
+  bytes32 public constant LIVELY_ASSET_MANAGER_ROLE = keccak256(abi.encodePacked("LIVELY_ASSET_MANAGER_ROLE"));
+  bytes32 public constant LIVELY_DAO_ROLE = keccak256(abi.encodePacked("LIVELY_DAO_ROLE"));
+  bytes32 public constant LIVELY_DAO_EXECUTOR_ROLE = keccak256(abi.encodePacked("LIVELY_DAO_EXECUTOR_ROLE"));
   bytes32 public constant LIVELY_ANONYMOUS_ROLE = keccak256(abi.encodePacked("LIVELY_ANONYMOUS_ROLE"));
 
   function initializeContext(AccessControlStorage.DataMaps storage data) external {
@@ -39,6 +42,18 @@ library LAccessControl {
     data.roleMap[LIVELY_SYSTEM_ADMIN_ROLE].group = LIVELY_GENERAL_GROUP;
     data.roleMap[LIVELY_SYSTEM_ADMIN_ROLE].accountSet.add(msg.sender);
 
+    data.roleMap[LIVELY_ASSET_MANAGER_ROLE].name = "LIVELY_ASSET_MANAGER_ROLE";
+    data.roleMap[LIVELY_ASSET_MANAGER_ROLE].isEnabled = true;
+    data.roleMap[LIVELY_ASSET_MANAGER_ROLE].group = LIVELY_GENERAL_GROUP;
+
+    data.roleMap[LIVELY_DAO_ROLE].name = "LIVELY_DAO_ROLE";
+    data.roleMap[LIVELY_DAO_ROLE].isEnabled = true;
+    data.roleMap[LIVELY_DAO_ROLE].group = LIVELY_GENERAL_GROUP;
+
+    data.roleMap[LIVELY_DAO_EXECUTOR_ROLE].name = "LIVELY_DAO_EXECUTOR_ROLE";
+    data.roleMap[LIVELY_DAO_EXECUTOR_ROLE].isEnabled = true;
+    data.roleMap[LIVELY_DAO_EXECUTOR_ROLE].group = LIVELY_GENERAL_GROUP;
+    
     data.roleMap[LIVELY_ANONYMOUS_ROLE].name = "LIVELY_ANONYMOUS_ROLE";
     data.roleMap[LIVELY_ANONYMOUS_ROLE].isEnabled = true;
     data.roleMap[LIVELY_ANONYMOUS_ROLE].group = LIVELY_GENERAL_GROUP;
@@ -145,6 +160,18 @@ library LAccessControl {
 
   function isLivelyAdmin(AccessControlStorage.DataMaps storage data, address account) external view returns (bool) {
     return data.accountMap[account][LIVELY_ADMIN_ROLE] == AccessControlStorage.Status.ENABLED;
+  }
+
+  function isLivelyAssetManager(AccessControlStorage.DataMaps storage data, address account) external view returns (bool) {
+    return data.accountMap[account][LIVELY_ASSET_MANAGER_ROLE] == AccessControlStorage.Status.ENABLED;
+  }
+
+  function isLivelyDao(AccessControlStorage.DataMaps storage data, address account) external view returns (bool) {
+    return data.accountMap[account][LIVELY_DAO_ROLE] == AccessControlStorage.Status.ENABLED;  
+  }
+
+  function isLivelyDaoExecutor(AccessControlStorage.DataMaps storage data, address account) external view returns (bool) {
+    return data.accountMap[account][LIVELY_DAO_EXECUTOR_ROLE] == AccessControlStorage.Status.ENABLED;
   }
 
   function isLivelyGeneralGroup(AccessControlStorage.DataMaps storage data, bytes32 role) external view returns (bool) {

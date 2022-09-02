@@ -32,6 +32,9 @@ export interface IAccessControlInterface extends utils.Interface {
     "isGroupEnabled(bytes32)": FunctionFragment;
     "isGroupExists(bytes32)": FunctionFragment;
     "isLivelyAdmin(address)": FunctionFragment;
+    "isLivelyAssetManager(address)": FunctionFragment;
+    "isLivelyDao(address)": FunctionFragment;
+    "isLivelyDaoExecutor(address)": FunctionFragment;
     "isLivelyGeneralGroup(bytes32)": FunctionFragment;
     "isLivelyGeneralRealm(bytes32)": FunctionFragment;
     "isLivelySystemAdmin(address)": FunctionFragment;
@@ -42,6 +45,9 @@ export interface IAccessControlInterface extends utils.Interface {
     "isRoleExists(bytes32)": FunctionFragment;
     "livelyAdminRole()": FunctionFragment;
     "livelyAnonymousRole()": FunctionFragment;
+    "livelyAssetManagerRole()": FunctionFragment;
+    "livelyDaoExecutorRole()": FunctionFragment;
+    "livelyDaoRole()": FunctionFragment;
     "livelyGeneralGroupRole()": FunctionFragment;
     "livelyGeneralRealmRole()": FunctionFragment;
     "livelySystemAdminRole()": FunctionFragment;
@@ -69,6 +75,12 @@ export interface IAccessControlInterface extends utils.Interface {
       | "isGroupExists(bytes32)"
       | "isLivelyAdmin"
       | "isLivelyAdmin(address)"
+      | "isLivelyAssetManager"
+      | "isLivelyAssetManager(address)"
+      | "isLivelyDao"
+      | "isLivelyDao(address)"
+      | "isLivelyDaoExecutor"
+      | "isLivelyDaoExecutor(address)"
       | "isLivelyGeneralGroup"
       | "isLivelyGeneralGroup(bytes32)"
       | "isLivelyGeneralRealm"
@@ -89,6 +101,12 @@ export interface IAccessControlInterface extends utils.Interface {
       | "livelyAdminRole()"
       | "livelyAnonymousRole"
       | "livelyAnonymousRole()"
+      | "livelyAssetManagerRole"
+      | "livelyAssetManagerRole()"
+      | "livelyDaoExecutorRole"
+      | "livelyDaoExecutorRole()"
+      | "livelyDaoRole"
+      | "livelyDaoRole()"
       | "livelyGeneralGroupRole"
       | "livelyGeneralGroupRole()"
       | "livelyGeneralRealmRole"
@@ -186,6 +204,30 @@ export interface IAccessControlInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
+    functionFragment: "isLivelyAssetManager",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isLivelyAssetManager(address)",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isLivelyDao",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isLivelyDao(address)",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isLivelyDaoExecutor",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isLivelyDaoExecutor(address)",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "isLivelyGeneralGroup",
     values: [PromiseOrValue<BytesLike>]
   ): string;
@@ -263,6 +305,30 @@ export interface IAccessControlInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "livelyAnonymousRole()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "livelyAssetManagerRole",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "livelyAssetManagerRole()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "livelyDaoExecutorRole",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "livelyDaoExecutorRole()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "livelyDaoRole",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "livelyDaoRole()",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -368,6 +434,30 @@ export interface IAccessControlInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "isLivelyAssetManager",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isLivelyAssetManager(address)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isLivelyDao",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isLivelyDao(address)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isLivelyDaoExecutor",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isLivelyDaoExecutor(address)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "isLivelyGeneralGroup",
     data: BytesLike
   ): Result;
@@ -445,6 +535,30 @@ export interface IAccessControlInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "livelyAnonymousRole()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "livelyAssetManagerRole",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "livelyAssetManagerRole()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "livelyDaoExecutorRole",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "livelyDaoExecutorRole()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "livelyDaoRole",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "livelyDaoRole()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -610,6 +724,36 @@ export interface IAccessControl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    isLivelyAssetManager(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    "isLivelyAssetManager(address)"(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    isLivelyDao(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    "isLivelyDao(address)"(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    isLivelyDaoExecutor(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    "isLivelyDaoExecutor(address)"(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     isLivelyGeneralGroup(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -697,6 +841,18 @@ export interface IAccessControl extends BaseContract {
     livelyAnonymousRole(overrides?: CallOverrides): Promise<[string]>;
 
     "livelyAnonymousRole()"(overrides?: CallOverrides): Promise<[string]>;
+
+    livelyAssetManagerRole(overrides?: CallOverrides): Promise<[string]>;
+
+    "livelyAssetManagerRole()"(overrides?: CallOverrides): Promise<[string]>;
+
+    livelyDaoExecutorRole(overrides?: CallOverrides): Promise<[string]>;
+
+    "livelyDaoExecutorRole()"(overrides?: CallOverrides): Promise<[string]>;
+
+    livelyDaoRole(overrides?: CallOverrides): Promise<[string]>;
+
+    "livelyDaoRole()"(overrides?: CallOverrides): Promise<[string]>;
 
     livelyGeneralGroupRole(overrides?: CallOverrides): Promise<[string]>;
 
@@ -819,6 +975,36 @@ export interface IAccessControl extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  isLivelyAssetManager(
+    account: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  "isLivelyAssetManager(address)"(
+    account: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  isLivelyDao(
+    account: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  "isLivelyDao(address)"(
+    account: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  isLivelyDaoExecutor(
+    account: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  "isLivelyDaoExecutor(address)"(
+    account: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   isLivelyGeneralGroup(
     role: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
@@ -906,6 +1092,18 @@ export interface IAccessControl extends BaseContract {
   livelyAnonymousRole(overrides?: CallOverrides): Promise<string>;
 
   "livelyAnonymousRole()"(overrides?: CallOverrides): Promise<string>;
+
+  livelyAssetManagerRole(overrides?: CallOverrides): Promise<string>;
+
+  "livelyAssetManagerRole()"(overrides?: CallOverrides): Promise<string>;
+
+  livelyDaoExecutorRole(overrides?: CallOverrides): Promise<string>;
+
+  "livelyDaoExecutorRole()"(overrides?: CallOverrides): Promise<string>;
+
+  livelyDaoRole(overrides?: CallOverrides): Promise<string>;
+
+  "livelyDaoRole()"(overrides?: CallOverrides): Promise<string>;
 
   livelyGeneralGroupRole(overrides?: CallOverrides): Promise<string>;
 
@@ -1028,6 +1226,36 @@ export interface IAccessControl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
+    isLivelyAssetManager(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "isLivelyAssetManager(address)"(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    isLivelyDao(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "isLivelyDao(address)"(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    isLivelyDaoExecutor(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "isLivelyDaoExecutor(address)"(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
     isLivelyGeneralGroup(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1115,6 +1343,18 @@ export interface IAccessControl extends BaseContract {
     livelyAnonymousRole(overrides?: CallOverrides): Promise<string>;
 
     "livelyAnonymousRole()"(overrides?: CallOverrides): Promise<string>;
+
+    livelyAssetManagerRole(overrides?: CallOverrides): Promise<string>;
+
+    "livelyAssetManagerRole()"(overrides?: CallOverrides): Promise<string>;
+
+    livelyDaoExecutorRole(overrides?: CallOverrides): Promise<string>;
+
+    "livelyDaoExecutorRole()"(overrides?: CallOverrides): Promise<string>;
+
+    livelyDaoRole(overrides?: CallOverrides): Promise<string>;
+
+    "livelyDaoRole()"(overrides?: CallOverrides): Promise<string>;
 
     livelyGeneralGroupRole(overrides?: CallOverrides): Promise<string>;
 
@@ -1240,6 +1480,36 @@ export interface IAccessControl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    isLivelyAssetManager(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "isLivelyAssetManager(address)"(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    isLivelyDao(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "isLivelyDao(address)"(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    isLivelyDaoExecutor(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "isLivelyDaoExecutor(address)"(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     isLivelyGeneralGroup(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1327,6 +1597,18 @@ export interface IAccessControl extends BaseContract {
     livelyAnonymousRole(overrides?: CallOverrides): Promise<BigNumber>;
 
     "livelyAnonymousRole()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    livelyAssetManagerRole(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "livelyAssetManagerRole()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    livelyDaoExecutorRole(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "livelyDaoExecutorRole()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    livelyDaoRole(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "livelyDaoRole()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     livelyGeneralGroupRole(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1450,6 +1732,36 @@ export interface IAccessControl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    isLivelyAssetManager(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "isLivelyAssetManager(address)"(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    isLivelyDao(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "isLivelyDao(address)"(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    isLivelyDaoExecutor(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "isLivelyDaoExecutor(address)"(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     isLivelyGeneralGroup(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1543,6 +1855,26 @@ export interface IAccessControl extends BaseContract {
     "livelyAnonymousRole()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    livelyAssetManagerRole(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "livelyAssetManagerRole()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    livelyDaoExecutorRole(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "livelyDaoExecutorRole()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    livelyDaoRole(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "livelyDaoRole()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     livelyGeneralGroupRole(
       overrides?: CallOverrides

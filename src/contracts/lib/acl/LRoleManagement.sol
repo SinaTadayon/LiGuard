@@ -58,6 +58,11 @@ library LRoleManagement {
       ),
       "GrantRoleAccount Access Denied"
     );
+
+    if(role == LAccessControl.LIVELY_DAO_EXECUTOR_ROLE) {      
+      require(account.code.length > 0 && data.roleMap[role].accountSet.length() == uint256(0), "Illegal Grant Dao Executor Role");
+    }
+
     require(role != LAccessControl.LIVELY_ANONYMOUS_ROLE, "Illegal Grant Anonymous Role");
     require(bytes(data.roleMap[role].name).length != 0, "Role Not Found");
     require(account != address(0), "Address Invalid");
@@ -83,9 +88,11 @@ library LRoleManagement {
       ),
       "RevokeRoleAccount Access Denied"
     );
+    
     if (role == LAccessControl.LIVELY_ADMIN_ROLE || role == LAccessControl.LIVELY_SYSTEM_ADMIN_ROLE) {
-      require(data.roleMap[role].accountSet.length() > 1, "Illegal Revoke Role Account");
-    }
+      require(data.roleMap[role].accountSet.length() > 1, "Illegal Revoke Role Account");    
+    } 
+
     require(bytes(data.roleMap[role].name).length != 0, "Role Not Found");
     require(account != address(0), "Address Invalid");
     require(data.roleMap[role].accountSet.contains(account), "Account Not Found");

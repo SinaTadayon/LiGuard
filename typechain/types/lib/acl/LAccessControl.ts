@@ -40,6 +40,9 @@ export interface LAccessControlInterface extends utils.Interface {
     "LIB_VERSION()": FunctionFragment;
     "LIVELY_ADMIN_ROLE()": FunctionFragment;
     "LIVELY_ANONYMOUS_ROLE()": FunctionFragment;
+    "LIVELY_ASSET_MANAGER_ROLE()": FunctionFragment;
+    "LIVELY_DAO_EXECUTOR_ROLE()": FunctionFragment;
+    "LIVELY_DAO_ROLE()": FunctionFragment;
     "LIVELY_GENERAL_GROUP()": FunctionFragment;
     "LIVELY_GENERAL_REALM()": FunctionFragment;
     "LIVELY_SYSTEM_ADMIN_ROLE()": FunctionFragment;
@@ -56,6 +59,12 @@ export interface LAccessControlInterface extends utils.Interface {
       | "LIVELY_ADMIN_ROLE()"
       | "LIVELY_ANONYMOUS_ROLE"
       | "LIVELY_ANONYMOUS_ROLE()"
+      | "LIVELY_ASSET_MANAGER_ROLE"
+      | "LIVELY_ASSET_MANAGER_ROLE()"
+      | "LIVELY_DAO_EXECUTOR_ROLE"
+      | "LIVELY_DAO_EXECUTOR_ROLE()"
+      | "LIVELY_DAO_ROLE"
+      | "LIVELY_DAO_ROLE()"
       | "LIVELY_GENERAL_GROUP"
       | "LIVELY_GENERAL_GROUP()"
       | "LIVELY_GENERAL_REALM"
@@ -93,6 +102,30 @@ export interface LAccessControlInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "LIVELY_ANONYMOUS_ROLE()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_ASSET_MANAGER_ROLE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_ASSET_MANAGER_ROLE()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_DAO_EXECUTOR_ROLE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_DAO_EXECUTOR_ROLE()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_DAO_ROLE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_DAO_ROLE()",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -152,6 +185,30 @@ export interface LAccessControlInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "LIVELY_ANONYMOUS_ROLE()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_ASSET_MANAGER_ROLE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_ASSET_MANAGER_ROLE()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_DAO_EXECUTOR_ROLE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_DAO_EXECUTOR_ROLE()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_DAO_ROLE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_DAO_ROLE()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -233,6 +290,18 @@ export interface LAccessControl extends BaseContract {
 
     "LIVELY_ANONYMOUS_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
 
+    LIVELY_ASSET_MANAGER_ROLE(overrides?: CallOverrides): Promise<[string]>;
+
+    "LIVELY_ASSET_MANAGER_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
+
+    LIVELY_DAO_EXECUTOR_ROLE(overrides?: CallOverrides): Promise<[string]>;
+
+    "LIVELY_DAO_EXECUTOR_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
+
+    LIVELY_DAO_ROLE(overrides?: CallOverrides): Promise<[string]>;
+
+    "LIVELY_DAO_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
+
     LIVELY_GENERAL_GROUP(overrides?: CallOverrides): Promise<[string]>;
 
     "LIVELY_GENERAL_GROUP()"(overrides?: CallOverrides): Promise<[string]>;
@@ -270,6 +339,18 @@ export interface LAccessControl extends BaseContract {
 
   "LIVELY_ANONYMOUS_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
+  LIVELY_ASSET_MANAGER_ROLE(overrides?: CallOverrides): Promise<string>;
+
+  "LIVELY_ASSET_MANAGER_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
+  LIVELY_DAO_EXECUTOR_ROLE(overrides?: CallOverrides): Promise<string>;
+
+  "LIVELY_DAO_EXECUTOR_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
+  LIVELY_DAO_ROLE(overrides?: CallOverrides): Promise<string>;
+
+  "LIVELY_DAO_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
   LIVELY_GENERAL_GROUP(overrides?: CallOverrides): Promise<string>;
 
   "LIVELY_GENERAL_GROUP()"(overrides?: CallOverrides): Promise<string>;
@@ -306,6 +387,18 @@ export interface LAccessControl extends BaseContract {
     LIVELY_ANONYMOUS_ROLE(overrides?: CallOverrides): Promise<string>;
 
     "LIVELY_ANONYMOUS_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
+    LIVELY_ASSET_MANAGER_ROLE(overrides?: CallOverrides): Promise<string>;
+
+    "LIVELY_ASSET_MANAGER_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
+    LIVELY_DAO_EXECUTOR_ROLE(overrides?: CallOverrides): Promise<string>;
+
+    "LIVELY_DAO_EXECUTOR_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
+    LIVELY_DAO_ROLE(overrides?: CallOverrides): Promise<string>;
+
+    "LIVELY_DAO_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
     LIVELY_GENERAL_GROUP(overrides?: CallOverrides): Promise<string>;
 
@@ -347,6 +440,20 @@ export interface LAccessControl extends BaseContract {
 
     "LIVELY_ANONYMOUS_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
 
+    LIVELY_ASSET_MANAGER_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "LIVELY_ASSET_MANAGER_ROLE()"(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    LIVELY_DAO_EXECUTOR_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "LIVELY_DAO_EXECUTOR_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    LIVELY_DAO_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "LIVELY_DAO_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     LIVELY_GENERAL_GROUP(overrides?: CallOverrides): Promise<BigNumber>;
 
     "LIVELY_GENERAL_GROUP()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -384,6 +491,28 @@ export interface LAccessControl extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     "LIVELY_ANONYMOUS_ROLE()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    LIVELY_ASSET_MANAGER_ROLE(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "LIVELY_ASSET_MANAGER_ROLE()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    LIVELY_DAO_EXECUTOR_ROLE(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "LIVELY_DAO_EXECUTOR_ROLE()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    LIVELY_DAO_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "LIVELY_DAO_ROLE()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

@@ -326,8 +326,8 @@ export interface IERC20ExtraInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "ApprovalDecresed(address,address,uint256)": EventFragment;
-    "ApprovalIncremented(address,address,uint256)": EventFragment;
+    "ApprovalDecreased(address,address,uint256)": EventFragment;
+    "ApprovalIncreased(address,address,uint256)": EventFragment;
     "BatchTransfer(address,uint256)": EventFragment;
     "BatchTransferFrom(address,uint256)": EventFragment;
     "Burn(address,address,uint256,uint256)": EventFragment;
@@ -337,13 +337,13 @@ export interface IERC20ExtraInterface extends utils.Interface {
     "TransferFrom(address,address,address,uint256)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "ApprovalDecresed"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ApprovalDecreased"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "ApprovalDecresed(address,address,uint256)"
+    nameOrSignatureOrTopic: "ApprovalDecreased(address,address,uint256)"
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ApprovalIncremented"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ApprovalIncreased"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "ApprovalIncremented(address,address,uint256)"
+    nameOrSignatureOrTopic: "ApprovalIncreased(address,address,uint256)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "BatchTransfer"): EventFragment;
   getEvent(
@@ -375,31 +375,31 @@ export interface IERC20ExtraInterface extends utils.Interface {
   ): EventFragment;
 }
 
-export interface ApprovalDecresedEventObject {
+export interface ApprovalDecreasedEventObject {
   owner: string;
   spender: string;
   amount: BigNumber;
 }
-export type ApprovalDecresedEvent = TypedEvent<
+export type ApprovalDecreasedEvent = TypedEvent<
   [string, string, BigNumber],
-  ApprovalDecresedEventObject
+  ApprovalDecreasedEventObject
 >;
 
-export type ApprovalDecresedEventFilter =
-  TypedEventFilter<ApprovalDecresedEvent>;
+export type ApprovalDecreasedEventFilter =
+  TypedEventFilter<ApprovalDecreasedEvent>;
 
-export interface ApprovalIncrementedEventObject {
+export interface ApprovalIncreasedEventObject {
   owner: string;
   spender: string;
   amount: BigNumber;
 }
-export type ApprovalIncrementedEvent = TypedEvent<
+export type ApprovalIncreasedEvent = TypedEvent<
   [string, string, BigNumber],
-  ApprovalIncrementedEventObject
+  ApprovalIncreasedEventObject
 >;
 
-export type ApprovalIncrementedEventFilter =
-  TypedEventFilter<ApprovalIncrementedEvent>;
+export type ApprovalIncreasedEventFilter =
+  TypedEventFilter<ApprovalIncreasedEvent>;
 
 export interface BatchTransferEventObject {
   sender: string;
@@ -938,27 +938,27 @@ export interface IERC20Extra extends BaseContract {
   };
 
   filters: {
-    "ApprovalDecresed(address,address,uint256)"(
+    "ApprovalDecreased(address,address,uint256)"(
       owner?: PromiseOrValue<string> | null,
       spender?: PromiseOrValue<string> | null,
       amount?: null
-    ): ApprovalDecresedEventFilter;
-    ApprovalDecresed(
+    ): ApprovalDecreasedEventFilter;
+    ApprovalDecreased(
       owner?: PromiseOrValue<string> | null,
       spender?: PromiseOrValue<string> | null,
       amount?: null
-    ): ApprovalDecresedEventFilter;
+    ): ApprovalDecreasedEventFilter;
 
-    "ApprovalIncremented(address,address,uint256)"(
+    "ApprovalIncreased(address,address,uint256)"(
       owner?: PromiseOrValue<string> | null,
       spender?: PromiseOrValue<string> | null,
       amount?: null
-    ): ApprovalIncrementedEventFilter;
-    ApprovalIncremented(
+    ): ApprovalIncreasedEventFilter;
+    ApprovalIncreased(
       owner?: PromiseOrValue<string> | null,
       spender?: PromiseOrValue<string> | null,
       amount?: null
-    ): ApprovalIncrementedEventFilter;
+    ): ApprovalIncreasedEventFilter;
 
     "BatchTransfer(address,uint256)"(
       sender?: PromiseOrValue<string> | null,
