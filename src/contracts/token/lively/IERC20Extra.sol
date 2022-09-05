@@ -2,6 +2,22 @@
 pragma solidity >=0.8.15 <0.9.0;
 
 interface IERC20Extra {
+  struct BatchTransferRequest {
+    address to;
+    uint256 amount;
+  }
+
+  struct BatchTransferFromRequest {
+    address from;
+    address to;
+    uint256 amount;
+  }
+
+  struct BatchUpdateTaxWhitelistRequest {
+    address account;
+    bool isDeleted;
+  }
+
   event ApprovalIncreased(address indexed owner, address indexed spender, uint256 amount);
 
   event ApprovalDecreased(address indexed owner, address indexed spender, uint256 amount);
@@ -20,25 +36,9 @@ interface IERC20Extra {
 
   event Mint(address indexed sender, address indexed account, uint256 amount, uint256 totalSupply);
 
-  struct BatchTransferRequest {
-    address recipient;
-    uint256 amount;
-  }
+  function increaseAllowance(address spender, uint256 amount) external returns (uint256);
 
-  struct BatchTransferFromRequest {
-    address source;
-    address recipient;
-    uint256 amount;
-  }
-
-  struct BatchUpdateTaxWhitelistRequest {
-    address account;
-    bool isDeleted;
-  }
-
-  function increaseAllowance(address spender, uint256 value) external returns (uint256);
-
-  function decreaseAllowance(address spender, uint256 value) external returns (uint256);
+  function decreaseAllowance(address spender, uint256 amount) external returns (uint256);
 
   function burn(address account, uint256 amount) external returns (uint256);
 
@@ -54,19 +54,19 @@ interface IERC20Extra {
 
   function batchUpdateTaxWhitelist(BatchUpdateTaxWhitelistRequest[] calldata request) external;
 
-  function taxRate() external view returns (uint256);
-
-  function taxTreasury() external view returns (address);
-
-  function taxWhitelist() external view returns (address[] memory);
-
-  function permit(
+   function permit(
     address owner,
     address spender,
     uint256 value,
     uint256 deadline,
     bytes calldata signature
   ) external returns (bool);
+
+  function taxRate() external view returns (uint256);
+
+  function taxTreasury() external view returns (address);
+
+  function taxWhitelist() external view returns (address[] memory);
 
   function nonce(address owner) external view returns (uint256);
 }

@@ -5,15 +5,15 @@ pragma solidity >=0.8.15 <0.9.0;
  * @dev Interface of the ERC20 standard as defined in the EIP.
  */
 interface IERC20 {
-  event Transfer(address indexed sender, address indexed recipient, uint256 amount);
+  event Transfer(address indexed from, address indexed to, uint256 value);
 
-  event Approval(address indexed owner, address indexed spender, uint256 amount);
+  event Approval(address indexed owner, address indexed spender, uint256 value);
 
-  function transfer(address recipient, uint256 amount) external returns (bool);
+  function transfer(address to, uint256 amount) external returns (bool);
 
   function transferFrom(
-    address source,
-    address recipient,
+    address from,
+    address to,
     uint256 amount
   ) external returns (bool);
 
