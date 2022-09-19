@@ -12,7 +12,17 @@ interface IContextManagement {
     bytes32 name;
     bytes32 version;
     bytes32 realm;
-    address smca;
+    address contractId;
+    bool status;
+  }
+
+   struct RequestPredictContext {
+    bytes32 name;
+    bytes32 version;
+    bytes32 realm;
+    bytes32 salt;
+    bytes32 bytesHash;
+    address base;
     bool status;
   }
 
@@ -32,14 +42,16 @@ interface IContextManagement {
     bytes32 name;
     bytes32 version;
     bytes32 realm;
-    address smca;
+    address contractId;
     bool isSafeMode;
     bool isUpgradable;
   }
 
-  event ContextRegistered(bytes32 indexed context, address indexed scma, address indexed sender, bytes32 realm);
+  event ContextRegistered(bytes32 indexed context, address indexed contractId, address indexed signer, address sender, bytes32 realm);
 
-  event ContextUpdated(bytes32 indexed context, address indexed scma, address indexed sender, bytes32 realm);
+  event PredictContextRegistered(bytes32 indexed context, address indexed base, address indexed signer, address sender, bytes32 realm, bytes32 bytesHash);
+
+  event ContextUpdated(bytes32 indexed context, address indexed contractId, address indexed sender, bytes32 realm);
 
   event ContextStatusChanged(bytes32 indexed context, address indexed sender, bytes32 indexed realm, bool status);
 
@@ -75,6 +87,12 @@ interface IContextManagement {
     bytes memory signature,
     RequestContext calldata rc,
     RequestRegisterContext[] calldata rcr
+  ) external returns (bytes32);
+
+  function registerPredictContext(
+    bytes memory signature,
+    RequestPredictContext calldata rpc,
+    RequestRegisterContext[] calldata rrc
   ) external returns (bytes32);
 
   function updateContext(

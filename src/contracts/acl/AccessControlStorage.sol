@@ -24,7 +24,7 @@ abstract contract AccessControlStorage is BaseUUPSStorage {
 
   struct Context {
     bytes32 realm;
-    address smca; // smart contract address
+    address contractId;
     bool isEnabled;
     mapping(bytes4 => RoleStat) resources; // function selector => RoleStat
     LEnumerableSet.Bytes32Set funcSet;

@@ -181,10 +181,20 @@ contract AccessControlManager is
   function registerContext(
     bytes memory signature,
     RequestContext calldata rc,
-    RequestRegisterContext[] calldata rcr
+    RequestRegisterContext[] calldata rrc
   ) external returns (bytes32) {
-    (bytes32 context, address sender) = LContextManagement.registerContext(_dataMaps, signature, rc, rcr);
-    emit ContextRegistered(context, rc.smca, sender, rc.realm);
+    (bytes32 context, address signer) = LContextManagement.registerContext(_dataMaps, signature, rc, rrc);
+    emit ContextRegistered(context, rc.contractId, signer, _msgSender(), rc.realm);
+    return context;
+  }
+
+  function registerPredictContext(
+    bytes memory signature,
+    RequestPredictContext calldata rpc,
+    RequestRegisterContext[] calldata rrc
+  ) external returns (bytes32) {
+    (bytes32 context, address signer) = LContextManagement.registerPredictContext(_dataMaps, signature, rpc, rrc);
+    emit PredictContextRegistered(context, rpc.base, signer, _msgSender(), rpc.realm, rpc.bytesHash);
     return context;
   }
 

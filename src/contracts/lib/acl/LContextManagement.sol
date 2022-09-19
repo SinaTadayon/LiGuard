@@ -19,8 +19,12 @@ library LContextManagement {
 
   bytes32 public constant TYPE_HASH =
     keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
-  bytes32 public constant MESSAGE_TYPEHASH =
-    keccak256("Context(address contract,string name,string version,string realm)");
+  
+  bytes32 public constant CTX_MESSAGE_TYPEHASH =
+    keccak256("Context(address contractId,string name,string version,string realm)");
+  
+  bytes32 public constant PREDICT_CTX_MESSAGE_TYPEHASH =
+    keccak256("PredictContext(address base,string name,string version,string realm,bytes32 bytesHash)");
 
   function registerAccessControlManagerContext(
     AccessControlStorage.DataMaps storage data,
@@ -39,7 +43,7 @@ library LContextManagement {
   ) external returns (bytes32, address) {
     require(!IProxy(address(this)).isSafeMode(), "SafeMode: Call Rejected");
 
-    bytes32 structHash = _getMessageHash(rc.smca, rc.name, rc.version, rc.realm);
+    bytes32 structHash = _getContextMessageHash(rc.contractId, rc.name, rc.version, rc.realm);
     bytes32 msgDigest = _hashTypedDataV4(structHash);
     (address msgSigner, LECDSA.RecoverError recoverErr) = LECDSA.tryRecover(msgDigest, signature);
 
@@ -59,16 +63,53 @@ library LContextManagement {
       ),
       "RegisterContext Access Denied"
     );
-    return (_registerContext(data, rc.smca, rc.realm, rc.status, rrc), msgSigner);
+    return (_registerContext(data, rc.contractId, rc.realm, rc.status, rrc), msgSigner);
   }
 
-  function _getMessageHash(
-    address smca,
+   function registerPredictContext(
+      AccessControlStorage.DataMaps storage data,
+      bytes memory signature,
+      IContextManagement.RequestPredictContext calldata rpc,
+      IContextManagement.RequestRegisterContext[] calldata rrc
+  ) external returns (bytes32) {
+        require(!IProxy(address(this)).isSafeMode(), "SafeMode: Call Rejected");
+
+    bytes32 structHash = _getPredictContextMessageHash(rpc.base, rpc.name, rpc.version, rpc.realm, rpc.bytesHash);
+    bytes32 msgDigest = _hashTypedDataV4(structHash);
+    (address msgSigner, LECDSA.RecoverError recoverErr) = LECDSA.tryRecover(msgDigest, signature);
+
+    require(recoverErr == LECDSA.RecoverError.NoError, "Illegal ECDASA Signature");
+
+    require(
+      LAccessControl.hasAccess(
+        data,
+        LContextUtils.generateCtx(address(this)),
+        msgSigner,
+        IContextManagement.registerContext.selector
+      ),
+      "RegisterPredictContext Access Denied"
+    );
+    return (_registerPredictContext(data, rpc.base, rpc.realm, rpc.status, rrc), msgSigner);
+  }
+
+
+  function _getContextMessageHash(
+    address contractId,
     bytes32 name,
     bytes32 version,
     bytes32 realm
   ) internal pure returns (bytes32) {
-    return keccak256(abi.encode(MESSAGE_TYPEHASH, smca, name, version, realm));
+    return keccak256(abi.encode(CTX_MESSAGE_TYPEHASH, contractId, name, version, realm));
+  }
+
+  function _getPredictContextMessageHash(
+    address base,
+    bytes32 name,
+    bytes32 version,
+    bytes32 realm,
+    bytes32 bytesHash
+  ) internal pure returns (bytes32) {
+    return keccak256(abi.encode(PREDICT_CTX_MESSAGE_TYPEHASH, base, name, version, realm, bytesHash));
   }
 
   function _hashTypedDataV4(bytes32 structHash) internal view returns (bytes32) {
@@ -97,11 +138,47 @@ library LContextManagement {
   ) private returns (bytes32) {
     require(bytes(data.realmMap[realm].name).length != 0, "Realm Not Found");
     bytes32 ctx = LContextUtils.generateCtx(newContract);
-    require(data.ctxMap[ctx].smca == address(0), "Context Already Registered");
+    require(data.ctxMap[ctx].contractId == address(0), "Context Already Registered");
     data.realmMap[realm].ctxSet.add(ctx);
     AccessControlStorage.Context storage newContext = data.ctxMap[ctx];
     newContext.realm = realm;
-    newContext.smca = newContract;
+    newContext.contractId = newContract;
+    newContext.isEnabled = status;
+
+    for (uint256 i = 0; i < rrc.length; i++) {
+      require(bytes(data.roleMap[rrc[i].role].name).length != 0, "Role Not Found");
+      for (uint256 j = 0; j < rrc[i].funcSelectors.length; j++) {
+        newContext.resources[rrc[i].funcSelectors[j]].role = rrc[i].role;
+        newContext.resources[rrc[i].funcSelectors[j]].status = rrc[i].isEnabled
+          ? AccessControlStorage.Status.ENABLED
+          : AccessControlStorage.Status.DISABLED;
+        newContext.funcSet.add(rrc[i].funcSelectors[j]);
+      }
+    }
+
+    return ctx;
+  }
+
+  function _registerPredictContext(
+    AccessControlStorage.DataMaps storage data,
+    address base,
+    bytes32 realm,
+    bytes32 salt,
+    bytes32 bytesHash,
+    bool status,
+    IContextManagement.RequestRegisterContext[] calldata rrc
+  ) private returns (bytes32) {
+    require(bytes(data.realmMap[realm].name).length != 0, "Realm Not Found");
+
+    // TODO must be check
+    address predictedContractId = address(uint160(uint(keccak256(abi.encodePacked(bytes1(0xff), base, salt, bytesHash)))));
+
+    bytes32 ctx = LContextUtils.generateCtx(predictedContractId);
+    require(data.ctxMap[ctx].contractId == address(0), "Context Already Registered");
+    data.realmMap[realm].ctxSet.add(ctx);
+    AccessControlStorage.Context storage newContext = data.ctxMap[ctx];
+    newContext.realm = realm;
+    newContext.contractId = predictedContractId;
     newContext.isEnabled = status;
 
     for (uint256 i = 0; i < rrc.length; i++) {
@@ -127,7 +204,7 @@ library LContextManagement {
   ) external returns (address, address) {
     require(!IProxy(address(this)).isSafeMode(), "SafeMode: Call Rejected");
 
-    bytes32 structHash = _getMessageHash(rc.smca, rc.name, rc.version, rc.realm);
+    bytes32 structHash = _getContextMessageHash(rc.contractId, rc.name, rc.version, rc.realm);
     bytes32 msgDigest = _hashTypedDataV4(structHash);
     (address msgSigner, LECDSA.RecoverError recoverErr) = LECDSA.tryRecover(msgDigest, signature);
     require(recoverErr == LECDSA.RecoverError.NoError, "Illegal ECDASA Signature");
@@ -150,9 +227,9 @@ library LContextManagement {
     bool status,
     IContextManagement.RequestUpdateContext[] calldata ruc
   ) internal returns (address) {
-    address smca = data.ctxMap[ctx].smca;
-    require(smca != address(0), "Context Not Found");
-    require(smca == msg.sender, "Update Context Forbidden");
+    address contractId = data.ctxMap[ctx].contractId;
+    require(contractId != address(0), "Context Not Found");
+    require(contractId == msg.sender, "Update Context Forbidden");
     require(bytes(data.realmMap[realm].name).length != 0, "Realm Not Found");
     data.ctxMap[ctx].isEnabled = status;
 
@@ -184,7 +261,7 @@ library LContextManagement {
         }
       }
     }
-    return smca;
+    return contractId;
   }
 
   function addContextFuncRole(
@@ -203,7 +280,7 @@ library LContextManagement {
       ),
       "AddContextFuncRole Access Denied"
     );
-    require(data.ctxMap[ctx].smca != address(0), "Context Not Found");
+    require(data.ctxMap[ctx].contractId != address(0), "Context Not Found");
     require(bytes(data.roleMap[role].name).length != 0, "Role Not Found");
     require(!data.ctxMap[ctx].funcSet.contains(functionSelector), "FunctionSelector Already Exists");
     data.ctxMap[ctx].resources[functionSelector].role = role;
@@ -229,7 +306,7 @@ library LContextManagement {
     );
 
     require(LContextUtils.generateCtx(address(this)) != ctx, "Illegal Remove ACL Context");
-    require(data.ctxMap[ctx].smca != address(0), "Context Not Found");
+    require(data.ctxMap[ctx].contractId != address(0), "Context Not Found");
     require(data.ctxMap[ctx].funcSet.contains(functionSelector), "FunctionSelector Not Found");
     delete data.ctxMap[ctx].resources[functionSelector].role;
     delete data.ctxMap[ctx].resources[functionSelector].status;
@@ -255,7 +332,7 @@ library LContextManagement {
     );
 
     require(LContextUtils.generateCtx(address(this)) != ctx, "Illegal Grant ACL Context");
-    require(data.ctxMap[ctx].smca != address(0), "Context Not Found");
+    require(data.ctxMap[ctx].contractId != address(0), "Context Not Found");
     require(bytes(data.roleMap[role].name).length != 0, "Role Not Found");
     require(data.ctxMap[ctx].funcSet.contains(functionSelector), "FunctionSelector Not Found");
     data.ctxMap[ctx].resources[functionSelector].role = role;
@@ -281,7 +358,7 @@ library LContextManagement {
     );
 
     require(LContextUtils.generateCtx(address(this)) != ctx, "Illegal Revoke ACL Context");
-    require(data.ctxMap[ctx].smca != address(0), "Context Not Found");
+    require(data.ctxMap[ctx].contractId != address(0), "Context Not Found");
     require(bytes(data.roleMap[role].name).length != 0, "Role Not Found");
     require(data.ctxMap[ctx].funcSet.contains(functionSelector), "FunctionSelector Not Found");
     data.ctxMap[ctx].resources[functionSelector].status = AccessControlStorage.Status.DISABLED;
@@ -305,7 +382,7 @@ library LContextManagement {
     );
 
     require(LContextUtils.generateCtx(address(this)) != ctx, "Illegal Change ACL Context Status");
-    require(data.ctxMap[ctx].smca != address(0), "Context Not Found");
+    require(data.ctxMap[ctx].contractId != address(0), "Context Not Found");
     data.ctxMap[ctx].isEnabled = status;
     return (true, data.ctxMap[ctx].realm);
   }
@@ -326,7 +403,7 @@ library LContextManagement {
       "SetContextRealm Access Denied"
     );
     require(LContextUtils.generateCtx(address(this)) != ctx, "Illegal Change ACL Context Realm");
-    require(data.ctxMap[ctx].smca != address(0), "Context Not Found");
+    require(data.ctxMap[ctx].contractId != address(0), "Context Not Found");
     require(bytes(data.realmMap[realm].name).length != 0, "Realm Not Found");
     require(data.ctxMap[ctx].realm != realm, "Illegal Realm Duplication");
     bytes32 oldRealm = data.ctxMap[ctx].realm;
@@ -342,7 +419,7 @@ library LContextManagement {
     bytes4 functionSelector
   ) external view returns (bool) {
     return
-      data.ctxMap[ctx].smca != address(0) &&
+      data.ctxMap[ctx].contractId != address(0) &&
       data.ctxMap[ctx].resources[functionSelector].role == role &&
       data.ctxMap[ctx].resources[functionSelector].status == AccessControlStorage.Status.ENABLED;
   }
@@ -352,17 +429,17 @@ library LContextManagement {
     view
     returns (IContextManagement.ResponseContext memory)
   {
-    require(data.ctxMap[ctx].smca != address(0), "Context Not Found");
-    bytes32 name = IProxy(data.ctxMap[ctx].smca).contractName();
-    bytes32 version = IProxy(data.ctxMap[ctx].smca).contractVersion();
-    bool isSafeMode = IProxy(data.ctxMap[ctx].smca).isSafeMode();
-    bool isUpgradable = IProxy(data.ctxMap[ctx].smca).isUpgradable();
+    require(data.ctxMap[ctx].contractId != address(0), "Context Not Found");
+    bytes32 name = IProxy(data.ctxMap[ctx].contractId).contractName();
+    bytes32 version = IProxy(data.ctxMap[ctx].contractId).contractVersion();
+    bool isSafeMode = IProxy(data.ctxMap[ctx].contractId).isSafeMode();
+    bool isUpgradable = IProxy(data.ctxMap[ctx].contractId).isUpgradable();
 
     return
       IContextManagement.ResponseContext({
         name: name,
         version: version,
-        smca: data.ctxMap[ctx].smca,
+        contractId: data.ctxMap[ctx].contractId,
         realm: data.ctxMap[ctx].realm,
         isSafeMode: isSafeMode,
         isUpgradable: isUpgradable
@@ -374,7 +451,7 @@ library LContextManagement {
     view
     returns (bytes4[] memory)
   {
-    require(data.ctxMap[ctx].smca != address(0), "Context Not Found");
+    require(data.ctxMap[ctx].contractId != address(0), "Context Not Found");
     bytes4[] memory funcs = new bytes4[](data.ctxMap[ctx].funcSet.length());
     for (uint32 i = 0; i < data.ctxMap[ctx].funcSet.length(); i++) {
       funcs[i] = bytes4(data.ctxMap[ctx].funcSet.at(i));
