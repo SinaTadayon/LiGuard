@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.15 <0.9.0;
+pragma solidity 0.8.17;
 
 import "./IAccessControl.sol";
 import "./AccessControlStorage.sol";
@@ -94,20 +94,36 @@ contract AccessControlManager is
     return LAccessControl.isLivelyAssetManager(_dataMaps, account);
   }
 
-  function isLivelyDao(address account) external view returns (bool) {
-    return LAccessControl.isLivelyDao(_dataMaps, account);
+  function isLivelyAssetAdmin(address account) external view returns (bool) {
+    return LAccessControl.isLivelyAssetAdmin(_dataMaps, account);
   }
 
-  function isLivelyDaoExecutor(address account) external view returns (bool) {
-    return LAccessControl.isLivelyDaoExecutor(_dataMaps, account);
+  function isLivelyCommunityDao(address account) external view returns (bool) {
+    return LAccessControl.isLivelyCommunityDao(_dataMaps, account);
+  }
+
+  function isLivelyCommunityDaoExecutor(address account) external view returns (bool) {
+    return LAccessControl.isLivelyCommunityDaoExecutor(_dataMaps, account);
   }
 
   function isLivelyGeneralGroup(bytes32 role) external view returns (bool) {
     return LAccessControl.isLivelyGeneralGroup(_dataMaps, role);
   }
 
+  function isLivelyDaoGroup(bytes32 role) external view returns (bool) {
+    return LAccessControl.isLivelyDaoGroup(_dataMaps, role);
+  }
+
+  function isLivelyAssetGroup(bytes32 role) external view returns (bool) {
+    return LAccessControl.isLivelyAssetGroup(_dataMaps, role);
+  }
+
   function isLivelyGeneralRealm(bytes32 context) external view returns (bool) {
     return LAccessControl.isLivelyGeneralRealm(_dataMaps, context);
+  }
+
+  function isLivelyAssetRealm(bytes32 context) external view returns (bool) {
+    return LAccessControl.isLivelyAssetRealm(_dataMaps, context);
   }
 
   function isContextSafeMode(bytes32 context) external view returns (bool) {
@@ -366,8 +382,20 @@ contract AccessControlManager is
     return LAccessControl.LIVELY_GENERAL_REALM;
   }
 
+  function livelyAssetRealmRole() external pure returns (bytes32) {
+    return LAccessControl.LIVELY_ASSET_REALM;
+  }
+
   function livelyGeneralGroupRole() external pure returns (bytes32) {
     return LAccessControl.LIVELY_GENERAL_GROUP;
+  }
+
+  function livelyDaoGroupRole() external pure returns (bytes32) {
+    return LAccessControl.LIVELY_DAO_GROUP;
+  }
+
+  function livelyAssetGroupRole() external pure returns (bytes32) {
+    return LAccessControl.LIVELY_ASSET_GROUP;
   }
 
   function livelySystemAdminRole() external pure returns (bytes32) {
@@ -382,12 +410,16 @@ contract AccessControlManager is
     return LAccessControl.LIVELY_ASSET_MANAGER_ROLE;
   }
 
-  function livelyDaoRole() external pure returns (bytes32) {
-    return LAccessControl.LIVELY_DAO_ROLE;
+  function livelyAssetAdminRole() external pure returns (bytes32) {
+    return LAccessControl.LIVELY_ASSET_ADMIN_ROLE;
   }
 
-  function livelyDaoExecutorRole() external pure returns (bytes32) {
-    return LAccessControl.LIVELY_DAO_EXECUTOR_ROLE;
+  function livelyCommunityDaoRole() external pure returns (bytes32) {
+    return LAccessControl.LIVELY_COMMUNITY_DAO_ROLE;
+  }
+
+  function livelyCommunityDaoExecutorRole() external pure returns (bytes32) {
+    return LAccessControl.LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE;
   }
 
   function livelyAnonymousRole() external pure returns (bytes32) {

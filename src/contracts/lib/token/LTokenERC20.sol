@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.15 <0.9.0;
+pragma solidity 0.8.17;
 
 import "../../token/lively/IERC20.sol";
 import "../../token/lively/IERC20Extra.sol";
@@ -71,7 +71,7 @@ library LTokenERC20 {
     rrc[3].funcSelectors[0] = IERC20Lock.lockToken.selector;  
     rrc[3].funcSelectors[1] = IERC20Lock.batchLockToken.selector;  
     
-    rrc[4].role = IAccessControl(IProxy(address(this)).accessControlManager()).livelyDaoExecutorRole();
+    rrc[4].role = IAccessControl(IProxy(address(this)).accessControlManager()).livelyCommunityDaoExecutorRole();
     rrc[4].isEnabled = true;
     rrc[4].funcSelectors = new bytes4[](2);
     rrc[4].funcSelectors[0] = IERC20Lock.unlockToken.selector;

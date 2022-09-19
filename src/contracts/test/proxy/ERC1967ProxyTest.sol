@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity >=0.8.15 <0.9.0;
+pragma solidity 0.8.17;
 
 import "../../proxy/BaseProxy.sol";
 import "./ERC1967UpgradeTest.sol";

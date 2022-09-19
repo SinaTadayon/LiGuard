@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.15;
+pragma solidity 0.8.17;
 
 /**
  * @dev This contract provides a fallback function that relay all calls to another contract using the EVM

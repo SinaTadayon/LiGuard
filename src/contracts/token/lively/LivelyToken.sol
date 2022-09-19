@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.15 <0.9.0;
+pragma solidity 0.8.17;
 
 import "./IERC20.sol";
 import "./IERC20Extra.sol";
@@ -156,7 +156,7 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
     uint256 totalAmount = 0;
     for (uint256 i = 0; i < request.length; i++) {
       totalAmount += request[i].amount;
-      _transfer(_msgSender(), request[i].recipient, request[i].amount);
+      _transfer(_msgSender(), request[i].to, request[i].amount);
     }
 
     emit BatchTransfer(_msgSender(), totalAmount);
@@ -167,9 +167,9 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
     _policyInterceptor(this.batchTransferFrom.selector, address(0), true, false);
     uint256 totalAmount = 0;
     for (uint256 i = 0; i < request.length; i++) {
-      require(!_data.pausedList.contains(request[i].source), "ERC20Pause: Account Suspended");
+      require(!_data.pausedList.contains(request[i].from), "ERC20Pause: Account Suspended");
       totalAmount += request[i].amount;
-      _transferFrom(request[i].source, request[i].recipient, request[i].amount);
+      _transferFrom(request[i].from, request[i].to, request[i].amount);
     }
 
     emit BatchTransferFrom(_msgSender(), totalAmount);
@@ -443,6 +443,10 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
     return lockAmount;
   }
 
+  function _allowance(address owner, address spender) internal view returns (uint256) {
+    return _data.allowances[owner][spender];
+  }
+
   function _policyInterceptor(bytes4 funcSelector, address account, bool isCheckingTokenPaused, bool isCheckingAccountPaused) private safeModeCheck aclCheck(funcSelector) {
     if(isCheckingTokenPaused) {
       require(!_isPaused, "ERC20Pause: Call Rejected");
@@ -451,9 +455,5 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
     if (isCheckingAccountPaused) {
       require(!_data.pausedList.contains(account), "ERC20Pause: Account Suspended");
     }
-  }
-
-  function _allowance(address owner, address spender) internal view returns (uint256) {
-    return _data.allowances[owner][spender];
   }
 }

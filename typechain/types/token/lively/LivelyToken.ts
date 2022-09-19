@@ -57,18 +57,18 @@ export declare namespace IERC20Lock {
 
 export declare namespace IERC20Extra {
   export type BatchTransferRequestStruct = {
-    recipient: PromiseOrValue<string>;
+    to: PromiseOrValue<string>;
     amount: PromiseOrValue<BigNumberish>;
   };
 
   export type BatchTransferRequestStructOutput = [string, BigNumber] & {
-    recipient: string;
+    to: string;
     amount: BigNumber;
   };
 
   export type BatchTransferFromRequestStruct = {
-    source: PromiseOrValue<string>;
-    recipient: PromiseOrValue<string>;
+    from: PromiseOrValue<string>;
+    to: PromiseOrValue<string>;
     amount: PromiseOrValue<BigNumberish>;
   };
 
@@ -76,7 +76,7 @@ export declare namespace IERC20Extra {
     string,
     string,
     BigNumber
-  ] & { source: string; recipient: string; amount: BigNumber };
+  ] & { from: string; to: string; amount: BigNumber };
 
   export type BatchUpdateTaxWhitelistRequestStruct = {
     account: PromiseOrValue<string>;
@@ -1319,7 +1319,7 @@ export interface LivelyTokenInterface extends utils.Interface {
 export interface ApprovalEventObject {
   owner: string;
   spender: string;
-  amount: BigNumber;
+  value: BigNumber;
 }
 export type ApprovalEvent = TypedEvent<
   [string, string, BigNumber],
@@ -1564,9 +1564,9 @@ export type TokenUnlockedEvent = TypedEvent<
 export type TokenUnlockedEventFilter = TypedEventFilter<TokenUnlockedEvent>;
 
 export interface TransferEventObject {
-  sender: string;
-  recipient: string;
-  amount: BigNumber;
+  from: string;
+  to: string;
+  value: BigNumber;
 }
 export type TransferEvent = TypedEvent<
   [string, string, BigNumber],
@@ -3131,12 +3131,12 @@ export interface LivelyToken extends BaseContract {
     "Approval(address,address,uint256)"(
       owner?: PromiseOrValue<string> | null,
       spender?: PromiseOrValue<string> | null,
-      amount?: null
+      value?: null
     ): ApprovalEventFilter;
     Approval(
       owner?: PromiseOrValue<string> | null,
       spender?: PromiseOrValue<string> | null,
-      amount?: null
+      value?: null
     ): ApprovalEventFilter;
 
     "ApprovalDecreased(address,address,uint256)"(
@@ -3357,14 +3357,14 @@ export interface LivelyToken extends BaseContract {
     ): TokenUnlockedEventFilter;
 
     "Transfer(address,address,uint256)"(
-      sender?: PromiseOrValue<string> | null,
-      recipient?: PromiseOrValue<string> | null,
-      amount?: null
+      from?: PromiseOrValue<string> | null,
+      to?: PromiseOrValue<string> | null,
+      value?: null
     ): TransferEventFilter;
     Transfer(
-      sender?: PromiseOrValue<string> | null,
-      recipient?: PromiseOrValue<string> | null,
-      amount?: null
+      from?: PromiseOrValue<string> | null,
+      to?: PromiseOrValue<string> | null,
+      value?: null
     ): TransferEventFilter;
 
     "TransferFrom(address,address,address,uint256)"(

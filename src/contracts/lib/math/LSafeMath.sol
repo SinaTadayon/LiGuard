@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.15 <0.9.0;
+pragma solidity 0.8.17;
 
 // CAUTION
 // This version of SafeMath should only be used with Solidity 0.8 or later,
@@ -14,8 +14,6 @@ pragma solidity >=0.8.15 <0.9.0;
 library LSafeMath {
   /**
    * @dev Returns the addition of two unsigned integers, with an overflow flag.
-   *
-   * _Available since v3.4._
    */
   function tryAdd(uint256 a, uint256 b) internal pure returns (bool, uint256) {
     unchecked {
@@ -27,8 +25,6 @@ library LSafeMath {
 
   /**
    * @dev Returns the subtraction of two unsigned integers, with an overflow flag.
-   *
-   * _Available since v3.4._
    */
   function trySub(uint256 a, uint256 b) internal pure returns (bool, uint256) {
     unchecked {
@@ -39,8 +35,6 @@ library LSafeMath {
 
   /**
    * @dev Returns the multiplication of two unsigned integers, with an overflow flag.
-   *
-   * _Available since v3.4._
    */
   function tryMul(uint256 a, uint256 b) internal pure returns (bool, uint256) {
     unchecked {
@@ -56,8 +50,6 @@ library LSafeMath {
 
   /**
    * @dev Returns the division of two unsigned integers, with a division by zero flag.
-   *
-   * _Available since v3.4._
    */
   function tryDiv(uint256 a, uint256 b) internal pure returns (bool, uint256) {
     unchecked {
@@ -68,8 +60,6 @@ library LSafeMath {
 
   /**
    * @dev Returns the remainder of dividing two unsigned integers, with a division by zero flag.
-   *
-   * _Available since v3.4._
    */
   function tryMod(uint256 a, uint256 b) internal pure returns (bool, uint256) {
     unchecked {

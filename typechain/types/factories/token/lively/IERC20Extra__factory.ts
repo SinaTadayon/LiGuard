@@ -241,7 +241,7 @@ const _abi = [
         components: [
           {
             internalType: "address",
-            name: "recipient",
+            name: "to",
             type: "address",
           },
           {
@@ -272,12 +272,12 @@ const _abi = [
         components: [
           {
             internalType: "address",
-            name: "source",
+            name: "from",
             type: "address",
           },
           {
             internalType: "address",
-            name: "recipient",
+            name: "to",
             type: "address",
           },
           {
@@ -360,7 +360,7 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "value",
+        name: "amount",
         type: "uint256",
       },
     ],
@@ -384,7 +384,7 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "value",
+        name: "amount",
         type: "uint256",
       },
     ],

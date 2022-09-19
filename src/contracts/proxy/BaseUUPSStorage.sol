@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.15 <0.9.0;
+pragma solidity 0.8.17;
 
 /**
  * @dev This contract implements an upgradeable proxy. It is upgradeable because calls are delegated to an

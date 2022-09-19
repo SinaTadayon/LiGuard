@@ -25,7 +25,7 @@ const _abi = [
       {
         indexed: false,
         internalType: "uint256",
-        name: "amount",
+        name: "value",
         type: "uint256",
       },
     ],
@@ -38,19 +38,19 @@ const _abi = [
       {
         indexed: true,
         internalType: "address",
-        name: "sender",
+        name: "from",
         type: "address",
       },
       {
         indexed: true,
         internalType: "address",
-        name: "recipient",
+        name: "to",
         type: "address",
       },
       {
         indexed: false,
         internalType: "uint256",
-        name: "amount",
+        name: "value",
         type: "uint256",
       },
     ],
@@ -180,7 +180,7 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "recipient",
+        name: "to",
         type: "address",
       },
       {
@@ -204,12 +204,12 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "source",
+        name: "from",
         type: "address",
       },
       {
         internalType: "address",
-        name: "recipient",
+        name: "to",
         type: "address",
       },
       {

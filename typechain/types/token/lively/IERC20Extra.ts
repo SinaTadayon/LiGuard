@@ -29,18 +29,18 @@ import type {
 
 export declare namespace IERC20Extra {
   export type BatchTransferRequestStruct = {
-    recipient: PromiseOrValue<string>;
+    to: PromiseOrValue<string>;
     amount: PromiseOrValue<BigNumberish>;
   };
 
   export type BatchTransferRequestStructOutput = [string, BigNumber] & {
-    recipient: string;
+    to: string;
     amount: BigNumber;
   };
 
   export type BatchTransferFromRequestStruct = {
-    source: PromiseOrValue<string>;
-    recipient: PromiseOrValue<string>;
+    from: PromiseOrValue<string>;
+    to: PromiseOrValue<string>;
     amount: PromiseOrValue<BigNumberish>;
   };
 
@@ -48,7 +48,7 @@ export declare namespace IERC20Extra {
     string,
     string,
     BigNumber
-  ] & { source: string; recipient: string; amount: BigNumber };
+  ] & { from: string; to: string; amount: BigNumber };
 
   export type BatchUpdateTaxWhitelistRequestStruct = {
     account: PromiseOrValue<string>;
@@ -558,25 +558,25 @@ export interface IERC20Extra extends BaseContract {
 
     decreaseAllowance(
       spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "decreaseAllowance(address,uint256)"(
       spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     increaseAllowance(
       spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "increaseAllowance(address,uint256)"(
       spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -699,25 +699,25 @@ export interface IERC20Extra extends BaseContract {
 
   decreaseAllowance(
     spender: PromiseOrValue<string>,
-    value: PromiseOrValue<BigNumberish>,
+    amount: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "decreaseAllowance(address,uint256)"(
     spender: PromiseOrValue<string>,
-    value: PromiseOrValue<BigNumberish>,
+    amount: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   increaseAllowance(
     spender: PromiseOrValue<string>,
-    value: PromiseOrValue<BigNumberish>,
+    amount: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "increaseAllowance(address,uint256)"(
     spender: PromiseOrValue<string>,
-    value: PromiseOrValue<BigNumberish>,
+    amount: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -840,25 +840,25 @@ export interface IERC20Extra extends BaseContract {
 
     decreaseAllowance(
       spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     "decreaseAllowance(address,uint256)"(
       spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     increaseAllowance(
       spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     "increaseAllowance(address,uint256)"(
       spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1083,25 +1083,25 @@ export interface IERC20Extra extends BaseContract {
 
     decreaseAllowance(
       spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "decreaseAllowance(address,uint256)"(
       spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     increaseAllowance(
       spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "increaseAllowance(address,uint256)"(
       spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1225,25 +1225,25 @@ export interface IERC20Extra extends BaseContract {
 
     decreaseAllowance(
       spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "decreaseAllowance(address,uint256)"(
       spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     increaseAllowance(
       spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "increaseAllowance(address,uint256)"(
       spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
+      amount: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

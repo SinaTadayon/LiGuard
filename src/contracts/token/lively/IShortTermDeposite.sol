@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.15 <0.9.0;
+pragma solidity 0.8.17;
 
 /**
  * @dev Extension of {ERC20} that allows caller to freeze to token accounts

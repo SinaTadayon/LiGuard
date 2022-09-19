@@ -54,7 +54,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Livelyplanet/lively-core-onchain.git"
+    "url": "git+https://github.com/livelyverse/lively-core-onchain.git"
   },
   "keywords": [],
   "author": "Sina Tadayon",
@@ -62,7 +62,7 @@
   "main": "./export/types/index.js",
   "types": "./export/types/index.d.ts",
   "bugs": {
-    "url": "https://github.com/Livelyplanet/lively-core-onchain/issues"
+    "url": "https://github.com/livelyverse/lively-core-onchain/issues"
   },
   "engines": {
     "node": ">=16.15.0"
@@ -114,9 +114,9 @@
     "typescript": "^4.7.4"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.7.0",
-    "@openzeppelin/contracts-upgradeable": "^4.7.0",
-    "@openzeppelin/test-helpers": "^0.5.15",
-    "@remix-project/remixd": "^0.6.2"
+    "@openzeppelin/contracts": "^4.7.3",
+    "@openzeppelin/contracts-upgradeable": "^4.7.3",
+    "@openzeppelin/test-helpers": "^0.5.16",
+    "@remix-project/remixd": "^0.6.6"
   }
 }

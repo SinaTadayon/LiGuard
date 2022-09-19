@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.15 <0.9.0;
+pragma solidity 0.8.17;
 
 interface IGroupManagement {
   event GroupRegistered(bytes32 indexed group, address indexed sender, string name, bool status);

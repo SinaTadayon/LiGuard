@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.15 <0.9.0;
+pragma solidity 0.8.17;
 
 import "../../acl/AccessControlStorage.sol";
 import "../../acl/IRoleManagement.sol";
@@ -61,6 +61,10 @@ library LRoleManagement {
 
     if(role == LAccessControl.LIVELY_DAO_EXECUTOR_ROLE) {      
       require(account.code.length > 0 && data.roleMap[role].accountSet.length() == uint256(0), "Illegal Grant Dao Executor Role");
+    }
+
+    if(role == LAccessControl.LIVELY_ASSET_MANAGER_ROLE) {      
+      require(account.code.length > 0 && data.roleMap[role].accountSet.length() == uint256(0), "Illegal Grant Asset Manager Role");
     }
 
     require(role != LAccessControl.LIVELY_ANONYMOUS_ROLE, "Illegal Grant Anonymous Role");

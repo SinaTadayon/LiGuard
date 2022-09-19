@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.15 <0.9.0;
+pragma solidity 0.8.17;
 
 interface IERC20Extra {
   struct BatchTransferRequest {
@@ -54,7 +54,7 @@ interface IERC20Extra {
 
   function batchUpdateTaxWhitelist(BatchUpdateTaxWhitelistRequest[] calldata request) external;
 
-   function permit(
+  function permit(
     address owner,
     address spender,
     uint256 value,
