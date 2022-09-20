@@ -12,17 +12,17 @@ interface IAccessControl {
     bytes4 signature
   ) external view returns (bool);
 
-  function isLivelySystemAdmin(address account) external view returns (bool);
+  function isLivelySystemAdminRole(address account) external view returns (bool);
 
-  function isLivelyAdmin(address account) external view returns (bool);
+  function isLivelyAdminRole(address account) external view returns (bool);
 
-  function isLivelyAssetManager(address account) external view returns (bool);
+  function isLivelyAssetManagerRole(address account) external view returns (bool);
 
-  function isLivelyAssetAdmin(address account) external view returns (bool);
+  function isLivelyAssetAdminRole(address account) external view returns (bool);
 
-  function isLivelyCommunityDao(address account) external view returns (bool);
+  function isLivelyCommunityDaoRole(address account) external view returns (bool);
 
-  function isLivelyCommunityDaoExecutor(address account) external view returns (bool);
+  function isLivelyCommunityDaoExecutorRole(address account) external view returns (bool);
 
   function isLivelyGeneralGroup(bytes32 role) external view returns (bool);
 
@@ -56,19 +56,19 @@ interface IAccessControl {
 
   function isRealmExists(bytes32 realm) external view returns (bool);
 
-  function isRealmEnabled(bytes32 realm) external view returns (bool);
+  function isRealmEnabled(bytes32 realm) external view returns (bool); 
 
   function isRealmUpgradable(bytes32 realm) external view returns (bool);
 
-  function livelyGeneralRealmRole() external pure returns (bytes32);
+  function livelyGeneralRealm() external pure returns (bytes32);
 
-  function livelyAssetRealmRole() external pure returns (bytes32);
+  function livelyAssetRealm() external pure returns (bytes32);
 
-  function livelyGeneralGroupRole() external pure returns (bytes32);
+  function livelyGeneralGroup() external pure returns (bytes32);
 
-  function livelyDaoGroupRole() external pure returns (bytes32);
+  function livelyDaoGroup() external pure returns (bytes32);
 
-  function livelyAssetGroupRole() external pure returns (bytes32);
+  function livelyAssetGroup() external pure returns (bytes32);
 
   function livelySystemAdminRole() external pure returns (bytes32);
 

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import "./IAssetManagerERC20.sol";
-import "./IAssetRegistry.sol";
+import "./IERC20Manager.sol";
+import "./IAssetManager.sol";
 import "./AssetManagerStorage.sol";
 import "./ERC20/IAssetERC20.sol";
 import "../lively/IERC20.sol";
@@ -16,7 +16,7 @@ import "../../acl/IContextManagement.sol";
 
 import "hardhat/console.sol";
 
-contract AssetManager is AssetManagerStorage, BaseUUPSProxy, IAssetManagerERC20, IAssetRegistry {
+contract AssetManager is AssetManagerStorage, BaseUUPSProxy, IERC20Manager, IAssetManager {
 
   using LAddress for address;
 
@@ -65,90 +65,90 @@ contract AssetManager is AssetManagerStorage, BaseUUPSProxy, IAssetManagerERC20,
 
     rrc[0].role = IAccessControl(IProxy(address(this)).accessControlManager()).livelyAdminRole();
     rrc[0].isEnabled = true;
-    rrc[0].funcSelectors = new bytes4[](1);
+    rrc[0].funcSelectors = new bytes4[](2);
     rrc[0].funcSelectors[0] = IProxy.setUpgradeStatus.selector;
+    rrc[0].funcSelectors[1] = IProxy.setSafeMode.selector;
 
     rrc[1].role = IAccessControl(IProxy(address(this)).accessControlManager()).livelySystemAdminRole();
     rrc[1].isEnabled = true;
-    rrc[1].funcSelectors = new bytes4[](3);
+    rrc[1].funcSelectors = new bytes4[](2);
     rrc[1].funcSelectors[0] = IProxy.setLocalAdmin.selector;
-    rrc[1].funcSelectors[1] = IProxy.setSafeMode.selector;
-    rrc[1].funcSelectors[2] = IProxy.upgradeTo.selector;
+    rrc[1].funcSelectors[1] = IProxy.upgradeTo.selector;
 
     rrc[2].role = IAccessControl(IProxy(address(this)).accessControlManager()).livelyAssetAdminRole();
     rrc[2].isEnabled = true;
     rrc[2].funcSelectors = new bytes4[](19);
-    rrc[2].funcSelectors[0] = IAssetManagerERC20.assetLock.selector;
-    rrc[2].funcSelectors[1] = IAssetManagerERC20.assetBatchLock.selector;
-    rrc[2].funcSelectors[2] = IAssetManagerERC20.assetTransfer.selector;
-    rrc[2].funcSelectors[3] = IAssetManagerERC20.assetBatchTransfer.selector;
-    rrc[2].funcSelectors[4] = IAssetManagerERC20.assetTransferFrom.selector;
-    rrc[2].funcSelectors[5] = IAssetManagerERC20.assetBatchTransferFrom.selector;
-    rrc[2].funcSelectors[6] = IAssetManagerERC20.assetApprove.selector;
-    rrc[2].funcSelectors[7] = IAssetManagerERC20.assetIncreaseAllowance.selector;
-    rrc[2].funcSelectors[8] = IAssetManagerERC20.assetDecreaseAllowance.selector;
-    rrc[2].funcSelectors[9] = IAssetManagerERC20.assetPermit.selector;
-    rrc[2].funcSelectors[10] = IAssetRegistry.createAsset.selector;
-    rrc[2].funcSelectors[12] = IAssetRegistry.registerToken.selector;
-    rrc[2].funcSelectors[13] = IAssetRegistry.registerAsset.selector;
-    rrc[2].funcSelectors[14] = IAssetRegistry.removeAsset.selector;
-    rrc[2].funcSelectors[15] = IAssetRegistry.safeModeAsset.selector;
-    rrc[2].funcSelectors[16] = IAssetRegistry.safeModeToken.selector;
-    rrc[2].funcSelectors[17] = IAssetRegistry.safeModeAssetType.selector;
+    rrc[2].funcSelectors[0] = IERC20Manager.assetLock.selector;
+    rrc[2].funcSelectors[1] = IERC20Manager.assetBatchLock.selector;
+    rrc[2].funcSelectors[2] = IERC20Manager.assetTransfer.selector;
+    rrc[2].funcSelectors[3] = IERC20Manager.assetBatchTransfer.selector;
+    rrc[2].funcSelectors[4] = IERC20Manager.assetTransferFrom.selector;
+    rrc[2].funcSelectors[5] = IERC20Manager.assetBatchTransferFrom.selector;
+    rrc[2].funcSelectors[6] = IERC20Manager.assetApprove.selector;
+    rrc[2].funcSelectors[7] = IERC20Manager.assetIncreaseAllowance.selector;
+    rrc[2].funcSelectors[8] = IERC20Manager.assetDecreaseAllowance.selector;
+    rrc[2].funcSelectors[9] = IERC20Manager.assetPermit.selector;
+    rrc[2].funcSelectors[10] = IAssetManager.createAsset.selector;
+    rrc[2].funcSelectors[12] = IAssetManager.registerToken.selector;
+    rrc[2].funcSelectors[13] = IAssetManager.registerAsset.selector;
+    rrc[2].funcSelectors[14] = IAssetManager.removeAsset.selector;
+    rrc[2].funcSelectors[15] = IAssetManager.safeModeAsset.selector;
+    rrc[2].funcSelectors[16] = IAssetManager.safeModeToken.selector;
+    rrc[2].funcSelectors[17] = IAssetManager.safeModeAssetType.selector;
     rrc[2].funcSelectors[18] = bytes4(keccak256("withdrawBalance(address)"));
     
     IContextManagement.RequestContext memory rc = IContextManagement.RequestContext({
       name: domainName,
       version: domainVersion,
       realm: realm,
-      smca: address(this),
+      contractId: address(this),
       status: true
     });
 
     return (rc, rrc);
   }
 
-  function assetLock(address assetId, IERC20Lock.LockTokenRequest calldata lockRequest) external returns (bytes32) {
+  function erc20Lock(address tokenId, IERC20Lock.LockTokenRequest calldata lockRequest) external returns (bytes32) {
     _validationAndPolicyInterceptor(assetId, this.assetLock.selector);
     return IAssetERC20(assetId).tokenLock(lockRequest);
   }
 
-  function assetBatchLock(address assetId, IERC20Lock.LockTokenRequest[] calldata lockRequests) external returns (bytes32[] memory) {
+  function erc20BatchLock(address assetId, IERC20Lock.LockTokenRequest[] calldata lockRequests) external returns (bytes32[] memory) {
     _validationAndPolicyInterceptor(assetId, this.assetBatchLock.selector);
     return IAssetERC20(assetId).tokenBatchLock(lockRequests);
   }
 
-  function assetTransfer(address assetId, address to, uint256 amount) external returns (bool) {
+  function erc20Transfer(address assetId, address to, uint256 amount) external returns (bool) {
     _validationAndPolicyInterceptor(assetId, this.assetTransfer.selector);
     return IAssetERC20(assetId).tokenTransfer(to, amount);
   }
 
-  function assetBatchTransfer(address assetId, IERC20Extra.BatchTransferRequest[] calldata request) external returns (bool) {
+  function erc20BatchTransfer(address assetId, IERC20Extra.BatchTransferRequest[] calldata request) external returns (bool) {
     _validationAndPolicyInterceptor(assetId, this.assetBatchTransfer.selector);
     return IAssetERC20(assetId).tokenBatchTransfer(request);
   }
 
-  function assetTransferFrom(address assetId, address from, address to, uint256 amount) external returns (bool) {
+  function erc20TransferFrom(address assetId, address from, address to, uint256 amount) external returns (bool) {
     _validationAndPolicyInterceptor(assetId, this.assetTransferFrom.selector);
     return IAssetERC20(assetId).tokenTransferFrom(from, to, amount);
   }
 
-  function assetBatchTransferFrom(address assetId, IERC20Extra.BatchTransferFromRequest[] calldata request) external returns (bool) {
+  function erc20BatchTransferFrom(address assetId, IERC20Extra.BatchTransferFromRequest[] calldata request) external returns (bool) {
     _validationAndPolicyInterceptor(assetId, this.assetBatchTransferFrom.selector);
     return IAssetERC20(assetId).tokenBatchTransferFrom(request);
   }
 
-  function assetApprove(address assetId, address spender, uint256 amount) external returns (bool) {
+  function erc20Approve(address assetId, address spender, uint256 amount) external returns (bool) {
     _validationAndPolicyInterceptor(assetId, this.assetApprove.selector);
     return IAssetERC20(assetId).tokenApprove(spender, amount);
   }
 
-  function assetIncreaseAllowance(address assetId, address spender, uint256 amount) external returns (uint256) {
+  function erc20IncreaseAllowance(address assetId, address spender, uint256 amount) external returns (uint256) {
     _validationAndPolicyInterceptor(assetId, this.assetIncreaseAllowance.selector);
     return IAssetERC20(assetId).tokenIncreaseAllowance(spender, amount);
   }
 
-  function assetDecreaseAllowance(address assetId, address spender, uint256 amount) external returns (uint256) {
+  function erc20DecreaseAllowance(address assetId, address spender, uint256 amount) external returns (uint256) {
     _validationAndPolicyInterceptor(assetId, this.assetDecreaseAllowance.selector);
     return IAssetERC20(assetId).tokenDecreaseAllowance(spender, amount);
   }

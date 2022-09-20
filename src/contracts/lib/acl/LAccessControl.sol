@@ -177,7 +177,7 @@ library LAccessControl {
     }
   }
 
-  function isLivelySystemAdmin(AccessControlStorage.DataMaps storage data, address account)
+  function isLivelySystemAdminRole(AccessControlStorage.DataMaps storage data, address account)
     external
     view
     returns (bool)
@@ -185,23 +185,23 @@ library LAccessControl {
     return data.accountMap[account][LIVELY_SYSTEM_ADMIN_ROLE] == AccessControlStorage.Status.ENABLED;
   }
 
-  function isLivelyAdmin(AccessControlStorage.DataMaps storage data, address account) external view returns (bool) {
+  function isLivelyAdminRole(AccessControlStorage.DataMaps storage data, address account) external view returns (bool) {
     return data.accountMap[account][LIVELY_ADMIN_ROLE] == AccessControlStorage.Status.ENABLED;
   }
 
-  function isLivelyAssetManager(AccessControlStorage.DataMaps storage data, address account) external view returns (bool) {
+  function isLivelyAssetManagerRole(AccessControlStorage.DataMaps storage data, address account) external view returns (bool) {
     return data.accountMap[account][LIVELY_ASSET_MANAGER_ROLE] == AccessControlStorage.Status.ENABLED;
   }
 
-  function isLivelyAssetAdmin(AccessControlStorage.DataMaps storage data, address account) external view returns (bool) {
+  function isLivelyAssetAdminRole(AccessControlStorage.DataMaps storage data, address account) external view returns (bool) {
     return data.accountMap[account][LIVELY_ASSET_ADMIN_ROLE] == AccessControlStorage.Status.ENABLED;
   }
 
-  function isLivelyCommunityDao(AccessControlStorage.DataMaps storage data, address account) external view returns (bool) {
+  function isLivelyCommunityDaoRole(AccessControlStorage.DataMaps storage data, address account) external view returns (bool) {
     return data.accountMap[account][LIVELY_COMMUNITY_DAO_ROLE] == AccessControlStorage.Status.ENABLED;  
   }
 
-  function isLivelyCommunityDaoExecutor(AccessControlStorage.DataMaps storage data, address account) external view returns (bool) {
+  function isLivelyCommunityDaoExecutorRole(AccessControlStorage.DataMaps storage data, address account) external view returns (bool) {
     return data.accountMap[account][LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE] == AccessControlStorage.Status.ENABLED;
   }
 
@@ -235,7 +235,7 @@ library LAccessControl {
 
 
   function isContextSafeMode(AccessControlStorage.DataMaps storage data, bytes32 context) external view returns (bool) {
-    return IProxy(data.ctxMap[context].smca).isSafeMode();
+    return IProxy(data.ctxMap[context].contractId).isSafeMode();
   }
 
   function isContextUpgradable(AccessControlStorage.DataMaps storage data, bytes32 context)
@@ -243,7 +243,7 @@ library LAccessControl {
     view
     returns (bool)
   {
-    return IProxy(data.ctxMap[context].smca).isUpgradable();
+    return IProxy(data.ctxMap[context].contractId).isUpgradable();
   }
 
   function isRealmUpgradable(AccessControlStorage.DataMaps storage data, bytes32 realm) external view returns (bool) {
@@ -260,7 +260,7 @@ library LAccessControl {
   }
 
   function isContextExists(AccessControlStorage.DataMaps storage data, bytes32 context) external view returns (bool) {
-    return data.ctxMap[context].smca != address(0);
+    return data.ctxMap[context].contractId != address(0);
   }
 
   function isContextFunctionExists(
@@ -268,7 +268,7 @@ library LAccessControl {
     bytes32 context,
     bytes4 functionSelector
   ) external view returns (bool) {
-    return data.ctxMap[context].smca != address(0) && data.ctxMap[context].funcSet.contains(functionSelector);
+    return data.ctxMap[context].contractId != address(0) && data.ctxMap[context].funcSet.contains(functionSelector);
   }
 
   function isContextFunctionEnabled(
@@ -277,12 +277,12 @@ library LAccessControl {
     bytes4 functionSelector
   ) external view returns (bool) {
     return
-      data.ctxMap[context].smca != address(0) &&
+      data.ctxMap[context].contractId != address(0) &&
       data.ctxMap[context].resources[functionSelector].status == AccessControlStorage.Status.ENABLED;
   }
 
   function isContextEnabled(AccessControlStorage.DataMaps storage data, bytes32 context) external view returns (bool) {
-    return data.ctxMap[context].smca != address(0) && data.ctxMap[context].isEnabled;
+    return data.ctxMap[context].contractId != address(0) && data.ctxMap[context].isEnabled;
   }
 
   function isRoleExists(AccessControlStorage.DataMaps storage data, bytes32 role) external view returns (bool) {

@@ -82,28 +82,28 @@ contract AccessControlManager is
     return LAccessControl.hasAccess(_dataMaps, context, account, signature);
   }
 
-  function isLivelySystemAdmin(address account) external view returns (bool) {
-    return LAccessControl.isLivelySystemAdmin(_dataMaps, account);
+  function isLivelySystemAdminRole(address account) external view returns (bool) {
+    return LAccessControl.isLivelySystemAdminRole(_dataMaps, account);
   }
 
-  function isLivelyAdmin(address account) external view returns (bool) {
-    return LAccessControl.isLivelyAdmin(_dataMaps, account);
+  function isLivelyAdminRole(address account) external view returns (bool) {
+    return LAccessControl.isLivelyAdminRole(_dataMaps, account);
   }
 
-  function isLivelyAssetManager(address account) external view returns (bool) {
-    return LAccessControl.isLivelyAssetManager(_dataMaps, account);
+  function isLivelyAssetManagerRole(address account) external view returns (bool) {
+    return LAccessControl.isLivelyAssetManagerRole(_dataMaps, account);
   }
 
-  function isLivelyAssetAdmin(address account) external view returns (bool) {
-    return LAccessControl.isLivelyAssetAdmin(_dataMaps, account);
+  function isLivelyAssetAdminRole(address account) external view returns (bool) {
+    return LAccessControl.isLivelyAssetAdminRole(_dataMaps, account);
   }
 
-  function isLivelyCommunityDao(address account) external view returns (bool) {
-    return LAccessControl.isLivelyCommunityDao(_dataMaps, account);
+  function isLivelyCommunityDaoRole(address account) external view returns (bool) {
+    return LAccessControl.isLivelyCommunityDaoRole(_dataMaps, account);
   }
 
-  function isLivelyCommunityDaoExecutor(address account) external view returns (bool) {
-    return LAccessControl.isLivelyCommunityDaoExecutor(_dataMaps, account);
+  function isLivelyCommunityDaoExecutorRole(address account) external view returns (bool) {
+    return LAccessControl.isLivelyCommunityDaoExecutorRole(_dataMaps, account);
   }
 
   function isLivelyGeneralGroup(bytes32 role) external view returns (bool) {
@@ -204,9 +204,9 @@ contract AccessControlManager is
     RequestContext calldata rc,
     RequestUpdateContext[] calldata rcr
   ) external returns (address) {
-    (address smca, address sender) = LContextManagement.updateContext(_dataMaps, ctx, signature, rc, rcr);
-    emit ContextUpdated(ctx, smca, sender, rc.realm);
-    return smca;
+    (address contractId, address sender) = LContextManagement.updateContext(_dataMaps, ctx, signature, rc, rcr);
+    emit ContextUpdated(ctx, contractId, sender, rc.realm);
+    return contractId;
   }
 
   function addContextFuncRole(
@@ -388,23 +388,23 @@ contract AccessControlManager is
     return LRoleManagement.hasRoleAccount(_dataMaps, role, account);
   }
 
-  function livelyGeneralRealmRole() external pure returns (bytes32) {
+  function livelyGeneralRealm() external pure returns (bytes32) {
     return LAccessControl.LIVELY_GENERAL_REALM;
   }
 
-  function livelyAssetRealmRole() external pure returns (bytes32) {
+  function livelyAssetRealm() external pure returns (bytes32) {
     return LAccessControl.LIVELY_ASSET_REALM;
   }
 
-  function livelyGeneralGroupRole() external pure returns (bytes32) {
+  function livelyGeneralGroup() external pure returns (bytes32) {
     return LAccessControl.LIVELY_GENERAL_GROUP;
   }
 
-  function livelyDaoGroupRole() external pure returns (bytes32) {
+  function livelyDaoGroup() external pure returns (bytes32) {
     return LAccessControl.LIVELY_DAO_GROUP;
   }
 
-  function livelyAssetGroupRole() external pure returns (bytes32) {
+  function livelyAssetGroup() external pure returns (bytes32) {
     return LAccessControl.LIVELY_ASSET_GROUP;
   }
 

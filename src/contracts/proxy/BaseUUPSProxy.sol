@@ -38,8 +38,8 @@ abstract contract BaseUUPSProxy is
   Initializable,
   IProxy,
   IERC1822Proxiable,
-  Message,
-  ERC165
+    Message,
+    ERC165
 {
   /**
    * @dev Check that the execution is being performed through a delegatecall call and that the execution context is

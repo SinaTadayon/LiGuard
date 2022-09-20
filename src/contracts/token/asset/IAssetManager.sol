@@ -3,14 +3,17 @@ pragma solidity 0.8.17;
 
 import "./IAssetEntity.sol";
 
-interface IAssetRegistry {
+interface IAssetManager {
 
   struct AssetInfo {
     uint256 balance;
+    bytes32 name;
+    bytes32 version;
+    bytes32 realm;
+    bytes32 role;
     address assetId;
     address tokenId;
-    string  name;
-    string  version;
+    bool    initStatus;
     IAssetEntity.AssetType assetType;
     IAssetEntity.AssetStatus status;
   }
@@ -18,11 +21,11 @@ interface IAssetRegistry {
   struct TokenInfo {
     uint256     totalSupply;
     uint256     decimal;
+    bytes32     contractName;
+    bytes32     contractVersion;
     address     tokenId;
     string      tokenName;
     string      tokenSymbol;
-    string      contractName;
-    string      contractVersion;
     IAssetEntity.AssetStatus status;
   }
 
@@ -57,5 +60,4 @@ interface IAssetRegistry {
   function getTokenAssets(address tokenId) external view returns (AssetInfo[] memory);
 
   function getAllTokens(IAssetEntity.AssetType assetType) external view returns (IAssetEntity.AssetStatus status, TokenInfo[] memory);
-
 }
