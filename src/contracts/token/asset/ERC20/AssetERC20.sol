@@ -3,7 +3,7 @@ pragma solidity 0.8.17;
 
 import "./IAssetERC20.sol";
 import "../IAssetEntity.sol";
-import "../BaseAssetEntity.sol";
+import "../IERC20Manager.sol";
 import "../../lively/IERC20.sol";
 import "../../../proxy/Initializable.sol";
 import "../../../utils/Message.sol";
@@ -14,7 +14,7 @@ import "../../../lib/LAddress.sol";
 import "../../../acl/IAccessControl.sol";
 import "../../../acl/IContextManagement.sol";
 
-contract AssetERC20 is BaseAssetEntity, IAssetERC20, IAssetEntity, Initializable, Message, ERC165 {
+contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity {
   using LAddress for address;
 
   address private _accessControlManager;
@@ -29,7 +29,7 @@ contract AssetERC20 is BaseAssetEntity, IAssetERC20, IAssetEntity, Initializable
   struct InitRequest {
     string domainName;
     string domainVersion;
-    string domainRealm;
+    bytes32 domainRealm;
     address erc20Token;
     address accessControl;
     address assetManager;
@@ -67,14 +67,21 @@ contract AssetERC20 is BaseAssetEntity, IAssetERC20, IAssetEntity, Initializable
       revert("Illegal AccessControlManager");
     }     
 
+    try IERC165(request.assetManager).supportsInterface(type(IERC20Manager).interfaceId) returns (bool isSupported) {
+      require(isSupported, "Invalid IERC20Manager");
+    } catch {
+      revert("Illegal IERC20Manager");
+    }     
+
     _accessControlManager = request.accessControl;
     require(IAccessControl(_accessControlManager).isRoleEnabled(request.assetRole), "Role Not Found OR Disabled ");
 
-    _domainRealm = keccak256(abi.encodePacked(request.domainRealm));    
+    _domainRealm = request.domainRealm;    
     _domainName = keccak256(abi.encodePacked(request.domainName));
     _domainVersion = keccak256(abi.encodePacked(request.domainVersion));    
     _erc20Token = request.erc20Token;
     _assetRole = request.assetRole;
+    _assetManager = request.assetManager;
     _isSafeMode = false;
   
     (IContextManagement.RequestPredictContext memory rpc, IContextManagement.RequestRegisterContext[] memory rrc) = 
@@ -82,15 +89,14 @@ contract AssetERC20 is BaseAssetEntity, IAssetERC20, IAssetEntity, Initializable
 
     IContextManagement(_accessControlManager).registerPredictContext(request.signature, rpc, rrc);
 
-    // emit Initialized(
-    //   _msgSender(),
-    //   address(this),
-    //   _self,
-    //   request.domainName,
-    //   request.domainVersion,
-    //   _domainRealm,
-    //   _getInitializedCount()
-    // );
+    emit AssetInitialized(
+      _msgSender(),
+      address(this),
+      request.domainName,
+      request.domainVersion,
+      _domainRealm      
+    );
+
   }
 
   function _createRequestContext(
@@ -125,8 +131,7 @@ contract AssetERC20 is BaseAssetEntity, IAssetERC20, IAssetEntity, Initializable
     rrc[1].funcSelectors[6] = IAssetERC20.tokenApprove.selector;
     rrc[1].funcSelectors[7] = IAssetERC20.tokenIncreaseAllowance.selector;
     rrc[1].funcSelectors[8] = IAssetERC20.tokenDecreaseAllowance.selector;
-    rrc[1].funcSelectors[9] = bytes4(keccak256("withdrawBalance(address)"));
-    
+    rrc[1].funcSelectors[9] = this.withdrawBalance.selector;
 
     IContextManagement.RequestPredictContext memory rpc = IContextManagement.RequestPredictContext({
       name: domainName,
@@ -141,12 +146,22 @@ contract AssetERC20 is BaseAssetEntity, IAssetERC20, IAssetEntity, Initializable
     return (rpc, rrc);
   }
 
+  /**
+   * @dev See {IERC165-supportsInterface}.
+   */
+  function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+    return
+      interfaceId == type(IAssetEntity).interfaceId ||
+      interfaceId == type(IAssetERC20).interfaceId ||
+      super.supportsInterface(interfaceId);
+  }
+
   function tokenLock(IERC20Lock.LockTokenRequest calldata lockRequest) external returns (bytes32) {
     _policyInterceptor(this.tokenLock.selector);
     require(lockRequest.source == address(this), "Illegal Source Addres");
-    return IERC20Lock(_erc20Token).lockToken(lockRequest);
-    // bytes memory result = _callMandatoryReturn(_erc20Token, abi.encodeWithSelector(IERC20Lock(_erc20Token).lockToken.selector, lockRequest));
-    // return abi.decode(result, (bytes32));
+
+    emit AssetERC20Called(_msgSender(), address(this), this.tokenLock.selector);
+    return IERC20Manager(_assetManager).erc20Lock(_erc20Token, lockRequest);
   }
 
   function tokenBatchLock(IERC20Lock.LockTokenRequest[] calldata lockRequests) external returns (bytes32[] memory) {
@@ -155,13 +170,13 @@ contract AssetERC20 is BaseAssetEntity, IAssetERC20, IAssetEntity, Initializable
       require(lockRequests[i].source == address(this), "Illegal Source Addres");
     }
 
-    return IERC20Lock(_erc20Token).batchLockToken(lockRequests);
-    // bytes memory result = _callMandatoryReturn(_erc20Token, abi.encodeWithSelector(IERC20Lock(_erc20Token).batchLockToken.selector, lockRequests));
-    // return abi.decode(result, (bytes32[]));
+    emit AssetERC20Called(_msgSender(), address(this), this.tokenBatchLock.selector);  
+    return IERC20Manager(_assetManager).erc20BatchLock(_erc20Token, lockRequests);
   }
 
   function tokenTransfer(address to, uint256 amount) external returns (bool) {
     _policyInterceptor(this.tokenTransfer.selector);
+    emit AssetERC20Called(_msgSender(), address(this), this.tokenTransfer.selector);
     return IERC20(_erc20Token).transfer(to, amount);
     // _callOptionalReturn(_erc20Token, abi.encodeWithSelector(IERC20(_erc20Token).transfer.selector, request.to, request.amount));
     // return true;
@@ -169,6 +184,7 @@ contract AssetERC20 is BaseAssetEntity, IAssetERC20, IAssetEntity, Initializable
 
   function tokenBatchTransfer(IERC20Extra.BatchTransferRequest[] calldata request) external returns (bool) {
     _policyInterceptor(this.tokenBatchTransfer.selector);
+    emit AssetERC20Called(_msgSender(), address(this), this.tokenBatchTransfer.selector);
     return IERC20Extra(_erc20Token).batchTransfer(request);
     // bytes memory result = _callMandatoryReturn(_erc20Token, abi.encodeWithSelector(IERC20Extra(_erc20Token).batchTransfer.selector, request));
     // return abi.decode(result, (bool));
@@ -176,6 +192,7 @@ contract AssetERC20 is BaseAssetEntity, IAssetERC20, IAssetEntity, Initializable
 
   function tokenTransferFrom(address from, address to, uint256 amount) external returns (bool) {
     _policyInterceptor(this.tokenTransferFrom.selector);
+    emit AssetERC20Called(_msgSender(), address(this), this.tokenTransferFrom.selector);
     return IERC20(_erc20Token).transferFrom(from, to, amount);
     // _callOptionalReturn(_erc20Token, abi.encodeWithSelector(IERC20(_erc20Token).transferFrom.selector, request.from, request.to, request.amount));
     // return true;
@@ -183,6 +200,7 @@ contract AssetERC20 is BaseAssetEntity, IAssetERC20, IAssetEntity, Initializable
 
   function tokenBatchTransferFrom(IERC20Extra.BatchTransferFromRequest[] calldata request) external returns (bool) {
     _policyInterceptor(this.tokenBatchTransferFrom.selector);
+    emit AssetERC20Called(_msgSender(), address(this), this.tokenBatchTransferFrom.selector);
     return IERC20Extra(_erc20Token).batchTransferFrom(request);
     // bytes memory result = _callMandatoryReturn(_erc20Token, abi.encodeWithSelector(IERC20Extra(_erc20Token).batchTransferFrom.selector, request));
     // return abi.decode(result, (bool));
@@ -190,6 +208,7 @@ contract AssetERC20 is BaseAssetEntity, IAssetERC20, IAssetEntity, Initializable
 
   function tokenApprove(address spender, uint256 amount) external returns (bool) {
     _policyInterceptor(this.tokenApprove.selector);
+    emit AssetERC20Called(_msgSender(), address(this), this.tokenApprove.selector);
     return IERC20(_erc20Token).approve(spender, amount);
     // _callOptionalReturn(_erc20Token, abi.encodeWithSelector(IERC20(_erc20Token).approve.selector, spender, amount));
     // return true;
@@ -197,6 +216,7 @@ contract AssetERC20 is BaseAssetEntity, IAssetERC20, IAssetEntity, Initializable
 
   function tokenIncreaseAllowance(address spender, uint256 amount) external returns (uint256) {
     _policyInterceptor(this.tokenIncreaseAllowance.selector);
+    emit AssetERC20Called(_msgSender(), address(this), this.tokenIncreaseAllowance.selector);
     return IERC20Extra(_erc20Token).increaseAllowance(spender, amount);
     // bytes memory result = _callMandatoryReturn(_erc20Token, abi.encodeWithSelector(IERC20Extra(_erc20Token).increaseAllowance.selector, spender, amount));
     // return abi.decode(result, (uint256));
@@ -204,6 +224,7 @@ contract AssetERC20 is BaseAssetEntity, IAssetERC20, IAssetEntity, Initializable
 
   function tokenDecreaseAllowance(address spender, uint256 amount) external returns (uint256) {
     _policyInterceptor(this.tokenDecreaseAllowance.selector);
+    emit AssetERC20Called(_msgSender(), address(this), this.tokenDecreaseAllowance.selector);
     return IERC20Extra(_erc20Token).decreaseAllowance(spender, amount);
     // bytes memory result = _callMandatoryReturn(_erc20Token, abi.encodeWithSelector(IERC20Extra(_erc20Token).decreaseAllowance.selector, spender, amount));
     // return abi.decode(result, (uint256));
@@ -258,11 +279,11 @@ contract AssetERC20 is BaseAssetEntity, IAssetERC20, IAssetEntity, Initializable
     return _assetRole;
   }
 
-  function initVersion() external view returns (uint16) {
+  function assetInitVersion() external view returns (uint16) {
     return _getInitializedCount();
   }
 
-  function initStatus() external view returns (bool) {
+  function assetInitStatus() external view returns (bool) {
     return _isInitializing();
   }
 

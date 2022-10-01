@@ -71,7 +71,7 @@ library LContextManagement {
       bytes memory signature,
       IContextManagement.RequestPredictContext calldata rpc,
       IContextManagement.RequestRegisterContext[] calldata rrc
-  ) external returns (bytes32) {
+  ) external returns (bytes32, address) {
         require(!IProxy(address(this)).isSafeMode(), "SafeMode: Call Rejected");
 
     bytes32 structHash = _getPredictContextMessageHash(rpc.base, rpc.name, rpc.version, rpc.realm, rpc.bytesHash);
@@ -89,7 +89,7 @@ library LContextManagement {
       ),
       "RegisterPredictContext Access Denied"
     );
-    return (_registerPredictContext(data, rpc.base, rpc.realm, rpc.status, rrc), msgSigner);
+    return (_registerPredictContext(data, rrc, rpc.base, rpc.realm, rpc.salt, rpc.bytesHash, rpc.status), msgSigner);
   }
 
 
@@ -161,12 +161,12 @@ library LContextManagement {
 
   function _registerPredictContext(
     AccessControlStorage.DataMaps storage data,
+    IContextManagement.RequestRegisterContext[] calldata rrc,
     address base,
     bytes32 realm,
     bytes32 salt,
     bytes32 bytesHash,
-    bool status,
-    IContextManagement.RequestRegisterContext[] calldata rrc
+    bool status
   ) private returns (bytes32) {
     require(bytes(data.realmMap[realm].name).length != 0, "Realm Not Found");
 

@@ -8,20 +8,19 @@ import "../../lib/struct/LEnumerableSet.sol";
 abstract contract AssetManagerStorage is BaseUUPSStorage {
   using LEnumerableSet for LEnumerableSet.AddressSet;
 
-
-  struct AssetTypeInfo {    
+  struct AssetTypeData {
+    address assetImplement;    
     LEnumerableSet.AddressSet tokens;
-    IAssetEntity.AssetStatus status;
+    IAssetEntity.Status status;
   }
 
   struct TokenData {    
     IAssetEntity.AssetType assetType;
     LEnumerableSet.AddressSet assets;
-    IAssetEntity.AssetStatus status;
+    IAssetEntity.Status status;
   }
 
-  mapping(IAssetEntity.AssetType => AssetTypeInfo) internal _assetTypes;
+  mapping(IAssetEntity.AssetType => AssetTypeData) internal _assetTypes;
   mapping(address => TokenData) internal _tokens;
-  mapping(address => address) internal _assetTokenMap;
   bytes internal _assetCreationSignature;
 }

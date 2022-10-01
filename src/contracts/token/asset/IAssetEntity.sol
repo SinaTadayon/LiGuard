@@ -3,22 +3,7 @@ pragma solidity 0.8.17;
 
 interface IAssetEntity {
 
- /**
-   * @dev Triggered when the contract has been initialized or reinitialized.
-   */
-  event AssetInitialized(
-    address indexed sender,
-    address indexed proxy,
-    address indexed subject,
-    string name,
-    string version,
-    bytes32 realm,
-    uint16 initCount
-  );
-  
-  event AssetSafeModeChanged(address indexed sender, address indexed proxy, bytes32 indexed realm, bool status);
-
-  enum AssetStatus {
+  enum Status {
     NONE,
     ACTIVE,
     SAFE_MODE
@@ -30,6 +15,16 @@ interface IAssetEntity {
     ERC721,
     ERC1155
   }
+
+  event AssetInitialized(
+    address indexed sender,
+    address indexed assetId,
+    string name,
+    string version,
+    bytes32 realm
+  );
+  
+  event AssetSafeModeChanged(address indexed sender, address indexed proxy, bytes32 indexed realm, bool status);
 
   function assetSafeModeSet(bool status) external returns (bool);
 
@@ -47,7 +42,7 @@ interface IAssetEntity {
 
   function assetRole() external view returns (bytes32);
 
-  function initVersion() external view returns (uint16);
+  function assetInitVersion() external view returns (uint16);
 
-  function initStatus() external view returns (bool);
+  function assetInitStatus() external view returns (bool);
 }
