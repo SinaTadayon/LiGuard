@@ -59,8 +59,8 @@ library LRoleManagement {
       "GrantRoleAccount Access Denied"
     );
 
-    if(role == LAccessControl.LIVELY_DAO_EXECUTOR_ROLE) {      
-      require(account.code.length > 0 && data.roleMap[role].accountSet.length() == uint256(0), "Illegal Grant Dao Executor Role");
+    if(role == LAccessControl.LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE) {      
+      require(account.code.length > 0 && data.roleMap[role].accountSet.length() == uint256(0), "Illegal Grant Community Dao Executor Role");
     }
 
     if(role == LAccessControl.LIVELY_ASSET_MANAGER_ROLE) {      

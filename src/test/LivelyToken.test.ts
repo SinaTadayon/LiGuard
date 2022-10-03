@@ -186,8 +186,8 @@ describe("Lively Token Tests", function () {
         .withArgs(systemAdminAddress, adminRole, adminAddress);
 
       // then
-      expect(await accessControlManager.isLivelyAdmin(adminAddress)).to.be.true;
-      expect(await accessControlManager.isLivelyAdmin(systemAdminAddress)).to.be.true;
+      expect(await accessControlManager.isLivelyAdminRole(adminAddress)).to.be.true;
+      expect(await accessControlManager.isLivelyAdminRole(systemAdminAddress)).to.be.true;
     });
 
     it("Should revoke systemAdmin from LIVELY_ADMIN_ROLE success", async () => {
@@ -200,8 +200,8 @@ describe("Lively Token Tests", function () {
         .withArgs(adminAddress, adminRole, systemAdminAddress);
 
       // then
-      expect(await accessControlManager.isLivelyAdmin(adminAddress)).to.be.true;
-      expect(await accessControlManager.isLivelyAdmin(systemAdminAddress)).to.be.false;
+      expect(await accessControlManager.isLivelyAdminRole(adminAddress)).to.be.true;
+      expect(await accessControlManager.isLivelyAdminRole(systemAdminAddress)).to.be.false;
     });
 
     it("Should grant LIVELY_ASSET_MANAGER_ROLE to asset manager account success", async () => {
@@ -214,7 +214,7 @@ describe("Lively Token Tests", function () {
         .withArgs(adminAddress, assetMangerRole, assetManagerAddress);
 
       // then
-      expect(await accessControlManager.isLivelyAssetManager(assetManagerAddress)).to.be.true;
+      expect(await accessControlManager.isLivelyAssetManagerRole(assetManagerAddress)).to.be.true;
     });
   });
 
@@ -250,7 +250,6 @@ describe("Lively Token Tests", function () {
           accessControlManager: accessControlManager.address,
           taxTreasuryAddress,
           taxRateValue: BigNumber.from("300"),
-          totalSupplyAmount: BigNumber.from("1000000000"),
           signature: "0x00",
           assetManager: assetManagerAddress,
         })
@@ -320,7 +319,6 @@ describe("Lively Token Tests", function () {
         domainRealm: livelyTokenDomainRealm,
         signature,
         taxRateValue: BigNumber.from(0),
-        totalSupplyAmount: livelyTokenTotalSupply,
         accessControlManager: accessControlManager.address,
         taxTreasuryAddress,
         assetManager: assetManagerAddress,
@@ -385,19 +383,19 @@ describe("Lively Token Tests", function () {
 
     it("Should grant LIVELY_DAO_EXECUTOR_ROLE to admin account failed", async () => {
       // given
-      const daoExecutorRole = await accessControlManager.livelyDaoExecutorRole();
+      const daoExecutorRole = await accessControlManager.livelyCommunityDaoExecutorRole();
 
       // when
       await expect(accessControlManager.connect(admin).grantRoleAccount(daoExecutorRole, adminAddress))
         .to.revertedWith("Illegal Grant Dao Executor Role");
 
       // then
-      expect(await accessControlManager.isLivelyDaoExecutor(adminAddress)).to.be.false;
+      expect(await accessControlManager.isLivelyCommunityDaoExecutorRole(adminAddress)).to.be.false;
     });
 
     it("Should grant LIVELY_DAO_EXECUTOR_ROLE to relay contract success", async () => {
       // given
-      const daoExecutorRole = await accessControlManager.livelyDaoExecutorRole();
+      const daoExecutorRole = await accessControlManager.livelyCommunityDaoExecutorRole();
 
       // when
       await expect(accessControlManager.connect(admin).grantRoleAccount(daoExecutorRole, daoExecutorForwarder.address))
@@ -405,22 +403,22 @@ describe("Lively Token Tests", function () {
         .withArgs(adminAddress, daoExecutorRole, daoExecutorForwarder.address);
 
       // then
-      expect(await accessControlManager.isLivelyDaoExecutor(daoExecutorForwarder.address)).to.be.true;
+      expect(await accessControlManager.isLivelyCommunityDaoExecutorRole(daoExecutorForwarder.address)).to.be.true;
     });
 
     it("Should grant LIVELY_DAO_EXECUTOR_ROLE to another contract failed", async () => {
       // given
       const relayFactory = new Relay__factory(systemAdmin);
       const forwarder = await relayFactory.deploy(livelyTokenProxy.address);
-      const daoExecutorRole = await accessControlManager.livelyDaoExecutorRole();
+      const daoExecutorRole = await accessControlManager.livelyCommunityDaoExecutorRole();
 
       // when
       await expect(accessControlManager.connect(admin).grantRoleAccount(daoExecutorRole, forwarder.address))
         .to.revertedWith("Illegal Grant Dao Executor Role")
 
       // then
-      expect(await accessControlManager.isLivelyDaoExecutor(forwarder.address)).to.be.false;
-      expect(await accessControlManager.isLivelyDaoExecutor(daoExecutorForwarder.address)).to.be.true;
+      expect(await accessControlManager.isLivelyCommunityDaoExecutorRole(forwarder.address)).to.be.false;
+      expect(await accessControlManager.isLivelyCommunityDaoExecutorRole(daoExecutorForwarder.address)).to.be.true;
     });
 
     it("Should LivelyToken ERC20 init state success ", async () => {
@@ -516,12 +514,12 @@ describe("Lively Token Tests", function () {
 
       const batchTransfer: IERC20Extra.BatchTransferRequestStruct = {
         amount: dummyAmount,
-        recipient: user2Address,
+        to: user2Address,
       };
 
       const batchTransferFrom: IERC20Extra.BatchTransferFromRequestStruct = {
-        source: user1Address,
-        recipient: user2Address,
+        from: user1Address,
+        to: user2Address,
         amount: dummyAmount,
       };
 
@@ -1139,7 +1137,7 @@ describe("Lively Token Tests", function () {
       const value = BigNumber.from(500).mul(tokenDecimal);
       const batchTransfer: IERC20Extra.BatchTransferRequestStruct = {
         amount: value,
-        recipient: user2Address,
+        to: user2Address,
       };
 
       // when
@@ -1165,8 +1163,8 @@ describe("Lively Token Tests", function () {
       const value = BigNumber.from(1000).mul(tokenDecimal);
       const finalAllowance = user1Allowance.sub(value);
       const batchTransferFrom: IERC20Extra.BatchTransferFromRequestStruct = {
-        source: user1Address,
-        recipient: adminAddress,
+        from: user1Address,
+        to: adminAddress,
         amount: value,
       };
 

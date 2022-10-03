@@ -121,11 +121,17 @@ const _abi = [
       {
         indexed: true,
         internalType: "address",
-        name: "scma",
+        name: "contractId",
         type: "address",
       },
       {
         indexed: true,
+        internalType: "address",
+        name: "signer",
+        type: "address",
+      },
+      {
+        indexed: false,
         internalType: "address",
         name: "sender",
         type: "address",
@@ -257,7 +263,7 @@ const _abi = [
       {
         indexed: true,
         internalType: "address",
-        name: "scma",
+        name: "contractId",
         type: "address",
       },
       {
@@ -274,6 +280,49 @@ const _abi = [
       },
     ],
     name: "ContextUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "context",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "base",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "signer",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "bytes32",
+        name: "realm",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "bytes32",
+        name: "bytesHash",
+        type: "bytes32",
+      },
+    ],
+    name: "PredictContextRegistered",
     type: "event",
   },
   {
@@ -353,7 +402,7 @@ const _abi = [
           },
           {
             internalType: "address",
-            name: "smca",
+            name: "contractId",
             type: "address",
           },
           {
@@ -459,7 +508,7 @@ const _abi = [
           },
           {
             internalType: "address",
-            name: "smca",
+            name: "contractId",
             type: "address",
           },
           {
@@ -496,6 +545,89 @@ const _abi = [
       },
     ],
     name: "registerContext",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes",
+        name: "signature",
+        type: "bytes",
+      },
+      {
+        components: [
+          {
+            internalType: "bytes32",
+            name: "name",
+            type: "bytes32",
+          },
+          {
+            internalType: "bytes32",
+            name: "version",
+            type: "bytes32",
+          },
+          {
+            internalType: "bytes32",
+            name: "realm",
+            type: "bytes32",
+          },
+          {
+            internalType: "bytes32",
+            name: "salt",
+            type: "bytes32",
+          },
+          {
+            internalType: "bytes32",
+            name: "bytesHash",
+            type: "bytes32",
+          },
+          {
+            internalType: "address",
+            name: "base",
+            type: "address",
+          },
+          {
+            internalType: "bool",
+            name: "status",
+            type: "bool",
+          },
+        ],
+        internalType: "struct IContextManagement.RequestPredictContext",
+        name: "rpc",
+        type: "tuple",
+      },
+      {
+        components: [
+          {
+            internalType: "bytes32",
+            name: "role",
+            type: "bytes32",
+          },
+          {
+            internalType: "bytes4[]",
+            name: "funcSelectors",
+            type: "bytes4[]",
+          },
+          {
+            internalType: "bool",
+            name: "isEnabled",
+            type: "bool",
+          },
+        ],
+        internalType: "struct IContextManagement.RequestRegisterContext[]",
+        name: "rrc",
+        type: "tuple[]",
+      },
+    ],
+    name: "registerPredictContext",
     outputs: [
       {
         internalType: "bytes32",
@@ -638,7 +770,7 @@ const _abi = [
           },
           {
             internalType: "address",
-            name: "smca",
+            name: "contractId",
             type: "address",
           },
           {

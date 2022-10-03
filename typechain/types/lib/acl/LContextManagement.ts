@@ -22,24 +22,35 @@ import type {
 
 export interface LContextManagementInterface extends utils.Interface {
   functions: {
+    "CTX_MESSAGE_TYPEHASH()": FunctionFragment;
     "LIB_NAME()": FunctionFragment;
     "LIB_VERSION()": FunctionFragment;
-    "MESSAGE_TYPEHASH()": FunctionFragment;
+    "PREDICT_CTX_MESSAGE_TYPEHASH()": FunctionFragment;
     "TYPE_HASH()": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "CTX_MESSAGE_TYPEHASH"
+      | "CTX_MESSAGE_TYPEHASH()"
       | "LIB_NAME"
       | "LIB_NAME()"
       | "LIB_VERSION"
       | "LIB_VERSION()"
-      | "MESSAGE_TYPEHASH"
-      | "MESSAGE_TYPEHASH()"
+      | "PREDICT_CTX_MESSAGE_TYPEHASH"
+      | "PREDICT_CTX_MESSAGE_TYPEHASH()"
       | "TYPE_HASH"
       | "TYPE_HASH()"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "CTX_MESSAGE_TYPEHASH",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "CTX_MESSAGE_TYPEHASH()",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "LIB_NAME", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "LIB_NAME()",
@@ -54,11 +65,11 @@ export interface LContextManagementInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "MESSAGE_TYPEHASH",
+    functionFragment: "PREDICT_CTX_MESSAGE_TYPEHASH",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "MESSAGE_TYPEHASH()",
+    functionFragment: "PREDICT_CTX_MESSAGE_TYPEHASH()",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "TYPE_HASH", values?: undefined): string;
@@ -67,6 +78,14 @@ export interface LContextManagementInterface extends utils.Interface {
     values?: undefined
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "CTX_MESSAGE_TYPEHASH",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "CTX_MESSAGE_TYPEHASH()",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "LIB_NAME", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "LIB_NAME()", data: BytesLike): Result;
   decodeFunctionResult(
@@ -78,11 +97,11 @@ export interface LContextManagementInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "MESSAGE_TYPEHASH",
+    functionFragment: "PREDICT_CTX_MESSAGE_TYPEHASH",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "MESSAGE_TYPEHASH()",
+    functionFragment: "PREDICT_CTX_MESSAGE_TYPEHASH()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "TYPE_HASH", data: BytesLike): Result;
@@ -121,6 +140,10 @@ export interface LContextManagement extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    CTX_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<[string]>;
+
+    "CTX_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<[string]>;
+
     LIB_NAME(overrides?: CallOverrides): Promise<[string]>;
 
     "LIB_NAME()"(overrides?: CallOverrides): Promise<[string]>;
@@ -129,14 +152,20 @@ export interface LContextManagement extends BaseContract {
 
     "LIB_VERSION()"(overrides?: CallOverrides): Promise<[string]>;
 
-    MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<[string]>;
+    PREDICT_CTX_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<[string]>;
 
-    "MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<[string]>;
+    "PREDICT_CTX_MESSAGE_TYPEHASH()"(
+      overrides?: CallOverrides
+    ): Promise<[string]>;
 
     TYPE_HASH(overrides?: CallOverrides): Promise<[string]>;
 
     "TYPE_HASH()"(overrides?: CallOverrides): Promise<[string]>;
   };
+
+  CTX_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<string>;
+
+  "CTX_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
 
   LIB_NAME(overrides?: CallOverrides): Promise<string>;
 
@@ -146,15 +175,19 @@ export interface LContextManagement extends BaseContract {
 
   "LIB_VERSION()"(overrides?: CallOverrides): Promise<string>;
 
-  MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<string>;
+  PREDICT_CTX_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
-  "MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
+  "PREDICT_CTX_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
 
   TYPE_HASH(overrides?: CallOverrides): Promise<string>;
 
   "TYPE_HASH()"(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
+    CTX_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<string>;
+
+    "CTX_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
+
     LIB_NAME(overrides?: CallOverrides): Promise<string>;
 
     "LIB_NAME()"(overrides?: CallOverrides): Promise<string>;
@@ -163,9 +196,11 @@ export interface LContextManagement extends BaseContract {
 
     "LIB_VERSION()"(overrides?: CallOverrides): Promise<string>;
 
-    MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<string>;
+    PREDICT_CTX_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
-    "MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
+    "PREDICT_CTX_MESSAGE_TYPEHASH()"(
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     TYPE_HASH(overrides?: CallOverrides): Promise<string>;
 
@@ -175,6 +210,10 @@ export interface LContextManagement extends BaseContract {
   filters: {};
 
   estimateGas: {
+    CTX_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "CTX_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     LIB_NAME(overrides?: CallOverrides): Promise<BigNumber>;
 
     "LIB_NAME()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -183,9 +222,11 @@ export interface LContextManagement extends BaseContract {
 
     "LIB_VERSION()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<BigNumber>;
+    PREDICT_CTX_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "PREDICT_CTX_MESSAGE_TYPEHASH()"(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     TYPE_HASH(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -193,6 +234,14 @@ export interface LContextManagement extends BaseContract {
   };
 
   populateTransaction: {
+    CTX_MESSAGE_TYPEHASH(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "CTX_MESSAGE_TYPEHASH()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     LIB_NAME(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "LIB_NAME()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -201,9 +250,11 @@ export interface LContextManagement extends BaseContract {
 
     "LIB_VERSION()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    PREDICT_CTX_MESSAGE_TYPEHASH(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
-    "MESSAGE_TYPEHASH()"(
+    "PREDICT_CTX_MESSAGE_TYPEHASH()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

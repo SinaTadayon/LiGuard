@@ -209,7 +209,7 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "isLivelyAdmin",
+    name: "isLivelyAdminRole",
     outputs: [
       {
         internalType: "bool",
@@ -228,7 +228,26 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "isLivelyAssetManager",
+    name: "isLivelyAssetAdminRole",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "role",
+        type: "bytes32",
+      },
+    ],
+    name: "isLivelyAssetGroup",
     outputs: [
       {
         internalType: "bool",
@@ -247,7 +266,26 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "isLivelyDao",
+    name: "isLivelyAssetManagerRole",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "context",
+        type: "bytes32",
+      },
+    ],
+    name: "isLivelyAssetRealm",
     outputs: [
       {
         internalType: "bool",
@@ -266,7 +304,45 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "isLivelyDaoExecutor",
+    name: "isLivelyCommunityDaoExecutorRole",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
+    name: "isLivelyCommunityDaoRole",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "role",
+        type: "bytes32",
+      },
+    ],
+    name: "isLivelyDaoGroup",
     outputs: [
       {
         internalType: "bool",
@@ -323,7 +399,7 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "isLivelySystemAdmin",
+    name: "isLivelySystemAdminRole",
     outputs: [
       {
         internalType: "bool",
@@ -457,6 +533,32 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "livelyAssetAdminRole",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "pure",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "livelyAssetGroup",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "pure",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "livelyAssetManagerRole",
     outputs: [
       {
@@ -470,7 +572,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "livelyDaoExecutorRole",
+    name: "livelyAssetRealm",
     outputs: [
       {
         internalType: "bytes32",
@@ -483,7 +585,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "livelyDaoRole",
+    name: "livelyCommunityDaoExecutorRole",
     outputs: [
       {
         internalType: "bytes32",
@@ -496,7 +598,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "livelyGeneralGroupRole",
+    name: "livelyCommunityDaoRole",
     outputs: [
       {
         internalType: "bytes32",
@@ -509,7 +611,33 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "livelyGeneralRealmRole",
+    name: "livelyDaoGroup",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "pure",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "livelyGeneralGroup",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "pure",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "livelyGeneralRealm",
     outputs: [
       {
         internalType: "bytes32",

@@ -25,7 +25,7 @@ contract BaseUUPSProxyTest is BaseUUPSProxy {
       name: keccak256(abi.encodePacked(domainName)),
       version: keccak256(abi.encodePacked(domainVersion)),
       realm: realm,
-      smca: address(this),
+      contractId: address(this),
       status: true
     });
 
@@ -72,7 +72,7 @@ contract BaseUUPSProxyTest is BaseUUPSProxy {
       name: keccak256(abi.encodePacked(domainName)),
       version: keccak256(abi.encodePacked(domainVersion)),
       realm: realm,
-      smca: address(this),
+      contractId: address(this),
       status: true
     });
 
@@ -105,7 +105,7 @@ contract BaseUUPSProxyTest is BaseUUPSProxy {
       name: keccak256(abi.encodePacked(domainName)),
       version: keccak256(abi.encodePacked(domainVersion)),
       realm: realm,
-      smca: address(this),
+      contractId: address(this),
       status: true
     });
 
@@ -125,7 +125,7 @@ contract BaseUUPSProxyTest is BaseUUPSProxy {
       name: _domainName,
       version: _domainVersion,
       realm: _domainRealm,
-      smca: address(this),
+      contractId: address(this),
       status: true
     });
 
@@ -168,7 +168,7 @@ contract BaseUUPSProxyTest is BaseUUPSProxy {
       name: _domainName,
       version: _domainVersion,
       realm: keccak256(abi.encodePacked("LIVELY_REALM")),
-      smca: address(this),
+      contractId: address(this),
       status: true
     });
 
@@ -196,7 +196,7 @@ contract BaseUUPSProxyTest is BaseUUPSProxy {
       name: _domainName,
       version: _domainVersion,
       realm: _domainRealm,
-      smca: address(this),
+      contractId: address(this),
       status: true
     });
 

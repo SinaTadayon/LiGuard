@@ -907,16 +907,16 @@ describe("AccessControlManager Tests", function () {
           adminAddress
         )
       ).to.be.true;
-      expect(await accessControlManagerProxy.isLivelyAdmin(adminAddress)).to.be.true;
-      expect(await accessControlManagerProxy.isLivelySystemAdmin(adminAddress)).to.be.true;
+      expect(await accessControlManagerProxy.isLivelyAdminRole(adminAddress)).to.be.true;
+      expect(await accessControlManagerProxy.isLivelySystemAdminRole(adminAddress)).to.be.true;
       expect(
         await accessControlManagerProxy.hasRoleAccount(
           ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_SYSTEM_ADMIN_ROLE")),
           userAddress1
         )
       ).to.be.false;
-      expect(await accessControlManagerProxy.isLivelyAdmin(userAddress1)).to.be.false;
-      expect(await accessControlManagerProxy.isLivelySystemAdmin(userAddress2)).to.be.false;
+      expect(await accessControlManagerProxy.isLivelyAdminRole(userAddress1)).to.be.false;
+      expect(await accessControlManagerProxy.isLivelySystemAdminRole(userAddress2)).to.be.false;
     });
 
     it("Should get role info of LIVELY_SYSTEM_ADMIN_ROLE success", async () => {
@@ -1706,7 +1706,7 @@ describe("AccessControlManager Tests", function () {
       expect(response.name).to.be.hexEqual(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("BaseUUPSContractTest")));
       expect(response.version).to.be.hexEqual(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("1.0.0")));
       expect(response.realm).to.be.hexEqual(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_GENERAL_REALM")));
-      expect(response.smca).to.be.hexEqual(baseUupsProxy.address);
+      expect(response.contractId).to.be.hexEqual(baseUupsProxy.address);
       expect(response.isSafeMode).to.be.false;
       expect(response.isUpgradable).to.be.false;
 
@@ -2499,10 +2499,10 @@ describe("AccessControlManager Tests", function () {
       expect(
         await accessControlManagerProxy.isLivelyGeneralRealm(ethers.utils.keccak256(accessControlManagerProxy.address))
       ).to.be.true;
-      expect(await accessControlManagerProxy.isLivelyAdmin(adminAddress)).to.be.true;
-      expect(await accessControlManagerProxy.isLivelyAdmin(userAddress1)).to.be.false;
-      expect(await accessControlManagerProxy.isLivelySystemAdmin(adminAddress)).to.be.true;
-      expect(await accessControlManagerProxy.isLivelySystemAdmin(userAddress1)).to.be.false;
+      expect(await accessControlManagerProxy.isLivelyAdminRole(adminAddress)).to.be.true;
+      expect(await accessControlManagerProxy.isLivelyAdminRole(userAddress1)).to.be.false;
+      expect(await accessControlManagerProxy.isLivelySystemAdminRole(adminAddress)).to.be.true;
+      expect(await accessControlManagerProxy.isLivelySystemAdminRole(userAddress1)).to.be.false;
     });
   });
 });

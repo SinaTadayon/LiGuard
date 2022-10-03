@@ -89,7 +89,7 @@ library LContextManagement {
       ),
       "RegisterPredictContext Access Denied"
     );
-    return (_registerPredictContext(data, rrc, rpc.base, rpc.realm, rpc.salt, rpc.bytesHash, rpc.status), msgSigner);
+    return (_registerPredictContext(data, rrc, rpc), msgSigner);
   }
 
 
@@ -162,24 +162,20 @@ library LContextManagement {
   function _registerPredictContext(
     AccessControlStorage.DataMaps storage data,
     IContextManagement.RequestRegisterContext[] calldata rrc,
-    address base,
-    bytes32 realm,
-    bytes32 salt,
-    bytes32 bytesHash,
-    bool status
+    IContextManagement.RequestPredictContext calldata rpc
   ) private returns (bytes32) {
-    require(bytes(data.realmMap[realm].name).length != 0, "Realm Not Found");
+    require(bytes(data.realmMap[rpc.realm].name).length != 0, "Realm Not Found");
 
     // TODO must be check
-    address predictedContractId = address(uint160(uint(keccak256(abi.encodePacked(bytes1(0xff), base, salt, bytesHash)))));
+    address predictedContractId = address(uint160(uint(keccak256(abi.encodePacked(bytes1(0xff), rpc.base, rpc.salt, rpc.bytesHash)))));
 
     bytes32 ctx = LContextUtils.generateCtx(predictedContractId);
     require(data.ctxMap[ctx].contractId == address(0), "Context Already Registered");
-    data.realmMap[realm].ctxSet.add(ctx);
+    data.realmMap[rpc.realm].ctxSet.add(ctx);
     AccessControlStorage.Context storage newContext = data.ctxMap[ctx];
-    newContext.realm = realm;
+    newContext.realm = rpc.realm;
     newContext.contractId = predictedContractId;
-    newContext.isEnabled = status;
+    newContext.isEnabled = rpc.status;
 
     for (uint256 i = 0; i < rrc.length; i++) {
       require(bytes(data.roleMap[rrc[i].role].name).length != 0, "Role Not Found");

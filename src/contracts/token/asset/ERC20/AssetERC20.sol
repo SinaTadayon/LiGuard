@@ -3,7 +3,7 @@ pragma solidity 0.8.17;
 
 import "./IAssetERC20.sol";
 import "../IAssetEntity.sol";
-import "../IERC20Manager.sol";
+import "../IAssetManagerERC20.sol";
 import "../../lively/IERC20.sol";
 import "../../../proxy/Initializable.sol";
 import "../../../utils/Message.sol";
@@ -67,10 +67,10 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
       revert("Illegal AccessControlManager");
     }     
 
-    try IERC165(request.assetManager).supportsInterface(type(IERC20Manager).interfaceId) returns (bool isSupported) {
-      require(isSupported, "Invalid IERC20Manager");
+    try IERC165(request.assetManager).supportsInterface(type(IAssetManagerERC20).interfaceId) returns (bool isSupported) {
+      require(isSupported, "Invalid IAssetManagerERC20");
     } catch {
-      revert("Illegal IERC20Manager");
+      revert("Illegal IAssetManagerERC20");
     }     
 
     _accessControlManager = request.accessControl;
@@ -161,7 +161,7 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
     require(lockRequest.source == address(this), "Illegal Source Addres");
 
     emit AssetERC20Called(_msgSender(), address(this), this.tokenLock.selector);
-    return IERC20Manager(_assetManager).erc20Lock(_erc20Token, lockRequest);
+    return IAssetManagerERC20(_assetManager).tokenLock(_erc20Token, lockRequest);
   }
 
   function tokenBatchLock(IERC20Lock.LockTokenRequest[] calldata lockRequests) external returns (bytes32[] memory) {
@@ -171,7 +171,7 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
     }
 
     emit AssetERC20Called(_msgSender(), address(this), this.tokenBatchLock.selector);  
-    return IERC20Manager(_assetManager).erc20BatchLock(_erc20Token, lockRequests);
+    return IAssetManagerERC20(_assetManager).tokenBatchLock(_erc20Token, lockRequests);
   }
 
   function tokenTransfer(address to, uint256 amount) external returns (bool) {

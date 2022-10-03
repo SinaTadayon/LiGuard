@@ -4,7 +4,6 @@
 import type {
   BaseContract,
   BigNumber,
-  BigNumberish,
   BytesLike,
   CallOverrides,
   ContractTransaction,
@@ -13,7 +12,11 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type { FunctionFragment, Result } from "@ethersproject/abi";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
@@ -23,300 +26,225 @@ import type {
   PromiseOrValue,
 } from "../../common";
 
-export declare namespace IERC20Lock {
-  export type LockTokenRequestStruct = {
-    source: PromiseOrValue<string>;
-    dest: PromiseOrValue<string>;
-    timestamp: PromiseOrValue<BigNumberish>;
-    amount: PromiseOrValue<BigNumberish>;
-  };
-
-  export type LockTokenRequestStructOutput = [
-    string,
-    string,
-    BigNumber,
-    BigNumber
-  ] & { source: string; dest: string; timestamp: BigNumber; amount: BigNumber };
-}
-
-export declare namespace IERC20Extra {
-  export type BatchTransferRequestStruct = {
-    to: PromiseOrValue<string>;
-    amount: PromiseOrValue<BigNumberish>;
-  };
-
-  export type BatchTransferRequestStructOutput = [string, BigNumber] & {
-    to: string;
-    amount: BigNumber;
-  };
-
-  export type BatchTransferFromRequestStruct = {
-    from: PromiseOrValue<string>;
-    to: PromiseOrValue<string>;
-    amount: PromiseOrValue<BigNumberish>;
-  };
-
-  export type BatchTransferFromRequestStructOutput = [
-    string,
-    string,
-    BigNumber
-  ] & { from: string; to: string; amount: BigNumber };
-}
-
 export interface IAssetEntityInterface extends utils.Interface {
   functions: {
-    "entityBalance()": FunctionFragment;
-    "erc20Token()": FunctionFragment;
-    "tokenApprove(address,uint256)": FunctionFragment;
-    "tokenBatchLock((address,address,uint256,uint256)[])": FunctionFragment;
-    "tokenBatchTransfer((address,uint256)[])": FunctionFragment;
-    "tokenBatchTransferFrom((address,address,uint256)[])": FunctionFragment;
-    "tokenDecreaseAllowance(address,uint256)": FunctionFragment;
-    "tokenIncreaseAllowance(address,uint256)": FunctionFragment;
-    "tokenLock((address,address,uint256,uint256))": FunctionFragment;
-    "tokenPermit(address,address,uint256,uint256,bytes)": FunctionFragment;
-    "tokenTransfer(address,uint256)": FunctionFragment;
-    "tokenTransferFrom(address,address,uint256)": FunctionFragment;
+    "assetInitStatus()": FunctionFragment;
+    "assetInitVersion()": FunctionFragment;
+    "assetName()": FunctionFragment;
+    "assetRealm()": FunctionFragment;
+    "assetRole()": FunctionFragment;
+    "assetSafeMode()": FunctionFragment;
+    "assetSafeModeSet(bool)": FunctionFragment;
+    "assetToken()": FunctionFragment;
+    "assetType()": FunctionFragment;
+    "assetVersion()": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "entityBalance"
-      | "entityBalance()"
-      | "erc20Token"
-      | "erc20Token()"
-      | "tokenApprove"
-      | "tokenApprove(address,uint256)"
-      | "tokenBatchLock"
-      | "tokenBatchLock((address,address,uint256,uint256)[])"
-      | "tokenBatchTransfer"
-      | "tokenBatchTransfer((address,uint256)[])"
-      | "tokenBatchTransferFrom"
-      | "tokenBatchTransferFrom((address,address,uint256)[])"
-      | "tokenDecreaseAllowance"
-      | "tokenDecreaseAllowance(address,uint256)"
-      | "tokenIncreaseAllowance"
-      | "tokenIncreaseAllowance(address,uint256)"
-      | "tokenLock"
-      | "tokenLock((address,address,uint256,uint256))"
-      | "tokenPermit"
-      | "tokenPermit(address,address,uint256,uint256,bytes)"
-      | "tokenTransfer"
-      | "tokenTransfer(address,uint256)"
-      | "tokenTransferFrom"
-      | "tokenTransferFrom(address,address,uint256)"
+      | "assetInitStatus"
+      | "assetInitStatus()"
+      | "assetInitVersion"
+      | "assetInitVersion()"
+      | "assetName"
+      | "assetName()"
+      | "assetRealm"
+      | "assetRealm()"
+      | "assetRole"
+      | "assetRole()"
+      | "assetSafeMode"
+      | "assetSafeMode()"
+      | "assetSafeModeSet"
+      | "assetSafeModeSet(bool)"
+      | "assetToken"
+      | "assetToken()"
+      | "assetType"
+      | "assetType()"
+      | "assetVersion"
+      | "assetVersion()"
   ): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "entityBalance",
+    functionFragment: "assetInitStatus",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "entityBalance()",
+    functionFragment: "assetInitStatus()",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "erc20Token",
+    functionFragment: "assetInitVersion",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "erc20Token()",
+    functionFragment: "assetInitVersion()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "assetName", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "assetName()",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "tokenApprove",
-    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
+    functionFragment: "assetRealm",
+    values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "tokenApprove(address,uint256)",
-    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
+    functionFragment: "assetRealm()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "assetRole", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "assetRole()",
+    values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "tokenBatchLock",
-    values: [IERC20Lock.LockTokenRequestStruct[]]
+    functionFragment: "assetSafeMode",
+    values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "tokenBatchLock((address,address,uint256,uint256)[])",
-    values: [IERC20Lock.LockTokenRequestStruct[]]
+    functionFragment: "assetSafeMode()",
+    values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "tokenBatchTransfer",
-    values: [IERC20Extra.BatchTransferRequestStruct[]]
+    functionFragment: "assetSafeModeSet",
+    values: [PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
-    functionFragment: "tokenBatchTransfer((address,uint256)[])",
-    values: [IERC20Extra.BatchTransferRequestStruct[]]
+    functionFragment: "assetSafeModeSet(bool)",
+    values: [PromiseOrValue<boolean>]
   ): string;
   encodeFunctionData(
-    functionFragment: "tokenBatchTransferFrom",
-    values: [IERC20Extra.BatchTransferFromRequestStruct[]]
+    functionFragment: "assetToken",
+    values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "tokenBatchTransferFrom((address,address,uint256)[])",
-    values: [IERC20Extra.BatchTransferFromRequestStruct[]]
+    functionFragment: "assetToken()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "assetType", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "assetType()",
+    values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "tokenDecreaseAllowance",
-    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
+    functionFragment: "assetVersion",
+    values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "tokenDecreaseAllowance(address,uint256)",
-    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "tokenIncreaseAllowance",
-    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "tokenIncreaseAllowance(address,uint256)",
-    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "tokenLock",
-    values: [IERC20Lock.LockTokenRequestStruct]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "tokenLock((address,address,uint256,uint256))",
-    values: [IERC20Lock.LockTokenRequestStruct]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "tokenPermit",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BytesLike>
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "tokenPermit(address,address,uint256,uint256,bytes)",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BytesLike>
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "tokenTransfer",
-    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "tokenTransfer(address,uint256)",
-    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "tokenTransferFrom",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "tokenTransferFrom(address,address,uint256)",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
-    ]
+    functionFragment: "assetVersion()",
+    values?: undefined
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "entityBalance",
+    functionFragment: "assetInitStatus",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "entityBalance()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "erc20Token", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "erc20Token()",
+    functionFragment: "assetInitStatus()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "tokenApprove",
+    functionFragment: "assetInitVersion",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "tokenApprove(address,uint256)",
+    functionFragment: "assetInitVersion()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "assetName", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "assetName()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "assetRealm", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "assetRealm()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "assetRole", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "assetRole()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "tokenBatchLock",
+    functionFragment: "assetSafeMode",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "tokenBatchLock((address,address,uint256,uint256)[])",
+    functionFragment: "assetSafeMode()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "tokenBatchTransfer",
+    functionFragment: "assetSafeModeSet",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "tokenBatchTransfer((address,uint256)[])",
+    functionFragment: "assetSafeModeSet(bool)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "assetToken", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "assetToken()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "assetType", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "assetType()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "tokenBatchTransferFrom",
+    functionFragment: "assetVersion",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "tokenBatchTransferFrom((address,address,uint256)[])",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "tokenDecreaseAllowance",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "tokenDecreaseAllowance(address,uint256)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "tokenIncreaseAllowance",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "tokenIncreaseAllowance(address,uint256)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "tokenLock", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "tokenLock((address,address,uint256,uint256))",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "tokenPermit",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "tokenPermit(address,address,uint256,uint256,bytes)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "tokenTransfer",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "tokenTransfer(address,uint256)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "tokenTransferFrom",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "tokenTransferFrom(address,address,uint256)",
+    functionFragment: "assetVersion()",
     data: BytesLike
   ): Result;
 
-  events: {};
+  events: {
+    "AssetInitialized(address,address,string,string,bytes32)": EventFragment;
+    "AssetSafeModeChanged(address,address,bytes32,bool)": EventFragment;
+  };
+
+  getEvent(nameOrSignatureOrTopic: "AssetInitialized"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "AssetInitialized(address,address,string,string,bytes32)"
+  ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "AssetSafeModeChanged"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "AssetSafeModeChanged(address,address,bytes32,bool)"
+  ): EventFragment;
 }
+
+export interface AssetInitializedEventObject {
+  sender: string;
+  assetId: string;
+  name: string;
+  version: string;
+  realm: string;
+}
+export type AssetInitializedEvent = TypedEvent<
+  [string, string, string, string, string],
+  AssetInitializedEventObject
+>;
+
+export type AssetInitializedEventFilter =
+  TypedEventFilter<AssetInitializedEvent>;
+
+export interface AssetSafeModeChangedEventObject {
+  sender: string;
+  proxy: string;
+  realm: string;
+  status: boolean;
+}
+export type AssetSafeModeChangedEvent = TypedEvent<
+  [string, string, string, boolean],
+  AssetSafeModeChangedEventObject
+>;
+
+export type AssetSafeModeChangedEventFilter =
+  TypedEventFilter<AssetSafeModeChangedEvent>;
 
 export interface IAssetEntity extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -345,652 +273,274 @@ export interface IAssetEntity extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    entityBalance(overrides?: CallOverrides): Promise<[BigNumber]>;
+    assetInitStatus(overrides?: CallOverrides): Promise<[boolean]>;
 
-    "entityBalance()"(overrides?: CallOverrides): Promise<[BigNumber]>;
+    "assetInitStatus()"(overrides?: CallOverrides): Promise<[boolean]>;
 
-    erc20Token(overrides?: CallOverrides): Promise<[string]>;
+    assetInitVersion(overrides?: CallOverrides): Promise<[number]>;
 
-    "erc20Token()"(overrides?: CallOverrides): Promise<[string]>;
+    "assetInitVersion()"(overrides?: CallOverrides): Promise<[number]>;
 
-    tokenApprove(
-      spender: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
+    assetName(overrides?: CallOverrides): Promise<[string]>;
+
+    "assetName()"(overrides?: CallOverrides): Promise<[string]>;
+
+    assetRealm(overrides?: CallOverrides): Promise<[string]>;
+
+    "assetRealm()"(overrides?: CallOverrides): Promise<[string]>;
+
+    assetRole(overrides?: CallOverrides): Promise<[string]>;
+
+    "assetRole()"(overrides?: CallOverrides): Promise<[string]>;
+
+    assetSafeMode(overrides?: CallOverrides): Promise<[boolean]>;
+
+    "assetSafeMode()"(overrides?: CallOverrides): Promise<[boolean]>;
+
+    assetSafeModeSet(
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "tokenApprove(address,uint256)"(
-      spender: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
+    "assetSafeModeSet(bool)"(
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    tokenBatchLock(
-      lockRequests: IERC20Lock.LockTokenRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+    assetToken(overrides?: CallOverrides): Promise<[string]>;
 
-    "tokenBatchLock((address,address,uint256,uint256)[])"(
-      lockRequests: IERC20Lock.LockTokenRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+    "assetToken()"(overrides?: CallOverrides): Promise<[string]>;
 
-    tokenBatchTransfer(
-      request: IERC20Extra.BatchTransferRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+    assetType(overrides?: CallOverrides): Promise<[number]>;
 
-    "tokenBatchTransfer((address,uint256)[])"(
-      request: IERC20Extra.BatchTransferRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+    "assetType()"(overrides?: CallOverrides): Promise<[number]>;
 
-    tokenBatchTransferFrom(
-      request: IERC20Extra.BatchTransferFromRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+    assetVersion(overrides?: CallOverrides): Promise<[string]>;
 
-    "tokenBatchTransferFrom((address,address,uint256)[])"(
-      request: IERC20Extra.BatchTransferFromRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    tokenDecreaseAllowance(
-      spender: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "tokenDecreaseAllowance(address,uint256)"(
-      spender: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    tokenIncreaseAllowance(
-      spender: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "tokenIncreaseAllowance(address,uint256)"(
-      spender: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    tokenLock(
-      lockRequest: IERC20Lock.LockTokenRequestStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "tokenLock((address,address,uint256,uint256))"(
-      lockRequest: IERC20Lock.LockTokenRequestStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    tokenPermit(
-      owner: PromiseOrValue<string>,
-      spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
-      deadline: PromiseOrValue<BigNumberish>,
-      signature: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "tokenPermit(address,address,uint256,uint256,bytes)"(
-      owner: PromiseOrValue<string>,
-      spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
-      deadline: PromiseOrValue<BigNumberish>,
-      signature: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    tokenTransfer(
-      to: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "tokenTransfer(address,uint256)"(
-      to: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    tokenTransferFrom(
-      from: PromiseOrValue<string>,
-      to: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "tokenTransferFrom(address,address,uint256)"(
-      from: PromiseOrValue<string>,
-      to: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+    "assetVersion()"(overrides?: CallOverrides): Promise<[string]>;
   };
 
-  entityBalance(overrides?: CallOverrides): Promise<BigNumber>;
+  assetInitStatus(overrides?: CallOverrides): Promise<boolean>;
 
-  "entityBalance()"(overrides?: CallOverrides): Promise<BigNumber>;
+  "assetInitStatus()"(overrides?: CallOverrides): Promise<boolean>;
 
-  erc20Token(overrides?: CallOverrides): Promise<string>;
+  assetInitVersion(overrides?: CallOverrides): Promise<number>;
 
-  "erc20Token()"(overrides?: CallOverrides): Promise<string>;
+  "assetInitVersion()"(overrides?: CallOverrides): Promise<number>;
 
-  tokenApprove(
-    spender: PromiseOrValue<string>,
-    amount: PromiseOrValue<BigNumberish>,
+  assetName(overrides?: CallOverrides): Promise<string>;
+
+  "assetName()"(overrides?: CallOverrides): Promise<string>;
+
+  assetRealm(overrides?: CallOverrides): Promise<string>;
+
+  "assetRealm()"(overrides?: CallOverrides): Promise<string>;
+
+  assetRole(overrides?: CallOverrides): Promise<string>;
+
+  "assetRole()"(overrides?: CallOverrides): Promise<string>;
+
+  assetSafeMode(overrides?: CallOverrides): Promise<boolean>;
+
+  "assetSafeMode()"(overrides?: CallOverrides): Promise<boolean>;
+
+  assetSafeModeSet(
+    status: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "tokenApprove(address,uint256)"(
-    spender: PromiseOrValue<string>,
-    amount: PromiseOrValue<BigNumberish>,
+  "assetSafeModeSet(bool)"(
+    status: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  tokenBatchLock(
-    lockRequests: IERC20Lock.LockTokenRequestStruct[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  assetToken(overrides?: CallOverrides): Promise<string>;
 
-  "tokenBatchLock((address,address,uint256,uint256)[])"(
-    lockRequests: IERC20Lock.LockTokenRequestStruct[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  "assetToken()"(overrides?: CallOverrides): Promise<string>;
 
-  tokenBatchTransfer(
-    request: IERC20Extra.BatchTransferRequestStruct[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  assetType(overrides?: CallOverrides): Promise<number>;
 
-  "tokenBatchTransfer((address,uint256)[])"(
-    request: IERC20Extra.BatchTransferRequestStruct[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  "assetType()"(overrides?: CallOverrides): Promise<number>;
 
-  tokenBatchTransferFrom(
-    request: IERC20Extra.BatchTransferFromRequestStruct[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  assetVersion(overrides?: CallOverrides): Promise<string>;
 
-  "tokenBatchTransferFrom((address,address,uint256)[])"(
-    request: IERC20Extra.BatchTransferFromRequestStruct[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  tokenDecreaseAllowance(
-    spender: PromiseOrValue<string>,
-    amount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "tokenDecreaseAllowance(address,uint256)"(
-    spender: PromiseOrValue<string>,
-    amount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  tokenIncreaseAllowance(
-    spender: PromiseOrValue<string>,
-    amount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "tokenIncreaseAllowance(address,uint256)"(
-    spender: PromiseOrValue<string>,
-    amount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  tokenLock(
-    lockRequest: IERC20Lock.LockTokenRequestStruct,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "tokenLock((address,address,uint256,uint256))"(
-    lockRequest: IERC20Lock.LockTokenRequestStruct,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  tokenPermit(
-    owner: PromiseOrValue<string>,
-    spender: PromiseOrValue<string>,
-    value: PromiseOrValue<BigNumberish>,
-    deadline: PromiseOrValue<BigNumberish>,
-    signature: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "tokenPermit(address,address,uint256,uint256,bytes)"(
-    owner: PromiseOrValue<string>,
-    spender: PromiseOrValue<string>,
-    value: PromiseOrValue<BigNumberish>,
-    deadline: PromiseOrValue<BigNumberish>,
-    signature: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  tokenTransfer(
-    to: PromiseOrValue<string>,
-    amount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "tokenTransfer(address,uint256)"(
-    to: PromiseOrValue<string>,
-    amount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  tokenTransferFrom(
-    from: PromiseOrValue<string>,
-    to: PromiseOrValue<string>,
-    amount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "tokenTransferFrom(address,address,uint256)"(
-    from: PromiseOrValue<string>,
-    to: PromiseOrValue<string>,
-    amount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  "assetVersion()"(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
-    entityBalance(overrides?: CallOverrides): Promise<BigNumber>;
+    assetInitStatus(overrides?: CallOverrides): Promise<boolean>;
 
-    "entityBalance()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "assetInitStatus()"(overrides?: CallOverrides): Promise<boolean>;
 
-    erc20Token(overrides?: CallOverrides): Promise<string>;
+    assetInitVersion(overrides?: CallOverrides): Promise<number>;
 
-    "erc20Token()"(overrides?: CallOverrides): Promise<string>;
+    "assetInitVersion()"(overrides?: CallOverrides): Promise<number>;
 
-    tokenApprove(
-      spender: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
+    assetName(overrides?: CallOverrides): Promise<string>;
+
+    "assetName()"(overrides?: CallOverrides): Promise<string>;
+
+    assetRealm(overrides?: CallOverrides): Promise<string>;
+
+    "assetRealm()"(overrides?: CallOverrides): Promise<string>;
+
+    assetRole(overrides?: CallOverrides): Promise<string>;
+
+    "assetRole()"(overrides?: CallOverrides): Promise<string>;
+
+    assetSafeMode(overrides?: CallOverrides): Promise<boolean>;
+
+    "assetSafeMode()"(overrides?: CallOverrides): Promise<boolean>;
+
+    assetSafeModeSet(
+      status: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "tokenApprove(address,uint256)"(
-      spender: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
+    "assetSafeModeSet(bool)"(
+      status: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    tokenBatchLock(
-      lockRequests: IERC20Lock.LockTokenRequestStruct[],
-      overrides?: CallOverrides
-    ): Promise<string[]>;
+    assetToken(overrides?: CallOverrides): Promise<string>;
 
-    "tokenBatchLock((address,address,uint256,uint256)[])"(
-      lockRequests: IERC20Lock.LockTokenRequestStruct[],
-      overrides?: CallOverrides
-    ): Promise<string[]>;
+    "assetToken()"(overrides?: CallOverrides): Promise<string>;
 
-    tokenBatchTransfer(
-      request: IERC20Extra.BatchTransferRequestStruct[],
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    assetType(overrides?: CallOverrides): Promise<number>;
 
-    "tokenBatchTransfer((address,uint256)[])"(
-      request: IERC20Extra.BatchTransferRequestStruct[],
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    "assetType()"(overrides?: CallOverrides): Promise<number>;
 
-    tokenBatchTransferFrom(
-      request: IERC20Extra.BatchTransferFromRequestStruct[],
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    assetVersion(overrides?: CallOverrides): Promise<string>;
 
-    "tokenBatchTransferFrom((address,address,uint256)[])"(
-      request: IERC20Extra.BatchTransferFromRequestStruct[],
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    tokenDecreaseAllowance(
-      spender: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "tokenDecreaseAllowance(address,uint256)"(
-      spender: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    tokenIncreaseAllowance(
-      spender: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "tokenIncreaseAllowance(address,uint256)"(
-      spender: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    tokenLock(
-      lockRequest: IERC20Lock.LockTokenRequestStruct,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    "tokenLock((address,address,uint256,uint256))"(
-      lockRequest: IERC20Lock.LockTokenRequestStruct,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    tokenPermit(
-      owner: PromiseOrValue<string>,
-      spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
-      deadline: PromiseOrValue<BigNumberish>,
-      signature: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "tokenPermit(address,address,uint256,uint256,bytes)"(
-      owner: PromiseOrValue<string>,
-      spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
-      deadline: PromiseOrValue<BigNumberish>,
-      signature: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    tokenTransfer(
-      to: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "tokenTransfer(address,uint256)"(
-      to: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    tokenTransferFrom(
-      from: PromiseOrValue<string>,
-      to: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "tokenTransferFrom(address,address,uint256)"(
-      from: PromiseOrValue<string>,
-      to: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
+    "assetVersion()"(overrides?: CallOverrides): Promise<string>;
   };
 
-  filters: {};
+  filters: {
+    "AssetInitialized(address,address,string,string,bytes32)"(
+      sender?: PromiseOrValue<string> | null,
+      assetId?: PromiseOrValue<string> | null,
+      name?: null,
+      version?: null,
+      realm?: null
+    ): AssetInitializedEventFilter;
+    AssetInitialized(
+      sender?: PromiseOrValue<string> | null,
+      assetId?: PromiseOrValue<string> | null,
+      name?: null,
+      version?: null,
+      realm?: null
+    ): AssetInitializedEventFilter;
+
+    "AssetSafeModeChanged(address,address,bytes32,bool)"(
+      sender?: PromiseOrValue<string> | null,
+      proxy?: PromiseOrValue<string> | null,
+      realm?: PromiseOrValue<BytesLike> | null,
+      status?: null
+    ): AssetSafeModeChangedEventFilter;
+    AssetSafeModeChanged(
+      sender?: PromiseOrValue<string> | null,
+      proxy?: PromiseOrValue<string> | null,
+      realm?: PromiseOrValue<BytesLike> | null,
+      status?: null
+    ): AssetSafeModeChangedEventFilter;
+  };
 
   estimateGas: {
-    entityBalance(overrides?: CallOverrides): Promise<BigNumber>;
+    assetInitStatus(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "entityBalance()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "assetInitStatus()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    erc20Token(overrides?: CallOverrides): Promise<BigNumber>;
+    assetInitVersion(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "erc20Token()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "assetInitVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    tokenApprove(
-      spender: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
+    assetName(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "assetName()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    assetRealm(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "assetRealm()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    assetRole(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "assetRole()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    assetSafeMode(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "assetSafeMode()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    assetSafeModeSet(
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "tokenApprove(address,uint256)"(
-      spender: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
+    "assetSafeModeSet(bool)"(
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    tokenBatchLock(
-      lockRequests: IERC20Lock.LockTokenRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+    assetToken(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "tokenBatchLock((address,address,uint256,uint256)[])"(
-      lockRequests: IERC20Lock.LockTokenRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+    "assetToken()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    tokenBatchTransfer(
-      request: IERC20Extra.BatchTransferRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+    assetType(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "tokenBatchTransfer((address,uint256)[])"(
-      request: IERC20Extra.BatchTransferRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+    "assetType()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    tokenBatchTransferFrom(
-      request: IERC20Extra.BatchTransferFromRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+    assetVersion(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "tokenBatchTransferFrom((address,address,uint256)[])"(
-      request: IERC20Extra.BatchTransferFromRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    tokenDecreaseAllowance(
-      spender: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "tokenDecreaseAllowance(address,uint256)"(
-      spender: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    tokenIncreaseAllowance(
-      spender: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "tokenIncreaseAllowance(address,uint256)"(
-      spender: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    tokenLock(
-      lockRequest: IERC20Lock.LockTokenRequestStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "tokenLock((address,address,uint256,uint256))"(
-      lockRequest: IERC20Lock.LockTokenRequestStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    tokenPermit(
-      owner: PromiseOrValue<string>,
-      spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
-      deadline: PromiseOrValue<BigNumberish>,
-      signature: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "tokenPermit(address,address,uint256,uint256,bytes)"(
-      owner: PromiseOrValue<string>,
-      spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
-      deadline: PromiseOrValue<BigNumberish>,
-      signature: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    tokenTransfer(
-      to: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "tokenTransfer(address,uint256)"(
-      to: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    tokenTransferFrom(
-      from: PromiseOrValue<string>,
-      to: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "tokenTransferFrom(address,address,uint256)"(
-      from: PromiseOrValue<string>,
-      to: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+    "assetVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
-    entityBalance(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    assetInitStatus(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "entityBalance()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    "assetInitStatus()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
-    erc20Token(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    assetInitVersion(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "erc20Token()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    "assetInitVersion()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
-    tokenApprove(
-      spender: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
+    assetName(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "assetName()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    assetRealm(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "assetRealm()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    assetRole(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "assetRole()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    assetSafeMode(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "assetSafeMode()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    assetSafeModeSet(
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "tokenApprove(address,uint256)"(
-      spender: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
+    "assetSafeModeSet(bool)"(
+      status: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    tokenBatchLock(
-      lockRequests: IERC20Lock.LockTokenRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+    assetToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "tokenBatchLock((address,address,uint256,uint256)[])"(
-      lockRequests: IERC20Lock.LockTokenRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+    "assetToken()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    tokenBatchTransfer(
-      request: IERC20Extra.BatchTransferRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+    assetType(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "tokenBatchTransfer((address,uint256)[])"(
-      request: IERC20Extra.BatchTransferRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+    "assetType()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    tokenBatchTransferFrom(
-      request: IERC20Extra.BatchTransferFromRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+    assetVersion(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "tokenBatchTransferFrom((address,address,uint256)[])"(
-      request: IERC20Extra.BatchTransferFromRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    tokenDecreaseAllowance(
-      spender: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "tokenDecreaseAllowance(address,uint256)"(
-      spender: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    tokenIncreaseAllowance(
-      spender: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "tokenIncreaseAllowance(address,uint256)"(
-      spender: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    tokenLock(
-      lockRequest: IERC20Lock.LockTokenRequestStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "tokenLock((address,address,uint256,uint256))"(
-      lockRequest: IERC20Lock.LockTokenRequestStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    tokenPermit(
-      owner: PromiseOrValue<string>,
-      spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
-      deadline: PromiseOrValue<BigNumberish>,
-      signature: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "tokenPermit(address,address,uint256,uint256,bytes)"(
-      owner: PromiseOrValue<string>,
-      spender: PromiseOrValue<string>,
-      value: PromiseOrValue<BigNumberish>,
-      deadline: PromiseOrValue<BigNumberish>,
-      signature: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    tokenTransfer(
-      to: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "tokenTransfer(address,uint256)"(
-      to: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    tokenTransferFrom(
-      from: PromiseOrValue<string>,
-      to: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "tokenTransferFrom(address,address,uint256)"(
-      from: PromiseOrValue<string>,
-      to: PromiseOrValue<string>,
-      amount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+    "assetVersion()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

@@ -47,6 +47,7 @@ abstract contract LivelyStorage is BaseUUPSStorage {
   uint256 internal _taxRate;
   address internal _taxTreasury;
   bool internal _isPaused;
+  bool internal _isTokenDistributed;
 
   DataCollection internal _data;
 

@@ -6,6 +6,9 @@ import "./IERC20Extra.sol";
 import "./IERC20Pause.sol";
 import "./IERC20Lock.sol";
 import "./LivelyStorage.sol";
+import "../asset/IAssetEntity.sol";
+import "../asset/IAssetManagerERC20.sol";
+import "../asset/ERC20/IAssetERC20.sol";
 import "../../proxy/BaseUUPSProxy.sol";
 import "../../lib/token/LTokenERC20.sol";
 import "../../lib/cryptography/LECDSA.sol";
@@ -29,7 +32,6 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
     string domainRealm;
     bytes signature;
     uint256 taxRateValue;
-    uint256 totalSupplyAmount;
     address accessControlManager;
     address taxTreasuryAddress;
     address assetManager;
@@ -311,13 +313,52 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
     _symbol = "LVL";
     _taxRate = request.taxRateValue;
     _taxTreasury = request.taxTreasuryAddress;
-    _mint(request.assetManager, request.totalSupplyAmount);
+    _isTokenDistributed = false;
+
+    try IERC165(request.assetManager).supportsInterface(type(IAssetManagerERC20).interfaceId) returns (bool isSupported) {
+      require(isSupported, "Invalid IAssetManagerERC20");
+    } catch {
+      revert("Illegal IAssetManagerERC20");
+    }     
+
+    _mint(request.assetManager, 5_000_000_000 * 10 ** 18);  // 5 billion tokens according to tokenomics
     _initContext(request.domainName, request.domainVersion, realm, request.signature);
   }
 
-  // TODO complete it
-  function distributeToken() public view onlyProxy onlyLocalAdmin safeModeCheck returns (bool) {
-    require(_getInitializedCount() == 1, "Token Already Distributed");
+  function tokensDistribution(address[6] calldata assets) public safeModeCheck aclCheck(this.tokensDistribution.selector) returns (bool) {
+    require(!_isTokenDistributed, "Token Already Distributed");
+    for (uint i = 0; i < 6; i++) {
+       try IERC165(assets[i]).supportsInterface(type(IAssetEntity).interfaceId) returns (bool isSupported) {
+        require(isSupported, "Invalid IAssetEntity Address");
+      } catch {
+        revert("Illegal IAssetEntity Address");
+      }
+      require(IAssetEntity(assets[i]).assetType() == IAssetEntity.AssetType.ERC20, "Invalid Asset Type");
+      require(IAssetEntity(assets[i]).assetToken() == address(this), "Invalid Asset Token");
+      if (IAssetEntity(assets[i]).assetName() == "LIVELY_AUDIO_VIDEO_PROGRAM_ASSET") {
+        _transfer(_msgSender(), assets[i], 500_000_000 * 10 ** 18);     // 10% 
+
+      } else if (IAssetEntity(assets[i]).assetName() == "LIVELY_FOUNDING_TEAM_ASSET") {
+        _transfer(_msgSender(), assets[i], 900_000_000 * 10 ** 18);     // 18%
+
+      } else if (IAssetEntity(assets[i]).assetName() == "LIVELY_TREASURY_ASSET") {
+        _transfer(_msgSender(), assets[i], 750_000_000 * 10 ** 18);     // 15%
+
+      } else if (IAssetEntity(assets[i]).assetName() == "LIVELY_PUBLIC_SALE_ASSET") {
+        _transfer(_msgSender(), assets[i], 2_000_000_000 * 10 ** 18);   // 40%
+
+      } else if (IAssetEntity(assets[i]).assetName() == "LIVELY_VALIDATORS_REWARDS_ASSET") {
+        _transfer(_msgSender(), assets[i], 300_000_000 * 10 ** 18);     // 6%
+
+      } else if (IAssetEntity(assets[i]).assetName() == "LIVELY_CROWD_FOUNDING_ASSET") {
+        _transfer(_msgSender(), assets[i], 550_000_000 * 10 ** 18);     // 11%
+
+      } else {
+        revert("Asset Not Supported");
+      }
+    }
+
+    _isTokenDistributed = true;
     return true;
   }
 

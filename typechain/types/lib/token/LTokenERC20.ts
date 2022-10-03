@@ -25,7 +25,7 @@ export declare namespace IContextManagement {
     name: PromiseOrValue<BytesLike>;
     version: PromiseOrValue<BytesLike>;
     realm: PromiseOrValue<BytesLike>;
-    smca: PromiseOrValue<string>;
+    contractId: PromiseOrValue<string>;
     status: PromiseOrValue<boolean>;
   };
 
@@ -39,7 +39,7 @@ export declare namespace IContextManagement {
     name: string;
     version: string;
     realm: string;
-    smca: string;
+    contractId: string;
     status: boolean;
   };
 

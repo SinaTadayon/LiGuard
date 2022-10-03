@@ -67,9 +67,10 @@ library LTokenERC20 {
 
     rrc[3].role = IAccessControl(IProxy(address(this)).accessControlManager()).livelyAssetManagerRole();
     rrc[3].isEnabled = true;
-    rrc[3].funcSelectors = new bytes4[](2);
+    rrc[3].funcSelectors = new bytes4[](3);
     rrc[3].funcSelectors[0] = IERC20Lock.lockToken.selector;  
     rrc[3].funcSelectors[1] = IERC20Lock.batchLockToken.selector;  
+    rrc[3].funcSelectors[2] = bytes4(keccak256("tokensDistribution(address[6] calldata)"));
     
     rrc[4].role = IAccessControl(IProxy(address(this)).accessControlManager()).livelyCommunityDaoExecutorRole();
     rrc[4].isEnabled = true;
@@ -81,7 +82,7 @@ library LTokenERC20 {
       name: domainName,
       version: domainVersion,
       realm: realm,
-      smca: address(this),
+      contractId: address(this),
       status: true
     });
 

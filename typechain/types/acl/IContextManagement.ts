@@ -32,7 +32,7 @@ export declare namespace IContextManagement {
     name: PromiseOrValue<BytesLike>;
     version: PromiseOrValue<BytesLike>;
     realm: PromiseOrValue<BytesLike>;
-    smca: PromiseOrValue<string>;
+    contractId: PromiseOrValue<string>;
     isSafeMode: PromiseOrValue<boolean>;
     isUpgradable: PromiseOrValue<boolean>;
   };
@@ -48,7 +48,7 @@ export declare namespace IContextManagement {
     name: string;
     version: string;
     realm: string;
-    smca: string;
+    contractId: string;
     isSafeMode: boolean;
     isUpgradable: boolean;
   };
@@ -57,7 +57,7 @@ export declare namespace IContextManagement {
     name: PromiseOrValue<BytesLike>;
     version: PromiseOrValue<BytesLike>;
     realm: PromiseOrValue<BytesLike>;
-    smca: PromiseOrValue<string>;
+    contractId: PromiseOrValue<string>;
     status: PromiseOrValue<boolean>;
   };
 
@@ -71,7 +71,7 @@ export declare namespace IContextManagement {
     name: string;
     version: string;
     realm: string;
-    smca: string;
+    contractId: string;
     status: boolean;
   };
 
@@ -86,6 +86,34 @@ export declare namespace IContextManagement {
     string[],
     boolean
   ] & { role: string; funcSelectors: string[]; isEnabled: boolean };
+
+  export type RequestPredictContextStruct = {
+    name: PromiseOrValue<BytesLike>;
+    version: PromiseOrValue<BytesLike>;
+    realm: PromiseOrValue<BytesLike>;
+    salt: PromiseOrValue<BytesLike>;
+    bytesHash: PromiseOrValue<BytesLike>;
+    base: PromiseOrValue<string>;
+    status: PromiseOrValue<boolean>;
+  };
+
+  export type RequestPredictContextStructOutput = [
+    string,
+    string,
+    string,
+    string,
+    string,
+    string,
+    boolean
+  ] & {
+    name: string;
+    version: string;
+    realm: string;
+    salt: string;
+    bytesHash: string;
+    base: string;
+    status: boolean;
+  };
 
   export type RequestUpdateContextStruct = {
     role: PromiseOrValue<BytesLike>;
@@ -108,6 +136,7 @@ export interface IContextManagementInterface extends utils.Interface {
     "grantContextRole(bytes32,bytes4,bytes32)": FunctionFragment;
     "hasContextRole(bytes32,bytes32,bytes4)": FunctionFragment;
     "registerContext(bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])": FunctionFragment;
+    "registerPredictContext(bytes,(bytes32,bytes32,bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])": FunctionFragment;
     "removeContextFunc(bytes32,bytes4)": FunctionFragment;
     "revokeContextRole(bytes32,bytes4,bytes32)": FunctionFragment;
     "setContextRealm(bytes32,bytes32)": FunctionFragment;
@@ -129,6 +158,8 @@ export interface IContextManagementInterface extends utils.Interface {
       | "hasContextRole(bytes32,bytes32,bytes4)"
       | "registerContext"
       | "registerContext(bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])"
+      | "registerPredictContext"
+      | "registerPredictContext(bytes,(bytes32,bytes32,bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])"
       | "removeContextFunc"
       | "removeContextFunc(bytes32,bytes4)"
       | "revokeContextRole"
@@ -222,6 +253,22 @@ export interface IContextManagementInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "registerPredictContext",
+    values: [
+      PromiseOrValue<BytesLike>,
+      IContextManagement.RequestPredictContextStruct,
+      IContextManagement.RequestRegisterContextStruct[]
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "registerPredictContext(bytes,(bytes32,bytes32,bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])",
+    values: [
+      PromiseOrValue<BytesLike>,
+      IContextManagement.RequestPredictContextStruct,
+      IContextManagement.RequestRegisterContextStruct[]
+    ]
+  ): string;
+  encodeFunctionData(
     functionFragment: "removeContextFunc",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
   ): string;
@@ -329,6 +376,14 @@ export interface IContextManagementInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "registerPredictContext",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "registerPredictContext(bytes,(bytes32,bytes32,bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "removeContextFunc",
     data: BytesLike
   ): Result;
@@ -373,11 +428,12 @@ export interface IContextManagementInterface extends utils.Interface {
     "ContextFuncRemoved(bytes32,address,bytes4,bytes32)": EventFragment;
     "ContextFuncRoleAdded(bytes32,bytes32,address,bytes4,bytes32)": EventFragment;
     "ContextRealmChanged(bytes32,address,bytes32,bytes32)": EventFragment;
-    "ContextRegistered(bytes32,address,address,bytes32)": EventFragment;
+    "ContextRegistered(bytes32,address,address,address,bytes32)": EventFragment;
     "ContextRoleGranted(bytes32,bytes32,address,bytes4,bytes32)": EventFragment;
     "ContextRoleRevoked(bytes32,bytes32,address,bytes4,bytes32)": EventFragment;
     "ContextStatusChanged(bytes32,address,bytes32,bool)": EventFragment;
     "ContextUpdated(bytes32,address,address,bytes32)": EventFragment;
+    "PredictContextRegistered(bytes32,address,address,address,bytes32,bytes32)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "ContextFuncRemoved"): EventFragment;
@@ -394,7 +450,7 @@ export interface IContextManagementInterface extends utils.Interface {
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ContextRegistered"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "ContextRegistered(bytes32,address,address,bytes32)"
+    nameOrSignatureOrTopic: "ContextRegistered(bytes32,address,address,address,bytes32)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ContextRoleGranted"): EventFragment;
   getEvent(
@@ -411,6 +467,10 @@ export interface IContextManagementInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "ContextUpdated"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "ContextUpdated(bytes32,address,address,bytes32)"
+  ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "PredictContextRegistered"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "PredictContextRegistered(bytes32,address,address,address,bytes32,bytes32)"
   ): EventFragment;
 }
 
@@ -459,12 +519,13 @@ export type ContextRealmChangedEventFilter =
 
 export interface ContextRegisteredEventObject {
   context: string;
-  scma: string;
+  contractId: string;
+  signer: string;
   sender: string;
   realm: string;
 }
 export type ContextRegisteredEvent = TypedEvent<
-  [string, string, string, string],
+  [string, string, string, string, string],
   ContextRegisteredEventObject
 >;
 
@@ -517,7 +578,7 @@ export type ContextStatusChangedEventFilter =
 
 export interface ContextUpdatedEventObject {
   context: string;
-  scma: string;
+  contractId: string;
   sender: string;
   realm: string;
 }
@@ -527,6 +588,22 @@ export type ContextUpdatedEvent = TypedEvent<
 >;
 
 export type ContextUpdatedEventFilter = TypedEventFilter<ContextUpdatedEvent>;
+
+export interface PredictContextRegisteredEventObject {
+  context: string;
+  base: string;
+  signer: string;
+  sender: string;
+  realm: string;
+  bytesHash: string;
+}
+export type PredictContextRegisteredEvent = TypedEvent<
+  [string, string, string, string, string, string],
+  PredictContextRegisteredEventObject
+>;
+
+export type PredictContextRegisteredEventFilter =
+  TypedEventFilter<PredictContextRegisteredEvent>;
 
 export interface IContextManagement extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -628,6 +705,20 @@ export interface IContextManagement extends BaseContract {
       signature: PromiseOrValue<BytesLike>,
       rc: IContextManagement.RequestContextStruct,
       rcr: IContextManagement.RequestRegisterContextStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    registerPredictContext(
+      signature: PromiseOrValue<BytesLike>,
+      rpc: IContextManagement.RequestPredictContextStruct,
+      rrc: IContextManagement.RequestRegisterContextStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "registerPredictContext(bytes,(bytes32,bytes32,bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])"(
+      signature: PromiseOrValue<BytesLike>,
+      rpc: IContextManagement.RequestPredictContextStruct,
+      rrc: IContextManagement.RequestRegisterContextStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -774,6 +865,20 @@ export interface IContextManagement extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  registerPredictContext(
+    signature: PromiseOrValue<BytesLike>,
+    rpc: IContextManagement.RequestPredictContextStruct,
+    rrc: IContextManagement.RequestRegisterContextStruct[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "registerPredictContext(bytes,(bytes32,bytes32,bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])"(
+    signature: PromiseOrValue<BytesLike>,
+    rpc: IContextManagement.RequestPredictContextStruct,
+    rrc: IContextManagement.RequestRegisterContextStruct[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   removeContextFunc(
     ctx: PromiseOrValue<BytesLike>,
     functionSelector: PromiseOrValue<BytesLike>,
@@ -917,6 +1022,20 @@ export interface IContextManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
+    registerPredictContext(
+      signature: PromiseOrValue<BytesLike>,
+      rpc: IContextManagement.RequestPredictContextStruct,
+      rrc: IContextManagement.RequestRegisterContextStruct[],
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    "registerPredictContext(bytes,(bytes32,bytes32,bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])"(
+      signature: PromiseOrValue<BytesLike>,
+      rpc: IContextManagement.RequestPredictContextStruct,
+      rrc: IContextManagement.RequestRegisterContextStruct[],
+      overrides?: CallOverrides
+    ): Promise<string>;
+
     removeContextFunc(
       ctx: PromiseOrValue<BytesLike>,
       functionSelector: PromiseOrValue<BytesLike>,
@@ -1026,16 +1145,18 @@ export interface IContextManagement extends BaseContract {
       oldRealm?: null
     ): ContextRealmChangedEventFilter;
 
-    "ContextRegistered(bytes32,address,address,bytes32)"(
+    "ContextRegistered(bytes32,address,address,address,bytes32)"(
       context?: PromiseOrValue<BytesLike> | null,
-      scma?: PromiseOrValue<string> | null,
-      sender?: PromiseOrValue<string> | null,
+      contractId?: PromiseOrValue<string> | null,
+      signer?: PromiseOrValue<string> | null,
+      sender?: null,
       realm?: null
     ): ContextRegisteredEventFilter;
     ContextRegistered(
       context?: PromiseOrValue<BytesLike> | null,
-      scma?: PromiseOrValue<string> | null,
-      sender?: PromiseOrValue<string> | null,
+      contractId?: PromiseOrValue<string> | null,
+      signer?: PromiseOrValue<string> | null,
+      sender?: null,
       realm?: null
     ): ContextRegisteredEventFilter;
 
@@ -1084,16 +1205,33 @@ export interface IContextManagement extends BaseContract {
 
     "ContextUpdated(bytes32,address,address,bytes32)"(
       context?: PromiseOrValue<BytesLike> | null,
-      scma?: PromiseOrValue<string> | null,
+      contractId?: PromiseOrValue<string> | null,
       sender?: PromiseOrValue<string> | null,
       realm?: null
     ): ContextUpdatedEventFilter;
     ContextUpdated(
       context?: PromiseOrValue<BytesLike> | null,
-      scma?: PromiseOrValue<string> | null,
+      contractId?: PromiseOrValue<string> | null,
       sender?: PromiseOrValue<string> | null,
       realm?: null
     ): ContextUpdatedEventFilter;
+
+    "PredictContextRegistered(bytes32,address,address,address,bytes32,bytes32)"(
+      context?: PromiseOrValue<BytesLike> | null,
+      base?: PromiseOrValue<string> | null,
+      signer?: PromiseOrValue<string> | null,
+      sender?: null,
+      realm?: null,
+      bytesHash?: null
+    ): PredictContextRegisteredEventFilter;
+    PredictContextRegistered(
+      context?: PromiseOrValue<BytesLike> | null,
+      base?: PromiseOrValue<string> | null,
+      signer?: PromiseOrValue<string> | null,
+      sender?: null,
+      realm?: null,
+      bytesHash?: null
+    ): PredictContextRegisteredEventFilter;
   };
 
   estimateGas: {
@@ -1170,6 +1308,20 @@ export interface IContextManagement extends BaseContract {
       signature: PromiseOrValue<BytesLike>,
       rc: IContextManagement.RequestContextStruct,
       rcr: IContextManagement.RequestRegisterContextStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    registerPredictContext(
+      signature: PromiseOrValue<BytesLike>,
+      rpc: IContextManagement.RequestPredictContextStruct,
+      rrc: IContextManagement.RequestRegisterContextStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "registerPredictContext(bytes,(bytes32,bytes32,bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])"(
+      signature: PromiseOrValue<BytesLike>,
+      rpc: IContextManagement.RequestPredictContextStruct,
+      rrc: IContextManagement.RequestRegisterContextStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1314,6 +1466,20 @@ export interface IContextManagement extends BaseContract {
       signature: PromiseOrValue<BytesLike>,
       rc: IContextManagement.RequestContextStruct,
       rcr: IContextManagement.RequestRegisterContextStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    registerPredictContext(
+      signature: PromiseOrValue<BytesLike>,
+      rpc: IContextManagement.RequestPredictContextStruct,
+      rrc: IContextManagement.RequestRegisterContextStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "registerPredictContext(bytes,(bytes32,bytes32,bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])"(
+      signature: PromiseOrValue<BytesLike>,
+      rpc: IContextManagement.RequestPredictContextStruct,
+      rrc: IContextManagement.RequestRegisterContextStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

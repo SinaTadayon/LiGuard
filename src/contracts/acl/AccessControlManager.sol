@@ -17,8 +17,6 @@ import "../lib/acl/LAccessControl.sol";
 import "../proxy/Initializable.sol";
 import "../proxy/BaseUUPSProxy.sol";
 
-// import "hardhat/console.sol";
-
 contract AccessControlManager is
   AccessControlStorage,
   BaseUUPSProxy,

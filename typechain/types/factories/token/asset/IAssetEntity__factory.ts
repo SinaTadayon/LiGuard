@@ -11,13 +11,81 @@ import type {
 
 const _abi = [
   {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "assetId",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "name",
+        type: "string",
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "version",
+        type: "string",
+      },
+      {
+        indexed: false,
+        internalType: "bytes32",
+        name: "realm",
+        type: "bytes32",
+      },
+    ],
+    name: "AssetInitialized",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "proxy",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "realm",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "bool",
+        name: "status",
+        type: "bool",
+      },
+    ],
+    name: "AssetSafeModeChanged",
+    type: "event",
+  },
+  {
     inputs: [],
-    name: "entityBalance",
+    name: "assetInitStatus",
     outputs: [
       {
-        internalType: "uint256",
+        internalType: "bool",
         name: "",
-        type: "uint256",
+        type: "bool",
       },
     ],
     stateMutability: "view",
@@ -25,228 +93,20 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "erc20Token",
+    name: "assetInitVersion",
     outputs: [
       {
-        internalType: "address",
+        internalType: "uint16",
         name: "",
-        type: "address",
+        type: "uint16",
       },
     ],
     stateMutability: "view",
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "address",
-        name: "spender",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-    ],
-    name: "tokenApprove",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        components: [
-          {
-            internalType: "address",
-            name: "source",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "dest",
-            type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "timestamp",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "amount",
-            type: "uint256",
-          },
-        ],
-        internalType: "struct IERC20Lock.LockTokenRequest[]",
-        name: "lockRequests",
-        type: "tuple[]",
-      },
-    ],
-    name: "tokenBatchLock",
-    outputs: [
-      {
-        internalType: "bytes32[]",
-        name: "",
-        type: "bytes32[]",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        components: [
-          {
-            internalType: "address",
-            name: "to",
-            type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "amount",
-            type: "uint256",
-          },
-        ],
-        internalType: "struct IERC20Extra.BatchTransferRequest[]",
-        name: "request",
-        type: "tuple[]",
-      },
-    ],
-    name: "tokenBatchTransfer",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        components: [
-          {
-            internalType: "address",
-            name: "from",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "to",
-            type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "amount",
-            type: "uint256",
-          },
-        ],
-        internalType: "struct IERC20Extra.BatchTransferFromRequest[]",
-        name: "request",
-        type: "tuple[]",
-      },
-    ],
-    name: "tokenBatchTransferFrom",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "spender",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-    ],
-    name: "tokenDecreaseAllowance",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "spender",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-    ],
-    name: "tokenIncreaseAllowance",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        components: [
-          {
-            internalType: "address",
-            name: "source",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "dest",
-            type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "timestamp",
-            type: "uint256",
-          },
-          {
-            internalType: "uint256",
-            name: "amount",
-            type: "uint256",
-          },
-        ],
-        internalType: "struct IERC20Lock.LockTokenRequest",
-        name: "lockRequest",
-        type: "tuple",
-      },
-    ],
-    name: "tokenLock",
+    inputs: [],
+    name: "assetName",
     outputs: [
       {
         internalType: "bytes32",
@@ -254,38 +114,57 @@ const _abi = [
         type: "bytes32",
       },
     ],
-    stateMutability: "nonpayable",
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "assetRealm",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "assetRole",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "assetSafeMode",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
     inputs: [
       {
-        internalType: "address",
-        name: "owner",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "spender",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "value",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "deadline",
-        type: "uint256",
-      },
-      {
-        internalType: "bytes",
-        name: "signature",
-        type: "bytes",
+        internalType: "bool",
+        name: "status",
+        type: "bool",
       },
     ],
-    name: "tokenPermit",
+    name: "assetSafeModeSet",
     outputs: [
       {
         internalType: "bool",
@@ -297,56 +176,42 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "address",
-        name: "to",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-    ],
-    name: "tokenTransfer",
+    inputs: [],
+    name: "assetToken",
     outputs: [
       {
-        internalType: "bool",
+        internalType: "address",
         name: "",
-        type: "bool",
+        type: "address",
       },
     ],
-    stateMutability: "nonpayable",
+    stateMutability: "view",
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "address",
-        name: "from",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "to",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-    ],
-    name: "tokenTransferFrom",
+    inputs: [],
+    name: "assetType",
     outputs: [
       {
-        internalType: "bool",
+        internalType: "enum IAssetEntity.AssetType",
         name: "",
-        type: "bool",
+        type: "uint8",
       },
     ],
-    stateMutability: "nonpayable",
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "assetVersion",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
 ];
