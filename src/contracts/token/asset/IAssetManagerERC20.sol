@@ -27,7 +27,7 @@ interface IAssetManagerERC20 {
 
   function createAsset(CreateAssetRequest calldata request) external returns (address);
 
-  function updateAssetImpl(address assetImpl) external returns (bool);
+  function updateAssetImpl(address assetImpl, bytes calldata assetCreationSignature) external returns (bool);
 
   function registerToken(address tokenId) external returns (bool);
 

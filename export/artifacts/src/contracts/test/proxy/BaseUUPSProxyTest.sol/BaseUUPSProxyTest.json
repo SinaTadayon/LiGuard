@@ -724,15 +724,15 @@
   "evm": {
     "bytecode": {
       "functionDebugData": {
-        "@_26495": {
+        "@_26433": {
           "entryPoint": null,
-          "id": 26495,
+          "id": 26433,
           "parameterSlots": 0,
           "returnSlots": 0
         },
-        "@_msgSender_35658": {
+        "@_msgSender_35623": {
           "entryPoint": null,
-          "id": 35658,
+          "id": 35623,
           "parameterSlots": 0,
           "returnSlots": 1
         },
@@ -1097,159 +1097,159 @@
     },
     "deployedBytecode": {
       "functionDebugData": {
-        "@LIVELY_ADMIN_ROLE_27862": {
+        "@LIVELY_ADMIN_ROLE_27800": {
           "entryPoint": 9953,
-          "id": 27862,
+          "id": 27800,
           "parameterSlots": 0,
           "returnSlots": 0
         },
-        "@LIVELY_SYSTEM_ADMIN_ROLE_27870": {
+        "@LIVELY_SYSTEM_ADMIN_ROLE_27808": {
           "entryPoint": 6798,
-          "id": 27870,
+          "id": 27808,
           "parameterSlots": 0,
           "returnSlots": 0
         },
-        "@_27229": {
+        "@_27167": {
           "entryPoint": null,
-          "id": 27229,
+          "id": 27167,
           "parameterSlots": 0,
           "returnSlots": 0
         },
-        "@_27234": {
+        "@_27172": {
           "entryPoint": null,
-          "id": 27234,
+          "id": 27172,
           "parameterSlots": 0,
           "returnSlots": 0
         },
-        "@__BASE_UUPS_init_26514": {
+        "@__BASE_UUPS_init_26452": {
           "entryPoint": 10986,
-          "id": 26514,
+          "id": 26452,
           "parameterSlots": 6,
           "returnSlots": 0
         },
-        "@__BASE_UUPS_init_unchained_26609": {
+        "@__BASE_UUPS_init_unchained_26547": {
           "entryPoint": 12436,
-          "id": 26609,
+          "id": 26547,
           "parameterSlots": 6,
           "returnSlots": 0
         },
-        "@_authorizeUpgrade_26891": {
+        "@_authorizeUpgrade_26829": {
           "entryPoint": 11324,
-          "id": 26891,
+          "id": 26829,
           "parameterSlots": 1,
           "returnSlots": 0
         },
-        "@_domainSeparatorV4_27173": {
+        "@_domainSeparatorV4_27111": {
           "entryPoint": null,
-          "id": 27173,
+          "id": 27111,
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@_getInitializedCount_27585": {
+        "@_getInitializedCount_27523": {
           "entryPoint": null,
-          "id": 27585,
+          "id": 27523,
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@_getLocalAdmin_26954": {
+        "@_getLocalAdmin_26892": {
           "entryPoint": 10883,
-          "id": 26954,
+          "id": 26892,
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@_hasPermission_26386": {
+        "@_hasPermission_26324": {
           "entryPoint": 10524,
-          "id": 26386,
+          "id": 26324,
           "parameterSlots": 1,
           "returnSlots": 1
         },
-        "@_implementation_26652": {
+        "@_implementation_26590": {
           "entryPoint": 10491,
-          "id": 26652,
+          "id": 26590,
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@_isInitializing_27593": {
+        "@_isInitializing_27531": {
           "entryPoint": null,
-          "id": 27593,
+          "id": 27531,
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@_isRealmUpgradable_26440": {
+        "@_isRealmUpgradable_26378": {
           "entryPoint": 11008,
-          "id": 26440,
+          "id": 26378,
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@_msgSender_35658": {
+        "@_msgSender_35623": {
           "entryPoint": null,
-          "id": 35658,
+          "id": 35623,
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@_setImplementation_26676": {
+        "@_setImplementation_26614": {
           "entryPoint": 12959,
-          "id": 26676,
+          "id": 26614,
           "parameterSlots": 1,
           "returnSlots": 0
         },
-        "@_setLocalAdmin_26980": {
+        "@_setLocalAdmin_26918": {
           "entryPoint": 12116,
-          "id": 26980,
+          "id": 26918,
           "parameterSlots": 1,
           "returnSlots": 0
         },
-        "@_upgradeToAndCallUUPS_26820": {
+        "@_upgradeToAndCallUUPS_26758": {
           "entryPoint": 11523,
-          "id": 26820,
+          "id": 26758,
           "parameterSlots": 3,
           "returnSlots": 1
         },
-        "@_upgradeToAndCall_26734": {
+        "@_upgradeToAndCall_26672": {
           "entryPoint": 13088,
-          "id": 26734,
+          "id": 26672,
           "parameterSlots": 3,
           "returnSlots": 1
         },
-        "@_upgradeTo_26697": {
+        "@_upgradeTo_26635": {
           "entryPoint": 13251,
-          "id": 26697,
+          "id": 26635,
           "parameterSlots": 1,
           "returnSlots": 0
         },
-        "@accessControlManager_27118": {
+        "@accessControlManager_27056": {
           "entryPoint": null,
-          "id": 27118,
+          "id": 27056,
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@contractContext_27110": {
+        "@contractContext_27048": {
           "entryPoint": 8195,
-          "id": 27110,
+          "id": 27048,
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@contractName_27080": {
+        "@contractName_27018": {
           "entryPoint": null,
-          "id": 27080,
+          "id": 27018,
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@contractRealm_27096": {
+        "@contractRealm_27034": {
           "entryPoint": null,
-          "id": 27096,
+          "id": 27034,
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@contractVersion_27088": {
+        "@contractVersion_27026": {
           "entryPoint": null,
-          "id": 27088,
+          "id": 27026,
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@domainSeparator_27152": {
+        "@domainSeparator_27090": {
           "entryPoint": 10368,
-          "id": 27152,
+          "id": 27090,
           "parameterSlots": 0,
           "returnSlots": 1
         },
@@ -1277,33 +1277,33 @@
           "parameterSlots": 1,
           "returnSlots": 1
         },
-        "@initStatus_27191": {
+        "@initStatus_27129": {
           "entryPoint": null,
-          "id": 27191,
+          "id": 27129,
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@initVersion_27182": {
+        "@initVersion_27120": {
           "entryPoint": 3809,
-          "id": 27182,
+          "id": 27120,
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@initializeWithInvalidRealm_28305": {
+        "@initializeWithInvalidRealm_28243": {
           "entryPoint": 4907,
-          "id": 28305,
+          "id": 28243,
           "parameterSlots": 8,
           "returnSlots": 0
         },
-        "@initializeWithInvalidRole_28440": {
+        "@initializeWithInvalidRole_28378": {
           "entryPoint": 2868,
-          "id": 28440,
+          "id": 28378,
           "parameterSlots": 8,
           "returnSlots": 0
         },
-        "@initialize_28059": {
+        "@initialize_27997": {
           "entryPoint": 3829,
-          "id": 28059,
+          "id": 27997,
           "parameterSlots": 8,
           "returnSlots": 0
         },
@@ -1313,105 +1313,105 @@
           "parameterSlots": 1,
           "returnSlots": 1
         },
-        "@isSafeMode_27135": {
+        "@isSafeMode_27073": {
           "entryPoint": null,
-          "id": 27135,
+          "id": 27073,
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@isUpgradable_27143": {
+        "@isUpgradable_27081": {
           "entryPoint": null,
-          "id": 27143,
+          "id": 27081,
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@localAdmin_26900": {
+        "@localAdmin_26838": {
           "entryPoint": 10478,
-          "id": 26900,
+          "id": 26838,
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@proxiableUUID_26832": {
+        "@proxiableUUID_26770": {
           "entryPoint": 6657,
-          "id": 26832,
+          "id": 26770,
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@reInitializeWithInvalidRealm_28844": {
+        "@reInitializeWithInvalidRealm_28782": {
           "entryPoint": 1826,
-          "id": 28844,
+          "id": 28782,
           "parameterSlots": 1,
           "returnSlots": 0
         },
-        "@reInitializeWithInvalidRole_28944": {
+        "@reInitializeWithInvalidRole_28882": {
           "entryPoint": 7298,
-          "id": 28944,
+          "id": 28882,
           "parameterSlots": 1,
           "returnSlots": 0
         },
-        "@reInitialize_28706": {
+        "@reInitialize_28644": {
           "entryPoint": 8206,
-          "id": 28706,
+          "id": 28644,
           "parameterSlots": 1,
           "returnSlots": 0
         },
-        "@setLocalAdmin_26941": {
+        "@setLocalAdmin_26879": {
           "entryPoint": 9990,
-          "id": 26941,
+          "id": 26879,
           "parameterSlots": 1,
           "returnSlots": 1
         },
-        "@setSafeMode_27024": {
+        "@setSafeMode_26962": {
           "entryPoint": 5581,
-          "id": 27024,
+          "id": 26962,
           "parameterSlots": 1,
           "returnSlots": 1
         },
-        "@setUpgradeStatus_27072": {
+        "@setUpgradeStatus_27010": {
           "entryPoint": 6014,
-          "id": 27072,
+          "id": 27010,
           "parameterSlots": 1,
           "returnSlots": 1
         },
-        "@subjectAddress_27127": {
+        "@subjectAddress_27065": {
           "entryPoint": 6838,
-          "id": 27127,
+          "id": 27065,
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@supportsInterface_26638": {
+        "@supportsInterface_26576": {
           "entryPoint": 1352,
-          "id": 26638,
+          "id": 26576,
           "parameterSlots": 1,
           "returnSlots": 1
         },
-        "@supportsInterface_35619": {
+        "@supportsInterface_35584": {
           "entryPoint": null,
-          "id": 35619,
+          "id": 35584,
           "parameterSlots": 1,
           "returnSlots": 1
         },
-        "@upgradeToAndCall_29032": {
+        "@upgradeToAndCall_28970": {
           "entryPoint": 6471,
-          "id": 29032,
+          "id": 28970,
           "parameterSlots": 2,
           "returnSlots": 0
         },
-        "@upgradeToAnonymousRole_29012": {
+        "@upgradeToAnonymousRole_28950": {
           "entryPoint": 7812,
-          "id": 29012,
+          "id": 28950,
           "parameterSlots": 1,
           "returnSlots": 0
         },
-        "@upgradeToTesterRole_28978": {
+        "@upgradeToTesterRole_28916": {
           "entryPoint": 1434,
-          "id": 28978,
+          "id": 28916,
           "parameterSlots": 1,
           "returnSlots": 0
         },
-        "@upgradeTo_26867": {
+        "@upgradeTo_26805": {
           "entryPoint": 6848,
-          "id": 26867,
+          "id": 26805,
           "parameterSlots": 3,
           "returnSlots": 1
         },
@@ -1421,9 +1421,9 @@
           "parameterSlots": 3,
           "returnSlots": 1
         },
-        "@withdrawBalance_27224": {
+        "@withdrawBalance_27162": {
           "entryPoint": 7114,
-          "id": 27224,
+          "id": 27162,
           "parameterSlots": 1,
           "returnSlots": 0
         },
@@ -17576,7 +17576,7 @@
         }
       ],
       "immutableReferences": {
-        "27265": [
+        "27203": [
           {
             "length": 32,
             "start": 1444
@@ -17720,7 +17720,7 @@
   "storageLayout": {
     "storage": [
       {
-        "astId": 27267,
+        "astId": 27205,
         "contract": "src/contracts/test/proxy/BaseUUPSProxyTest.sol:BaseUUPSProxyTest",
         "label": "_accessControlManager",
         "offset": 0,
@@ -17728,7 +17728,7 @@
         "type": "t_address"
       },
       {
-        "astId": 27269,
+        "astId": 27207,
         "contract": "src/contracts/test/proxy/BaseUUPSProxyTest.sol:BaseUUPSProxyTest",
         "label": "_domainName",
         "offset": 0,
@@ -17736,7 +17736,7 @@
         "type": "t_bytes32"
       },
       {
-        "astId": 27271,
+        "astId": 27209,
         "contract": "src/contracts/test/proxy/BaseUUPSProxyTest.sol:BaseUUPSProxyTest",
         "label": "_domainVersion",
         "offset": 0,
@@ -17744,7 +17744,7 @@
         "type": "t_bytes32"
       },
       {
-        "astId": 27273,
+        "astId": 27211,
         "contract": "src/contracts/test/proxy/BaseUUPSProxyTest.sol:BaseUUPSProxyTest",
         "label": "_domainRealm",
         "offset": 0,
@@ -17752,7 +17752,7 @@
         "type": "t_bytes32"
       },
       {
-        "astId": 27275,
+        "astId": 27213,
         "contract": "src/contracts/test/proxy/BaseUUPSProxyTest.sol:BaseUUPSProxyTest",
         "label": "_isSafeMode",
         "offset": 0,
@@ -17760,7 +17760,7 @@
         "type": "t_bool"
       },
       {
-        "astId": 27277,
+        "astId": 27215,
         "contract": "src/contracts/test/proxy/BaseUUPSProxyTest.sol:BaseUUPSProxyTest",
         "label": "_isUpgradable",
         "offset": 1,
@@ -17768,7 +17768,7 @@
         "type": "t_bool"
       },
       {
-        "astId": 27282,
+        "astId": 27220,
         "contract": "src/contracts/test/proxy/BaseUUPSProxyTest.sol:BaseUUPSProxyTest",
         "label": "__gap",
         "offset": 0,
@@ -17776,7 +17776,7 @@
         "type": "t_array(t_uint256)64_storage"
       },
       {
-        "astId": 27455,
+        "astId": 27393,
         "contract": "src/contracts/test/proxy/BaseUUPSProxyTest.sol:BaseUUPSProxyTest",
         "label": "_initialized",
         "offset": 0,
@@ -17784,7 +17784,7 @@
         "type": "t_uint16"
       },
       {
-        "astId": 27458,
+        "astId": 27396,
         "contract": "src/contracts/test/proxy/BaseUUPSProxyTest.sol:BaseUUPSProxyTest",
         "label": "_initializing",
         "offset": 2,

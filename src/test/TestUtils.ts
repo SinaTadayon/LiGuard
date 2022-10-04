@@ -1,21 +1,19 @@
 import { Address } from "hardhat-deploy/dist/types";
-import { BigNumber, Wallet } from "ethers";
+import { BigNumber, BytesLike, Wallet } from "ethers";
 import { ethers, waffle } from "hardhat";
 
 export const DOMAIN_HASH: string = ethers.utils.keccak256(
   ethers.utils.toUtf8Bytes("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)")
 );
-export const MESSAGE_TYPE_HASH: string = ethers.utils.keccak256(
-  ethers.utils.toUtf8Bytes("Context(address contract,string name,string version,string realm)")
+export const MESSAGE_CONTEXT_TYPE_HASH: string = ethers.utils.keccak256(
+  ethers.utils.toUtf8Bytes("Context(address contractId,string name,string version,string realm)")
 );
-
+export const MESSAGE_PREDICT_CONTEXT_TYPE_HASH: string = ethers.utils.keccak256(
+  ethers.utils.toUtf8Bytes("PredictContext(address base,string name,string version,string realm,bytes32 bytesHash)")
+);
 export const PERMIT_TYPE_HASH: string = ethers.utils.keccak256(
   ethers.utils.toUtf8Bytes("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)")
 );
-
-// export const MESSAGE_TYPE_HASH: string = ethers.utils.keccak256(
-//   ethers.utils.toUtf8Bytes("Context(address contract,bytes32 name,bytes32 version,bytes32 realm)")
-// );
 
 const { provider } = waffle;
 
@@ -134,7 +132,7 @@ export async function generateContextDomainSignatureManually(
   const messageAbiEncode = abiCoder.encode(
     ["bytes32", "address", "bytes32", "bytes32", "bytes32"],
     [
-      MESSAGE_TYPE_HASH,
+      MESSAGE_CONTEXT_TYPE_HASH,
       contractAddress,
       ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [contractName])),
       ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [contractVersion])),
@@ -152,6 +150,50 @@ export async function generateContextDomainSignatureManually(
   // // Recover the address from signature
   // const recoveredAddress = ethers.utils.verifyMessage(domainMessageHash, signature);
   // console.log(`recoveredAddress: ${recoveredAddress}`);
+  return signature.compact;
+}
+
+export async function generatePredictContextDomainSignatureManually(
+  contractAddress: Address,
+  contractName: string,
+  contractVersion: string,
+  contractRealm: string,
+  verifyingContract: Address,
+  signerAddress: Wallet,
+  chainId: BigNumber,
+  base: Address,
+  bytesHash: BytesLike
+): Promise<string> {
+  const abiCoder = ethers.utils.defaultAbiCoder;
+
+  const domainAbiEncode = abiCoder.encode(
+    ["bytes32", "bytes32", "bytes32", "uint256", "address"],
+    [
+      DOMAIN_HASH,
+      ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["AccessControlManager"])),
+      ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["1.0.0"])),
+      chainId,
+      verifyingContract,
+    ]
+  );
+  const domainEncode = ethers.utils.keccak256(domainAbiEncode);
+
+  const messageAbiEncode = abiCoder.encode(
+    ["bytes32", "address", "bytes32", "bytes32", "bytes32", "bytes32"],
+    [
+      MESSAGE_PREDICT_CONTEXT_TYPE_HASH,
+      contractAddress,
+      ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [contractName])),
+      ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [contractVersion])),
+      ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [contractRealm])),
+      bytesHash
+    ]
+  );
+  const msgEncode = ethers.utils.keccak256(messageAbiEncode);
+  const domainMessageHash = ethers.utils.keccak256(
+    ethers.utils.solidityPack(["string", "bytes32", "bytes32"], ["\x19\x01", domainEncode, msgEncode])
+  );
+  const signature = signerAddress._signingKey().signDigest(domainMessageHash);
   return signature.compact;
 }
 

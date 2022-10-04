@@ -30,13 +30,9 @@ export declare namespace AssetManagerERC20 {
         domainVersion: PromiseOrValue<string>;
         domainRealm: PromiseOrValue<string>;
         accessControlManager: PromiseOrValue<string>;
-        assetImplERC20: PromiseOrValue<string>;
         assetManagerSignature: PromiseOrValue<BytesLike>;
-        assetCreationSignature: PromiseOrValue<BytesLike>;
     };
     type InitRequestStructOutput = [
-        string,
-        string,
         string,
         string,
         string,
@@ -47,9 +43,7 @@ export declare namespace AssetManagerERC20 {
         domainVersion: string;
         domainRealm: string;
         accessControlManager: string;
-        assetImplERC20: string;
         assetManagerSignature: string;
-        assetCreationSignature: string;
     };
 }
 export declare namespace IERC20Lock {
@@ -108,7 +102,7 @@ export interface AssetManagerERC20Interface extends utils.Interface {
         "getTokenInfo(address)": FunctionFragment;
         "initStatus()": FunctionFragment;
         "initVersion()": FunctionFragment;
-        "initialize((string,string,string,address,address,bytes,bytes))": FunctionFragment;
+        "initialize((string,string,string,address,bytes))": FunctionFragment;
         "isAssetExists(address)": FunctionFragment;
         "isSafeMode()": FunctionFragment;
         "isSafeModeAsset(address)": FunctionFragment;
@@ -136,11 +130,11 @@ export interface AssetManagerERC20Interface extends utils.Interface {
         "tokenLock(address,(address,address,uint256,uint256))": FunctionFragment;
         "tokenTransfer(address,address,uint256)": FunctionFragment;
         "tokenTransferFrom(address,address,address,uint256)": FunctionFragment;
-        "updateAssetImpl(address)": FunctionFragment;
+        "updateAssetImpl(address,bytes)": FunctionFragment;
         "upgradeTo(address,bytes,bool)": FunctionFragment;
         "withdrawBalance(address)": FunctionFragment;
     };
-    getFunction(nameOrSignatureOrTopic: "accessControlManager" | "accessControlManager()" | "contractContext" | "contractContext()" | "contractName" | "contractName()" | "contractRealm" | "contractRealm()" | "contractVersion" | "contractVersion()" | "createAsset" | "createAsset((bytes32,bytes32,address,string,string))" | "domainSeparator" | "domainSeparator()" | "getAllTokens" | "getAllTokens()" | "getTokenInfo" | "getTokenInfo(address)" | "initStatus" | "initStatus()" | "initVersion" | "initVersion()" | "initialize" | "initialize((string,string,string,address,address,bytes,bytes))" | "isAssetExists" | "isAssetExists(address)" | "isSafeMode" | "isSafeMode()" | "isSafeModeAsset" | "isSafeModeAsset(address)" | "isTokenExists" | "isTokenExists(address)" | "isUpgradable" | "isUpgradable()" | "livelyTokensDistribution" | "livelyTokensDistribution(address)" | "localAdmin" | "localAdmin()" | "predictAddress" | "predictAddress(address,bytes32)" | "proxiableUUID" | "proxiableUUID()" | "registerAssetRoles" | "registerAssetRoles()" | "registerToken" | "registerToken(address)" | "removeAsset" | "removeAsset(address)" | "setLocalAdmin" | "setLocalAdmin(address)" | "setSafeMode" | "setSafeMode(bool)" | "setSafeModeToken" | "setSafeModeToken(address,bool)" | "setUpgradeStatus" | "setUpgradeStatus(bool)" | "subjectAddress" | "subjectAddress()" | "supportsInterface" | "supportsInterface(bytes4)" | "tokenApprove" | "tokenApprove(address,address,uint256)" | "tokenBatchLock" | "tokenBatchLock(address,(address,address,uint256,uint256)[])" | "tokenBatchTransfer" | "tokenBatchTransfer(address,(address,uint256)[])" | "tokenBatchTransferFrom" | "tokenBatchTransferFrom(address,(address,address,uint256)[])" | "tokenDecreaseAllowance" | "tokenDecreaseAllowance(address,address,uint256)" | "tokenIncreaseAllowance" | "tokenIncreaseAllowance(address,address,uint256)" | "tokenLock" | "tokenLock(address,(address,address,uint256,uint256))" | "tokenTransfer" | "tokenTransfer(address,address,uint256)" | "tokenTransferFrom" | "tokenTransferFrom(address,address,address,uint256)" | "updateAssetImpl" | "updateAssetImpl(address)" | "upgradeTo" | "upgradeTo(address,bytes,bool)" | "withdrawBalance" | "withdrawBalance(address)"): FunctionFragment;
+    getFunction(nameOrSignatureOrTopic: "accessControlManager" | "accessControlManager()" | "contractContext" | "contractContext()" | "contractName" | "contractName()" | "contractRealm" | "contractRealm()" | "contractVersion" | "contractVersion()" | "createAsset" | "createAsset((bytes32,bytes32,address,string,string))" | "domainSeparator" | "domainSeparator()" | "getAllTokens" | "getAllTokens()" | "getTokenInfo" | "getTokenInfo(address)" | "initStatus" | "initStatus()" | "initVersion" | "initVersion()" | "initialize" | "initialize((string,string,string,address,bytes))" | "isAssetExists" | "isAssetExists(address)" | "isSafeMode" | "isSafeMode()" | "isSafeModeAsset" | "isSafeModeAsset(address)" | "isTokenExists" | "isTokenExists(address)" | "isUpgradable" | "isUpgradable()" | "livelyTokensDistribution" | "livelyTokensDistribution(address)" | "localAdmin" | "localAdmin()" | "predictAddress" | "predictAddress(address,bytes32)" | "proxiableUUID" | "proxiableUUID()" | "registerAssetRoles" | "registerAssetRoles()" | "registerToken" | "registerToken(address)" | "removeAsset" | "removeAsset(address)" | "setLocalAdmin" | "setLocalAdmin(address)" | "setSafeMode" | "setSafeMode(bool)" | "setSafeModeToken" | "setSafeModeToken(address,bool)" | "setUpgradeStatus" | "setUpgradeStatus(bool)" | "subjectAddress" | "subjectAddress()" | "supportsInterface" | "supportsInterface(bytes4)" | "tokenApprove" | "tokenApprove(address,address,uint256)" | "tokenBatchLock" | "tokenBatchLock(address,(address,address,uint256,uint256)[])" | "tokenBatchTransfer" | "tokenBatchTransfer(address,(address,uint256)[])" | "tokenBatchTransferFrom" | "tokenBatchTransferFrom(address,(address,address,uint256)[])" | "tokenDecreaseAllowance" | "tokenDecreaseAllowance(address,address,uint256)" | "tokenIncreaseAllowance" | "tokenIncreaseAllowance(address,address,uint256)" | "tokenLock" | "tokenLock(address,(address,address,uint256,uint256))" | "tokenTransfer" | "tokenTransfer(address,address,uint256)" | "tokenTransferFrom" | "tokenTransferFrom(address,address,address,uint256)" | "updateAssetImpl" | "updateAssetImpl(address,bytes)" | "upgradeTo" | "upgradeTo(address,bytes,bool)" | "withdrawBalance" | "withdrawBalance(address)"): FunctionFragment;
     encodeFunctionData(functionFragment: "accessControlManager", values?: undefined): string;
     encodeFunctionData(functionFragment: "accessControlManager()", values?: undefined): string;
     encodeFunctionData(functionFragment: "contractContext", values?: undefined): string;
@@ -164,7 +158,7 @@ export interface AssetManagerERC20Interface extends utils.Interface {
     encodeFunctionData(functionFragment: "initVersion", values?: undefined): string;
     encodeFunctionData(functionFragment: "initVersion()", values?: undefined): string;
     encodeFunctionData(functionFragment: "initialize", values: [AssetManagerERC20.InitRequestStruct]): string;
-    encodeFunctionData(functionFragment: "initialize((string,string,string,address,address,bytes,bytes))", values: [AssetManagerERC20.InitRequestStruct]): string;
+    encodeFunctionData(functionFragment: "initialize((string,string,string,address,bytes))", values: [AssetManagerERC20.InitRequestStruct]): string;
     encodeFunctionData(functionFragment: "isAssetExists", values: [PromiseOrValue<string>]): string;
     encodeFunctionData(functionFragment: "isAssetExists(address)", values: [PromiseOrValue<string>]): string;
     encodeFunctionData(functionFragment: "isSafeMode", values?: undefined): string;
@@ -267,8 +261,8 @@ export interface AssetManagerERC20Interface extends utils.Interface {
         PromiseOrValue<string>,
         PromiseOrValue<BigNumberish>
     ]): string;
-    encodeFunctionData(functionFragment: "updateAssetImpl", values: [PromiseOrValue<string>]): string;
-    encodeFunctionData(functionFragment: "updateAssetImpl(address)", values: [PromiseOrValue<string>]): string;
+    encodeFunctionData(functionFragment: "updateAssetImpl", values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]): string;
+    encodeFunctionData(functionFragment: "updateAssetImpl(address,bytes)", values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]): string;
     encodeFunctionData(functionFragment: "upgradeTo", values: [
         PromiseOrValue<string>,
         PromiseOrValue<BytesLike>,
@@ -304,7 +298,7 @@ export interface AssetManagerERC20Interface extends utils.Interface {
     decodeFunctionResult(functionFragment: "initVersion", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "initVersion()", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "initialize((string,string,string,address,address,bytes,bytes))", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "initialize((string,string,string,address,bytes))", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "isAssetExists", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "isAssetExists(address)", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "isSafeMode", data: BytesLike): Result;
@@ -360,7 +354,7 @@ export interface AssetManagerERC20Interface extends utils.Interface {
     decodeFunctionResult(functionFragment: "tokenTransferFrom", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "tokenTransferFrom(address,address,address,uint256)", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "updateAssetImpl", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "updateAssetImpl(address)", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "updateAssetImpl(address,bytes)", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "upgradeTo", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "upgradeTo(address,bytes,bool)", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "withdrawBalance", data: BytesLike): Result;
@@ -566,7 +560,7 @@ export interface AssetManagerERC20 extends BaseContract {
         initialize(request: AssetManagerERC20.InitRequestStruct, overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<ContractTransaction>;
-        "initialize((string,string,string,address,address,bytes,bytes))"(request: AssetManagerERC20.InitRequestStruct, overrides?: Overrides & {
+        "initialize((string,string,string,address,bytes))"(request: AssetManagerERC20.InitRequestStruct, overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<ContractTransaction>;
         isAssetExists(assetId: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[boolean]>;
@@ -691,10 +685,10 @@ export interface AssetManagerERC20 extends BaseContract {
         "tokenTransferFrom(address,address,address,uint256)"(assetId: PromiseOrValue<string>, from: PromiseOrValue<string>, to: PromiseOrValue<string>, amount: PromiseOrValue<BigNumberish>, overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<ContractTransaction>;
-        updateAssetImpl(assetImpl: PromiseOrValue<string>, overrides?: Overrides & {
+        updateAssetImpl(assetImpl: PromiseOrValue<string>, assetCreationSignature: PromiseOrValue<BytesLike>, overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<ContractTransaction>;
-        "updateAssetImpl(address)"(assetImpl: PromiseOrValue<string>, overrides?: Overrides & {
+        "updateAssetImpl(address,bytes)"(assetImpl: PromiseOrValue<string>, assetCreationSignature: PromiseOrValue<BytesLike>, overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<ContractTransaction>;
         upgradeTo(newImplementation: PromiseOrValue<string>, data: PromiseOrValue<BytesLike>, forceCall: PromiseOrValue<boolean>, overrides?: Overrides & {
@@ -739,7 +733,7 @@ export interface AssetManagerERC20 extends BaseContract {
     initialize(request: AssetManagerERC20.InitRequestStruct, overrides?: Overrides & {
         from?: PromiseOrValue<string>;
     }): Promise<ContractTransaction>;
-    "initialize((string,string,string,address,address,bytes,bytes))"(request: AssetManagerERC20.InitRequestStruct, overrides?: Overrides & {
+    "initialize((string,string,string,address,bytes))"(request: AssetManagerERC20.InitRequestStruct, overrides?: Overrides & {
         from?: PromiseOrValue<string>;
     }): Promise<ContractTransaction>;
     isAssetExists(assetId: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
@@ -864,10 +858,10 @@ export interface AssetManagerERC20 extends BaseContract {
     "tokenTransferFrom(address,address,address,uint256)"(assetId: PromiseOrValue<string>, from: PromiseOrValue<string>, to: PromiseOrValue<string>, amount: PromiseOrValue<BigNumberish>, overrides?: Overrides & {
         from?: PromiseOrValue<string>;
     }): Promise<ContractTransaction>;
-    updateAssetImpl(assetImpl: PromiseOrValue<string>, overrides?: Overrides & {
+    updateAssetImpl(assetImpl: PromiseOrValue<string>, assetCreationSignature: PromiseOrValue<BytesLike>, overrides?: Overrides & {
         from?: PromiseOrValue<string>;
     }): Promise<ContractTransaction>;
-    "updateAssetImpl(address)"(assetImpl: PromiseOrValue<string>, overrides?: Overrides & {
+    "updateAssetImpl(address,bytes)"(assetImpl: PromiseOrValue<string>, assetCreationSignature: PromiseOrValue<BytesLike>, overrides?: Overrides & {
         from?: PromiseOrValue<string>;
     }): Promise<ContractTransaction>;
     upgradeTo(newImplementation: PromiseOrValue<string>, data: PromiseOrValue<BytesLike>, forceCall: PromiseOrValue<boolean>, overrides?: Overrides & {
@@ -906,7 +900,7 @@ export interface AssetManagerERC20 extends BaseContract {
         initVersion(overrides?: CallOverrides): Promise<number>;
         "initVersion()"(overrides?: CallOverrides): Promise<number>;
         initialize(request: AssetManagerERC20.InitRequestStruct, overrides?: CallOverrides): Promise<void>;
-        "initialize((string,string,string,address,address,bytes,bytes))"(request: AssetManagerERC20.InitRequestStruct, overrides?: CallOverrides): Promise<void>;
+        "initialize((string,string,string,address,bytes))"(request: AssetManagerERC20.InitRequestStruct, overrides?: CallOverrides): Promise<void>;
         isAssetExists(assetId: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
         "isAssetExists(address)"(assetId: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
         isSafeMode(overrides?: CallOverrides): Promise<boolean>;
@@ -961,8 +955,8 @@ export interface AssetManagerERC20 extends BaseContract {
         "tokenTransfer(address,address,uint256)"(assetId: PromiseOrValue<string>, to: PromiseOrValue<string>, amount: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<boolean>;
         tokenTransferFrom(assetId: PromiseOrValue<string>, from: PromiseOrValue<string>, to: PromiseOrValue<string>, amount: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<boolean>;
         "tokenTransferFrom(address,address,address,uint256)"(assetId: PromiseOrValue<string>, from: PromiseOrValue<string>, to: PromiseOrValue<string>, amount: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<boolean>;
-        updateAssetImpl(assetImpl: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
-        "updateAssetImpl(address)"(assetImpl: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
+        updateAssetImpl(assetImpl: PromiseOrValue<string>, assetCreationSignature: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<boolean>;
+        "updateAssetImpl(address,bytes)"(assetImpl: PromiseOrValue<string>, assetCreationSignature: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<boolean>;
         upgradeTo(newImplementation: PromiseOrValue<string>, data: PromiseOrValue<BytesLike>, forceCall: PromiseOrValue<boolean>, overrides?: CallOverrides): Promise<string>;
         "upgradeTo(address,bytes,bool)"(newImplementation: PromiseOrValue<string>, data: PromiseOrValue<BytesLike>, forceCall: PromiseOrValue<boolean>, overrides?: CallOverrides): Promise<string>;
         withdrawBalance(recepient: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
@@ -1020,7 +1014,7 @@ export interface AssetManagerERC20 extends BaseContract {
         initialize(request: AssetManagerERC20.InitRequestStruct, overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<BigNumber>;
-        "initialize((string,string,string,address,address,bytes,bytes))"(request: AssetManagerERC20.InitRequestStruct, overrides?: Overrides & {
+        "initialize((string,string,string,address,bytes))"(request: AssetManagerERC20.InitRequestStruct, overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<BigNumber>;
         isAssetExists(assetId: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
@@ -1145,10 +1139,10 @@ export interface AssetManagerERC20 extends BaseContract {
         "tokenTransferFrom(address,address,address,uint256)"(assetId: PromiseOrValue<string>, from: PromiseOrValue<string>, to: PromiseOrValue<string>, amount: PromiseOrValue<BigNumberish>, overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<BigNumber>;
-        updateAssetImpl(assetImpl: PromiseOrValue<string>, overrides?: Overrides & {
+        updateAssetImpl(assetImpl: PromiseOrValue<string>, assetCreationSignature: PromiseOrValue<BytesLike>, overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<BigNumber>;
-        "updateAssetImpl(address)"(assetImpl: PromiseOrValue<string>, overrides?: Overrides & {
+        "updateAssetImpl(address,bytes)"(assetImpl: PromiseOrValue<string>, assetCreationSignature: PromiseOrValue<BytesLike>, overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<BigNumber>;
         upgradeTo(newImplementation: PromiseOrValue<string>, data: PromiseOrValue<BytesLike>, forceCall: PromiseOrValue<boolean>, overrides?: Overrides & {
@@ -1194,7 +1188,7 @@ export interface AssetManagerERC20 extends BaseContract {
         initialize(request: AssetManagerERC20.InitRequestStruct, overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<PopulatedTransaction>;
-        "initialize((string,string,string,address,address,bytes,bytes))"(request: AssetManagerERC20.InitRequestStruct, overrides?: Overrides & {
+        "initialize((string,string,string,address,bytes))"(request: AssetManagerERC20.InitRequestStruct, overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<PopulatedTransaction>;
         isAssetExists(assetId: PromiseOrValue<string>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1319,10 +1313,10 @@ export interface AssetManagerERC20 extends BaseContract {
         "tokenTransferFrom(address,address,address,uint256)"(assetId: PromiseOrValue<string>, from: PromiseOrValue<string>, to: PromiseOrValue<string>, amount: PromiseOrValue<BigNumberish>, overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<PopulatedTransaction>;
-        updateAssetImpl(assetImpl: PromiseOrValue<string>, overrides?: Overrides & {
+        updateAssetImpl(assetImpl: PromiseOrValue<string>, assetCreationSignature: PromiseOrValue<BytesLike>, overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<PopulatedTransaction>;
-        "updateAssetImpl(address)"(assetImpl: PromiseOrValue<string>, overrides?: Overrides & {
+        "updateAssetImpl(address,bytes)"(assetImpl: PromiseOrValue<string>, assetCreationSignature: PromiseOrValue<BytesLike>, overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<PopulatedTransaction>;
         upgradeTo(newImplementation: PromiseOrValue<string>, data: PromiseOrValue<BytesLike>, forceCall: PromiseOrValue<boolean>, overrides?: Overrides & {

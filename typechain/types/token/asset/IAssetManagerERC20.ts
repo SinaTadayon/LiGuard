@@ -111,7 +111,7 @@ export interface IAssetManagerERC20Interface extends utils.Interface {
     "tokenLock(address,(address,address,uint256,uint256))": FunctionFragment;
     "tokenTransfer(address,address,uint256)": FunctionFragment;
     "tokenTransferFrom(address,address,address,uint256)": FunctionFragment;
-    "updateAssetImpl(address)": FunctionFragment;
+    "updateAssetImpl(address,bytes)": FunctionFragment;
   };
 
   getFunction(
@@ -153,7 +153,7 @@ export interface IAssetManagerERC20Interface extends utils.Interface {
       | "tokenTransferFrom"
       | "tokenTransferFrom(address,address,address,uint256)"
       | "updateAssetImpl"
-      | "updateAssetImpl(address)"
+      | "updateAssetImpl(address,bytes)"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -350,11 +350,11 @@ export interface IAssetManagerERC20Interface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "updateAssetImpl",
-    values: [PromiseOrValue<string>]
+    values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "updateAssetImpl(address)",
-    values: [PromiseOrValue<string>]
+    functionFragment: "updateAssetImpl(address,bytes)",
+    values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]
   ): string;
 
   decodeFunctionResult(
@@ -503,7 +503,7 @@ export interface IAssetManagerERC20Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "updateAssetImpl(address)",
+    functionFragment: "updateAssetImpl(address,bytes)",
     data: BytesLike
   ): Result;
 
@@ -837,11 +837,13 @@ export interface IAssetManagerERC20 extends BaseContract {
 
     updateAssetImpl(
       assetImpl: PromiseOrValue<string>,
+      assetCreationSignature: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "updateAssetImpl(address)"(
+    "updateAssetImpl(address,bytes)"(
       assetImpl: PromiseOrValue<string>,
+      assetCreationSignature: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
@@ -1056,11 +1058,13 @@ export interface IAssetManagerERC20 extends BaseContract {
 
   updateAssetImpl(
     assetImpl: PromiseOrValue<string>,
+    assetCreationSignature: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "updateAssetImpl(address)"(
+  "updateAssetImpl(address,bytes)"(
     assetImpl: PromiseOrValue<string>,
+    assetCreationSignature: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1275,11 +1279,13 @@ export interface IAssetManagerERC20 extends BaseContract {
 
     updateAssetImpl(
       assetImpl: PromiseOrValue<string>,
+      assetCreationSignature: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "updateAssetImpl(address)"(
+    "updateAssetImpl(address,bytes)"(
       assetImpl: PromiseOrValue<string>,
+      assetCreationSignature: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
   };
@@ -1554,11 +1560,13 @@ export interface IAssetManagerERC20 extends BaseContract {
 
     updateAssetImpl(
       assetImpl: PromiseOrValue<string>,
+      assetCreationSignature: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "updateAssetImpl(address)"(
+    "updateAssetImpl(address,bytes)"(
       assetImpl: PromiseOrValue<string>,
+      assetCreationSignature: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -1774,11 +1782,13 @@ export interface IAssetManagerERC20 extends BaseContract {
 
     updateAssetImpl(
       assetImpl: PromiseOrValue<string>,
+      assetCreationSignature: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "updateAssetImpl(address)"(
+    "updateAssetImpl(address,bytes)"(
       assetImpl: PromiseOrValue<string>,
+      assetCreationSignature: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

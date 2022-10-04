@@ -97,7 +97,6 @@ export declare namespace LivelyToken {
     signature: PromiseOrValue<BytesLike>;
     taxRateValue: PromiseOrValue<BigNumberish>;
     accessControlManager: PromiseOrValue<string>;
-    taxTreasuryAddress: PromiseOrValue<string>;
     assetManager: PromiseOrValue<string>;
   };
 
@@ -108,7 +107,6 @@ export declare namespace LivelyToken {
     string,
     BigNumber,
     string,
-    string,
     string
   ] & {
     domainName: string;
@@ -117,7 +115,6 @@ export declare namespace LivelyToken {
     signature: string;
     taxRateValue: BigNumber;
     accessControlManager: string;
-    taxTreasuryAddress: string;
     assetManager: string;
   };
 }
@@ -146,7 +143,7 @@ export interface LivelyTokenInterface extends utils.Interface {
     "increaseAllowance(address,uint256)": FunctionFragment;
     "initStatus()": FunctionFragment;
     "initVersion()": FunctionFragment;
-    "initialize((string,string,string,bytes,uint256,address,address,address))": FunctionFragment;
+    "initialize((string,string,string,bytes,uint256,address,address))": FunctionFragment;
     "isPaused(address)": FunctionFragment;
     "isPausedAll()": FunctionFragment;
     "isSafeMode()": FunctionFragment;
@@ -172,7 +169,7 @@ export interface LivelyTokenInterface extends utils.Interface {
     "taxRate()": FunctionFragment;
     "taxTreasury()": FunctionFragment;
     "taxWhitelist()": FunctionFragment;
-    "tokensDistribution(address[6])": FunctionFragment;
+    "tokensDistribution(address[7])": FunctionFragment;
     "totalBalanceOf(address)": FunctionFragment;
     "totalSupply()": FunctionFragment;
     "transfer(address,uint256)": FunctionFragment;
@@ -233,7 +230,7 @@ export interface LivelyTokenInterface extends utils.Interface {
       | "initVersion"
       | "initVersion()"
       | "initialize"
-      | "initialize((string,string,string,bytes,uint256,address,address,address))"
+      | "initialize((string,string,string,bytes,uint256,address,address))"
       | "isPaused"
       | "isPaused(address)"
       | "isPausedAll"
@@ -285,7 +282,7 @@ export interface LivelyTokenInterface extends utils.Interface {
       | "taxWhitelist"
       | "taxWhitelist()"
       | "tokensDistribution"
-      | "tokensDistribution(address[6])"
+      | "tokensDistribution(address[7])"
       | "totalBalanceOf"
       | "totalBalanceOf(address)"
       | "totalSupply"
@@ -488,7 +485,7 @@ export interface LivelyTokenInterface extends utils.Interface {
     values: [LivelyToken.InitRequestStruct]
   ): string;
   encodeFunctionData(
-    functionFragment: "initialize((string,string,string,bytes,uint256,address,address,address))",
+    functionFragment: "initialize((string,string,string,bytes,uint256,address,address))",
     values: [LivelyToken.InitRequestStruct]
   ): string;
   encodeFunctionData(
@@ -687,7 +684,7 @@ export interface LivelyTokenInterface extends utils.Interface {
     values: [PromiseOrValue<string>[]]
   ): string;
   encodeFunctionData(
-    functionFragment: "tokensDistribution(address[6])",
+    functionFragment: "tokensDistribution(address[7])",
     values: [PromiseOrValue<string>[]]
   ): string;
   encodeFunctionData(
@@ -949,7 +946,7 @@ export interface LivelyTokenInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "initialize((string,string,string,bytes,uint256,address,address,address))",
+    functionFragment: "initialize((string,string,string,bytes,uint256,address,address))",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "isPaused", data: BytesLike): Result;
@@ -1106,7 +1103,7 @@ export interface LivelyTokenInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "tokensDistribution(address[6])",
+    functionFragment: "tokensDistribution(address[7])",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1834,7 +1831,7 @@ export interface LivelyToken extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "initialize((string,string,string,bytes,uint256,address,address,address))"(
+    "initialize((string,string,string,bytes,uint256,address,address))"(
       request: LivelyToken.InitRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -2032,7 +2029,7 @@ export interface LivelyToken extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "tokensDistribution(address[6])"(
+    "tokensDistribution(address[7])"(
       assets: PromiseOrValue<string>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -2333,7 +2330,7 @@ export interface LivelyToken extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "initialize((string,string,string,bytes,uint256,address,address,address))"(
+  "initialize((string,string,string,bytes,uint256,address,address))"(
     request: LivelyToken.InitRequestStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -2531,7 +2528,7 @@ export interface LivelyToken extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "tokensDistribution(address[6])"(
+  "tokensDistribution(address[7])"(
     assets: PromiseOrValue<string>[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -2832,7 +2829,7 @@ export interface LivelyToken extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "initialize((string,string,string,bytes,uint256,address,address,address))"(
+    "initialize((string,string,string,bytes,uint256,address,address))"(
       request: LivelyToken.InitRequestStruct,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -3026,7 +3023,7 @@ export interface LivelyToken extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "tokensDistribution(address[6])"(
+    "tokensDistribution(address[7])"(
       assets: PromiseOrValue<string>[],
       overrides?: CallOverrides
     ): Promise<boolean>;
@@ -3616,7 +3613,7 @@ export interface LivelyToken extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "initialize((string,string,string,bytes,uint256,address,address,address))"(
+    "initialize((string,string,string,bytes,uint256,address,address))"(
       request: LivelyToken.InitRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -3814,7 +3811,7 @@ export interface LivelyToken extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "tokensDistribution(address[6])"(
+    "tokensDistribution(address[7])"(
       assets: PromiseOrValue<string>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -4126,7 +4123,7 @@ export interface LivelyToken extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "initialize((string,string,string,bytes,uint256,address,address,address))"(
+    "initialize((string,string,string,bytes,uint256,address,address))"(
       request: LivelyToken.InitRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
@@ -4328,7 +4325,7 @@ export interface LivelyToken extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "tokensDistribution(address[6])"(
+    "tokensDistribution(address[7])"(
       assets: PromiseOrValue<string>[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;

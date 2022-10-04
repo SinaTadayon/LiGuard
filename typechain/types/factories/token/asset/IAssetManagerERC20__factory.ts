@@ -674,6 +674,11 @@ const _abi = [
         name: "assetImpl",
         type: "address",
       },
+      {
+        internalType: "bytes",
+        name: "assetCreationSignature",
+        type: "bytes",
+      },
     ],
     name: "updateAssetImpl",
     outputs: [

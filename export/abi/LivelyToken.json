@@ -1181,11 +1181,6 @@
           },
           {
             "internalType": "address",
-            "name": "taxTreasuryAddress",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
             "name": "assetManager",
             "type": "address"
           }
@@ -1660,9 +1655,9 @@
   {
     "inputs": [
       {
-        "internalType": "address[6]",
+        "internalType": "address[7]",
         "name": "assets",
-        "type": "address[6]"
+        "type": "address[7]"
       }
     ],
     "name": "tokensDistribution",

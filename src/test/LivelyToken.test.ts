@@ -248,7 +248,6 @@ describe("Lively Token Tests", function () {
           domainVersion: "1.0.0",
           domainRealm: "LIVELY_GENERAL_REALM",
           accessControlManager: accessControlManager.address,
-          taxTreasuryAddress,
           taxRateValue: BigNumber.from("300"),
           signature: "0x00",
           assetManager: assetManagerAddress,
@@ -320,7 +319,6 @@ describe("Lively Token Tests", function () {
         signature,
         taxRateValue: BigNumber.from(0),
         accessControlManager: accessControlManager.address,
-        taxTreasuryAddress,
         assetManager: assetManagerAddress,
       };
 

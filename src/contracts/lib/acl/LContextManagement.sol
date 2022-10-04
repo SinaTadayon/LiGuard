@@ -66,7 +66,7 @@ library LContextManagement {
     return (_registerContext(data, rc.contractId, rc.realm, rc.status, rrc), msgSigner);
   }
 
-   function registerPredictContext(
+  function registerPredictContext(
       AccessControlStorage.DataMaps storage data,
       bytes memory signature,
       IContextManagement.RequestPredictContext calldata rpc,

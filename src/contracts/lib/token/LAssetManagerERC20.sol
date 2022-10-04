@@ -147,22 +147,6 @@ library LAssetManagerERC20 {
     return tokenId;
   }
 
-  function updateAssetImpl(address assetImpl) external view returns (bool) {    
-
-    try IERC165(assetImpl).supportsInterface(type(IAssetERC20).interfaceId) returns (bool isSupported) {
-      require(isSupported, "Invalid IAssetERC20");
-    } catch {
-      revert("Illegal IAssetERC20");
-    }
-
-    try IERC165(assetImpl).supportsInterface(type(IAssetEntity).interfaceId) returns (bool isSupported) {
-      require(isSupported, "Invalid IAssetEntity");
-    } catch {
-      revert("Illegal IAssetEntity");
-    }
-    return true;
-  }
-
   function setSafeModeToken(AssetManagerStorageERC20.DataCollection storage data, address tokenId, bool isEnabled) external returns (bool) {    
     require(data.tokensSet.contains(tokenId), "Token Not Found");
     AssetManagerStorageERC20.TokenData storage tokenData = data.tokens[tokenId];

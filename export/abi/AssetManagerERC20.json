@@ -512,18 +512,8 @@
             "type": "address"
           },
           {
-            "internalType": "address",
-            "name": "assetImplERC20",
-            "type": "address"
-          },
-          {
             "internalType": "bytes",
             "name": "assetManagerSignature",
-            "type": "bytes"
-          },
-          {
-            "internalType": "bytes",
-            "name": "assetCreationSignature",
             "type": "bytes"
           }
         ],
@@ -1172,6 +1162,11 @@
         "internalType": "address",
         "name": "assetImpl",
         "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "assetCreationSignature",
+        "type": "bytes"
       }
     ],
     "name": "updateAssetImpl",

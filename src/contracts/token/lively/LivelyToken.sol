@@ -33,7 +33,6 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
     bytes signature;
     uint256 taxRateValue;
     address accessControlManager;
-    address taxTreasuryAddress;
     address assetManager;
   }
 
@@ -312,8 +311,8 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
     _name = "LIVELY";
     _symbol = "LVL";
     _taxRate = request.taxRateValue;
-    _taxTreasury = request.taxTreasuryAddress;
     _isTokenDistributed = false;
+    _isSafeMode = true;
 
     try IERC165(request.assetManager).supportsInterface(type(IAssetManagerERC20).interfaceId) returns (bool isSupported) {
       require(isSupported, "Invalid IAssetManagerERC20");
@@ -325,9 +324,9 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
     _initContext(request.domainName, request.domainVersion, realm, request.signature);
   }
 
-  function tokensDistribution(address[6] calldata assets) public safeModeCheck aclCheck(this.tokensDistribution.selector) returns (bool) {
+  function tokensDistribution(address[7] calldata assets) public safeModeCheck aclCheck(this.tokensDistribution.selector) returns (bool) {
     require(!_isTokenDistributed, "Token Already Distributed");
-    for (uint i = 0; i < 6; i++) {
+    for (uint i = 0; i < 7; i++) {
        try IERC165(assets[i]).supportsInterface(type(IAssetEntity).interfaceId) returns (bool isSupported) {
         require(isSupported, "Invalid IAssetEntity Address");
       } catch {
@@ -353,12 +352,16 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
       } else if (IAssetEntity(assets[i]).assetName() == "LIVELY_CROWD_FOUNDING_ASSET") {
         _transfer(_msgSender(), assets[i], 550_000_000 * 10 ** 18);     // 11%
 
+      } else if (IAssetEntity(assets[i]).assetName() == "LIVELY_TAX_TREASURY_ASSET") {
+        _taxTreasury = assets[i];
+
       } else {
         revert("Asset Not Supported");
       }
     }
 
     _isTokenDistributed = true;
+    _isSafeMode = false;
     return true;
   }
 

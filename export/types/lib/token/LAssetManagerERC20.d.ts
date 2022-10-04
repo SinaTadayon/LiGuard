@@ -44,9 +44,8 @@ export interface LAssetManagerERC20Interface extends utils.Interface {
         "LIB_VERSION()": FunctionFragment;
         "createRequestContext(bytes32,bytes32,bytes32)": FunctionFragment;
         "predictAddress(address,bytes32)": FunctionFragment;
-        "updateAssetImpl(address)": FunctionFragment;
     };
-    getFunction(nameOrSignatureOrTopic: "LIB_NAME" | "LIB_NAME()" | "LIB_VERSION" | "LIB_VERSION()" | "createRequestContext" | "createRequestContext(bytes32,bytes32,bytes32)" | "predictAddress" | "predictAddress(address,bytes32)" | "updateAssetImpl" | "updateAssetImpl(address)"): FunctionFragment;
+    getFunction(nameOrSignatureOrTopic: "LIB_NAME" | "LIB_NAME()" | "LIB_VERSION" | "LIB_VERSION()" | "createRequestContext" | "createRequestContext(bytes32,bytes32,bytes32)" | "predictAddress" | "predictAddress(address,bytes32)"): FunctionFragment;
     encodeFunctionData(functionFragment: "LIB_NAME", values?: undefined): string;
     encodeFunctionData(functionFragment: "LIB_NAME()", values?: undefined): string;
     encodeFunctionData(functionFragment: "LIB_VERSION", values?: undefined): string;
@@ -63,8 +62,6 @@ export interface LAssetManagerERC20Interface extends utils.Interface {
     ]): string;
     encodeFunctionData(functionFragment: "predictAddress", values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]): string;
     encodeFunctionData(functionFragment: "predictAddress(address,bytes32)", values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]): string;
-    encodeFunctionData(functionFragment: "updateAssetImpl", values: [PromiseOrValue<string>]): string;
-    encodeFunctionData(functionFragment: "updateAssetImpl(address)", values: [PromiseOrValue<string>]): string;
     decodeFunctionResult(functionFragment: "LIB_NAME", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "LIB_NAME()", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "LIB_VERSION", data: BytesLike): Result;
@@ -73,8 +70,6 @@ export interface LAssetManagerERC20Interface extends utils.Interface {
     decodeFunctionResult(functionFragment: "createRequestContext(bytes32,bytes32,bytes32)", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "predictAddress", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "predictAddress(address,bytes32)", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "updateAssetImpl", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "updateAssetImpl(address)", data: BytesLike): Result;
     events: {};
 }
 export interface LAssetManagerERC20 extends BaseContract {
@@ -106,8 +101,6 @@ export interface LAssetManagerERC20 extends BaseContract {
         ]>;
         predictAddress(base: PromiseOrValue<string>, salt: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<[string]>;
         "predictAddress(address,bytes32)"(base: PromiseOrValue<string>, salt: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<[string]>;
-        updateAssetImpl(assetImpl: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[boolean]>;
-        "updateAssetImpl(address)"(assetImpl: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[boolean]>;
     };
     LIB_NAME(overrides?: CallOverrides): Promise<string>;
     "LIB_NAME()"(overrides?: CallOverrides): Promise<string>;
@@ -123,8 +116,6 @@ export interface LAssetManagerERC20 extends BaseContract {
     ]>;
     predictAddress(base: PromiseOrValue<string>, salt: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<string>;
     "predictAddress(address,bytes32)"(base: PromiseOrValue<string>, salt: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<string>;
-    updateAssetImpl(assetImpl: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
-    "updateAssetImpl(address)"(assetImpl: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
     callStatic: {
         LIB_NAME(overrides?: CallOverrides): Promise<string>;
         "LIB_NAME()"(overrides?: CallOverrides): Promise<string>;
@@ -140,8 +131,6 @@ export interface LAssetManagerERC20 extends BaseContract {
         ]>;
         predictAddress(base: PromiseOrValue<string>, salt: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<string>;
         "predictAddress(address,bytes32)"(base: PromiseOrValue<string>, salt: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<string>;
-        updateAssetImpl(assetImpl: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
-        "updateAssetImpl(address)"(assetImpl: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
     };
     filters: {};
     estimateGas: {
@@ -153,8 +142,6 @@ export interface LAssetManagerERC20 extends BaseContract {
         "createRequestContext(bytes32,bytes32,bytes32)"(domainName: PromiseOrValue<BytesLike>, domainVersion: PromiseOrValue<BytesLike>, realm: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
         predictAddress(base: PromiseOrValue<string>, salt: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
         "predictAddress(address,bytes32)"(base: PromiseOrValue<string>, salt: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
-        updateAssetImpl(assetImpl: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
-        "updateAssetImpl(address)"(assetImpl: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
     };
     populateTransaction: {
         LIB_NAME(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -165,7 +152,5 @@ export interface LAssetManagerERC20 extends BaseContract {
         "createRequestContext(bytes32,bytes32,bytes32)"(domainName: PromiseOrValue<BytesLike>, domainVersion: PromiseOrValue<BytesLike>, realm: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
         predictAddress(base: PromiseOrValue<string>, salt: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
         "predictAddress(address,bytes32)"(base: PromiseOrValue<string>, salt: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
-        updateAssetImpl(assetImpl: PromiseOrValue<string>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
-        "updateAssetImpl(address)"(assetImpl: PromiseOrValue<string>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
     };
 }

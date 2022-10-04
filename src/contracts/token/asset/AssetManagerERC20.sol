@@ -21,9 +21,7 @@ contract AssetManagerERC20 is AssetManagerStorageERC20, BaseUUPSProxy, IAssetMan
     string domainVersion;
     string domainRealm;    
     address accessControlManager;
-    address assetImplERC20;
     bytes assetManagerSignature;
-    bytes assetCreationSignature;
   }
 
   constructor() {}
@@ -32,20 +30,6 @@ contract AssetManagerERC20 is AssetManagerStorageERC20, BaseUUPSProxy, IAssetMan
 
     bytes32 realm = keccak256(abi.encodePacked(request.domainRealm));
     __BASE_UUPS_init(request.domainName, request.domainVersion, realm, request.accessControlManager);
-
-    try IERC165(request.assetImplERC20).supportsInterface(type(IAssetERC20).interfaceId) returns (bool isSupported) {
-      require(isSupported, "Invalid IAssetERC20");
-    } catch {
-      revert("Illegal IAssetERC20");
-    }
-
-    try IERC165(request.assetImplERC20).supportsInterface(type(IAssetEntity).interfaceId) returns (bool isSupported) {
-      require(isSupported, "Invalid IAssetEntity");
-    } catch {
-      revert("Illegal IAssetEntity");
-    }
-
-    _assetCreationSignature = request.assetCreationSignature;
 
     (IContextManagement.RequestContext memory rc, IContextManagement.RequestRegisterContext[] memory rrc) = 
       LAssetManagerERC20.createRequestContext(_domainName, _domainVersion, _domainRealm);
@@ -73,8 +57,10 @@ contract AssetManagerERC20 is AssetManagerStorageERC20, BaseUUPSProxy, IAssetMan
     require(!_data.tokensSet.contains(tokenId), "TokenId Not Found");
     
     TokenData storage tokenData = _data.tokens[tokenId];
-    address[6] memory assets;
-    for(uint i = 0; i < 6; i++) {
+    require(tokenData.assets.length() == 7, "Asset Required Failed");
+
+    address[7] memory assets;
+    for(uint i = 0; i < 7; i++) {
       assets[i] = tokenData.assets.at(i);
     }
     return LivelyToken(payable(tokenId)).tokensDistribution(assets);
@@ -146,12 +132,25 @@ contract AssetManagerERC20 is AssetManagerStorageERC20, BaseUUPSProxy, IAssetMan
     return true;
   }
 
-  function updateAssetImpl(address assetImpl) external returns (bool) {
+  function updateAssetImpl(address assetImpl, bytes calldata assetCreationSignature) external returns (bool) {
     _policyInterceptor(this.updateAssetImpl.selector);
+    try IERC165(assetImpl).supportsInterface(type(IAssetERC20).interfaceId) returns (bool isSupported) {
+      require(isSupported, "Invalid IAssetERC20");
+    } catch {
+      revert("Illegal IAssetERC20");
+    }
+
+    try IERC165(assetImpl).supportsInterface(type(IAssetEntity).interfaceId) returns (bool isSupported) {
+      require(isSupported, "Invalid IAssetEntity");
+    } catch {
+      revert("Illegal IAssetEntity");
+    }
+
     require(_assetImplERC20 != assetImpl, "AssetImpl Already Exists");
-    LAssetManagerERC20.updateAssetImpl(assetImpl);
-    emit AssetImplUpdated(_msgSender(), assetImpl);
+    require(assetCreationSignature.length > 0, "Invalid Signature");
     _assetImplERC20 = assetImpl;
+    _assetCreationSignature = assetCreationSignature;
+    emit AssetImplUpdated(_msgSender(), assetImpl);
     return true;
   }
 

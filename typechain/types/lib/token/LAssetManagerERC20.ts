@@ -62,7 +62,6 @@ export interface LAssetManagerERC20Interface extends utils.Interface {
     "LIB_VERSION()": FunctionFragment;
     "createRequestContext(bytes32,bytes32,bytes32)": FunctionFragment;
     "predictAddress(address,bytes32)": FunctionFragment;
-    "updateAssetImpl(address)": FunctionFragment;
   };
 
   getFunction(
@@ -75,8 +74,6 @@ export interface LAssetManagerERC20Interface extends utils.Interface {
       | "createRequestContext(bytes32,bytes32,bytes32)"
       | "predictAddress"
       | "predictAddress(address,bytes32)"
-      | "updateAssetImpl"
-      | "updateAssetImpl(address)"
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "LIB_NAME", values?: undefined): string;
@@ -116,14 +113,6 @@ export interface LAssetManagerERC20Interface extends utils.Interface {
     functionFragment: "predictAddress(address,bytes32)",
     values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]
   ): string;
-  encodeFunctionData(
-    functionFragment: "updateAssetImpl",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "updateAssetImpl(address)",
-    values: [PromiseOrValue<string>]
-  ): string;
 
   decodeFunctionResult(functionFragment: "LIB_NAME", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "LIB_NAME()", data: BytesLike): Result;
@@ -149,14 +138,6 @@ export interface LAssetManagerERC20Interface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "predictAddress(address,bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "updateAssetImpl",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "updateAssetImpl(address)",
     data: BytesLike
   ): Result;
 
@@ -233,16 +214,6 @@ export interface LAssetManagerERC20 extends BaseContract {
       salt: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[string]>;
-
-    updateAssetImpl(
-      assetImpl: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    "updateAssetImpl(address)"(
-      assetImpl: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
   };
 
   LIB_NAME(overrides?: CallOverrides): Promise<string>;
@@ -289,16 +260,6 @@ export interface LAssetManagerERC20 extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
-  updateAssetImpl(
-    assetImpl: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  "updateAssetImpl(address)"(
-    assetImpl: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
   callStatic: {
     LIB_NAME(overrides?: CallOverrides): Promise<string>;
 
@@ -343,16 +304,6 @@ export interface LAssetManagerERC20 extends BaseContract {
       salt: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<string>;
-
-    updateAssetImpl(
-      assetImpl: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "updateAssetImpl(address)"(
-      assetImpl: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
   };
 
   filters: {};
@@ -391,16 +342,6 @@ export interface LAssetManagerERC20 extends BaseContract {
       salt: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    updateAssetImpl(
-      assetImpl: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "updateAssetImpl(address)"(
-      assetImpl: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -435,16 +376,6 @@ export interface LAssetManagerERC20 extends BaseContract {
     "predictAddress(address,bytes32)"(
       base: PromiseOrValue<string>,
       salt: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    updateAssetImpl(
-      assetImpl: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "updateAssetImpl(address)"(
-      assetImpl: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };
