@@ -95,10 +95,12 @@ export interface IAssetManagerERC20Interface extends utils.Interface {
   functions: {
     "createAsset((bytes32,bytes32,address,string,string))": FunctionFragment;
     "getAllTokens()": FunctionFragment;
+    "getAssetSubject()": FunctionFragment;
     "getTokenInfo(address)": FunctionFragment;
     "isAssetExists(address)": FunctionFragment;
     "isTokenExists(address)": FunctionFragment;
-    "predictAddress(address,bytes32)": FunctionFragment;
+    "predictAddress(address,bytes32,address)": FunctionFragment;
+    "registerAsset(address,address)": FunctionFragment;
     "registerToken(address)": FunctionFragment;
     "removeAsset(address)": FunctionFragment;
     "setSafeModeToken(address,bool)": FunctionFragment;
@@ -111,7 +113,7 @@ export interface IAssetManagerERC20Interface extends utils.Interface {
     "tokenLock(address,(address,address,uint256,uint256))": FunctionFragment;
     "tokenTransfer(address,address,uint256)": FunctionFragment;
     "tokenTransferFrom(address,address,address,uint256)": FunctionFragment;
-    "updateAssetImpl(address,bytes)": FunctionFragment;
+    "updateAssetSubject(address,bytes)": FunctionFragment;
   };
 
   getFunction(
@@ -120,6 +122,8 @@ export interface IAssetManagerERC20Interface extends utils.Interface {
       | "createAsset((bytes32,bytes32,address,string,string))"
       | "getAllTokens"
       | "getAllTokens()"
+      | "getAssetSubject"
+      | "getAssetSubject()"
       | "getTokenInfo"
       | "getTokenInfo(address)"
       | "isAssetExists"
@@ -127,7 +131,9 @@ export interface IAssetManagerERC20Interface extends utils.Interface {
       | "isTokenExists"
       | "isTokenExists(address)"
       | "predictAddress"
-      | "predictAddress(address,bytes32)"
+      | "predictAddress(address,bytes32,address)"
+      | "registerAsset"
+      | "registerAsset(address,address)"
       | "registerToken"
       | "registerToken(address)"
       | "removeAsset"
@@ -152,8 +158,8 @@ export interface IAssetManagerERC20Interface extends utils.Interface {
       | "tokenTransfer(address,address,uint256)"
       | "tokenTransferFrom"
       | "tokenTransferFrom(address,address,address,uint256)"
-      | "updateAssetImpl"
-      | "updateAssetImpl(address,bytes)"
+      | "updateAssetSubject"
+      | "updateAssetSubject(address,bytes)"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -170,6 +176,14 @@ export interface IAssetManagerERC20Interface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getAllTokens()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getAssetSubject",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getAssetSubject()",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -198,11 +212,27 @@ export interface IAssetManagerERC20Interface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "predictAddress",
-    values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<string>
+    ]
   ): string;
   encodeFunctionData(
-    functionFragment: "predictAddress(address,bytes32)",
-    values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]
+    functionFragment: "predictAddress(address,bytes32,address)",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<string>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "registerAsset",
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "registerAsset(address,address)",
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "registerToken",
@@ -349,11 +379,11 @@ export interface IAssetManagerERC20Interface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "updateAssetImpl",
+    functionFragment: "updateAssetSubject",
     values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "updateAssetImpl(address,bytes)",
+    functionFragment: "updateAssetSubject(address,bytes)",
     values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]
   ): string;
 
@@ -371,6 +401,14 @@ export interface IAssetManagerERC20Interface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getAllTokens()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getAssetSubject",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getAssetSubject()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -402,7 +440,15 @@ export interface IAssetManagerERC20Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "predictAddress(address,bytes32)",
+    functionFragment: "predictAddress(address,bytes32,address)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "registerAsset",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "registerAsset(address,address)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -499,18 +545,19 @@ export interface IAssetManagerERC20Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "updateAssetImpl",
+    functionFragment: "updateAssetSubject",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "updateAssetImpl(address,bytes)",
+    functionFragment: "updateAssetSubject(address,bytes)",
     data: BytesLike
   ): Result;
 
   events: {
     "AssetCreated(address,address,address,address)": EventFragment;
-    "AssetImplUpdated(address,address)": EventFragment;
+    "AssetRegistered(address,address,address)": EventFragment;
     "AssetRemoved(address,address,address)": EventFragment;
+    "AssetSubjectUpdated(address,address)": EventFragment;
     "TokenRegistered(address,address,string,string)": EventFragment;
     "TokenSafeModeChanged(address,address,bool)": EventFragment;
   };
@@ -519,13 +566,17 @@ export interface IAssetManagerERC20Interface extends utils.Interface {
   getEvent(
     nameOrSignatureOrTopic: "AssetCreated(address,address,address,address)"
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "AssetImplUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "AssetRegistered"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "AssetImplUpdated(address,address)"
+    nameOrSignatureOrTopic: "AssetRegistered(address,address,address)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AssetRemoved"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "AssetRemoved(address,address,address)"
+  ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "AssetSubjectUpdated"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "AssetSubjectUpdated(address,address)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenRegistered"): EventFragment;
   getEvent(
@@ -541,7 +592,7 @@ export interface AssetCreatedEventObject {
   sender: string;
   assetId: string;
   tokenId: string;
-  assetImpl: string;
+  assetSubject: string;
 }
 export type AssetCreatedEvent = TypedEvent<
   [string, string, string, string],
@@ -550,17 +601,17 @@ export type AssetCreatedEvent = TypedEvent<
 
 export type AssetCreatedEventFilter = TypedEventFilter<AssetCreatedEvent>;
 
-export interface AssetImplUpdatedEventObject {
+export interface AssetRegisteredEventObject {
   sender: string;
-  assetImpl: string;
+  assetId: string;
+  tokenId: string;
 }
-export type AssetImplUpdatedEvent = TypedEvent<
-  [string, string],
-  AssetImplUpdatedEventObject
+export type AssetRegisteredEvent = TypedEvent<
+  [string, string, string],
+  AssetRegisteredEventObject
 >;
 
-export type AssetImplUpdatedEventFilter =
-  TypedEventFilter<AssetImplUpdatedEvent>;
+export type AssetRegisteredEventFilter = TypedEventFilter<AssetRegisteredEvent>;
 
 export interface AssetRemovedEventObject {
   sender: string;
@@ -573,6 +624,18 @@ export type AssetRemovedEvent = TypedEvent<
 >;
 
 export type AssetRemovedEventFilter = TypedEventFilter<AssetRemovedEvent>;
+
+export interface AssetSubjectUpdatedEventObject {
+  sender: string;
+  assetSubject: string;
+}
+export type AssetSubjectUpdatedEvent = TypedEvent<
+  [string, string],
+  AssetSubjectUpdatedEventObject
+>;
+
+export type AssetSubjectUpdatedEventFilter =
+  TypedEventFilter<AssetSubjectUpdatedEvent>;
 
 export interface TokenRegisteredEventObject {
   sender: string;
@@ -641,6 +704,10 @@ export interface IAssetManagerERC20 extends BaseContract {
 
     "getAllTokens()"(overrides?: CallOverrides): Promise<[string[]]>;
 
+    getAssetSubject(overrides?: CallOverrides): Promise<[string]>;
+
+    "getAssetSubject()"(overrides?: CallOverrides): Promise<[string]>;
+
     getTokenInfo(
       tokenId: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -672,16 +739,30 @@ export interface IAssetManagerERC20 extends BaseContract {
     ): Promise<[boolean]>;
 
     predictAddress(
-      base: PromiseOrValue<string>,
+      implementation: PromiseOrValue<string>,
       salt: PromiseOrValue<BytesLike>,
+      deployer: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    "predictAddress(address,bytes32)"(
-      base: PromiseOrValue<string>,
+    "predictAddress(address,bytes32,address)"(
+      implementation: PromiseOrValue<string>,
       salt: PromiseOrValue<BytesLike>,
+      deployer: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[string]>;
+
+    registerAsset(
+      tokenId: PromiseOrValue<string>,
+      assetId: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "registerAsset(address,address)"(
+      tokenId: PromiseOrValue<string>,
+      assetId: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     registerToken(
       tokenId: PromiseOrValue<string>,
@@ -730,13 +811,13 @@ export interface IAssetManagerERC20 extends BaseContract {
     ): Promise<ContractTransaction>;
 
     tokenBatchLock(
-      tokenId: PromiseOrValue<string>,
+      assetId: PromiseOrValue<string>,
       lockRequests: IERC20Lock.LockTokenRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "tokenBatchLock(address,(address,address,uint256,uint256)[])"(
-      tokenId: PromiseOrValue<string>,
+      assetId: PromiseOrValue<string>,
       lockRequests: IERC20Lock.LockTokenRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -794,13 +875,13 @@ export interface IAssetManagerERC20 extends BaseContract {
     ): Promise<ContractTransaction>;
 
     tokenLock(
-      tokenId: PromiseOrValue<string>,
+      assetId: PromiseOrValue<string>,
       lockRequest: IERC20Lock.LockTokenRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "tokenLock(address,(address,address,uint256,uint256))"(
-      tokenId: PromiseOrValue<string>,
+      assetId: PromiseOrValue<string>,
       lockRequest: IERC20Lock.LockTokenRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -835,14 +916,14 @@ export interface IAssetManagerERC20 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    updateAssetImpl(
-      assetImpl: PromiseOrValue<string>,
+    updateAssetSubject(
+      assetSubject: PromiseOrValue<string>,
       assetCreationSignature: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "updateAssetImpl(address,bytes)"(
-      assetImpl: PromiseOrValue<string>,
+    "updateAssetSubject(address,bytes)"(
+      assetSubject: PromiseOrValue<string>,
       assetCreationSignature: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -861,6 +942,10 @@ export interface IAssetManagerERC20 extends BaseContract {
   getAllTokens(overrides?: CallOverrides): Promise<string[]>;
 
   "getAllTokens()"(overrides?: CallOverrides): Promise<string[]>;
+
+  getAssetSubject(overrides?: CallOverrides): Promise<string>;
+
+  "getAssetSubject()"(overrides?: CallOverrides): Promise<string>;
 
   getTokenInfo(
     tokenId: PromiseOrValue<string>,
@@ -893,16 +978,30 @@ export interface IAssetManagerERC20 extends BaseContract {
   ): Promise<boolean>;
 
   predictAddress(
-    base: PromiseOrValue<string>,
+    implementation: PromiseOrValue<string>,
     salt: PromiseOrValue<BytesLike>,
+    deployer: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<string>;
 
-  "predictAddress(address,bytes32)"(
-    base: PromiseOrValue<string>,
+  "predictAddress(address,bytes32,address)"(
+    implementation: PromiseOrValue<string>,
     salt: PromiseOrValue<BytesLike>,
+    deployer: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<string>;
+
+  registerAsset(
+    tokenId: PromiseOrValue<string>,
+    assetId: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "registerAsset(address,address)"(
+    tokenId: PromiseOrValue<string>,
+    assetId: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   registerToken(
     tokenId: PromiseOrValue<string>,
@@ -951,13 +1050,13 @@ export interface IAssetManagerERC20 extends BaseContract {
   ): Promise<ContractTransaction>;
 
   tokenBatchLock(
-    tokenId: PromiseOrValue<string>,
+    assetId: PromiseOrValue<string>,
     lockRequests: IERC20Lock.LockTokenRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "tokenBatchLock(address,(address,address,uint256,uint256)[])"(
-    tokenId: PromiseOrValue<string>,
+    assetId: PromiseOrValue<string>,
     lockRequests: IERC20Lock.LockTokenRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -1015,13 +1114,13 @@ export interface IAssetManagerERC20 extends BaseContract {
   ): Promise<ContractTransaction>;
 
   tokenLock(
-    tokenId: PromiseOrValue<string>,
+    assetId: PromiseOrValue<string>,
     lockRequest: IERC20Lock.LockTokenRequestStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "tokenLock(address,(address,address,uint256,uint256))"(
-    tokenId: PromiseOrValue<string>,
+    assetId: PromiseOrValue<string>,
     lockRequest: IERC20Lock.LockTokenRequestStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -1056,14 +1155,14 @@ export interface IAssetManagerERC20 extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  updateAssetImpl(
-    assetImpl: PromiseOrValue<string>,
+  updateAssetSubject(
+    assetSubject: PromiseOrValue<string>,
     assetCreationSignature: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "updateAssetImpl(address,bytes)"(
-    assetImpl: PromiseOrValue<string>,
+  "updateAssetSubject(address,bytes)"(
+    assetSubject: PromiseOrValue<string>,
     assetCreationSignature: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -1082,6 +1181,10 @@ export interface IAssetManagerERC20 extends BaseContract {
     getAllTokens(overrides?: CallOverrides): Promise<string[]>;
 
     "getAllTokens()"(overrides?: CallOverrides): Promise<string[]>;
+
+    getAssetSubject(overrides?: CallOverrides): Promise<string>;
+
+    "getAssetSubject()"(overrides?: CallOverrides): Promise<string>;
 
     getTokenInfo(
       tokenId: PromiseOrValue<string>,
@@ -1114,16 +1217,30 @@ export interface IAssetManagerERC20 extends BaseContract {
     ): Promise<boolean>;
 
     predictAddress(
-      base: PromiseOrValue<string>,
+      implementation: PromiseOrValue<string>,
       salt: PromiseOrValue<BytesLike>,
+      deployer: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<string>;
 
-    "predictAddress(address,bytes32)"(
-      base: PromiseOrValue<string>,
+    "predictAddress(address,bytes32,address)"(
+      implementation: PromiseOrValue<string>,
       salt: PromiseOrValue<BytesLike>,
+      deployer: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<string>;
+
+    registerAsset(
+      tokenId: PromiseOrValue<string>,
+      assetId: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "registerAsset(address,address)"(
+      tokenId: PromiseOrValue<string>,
+      assetId: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     registerToken(
       tokenId: PromiseOrValue<string>,
@@ -1172,13 +1289,13 @@ export interface IAssetManagerERC20 extends BaseContract {
     ): Promise<boolean>;
 
     tokenBatchLock(
-      tokenId: PromiseOrValue<string>,
+      assetId: PromiseOrValue<string>,
       lockRequests: IERC20Lock.LockTokenRequestStruct[],
       overrides?: CallOverrides
     ): Promise<string[]>;
 
     "tokenBatchLock(address,(address,address,uint256,uint256)[])"(
-      tokenId: PromiseOrValue<string>,
+      assetId: PromiseOrValue<string>,
       lockRequests: IERC20Lock.LockTokenRequestStruct[],
       overrides?: CallOverrides
     ): Promise<string[]>;
@@ -1236,13 +1353,13 @@ export interface IAssetManagerERC20 extends BaseContract {
     ): Promise<BigNumber>;
 
     tokenLock(
-      tokenId: PromiseOrValue<string>,
+      assetId: PromiseOrValue<string>,
       lockRequest: IERC20Lock.LockTokenRequestStruct,
       overrides?: CallOverrides
     ): Promise<string>;
 
     "tokenLock(address,(address,address,uint256,uint256))"(
-      tokenId: PromiseOrValue<string>,
+      assetId: PromiseOrValue<string>,
       lockRequest: IERC20Lock.LockTokenRequestStruct,
       overrides?: CallOverrides
     ): Promise<string>;
@@ -1277,14 +1394,14 @@ export interface IAssetManagerERC20 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    updateAssetImpl(
-      assetImpl: PromiseOrValue<string>,
+    updateAssetSubject(
+      assetSubject: PromiseOrValue<string>,
       assetCreationSignature: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "updateAssetImpl(address,bytes)"(
-      assetImpl: PromiseOrValue<string>,
+    "updateAssetSubject(address,bytes)"(
+      assetSubject: PromiseOrValue<string>,
       assetCreationSignature: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
@@ -1295,23 +1412,25 @@ export interface IAssetManagerERC20 extends BaseContract {
       sender?: PromiseOrValue<string> | null,
       assetId?: PromiseOrValue<string> | null,
       tokenId?: PromiseOrValue<string> | null,
-      assetImpl?: null
+      assetSubject?: null
     ): AssetCreatedEventFilter;
     AssetCreated(
       sender?: PromiseOrValue<string> | null,
       assetId?: PromiseOrValue<string> | null,
       tokenId?: PromiseOrValue<string> | null,
-      assetImpl?: null
+      assetSubject?: null
     ): AssetCreatedEventFilter;
 
-    "AssetImplUpdated(address,address)"(
+    "AssetRegistered(address,address,address)"(
       sender?: PromiseOrValue<string> | null,
-      assetImpl?: PromiseOrValue<string> | null
-    ): AssetImplUpdatedEventFilter;
-    AssetImplUpdated(
+      assetId?: PromiseOrValue<string> | null,
+      tokenId?: PromiseOrValue<string> | null
+    ): AssetRegisteredEventFilter;
+    AssetRegistered(
       sender?: PromiseOrValue<string> | null,
-      assetImpl?: PromiseOrValue<string> | null
-    ): AssetImplUpdatedEventFilter;
+      assetId?: PromiseOrValue<string> | null,
+      tokenId?: PromiseOrValue<string> | null
+    ): AssetRegisteredEventFilter;
 
     "AssetRemoved(address,address,address)"(
       sender?: PromiseOrValue<string> | null,
@@ -1323,6 +1442,15 @@ export interface IAssetManagerERC20 extends BaseContract {
       assetId?: PromiseOrValue<string> | null,
       tokenId?: PromiseOrValue<string> | null
     ): AssetRemovedEventFilter;
+
+    "AssetSubjectUpdated(address,address)"(
+      sender?: PromiseOrValue<string> | null,
+      assetSubject?: PromiseOrValue<string> | null
+    ): AssetSubjectUpdatedEventFilter;
+    AssetSubjectUpdated(
+      sender?: PromiseOrValue<string> | null,
+      assetSubject?: PromiseOrValue<string> | null
+    ): AssetSubjectUpdatedEventFilter;
 
     "TokenRegistered(address,address,string,string)"(
       sender?: PromiseOrValue<string> | null,
@@ -1364,6 +1492,10 @@ export interface IAssetManagerERC20 extends BaseContract {
 
     "getAllTokens()"(overrides?: CallOverrides): Promise<BigNumber>;
 
+    getAssetSubject(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "getAssetSubject()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     getTokenInfo(
       tokenId: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -1395,15 +1527,29 @@ export interface IAssetManagerERC20 extends BaseContract {
     ): Promise<BigNumber>;
 
     predictAddress(
-      base: PromiseOrValue<string>,
+      implementation: PromiseOrValue<string>,
       salt: PromiseOrValue<BytesLike>,
+      deployer: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "predictAddress(address,bytes32)"(
-      base: PromiseOrValue<string>,
+    "predictAddress(address,bytes32,address)"(
+      implementation: PromiseOrValue<string>,
       salt: PromiseOrValue<BytesLike>,
+      deployer: PromiseOrValue<string>,
       overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    registerAsset(
+      tokenId: PromiseOrValue<string>,
+      assetId: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "registerAsset(address,address)"(
+      tokenId: PromiseOrValue<string>,
+      assetId: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     registerToken(
@@ -1453,13 +1599,13 @@ export interface IAssetManagerERC20 extends BaseContract {
     ): Promise<BigNumber>;
 
     tokenBatchLock(
-      tokenId: PromiseOrValue<string>,
+      assetId: PromiseOrValue<string>,
       lockRequests: IERC20Lock.LockTokenRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "tokenBatchLock(address,(address,address,uint256,uint256)[])"(
-      tokenId: PromiseOrValue<string>,
+      assetId: PromiseOrValue<string>,
       lockRequests: IERC20Lock.LockTokenRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -1517,13 +1663,13 @@ export interface IAssetManagerERC20 extends BaseContract {
     ): Promise<BigNumber>;
 
     tokenLock(
-      tokenId: PromiseOrValue<string>,
+      assetId: PromiseOrValue<string>,
       lockRequest: IERC20Lock.LockTokenRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "tokenLock(address,(address,address,uint256,uint256))"(
-      tokenId: PromiseOrValue<string>,
+      assetId: PromiseOrValue<string>,
       lockRequest: IERC20Lock.LockTokenRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -1558,14 +1704,14 @@ export interface IAssetManagerERC20 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    updateAssetImpl(
-      assetImpl: PromiseOrValue<string>,
+    updateAssetSubject(
+      assetSubject: PromiseOrValue<string>,
       assetCreationSignature: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "updateAssetImpl(address,bytes)"(
-      assetImpl: PromiseOrValue<string>,
+    "updateAssetSubject(address,bytes)"(
+      assetSubject: PromiseOrValue<string>,
       assetCreationSignature: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -1586,6 +1732,12 @@ export interface IAssetManagerERC20 extends BaseContract {
 
     "getAllTokens()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    getAssetSubject(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "getAssetSubject()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     getTokenInfo(
       tokenId: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -1617,15 +1769,29 @@ export interface IAssetManagerERC20 extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     predictAddress(
-      base: PromiseOrValue<string>,
+      implementation: PromiseOrValue<string>,
       salt: PromiseOrValue<BytesLike>,
+      deployer: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "predictAddress(address,bytes32)"(
-      base: PromiseOrValue<string>,
+    "predictAddress(address,bytes32,address)"(
+      implementation: PromiseOrValue<string>,
       salt: PromiseOrValue<BytesLike>,
+      deployer: PromiseOrValue<string>,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    registerAsset(
+      tokenId: PromiseOrValue<string>,
+      assetId: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "registerAsset(address,address)"(
+      tokenId: PromiseOrValue<string>,
+      assetId: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     registerToken(
@@ -1675,13 +1841,13 @@ export interface IAssetManagerERC20 extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     tokenBatchLock(
-      tokenId: PromiseOrValue<string>,
+      assetId: PromiseOrValue<string>,
       lockRequests: IERC20Lock.LockTokenRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "tokenBatchLock(address,(address,address,uint256,uint256)[])"(
-      tokenId: PromiseOrValue<string>,
+      assetId: PromiseOrValue<string>,
       lockRequests: IERC20Lock.LockTokenRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
@@ -1739,13 +1905,13 @@ export interface IAssetManagerERC20 extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     tokenLock(
-      tokenId: PromiseOrValue<string>,
+      assetId: PromiseOrValue<string>,
       lockRequest: IERC20Lock.LockTokenRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "tokenLock(address,(address,address,uint256,uint256))"(
-      tokenId: PromiseOrValue<string>,
+      assetId: PromiseOrValue<string>,
       lockRequest: IERC20Lock.LockTokenRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
@@ -1780,14 +1946,14 @@ export interface IAssetManagerERC20 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    updateAssetImpl(
-      assetImpl: PromiseOrValue<string>,
+    updateAssetSubject(
+      assetSubject: PromiseOrValue<string>,
       assetCreationSignature: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "updateAssetImpl(address,bytes)"(
-      assetImpl: PromiseOrValue<string>,
+    "updateAssetSubject(address,bytes)"(
+      assetSubject: PromiseOrValue<string>,
       assetCreationSignature: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;

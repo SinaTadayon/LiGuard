@@ -80,19 +80,6 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "assetInitStatus",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
     name: "assetInitVersion",
     outputs: [
       {

@@ -47,18 +47,6 @@ export interface IAccessControlInterface extends utils.Interface {
     "isRealmUpgradable(bytes32)": FunctionFragment;
     "isRoleEnabled(bytes32)": FunctionFragment;
     "isRoleExists(bytes32)": FunctionFragment;
-    "livelyAdminRole()": FunctionFragment;
-    "livelyAnonymousRole()": FunctionFragment;
-    "livelyAssetAdminRole()": FunctionFragment;
-    "livelyAssetGroup()": FunctionFragment;
-    "livelyAssetManagerRole()": FunctionFragment;
-    "livelyAssetRealm()": FunctionFragment;
-    "livelyCommunityDaoExecutorRole()": FunctionFragment;
-    "livelyCommunityDaoRole()": FunctionFragment;
-    "livelyDaoGroup()": FunctionFragment;
-    "livelyGeneralGroup()": FunctionFragment;
-    "livelyGeneralRealm()": FunctionFragment;
-    "livelySystemAdminRole()": FunctionFragment;
   };
 
   getFunction(
@@ -113,30 +101,6 @@ export interface IAccessControlInterface extends utils.Interface {
       | "isRoleEnabled(bytes32)"
       | "isRoleExists"
       | "isRoleExists(bytes32)"
-      | "livelyAdminRole"
-      | "livelyAdminRole()"
-      | "livelyAnonymousRole"
-      | "livelyAnonymousRole()"
-      | "livelyAssetAdminRole"
-      | "livelyAssetAdminRole()"
-      | "livelyAssetGroup"
-      | "livelyAssetGroup()"
-      | "livelyAssetManagerRole"
-      | "livelyAssetManagerRole()"
-      | "livelyAssetRealm"
-      | "livelyAssetRealm()"
-      | "livelyCommunityDaoExecutorRole"
-      | "livelyCommunityDaoExecutorRole()"
-      | "livelyCommunityDaoRole"
-      | "livelyCommunityDaoRole()"
-      | "livelyDaoGroup"
-      | "livelyDaoGroup()"
-      | "livelyGeneralGroup"
-      | "livelyGeneralGroup()"
-      | "livelyGeneralRealm"
-      | "livelyGeneralRealm()"
-      | "livelySystemAdminRole"
-      | "livelySystemAdminRole()"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -347,102 +311,6 @@ export interface IAccessControlInterface extends utils.Interface {
     functionFragment: "isRoleExists(bytes32)",
     values: [PromiseOrValue<BytesLike>]
   ): string;
-  encodeFunctionData(
-    functionFragment: "livelyAdminRole",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "livelyAdminRole()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "livelyAnonymousRole",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "livelyAnonymousRole()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "livelyAssetAdminRole",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "livelyAssetAdminRole()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "livelyAssetGroup",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "livelyAssetGroup()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "livelyAssetManagerRole",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "livelyAssetManagerRole()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "livelyAssetRealm",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "livelyAssetRealm()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "livelyCommunityDaoExecutorRole",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "livelyCommunityDaoExecutorRole()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "livelyCommunityDaoRole",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "livelyCommunityDaoRole()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "livelyDaoGroup",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "livelyDaoGroup()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "livelyGeneralGroup",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "livelyGeneralGroup()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "livelyGeneralRealm",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "livelyGeneralRealm()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "livelySystemAdminRole",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "livelySystemAdminRole()",
-    values?: undefined
-  ): string;
 
   decodeFunctionResult(functionFragment: "hasAccess", data: BytesLike): Result;
   decodeFunctionResult(
@@ -639,102 +507,6 @@ export interface IAccessControlInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "isRoleExists(bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "livelyAdminRole",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "livelyAdminRole()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "livelyAnonymousRole",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "livelyAnonymousRole()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "livelyAssetAdminRole",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "livelyAssetAdminRole()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "livelyAssetGroup",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "livelyAssetGroup()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "livelyAssetManagerRole",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "livelyAssetManagerRole()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "livelyAssetRealm",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "livelyAssetRealm()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "livelyCommunityDaoExecutorRole",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "livelyCommunityDaoExecutorRole()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "livelyCommunityDaoRole",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "livelyCommunityDaoRole()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "livelyDaoGroup",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "livelyDaoGroup()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "livelyGeneralGroup",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "livelyGeneralGroup()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "livelyGeneralRealm",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "livelyGeneralRealm()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "livelySystemAdminRole",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "livelySystemAdminRole()",
     data: BytesLike
   ): Result;
 
@@ -1025,58 +797,6 @@ export interface IAccessControl extends BaseContract {
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
-
-    livelyAdminRole(overrides?: CallOverrides): Promise<[string]>;
-
-    "livelyAdminRole()"(overrides?: CallOverrides): Promise<[string]>;
-
-    livelyAnonymousRole(overrides?: CallOverrides): Promise<[string]>;
-
-    "livelyAnonymousRole()"(overrides?: CallOverrides): Promise<[string]>;
-
-    livelyAssetAdminRole(overrides?: CallOverrides): Promise<[string]>;
-
-    "livelyAssetAdminRole()"(overrides?: CallOverrides): Promise<[string]>;
-
-    livelyAssetGroup(overrides?: CallOverrides): Promise<[string]>;
-
-    "livelyAssetGroup()"(overrides?: CallOverrides): Promise<[string]>;
-
-    livelyAssetManagerRole(overrides?: CallOverrides): Promise<[string]>;
-
-    "livelyAssetManagerRole()"(overrides?: CallOverrides): Promise<[string]>;
-
-    livelyAssetRealm(overrides?: CallOverrides): Promise<[string]>;
-
-    "livelyAssetRealm()"(overrides?: CallOverrides): Promise<[string]>;
-
-    livelyCommunityDaoExecutorRole(
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    "livelyCommunityDaoExecutorRole()"(
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    livelyCommunityDaoRole(overrides?: CallOverrides): Promise<[string]>;
-
-    "livelyCommunityDaoRole()"(overrides?: CallOverrides): Promise<[string]>;
-
-    livelyDaoGroup(overrides?: CallOverrides): Promise<[string]>;
-
-    "livelyDaoGroup()"(overrides?: CallOverrides): Promise<[string]>;
-
-    livelyGeneralGroup(overrides?: CallOverrides): Promise<[string]>;
-
-    "livelyGeneralGroup()"(overrides?: CallOverrides): Promise<[string]>;
-
-    livelyGeneralRealm(overrides?: CallOverrides): Promise<[string]>;
-
-    "livelyGeneralRealm()"(overrides?: CallOverrides): Promise<[string]>;
-
-    livelySystemAdminRole(overrides?: CallOverrides): Promise<[string]>;
-
-    "livelySystemAdminRole()"(overrides?: CallOverrides): Promise<[string]>;
   };
 
   hasAccess(
@@ -1337,56 +1057,6 @@ export interface IAccessControl extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  livelyAdminRole(overrides?: CallOverrides): Promise<string>;
-
-  "livelyAdminRole()"(overrides?: CallOverrides): Promise<string>;
-
-  livelyAnonymousRole(overrides?: CallOverrides): Promise<string>;
-
-  "livelyAnonymousRole()"(overrides?: CallOverrides): Promise<string>;
-
-  livelyAssetAdminRole(overrides?: CallOverrides): Promise<string>;
-
-  "livelyAssetAdminRole()"(overrides?: CallOverrides): Promise<string>;
-
-  livelyAssetGroup(overrides?: CallOverrides): Promise<string>;
-
-  "livelyAssetGroup()"(overrides?: CallOverrides): Promise<string>;
-
-  livelyAssetManagerRole(overrides?: CallOverrides): Promise<string>;
-
-  "livelyAssetManagerRole()"(overrides?: CallOverrides): Promise<string>;
-
-  livelyAssetRealm(overrides?: CallOverrides): Promise<string>;
-
-  "livelyAssetRealm()"(overrides?: CallOverrides): Promise<string>;
-
-  livelyCommunityDaoExecutorRole(overrides?: CallOverrides): Promise<string>;
-
-  "livelyCommunityDaoExecutorRole()"(
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  livelyCommunityDaoRole(overrides?: CallOverrides): Promise<string>;
-
-  "livelyCommunityDaoRole()"(overrides?: CallOverrides): Promise<string>;
-
-  livelyDaoGroup(overrides?: CallOverrides): Promise<string>;
-
-  "livelyDaoGroup()"(overrides?: CallOverrides): Promise<string>;
-
-  livelyGeneralGroup(overrides?: CallOverrides): Promise<string>;
-
-  "livelyGeneralGroup()"(overrides?: CallOverrides): Promise<string>;
-
-  livelyGeneralRealm(overrides?: CallOverrides): Promise<string>;
-
-  "livelyGeneralRealm()"(overrides?: CallOverrides): Promise<string>;
-
-  livelySystemAdminRole(overrides?: CallOverrides): Promise<string>;
-
-  "livelySystemAdminRole()"(overrides?: CallOverrides): Promise<string>;
-
   callStatic: {
     hasAccess(
       context: PromiseOrValue<BytesLike>,
@@ -1645,56 +1315,6 @@ export interface IAccessControl extends BaseContract {
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
-
-    livelyAdminRole(overrides?: CallOverrides): Promise<string>;
-
-    "livelyAdminRole()"(overrides?: CallOverrides): Promise<string>;
-
-    livelyAnonymousRole(overrides?: CallOverrides): Promise<string>;
-
-    "livelyAnonymousRole()"(overrides?: CallOverrides): Promise<string>;
-
-    livelyAssetAdminRole(overrides?: CallOverrides): Promise<string>;
-
-    "livelyAssetAdminRole()"(overrides?: CallOverrides): Promise<string>;
-
-    livelyAssetGroup(overrides?: CallOverrides): Promise<string>;
-
-    "livelyAssetGroup()"(overrides?: CallOverrides): Promise<string>;
-
-    livelyAssetManagerRole(overrides?: CallOverrides): Promise<string>;
-
-    "livelyAssetManagerRole()"(overrides?: CallOverrides): Promise<string>;
-
-    livelyAssetRealm(overrides?: CallOverrides): Promise<string>;
-
-    "livelyAssetRealm()"(overrides?: CallOverrides): Promise<string>;
-
-    livelyCommunityDaoExecutorRole(overrides?: CallOverrides): Promise<string>;
-
-    "livelyCommunityDaoExecutorRole()"(
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    livelyCommunityDaoRole(overrides?: CallOverrides): Promise<string>;
-
-    "livelyCommunityDaoRole()"(overrides?: CallOverrides): Promise<string>;
-
-    livelyDaoGroup(overrides?: CallOverrides): Promise<string>;
-
-    "livelyDaoGroup()"(overrides?: CallOverrides): Promise<string>;
-
-    livelyGeneralGroup(overrides?: CallOverrides): Promise<string>;
-
-    "livelyGeneralGroup()"(overrides?: CallOverrides): Promise<string>;
-
-    livelyGeneralRealm(overrides?: CallOverrides): Promise<string>;
-
-    "livelyGeneralRealm()"(overrides?: CallOverrides): Promise<string>;
-
-    livelySystemAdminRole(overrides?: CallOverrides): Promise<string>;
-
-    "livelySystemAdminRole()"(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {};
@@ -1957,58 +1577,6 @@ export interface IAccessControl extends BaseContract {
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    livelyAdminRole(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "livelyAdminRole()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    livelyAnonymousRole(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "livelyAnonymousRole()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    livelyAssetAdminRole(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "livelyAssetAdminRole()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    livelyAssetGroup(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "livelyAssetGroup()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    livelyAssetManagerRole(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "livelyAssetManagerRole()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    livelyAssetRealm(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "livelyAssetRealm()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    livelyCommunityDaoExecutorRole(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "livelyCommunityDaoExecutorRole()"(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    livelyCommunityDaoRole(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "livelyCommunityDaoRole()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    livelyDaoGroup(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "livelyDaoGroup()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    livelyGeneralGroup(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "livelyGeneralGroup()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    livelyGeneralRealm(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "livelyGeneralRealm()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    livelySystemAdminRole(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "livelySystemAdminRole()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -2267,94 +1835,6 @@ export interface IAccessControl extends BaseContract {
 
     "isRoleExists(bytes32)"(
       role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    livelyAdminRole(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "livelyAdminRole()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    livelyAnonymousRole(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "livelyAnonymousRole()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    livelyAssetAdminRole(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "livelyAssetAdminRole()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    livelyAssetGroup(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "livelyAssetGroup()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    livelyAssetManagerRole(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "livelyAssetManagerRole()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    livelyAssetRealm(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "livelyAssetRealm()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    livelyCommunityDaoExecutorRole(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "livelyCommunityDaoExecutorRole()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    livelyCommunityDaoRole(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "livelyCommunityDaoRole()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    livelyDaoGroup(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "livelyDaoGroup()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    livelyGeneralGroup(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "livelyGeneralGroup()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    livelyGeneralRealm(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "livelyGeneralRealm()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    livelySystemAdminRole(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "livelySystemAdminRole()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };

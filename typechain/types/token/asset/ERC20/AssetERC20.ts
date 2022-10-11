@@ -29,15 +29,15 @@ import type {
 
 export declare namespace AssetERC20 {
   export type InitRequestStruct = {
-    domainName: PromiseOrValue<string>;
-    domainVersion: PromiseOrValue<string>;
     domainRealm: PromiseOrValue<BytesLike>;
-    erc20Token: PromiseOrValue<string>;
-    accessControl: PromiseOrValue<string>;
-    assetManager: PromiseOrValue<string>;
     assetRole: PromiseOrValue<BytesLike>;
     salt: PromiseOrValue<BytesLike>;
     bytesHash: PromiseOrValue<BytesLike>;
+    erc20Token: PromiseOrValue<string>;
+    accessControl: PromiseOrValue<string>;
+    assetManager: PromiseOrValue<string>;
+    domainName: PromiseOrValue<string>;
+    domainVersion: PromiseOrValue<string>;
     signature: PromiseOrValue<BytesLike>;
   };
 
@@ -53,15 +53,15 @@ export declare namespace AssetERC20 {
     string,
     string
   ] & {
-    domainName: string;
-    domainVersion: string;
     domainRealm: string;
-    erc20Token: string;
-    accessControl: string;
-    assetManager: string;
     assetRole: string;
     salt: string;
     bytesHash: string;
+    erc20Token: string;
+    accessControl: string;
+    assetManager: string;
+    domainName: string;
+    domainVersion: string;
     signature: string;
   };
 }
@@ -109,7 +109,6 @@ export declare namespace IERC20Extra {
 export interface AssetERC20Interface extends utils.Interface {
   functions: {
     "assetBalance()": FunctionFragment;
-    "assetInitStatus()": FunctionFragment;
     "assetInitVersion()": FunctionFragment;
     "assetName()": FunctionFragment;
     "assetRealm()": FunctionFragment;
@@ -119,7 +118,7 @@ export interface AssetERC20Interface extends utils.Interface {
     "assetToken()": FunctionFragment;
     "assetType()": FunctionFragment;
     "assetVersion()": FunctionFragment;
-    "initialize((string,string,bytes32,address,address,address,bytes32,bytes32,bytes32,bytes))": FunctionFragment;
+    "initialize((bytes32,bytes32,bytes32,bytes32,address,address,address,string,string,bytes))": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
     "tokenApprove(address,uint256)": FunctionFragment;
     "tokenBalance()": FunctionFragment;
@@ -138,8 +137,6 @@ export interface AssetERC20Interface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "assetBalance"
       | "assetBalance()"
-      | "assetInitStatus"
-      | "assetInitStatus()"
       | "assetInitVersion"
       | "assetInitVersion()"
       | "assetName"
@@ -159,7 +156,7 @@ export interface AssetERC20Interface extends utils.Interface {
       | "assetVersion"
       | "assetVersion()"
       | "initialize"
-      | "initialize((string,string,bytes32,address,address,address,bytes32,bytes32,bytes32,bytes))"
+      | "initialize((bytes32,bytes32,bytes32,bytes32,address,address,address,string,string,bytes))"
       | "supportsInterface"
       | "supportsInterface(bytes4)"
       | "tokenApprove"
@@ -192,14 +189,6 @@ export interface AssetERC20Interface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "assetBalance()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "assetInitStatus",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "assetInitStatus()",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -270,7 +259,7 @@ export interface AssetERC20Interface extends utils.Interface {
     values: [AssetERC20.InitRequestStruct]
   ): string;
   encodeFunctionData(
-    functionFragment: "initialize((string,string,bytes32,address,address,address,bytes32,bytes32,bytes32,bytes))",
+    functionFragment: "initialize((bytes32,bytes32,bytes32,bytes32,address,address,address,string,string,bytes))",
     values: [AssetERC20.InitRequestStruct]
   ): string;
   encodeFunctionData(
@@ -387,14 +376,6 @@ export interface AssetERC20Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "assetInitStatus",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "assetInitStatus()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "assetInitVersion",
     data: BytesLike
   ): Result;
@@ -453,7 +434,7 @@ export interface AssetERC20Interface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "initialize((string,string,bytes32,address,address,address,bytes32,bytes32,bytes32,bytes))",
+    functionFragment: "initialize((bytes32,bytes32,bytes32,bytes32,address,address,address,string,string,bytes))",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -643,10 +624,6 @@ export interface AssetERC20 extends BaseContract {
 
     "assetBalance()"(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    assetInitStatus(overrides?: CallOverrides): Promise<[boolean]>;
-
-    "assetInitStatus()"(overrides?: CallOverrides): Promise<[boolean]>;
-
     assetInitVersion(overrides?: CallOverrides): Promise<[number]>;
 
     "assetInitVersion()"(overrides?: CallOverrides): Promise<[number]>;
@@ -694,7 +671,7 @@ export interface AssetERC20 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "initialize((string,string,bytes32,address,address,address,bytes32,bytes32,bytes32,bytes))"(
+    "initialize((bytes32,bytes32,bytes32,bytes32,address,address,address,string,string,bytes))"(
       request: AssetERC20.InitRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -830,10 +807,6 @@ export interface AssetERC20 extends BaseContract {
 
   "assetBalance()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-  assetInitStatus(overrides?: CallOverrides): Promise<boolean>;
-
-  "assetInitStatus()"(overrides?: CallOverrides): Promise<boolean>;
-
   assetInitVersion(overrides?: CallOverrides): Promise<number>;
 
   "assetInitVersion()"(overrides?: CallOverrides): Promise<number>;
@@ -881,7 +854,7 @@ export interface AssetERC20 extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "initialize((string,string,bytes32,address,address,address,bytes32,bytes32,bytes32,bytes))"(
+  "initialize((bytes32,bytes32,bytes32,bytes32,address,address,address,string,string,bytes))"(
     request: AssetERC20.InitRequestStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -1017,10 +990,6 @@ export interface AssetERC20 extends BaseContract {
 
     "assetBalance()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    assetInitStatus(overrides?: CallOverrides): Promise<boolean>;
-
-    "assetInitStatus()"(overrides?: CallOverrides): Promise<boolean>;
-
     assetInitVersion(overrides?: CallOverrides): Promise<number>;
 
     "assetInitVersion()"(overrides?: CallOverrides): Promise<number>;
@@ -1068,7 +1037,7 @@ export interface AssetERC20 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "initialize((string,string,bytes32,address,address,address,bytes32,bytes32,bytes32,bytes))"(
+    "initialize((bytes32,bytes32,bytes32,bytes32,address,address,address,string,string,bytes))"(
       request: AssetERC20.InitRequestStruct,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -1246,10 +1215,6 @@ export interface AssetERC20 extends BaseContract {
 
     "assetBalance()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    assetInitStatus(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "assetInitStatus()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     assetInitVersion(overrides?: CallOverrides): Promise<BigNumber>;
 
     "assetInitVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1297,7 +1262,7 @@ export interface AssetERC20 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "initialize((string,string,bytes32,address,address,address,bytes32,bytes32,bytes32,bytes))"(
+    "initialize((bytes32,bytes32,bytes32,bytes32,address,address,address,string,string,bytes))"(
       request: AssetERC20.InitRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -1434,12 +1399,6 @@ export interface AssetERC20 extends BaseContract {
 
     "assetBalance()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    assetInitStatus(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "assetInitStatus()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     assetInitVersion(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "assetInitVersion()"(
@@ -1489,7 +1448,7 @@ export interface AssetERC20 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "initialize((string,string,bytes32,address,address,address,bytes32,bytes32,bytes32,bytes))"(
+    "initialize((bytes32,bytes32,bytes32,bytes32,address,address,address,string,string,bytes))"(
       request: AssetERC20.InitRequestStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;

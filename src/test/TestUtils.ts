@@ -1,6 +1,7 @@
 import { Address } from "hardhat-deploy/dist/types";
 import { BigNumber, BytesLike, Wallet } from "ethers";
 import { ethers, waffle } from "hardhat";
+const { provider } = waffle;
 
 export const DOMAIN_HASH: string = ethers.utils.keccak256(
   ethers.utils.toUtf8Bytes("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)")
@@ -9,13 +10,32 @@ export const MESSAGE_CONTEXT_TYPE_HASH: string = ethers.utils.keccak256(
   ethers.utils.toUtf8Bytes("Context(address contractId,string name,string version,string realm)")
 );
 export const MESSAGE_PREDICT_CONTEXT_TYPE_HASH: string = ethers.utils.keccak256(
-  ethers.utils.toUtf8Bytes("PredictContext(address base,string name,string version,string realm,bytes32 bytesHash)")
+  ethers.utils.toUtf8Bytes("PredictContext(address deployer,string realm,bytes32 bytesHash)")
 );
 export const PERMIT_TYPE_HASH: string = ethers.utils.keccak256(
   ethers.utils.toUtf8Bytes("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)")
 );
 
-const { provider } = waffle;
+export const LIVELY_GENERAL_REALM = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["LIVELY_GENERAL_REALM"]));
+export const LIVELY_ASSET_REALM = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["LIVELY_ASSET_REALM"]));
+export const LIVELY_GENERAL_GROUP = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["LIVELY_GENERAL_GROUP"]));
+export const LIVELY_DAO_GROUP = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["LIVELY_DAO_GROUP"]));
+export const LIVELY_ASSET_GROUP = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["LIVELY_ASSET_GROUP"]));
+export const LIVELY_ADMIN_ROLE = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["LIVELY_ADMIN_ROLE"]));
+export const LIVELY_SYSTEM_ADMIN_ROLE = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["LIVELY_SYSTEM_ADMIN_ROLE"]));
+export const LIVELY_ASSET_MANAGER_ROLE = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["LIVELY_ASSET_MANAGER_ROLE"]));
+export const LIVELY_ASSET_ADMIN_ROLE = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["LIVELY_ASSET_ADMIN_ROLE"]));
+export const LIVELY_COMMUNITY_DAO_ROLE = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["LIVELY_COMMUNITY_DAO_ROLE"]));
+export const LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE"]));
+export const LIVELY_ANONYMOUS_ROLE = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["LIVELY_ANONYMOUS_ROLE"]));
+
+export const LIVELY_CROWD_FOUNDING_ASSET_ROLE = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["LIVELY_CROWD_FOUNDING_ASSET_ROLE"]));
+export const LIVELY_VALIDATORS_REWARDS_ASSET_ROLE = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["LIVELY_VALIDATORS_REWARDS_ASSET_ROLE"]));
+export const LIVELY_PUBLIC_SALE_ASSET_ROLE = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["LIVELY_PUBLIC_SALE_ASSET_ROLE"]));
+export const LIVELY_TREASURY_ASSET_ROLE = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["LIVELY_TREASURY_ASSET_ROLE"]));
+export const LIVELY_FOUNDING_TEAM_ASSET_ROLE = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["LIVELY_FOUNDING_TEAM_ASSET_ROLE"]));
+export const LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_ROLE = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_ROLE"]));
+
 
 export async function generateContextDomainSignatureByHardhat(
   contractAddress: Address,
@@ -36,7 +56,7 @@ export async function generateContextDomainSignatureByHardhat(
         { name: "verifyingContract", type: "address" },
       ],
       Context: [
-        { name: "contract", type: "address" },
+        { name: "contractId", type: "address" },
         { name: "name", type: "string" },
         { name: "version", type: "string" },
         { name: "realm", type: "string" },
@@ -50,7 +70,7 @@ export async function generateContextDomainSignatureByHardhat(
       verifyingContract,
     },
     message: {
-      contract: contractAddress,
+      contractId: contractAddress,
       name: contractName,
       version: contractVersion,
       realm: contractRealm,
@@ -155,13 +175,10 @@ export async function generateContextDomainSignatureManually(
 
 export async function generatePredictContextDomainSignatureManually(
   contractAddress: Address,
-  contractName: string,
-  contractVersion: string,
   contractRealm: string,
   verifyingContract: Address,
   signerAddress: Wallet,
   chainId: BigNumber,
-  base: Address,
   bytesHash: BytesLike
 ): Promise<string> {
   const abiCoder = ethers.utils.defaultAbiCoder;
@@ -179,12 +196,10 @@ export async function generatePredictContextDomainSignatureManually(
   const domainEncode = ethers.utils.keccak256(domainAbiEncode);
 
   const messageAbiEncode = abiCoder.encode(
-    ["bytes32", "address", "bytes32", "bytes32", "bytes32", "bytes32"],
+    ["bytes32", "address", "bytes32", "bytes32"],
     [
       MESSAGE_PREDICT_CONTEXT_TYPE_HASH,
       contractAddress,
-      ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [contractName])),
-      ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [contractVersion])),
       ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [contractRealm])),
       bytesHash
     ]

@@ -24,7 +24,7 @@ library LContextManagement {
     keccak256("Context(address contractId,string name,string version,string realm)");
   
   bytes32 public constant PREDICT_CTX_MESSAGE_TYPEHASH =
-    keccak256("PredictContext(address base,string name,string version,string realm,bytes32 bytesHash)");
+    keccak256("PredictContext(address deployer,string realm,bytes32 bytesHash)");
 
   function registerAccessControlManagerContext(
     AccessControlStorage.DataMaps storage data,
@@ -74,12 +74,11 @@ library LContextManagement {
   ) external returns (bytes32, address) {
         require(!IProxy(address(this)).isSafeMode(), "SafeMode: Call Rejected");
 
-    bytes32 structHash = _getPredictContextMessageHash(rpc.base, rpc.name, rpc.version, rpc.realm, rpc.bytesHash);
+    bytes32 structHash = _getPredictContextMessageHash(rpc.deployer, rpc.realm, rpc.bytesHash);
     bytes32 msgDigest = _hashTypedDataV4(structHash);
     (address msgSigner, LECDSA.RecoverError recoverErr) = LECDSA.tryRecover(msgDigest, signature);
 
     require(recoverErr == LECDSA.RecoverError.NoError, "Illegal ECDASA Signature");
-
     require(
       LAccessControl.hasAccess(
         data,
@@ -103,13 +102,11 @@ library LContextManagement {
   }
 
   function _getPredictContextMessageHash(
-    address base,
-    bytes32 name,
-    bytes32 version,
+    address deployer,
     bytes32 realm,
     bytes32 bytesHash
   ) internal pure returns (bytes32) {
-    return keccak256(abi.encode(PREDICT_CTX_MESSAGE_TYPEHASH, base, name, version, realm, bytesHash));
+    return keccak256(abi.encode(PREDICT_CTX_MESSAGE_TYPEHASH, deployer, realm, bytesHash));
   }
 
   function _hashTypedDataV4(bytes32 structHash) internal view returns (bytes32) {
@@ -146,6 +143,9 @@ library LContextManagement {
     newContext.isEnabled = status;
 
     for (uint256 i = 0; i < rrc.length; i++) {
+      // console.log("i: %d, role name: %s", i, data.roleMap[rrc[i].role].name);
+      // console.log("role: ");
+      // console.logBytes32(rrc[i].role);
       require(bytes(data.roleMap[rrc[i].role].name).length != 0, "Role Not Found");
       for (uint256 j = 0; j < rrc[i].funcSelectors.length; j++) {
         newContext.resources[rrc[i].funcSelectors[j]].role = rrc[i].role;
@@ -166,9 +166,7 @@ library LContextManagement {
   ) private returns (bytes32) {
     require(bytes(data.realmMap[rpc.realm].name).length != 0, "Realm Not Found");
 
-    // TODO must be check
-    address predictedContractId = address(uint160(uint(keccak256(abi.encodePacked(bytes1(0xff), rpc.base, rpc.salt, rpc.bytesHash)))));
-
+    address predictedContractId = address(uint160(uint(keccak256(abi.encodePacked(bytes1(0xff), rpc.deployer, rpc.salt, rpc.bytesHash)))));
     bytes32 ctx = LContextUtils.generateCtx(predictedContractId);
     require(data.ctxMap[ctx].contractId == address(0), "Context Already Registered");
     data.realmMap[rpc.realm].ctxSet.add(ctx);

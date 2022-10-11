@@ -2,6 +2,26 @@ import type { BaseContract, BigNumber, BigNumberish, BytesLike, CallOverrides, C
 import type { FunctionFragment, Result, EventFragment } from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
 import type { TypedEventFilter, TypedEvent, TypedListener, OnEvent, PromiseOrValue } from "../common";
+export declare namespace IRoleManagement {
+    type UpdateRoleRequestStruct = {
+        role: PromiseOrValue<BytesLike>;
+        account: PromiseOrValue<string>;
+    };
+    type UpdateRoleRequestStructOutput = [string, string] & {
+        role: string;
+        account: string;
+    };
+    type RegiterRoleRequestStruct = {
+        group: PromiseOrValue<BytesLike>;
+        name: PromiseOrValue<string>;
+        status: PromiseOrValue<boolean>;
+    };
+    type RegiterRoleRequestStructOutput = [string, string, boolean] & {
+        group: string;
+        name: string;
+        status: boolean;
+    };
+}
 export declare namespace IContextManagement {
     type ResponseContextStruct = {
         name: PromiseOrValue<BytesLike>;
@@ -101,6 +121,9 @@ export interface AccessControlManagerInterface extends utils.Interface {
     functions: {
         "accessControlManager()": FunctionFragment;
         "addContextFuncRole(bytes32,bytes4,bytes32)": FunctionFragment;
+        "batchGrantRoleAccount((bytes32,address)[])": FunctionFragment;
+        "batchRegisterRole((bytes32,string,bool)[])": FunctionFragment;
+        "batchRevokeRoleAccount((bytes32,address)[])": FunctionFragment;
         "contractContext()": FunctionFragment;
         "contractName()": FunctionFragment;
         "contractRealm()": FunctionFragment;
@@ -121,7 +144,6 @@ export interface AccessControlManagerInterface extends utils.Interface {
         "hasGroupRole(bytes32,bytes32)": FunctionFragment;
         "hasRealmContext(bytes32,bytes32)": FunctionFragment;
         "hasRoleAccount(bytes32,address)": FunctionFragment;
-        "initStatus()": FunctionFragment;
         "initVersion()": FunctionFragment;
         "initialize(string,string,string,address)": FunctionFragment;
         "isContextEnabled(bytes32)": FunctionFragment;
@@ -150,18 +172,6 @@ export interface AccessControlManagerInterface extends utils.Interface {
         "isRoleExists(bytes32)": FunctionFragment;
         "isSafeMode()": FunctionFragment;
         "isUpgradable()": FunctionFragment;
-        "livelyAdminRole()": FunctionFragment;
-        "livelyAnonymousRole()": FunctionFragment;
-        "livelyAssetAdminRole()": FunctionFragment;
-        "livelyAssetGroup()": FunctionFragment;
-        "livelyAssetManagerRole()": FunctionFragment;
-        "livelyAssetRealm()": FunctionFragment;
-        "livelyCommunityDaoExecutorRole()": FunctionFragment;
-        "livelyCommunityDaoRole()": FunctionFragment;
-        "livelyDaoGroup()": FunctionFragment;
-        "livelyGeneralGroup()": FunctionFragment;
-        "livelyGeneralRealm()": FunctionFragment;
-        "livelySystemAdminRole()": FunctionFragment;
         "localAdmin()": FunctionFragment;
         "proxiableUUID()": FunctionFragment;
         "registerContext(bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])": FunctionFragment;
@@ -188,7 +198,7 @@ export interface AccessControlManagerInterface extends utils.Interface {
         "upgradeTo(address,bytes,bool)": FunctionFragment;
         "withdrawBalance(address)": FunctionFragment;
     };
-    getFunction(nameOrSignatureOrTopic: "accessControlManager" | "accessControlManager()" | "addContextFuncRole" | "addContextFuncRole(bytes32,bytes4,bytes32)" | "contractContext" | "contractContext()" | "contractName" | "contractName()" | "contractRealm" | "contractRealm()" | "contractVersion" | "contractVersion()" | "domainSeparator" | "domainSeparator()" | "getContextFuncs" | "getContextFuncs(bytes32)" | "getContextInfo" | "getContextInfo(bytes32)" | "getGroupInfo" | "getGroupInfo(bytes32)" | "getGroupRoles" | "getGroupRoles(bytes32)" | "getRealmContexts" | "getRealmContexts(bytes32)" | "getRealmInfo" | "getRealmInfo(bytes32)" | "getRoleAccounts" | "getRoleAccounts(bytes32)" | "getRoleInfo" | "getRoleInfo(bytes32)" | "grantContextRole" | "grantContextRole(bytes32,bytes4,bytes32)" | "grantRoleAccount" | "grantRoleAccount(bytes32,address)" | "hasAccess" | "hasAccess(bytes32,address,bytes4)" | "hasContextRole" | "hasContextRole(bytes32,bytes32,bytes4)" | "hasGroupRole" | "hasGroupRole(bytes32,bytes32)" | "hasRealmContext" | "hasRealmContext(bytes32,bytes32)" | "hasRoleAccount" | "hasRoleAccount(bytes32,address)" | "initStatus" | "initStatus()" | "initVersion" | "initVersion()" | "initialize" | "initialize(string,string,string,address)" | "isContextEnabled" | "isContextEnabled(bytes32)" | "isContextExists" | "isContextExists(bytes32)" | "isContextFunctionEnabled" | "isContextFunctionEnabled(bytes32,bytes4)" | "isContextFunctionExists" | "isContextFunctionExists(bytes32,bytes4)" | "isContextSafeMode" | "isContextSafeMode(bytes32)" | "isContextUpgradable" | "isContextUpgradable(bytes32)" | "isGroupEnabled" | "isGroupEnabled(bytes32)" | "isGroupExists" | "isGroupExists(bytes32)" | "isLivelyAdminRole" | "isLivelyAdminRole(address)" | "isLivelyAssetAdminRole" | "isLivelyAssetAdminRole(address)" | "isLivelyAssetGroup" | "isLivelyAssetGroup(bytes32)" | "isLivelyAssetManagerRole" | "isLivelyAssetManagerRole(address)" | "isLivelyAssetRealm" | "isLivelyAssetRealm(bytes32)" | "isLivelyCommunityDaoExecutorRole" | "isLivelyCommunityDaoExecutorRole(address)" | "isLivelyCommunityDaoRole" | "isLivelyCommunityDaoRole(address)" | "isLivelyDaoGroup" | "isLivelyDaoGroup(bytes32)" | "isLivelyGeneralGroup" | "isLivelyGeneralGroup(bytes32)" | "isLivelyGeneralRealm" | "isLivelyGeneralRealm(bytes32)" | "isLivelySystemAdminRole" | "isLivelySystemAdminRole(address)" | "isRealmEnabled" | "isRealmEnabled(bytes32)" | "isRealmExists" | "isRealmExists(bytes32)" | "isRealmUpgradable" | "isRealmUpgradable(bytes32)" | "isRoleEnabled" | "isRoleEnabled(bytes32)" | "isRoleExists" | "isRoleExists(bytes32)" | "isSafeMode" | "isSafeMode()" | "isUpgradable" | "isUpgradable()" | "livelyAdminRole" | "livelyAdminRole()" | "livelyAnonymousRole" | "livelyAnonymousRole()" | "livelyAssetAdminRole" | "livelyAssetAdminRole()" | "livelyAssetGroup" | "livelyAssetGroup()" | "livelyAssetManagerRole" | "livelyAssetManagerRole()" | "livelyAssetRealm" | "livelyAssetRealm()" | "livelyCommunityDaoExecutorRole" | "livelyCommunityDaoExecutorRole()" | "livelyCommunityDaoRole" | "livelyCommunityDaoRole()" | "livelyDaoGroup" | "livelyDaoGroup()" | "livelyGeneralGroup" | "livelyGeneralGroup()" | "livelyGeneralRealm" | "livelyGeneralRealm()" | "livelySystemAdminRole" | "livelySystemAdminRole()" | "localAdmin" | "localAdmin()" | "proxiableUUID" | "proxiableUUID()" | "registerContext" | "registerContext(bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])" | "registerGroup" | "registerGroup(string,bool)" | "registerPredictContext" | "registerPredictContext(bytes,(bytes32,bytes32,bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])" | "registerRealm" | "registerRealm(string,bool,bool)" | "registerRole" | "registerRole(string,bytes32,bool)" | "removeContextFunc" | "removeContextFunc(bytes32,bytes4)" | "revokeContextRole" | "revokeContextRole(bytes32,bytes4,bytes32)" | "revokeRoleAccount" | "revokeRoleAccount(bytes32,address)" | "setContextRealm" | "setContextRealm(bytes32,bytes32)" | "setContextStatus" | "setContextStatus(bytes32,bool)" | "setGroupStatus" | "setGroupStatus(bytes32,bool)" | "setLocalAdmin" | "setLocalAdmin(address)" | "setRealmStatus" | "setRealmStatus(bytes32,bool)" | "setRealmUpgradeStatus" | "setRealmUpgradeStatus(bytes32,bool)" | "setRoleGroup" | "setRoleGroup(bytes32,bytes32)" | "setRoleStatus" | "setRoleStatus(bytes32,bool)" | "setSafeMode" | "setSafeMode(bool)" | "setUpgradeStatus" | "setUpgradeStatus(bool)" | "subjectAddress" | "subjectAddress()" | "supportsInterface" | "supportsInterface(bytes4)" | "updateContext" | "updateContext(bytes32,bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],uint8)[])" | "upgradeTo" | "upgradeTo(address,bytes,bool)" | "withdrawBalance" | "withdrawBalance(address)"): FunctionFragment;
+    getFunction(nameOrSignatureOrTopic: "accessControlManager" | "accessControlManager()" | "addContextFuncRole" | "addContextFuncRole(bytes32,bytes4,bytes32)" | "batchGrantRoleAccount" | "batchGrantRoleAccount((bytes32,address)[])" | "batchRegisterRole" | "batchRegisterRole((bytes32,string,bool)[])" | "batchRevokeRoleAccount" | "batchRevokeRoleAccount((bytes32,address)[])" | "contractContext" | "contractContext()" | "contractName" | "contractName()" | "contractRealm" | "contractRealm()" | "contractVersion" | "contractVersion()" | "domainSeparator" | "domainSeparator()" | "getContextFuncs" | "getContextFuncs(bytes32)" | "getContextInfo" | "getContextInfo(bytes32)" | "getGroupInfo" | "getGroupInfo(bytes32)" | "getGroupRoles" | "getGroupRoles(bytes32)" | "getRealmContexts" | "getRealmContexts(bytes32)" | "getRealmInfo" | "getRealmInfo(bytes32)" | "getRoleAccounts" | "getRoleAccounts(bytes32)" | "getRoleInfo" | "getRoleInfo(bytes32)" | "grantContextRole" | "grantContextRole(bytes32,bytes4,bytes32)" | "grantRoleAccount" | "grantRoleAccount(bytes32,address)" | "hasAccess" | "hasAccess(bytes32,address,bytes4)" | "hasContextRole" | "hasContextRole(bytes32,bytes32,bytes4)" | "hasGroupRole" | "hasGroupRole(bytes32,bytes32)" | "hasRealmContext" | "hasRealmContext(bytes32,bytes32)" | "hasRoleAccount" | "hasRoleAccount(bytes32,address)" | "initVersion" | "initVersion()" | "initialize" | "initialize(string,string,string,address)" | "isContextEnabled" | "isContextEnabled(bytes32)" | "isContextExists" | "isContextExists(bytes32)" | "isContextFunctionEnabled" | "isContextFunctionEnabled(bytes32,bytes4)" | "isContextFunctionExists" | "isContextFunctionExists(bytes32,bytes4)" | "isContextSafeMode" | "isContextSafeMode(bytes32)" | "isContextUpgradable" | "isContextUpgradable(bytes32)" | "isGroupEnabled" | "isGroupEnabled(bytes32)" | "isGroupExists" | "isGroupExists(bytes32)" | "isLivelyAdminRole" | "isLivelyAdminRole(address)" | "isLivelyAssetAdminRole" | "isLivelyAssetAdminRole(address)" | "isLivelyAssetGroup" | "isLivelyAssetGroup(bytes32)" | "isLivelyAssetManagerRole" | "isLivelyAssetManagerRole(address)" | "isLivelyAssetRealm" | "isLivelyAssetRealm(bytes32)" | "isLivelyCommunityDaoExecutorRole" | "isLivelyCommunityDaoExecutorRole(address)" | "isLivelyCommunityDaoRole" | "isLivelyCommunityDaoRole(address)" | "isLivelyDaoGroup" | "isLivelyDaoGroup(bytes32)" | "isLivelyGeneralGroup" | "isLivelyGeneralGroup(bytes32)" | "isLivelyGeneralRealm" | "isLivelyGeneralRealm(bytes32)" | "isLivelySystemAdminRole" | "isLivelySystemAdminRole(address)" | "isRealmEnabled" | "isRealmEnabled(bytes32)" | "isRealmExists" | "isRealmExists(bytes32)" | "isRealmUpgradable" | "isRealmUpgradable(bytes32)" | "isRoleEnabled" | "isRoleEnabled(bytes32)" | "isRoleExists" | "isRoleExists(bytes32)" | "isSafeMode" | "isSafeMode()" | "isUpgradable" | "isUpgradable()" | "localAdmin" | "localAdmin()" | "proxiableUUID" | "proxiableUUID()" | "registerContext" | "registerContext(bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])" | "registerGroup" | "registerGroup(string,bool)" | "registerPredictContext" | "registerPredictContext(bytes,(bytes32,bytes32,bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])" | "registerRealm" | "registerRealm(string,bool,bool)" | "registerRole" | "registerRole(string,bytes32,bool)" | "removeContextFunc" | "removeContextFunc(bytes32,bytes4)" | "revokeContextRole" | "revokeContextRole(bytes32,bytes4,bytes32)" | "revokeRoleAccount" | "revokeRoleAccount(bytes32,address)" | "setContextRealm" | "setContextRealm(bytes32,bytes32)" | "setContextStatus" | "setContextStatus(bytes32,bool)" | "setGroupStatus" | "setGroupStatus(bytes32,bool)" | "setLocalAdmin" | "setLocalAdmin(address)" | "setRealmStatus" | "setRealmStatus(bytes32,bool)" | "setRealmUpgradeStatus" | "setRealmUpgradeStatus(bytes32,bool)" | "setRoleGroup" | "setRoleGroup(bytes32,bytes32)" | "setRoleStatus" | "setRoleStatus(bytes32,bool)" | "setSafeMode" | "setSafeMode(bool)" | "setUpgradeStatus" | "setUpgradeStatus(bool)" | "subjectAddress" | "subjectAddress()" | "supportsInterface" | "supportsInterface(bytes4)" | "updateContext" | "updateContext(bytes32,bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],uint8)[])" | "upgradeTo" | "upgradeTo(address,bytes,bool)" | "withdrawBalance" | "withdrawBalance(address)"): FunctionFragment;
     encodeFunctionData(functionFragment: "accessControlManager", values?: undefined): string;
     encodeFunctionData(functionFragment: "accessControlManager()", values?: undefined): string;
     encodeFunctionData(functionFragment: "addContextFuncRole", values: [
@@ -201,6 +211,12 @@ export interface AccessControlManagerInterface extends utils.Interface {
         PromiseOrValue<BytesLike>,
         PromiseOrValue<BytesLike>
     ]): string;
+    encodeFunctionData(functionFragment: "batchGrantRoleAccount", values: [IRoleManagement.UpdateRoleRequestStruct[]]): string;
+    encodeFunctionData(functionFragment: "batchGrantRoleAccount((bytes32,address)[])", values: [IRoleManagement.UpdateRoleRequestStruct[]]): string;
+    encodeFunctionData(functionFragment: "batchRegisterRole", values: [IRoleManagement.RegiterRoleRequestStruct[]]): string;
+    encodeFunctionData(functionFragment: "batchRegisterRole((bytes32,string,bool)[])", values: [IRoleManagement.RegiterRoleRequestStruct[]]): string;
+    encodeFunctionData(functionFragment: "batchRevokeRoleAccount", values: [IRoleManagement.UpdateRoleRequestStruct[]]): string;
+    encodeFunctionData(functionFragment: "batchRevokeRoleAccount((bytes32,address)[])", values: [IRoleManagement.UpdateRoleRequestStruct[]]): string;
     encodeFunctionData(functionFragment: "contractContext", values?: undefined): string;
     encodeFunctionData(functionFragment: "contractContext()", values?: undefined): string;
     encodeFunctionData(functionFragment: "contractName", values?: undefined): string;
@@ -265,8 +281,6 @@ export interface AccessControlManagerInterface extends utils.Interface {
     encodeFunctionData(functionFragment: "hasRealmContext(bytes32,bytes32)", values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]): string;
     encodeFunctionData(functionFragment: "hasRoleAccount", values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]): string;
     encodeFunctionData(functionFragment: "hasRoleAccount(bytes32,address)", values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]): string;
-    encodeFunctionData(functionFragment: "initStatus", values?: undefined): string;
-    encodeFunctionData(functionFragment: "initStatus()", values?: undefined): string;
     encodeFunctionData(functionFragment: "initVersion", values?: undefined): string;
     encodeFunctionData(functionFragment: "initVersion()", values?: undefined): string;
     encodeFunctionData(functionFragment: "initialize", values: [
@@ -333,30 +347,6 @@ export interface AccessControlManagerInterface extends utils.Interface {
     encodeFunctionData(functionFragment: "isSafeMode()", values?: undefined): string;
     encodeFunctionData(functionFragment: "isUpgradable", values?: undefined): string;
     encodeFunctionData(functionFragment: "isUpgradable()", values?: undefined): string;
-    encodeFunctionData(functionFragment: "livelyAdminRole", values?: undefined): string;
-    encodeFunctionData(functionFragment: "livelyAdminRole()", values?: undefined): string;
-    encodeFunctionData(functionFragment: "livelyAnonymousRole", values?: undefined): string;
-    encodeFunctionData(functionFragment: "livelyAnonymousRole()", values?: undefined): string;
-    encodeFunctionData(functionFragment: "livelyAssetAdminRole", values?: undefined): string;
-    encodeFunctionData(functionFragment: "livelyAssetAdminRole()", values?: undefined): string;
-    encodeFunctionData(functionFragment: "livelyAssetGroup", values?: undefined): string;
-    encodeFunctionData(functionFragment: "livelyAssetGroup()", values?: undefined): string;
-    encodeFunctionData(functionFragment: "livelyAssetManagerRole", values?: undefined): string;
-    encodeFunctionData(functionFragment: "livelyAssetManagerRole()", values?: undefined): string;
-    encodeFunctionData(functionFragment: "livelyAssetRealm", values?: undefined): string;
-    encodeFunctionData(functionFragment: "livelyAssetRealm()", values?: undefined): string;
-    encodeFunctionData(functionFragment: "livelyCommunityDaoExecutorRole", values?: undefined): string;
-    encodeFunctionData(functionFragment: "livelyCommunityDaoExecutorRole()", values?: undefined): string;
-    encodeFunctionData(functionFragment: "livelyCommunityDaoRole", values?: undefined): string;
-    encodeFunctionData(functionFragment: "livelyCommunityDaoRole()", values?: undefined): string;
-    encodeFunctionData(functionFragment: "livelyDaoGroup", values?: undefined): string;
-    encodeFunctionData(functionFragment: "livelyDaoGroup()", values?: undefined): string;
-    encodeFunctionData(functionFragment: "livelyGeneralGroup", values?: undefined): string;
-    encodeFunctionData(functionFragment: "livelyGeneralGroup()", values?: undefined): string;
-    encodeFunctionData(functionFragment: "livelyGeneralRealm", values?: undefined): string;
-    encodeFunctionData(functionFragment: "livelyGeneralRealm()", values?: undefined): string;
-    encodeFunctionData(functionFragment: "livelySystemAdminRole", values?: undefined): string;
-    encodeFunctionData(functionFragment: "livelySystemAdminRole()", values?: undefined): string;
     encodeFunctionData(functionFragment: "localAdmin", values?: undefined): string;
     encodeFunctionData(functionFragment: "localAdmin()", values?: undefined): string;
     encodeFunctionData(functionFragment: "proxiableUUID", values?: undefined): string;
@@ -469,6 +459,12 @@ export interface AccessControlManagerInterface extends utils.Interface {
     decodeFunctionResult(functionFragment: "accessControlManager()", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "addContextFuncRole", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "addContextFuncRole(bytes32,bytes4,bytes32)", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "batchGrantRoleAccount", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "batchGrantRoleAccount((bytes32,address)[])", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "batchRegisterRole", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "batchRegisterRole((bytes32,string,bool)[])", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "batchRevokeRoleAccount", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "batchRevokeRoleAccount((bytes32,address)[])", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "contractContext", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "contractContext()", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "contractName", data: BytesLike): Result;
@@ -509,8 +505,6 @@ export interface AccessControlManagerInterface extends utils.Interface {
     decodeFunctionResult(functionFragment: "hasRealmContext(bytes32,bytes32)", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "hasRoleAccount", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "hasRoleAccount(bytes32,address)", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "initStatus", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "initStatus()", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "initVersion", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "initVersion()", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
@@ -567,30 +561,6 @@ export interface AccessControlManagerInterface extends utils.Interface {
     decodeFunctionResult(functionFragment: "isSafeMode()", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "isUpgradable", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "isUpgradable()", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "livelyAdminRole", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "livelyAdminRole()", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "livelyAnonymousRole", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "livelyAnonymousRole()", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "livelyAssetAdminRole", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "livelyAssetAdminRole()", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "livelyAssetGroup", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "livelyAssetGroup()", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "livelyAssetManagerRole", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "livelyAssetManagerRole()", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "livelyAssetRealm", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "livelyAssetRealm()", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "livelyCommunityDaoExecutorRole", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "livelyCommunityDaoExecutorRole()", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "livelyCommunityDaoRole", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "livelyCommunityDaoRole()", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "livelyDaoGroup", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "livelyDaoGroup()", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "livelyGeneralGroup", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "livelyGeneralGroup()", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "livelyGeneralRealm", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "livelyGeneralRealm()", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "livelySystemAdminRole", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "livelySystemAdminRole()", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "localAdmin", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "localAdmin()", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "proxiableUUID", data: BytesLike): Result;
@@ -1059,6 +1029,24 @@ export interface AccessControlManager extends BaseContract {
         "addContextFuncRole(bytes32,bytes4,bytes32)"(ctx: PromiseOrValue<BytesLike>, functionSelector: PromiseOrValue<BytesLike>, role: PromiseOrValue<BytesLike>, overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<ContractTransaction>;
+        batchGrantRoleAccount(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: Overrides & {
+            from?: PromiseOrValue<string>;
+        }): Promise<ContractTransaction>;
+        "batchGrantRoleAccount((bytes32,address)[])"(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: Overrides & {
+            from?: PromiseOrValue<string>;
+        }): Promise<ContractTransaction>;
+        batchRegisterRole(requests: IRoleManagement.RegiterRoleRequestStruct[], overrides?: Overrides & {
+            from?: PromiseOrValue<string>;
+        }): Promise<ContractTransaction>;
+        "batchRegisterRole((bytes32,string,bool)[])"(requests: IRoleManagement.RegiterRoleRequestStruct[], overrides?: Overrides & {
+            from?: PromiseOrValue<string>;
+        }): Promise<ContractTransaction>;
+        batchRevokeRoleAccount(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: Overrides & {
+            from?: PromiseOrValue<string>;
+        }): Promise<ContractTransaction>;
+        "batchRevokeRoleAccount((bytes32,address)[])"(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: Overrides & {
+            from?: PromiseOrValue<string>;
+        }): Promise<ContractTransaction>;
         contractContext(overrides?: CallOverrides): Promise<[string]>;
         "contractContext()"(overrides?: CallOverrides): Promise<[string]>;
         contractName(overrides?: CallOverrides): Promise<[string]>;
@@ -1107,8 +1095,6 @@ export interface AccessControlManager extends BaseContract {
         "hasRealmContext(bytes32,bytes32)"(realm: PromiseOrValue<BytesLike>, context: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<[boolean]>;
         hasRoleAccount(role: PromiseOrValue<BytesLike>, account: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[boolean]>;
         "hasRoleAccount(bytes32,address)"(role: PromiseOrValue<BytesLike>, account: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[boolean]>;
-        initStatus(overrides?: CallOverrides): Promise<[boolean]>;
-        "initStatus()"(overrides?: CallOverrides): Promise<[boolean]>;
         initVersion(overrides?: CallOverrides): Promise<[number]>;
         "initVersion()"(overrides?: CallOverrides): Promise<[number]>;
         initialize(domainName: PromiseOrValue<string>, domainVersion: PromiseOrValue<string>, domainRealm: PromiseOrValue<string>, accessControlManager: PromiseOrValue<string>, overrides?: Overrides & {
@@ -1169,30 +1155,6 @@ export interface AccessControlManager extends BaseContract {
         "isSafeMode()"(overrides?: CallOverrides): Promise<[boolean]>;
         isUpgradable(overrides?: CallOverrides): Promise<[boolean]>;
         "isUpgradable()"(overrides?: CallOverrides): Promise<[boolean]>;
-        livelyAdminRole(overrides?: CallOverrides): Promise<[string]>;
-        "livelyAdminRole()"(overrides?: CallOverrides): Promise<[string]>;
-        livelyAnonymousRole(overrides?: CallOverrides): Promise<[string]>;
-        "livelyAnonymousRole()"(overrides?: CallOverrides): Promise<[string]>;
-        livelyAssetAdminRole(overrides?: CallOverrides): Promise<[string]>;
-        "livelyAssetAdminRole()"(overrides?: CallOverrides): Promise<[string]>;
-        livelyAssetGroup(overrides?: CallOverrides): Promise<[string]>;
-        "livelyAssetGroup()"(overrides?: CallOverrides): Promise<[string]>;
-        livelyAssetManagerRole(overrides?: CallOverrides): Promise<[string]>;
-        "livelyAssetManagerRole()"(overrides?: CallOverrides): Promise<[string]>;
-        livelyAssetRealm(overrides?: CallOverrides): Promise<[string]>;
-        "livelyAssetRealm()"(overrides?: CallOverrides): Promise<[string]>;
-        livelyCommunityDaoExecutorRole(overrides?: CallOverrides): Promise<[string]>;
-        "livelyCommunityDaoExecutorRole()"(overrides?: CallOverrides): Promise<[string]>;
-        livelyCommunityDaoRole(overrides?: CallOverrides): Promise<[string]>;
-        "livelyCommunityDaoRole()"(overrides?: CallOverrides): Promise<[string]>;
-        livelyDaoGroup(overrides?: CallOverrides): Promise<[string]>;
-        "livelyDaoGroup()"(overrides?: CallOverrides): Promise<[string]>;
-        livelyGeneralGroup(overrides?: CallOverrides): Promise<[string]>;
-        "livelyGeneralGroup()"(overrides?: CallOverrides): Promise<[string]>;
-        livelyGeneralRealm(overrides?: CallOverrides): Promise<[string]>;
-        "livelyGeneralRealm()"(overrides?: CallOverrides): Promise<[string]>;
-        livelySystemAdminRole(overrides?: CallOverrides): Promise<[string]>;
-        "livelySystemAdminRole()"(overrides?: CallOverrides): Promise<[string]>;
         localAdmin(overrides?: CallOverrides): Promise<[string]>;
         "localAdmin()"(overrides?: CallOverrides): Promise<[string]>;
         proxiableUUID(overrides?: CallOverrides): Promise<[string]>;
@@ -1336,6 +1298,24 @@ export interface AccessControlManager extends BaseContract {
     "addContextFuncRole(bytes32,bytes4,bytes32)"(ctx: PromiseOrValue<BytesLike>, functionSelector: PromiseOrValue<BytesLike>, role: PromiseOrValue<BytesLike>, overrides?: Overrides & {
         from?: PromiseOrValue<string>;
     }): Promise<ContractTransaction>;
+    batchGrantRoleAccount(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: Overrides & {
+        from?: PromiseOrValue<string>;
+    }): Promise<ContractTransaction>;
+    "batchGrantRoleAccount((bytes32,address)[])"(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: Overrides & {
+        from?: PromiseOrValue<string>;
+    }): Promise<ContractTransaction>;
+    batchRegisterRole(requests: IRoleManagement.RegiterRoleRequestStruct[], overrides?: Overrides & {
+        from?: PromiseOrValue<string>;
+    }): Promise<ContractTransaction>;
+    "batchRegisterRole((bytes32,string,bool)[])"(requests: IRoleManagement.RegiterRoleRequestStruct[], overrides?: Overrides & {
+        from?: PromiseOrValue<string>;
+    }): Promise<ContractTransaction>;
+    batchRevokeRoleAccount(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: Overrides & {
+        from?: PromiseOrValue<string>;
+    }): Promise<ContractTransaction>;
+    "batchRevokeRoleAccount((bytes32,address)[])"(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: Overrides & {
+        from?: PromiseOrValue<string>;
+    }): Promise<ContractTransaction>;
     contractContext(overrides?: CallOverrides): Promise<string>;
     "contractContext()"(overrides?: CallOverrides): Promise<string>;
     contractName(overrides?: CallOverrides): Promise<string>;
@@ -1384,8 +1364,6 @@ export interface AccessControlManager extends BaseContract {
     "hasRealmContext(bytes32,bytes32)"(realm: PromiseOrValue<BytesLike>, context: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<boolean>;
     hasRoleAccount(role: PromiseOrValue<BytesLike>, account: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
     "hasRoleAccount(bytes32,address)"(role: PromiseOrValue<BytesLike>, account: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
-    initStatus(overrides?: CallOverrides): Promise<boolean>;
-    "initStatus()"(overrides?: CallOverrides): Promise<boolean>;
     initVersion(overrides?: CallOverrides): Promise<number>;
     "initVersion()"(overrides?: CallOverrides): Promise<number>;
     initialize(domainName: PromiseOrValue<string>, domainVersion: PromiseOrValue<string>, domainRealm: PromiseOrValue<string>, accessControlManager: PromiseOrValue<string>, overrides?: Overrides & {
@@ -1446,30 +1424,6 @@ export interface AccessControlManager extends BaseContract {
     "isSafeMode()"(overrides?: CallOverrides): Promise<boolean>;
     isUpgradable(overrides?: CallOverrides): Promise<boolean>;
     "isUpgradable()"(overrides?: CallOverrides): Promise<boolean>;
-    livelyAdminRole(overrides?: CallOverrides): Promise<string>;
-    "livelyAdminRole()"(overrides?: CallOverrides): Promise<string>;
-    livelyAnonymousRole(overrides?: CallOverrides): Promise<string>;
-    "livelyAnonymousRole()"(overrides?: CallOverrides): Promise<string>;
-    livelyAssetAdminRole(overrides?: CallOverrides): Promise<string>;
-    "livelyAssetAdminRole()"(overrides?: CallOverrides): Promise<string>;
-    livelyAssetGroup(overrides?: CallOverrides): Promise<string>;
-    "livelyAssetGroup()"(overrides?: CallOverrides): Promise<string>;
-    livelyAssetManagerRole(overrides?: CallOverrides): Promise<string>;
-    "livelyAssetManagerRole()"(overrides?: CallOverrides): Promise<string>;
-    livelyAssetRealm(overrides?: CallOverrides): Promise<string>;
-    "livelyAssetRealm()"(overrides?: CallOverrides): Promise<string>;
-    livelyCommunityDaoExecutorRole(overrides?: CallOverrides): Promise<string>;
-    "livelyCommunityDaoExecutorRole()"(overrides?: CallOverrides): Promise<string>;
-    livelyCommunityDaoRole(overrides?: CallOverrides): Promise<string>;
-    "livelyCommunityDaoRole()"(overrides?: CallOverrides): Promise<string>;
-    livelyDaoGroup(overrides?: CallOverrides): Promise<string>;
-    "livelyDaoGroup()"(overrides?: CallOverrides): Promise<string>;
-    livelyGeneralGroup(overrides?: CallOverrides): Promise<string>;
-    "livelyGeneralGroup()"(overrides?: CallOverrides): Promise<string>;
-    livelyGeneralRealm(overrides?: CallOverrides): Promise<string>;
-    "livelyGeneralRealm()"(overrides?: CallOverrides): Promise<string>;
-    livelySystemAdminRole(overrides?: CallOverrides): Promise<string>;
-    "livelySystemAdminRole()"(overrides?: CallOverrides): Promise<string>;
     localAdmin(overrides?: CallOverrides): Promise<string>;
     "localAdmin()"(overrides?: CallOverrides): Promise<string>;
     proxiableUUID(overrides?: CallOverrides): Promise<string>;
@@ -1609,6 +1563,12 @@ export interface AccessControlManager extends BaseContract {
         "accessControlManager()"(overrides?: CallOverrides): Promise<string>;
         addContextFuncRole(ctx: PromiseOrValue<BytesLike>, functionSelector: PromiseOrValue<BytesLike>, role: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<boolean>;
         "addContextFuncRole(bytes32,bytes4,bytes32)"(ctx: PromiseOrValue<BytesLike>, functionSelector: PromiseOrValue<BytesLike>, role: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<boolean>;
+        batchGrantRoleAccount(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: CallOverrides): Promise<boolean>;
+        "batchGrantRoleAccount((bytes32,address)[])"(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: CallOverrides): Promise<boolean>;
+        batchRegisterRole(requests: IRoleManagement.RegiterRoleRequestStruct[], overrides?: CallOverrides): Promise<string[]>;
+        "batchRegisterRole((bytes32,string,bool)[])"(requests: IRoleManagement.RegiterRoleRequestStruct[], overrides?: CallOverrides): Promise<string[]>;
+        batchRevokeRoleAccount(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: CallOverrides): Promise<boolean>;
+        "batchRevokeRoleAccount((bytes32,address)[])"(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: CallOverrides): Promise<boolean>;
         contractContext(overrides?: CallOverrides): Promise<string>;
         "contractContext()"(overrides?: CallOverrides): Promise<string>;
         contractName(overrides?: CallOverrides): Promise<string>;
@@ -1649,8 +1609,6 @@ export interface AccessControlManager extends BaseContract {
         "hasRealmContext(bytes32,bytes32)"(realm: PromiseOrValue<BytesLike>, context: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<boolean>;
         hasRoleAccount(role: PromiseOrValue<BytesLike>, account: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
         "hasRoleAccount(bytes32,address)"(role: PromiseOrValue<BytesLike>, account: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
-        initStatus(overrides?: CallOverrides): Promise<boolean>;
-        "initStatus()"(overrides?: CallOverrides): Promise<boolean>;
         initVersion(overrides?: CallOverrides): Promise<number>;
         "initVersion()"(overrides?: CallOverrides): Promise<number>;
         initialize(domainName: PromiseOrValue<string>, domainVersion: PromiseOrValue<string>, domainRealm: PromiseOrValue<string>, accessControlManager: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
@@ -1707,30 +1665,6 @@ export interface AccessControlManager extends BaseContract {
         "isSafeMode()"(overrides?: CallOverrides): Promise<boolean>;
         isUpgradable(overrides?: CallOverrides): Promise<boolean>;
         "isUpgradable()"(overrides?: CallOverrides): Promise<boolean>;
-        livelyAdminRole(overrides?: CallOverrides): Promise<string>;
-        "livelyAdminRole()"(overrides?: CallOverrides): Promise<string>;
-        livelyAnonymousRole(overrides?: CallOverrides): Promise<string>;
-        "livelyAnonymousRole()"(overrides?: CallOverrides): Promise<string>;
-        livelyAssetAdminRole(overrides?: CallOverrides): Promise<string>;
-        "livelyAssetAdminRole()"(overrides?: CallOverrides): Promise<string>;
-        livelyAssetGroup(overrides?: CallOverrides): Promise<string>;
-        "livelyAssetGroup()"(overrides?: CallOverrides): Promise<string>;
-        livelyAssetManagerRole(overrides?: CallOverrides): Promise<string>;
-        "livelyAssetManagerRole()"(overrides?: CallOverrides): Promise<string>;
-        livelyAssetRealm(overrides?: CallOverrides): Promise<string>;
-        "livelyAssetRealm()"(overrides?: CallOverrides): Promise<string>;
-        livelyCommunityDaoExecutorRole(overrides?: CallOverrides): Promise<string>;
-        "livelyCommunityDaoExecutorRole()"(overrides?: CallOverrides): Promise<string>;
-        livelyCommunityDaoRole(overrides?: CallOverrides): Promise<string>;
-        "livelyCommunityDaoRole()"(overrides?: CallOverrides): Promise<string>;
-        livelyDaoGroup(overrides?: CallOverrides): Promise<string>;
-        "livelyDaoGroup()"(overrides?: CallOverrides): Promise<string>;
-        livelyGeneralGroup(overrides?: CallOverrides): Promise<string>;
-        "livelyGeneralGroup()"(overrides?: CallOverrides): Promise<string>;
-        livelyGeneralRealm(overrides?: CallOverrides): Promise<string>;
-        "livelyGeneralRealm()"(overrides?: CallOverrides): Promise<string>;
-        livelySystemAdminRole(overrides?: CallOverrides): Promise<string>;
-        "livelySystemAdminRole()"(overrides?: CallOverrides): Promise<string>;
         localAdmin(overrides?: CallOverrides): Promise<string>;
         "localAdmin()"(overrides?: CallOverrides): Promise<string>;
         proxiableUUID(overrides?: CallOverrides): Promise<string>;
@@ -1841,6 +1775,24 @@ export interface AccessControlManager extends BaseContract {
         "addContextFuncRole(bytes32,bytes4,bytes32)"(ctx: PromiseOrValue<BytesLike>, functionSelector: PromiseOrValue<BytesLike>, role: PromiseOrValue<BytesLike>, overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<BigNumber>;
+        batchGrantRoleAccount(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: Overrides & {
+            from?: PromiseOrValue<string>;
+        }): Promise<BigNumber>;
+        "batchGrantRoleAccount((bytes32,address)[])"(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: Overrides & {
+            from?: PromiseOrValue<string>;
+        }): Promise<BigNumber>;
+        batchRegisterRole(requests: IRoleManagement.RegiterRoleRequestStruct[], overrides?: Overrides & {
+            from?: PromiseOrValue<string>;
+        }): Promise<BigNumber>;
+        "batchRegisterRole((bytes32,string,bool)[])"(requests: IRoleManagement.RegiterRoleRequestStruct[], overrides?: Overrides & {
+            from?: PromiseOrValue<string>;
+        }): Promise<BigNumber>;
+        batchRevokeRoleAccount(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: Overrides & {
+            from?: PromiseOrValue<string>;
+        }): Promise<BigNumber>;
+        "batchRevokeRoleAccount((bytes32,address)[])"(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: Overrides & {
+            from?: PromiseOrValue<string>;
+        }): Promise<BigNumber>;
         contractContext(overrides?: CallOverrides): Promise<BigNumber>;
         "contractContext()"(overrides?: CallOverrides): Promise<BigNumber>;
         contractName(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1889,8 +1841,6 @@ export interface AccessControlManager extends BaseContract {
         "hasRealmContext(bytes32,bytes32)"(realm: PromiseOrValue<BytesLike>, context: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
         hasRoleAccount(role: PromiseOrValue<BytesLike>, account: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
         "hasRoleAccount(bytes32,address)"(role: PromiseOrValue<BytesLike>, account: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
-        initStatus(overrides?: CallOverrides): Promise<BigNumber>;
-        "initStatus()"(overrides?: CallOverrides): Promise<BigNumber>;
         initVersion(overrides?: CallOverrides): Promise<BigNumber>;
         "initVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
         initialize(domainName: PromiseOrValue<string>, domainVersion: PromiseOrValue<string>, domainRealm: PromiseOrValue<string>, accessControlManager: PromiseOrValue<string>, overrides?: Overrides & {
@@ -1951,30 +1901,6 @@ export interface AccessControlManager extends BaseContract {
         "isSafeMode()"(overrides?: CallOverrides): Promise<BigNumber>;
         isUpgradable(overrides?: CallOverrides): Promise<BigNumber>;
         "isUpgradable()"(overrides?: CallOverrides): Promise<BigNumber>;
-        livelyAdminRole(overrides?: CallOverrides): Promise<BigNumber>;
-        "livelyAdminRole()"(overrides?: CallOverrides): Promise<BigNumber>;
-        livelyAnonymousRole(overrides?: CallOverrides): Promise<BigNumber>;
-        "livelyAnonymousRole()"(overrides?: CallOverrides): Promise<BigNumber>;
-        livelyAssetAdminRole(overrides?: CallOverrides): Promise<BigNumber>;
-        "livelyAssetAdminRole()"(overrides?: CallOverrides): Promise<BigNumber>;
-        livelyAssetGroup(overrides?: CallOverrides): Promise<BigNumber>;
-        "livelyAssetGroup()"(overrides?: CallOverrides): Promise<BigNumber>;
-        livelyAssetManagerRole(overrides?: CallOverrides): Promise<BigNumber>;
-        "livelyAssetManagerRole()"(overrides?: CallOverrides): Promise<BigNumber>;
-        livelyAssetRealm(overrides?: CallOverrides): Promise<BigNumber>;
-        "livelyAssetRealm()"(overrides?: CallOverrides): Promise<BigNumber>;
-        livelyCommunityDaoExecutorRole(overrides?: CallOverrides): Promise<BigNumber>;
-        "livelyCommunityDaoExecutorRole()"(overrides?: CallOverrides): Promise<BigNumber>;
-        livelyCommunityDaoRole(overrides?: CallOverrides): Promise<BigNumber>;
-        "livelyCommunityDaoRole()"(overrides?: CallOverrides): Promise<BigNumber>;
-        livelyDaoGroup(overrides?: CallOverrides): Promise<BigNumber>;
-        "livelyDaoGroup()"(overrides?: CallOverrides): Promise<BigNumber>;
-        livelyGeneralGroup(overrides?: CallOverrides): Promise<BigNumber>;
-        "livelyGeneralGroup()"(overrides?: CallOverrides): Promise<BigNumber>;
-        livelyGeneralRealm(overrides?: CallOverrides): Promise<BigNumber>;
-        "livelyGeneralRealm()"(overrides?: CallOverrides): Promise<BigNumber>;
-        livelySystemAdminRole(overrides?: CallOverrides): Promise<BigNumber>;
-        "livelySystemAdminRole()"(overrides?: CallOverrides): Promise<BigNumber>;
         localAdmin(overrides?: CallOverrides): Promise<BigNumber>;
         "localAdmin()"(overrides?: CallOverrides): Promise<BigNumber>;
         proxiableUUID(overrides?: CallOverrides): Promise<BigNumber>;
@@ -2119,6 +2045,24 @@ export interface AccessControlManager extends BaseContract {
         "addContextFuncRole(bytes32,bytes4,bytes32)"(ctx: PromiseOrValue<BytesLike>, functionSelector: PromiseOrValue<BytesLike>, role: PromiseOrValue<BytesLike>, overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<PopulatedTransaction>;
+        batchGrantRoleAccount(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: Overrides & {
+            from?: PromiseOrValue<string>;
+        }): Promise<PopulatedTransaction>;
+        "batchGrantRoleAccount((bytes32,address)[])"(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: Overrides & {
+            from?: PromiseOrValue<string>;
+        }): Promise<PopulatedTransaction>;
+        batchRegisterRole(requests: IRoleManagement.RegiterRoleRequestStruct[], overrides?: Overrides & {
+            from?: PromiseOrValue<string>;
+        }): Promise<PopulatedTransaction>;
+        "batchRegisterRole((bytes32,string,bool)[])"(requests: IRoleManagement.RegiterRoleRequestStruct[], overrides?: Overrides & {
+            from?: PromiseOrValue<string>;
+        }): Promise<PopulatedTransaction>;
+        batchRevokeRoleAccount(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: Overrides & {
+            from?: PromiseOrValue<string>;
+        }): Promise<PopulatedTransaction>;
+        "batchRevokeRoleAccount((bytes32,address)[])"(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: Overrides & {
+            from?: PromiseOrValue<string>;
+        }): Promise<PopulatedTransaction>;
         contractContext(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         "contractContext()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         contractName(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -2167,8 +2111,6 @@ export interface AccessControlManager extends BaseContract {
         "hasRealmContext(bytes32,bytes32)"(realm: PromiseOrValue<BytesLike>, context: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
         hasRoleAccount(role: PromiseOrValue<BytesLike>, account: PromiseOrValue<string>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
         "hasRoleAccount(bytes32,address)"(role: PromiseOrValue<BytesLike>, account: PromiseOrValue<string>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
-        initStatus(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-        "initStatus()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         initVersion(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         "initVersion()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         initialize(domainName: PromiseOrValue<string>, domainVersion: PromiseOrValue<string>, domainRealm: PromiseOrValue<string>, accessControlManager: PromiseOrValue<string>, overrides?: Overrides & {
@@ -2229,30 +2171,6 @@ export interface AccessControlManager extends BaseContract {
         "isSafeMode()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         isUpgradable(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         "isUpgradable()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-        livelyAdminRole(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-        "livelyAdminRole()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-        livelyAnonymousRole(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-        "livelyAnonymousRole()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-        livelyAssetAdminRole(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-        "livelyAssetAdminRole()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-        livelyAssetGroup(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-        "livelyAssetGroup()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-        livelyAssetManagerRole(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-        "livelyAssetManagerRole()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-        livelyAssetRealm(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-        "livelyAssetRealm()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-        livelyCommunityDaoExecutorRole(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-        "livelyCommunityDaoExecutorRole()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-        livelyCommunityDaoRole(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-        "livelyCommunityDaoRole()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-        livelyDaoGroup(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-        "livelyDaoGroup()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-        livelyGeneralGroup(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-        "livelyGeneralGroup()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-        livelyGeneralRealm(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-        "livelyGeneralRealm()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-        livelySystemAdminRole(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-        "livelySystemAdminRole()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         localAdmin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         "localAdmin()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         proxiableUUID(overrides?: CallOverrides): Promise<PopulatedTransaction>;

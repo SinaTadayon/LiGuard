@@ -7,7 +7,7 @@ import {
   AccessControlManager,
   AccessControlManager__factory,
   BaseUUPSProxyTest,
-  BaseUUPSProxyTest__factory,
+  BaseUUPSProxyTest__factory, IRoleManagement,
   LAccessControl,
   LAccessControl__factory,
   LContextManagement,
@@ -18,7 +18,7 @@ import {
   LRealmManagement__factory,
   LRoleManagement__factory,
   // Proxy,
-  Proxy__factory,
+  Proxy__factory
 } from "../../typechain/types";
 import {
   UpgradedEventObject,
@@ -36,7 +36,7 @@ import ResponseContextStruct = IContextManagement.ResponseContextStruct;
 import {
   generateDomainSeparator,
   generateContextDomainSignatureByHardhat,
-  generateContextDomainSignatureManually,
+  generateContextDomainSignatureManually, LIVELY_ASSET_GROUP, LIVELY_ADMIN_ROLE
 } from "./TestUtils";
 
 // ethers.utils.keccak256(ethers.utils.toUtf8Bytes("src/contracts/lib/acl/ContextManagementLib.sol:ContextManagementLib")) => 0x0304621006bd13fe54dc5f6b75a37ec856740450109fd223c2bfb60db9095cad => __$0304621006bd13fe54dc5f6b75a37ec856$__ ( library placeholder)
@@ -67,6 +67,7 @@ describe("AccessControlManager Tests", function () {
     adminAddress = await admin.getAddress();
     userAddress1 = await user1.getAddress();
     userAddress2 = await user2.getAddress();
+    // console.log(`admin address: ${adminAddress}`);
   });
 
   describe("Libraries Deployments Test", function () {
@@ -349,7 +350,6 @@ describe("AccessControlManager Tests", function () {
       expect(await accessControlManager.isSafeMode(), "Invalid SafeMode").to.be.false;
       expect(await accessControlManager.isUpgradable(), "Invalid Upgradable").to.be.false;
       expect(await accessControlManager.initVersion(), "Invalid Initialized Version").to.be.equal(1);
-      expect(await accessControlManager.initStatus(), "Invalid Initialize State").to.be.false;
       expect(await accessControlManager.localAdmin(), "Invalid Admin").to.be.hexEqual(adminAddress);
       expect(await accessControlManager.contractName(), "Invalid Name").to.be.hexEqual(
         ethers.utils.keccak256(ethers.utils.toUtf8Bytes("AccessControlManager"))
@@ -481,7 +481,6 @@ describe("AccessControlManager Tests", function () {
       expect(await accessControlManagerProxy.isSafeMode(), "Invalid SafeMode").to.be.false;
       expect(await accessControlManagerProxy.isUpgradable(), "Invalid Upgradability").to.be.false;
       expect(await accessControlManagerProxy.initVersion(), "Invalid Init Version").to.be.equal(1);
-      expect(await accessControlManagerProxy.initStatus(), "Invalid Init State").to.be.false;
       expect(await accessControlManagerProxy.localAdmin(), "Invalid Local Admin").to.be.hexEqual(adminAddress);
       expect(await accessControlManagerProxy.contractName(), "Invalid Name").to.be.hexEqual(
         ethers.utils.keccak256(ethers.utils.toUtf8Bytes("AccessControlManager"))
@@ -754,12 +753,12 @@ describe("AccessControlManager Tests", function () {
       expect(
         await accessControlManagerProxy.hasGroupRole(
           ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_GENERAL_GROUP")),
-          ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_ADMIN_ROLE"))
+          LIVELY_ADMIN_ROLE
         )
       ).to.be.true;
       expect(
         await accessControlManagerProxy.isLivelyGeneralGroup(
-          ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_ADMIN_ROLE"))
+          LIVELY_ADMIN_ROLE
         )
       ).to.be.true;
       expect(
@@ -828,7 +827,7 @@ describe("AccessControlManager Tests", function () {
       await expect(
         accessControlManagerProxy
           .connect(user1)
-          .grantRoleAccount(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_ADMIN_ROLE")), userAddress2)
+          .grantRoleAccount(LIVELY_ADMIN_ROLE, userAddress2)
       ).to.revertedWith("GrantRoleAccount Access Denied");
     });
 
@@ -837,7 +836,7 @@ describe("AccessControlManager Tests", function () {
       await expect(
         accessControlManagerProxy
           .connect(user1)
-          .revokeRoleAccount(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_ADMIN_ROLE")), adminAddress)
+          .revokeRoleAccount(LIVELY_ADMIN_ROLE, adminAddress)
       ).to.revertedWith("RevokeRoleAccount Access Denied");
     });
 
@@ -846,7 +845,7 @@ describe("AccessControlManager Tests", function () {
       await expect(
         accessControlManagerProxy
           .connect(admin)
-          .revokeRoleAccount(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_ADMIN_ROLE")), adminAddress)
+          .revokeRoleAccount(LIVELY_ADMIN_ROLE, adminAddress)
       ).to.revertedWith("Illegal Revoke Role Account");
     });
 
@@ -855,7 +854,7 @@ describe("AccessControlManager Tests", function () {
       await expect(
         accessControlManagerProxy
           .connect(user1)
-          .setRoleStatus(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_ADMIN_ROLE")), false)
+          .setRoleStatus(LIVELY_ADMIN_ROLE, false)
       ).to.revertedWith("SetRoleStatus Access Denied");
     });
 
@@ -865,7 +864,7 @@ describe("AccessControlManager Tests", function () {
         accessControlManagerProxy
           .connect(user1)
           .setRoleGroup(
-            ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_ADMIN_ROLE")),
+            LIVELY_ADMIN_ROLE,
             ethers.utils.keccak256(ethers.utils.toUtf8Bytes("INOVERS_GROUP"))
           )
       ).to.revertedWith("SetRoleGroup Access Denied");
@@ -876,7 +875,7 @@ describe("AccessControlManager Tests", function () {
       await expect(
         accessControlManagerProxy
           .connect(admin)
-          .setRoleStatus(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_ADMIN_ROLE")), false)
+          .setRoleStatus(LIVELY_ADMIN_ROLE, false)
       ).to.revertedWith("Illegal Change Role Status");
     });
 
@@ -892,7 +891,7 @@ describe("AccessControlManager Tests", function () {
     it("Should get role info of LIVELY_ADMIN_ROLE success", async () => {
       // when
       const [name, group, status] = await accessControlManagerProxy.getRoleInfo(
-        ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_ADMIN_ROLE"))
+        LIVELY_ADMIN_ROLE
       );
 
       // then
@@ -903,7 +902,7 @@ describe("AccessControlManager Tests", function () {
       // and
       expect(
         await accessControlManagerProxy.hasRoleAccount(
-          ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_ADMIN_ROLE")),
+          LIVELY_ADMIN_ROLE,
           adminAddress
         )
       ).to.be.true;
@@ -1169,6 +1168,161 @@ describe("AccessControlManager Tests", function () {
           ethers.utils.keccak256(ethers.utils.toUtf8Bytes("INOVERS_GROUP"))
         )
       ).to.be.true;
+    });
+
+    it("Should batch register new TESTER_ROLE_1, TESTER_ROLE_2 role by admin success", async () => {
+      // given
+      const registerRoleRequest: IRoleManagement.RegiterRoleRequestStruct[] = [
+        {
+          name: "TESTER_ROLE_1",
+          group: LIVELY_ASSET_GROUP,
+          status: true
+        },
+        {
+          name: "TESTER_ROLE_2",
+          group: LIVELY_ASSET_GROUP,
+          status: true
+        }
+      ]
+
+      // when
+      await expect(
+        accessControlManagerProxy
+          .connect(admin)
+          .batchRegisterRole(registerRoleRequest)
+      ).to.emit(accessControlManagerProxy, "RoleRegistered")
+        .withArgs(
+          adminAddress,
+          ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["TESTER_ROLE_1"])),
+          "TESTER_ROLE_1",
+          LIVELY_ASSET_GROUP,
+          true
+        ).emit(accessControlManagerProxy, "RoleRegistered")
+        .withArgs(
+          adminAddress,
+          ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["TESTER_ROLE_2"])),
+          "TESTER_ROLE_2",
+          LIVELY_ASSET_GROUP,
+          true
+        );
+
+      // then
+      const [name1, group1, status1] = await accessControlManagerProxy.getRoleInfo(
+        ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["TESTER_ROLE_1"])),
+      );
+      const [name2, group2, status2] = await accessControlManagerProxy.getRoleInfo(
+        ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["TESTER_ROLE_2"])),
+      );
+      expect(name1).to.be.equal("TESTER_ROLE_1");
+      expect(group1).to.be.hexEqual(LIVELY_ASSET_GROUP);
+      expect(status1).to.be.true;
+      expect(name2).to.be.equal("TESTER_ROLE_2");
+      expect(group2).to.be.hexEqual(LIVELY_ASSET_GROUP);
+      expect(status2).to.be.true;
+    });
+
+    it("Should batch grant TESTER_ROLE_1 role to user1 and grant TESTER_ROLE_2 role to user2 by admin success", async () => {
+      // given
+      const batchGrantRequest: IRoleManagement.UpdateRoleRequestStruct[] = [
+        {
+          role: ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["TESTER_ROLE_1"])),
+          account: userAddress1,
+        },
+        {
+          role: ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["TESTER_ROLE_2"])),
+          account: userAddress2,
+        }
+      ]
+
+      // when and then
+      await expect(
+        accessControlManagerProxy
+          .connect(admin)
+          .batchGrantRoleAccount(batchGrantRequest)
+      ).to.emit(accessControlManagerProxy, "RoleAccountGranted")
+        .withArgs(adminAddress, ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["TESTER_ROLE_1"])), userAddress1)
+        .emit(accessControlManagerProxy, "RoleAccountGranted")
+        .withArgs(adminAddress, ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["TESTER_ROLE_2"])), userAddress2);
+
+      // then
+      expect(
+        await accessControlManagerProxy.hasRoleAccount(
+          ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TESTER_ROLE_1")),
+          userAddress1
+        )
+      ).to.be.true;
+
+      // and
+      expect(
+        await accessControlManagerProxy.hasRoleAccount(
+          ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TESTER_ROLE_2")),
+          userAddress2
+        )
+      ).to.be.true;
+
+      // and
+      const roleAccounts1 = await accessControlManagerProxy.getRoleAccounts(
+        ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TESTER_ROLE_1"))
+      );
+      expect(roleAccounts1.length).to.be.equal(1);
+
+      // and
+      const roleAccounts2 = await accessControlManagerProxy.getRoleAccounts(
+        ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TESTER_ROLE_2"))
+      );
+      expect(roleAccounts2.length).to.be.equal(1);
+    });
+
+    it("Should batch revoke TESTER_ROLE_1 role from user1 and grant TESTER_ROLE_2 role from user2 by admin success", async () => {
+      // given
+      const batchRevokeRequest: IRoleManagement.UpdateRoleRequestStruct[] = [
+        {
+          role: ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["TESTER_ROLE_1"])),
+          account: userAddress1,
+        },
+        {
+          role: ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["TESTER_ROLE_2"])),
+          account: userAddress2,
+        }
+      ]
+
+      // when and then
+      await expect(
+        accessControlManagerProxy
+          .connect(admin)
+          .batchRevokeRoleAccount(batchRevokeRequest)
+      ).to.emit(accessControlManagerProxy, "RoleAccountRevoked")
+        .withArgs(adminAddress, ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["TESTER_ROLE_1"])), userAddress1)
+        .emit(accessControlManagerProxy, "RoleAccountRevoked")
+        .withArgs(adminAddress, ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["TESTER_ROLE_2"])), userAddress2);
+
+      // then
+      expect(
+        await accessControlManagerProxy.hasRoleAccount(
+          ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TESTER_ROLE_1")),
+          userAddress1
+        )
+      ).to.be.false;
+
+      // and
+      expect(
+        await accessControlManagerProxy.hasRoleAccount(
+          ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TESTER_ROLE_2")),
+          userAddress2
+        )
+      ).to.be.false;
+
+      // and
+      const roleAccounts1 = await accessControlManagerProxy.getRoleAccounts(
+        ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TESTER_ROLE_1"))
+      );
+      expect(roleAccounts1.length).to.be.equal(0);
+
+      // and
+      const roleAccounts2 = await accessControlManagerProxy.getRoleAccounts(
+        ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TESTER_ROLE_2"))
+      );
+      expect(roleAccounts2.length).to.be.equal(0);
     });
   });
 
@@ -1689,12 +1843,12 @@ describe("AccessControlManager Tests", function () {
             signature,
             accessControlManagerProxy.address
           )
-      )
-        .to.emit(accessControlManagerProxy, "ContextRegistered")
+      ).to.emit(accessControlManagerProxy, "ContextRegistered")
         .withArgs(
           ethers.utils.keccak256(baseUupsProxy.address),
           baseUupsProxy.address,
           adminAddress,
+          baseUupsProxy.address,
           ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_GENERAL_REALM"))
         );
 

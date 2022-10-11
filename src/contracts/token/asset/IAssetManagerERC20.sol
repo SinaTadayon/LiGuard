@@ -15,11 +15,13 @@ interface IAssetManagerERC20 {
     string assetVersion;     
   }
 
-  event AssetImplUpdated(address indexed sender, address indexed assetImpl);
+  event AssetSubjectUpdated(address indexed sender, address indexed assetSubject);
 
   event TokenRegistered(address indexed sender, address indexed tokenId, string tokenName, string tokenSymbol);
   
-  event AssetCreated(address indexed sender, address indexed assetId, address indexed tokenId, address assetImpl);
+  event AssetCreated(address indexed sender, address indexed assetId, address indexed tokenId, address assetSubject);
+
+  event AssetRegistered(address indexed sender, address indexed assetId, address indexed tokenId);
 
   event AssetRemoved(address indexed sender, address indexed assetId, address indexed tokenId);
   
@@ -27,17 +29,19 @@ interface IAssetManagerERC20 {
 
   function createAsset(CreateAssetRequest calldata request) external returns (address);
 
-  function updateAssetImpl(address assetImpl, bytes calldata assetCreationSignature) external returns (bool);
+  function updateAssetSubject(address assetSubject, bytes calldata assetCreationSignature) external returns (bool);
 
   function registerToken(address tokenId) external returns (bool);
+
+  function registerAsset(address tokenId, address assetId) external returns (bool);
 
   function removeAsset(address assetId) external returns (bool);
 
   function setSafeModeToken(address tokenId, bool isEnabled) external returns (bool);
 
-  function tokenLock(address tokenId, IERC20Lock.LockTokenRequest calldata lockRequest) external returns (bytes32);
+  function tokenLock(address assetId, IERC20Lock.LockTokenRequest calldata lockRequest) external returns (bytes32);
 
-  function tokenBatchLock(address tokenId, IERC20Lock.LockTokenRequest[] calldata lockRequests) external returns (bytes32[] memory);
+  function tokenBatchLock(address assetId, IERC20Lock.LockTokenRequest[] calldata lockRequests) external returns (bytes32[] memory);
 
   function tokenTransfer(address assetId, address to, uint256 amount) external returns (bool);
 
@@ -61,5 +65,7 @@ interface IAssetManagerERC20 {
 
   function isTokenExists(address tokenId) external view returns (bool);
 
-  function predictAddress(address base, bytes32 salt) external view returns (address);
+  function getAssetSubject() external view returns (address);
+
+  function predictAddress(address implementation, bytes32 salt, address deployer) external view returns (address);
 }

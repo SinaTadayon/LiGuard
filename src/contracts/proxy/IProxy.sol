@@ -60,5 +60,4 @@ interface IProxy is IBaseProxy {
 
   function initVersion() external view returns (uint16);
 
-  function initStatus() external view returns (bool);
 }

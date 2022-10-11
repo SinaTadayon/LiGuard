@@ -33,7 +33,6 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
     bytes signature;
     uint256 taxRateValue;
     address accessControlManager;
-    address assetManager;
   }
 
   constructor() {}
@@ -312,20 +311,24 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
     _symbol = "LVL";
     _taxRate = request.taxRateValue;
     _isTokenDistributed = false;
-    _isSafeMode = true;
+    _initContext(request.domainName, request.domainVersion, realm, request.signature);
+  }
 
-    try IERC165(request.assetManager).supportsInterface(type(IAssetManagerERC20).interfaceId) returns (bool isSupported) {
+  function _tokensDistributionValidation(address account) private view {
+    require(_data.accounts[account].balance == 0, "AssetId Already Distributed");
+  }
+
+  function tokensDistribution(address assetManager, address[7] calldata assets) public safeModeCheck aclCheck(this.tokensDistribution.selector) returns (bool) {
+    require(!_isTokenDistributed, "Token Already Distributed");
+
+    try IERC165(assetManager).supportsInterface(type(IAssetManagerERC20).interfaceId) returns (bool isSupported) {
       require(isSupported, "Invalid IAssetManagerERC20");
     } catch {
       revert("Illegal IAssetManagerERC20");
     }     
 
-    _mint(request.assetManager, 5_000_000_000 * 10 ** 18);  // 5 billion tokens according to tokenomics
-    _initContext(request.domainName, request.domainVersion, realm, request.signature);
-  }
+    _mint(assetManager, 5_000_000_000 * 10 ** 18);  // 5 billion tokens according to tokenomics
 
-  function tokensDistribution(address[7] calldata assets) public safeModeCheck aclCheck(this.tokensDistribution.selector) returns (bool) {
-    require(!_isTokenDistributed, "Token Already Distributed");
     for (uint i = 0; i < 7; i++) {
        try IERC165(assets[i]).supportsInterface(type(IAssetEntity).interfaceId) returns (bool isSupported) {
         require(isSupported, "Invalid IAssetEntity Address");
@@ -334,25 +337,32 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
       }
       require(IAssetEntity(assets[i]).assetType() == IAssetEntity.AssetType.ERC20, "Invalid Asset Type");
       require(IAssetEntity(assets[i]).assetToken() == address(this), "Invalid Asset Token");
-      if (IAssetEntity(assets[i]).assetName() == "LIVELY_AUDIO_VIDEO_PROGRAM_ASSET") {
+      if (IAssetEntity(assets[i]).assetName() == keccak256(abi.encodePacked("LIVELY_AUDIO_VIDEO_PROGRAM_ASSET"))) {
+        _tokensDistributionValidation(assets[i]);
         _transfer(_msgSender(), assets[i], 500_000_000 * 10 ** 18);     // 10% 
 
-      } else if (IAssetEntity(assets[i]).assetName() == "LIVELY_FOUNDING_TEAM_ASSET") {
+      } else if (IAssetEntity(assets[i]).assetName() == keccak256(abi.encodePacked("LIVELY_FOUNDING_TEAM_ASSET"))) {
+        _tokensDistributionValidation(assets[i]);
         _transfer(_msgSender(), assets[i], 900_000_000 * 10 ** 18);     // 18%
 
-      } else if (IAssetEntity(assets[i]).assetName() == "LIVELY_TREASURY_ASSET") {
+      } else if (IAssetEntity(assets[i]).assetName() == keccak256(abi.encodePacked("LIVELY_TREASURY_ASSET"))) {
+        _tokensDistributionValidation(assets[i]);
         _transfer(_msgSender(), assets[i], 750_000_000 * 10 ** 18);     // 15%
 
-      } else if (IAssetEntity(assets[i]).assetName() == "LIVELY_PUBLIC_SALE_ASSET") {
+      } else if (IAssetEntity(assets[i]).assetName() == keccak256(abi.encodePacked("LIVELY_PUBLIC_SALE_ASSET"))) {
+        _tokensDistributionValidation(assets[i]);
         _transfer(_msgSender(), assets[i], 2_000_000_000 * 10 ** 18);   // 40%
 
-      } else if (IAssetEntity(assets[i]).assetName() == "LIVELY_VALIDATORS_REWARDS_ASSET") {
+      } else if (IAssetEntity(assets[i]).assetName() == keccak256(abi.encodePacked("LIVELY_VALIDATORS_REWARDS_ASSET"))) {
+        _tokensDistributionValidation(assets[i]);
         _transfer(_msgSender(), assets[i], 300_000_000 * 10 ** 18);     // 6%
 
-      } else if (IAssetEntity(assets[i]).assetName() == "LIVELY_CROWD_FOUNDING_ASSET") {
+      } else if (IAssetEntity(assets[i]).assetName() == keccak256(abi.encodePacked("LIVELY_CROWD_FOUNDING_ASSET"))) {
+        _tokensDistributionValidation(assets[i]);
         _transfer(_msgSender(), assets[i], 550_000_000 * 10 ** 18);     // 11%
 
-      } else if (IAssetEntity(assets[i]).assetName() == "LIVELY_TAX_TREASURY_ASSET") {
+      } else if (IAssetEntity(assets[i]).assetName() == keccak256(abi.encodePacked("LIVELY_TAX_TREASURY_ASSET"))) {
+        require(_taxTreasury == address(0), "TaxTreasury Already Registered");
         _taxTreasury = assets[i];
 
       } else {
@@ -361,7 +371,6 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
     }
 
     _isTokenDistributed = true;
-    _isSafeMode = false;
     return true;
   }
 

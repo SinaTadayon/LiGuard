@@ -28,7 +28,7 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "assetImpl",
+        "name": "assetSubject",
         "type": "address"
       }
     ],
@@ -47,11 +47,17 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "assetImpl",
+        "name": "assetId",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "tokenId",
         "type": "address"
       }
     ],
-    "name": "AssetImplUpdated",
+    "name": "AssetRegistered",
     "type": "event"
   },
   {
@@ -77,6 +83,25 @@
       }
     ],
     "name": "AssetRemoved",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "assetSubject",
+        "type": "address"
+      }
+    ],
+    "name": "AssetSubjectUpdated",
     "type": "event"
   },
   {
@@ -438,6 +463,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "getAssetSubject",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -456,19 +494,6 @@
         "internalType": "address[]",
         "name": "",
         "type": "address[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "initStatus",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -646,13 +671,18 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "base",
+        "name": "implementation",
         "type": "address"
       },
       {
         "internalType": "bytes32",
         "name": "salt",
         "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "deployer",
+        "type": "address"
       }
     ],
     "name": "predictAddress",
@@ -663,7 +693,7 @@
         "type": "address"
       }
     ],
-    "stateMutability": "view",
+    "stateMutability": "pure",
     "type": "function"
   },
   {
@@ -680,9 +710,26 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "registerAssetRoles",
-    "outputs": [],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "tokenId",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "assetId",
+        "type": "address"
+      }
+    ],
+    "name": "registerAsset",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },
@@ -870,7 +917,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "tokenId",
+        "name": "assetId",
         "type": "address"
       },
       {
@@ -1051,7 +1098,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "tokenId",
+        "name": "assetId",
         "type": "address"
       },
       {
@@ -1160,7 +1207,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "assetImpl",
+        "name": "assetSubject",
         "type": "address"
       },
       {
@@ -1169,7 +1216,7 @@
         "type": "bytes"
       }
     ],
-    "name": "updateAssetImpl",
+    "name": "updateAssetSubject",
     "outputs": [
       {
         "internalType": "bool",

@@ -16,6 +16,26 @@ export declare class IRoleManagement__factory {
         stateMutability?: undefined;
     } | {
         inputs: {
+            components: {
+                internalType: string;
+                name: string;
+                type: string;
+            }[];
+            internalType: string;
+            name: string;
+            type: string;
+        }[];
+        name: string;
+        outputs: {
+            internalType: string;
+            name: string;
+            type: string;
+        }[];
+        stateMutability: string;
+        type: string;
+        anonymous?: undefined;
+    } | {
+        inputs: {
             internalType: string;
             name: string;
             type: string;

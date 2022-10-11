@@ -93,7 +93,7 @@ export declare namespace IContextManagement {
     realm: PromiseOrValue<BytesLike>;
     salt: PromiseOrValue<BytesLike>;
     bytesHash: PromiseOrValue<BytesLike>;
-    base: PromiseOrValue<string>;
+    deployer: PromiseOrValue<string>;
     status: PromiseOrValue<boolean>;
   };
 
@@ -111,7 +111,7 @@ export declare namespace IContextManagement {
     realm: string;
     salt: string;
     bytesHash: string;
-    base: string;
+    deployer: string;
     status: boolean;
   };
 

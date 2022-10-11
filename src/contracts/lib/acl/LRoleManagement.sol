@@ -30,6 +30,34 @@ library LRoleManagement {
       ),
       "RegisterRole Access Denied"
     );
+  
+    return _registerRole(data, name, group, isEnabled);
+  }
+
+  function batchRegisterRole(AccessControlStorage.DataMaps storage data, IRoleManagement.RegiterRoleRequest[] calldata requests) external returns(bytes32[] memory) {
+    require(!IProxy(address(this)).isSafeMode(), "SafeMode: Call Rejected");
+    require(
+      LAccessControl.hasAccess(
+        data,
+        LContextUtils.generateCtx(address(this)),
+        msg.sender,
+        IRoleManagement.batchRegisterRole.selector
+      ),
+      "BatchRegisterRole Access Denied"
+    );
+    bytes32[] memory roles = new bytes32[](requests.length);
+    for(uint i; i < requests.length; i++) {
+      roles[i] = _registerRole(data, requests[i].name, requests[i].group, requests[i].status);
+    }
+    return roles;
+  }
+
+  function _registerRole(
+    AccessControlStorage.DataMaps storage data,
+    string calldata name,
+    bytes32 group,
+    bool isEnabled
+  ) private returns (bytes32) {
     require(bytes(data.groupMap[group].name).length != 0, "Group Not Found");
     require(bytes(name).length != 0, "Role Name Invalid");
     bytes32 roleKey = keccak256(abi.encodePacked(name));
@@ -42,6 +70,7 @@ library LRoleManagement {
     newRole.isEnabled = isEnabled;
     return roleKey;
   }
+
 
   function grantRoleAccount(
     AccessControlStorage.DataMaps storage data,
@@ -59,12 +88,38 @@ library LRoleManagement {
       "GrantRoleAccount Access Denied"
     );
 
+    _grantRoleAccount(data, role, account);
+    return true;
+  }
+
+  function batchGrantRoleAccount(AccessControlStorage.DataMaps storage data, IRoleManagement.UpdateRoleRequest[] calldata requests) external returns (bool) {
+    require(!IProxy(address(this)).isSafeMode(), "SafeMode: Call Rejected");
+    require(
+      LAccessControl.hasAccess(
+        data,
+        LContextUtils.generateCtx(address(this)),
+        msg.sender,
+        IRoleManagement.batchGrantRoleAccount.selector
+      ),
+      "BatchGrantRoleAccount Access Denied"
+    );
+    for(uint i; i < requests.length; i++) {
+      _grantRoleAccount(data, requests[i].role, requests[i].account);
+    }
+    return true;
+  }
+
+   function _grantRoleAccount(
+    AccessControlStorage.DataMaps storage data,
+    bytes32 role,
+    address account
+  ) private returns (bool) {
     if(role == LAccessControl.LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE) {      
-      require(account.code.length > 0 && data.roleMap[role].accountSet.length() == uint256(0), "Illegal Grant Community Dao Executor Role");
+      require(account.code.length > 0, "Illegal Grant Community Dao Executor Role");
     }
 
     if(role == LAccessControl.LIVELY_ASSET_MANAGER_ROLE) {      
-      require(account.code.length > 0 && data.roleMap[role].accountSet.length() == uint256(0), "Illegal Grant Asset Manager Role");
+      require(account.code.length > 0, "Illegal Grant Asset Manager Role");
     }
 
     require(role != LAccessControl.LIVELY_ANONYMOUS_ROLE, "Illegal Grant Anonymous Role");
@@ -93,6 +148,32 @@ library LRoleManagement {
       "RevokeRoleAccount Access Denied"
     );
     
+    _revokeRoleAccount(data, role, account);
+    return true;
+  }
+
+  function batchRevokeRoleAccount(AccessControlStorage.DataMaps storage data, IRoleManagement.UpdateRoleRequest[] calldata requests) external returns (bool) {
+    require(!IProxy(address(this)).isSafeMode(), "SafeMode: Call Rejected");
+    require(
+      LAccessControl.hasAccess(
+        data,
+        LContextUtils.generateCtx(address(this)),
+        msg.sender,
+        IRoleManagement.batchRevokeRoleAccount.selector
+      ),
+      "BatchRevokeRoleAccount Access Denied"
+    );
+    for(uint i; i < requests.length; i++) {
+      _revokeRoleAccount(data, requests[i].role, requests[i].account);
+    }
+    return true;
+  }
+
+  function _revokeRoleAccount(
+    AccessControlStorage.DataMaps storage data,
+    bytes32 role,
+    address account
+  ) private returns (bool) {    
     if (role == LAccessControl.LIVELY_ADMIN_ROLE || role == LAccessControl.LIVELY_SYSTEM_ADMIN_ROLE) {
       require(data.roleMap[role].accountSet.length() > 1, "Illegal Revoke Role Account");    
     } 

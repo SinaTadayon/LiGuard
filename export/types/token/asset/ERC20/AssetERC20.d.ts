@@ -85,7 +85,6 @@ export declare namespace IERC20Extra {
 export interface AssetERC20Interface extends utils.Interface {
     functions: {
         "assetBalance()": FunctionFragment;
-        "assetInitStatus()": FunctionFragment;
         "assetInitVersion()": FunctionFragment;
         "assetName()": FunctionFragment;
         "assetRealm()": FunctionFragment;
@@ -109,11 +108,9 @@ export interface AssetERC20Interface extends utils.Interface {
         "tokenTransferFrom(address,address,uint256)": FunctionFragment;
         "withdrawBalance(address)": FunctionFragment;
     };
-    getFunction(nameOrSignatureOrTopic: "assetBalance" | "assetBalance()" | "assetInitStatus" | "assetInitStatus()" | "assetInitVersion" | "assetInitVersion()" | "assetName" | "assetName()" | "assetRealm" | "assetRealm()" | "assetRole" | "assetRole()" | "assetSafeMode" | "assetSafeMode()" | "assetSafeModeSet" | "assetSafeModeSet(bool)" | "assetToken" | "assetToken()" | "assetType" | "assetType()" | "assetVersion" | "assetVersion()" | "initialize" | "initialize((string,string,bytes32,address,address,address,bytes32,bytes32,bytes32,bytes))" | "supportsInterface" | "supportsInterface(bytes4)" | "tokenApprove" | "tokenApprove(address,uint256)" | "tokenBalance" | "tokenBalance()" | "tokenBatchLock" | "tokenBatchLock((address,address,uint256,uint256)[])" | "tokenBatchTransfer" | "tokenBatchTransfer((address,uint256)[])" | "tokenBatchTransferFrom" | "tokenBatchTransferFrom((address,address,uint256)[])" | "tokenDecreaseAllowance" | "tokenDecreaseAllowance(address,uint256)" | "tokenIncreaseAllowance" | "tokenIncreaseAllowance(address,uint256)" | "tokenLock" | "tokenLock((address,address,uint256,uint256))" | "tokenTransfer" | "tokenTransfer(address,uint256)" | "tokenTransferFrom" | "tokenTransferFrom(address,address,uint256)" | "withdrawBalance" | "withdrawBalance(address)"): FunctionFragment;
+    getFunction(nameOrSignatureOrTopic: "assetBalance" | "assetBalance()" | "assetInitVersion" | "assetInitVersion()" | "assetName" | "assetName()" | "assetRealm" | "assetRealm()" | "assetRole" | "assetRole()" | "assetSafeMode" | "assetSafeMode()" | "assetSafeModeSet" | "assetSafeModeSet(bool)" | "assetToken" | "assetToken()" | "assetType" | "assetType()" | "assetVersion" | "assetVersion()" | "initialize" | "initialize((string,string,bytes32,address,address,address,bytes32,bytes32,bytes32,bytes))" | "supportsInterface" | "supportsInterface(bytes4)" | "tokenApprove" | "tokenApprove(address,uint256)" | "tokenBalance" | "tokenBalance()" | "tokenBatchLock" | "tokenBatchLock((address,address,uint256,uint256)[])" | "tokenBatchTransfer" | "tokenBatchTransfer((address,uint256)[])" | "tokenBatchTransferFrom" | "tokenBatchTransferFrom((address,address,uint256)[])" | "tokenDecreaseAllowance" | "tokenDecreaseAllowance(address,uint256)" | "tokenIncreaseAllowance" | "tokenIncreaseAllowance(address,uint256)" | "tokenLock" | "tokenLock((address,address,uint256,uint256))" | "tokenTransfer" | "tokenTransfer(address,uint256)" | "tokenTransferFrom" | "tokenTransferFrom(address,address,uint256)" | "withdrawBalance" | "withdrawBalance(address)"): FunctionFragment;
     encodeFunctionData(functionFragment: "assetBalance", values?: undefined): string;
     encodeFunctionData(functionFragment: "assetBalance()", values?: undefined): string;
-    encodeFunctionData(functionFragment: "assetInitStatus", values?: undefined): string;
-    encodeFunctionData(functionFragment: "assetInitStatus()", values?: undefined): string;
     encodeFunctionData(functionFragment: "assetInitVersion", values?: undefined): string;
     encodeFunctionData(functionFragment: "assetInitVersion()", values?: undefined): string;
     encodeFunctionData(functionFragment: "assetName", values?: undefined): string;
@@ -168,8 +165,6 @@ export interface AssetERC20Interface extends utils.Interface {
     encodeFunctionData(functionFragment: "withdrawBalance(address)", values: [PromiseOrValue<string>]): string;
     decodeFunctionResult(functionFragment: "assetBalance", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "assetBalance()", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "assetInitStatus", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "assetInitStatus()", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "assetInitVersion", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "assetInitVersion()", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "assetName", data: BytesLike): Result;
@@ -282,8 +277,6 @@ export interface AssetERC20 extends BaseContract {
     functions: {
         assetBalance(overrides?: CallOverrides): Promise<[BigNumber]>;
         "assetBalance()"(overrides?: CallOverrides): Promise<[BigNumber]>;
-        assetInitStatus(overrides?: CallOverrides): Promise<[boolean]>;
-        "assetInitStatus()"(overrides?: CallOverrides): Promise<[boolean]>;
         assetInitVersion(overrides?: CallOverrides): Promise<[number]>;
         "assetInitVersion()"(overrides?: CallOverrides): Promise<[number]>;
         assetName(overrides?: CallOverrides): Promise<[string]>;
@@ -379,8 +372,6 @@ export interface AssetERC20 extends BaseContract {
     };
     assetBalance(overrides?: CallOverrides): Promise<BigNumber>;
     "assetBalance()"(overrides?: CallOverrides): Promise<BigNumber>;
-    assetInitStatus(overrides?: CallOverrides): Promise<boolean>;
-    "assetInitStatus()"(overrides?: CallOverrides): Promise<boolean>;
     assetInitVersion(overrides?: CallOverrides): Promise<number>;
     "assetInitVersion()"(overrides?: CallOverrides): Promise<number>;
     assetName(overrides?: CallOverrides): Promise<string>;
@@ -476,8 +467,6 @@ export interface AssetERC20 extends BaseContract {
     callStatic: {
         assetBalance(overrides?: CallOverrides): Promise<BigNumber>;
         "assetBalance()"(overrides?: CallOverrides): Promise<BigNumber>;
-        assetInitStatus(overrides?: CallOverrides): Promise<boolean>;
-        "assetInitStatus()"(overrides?: CallOverrides): Promise<boolean>;
         assetInitVersion(overrides?: CallOverrides): Promise<number>;
         "assetInitVersion()"(overrides?: CallOverrides): Promise<number>;
         assetName(overrides?: CallOverrides): Promise<string>;
@@ -534,8 +523,6 @@ export interface AssetERC20 extends BaseContract {
     estimateGas: {
         assetBalance(overrides?: CallOverrides): Promise<BigNumber>;
         "assetBalance()"(overrides?: CallOverrides): Promise<BigNumber>;
-        assetInitStatus(overrides?: CallOverrides): Promise<BigNumber>;
-        "assetInitStatus()"(overrides?: CallOverrides): Promise<BigNumber>;
         assetInitVersion(overrides?: CallOverrides): Promise<BigNumber>;
         "assetInitVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
         assetName(overrides?: CallOverrides): Promise<BigNumber>;
@@ -632,8 +619,6 @@ export interface AssetERC20 extends BaseContract {
     populateTransaction: {
         assetBalance(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         "assetBalance()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-        assetInitStatus(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-        "assetInitStatus()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         assetInitVersion(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         "assetInitVersion()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         assetName(overrides?: CallOverrides): Promise<PopulatedTransaction>;

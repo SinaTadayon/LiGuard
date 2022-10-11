@@ -43,6 +43,4 @@ interface IAssetEntity {
   function assetRole() external view returns (bytes32);
 
   function assetInitVersion() external view returns (uint16);
-
-  function assetInitStatus() external view returns (bool);
 }

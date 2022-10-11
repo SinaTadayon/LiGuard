@@ -12,7 +12,6 @@ export interface BaseUUPSProxyTestInterface extends utils.Interface {
         "contractRealm()": FunctionFragment;
         "contractVersion()": FunctionFragment;
         "domainSeparator()": FunctionFragment;
-        "initStatus()": FunctionFragment;
         "initVersion()": FunctionFragment;
         "initialize(string,string,string,bytes,address)": FunctionFragment;
         "initializeWithInvalidRealm(string,string,string,bytes,address)": FunctionFragment;
@@ -35,7 +34,7 @@ export interface BaseUUPSProxyTestInterface extends utils.Interface {
         "upgradeToTesterRole(address)": FunctionFragment;
         "withdrawBalance(address)": FunctionFragment;
     };
-    getFunction(nameOrSignatureOrTopic: "LIVELY_ADMIN_ROLE" | "LIVELY_ADMIN_ROLE()" | "LIVELY_SYSTEM_ADMIN_ROLE" | "LIVELY_SYSTEM_ADMIN_ROLE()" | "accessControlManager" | "accessControlManager()" | "contractContext" | "contractContext()" | "contractName" | "contractName()" | "contractRealm" | "contractRealm()" | "contractVersion" | "contractVersion()" | "domainSeparator" | "domainSeparator()" | "initStatus" | "initStatus()" | "initVersion" | "initVersion()" | "initialize" | "initialize(string,string,string,bytes,address)" | "initializeWithInvalidRealm" | "initializeWithInvalidRealm(string,string,string,bytes,address)" | "initializeWithInvalidRole" | "initializeWithInvalidRole(string,string,string,bytes,address)" | "isSafeMode" | "isSafeMode()" | "isUpgradable" | "isUpgradable()" | "localAdmin" | "localAdmin()" | "proxiableUUID" | "proxiableUUID()" | "reInitialize" | "reInitialize(bytes)" | "reInitializeWithInvalidRealm" | "reInitializeWithInvalidRealm(bytes)" | "reInitializeWithInvalidRole" | "reInitializeWithInvalidRole(bytes)" | "setLocalAdmin" | "setLocalAdmin(address)" | "setSafeMode" | "setSafeMode(bool)" | "setUpgradeStatus" | "setUpgradeStatus(bool)" | "subjectAddress" | "subjectAddress()" | "supportsInterface" | "supportsInterface(bytes4)" | "upgradeTo" | "upgradeTo(address,bytes,bool)" | "upgradeToAndCall" | "upgradeToAndCall(address,bytes)" | "upgradeToAnonymousRole" | "upgradeToAnonymousRole(address)" | "upgradeToTesterRole" | "upgradeToTesterRole(address)" | "withdrawBalance" | "withdrawBalance(address)"): FunctionFragment;
+    getFunction(nameOrSignatureOrTopic: "LIVELY_ADMIN_ROLE" | "LIVELY_ADMIN_ROLE()" | "LIVELY_SYSTEM_ADMIN_ROLE" | "LIVELY_SYSTEM_ADMIN_ROLE()" | "accessControlManager" | "accessControlManager()" | "contractContext" | "contractContext()" | "contractName" | "contractName()" | "contractRealm" | "contractRealm()" | "contractVersion" | "contractVersion()" | "domainSeparator" | "domainSeparator()" | "initVersion" | "initVersion()" | "initialize" | "initialize(string,string,string,bytes,address)" | "initializeWithInvalidRealm" | "initializeWithInvalidRealm(string,string,string,bytes,address)" | "initializeWithInvalidRole" | "initializeWithInvalidRole(string,string,string,bytes,address)" | "isSafeMode" | "isSafeMode()" | "isUpgradable" | "isUpgradable()" | "localAdmin" | "localAdmin()" | "proxiableUUID" | "proxiableUUID()" | "reInitialize" | "reInitialize(bytes)" | "reInitializeWithInvalidRealm" | "reInitializeWithInvalidRealm(bytes)" | "reInitializeWithInvalidRole" | "reInitializeWithInvalidRole(bytes)" | "setLocalAdmin" | "setLocalAdmin(address)" | "setSafeMode" | "setSafeMode(bool)" | "setUpgradeStatus" | "setUpgradeStatus(bool)" | "subjectAddress" | "subjectAddress()" | "supportsInterface" | "supportsInterface(bytes4)" | "upgradeTo" | "upgradeTo(address,bytes,bool)" | "upgradeToAndCall" | "upgradeToAndCall(address,bytes)" | "upgradeToAnonymousRole" | "upgradeToAnonymousRole(address)" | "upgradeToTesterRole" | "upgradeToTesterRole(address)" | "withdrawBalance" | "withdrawBalance(address)"): FunctionFragment;
     encodeFunctionData(functionFragment: "LIVELY_ADMIN_ROLE", values?: undefined): string;
     encodeFunctionData(functionFragment: "LIVELY_ADMIN_ROLE()", values?: undefined): string;
     encodeFunctionData(functionFragment: "LIVELY_SYSTEM_ADMIN_ROLE", values?: undefined): string;
@@ -52,8 +51,6 @@ export interface BaseUUPSProxyTestInterface extends utils.Interface {
     encodeFunctionData(functionFragment: "contractVersion()", values?: undefined): string;
     encodeFunctionData(functionFragment: "domainSeparator", values?: undefined): string;
     encodeFunctionData(functionFragment: "domainSeparator()", values?: undefined): string;
-    encodeFunctionData(functionFragment: "initStatus", values?: undefined): string;
-    encodeFunctionData(functionFragment: "initStatus()", values?: undefined): string;
     encodeFunctionData(functionFragment: "initVersion", values?: undefined): string;
     encodeFunctionData(functionFragment: "initVersion()", values?: undefined): string;
     encodeFunctionData(functionFragment: "initialize", values: [
@@ -156,8 +153,6 @@ export interface BaseUUPSProxyTestInterface extends utils.Interface {
     decodeFunctionResult(functionFragment: "contractVersion()", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "domainSeparator", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "domainSeparator()", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "initStatus", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "initStatus()", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "initVersion", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "initVersion()", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
@@ -340,8 +335,6 @@ export interface BaseUUPSProxyTest extends BaseContract {
         "contractVersion()"(overrides?: CallOverrides): Promise<[string]>;
         domainSeparator(overrides?: CallOverrides): Promise<[string]>;
         "domainSeparator()"(overrides?: CallOverrides): Promise<[string]>;
-        initStatus(overrides?: CallOverrides): Promise<[boolean]>;
-        "initStatus()"(overrides?: CallOverrides): Promise<[boolean]>;
         initVersion(overrides?: CallOverrides): Promise<[number]>;
         "initVersion()"(overrides?: CallOverrides): Promise<[number]>;
         initialize(domainName: PromiseOrValue<string>, domainVersion: PromiseOrValue<string>, domainRealm: PromiseOrValue<string>, signature: PromiseOrValue<BytesLike>, accessControlManager: PromiseOrValue<string>, overrides?: Overrides & {
@@ -457,8 +450,6 @@ export interface BaseUUPSProxyTest extends BaseContract {
     "contractVersion()"(overrides?: CallOverrides): Promise<string>;
     domainSeparator(overrides?: CallOverrides): Promise<string>;
     "domainSeparator()"(overrides?: CallOverrides): Promise<string>;
-    initStatus(overrides?: CallOverrides): Promise<boolean>;
-    "initStatus()"(overrides?: CallOverrides): Promise<boolean>;
     initVersion(overrides?: CallOverrides): Promise<number>;
     "initVersion()"(overrides?: CallOverrides): Promise<number>;
     initialize(domainName: PromiseOrValue<string>, domainVersion: PromiseOrValue<string>, domainRealm: PromiseOrValue<string>, signature: PromiseOrValue<BytesLike>, accessControlManager: PromiseOrValue<string>, overrides?: Overrides & {
@@ -574,8 +565,6 @@ export interface BaseUUPSProxyTest extends BaseContract {
         "contractVersion()"(overrides?: CallOverrides): Promise<string>;
         domainSeparator(overrides?: CallOverrides): Promise<string>;
         "domainSeparator()"(overrides?: CallOverrides): Promise<string>;
-        initStatus(overrides?: CallOverrides): Promise<boolean>;
-        "initStatus()"(overrides?: CallOverrides): Promise<boolean>;
         initVersion(overrides?: CallOverrides): Promise<number>;
         "initVersion()"(overrides?: CallOverrides): Promise<number>;
         initialize(domainName: PromiseOrValue<string>, domainVersion: PromiseOrValue<string>, domainRealm: PromiseOrValue<string>, signature: PromiseOrValue<BytesLike>, accessControlManager: PromiseOrValue<string>, overrides?: CallOverrides): Promise<void>;
@@ -652,8 +641,6 @@ export interface BaseUUPSProxyTest extends BaseContract {
         "contractVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
         domainSeparator(overrides?: CallOverrides): Promise<BigNumber>;
         "domainSeparator()"(overrides?: CallOverrides): Promise<BigNumber>;
-        initStatus(overrides?: CallOverrides): Promise<BigNumber>;
-        "initStatus()"(overrides?: CallOverrides): Promise<BigNumber>;
         initVersion(overrides?: CallOverrides): Promise<BigNumber>;
         "initVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
         initialize(domainName: PromiseOrValue<string>, domainVersion: PromiseOrValue<string>, domainRealm: PromiseOrValue<string>, signature: PromiseOrValue<BytesLike>, accessControlManager: PromiseOrValue<string>, overrides?: Overrides & {
@@ -770,8 +757,6 @@ export interface BaseUUPSProxyTest extends BaseContract {
         "contractVersion()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         domainSeparator(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         "domainSeparator()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-        initStatus(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-        "initStatus()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         initVersion(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         "initVersion()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         initialize(domainName: PromiseOrValue<string>, domainVersion: PromiseOrValue<string>, domainRealm: PromiseOrValue<string>, signature: PromiseOrValue<BytesLike>, accessControlManager: PromiseOrValue<string>, overrides?: Overrides & {

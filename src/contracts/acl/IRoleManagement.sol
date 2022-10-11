@@ -2,6 +2,18 @@
 pragma solidity 0.8.17;
 
 interface IRoleManagement {
+
+  struct RegiterRoleRequest {
+    bytes32 group;
+    string name;    
+    bool status;
+  }
+
+  struct UpdateRoleRequest {
+    bytes32 role;
+    address account;
+  }
+
   event RoleAccountGranted(address indexed sender, bytes32 indexed role, address indexed account);
 
   event RoleAccountRevoked(address indexed sender, bytes32 indexed role, address indexed account);
@@ -24,9 +36,15 @@ interface IRoleManagement {
     bool status
   ) external returns (bytes32);
 
+  function batchRegisterRole(RegiterRoleRequest[] calldata requests) external returns(bytes32[] memory);
+
   function grantRoleAccount(bytes32 role, address account) external returns (bool);
 
+  function batchGrantRoleAccount(UpdateRoleRequest[] calldata requests) external returns (bool);
+
   function revokeRoleAccount(bytes32 role, address account) external returns (bool);
+
+  function batchRevokeRoleAccount(UpdateRoleRequest[] calldata requests) external returns (bool);
 
   function setRoleStatus(bytes32 role, bool status) external returns (bool);
 

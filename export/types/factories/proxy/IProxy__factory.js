@@ -247,19 +247,6 @@ const _abi = [
     },
     {
         inputs: [],
-        name: "initStatus",
-        outputs: [
-            {
-                internalType: "bool",
-                name: "",
-                type: "bool",
-            },
-        ],
-        stateMutability: "view",
-        type: "function",
-    },
-    {
-        inputs: [],
         name: "initVersion",
         outputs: [
             {

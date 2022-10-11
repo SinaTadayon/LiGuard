@@ -22,7 +22,7 @@ interface IContextManagement {
     bytes32 realm;
     bytes32 salt;
     bytes32 bytesHash;
-    address base;
+    address deployer;
     bool status;
   }
 

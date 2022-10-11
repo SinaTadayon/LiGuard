@@ -1121,19 +1121,6 @@
   },
   {
     "inputs": [],
-    "name": "initStatus",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "initVersion",
     "outputs": [
       {
@@ -1177,11 +1164,6 @@
           {
             "internalType": "address",
             "name": "accessControlManager",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "assetManager",
             "type": "address"
           }
         ],
@@ -1654,6 +1636,11 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "address",
+        "name": "assetManager",
+        "type": "address"
+      },
       {
         "internalType": "address[7]",
         "name": "assets",

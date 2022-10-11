@@ -59,28 +59,4 @@ interface IAccessControl {
   function isRealmEnabled(bytes32 realm) external view returns (bool); 
 
   function isRealmUpgradable(bytes32 realm) external view returns (bool);
-
-  function livelyGeneralRealm() external pure returns (bytes32);
-
-  function livelyAssetRealm() external pure returns (bytes32);
-
-  function livelyGeneralGroup() external pure returns (bytes32);
-
-  function livelyDaoGroup() external pure returns (bytes32);
-
-  function livelyAssetGroup() external pure returns (bytes32);
-
-  function livelySystemAdminRole() external pure returns (bytes32);
-
-  function livelyAdminRole() external pure returns (bytes32);
-
-  function livelyAssetManagerRole() external pure returns (bytes32);
-
-  function livelyAssetAdminRole() external pure returns (bytes32);
-
-  function livelyCommunityDaoRole() external pure returns (bytes32);
-
-  function livelyCommunityDaoExecutorRole() external pure returns (bytes32);
-
-  function livelyAnonymousRole() external pure returns (bytes32);
 }

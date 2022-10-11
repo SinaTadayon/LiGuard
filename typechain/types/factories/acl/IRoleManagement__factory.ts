@@ -162,6 +162,104 @@ const _abi = [
   {
     inputs: [
       {
+        components: [
+          {
+            internalType: "bytes32",
+            name: "role",
+            type: "bytes32",
+          },
+          {
+            internalType: "address",
+            name: "account",
+            type: "address",
+          },
+        ],
+        internalType: "struct IRoleManagement.UpdateRoleRequest[]",
+        name: "requests",
+        type: "tuple[]",
+      },
+    ],
+    name: "batchGrantRoleAccount",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "bytes32",
+            name: "group",
+            type: "bytes32",
+          },
+          {
+            internalType: "string",
+            name: "name",
+            type: "string",
+          },
+          {
+            internalType: "bool",
+            name: "status",
+            type: "bool",
+          },
+        ],
+        internalType: "struct IRoleManagement.RegiterRoleRequest[]",
+        name: "requests",
+        type: "tuple[]",
+      },
+    ],
+    name: "batchRegisterRole",
+    outputs: [
+      {
+        internalType: "bytes32[]",
+        name: "",
+        type: "bytes32[]",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "bytes32",
+            name: "role",
+            type: "bytes32",
+          },
+          {
+            internalType: "address",
+            name: "account",
+            type: "address",
+          },
+        ],
+        internalType: "struct IRoleManagement.UpdateRoleRequest[]",
+        name: "requests",
+        type: "tuple[]",
+      },
+    ],
+    name: "batchRevokeRoleAccount",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes32",
         name: "role",
         type: "bytes32",

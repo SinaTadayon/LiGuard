@@ -60,8 +60,13 @@ export interface LAssetManagerERC20Interface extends utils.Interface {
   functions: {
     "LIB_NAME()": FunctionFragment;
     "LIB_VERSION()": FunctionFragment;
+    "LIVELY_ADMIN_ROLE()": FunctionFragment;
+    "LIVELY_ASSET_ADMIN_ROLE()": FunctionFragment;
+    "LIVELY_ASSET_GROUP()": FunctionFragment;
+    "LIVELY_ASSET_MANAGER_ROLE()": FunctionFragment;
+    "LIVELY_SYSTEM_ADMIN_ROLE()": FunctionFragment;
     "createRequestContext(bytes32,bytes32,bytes32)": FunctionFragment;
-    "predictAddress(address,bytes32)": FunctionFragment;
+    "predictAddress(address,bytes32,address)": FunctionFragment;
   };
 
   getFunction(
@@ -70,10 +75,20 @@ export interface LAssetManagerERC20Interface extends utils.Interface {
       | "LIB_NAME()"
       | "LIB_VERSION"
       | "LIB_VERSION()"
+      | "LIVELY_ADMIN_ROLE"
+      | "LIVELY_ADMIN_ROLE()"
+      | "LIVELY_ASSET_ADMIN_ROLE"
+      | "LIVELY_ASSET_ADMIN_ROLE()"
+      | "LIVELY_ASSET_GROUP"
+      | "LIVELY_ASSET_GROUP()"
+      | "LIVELY_ASSET_MANAGER_ROLE"
+      | "LIVELY_ASSET_MANAGER_ROLE()"
+      | "LIVELY_SYSTEM_ADMIN_ROLE"
+      | "LIVELY_SYSTEM_ADMIN_ROLE()"
       | "createRequestContext"
       | "createRequestContext(bytes32,bytes32,bytes32)"
       | "predictAddress"
-      | "predictAddress(address,bytes32)"
+      | "predictAddress(address,bytes32,address)"
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "LIB_NAME", values?: undefined): string;
@@ -90,6 +105,46 @@ export interface LAssetManagerERC20Interface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "LIVELY_ADMIN_ROLE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_ADMIN_ROLE()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_ASSET_ADMIN_ROLE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_ASSET_ADMIN_ROLE()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_ASSET_GROUP",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_ASSET_GROUP()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_ASSET_MANAGER_ROLE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_ASSET_MANAGER_ROLE()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_SYSTEM_ADMIN_ROLE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_SYSTEM_ADMIN_ROLE()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "createRequestContext",
     values: [
       PromiseOrValue<BytesLike>,
@@ -107,11 +162,19 @@ export interface LAssetManagerERC20Interface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "predictAddress",
-    values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<string>
+    ]
   ): string;
   encodeFunctionData(
-    functionFragment: "predictAddress(address,bytes32)",
-    values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]
+    functionFragment: "predictAddress(address,bytes32,address)",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<string>
+    ]
   ): string;
 
   decodeFunctionResult(functionFragment: "LIB_NAME", data: BytesLike): Result;
@@ -125,6 +188,46 @@ export interface LAssetManagerERC20Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "LIVELY_ADMIN_ROLE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_ADMIN_ROLE()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_ASSET_ADMIN_ROLE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_ASSET_ADMIN_ROLE()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_ASSET_GROUP",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_ASSET_GROUP()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_ASSET_MANAGER_ROLE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_ASSET_MANAGER_ROLE()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_SYSTEM_ADMIN_ROLE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_SYSTEM_ADMIN_ROLE()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "createRequestContext",
     data: BytesLike
   ): Result;
@@ -137,7 +240,7 @@ export interface LAssetManagerERC20Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "predictAddress(address,bytes32)",
+    functionFragment: "predictAddress(address,bytes32,address)",
     data: BytesLike
   ): Result;
 
@@ -179,6 +282,26 @@ export interface LAssetManagerERC20 extends BaseContract {
 
     "LIB_VERSION()"(overrides?: CallOverrides): Promise<[string]>;
 
+    LIVELY_ADMIN_ROLE(overrides?: CallOverrides): Promise<[string]>;
+
+    "LIVELY_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
+
+    LIVELY_ASSET_ADMIN_ROLE(overrides?: CallOverrides): Promise<[string]>;
+
+    "LIVELY_ASSET_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
+
+    LIVELY_ASSET_GROUP(overrides?: CallOverrides): Promise<[string]>;
+
+    "LIVELY_ASSET_GROUP()"(overrides?: CallOverrides): Promise<[string]>;
+
+    LIVELY_ASSET_MANAGER_ROLE(overrides?: CallOverrides): Promise<[string]>;
+
+    "LIVELY_ASSET_MANAGER_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
+
+    LIVELY_SYSTEM_ADMIN_ROLE(overrides?: CallOverrides): Promise<[string]>;
+
+    "LIVELY_SYSTEM_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<[string]>;
+
     createRequestContext(
       domainName: PromiseOrValue<BytesLike>,
       domainVersion: PromiseOrValue<BytesLike>,
@@ -204,14 +327,16 @@ export interface LAssetManagerERC20 extends BaseContract {
     >;
 
     predictAddress(
-      base: PromiseOrValue<string>,
+      implementation: PromiseOrValue<string>,
       salt: PromiseOrValue<BytesLike>,
+      deployer: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    "predictAddress(address,bytes32)"(
-      base: PromiseOrValue<string>,
+    "predictAddress(address,bytes32,address)"(
+      implementation: PromiseOrValue<string>,
       salt: PromiseOrValue<BytesLike>,
+      deployer: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[string]>;
   };
@@ -223,6 +348,26 @@ export interface LAssetManagerERC20 extends BaseContract {
   LIB_VERSION(overrides?: CallOverrides): Promise<string>;
 
   "LIB_VERSION()"(overrides?: CallOverrides): Promise<string>;
+
+  LIVELY_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
+
+  "LIVELY_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
+  LIVELY_ASSET_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
+
+  "LIVELY_ASSET_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
+  LIVELY_ASSET_GROUP(overrides?: CallOverrides): Promise<string>;
+
+  "LIVELY_ASSET_GROUP()"(overrides?: CallOverrides): Promise<string>;
+
+  LIVELY_ASSET_MANAGER_ROLE(overrides?: CallOverrides): Promise<string>;
+
+  "LIVELY_ASSET_MANAGER_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
+  LIVELY_SYSTEM_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
+
+  "LIVELY_SYSTEM_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
   createRequestContext(
     domainName: PromiseOrValue<BytesLike>,
@@ -249,14 +394,16 @@ export interface LAssetManagerERC20 extends BaseContract {
   >;
 
   predictAddress(
-    base: PromiseOrValue<string>,
+    implementation: PromiseOrValue<string>,
     salt: PromiseOrValue<BytesLike>,
+    deployer: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<string>;
 
-  "predictAddress(address,bytes32)"(
-    base: PromiseOrValue<string>,
+  "predictAddress(address,bytes32,address)"(
+    implementation: PromiseOrValue<string>,
     salt: PromiseOrValue<BytesLike>,
+    deployer: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<string>;
 
@@ -268,6 +415,26 @@ export interface LAssetManagerERC20 extends BaseContract {
     LIB_VERSION(overrides?: CallOverrides): Promise<string>;
 
     "LIB_VERSION()"(overrides?: CallOverrides): Promise<string>;
+
+    LIVELY_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
+
+    "LIVELY_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
+    LIVELY_ASSET_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
+
+    "LIVELY_ASSET_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
+    LIVELY_ASSET_GROUP(overrides?: CallOverrides): Promise<string>;
+
+    "LIVELY_ASSET_GROUP()"(overrides?: CallOverrides): Promise<string>;
+
+    LIVELY_ASSET_MANAGER_ROLE(overrides?: CallOverrides): Promise<string>;
+
+    "LIVELY_ASSET_MANAGER_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
+    LIVELY_SYSTEM_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
+
+    "LIVELY_SYSTEM_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
     createRequestContext(
       domainName: PromiseOrValue<BytesLike>,
@@ -294,14 +461,16 @@ export interface LAssetManagerERC20 extends BaseContract {
     >;
 
     predictAddress(
-      base: PromiseOrValue<string>,
+      implementation: PromiseOrValue<string>,
       salt: PromiseOrValue<BytesLike>,
+      deployer: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<string>;
 
-    "predictAddress(address,bytes32)"(
-      base: PromiseOrValue<string>,
+    "predictAddress(address,bytes32,address)"(
+      implementation: PromiseOrValue<string>,
       salt: PromiseOrValue<BytesLike>,
+      deployer: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<string>;
   };
@@ -317,6 +486,28 @@ export interface LAssetManagerERC20 extends BaseContract {
 
     "LIB_VERSION()"(overrides?: CallOverrides): Promise<BigNumber>;
 
+    LIVELY_ADMIN_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "LIVELY_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    LIVELY_ASSET_ADMIN_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "LIVELY_ASSET_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    LIVELY_ASSET_GROUP(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "LIVELY_ASSET_GROUP()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    LIVELY_ASSET_MANAGER_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "LIVELY_ASSET_MANAGER_ROLE()"(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    LIVELY_SYSTEM_ADMIN_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "LIVELY_SYSTEM_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     createRequestContext(
       domainName: PromiseOrValue<BytesLike>,
       domainVersion: PromiseOrValue<BytesLike>,
@@ -332,14 +523,16 @@ export interface LAssetManagerERC20 extends BaseContract {
     ): Promise<BigNumber>;
 
     predictAddress(
-      base: PromiseOrValue<string>,
+      implementation: PromiseOrValue<string>,
       salt: PromiseOrValue<BytesLike>,
+      deployer: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "predictAddress(address,bytes32)"(
-      base: PromiseOrValue<string>,
+    "predictAddress(address,bytes32,address)"(
+      implementation: PromiseOrValue<string>,
       salt: PromiseOrValue<BytesLike>,
+      deployer: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
@@ -353,6 +546,44 @@ export interface LAssetManagerERC20 extends BaseContract {
 
     "LIB_VERSION()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    LIVELY_ADMIN_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "LIVELY_ADMIN_ROLE()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    LIVELY_ASSET_ADMIN_ROLE(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "LIVELY_ASSET_ADMIN_ROLE()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    LIVELY_ASSET_GROUP(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "LIVELY_ASSET_GROUP()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    LIVELY_ASSET_MANAGER_ROLE(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "LIVELY_ASSET_MANAGER_ROLE()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    LIVELY_SYSTEM_ADMIN_ROLE(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "LIVELY_SYSTEM_ADMIN_ROLE()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     createRequestContext(
       domainName: PromiseOrValue<BytesLike>,
       domainVersion: PromiseOrValue<BytesLike>,
@@ -368,14 +599,16 @@ export interface LAssetManagerERC20 extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     predictAddress(
-      base: PromiseOrValue<string>,
+      implementation: PromiseOrValue<string>,
       salt: PromiseOrValue<BytesLike>,
+      deployer: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "predictAddress(address,bytes32)"(
-      base: PromiseOrValue<string>,
+    "predictAddress(address,bytes32,address)"(
+      implementation: PromiseOrValue<string>,
       salt: PromiseOrValue<BytesLike>,
+      deployer: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };

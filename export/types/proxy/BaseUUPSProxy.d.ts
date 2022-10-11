@@ -10,7 +10,6 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
         "contractRealm()": FunctionFragment;
         "contractVersion()": FunctionFragment;
         "domainSeparator()": FunctionFragment;
-        "initStatus()": FunctionFragment;
         "initVersion()": FunctionFragment;
         "isSafeMode()": FunctionFragment;
         "isUpgradable()": FunctionFragment;
@@ -24,7 +23,7 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
         "upgradeTo(address,bytes,bool)": FunctionFragment;
         "withdrawBalance(address)": FunctionFragment;
     };
-    getFunction(nameOrSignatureOrTopic: "accessControlManager" | "accessControlManager()" | "contractContext" | "contractContext()" | "contractName" | "contractName()" | "contractRealm" | "contractRealm()" | "contractVersion" | "contractVersion()" | "domainSeparator" | "domainSeparator()" | "initStatus" | "initStatus()" | "initVersion" | "initVersion()" | "isSafeMode" | "isSafeMode()" | "isUpgradable" | "isUpgradable()" | "localAdmin" | "localAdmin()" | "proxiableUUID" | "proxiableUUID()" | "setLocalAdmin" | "setLocalAdmin(address)" | "setSafeMode" | "setSafeMode(bool)" | "setUpgradeStatus" | "setUpgradeStatus(bool)" | "subjectAddress" | "subjectAddress()" | "supportsInterface" | "supportsInterface(bytes4)" | "upgradeTo" | "upgradeTo(address,bytes,bool)" | "withdrawBalance" | "withdrawBalance(address)"): FunctionFragment;
+    getFunction(nameOrSignatureOrTopic: "accessControlManager" | "accessControlManager()" | "contractContext" | "contractContext()" | "contractName" | "contractName()" | "contractRealm" | "contractRealm()" | "contractVersion" | "contractVersion()" | "domainSeparator" | "domainSeparator()" | "initVersion" | "initVersion()" | "isSafeMode" | "isSafeMode()" | "isUpgradable" | "isUpgradable()" | "localAdmin" | "localAdmin()" | "proxiableUUID" | "proxiableUUID()" | "setLocalAdmin" | "setLocalAdmin(address)" | "setSafeMode" | "setSafeMode(bool)" | "setUpgradeStatus" | "setUpgradeStatus(bool)" | "subjectAddress" | "subjectAddress()" | "supportsInterface" | "supportsInterface(bytes4)" | "upgradeTo" | "upgradeTo(address,bytes,bool)" | "withdrawBalance" | "withdrawBalance(address)"): FunctionFragment;
     encodeFunctionData(functionFragment: "accessControlManager", values?: undefined): string;
     encodeFunctionData(functionFragment: "accessControlManager()", values?: undefined): string;
     encodeFunctionData(functionFragment: "contractContext", values?: undefined): string;
@@ -37,8 +36,6 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
     encodeFunctionData(functionFragment: "contractVersion()", values?: undefined): string;
     encodeFunctionData(functionFragment: "domainSeparator", values?: undefined): string;
     encodeFunctionData(functionFragment: "domainSeparator()", values?: undefined): string;
-    encodeFunctionData(functionFragment: "initStatus", values?: undefined): string;
-    encodeFunctionData(functionFragment: "initStatus()", values?: undefined): string;
     encodeFunctionData(functionFragment: "initVersion", values?: undefined): string;
     encodeFunctionData(functionFragment: "initVersion()", values?: undefined): string;
     encodeFunctionData(functionFragment: "isSafeMode", values?: undefined): string;
@@ -83,8 +80,6 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
     decodeFunctionResult(functionFragment: "contractVersion()", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "domainSeparator", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "domainSeparator()", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "initStatus", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "initStatus()", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "initVersion", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "initVersion()", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "isSafeMode", data: BytesLike): Result;
@@ -221,8 +216,6 @@ export interface BaseUUPSProxy extends BaseContract {
         "contractVersion()"(overrides?: CallOverrides): Promise<[string]>;
         domainSeparator(overrides?: CallOverrides): Promise<[string]>;
         "domainSeparator()"(overrides?: CallOverrides): Promise<[string]>;
-        initStatus(overrides?: CallOverrides): Promise<[boolean]>;
-        "initStatus()"(overrides?: CallOverrides): Promise<[boolean]>;
         initVersion(overrides?: CallOverrides): Promise<[number]>;
         "initVersion()"(overrides?: CallOverrides): Promise<[number]>;
         isSafeMode(overrides?: CallOverrides): Promise<[boolean]>;
@@ -280,8 +273,6 @@ export interface BaseUUPSProxy extends BaseContract {
     "contractVersion()"(overrides?: CallOverrides): Promise<string>;
     domainSeparator(overrides?: CallOverrides): Promise<string>;
     "domainSeparator()"(overrides?: CallOverrides): Promise<string>;
-    initStatus(overrides?: CallOverrides): Promise<boolean>;
-    "initStatus()"(overrides?: CallOverrides): Promise<boolean>;
     initVersion(overrides?: CallOverrides): Promise<number>;
     "initVersion()"(overrides?: CallOverrides): Promise<number>;
     isSafeMode(overrides?: CallOverrides): Promise<boolean>;
@@ -339,8 +330,6 @@ export interface BaseUUPSProxy extends BaseContract {
         "contractVersion()"(overrides?: CallOverrides): Promise<string>;
         domainSeparator(overrides?: CallOverrides): Promise<string>;
         "domainSeparator()"(overrides?: CallOverrides): Promise<string>;
-        initStatus(overrides?: CallOverrides): Promise<boolean>;
-        "initStatus()"(overrides?: CallOverrides): Promise<boolean>;
         initVersion(overrides?: CallOverrides): Promise<number>;
         "initVersion()"(overrides?: CallOverrides): Promise<number>;
         isSafeMode(overrides?: CallOverrides): Promise<boolean>;
@@ -391,8 +380,6 @@ export interface BaseUUPSProxy extends BaseContract {
         "contractVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
         domainSeparator(overrides?: CallOverrides): Promise<BigNumber>;
         "domainSeparator()"(overrides?: CallOverrides): Promise<BigNumber>;
-        initStatus(overrides?: CallOverrides): Promise<BigNumber>;
-        "initStatus()"(overrides?: CallOverrides): Promise<BigNumber>;
         initVersion(overrides?: CallOverrides): Promise<BigNumber>;
         "initVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
         isSafeMode(overrides?: CallOverrides): Promise<BigNumber>;
@@ -451,8 +438,6 @@ export interface BaseUUPSProxy extends BaseContract {
         "contractVersion()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         domainSeparator(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         "domainSeparator()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-        initStatus(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-        "initStatus()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         initVersion(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         "initVersion()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         isSafeMode(overrides?: CallOverrides): Promise<PopulatedTransaction>;

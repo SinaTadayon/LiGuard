@@ -378,10 +378,6 @@ abstract contract BaseUUPSProxy is
     return _getInitializedCount();
   }
 
-  function initStatus() external view returns (bool) {
-    return _isInitializing();
-  }
-
   function withdrawBalance(address recepient) public {
     require(!_isSafeMode, "SafeMode: Call Rejected");
     require(_hasPermission(this.withdrawBalance.selector), "Withdraw Balance Forbidden");

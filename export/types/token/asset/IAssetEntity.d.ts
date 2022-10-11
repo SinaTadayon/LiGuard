@@ -4,7 +4,6 @@ import type { Listener, Provider } from "@ethersproject/providers";
 import type { TypedEventFilter, TypedEvent, TypedListener, OnEvent, PromiseOrValue } from "../../common";
 export interface IAssetEntityInterface extends utils.Interface {
     functions: {
-        "assetInitStatus()": FunctionFragment;
         "assetInitVersion()": FunctionFragment;
         "assetName()": FunctionFragment;
         "assetRealm()": FunctionFragment;
@@ -15,9 +14,7 @@ export interface IAssetEntityInterface extends utils.Interface {
         "assetType()": FunctionFragment;
         "assetVersion()": FunctionFragment;
     };
-    getFunction(nameOrSignatureOrTopic: "assetInitStatus" | "assetInitStatus()" | "assetInitVersion" | "assetInitVersion()" | "assetName" | "assetName()" | "assetRealm" | "assetRealm()" | "assetRole" | "assetRole()" | "assetSafeMode" | "assetSafeMode()" | "assetSafeModeSet" | "assetSafeModeSet(bool)" | "assetToken" | "assetToken()" | "assetType" | "assetType()" | "assetVersion" | "assetVersion()"): FunctionFragment;
-    encodeFunctionData(functionFragment: "assetInitStatus", values?: undefined): string;
-    encodeFunctionData(functionFragment: "assetInitStatus()", values?: undefined): string;
+    getFunction(nameOrSignatureOrTopic: "assetInitVersion" | "assetInitVersion()" | "assetName" | "assetName()" | "assetRealm" | "assetRealm()" | "assetRole" | "assetRole()" | "assetSafeMode" | "assetSafeMode()" | "assetSafeModeSet" | "assetSafeModeSet(bool)" | "assetToken" | "assetToken()" | "assetType" | "assetType()" | "assetVersion" | "assetVersion()"): FunctionFragment;
     encodeFunctionData(functionFragment: "assetInitVersion", values?: undefined): string;
     encodeFunctionData(functionFragment: "assetInitVersion()", values?: undefined): string;
     encodeFunctionData(functionFragment: "assetName", values?: undefined): string;
@@ -36,8 +33,6 @@ export interface IAssetEntityInterface extends utils.Interface {
     encodeFunctionData(functionFragment: "assetType()", values?: undefined): string;
     encodeFunctionData(functionFragment: "assetVersion", values?: undefined): string;
     encodeFunctionData(functionFragment: "assetVersion()", values?: undefined): string;
-    decodeFunctionResult(functionFragment: "assetInitStatus", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "assetInitStatus()", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "assetInitVersion", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "assetInitVersion()", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "assetName", data: BytesLike): Result;
@@ -108,8 +103,6 @@ export interface IAssetEntity extends BaseContract {
     once: OnEvent<this>;
     removeListener: OnEvent<this>;
     functions: {
-        assetInitStatus(overrides?: CallOverrides): Promise<[boolean]>;
-        "assetInitStatus()"(overrides?: CallOverrides): Promise<[boolean]>;
         assetInitVersion(overrides?: CallOverrides): Promise<[number]>;
         "assetInitVersion()"(overrides?: CallOverrides): Promise<[number]>;
         assetName(overrides?: CallOverrides): Promise<[string]>;
@@ -133,8 +126,6 @@ export interface IAssetEntity extends BaseContract {
         assetVersion(overrides?: CallOverrides): Promise<[string]>;
         "assetVersion()"(overrides?: CallOverrides): Promise<[string]>;
     };
-    assetInitStatus(overrides?: CallOverrides): Promise<boolean>;
-    "assetInitStatus()"(overrides?: CallOverrides): Promise<boolean>;
     assetInitVersion(overrides?: CallOverrides): Promise<number>;
     "assetInitVersion()"(overrides?: CallOverrides): Promise<number>;
     assetName(overrides?: CallOverrides): Promise<string>;
@@ -158,8 +149,6 @@ export interface IAssetEntity extends BaseContract {
     assetVersion(overrides?: CallOverrides): Promise<string>;
     "assetVersion()"(overrides?: CallOverrides): Promise<string>;
     callStatic: {
-        assetInitStatus(overrides?: CallOverrides): Promise<boolean>;
-        "assetInitStatus()"(overrides?: CallOverrides): Promise<boolean>;
         assetInitVersion(overrides?: CallOverrides): Promise<number>;
         "assetInitVersion()"(overrides?: CallOverrides): Promise<number>;
         assetName(overrides?: CallOverrides): Promise<string>;
@@ -186,8 +175,6 @@ export interface IAssetEntity extends BaseContract {
         AssetSafeModeChanged(sender?: PromiseOrValue<string> | null, proxy?: PromiseOrValue<string> | null, realm?: PromiseOrValue<BytesLike> | null, status?: null): AssetSafeModeChangedEventFilter;
     };
     estimateGas: {
-        assetInitStatus(overrides?: CallOverrides): Promise<BigNumber>;
-        "assetInitStatus()"(overrides?: CallOverrides): Promise<BigNumber>;
         assetInitVersion(overrides?: CallOverrides): Promise<BigNumber>;
         "assetInitVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
         assetName(overrides?: CallOverrides): Promise<BigNumber>;
@@ -212,8 +199,6 @@ export interface IAssetEntity extends BaseContract {
         "assetVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
     };
     populateTransaction: {
-        assetInitStatus(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-        "assetInitStatus()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         assetInitVersion(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         "assetInitVersion()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         assetName(overrides?: CallOverrides): Promise<PopulatedTransaction>;

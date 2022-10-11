@@ -25,6 +25,9 @@ import {
   generateDomainSeparator,
   generateContextDomainSignatureManually,
   generatePermitDomainSignatureByHardhat,
+  LIVELY_COMMUNITY_DAO_ROLE,
+  LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE,
+  LIVELY_ADMIN_ROLE, LIVELY_ASSET_MANAGER_ROLE
 } from "./TestUtils";
 /* eslint-disable node/no-extraneous-import */
 import { TransactionRequest, TransactionResponse } from "@ethersproject/abstract-provider";
@@ -154,7 +157,6 @@ describe("Lively Token Tests", function () {
       expect(await accessControlManager.isSafeMode(), "Invalid SafeMode").to.be.false;
       expect(await accessControlManager.isUpgradable(), "Invalid Upgradablability").to.be.false;
       expect(await accessControlManager.initVersion(), "Invalid Init Version").to.be.equal(1);
-      expect(await accessControlManager.initStatus(), "Invalid Init State").to.be.false;
       expect(await accessControlManager.localAdmin(), "Invalid Local Admin").to.be.hexEqual(systemAdminAddress);
       expect(await accessControlManager.contractName(), "Invalid Name").to.be.hexEqual(
         ethers.utils.keccak256(ethers.utils.toUtf8Bytes("AccessControlManager"))
@@ -177,13 +179,11 @@ describe("Lively Token Tests", function () {
     });
 
     it("Should grant LIVELY_ADMIN_ROLE to admin account success", async () => {
-      // given
-      const adminRole = await accessControlManager.livelyAdminRole();
 
       // when
-      await expect(accessControlManager.connect(systemAdmin).grantRoleAccount(adminRole, adminAddress))
+      await expect(accessControlManager.connect(systemAdmin).grantRoleAccount(LIVELY_ADMIN_ROLE, adminAddress))
         .to.emit(accessControlManager, "RoleAccountGranted")
-        .withArgs(systemAdminAddress, adminRole, adminAddress);
+        .withArgs(systemAdminAddress, LIVELY_ADMIN_ROLE, adminAddress);
 
       // then
       expect(await accessControlManager.isLivelyAdminRole(adminAddress)).to.be.true;
@@ -191,13 +191,10 @@ describe("Lively Token Tests", function () {
     });
 
     it("Should revoke systemAdmin from LIVELY_ADMIN_ROLE success", async () => {
-      // given
-      const adminRole = await accessControlManager.livelyAdminRole();
-
       // when
-      await expect(accessControlManager.connect(admin).revokeRoleAccount(adminRole, systemAdminAddress))
+      await expect(accessControlManager.connect(admin).revokeRoleAccount(LIVELY_ADMIN_ROLE, systemAdminAddress))
         .to.emit(accessControlManager, "RoleAccountRevoked")
-        .withArgs(adminAddress, adminRole, systemAdminAddress);
+        .withArgs(adminAddress, LIVELY_ADMIN_ROLE, systemAdminAddress);
 
       // then
       expect(await accessControlManager.isLivelyAdminRole(adminAddress)).to.be.true;
@@ -205,13 +202,10 @@ describe("Lively Token Tests", function () {
     });
 
     it("Should grant LIVELY_ASSET_MANAGER_ROLE to asset manager account success", async () => {
-      // given
-      const assetMangerRole = await accessControlManager.livelyAssetManagerRole();
-
       // when
-      await expect(accessControlManager.connect(admin).grantRoleAccount(assetMangerRole, assetManagerAddress))
+      await expect(accessControlManager.connect(admin).grantRoleAccount(LIVELY_ASSET_MANAGER_ROLE, assetManagerAddress))
         .to.emit(accessControlManager, "RoleAccountGranted")
-        .withArgs(adminAddress, assetMangerRole, assetManagerAddress);
+        .withArgs(adminAddress, LIVELY_ASSET_MANAGER_ROLE, assetManagerAddress);
 
       // then
       expect(await accessControlManager.isLivelyAssetManagerRole(assetManagerAddress)).to.be.true;
@@ -250,7 +244,6 @@ describe("Lively Token Tests", function () {
           accessControlManager: accessControlManager.address,
           taxRateValue: BigNumber.from("300"),
           signature: "0x00",
-          assetManager: assetManagerAddress,
         })
       ).to.be.revertedWith("Illegal Contract Call");
     });
@@ -319,7 +312,6 @@ describe("Lively Token Tests", function () {
         signature,
         taxRateValue: BigNumber.from(0),
         accessControlManager: accessControlManager.address,
-        assetManager: assetManagerAddress,
       };
 
       // when
@@ -344,7 +336,6 @@ describe("Lively Token Tests", function () {
       expect(await livelyTokenProxy.isSafeMode(), "Invalid SafeMode").to.be.false;
       expect(await livelyTokenProxy.isUpgradable(), "Invalid Upgradability").to.be.false;
       expect(await livelyTokenProxy.initVersion(), "Invalid Init Version").to.be.equal(1);
-      expect(await livelyTokenProxy.initStatus(), "Invalid Init State").to.be.false;
       expect(await livelyTokenProxy.localAdmin(), "Invalid Local Admin").to.be.hexEqual(systemAdminAddress);
       expect(await livelyTokenProxy.contractName(), "Invalid Name").to.be.hexEqual(livelyTokenDomainNameHash);
       expect(await livelyTokenProxy.contractVersion(), "Invalid Version").to.be.hexEqual(livelyTokenDomainVersionHash);
@@ -380,11 +371,8 @@ describe("Lively Token Tests", function () {
     })
 
     it("Should grant LIVELY_DAO_EXECUTOR_ROLE to admin account failed", async () => {
-      // given
-      const daoExecutorRole = await accessControlManager.livelyCommunityDaoExecutorRole();
-
       // when
-      await expect(accessControlManager.connect(admin).grantRoleAccount(daoExecutorRole, adminAddress))
+      await expect(accessControlManager.connect(admin).grantRoleAccount(LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE, adminAddress))
         .to.revertedWith("Illegal Grant Dao Executor Role");
 
       // then
@@ -393,12 +381,12 @@ describe("Lively Token Tests", function () {
 
     it("Should grant LIVELY_DAO_EXECUTOR_ROLE to relay contract success", async () => {
       // given
-      const daoExecutorRole = await accessControlManager.livelyCommunityDaoExecutorRole();
+      // const daoExecutorRole = await accessControlManager.livelyCommunityDaoExecutorRole();
 
       // when
-      await expect(accessControlManager.connect(admin).grantRoleAccount(daoExecutorRole, daoExecutorForwarder.address))
+      await expect(accessControlManager.connect(admin).grantRoleAccount(LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE, daoExecutorForwarder.address))
         .to.emit(accessControlManager, "RoleAccountGranted")
-        .withArgs(adminAddress, daoExecutorRole, daoExecutorForwarder.address);
+        .withArgs(adminAddress, LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE, daoExecutorForwarder.address);
 
       // then
       expect(await accessControlManager.isLivelyCommunityDaoExecutorRole(daoExecutorForwarder.address)).to.be.true;
@@ -408,10 +396,10 @@ describe("Lively Token Tests", function () {
       // given
       const relayFactory = new Relay__factory(systemAdmin);
       const forwarder = await relayFactory.deploy(livelyTokenProxy.address);
-      const daoExecutorRole = await accessControlManager.livelyCommunityDaoExecutorRole();
+      // const daoExecutorRole = await accessControlManager.livelyCommunityDaoExecutorRole();
 
       // when
-      await expect(accessControlManager.connect(admin).grantRoleAccount(daoExecutorRole, forwarder.address))
+      await expect(accessControlManager.connect(admin).grantRoleAccount(LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE, forwarder.address))
         .to.revertedWith("Illegal Grant Dao Executor Role")
 
       // then

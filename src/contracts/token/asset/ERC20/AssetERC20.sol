@@ -17,8 +17,24 @@ import "../../../acl/IContextManagement.sol";
 contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity {
   using LAddress for address;
 
+  struct InitRequest {
+    bytes32 domainRealm;
+    bytes32 assetRole;
+    bytes32 salt;
+    bytes32 bytesHash;
+    address erc20Token;
+    address accessControl;
+    address assetManager;
+    string domainName;
+    string domainVersion;
+    bytes signature;
+  }
+
+  bytes32 private constant _LIVELY_ASSET_GROUP = keccak256(abi.encodePacked("LIVELY_ASSET_GROUP"));
+  bytes32 private constant _LIVELY_ASSET_ADMIN_ROLE = keccak256(abi.encodePacked("LIVELY_ASSET_ADMIN_ROLE"));
+  bytes32 private constant _LIVELY_ASSET_MANAGER_ROLE = keccak256(abi.encodePacked("LIVELY_ASSET_MANAGER_ROLE"));
+
   address private _accessControlManager;
-  address private _assetManager;
   address private _erc20Token;
   bytes32 private _domainName;
   bytes32 private _domainVersion;
@@ -26,19 +42,6 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
   bytes32 private _assetRole;
   bool private _isSafeMode;
   
-  struct InitRequest {
-    string domainName;
-    string domainVersion;
-    bytes32 domainRealm;
-    address erc20Token;
-    address accessControl;
-    address assetManager;
-    bytes32 assetRole;
-    bytes32 salt;
-    bytes32 bytesHash;
-    bytes signature;
-  }
-
   constructor() { _isSafeMode = true; }
 
   function initialize(InitRequest calldata request) public initializer {
@@ -81,7 +84,6 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
     _domainVersion = keccak256(abi.encodePacked(request.domainVersion));    
     _erc20Token = request.erc20Token;
     _assetRole = request.assetRole;
-    _assetManager = request.assetManager;
     _isSafeMode = false;
   
     (IContextManagement.RequestPredictContext memory rpc, IContextManagement.RequestRegisterContext[] memory rrc) = 
@@ -96,7 +98,6 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
       request.domainVersion,
       _domainRealm      
     );
-
   }
 
   function _createRequestContext(
@@ -106,15 +107,15 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
     bytes32 role,
     bytes32 salt,
     bytes32 bytesHash,
-    address base
+    address deployer
   )
     internal
-    view
+    pure
     returns (IContextManagement.RequestPredictContext memory, IContextManagement.RequestRegisterContext[] memory)
   {
     IContextManagement.RequestRegisterContext[] memory rrc = new IContextManagement.RequestRegisterContext[](2);
 
-    rrc[0].role = IAccessControl(_accessControlManager).livelyAdminRole();
+    rrc[0].role = _LIVELY_ASSET_ADMIN_ROLE;
     rrc[0].isEnabled = true;
     rrc[0].funcSelectors = new bytes4[](1);
     rrc[0].funcSelectors[0] = this.assetSafeModeSet.selector;
@@ -139,7 +140,7 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
       realm: realm,
       salt: salt,
       bytesHash: bytesHash, 
-      base: base,
+      deployer: deployer,
       status: true
     });
 
@@ -161,7 +162,7 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
     require(lockRequest.source == address(this), "Illegal Source Addres");
 
     emit AssetERC20Called(_msgSender(), address(this), this.tokenLock.selector);
-    return IAssetManagerERC20(_assetManager).tokenLock(_erc20Token, lockRequest);
+    return IERC20Lock(_erc20Token).lockToken(lockRequest);
   }
 
   function tokenBatchLock(IERC20Lock.LockTokenRequest[] calldata lockRequests) external returns (bytes32[] memory) {
@@ -171,76 +172,54 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
     }
 
     emit AssetERC20Called(_msgSender(), address(this), this.tokenBatchLock.selector);  
-    return IAssetManagerERC20(_assetManager).tokenBatchLock(_erc20Token, lockRequests);
+    return IERC20Lock(_erc20Token).batchLockToken(lockRequests);
   }
 
   function tokenTransfer(address to, uint256 amount) external returns (bool) {
     _policyInterceptor(this.tokenTransfer.selector);
     emit AssetERC20Called(_msgSender(), address(this), this.tokenTransfer.selector);
     return IERC20(_erc20Token).transfer(to, amount);
-    // _callOptionalReturn(_erc20Token, abi.encodeWithSelector(IERC20(_erc20Token).transfer.selector, request.to, request.amount));
-    // return true;
   }
 
   function tokenBatchTransfer(IERC20Extra.BatchTransferRequest[] calldata request) external returns (bool) {
     _policyInterceptor(this.tokenBatchTransfer.selector);
     emit AssetERC20Called(_msgSender(), address(this), this.tokenBatchTransfer.selector);
     return IERC20Extra(_erc20Token).batchTransfer(request);
-    // bytes memory result = _callMandatoryReturn(_erc20Token, abi.encodeWithSelector(IERC20Extra(_erc20Token).batchTransfer.selector, request));
-    // return abi.decode(result, (bool));
   }
 
   function tokenTransferFrom(address from, address to, uint256 amount) external returns (bool) {
     _policyInterceptor(this.tokenTransferFrom.selector);
     emit AssetERC20Called(_msgSender(), address(this), this.tokenTransferFrom.selector);
     return IERC20(_erc20Token).transferFrom(from, to, amount);
-    // _callOptionalReturn(_erc20Token, abi.encodeWithSelector(IERC20(_erc20Token).transferFrom.selector, request.from, request.to, request.amount));
-    // return true;
   }
 
   function tokenBatchTransferFrom(IERC20Extra.BatchTransferFromRequest[] calldata request) external returns (bool) {
     _policyInterceptor(this.tokenBatchTransferFrom.selector);
     emit AssetERC20Called(_msgSender(), address(this), this.tokenBatchTransferFrom.selector);
     return IERC20Extra(_erc20Token).batchTransferFrom(request);
-    // bytes memory result = _callMandatoryReturn(_erc20Token, abi.encodeWithSelector(IERC20Extra(_erc20Token).batchTransferFrom.selector, request));
-    // return abi.decode(result, (bool));
   }
 
   function tokenApprove(address spender, uint256 amount) external returns (bool) {
     _policyInterceptor(this.tokenApprove.selector);
     emit AssetERC20Called(_msgSender(), address(this), this.tokenApprove.selector);
     return IERC20(_erc20Token).approve(spender, amount);
-    // _callOptionalReturn(_erc20Token, abi.encodeWithSelector(IERC20(_erc20Token).approve.selector, spender, amount));
-    // return true;
   }
 
   function tokenIncreaseAllowance(address spender, uint256 amount) external returns (uint256) {
     _policyInterceptor(this.tokenIncreaseAllowance.selector);
     emit AssetERC20Called(_msgSender(), address(this), this.tokenIncreaseAllowance.selector);
     return IERC20Extra(_erc20Token).increaseAllowance(spender, amount);
-    // bytes memory result = _callMandatoryReturn(_erc20Token, abi.encodeWithSelector(IERC20Extra(_erc20Token).increaseAllowance.selector, spender, amount));
-    // return abi.decode(result, (uint256));
   }
 
   function tokenDecreaseAllowance(address spender, uint256 amount) external returns (uint256) {
     _policyInterceptor(this.tokenDecreaseAllowance.selector);
     emit AssetERC20Called(_msgSender(), address(this), this.tokenDecreaseAllowance.selector);
     return IERC20Extra(_erc20Token).decreaseAllowance(spender, amount);
-    // bytes memory result = _callMandatoryReturn(_erc20Token, abi.encodeWithSelector(IERC20Extra(_erc20Token).decreaseAllowance.selector, spender, amount));
-    // return abi.decode(result, (uint256));
   }
 
   function assetSafeModeSet(bool status) override public returns (bool) {
-    if(IAccessControl(_accessControlManager).isLivelyAssetAdminRole(_msgSender())) {
-      bytes32 context = LContextUtils.generateCtx(address(this));
-      require(IAccessControl(_accessControlManager).isContextFunctionEnabled(context, this.assetSafeModeSet.selector), "Context Disabled");
-      require(IAccessControl(_accessControlManager).isRoleEnabled(IAccessControl(_accessControlManager).livelyAssetAdminRole()), "Asset Admin Role Disabled");
-      require(IAccessControl(_accessControlManager).isGroupEnabled(IAccessControl(_accessControlManager).livelyAssetGroup()), "Asset Group Disabled");
-      require(IAccessControl(_accessControlManager).isRealmEnabled(_domainRealm), "Realm Disabled");    
-    } else {
-      require(IAccessControl(_accessControlManager).hasAccess(LContextUtils.generateCtx(address(this)),_msgSender(),this.assetSafeModeSet.selector), "Access Denied");
-    }
-    require(_getInitializedCount() > 0, "Contract Not Initialized");
+    require(IAccessControl(_accessControlManager).hasAccess(LContextUtils.generateCtx(address(this)),_msgSender(),this.assetSafeModeSet.selector), "Access Denied");
+    require(_getInitializedCount() > 0, "AssetERC20 Not Initialized");
     _isSafeMode = status;    
     emit AssetSafeModeChanged(_msgSender(), address(this), _domainRealm, status);
     return status;  
@@ -283,10 +262,6 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
     return _getInitializedCount();
   }
 
-  function assetInitStatus() external view returns (bool) {
-    return _isInitializing();
-  }
-
   // solhint-disable-next-line
   receive() external payable {}
 
@@ -303,16 +278,7 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
 
   function _policyInterceptor(bytes4 funcSelector) private view {
     require(!_isSafeMode, "SafeMode: Call Rejected");
-
-    if(IAccessControl(_accessControlManager).isLivelyAssetManagerRole(_msgSender())) {
-      bytes32 context = LContextUtils.generateCtx(address(this));
-      require(IAccessControl(_accessControlManager).isContextFunctionEnabled(context, funcSelector), "Context Disabled");
-      require(IAccessControl(_accessControlManager).isRoleEnabled(IAccessControl(_accessControlManager).livelyAssetManagerRole()), "Asset Manager Role Disabled");
-      require(IAccessControl(_accessControlManager).isGroupEnabled(IAccessControl(_accessControlManager).livelyAssetGroup()), "Asset Group Disabled");
-      require(IAccessControl(_accessControlManager).isRealmEnabled(_domainRealm), "Realm Disabled");    
-    } else {
-      require(IAccessControl(_accessControlManager).hasAccess(LContextUtils.generateCtx(address(this)),_msgSender(),funcSelector), "Access Denied");
-    }
+    require(IAccessControl(_accessControlManager).hasAccess(LContextUtils.generateCtx(address(this)),_msgSender(),funcSelector), "Access Denied");
   }
 
 }

@@ -28,7 +28,6 @@ import type {
 
 export interface IAssetEntityInterface extends utils.Interface {
   functions: {
-    "assetInitStatus()": FunctionFragment;
     "assetInitVersion()": FunctionFragment;
     "assetName()": FunctionFragment;
     "assetRealm()": FunctionFragment;
@@ -42,8 +41,6 @@ export interface IAssetEntityInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "assetInitStatus"
-      | "assetInitStatus()"
       | "assetInitVersion"
       | "assetInitVersion()"
       | "assetName"
@@ -64,14 +61,6 @@ export interface IAssetEntityInterface extends utils.Interface {
       | "assetVersion()"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "assetInitStatus",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "assetInitStatus()",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "assetInitVersion",
     values?: undefined
@@ -136,14 +125,6 @@ export interface IAssetEntityInterface extends utils.Interface {
     values?: undefined
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "assetInitStatus",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "assetInitStatus()",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "assetInitVersion",
     data: BytesLike
@@ -273,10 +254,6 @@ export interface IAssetEntity extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    assetInitStatus(overrides?: CallOverrides): Promise<[boolean]>;
-
-    "assetInitStatus()"(overrides?: CallOverrides): Promise<[boolean]>;
-
     assetInitVersion(overrides?: CallOverrides): Promise<[number]>;
 
     "assetInitVersion()"(overrides?: CallOverrides): Promise<[number]>;
@@ -319,10 +296,6 @@ export interface IAssetEntity extends BaseContract {
 
     "assetVersion()"(overrides?: CallOverrides): Promise<[string]>;
   };
-
-  assetInitStatus(overrides?: CallOverrides): Promise<boolean>;
-
-  "assetInitStatus()"(overrides?: CallOverrides): Promise<boolean>;
 
   assetInitVersion(overrides?: CallOverrides): Promise<number>;
 
@@ -367,10 +340,6 @@ export interface IAssetEntity extends BaseContract {
   "assetVersion()"(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
-    assetInitStatus(overrides?: CallOverrides): Promise<boolean>;
-
-    "assetInitStatus()"(overrides?: CallOverrides): Promise<boolean>;
-
     assetInitVersion(overrides?: CallOverrides): Promise<number>;
 
     "assetInitVersion()"(overrides?: CallOverrides): Promise<number>;
@@ -445,10 +414,6 @@ export interface IAssetEntity extends BaseContract {
   };
 
   estimateGas: {
-    assetInitStatus(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "assetInitStatus()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     assetInitVersion(overrides?: CallOverrides): Promise<BigNumber>;
 
     "assetInitVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -493,12 +458,6 @@ export interface IAssetEntity extends BaseContract {
   };
 
   populateTransaction: {
-    assetInitStatus(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "assetInitStatus()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     assetInitVersion(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "assetInitVersion()"(

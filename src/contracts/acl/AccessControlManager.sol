@@ -192,7 +192,7 @@ contract AccessControlManager is
     RequestRegisterContext[] calldata rrc
   ) external returns (bytes32) {
     (bytes32 context, address signer) = LContextManagement.registerPredictContext(_dataMaps, signature, rpc, rrc);
-    emit PredictContextRegistered(context, rpc.base, signer, _msgSender(), rpc.realm, rpc.bytesHash);
+    emit PredictContextRegistered(context, rpc.deployer, signer, _msgSender(), rpc.realm, rpc.bytesHash);
     return context;
   }
 
@@ -339,9 +339,23 @@ contract AccessControlManager is
     return LRoleManagement.grantRoleAccount(_dataMaps, role, account);
   }
 
+  function batchGrantRoleAccount(UpdateRoleRequest[] calldata requests) external returns (bool) {
+    for (uint i; i < requests.length; i++) {
+      emit RoleAccountGranted(_msgSender(), requests[i].role, requests[i].account);
+    }
+    return LRoleManagement.batchGrantRoleAccount(_dataMaps, requests);    
+  }
+
   function revokeRoleAccount(bytes32 role, address account) external returns (bool) {
     emit RoleAccountRevoked(_msgSender(), role, account);
     return LRoleManagement.revokeRoleAccount(_dataMaps, role, account);
+  }
+
+  function batchRevokeRoleAccount(UpdateRoleRequest[] calldata requests) external returns (bool) {
+    for (uint i; i < requests.length; i++) {
+      emit RoleAccountRevoked(_msgSender(), requests[i].role, requests[i].account);
+    }
+    return LRoleManagement.batchRevokeRoleAccount(_dataMaps, requests);
   }
 
   function registerRole(
@@ -352,6 +366,15 @@ contract AccessControlManager is
     bytes32 role = LRoleManagement.registerRole(_dataMaps, name, group, status);
     emit RoleRegistered(_msgSender(), role, name, group, status);
     return role;
+  }
+
+  function batchRegisterRole(RegiterRoleRequest[] calldata requests) external returns(bytes32[] memory) {
+    bytes32[] memory roles = LRoleManagement.batchRegisterRole(_dataMaps, requests);
+    for (uint i; i < requests.length; i++) {
+      emit RoleRegistered(_msgSender(), roles[i], requests[i].name, requests[i].group, requests[i].status);
+    }
+    
+    return roles;
   }
 
   function setRoleStatus(bytes32 role, bool status) external returns (bool) {
@@ -384,53 +407,5 @@ contract AccessControlManager is
 
   function hasRoleAccount(bytes32 role, address account) external view returns (bool) {
     return LRoleManagement.hasRoleAccount(_dataMaps, role, account);
-  }
-
-  function livelyGeneralRealm() external pure returns (bytes32) {
-    return LAccessControl.LIVELY_GENERAL_REALM;
-  }
-
-  function livelyAssetRealm() external pure returns (bytes32) {
-    return LAccessControl.LIVELY_ASSET_REALM;
-  }
-
-  function livelyGeneralGroup() external pure returns (bytes32) {
-    return LAccessControl.LIVELY_GENERAL_GROUP;
-  }
-
-  function livelyDaoGroup() external pure returns (bytes32) {
-    return LAccessControl.LIVELY_DAO_GROUP;
-  }
-
-  function livelyAssetGroup() external pure returns (bytes32) {
-    return LAccessControl.LIVELY_ASSET_GROUP;
-  }
-
-  function livelySystemAdminRole() external pure returns (bytes32) {
-    return LAccessControl.LIVELY_SYSTEM_ADMIN_ROLE;
-  }
-
-  function livelyAdminRole() external pure returns (bytes32) {
-    return LAccessControl.LIVELY_ADMIN_ROLE;
-  }
-
-  function livelyAssetManagerRole() external pure returns (bytes32) {
-    return LAccessControl.LIVELY_ASSET_MANAGER_ROLE;
-  }
-
-  function livelyAssetAdminRole() external pure returns (bytes32) {
-    return LAccessControl.LIVELY_ASSET_ADMIN_ROLE;
-  }
-
-  function livelyCommunityDaoRole() external pure returns (bytes32) {
-    return LAccessControl.LIVELY_COMMUNITY_DAO_ROLE;
-  }
-
-  function livelyCommunityDaoExecutorRole() external pure returns (bytes32) {
-    return LAccessControl.LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE;
-  }
-
-  function livelyAnonymousRole() external pure returns (bytes32) {
-    return LAccessControl.LIVELY_ANONYMOUS_ROLE;
   }
 }

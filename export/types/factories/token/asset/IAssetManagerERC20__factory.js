@@ -30,7 +30,7 @@ const _abi = [
             {
                 indexed: false,
                 internalType: "address",
-                name: "assetImpl",
+                name: "assetSubject",
                 type: "address",
             },
         ],
@@ -49,11 +49,17 @@ const _abi = [
             {
                 indexed: true,
                 internalType: "address",
-                name: "assetImpl",
+                name: "assetId",
+                type: "address",
+            },
+            {
+                indexed: true,
+                internalType: "address",
+                name: "tokenId",
                 type: "address",
             },
         ],
-        name: "AssetImplUpdated",
+        name: "AssetRegistered",
         type: "event",
     },
     {
@@ -79,6 +85,25 @@ const _abi = [
             },
         ],
         name: "AssetRemoved",
+        type: "event",
+    },
+    {
+        anonymous: false,
+        inputs: [
+            {
+                indexed: true,
+                internalType: "address",
+                name: "sender",
+                type: "address",
+            },
+            {
+                indexed: true,
+                internalType: "address",
+                name: "assetSubject",
+                type: "address",
+            },
+        ],
+        name: "AssetSubjectUpdated",
         type: "event",
     },
     {
@@ -197,6 +222,19 @@ const _abi = [
         type: "function",
     },
     {
+        inputs: [],
+        name: "getAssetSubject",
+        outputs: [
+            {
+                internalType: "address",
+                name: "",
+                type: "address",
+            },
+        ],
+        stateMutability: "view",
+        type: "function",
+    },
+    {
         inputs: [
             {
                 internalType: "address",
@@ -262,13 +300,18 @@ const _abi = [
         inputs: [
             {
                 internalType: "address",
-                name: "base",
+                name: "implementation",
                 type: "address",
             },
             {
                 internalType: "bytes32",
                 name: "salt",
                 type: "bytes32",
+            },
+            {
+                internalType: "address",
+                name: "deployer",
+                type: "address",
             },
         ],
         name: "predictAddress",
@@ -280,6 +323,30 @@ const _abi = [
             },
         ],
         stateMutability: "view",
+        type: "function",
+    },
+    {
+        inputs: [
+            {
+                internalType: "address",
+                name: "tokenId",
+                type: "address",
+            },
+            {
+                internalType: "address",
+                name: "assetId",
+                type: "address",
+            },
+        ],
+        name: "registerAsset",
+        outputs: [
+            {
+                internalType: "bool",
+                name: "",
+                type: "bool",
+            },
+        ],
+        stateMutability: "nonpayable",
         type: "function",
     },
     {
@@ -377,7 +444,7 @@ const _abi = [
         inputs: [
             {
                 internalType: "address",
-                name: "tokenId",
+                name: "assetId",
                 type: "address",
             },
             {
@@ -558,7 +625,7 @@ const _abi = [
         inputs: [
             {
                 internalType: "address",
-                name: "tokenId",
+                name: "assetId",
                 type: "address",
             },
             {
@@ -667,7 +734,7 @@ const _abi = [
         inputs: [
             {
                 internalType: "address",
-                name: "assetImpl",
+                name: "assetSubject",
                 type: "address",
             },
             {
@@ -676,7 +743,7 @@ const _abi = [
                 type: "bytes",
             },
         ],
-        name: "updateAssetImpl",
+        name: "updateAssetSubject",
         outputs: [
             {
                 internalType: "bool",

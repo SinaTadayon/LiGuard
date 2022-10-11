@@ -2,8 +2,31 @@ import type { BaseContract, BigNumber, BytesLike, CallOverrides, ContractTransac
 import type { FunctionFragment, Result, EventFragment } from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
 import type { TypedEventFilter, TypedEvent, TypedListener, OnEvent, PromiseOrValue } from "../common";
+export declare namespace IRoleManagement {
+    type UpdateRoleRequestStruct = {
+        role: PromiseOrValue<BytesLike>;
+        account: PromiseOrValue<string>;
+    };
+    type UpdateRoleRequestStructOutput = [string, string] & {
+        role: string;
+        account: string;
+    };
+    type RegiterRoleRequestStruct = {
+        group: PromiseOrValue<BytesLike>;
+        name: PromiseOrValue<string>;
+        status: PromiseOrValue<boolean>;
+    };
+    type RegiterRoleRequestStructOutput = [string, string, boolean] & {
+        group: string;
+        name: string;
+        status: boolean;
+    };
+}
 export interface IRoleManagementInterface extends utils.Interface {
     functions: {
+        "batchGrantRoleAccount((bytes32,address)[])": FunctionFragment;
+        "batchRegisterRole((bytes32,string,bool)[])": FunctionFragment;
+        "batchRevokeRoleAccount((bytes32,address)[])": FunctionFragment;
         "getRoleAccounts(bytes32)": FunctionFragment;
         "getRoleInfo(bytes32)": FunctionFragment;
         "grantRoleAccount(bytes32,address)": FunctionFragment;
@@ -13,7 +36,13 @@ export interface IRoleManagementInterface extends utils.Interface {
         "setRoleGroup(bytes32,bytes32)": FunctionFragment;
         "setRoleStatus(bytes32,bool)": FunctionFragment;
     };
-    getFunction(nameOrSignatureOrTopic: "getRoleAccounts" | "getRoleAccounts(bytes32)" | "getRoleInfo" | "getRoleInfo(bytes32)" | "grantRoleAccount" | "grantRoleAccount(bytes32,address)" | "hasRoleAccount" | "hasRoleAccount(bytes32,address)" | "registerRole" | "registerRole(string,bytes32,bool)" | "revokeRoleAccount" | "revokeRoleAccount(bytes32,address)" | "setRoleGroup" | "setRoleGroup(bytes32,bytes32)" | "setRoleStatus" | "setRoleStatus(bytes32,bool)"): FunctionFragment;
+    getFunction(nameOrSignatureOrTopic: "batchGrantRoleAccount" | "batchGrantRoleAccount((bytes32,address)[])" | "batchRegisterRole" | "batchRegisterRole((bytes32,string,bool)[])" | "batchRevokeRoleAccount" | "batchRevokeRoleAccount((bytes32,address)[])" | "getRoleAccounts" | "getRoleAccounts(bytes32)" | "getRoleInfo" | "getRoleInfo(bytes32)" | "grantRoleAccount" | "grantRoleAccount(bytes32,address)" | "hasRoleAccount" | "hasRoleAccount(bytes32,address)" | "registerRole" | "registerRole(string,bytes32,bool)" | "revokeRoleAccount" | "revokeRoleAccount(bytes32,address)" | "setRoleGroup" | "setRoleGroup(bytes32,bytes32)" | "setRoleStatus" | "setRoleStatus(bytes32,bool)"): FunctionFragment;
+    encodeFunctionData(functionFragment: "batchGrantRoleAccount", values: [IRoleManagement.UpdateRoleRequestStruct[]]): string;
+    encodeFunctionData(functionFragment: "batchGrantRoleAccount((bytes32,address)[])", values: [IRoleManagement.UpdateRoleRequestStruct[]]): string;
+    encodeFunctionData(functionFragment: "batchRegisterRole", values: [IRoleManagement.RegiterRoleRequestStruct[]]): string;
+    encodeFunctionData(functionFragment: "batchRegisterRole((bytes32,string,bool)[])", values: [IRoleManagement.RegiterRoleRequestStruct[]]): string;
+    encodeFunctionData(functionFragment: "batchRevokeRoleAccount", values: [IRoleManagement.UpdateRoleRequestStruct[]]): string;
+    encodeFunctionData(functionFragment: "batchRevokeRoleAccount((bytes32,address)[])", values: [IRoleManagement.UpdateRoleRequestStruct[]]): string;
     encodeFunctionData(functionFragment: "getRoleAccounts", values: [PromiseOrValue<BytesLike>]): string;
     encodeFunctionData(functionFragment: "getRoleAccounts(bytes32)", values: [PromiseOrValue<BytesLike>]): string;
     encodeFunctionData(functionFragment: "getRoleInfo", values: [PromiseOrValue<BytesLike>]): string;
@@ -38,6 +67,12 @@ export interface IRoleManagementInterface extends utils.Interface {
     encodeFunctionData(functionFragment: "setRoleGroup(bytes32,bytes32)", values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]): string;
     encodeFunctionData(functionFragment: "setRoleStatus", values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]): string;
     encodeFunctionData(functionFragment: "setRoleStatus(bytes32,bool)", values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]): string;
+    decodeFunctionResult(functionFragment: "batchGrantRoleAccount", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "batchGrantRoleAccount((bytes32,address)[])", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "batchRegisterRole", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "batchRegisterRole((bytes32,string,bool)[])", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "batchRevokeRoleAccount", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "batchRevokeRoleAccount((bytes32,address)[])", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "getRoleAccounts", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "getRoleAccounts(bytes32)", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "getRoleInfo", data: BytesLike): Result;
@@ -150,6 +185,24 @@ export interface IRoleManagement extends BaseContract {
     once: OnEvent<this>;
     removeListener: OnEvent<this>;
     functions: {
+        batchGrantRoleAccount(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: Overrides & {
+            from?: PromiseOrValue<string>;
+        }): Promise<ContractTransaction>;
+        "batchGrantRoleAccount((bytes32,address)[])"(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: Overrides & {
+            from?: PromiseOrValue<string>;
+        }): Promise<ContractTransaction>;
+        batchRegisterRole(requests: IRoleManagement.RegiterRoleRequestStruct[], overrides?: Overrides & {
+            from?: PromiseOrValue<string>;
+        }): Promise<ContractTransaction>;
+        "batchRegisterRole((bytes32,string,bool)[])"(requests: IRoleManagement.RegiterRoleRequestStruct[], overrides?: Overrides & {
+            from?: PromiseOrValue<string>;
+        }): Promise<ContractTransaction>;
+        batchRevokeRoleAccount(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: Overrides & {
+            from?: PromiseOrValue<string>;
+        }): Promise<ContractTransaction>;
+        "batchRevokeRoleAccount((bytes32,address)[])"(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: Overrides & {
+            from?: PromiseOrValue<string>;
+        }): Promise<ContractTransaction>;
         getRoleAccounts(role: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<[string[]]>;
         "getRoleAccounts(bytes32)"(role: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<[string[]]>;
         getRoleInfo(role: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<[string, string, boolean]>;
@@ -187,6 +240,24 @@ export interface IRoleManagement extends BaseContract {
             from?: PromiseOrValue<string>;
         }): Promise<ContractTransaction>;
     };
+    batchGrantRoleAccount(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: Overrides & {
+        from?: PromiseOrValue<string>;
+    }): Promise<ContractTransaction>;
+    "batchGrantRoleAccount((bytes32,address)[])"(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: Overrides & {
+        from?: PromiseOrValue<string>;
+    }): Promise<ContractTransaction>;
+    batchRegisterRole(requests: IRoleManagement.RegiterRoleRequestStruct[], overrides?: Overrides & {
+        from?: PromiseOrValue<string>;
+    }): Promise<ContractTransaction>;
+    "batchRegisterRole((bytes32,string,bool)[])"(requests: IRoleManagement.RegiterRoleRequestStruct[], overrides?: Overrides & {
+        from?: PromiseOrValue<string>;
+    }): Promise<ContractTransaction>;
+    batchRevokeRoleAccount(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: Overrides & {
+        from?: PromiseOrValue<string>;
+    }): Promise<ContractTransaction>;
+    "batchRevokeRoleAccount((bytes32,address)[])"(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: Overrides & {
+        from?: PromiseOrValue<string>;
+    }): Promise<ContractTransaction>;
     getRoleAccounts(role: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<string[]>;
     "getRoleAccounts(bytes32)"(role: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<string[]>;
     getRoleInfo(role: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<[string, string, boolean]>;
@@ -224,6 +295,12 @@ export interface IRoleManagement extends BaseContract {
         from?: PromiseOrValue<string>;
     }): Promise<ContractTransaction>;
     callStatic: {
+        batchGrantRoleAccount(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: CallOverrides): Promise<boolean>;
+        "batchGrantRoleAccount((bytes32,address)[])"(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: CallOverrides): Promise<boolean>;
+        batchRegisterRole(requests: IRoleManagement.RegiterRoleRequestStruct[], overrides?: CallOverrides): Promise<string[]>;
+        "batchRegisterRole((bytes32,string,bool)[])"(requests: IRoleManagement.RegiterRoleRequestStruct[], overrides?: CallOverrides): Promise<string[]>;
+        batchRevokeRoleAccount(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: CallOverrides): Promise<boolean>;
+        "batchRevokeRoleAccount((bytes32,address)[])"(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: CallOverrides): Promise<boolean>;
         getRoleAccounts(role: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<string[]>;
         "getRoleAccounts(bytes32)"(role: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<string[]>;
         getRoleInfo(role: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<[string, string, boolean]>;
@@ -254,6 +331,24 @@ export interface IRoleManagement extends BaseContract {
         RoleStatusChanged(sender?: PromiseOrValue<string> | null, role?: PromiseOrValue<BytesLike> | null, group?: PromiseOrValue<BytesLike> | null, status?: null): RoleStatusChangedEventFilter;
     };
     estimateGas: {
+        batchGrantRoleAccount(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: Overrides & {
+            from?: PromiseOrValue<string>;
+        }): Promise<BigNumber>;
+        "batchGrantRoleAccount((bytes32,address)[])"(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: Overrides & {
+            from?: PromiseOrValue<string>;
+        }): Promise<BigNumber>;
+        batchRegisterRole(requests: IRoleManagement.RegiterRoleRequestStruct[], overrides?: Overrides & {
+            from?: PromiseOrValue<string>;
+        }): Promise<BigNumber>;
+        "batchRegisterRole((bytes32,string,bool)[])"(requests: IRoleManagement.RegiterRoleRequestStruct[], overrides?: Overrides & {
+            from?: PromiseOrValue<string>;
+        }): Promise<BigNumber>;
+        batchRevokeRoleAccount(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: Overrides & {
+            from?: PromiseOrValue<string>;
+        }): Promise<BigNumber>;
+        "batchRevokeRoleAccount((bytes32,address)[])"(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: Overrides & {
+            from?: PromiseOrValue<string>;
+        }): Promise<BigNumber>;
         getRoleAccounts(role: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
         "getRoleAccounts(bytes32)"(role: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
         getRoleInfo(role: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
@@ -292,6 +387,24 @@ export interface IRoleManagement extends BaseContract {
         }): Promise<BigNumber>;
     };
     populateTransaction: {
+        batchGrantRoleAccount(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: Overrides & {
+            from?: PromiseOrValue<string>;
+        }): Promise<PopulatedTransaction>;
+        "batchGrantRoleAccount((bytes32,address)[])"(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: Overrides & {
+            from?: PromiseOrValue<string>;
+        }): Promise<PopulatedTransaction>;
+        batchRegisterRole(requests: IRoleManagement.RegiterRoleRequestStruct[], overrides?: Overrides & {
+            from?: PromiseOrValue<string>;
+        }): Promise<PopulatedTransaction>;
+        "batchRegisterRole((bytes32,string,bool)[])"(requests: IRoleManagement.RegiterRoleRequestStruct[], overrides?: Overrides & {
+            from?: PromiseOrValue<string>;
+        }): Promise<PopulatedTransaction>;
+        batchRevokeRoleAccount(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: Overrides & {
+            from?: PromiseOrValue<string>;
+        }): Promise<PopulatedTransaction>;
+        "batchRevokeRoleAccount((bytes32,address)[])"(requests: IRoleManagement.UpdateRoleRequestStruct[], overrides?: Overrides & {
+            from?: PromiseOrValue<string>;
+        }): Promise<PopulatedTransaction>;
         getRoleAccounts(role: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
         "getRoleAccounts(bytes32)"(role: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
         getRoleInfo(role: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<PopulatedTransaction>;

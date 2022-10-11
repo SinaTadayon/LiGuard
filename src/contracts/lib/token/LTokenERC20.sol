@@ -29,7 +29,7 @@ library LTokenERC20 {
     returns (IContextManagement.RequestContext memory, IContextManagement.RequestRegisterContext[] memory)
   {
     IContextManagement.RequestRegisterContext[] memory rrc = new IContextManagement.RequestRegisterContext[](5);
-    rrc[0].role = IAccessControl(IProxy(address(this)).accessControlManager()).livelyAnonymousRole();
+    rrc[0].role = keccak256(abi.encodePacked("LIVELY_ANONYMOUS_ROLE"));
     rrc[0].isEnabled = true;
     rrc[0].funcSelectors = new bytes4[](10);
     rrc[0].funcSelectors[0] = IERC20.transfer.selector;
@@ -43,7 +43,7 @@ library LTokenERC20 {
     rrc[0].funcSelectors[8] = IERC20Lock.claimToken.selector;
     rrc[0].funcSelectors[9] = IERC20Lock.batchClaimToken.selector;
 
-    rrc[1].role = IAccessControl(IProxy(address(this)).accessControlManager()).livelyAdminRole();
+    rrc[1].role = keccak256(abi.encodePacked("LIVELY_ADMIN_ROLE"));
     rrc[1].isEnabled = true;
     rrc[1].funcSelectors = new bytes4[](11);
     rrc[1].funcSelectors[0] = IProxy.setUpgradeStatus.selector;
@@ -58,21 +58,21 @@ library LTokenERC20 {
     rrc[1].funcSelectors[9] = IERC20Pause.unpauseAll.selector;
     rrc[1].funcSelectors[10] = bytes4(keccak256("withdrawBalance(address)"));
 
-    rrc[2].role = IAccessControl(IProxy(address(this)).accessControlManager()).livelySystemAdminRole();
+    rrc[2].role = keccak256(abi.encodePacked("LIVELY_SYSTEM_ADMIN_ROLE"));
     rrc[2].isEnabled = true;
     rrc[2].funcSelectors = new bytes4[](3);
     rrc[2].funcSelectors[0] = IProxy.setLocalAdmin.selector;
     rrc[2].funcSelectors[1] = IProxy.setSafeMode.selector;
     rrc[2].funcSelectors[2] = IProxy.upgradeTo.selector;
 
-    rrc[3].role = IAccessControl(IProxy(address(this)).accessControlManager()).livelyAssetManagerRole();
+    rrc[3].role = keccak256(abi.encodePacked("LIVELY_ASSET_MANAGER_ROLE"));
     rrc[3].isEnabled = true;
     rrc[3].funcSelectors = new bytes4[](3);
     rrc[3].funcSelectors[0] = IERC20Lock.lockToken.selector;  
     rrc[3].funcSelectors[1] = IERC20Lock.batchLockToken.selector;  
-    rrc[3].funcSelectors[2] = bytes4(keccak256("tokensDistribution(address[6] calldata)"));
+    rrc[3].funcSelectors[2] = bytes4(keccak256("tokensDistribution(address,address[7])"));
     
-    rrc[4].role = IAccessControl(IProxy(address(this)).accessControlManager()).livelyCommunityDaoExecutorRole();
+    rrc[4].role = keccak256(abi.encodePacked("LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE"));
     rrc[4].isEnabled = true;
     rrc[4].funcSelectors = new bytes4[](2);
     rrc[4].funcSelectors[0] = IERC20Lock.unlockToken.selector;

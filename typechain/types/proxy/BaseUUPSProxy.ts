@@ -34,7 +34,6 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
     "contractRealm()": FunctionFragment;
     "contractVersion()": FunctionFragment;
     "domainSeparator()": FunctionFragment;
-    "initStatus()": FunctionFragment;
     "initVersion()": FunctionFragment;
     "isSafeMode()": FunctionFragment;
     "isUpgradable()": FunctionFragment;
@@ -63,8 +62,6 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
       | "contractVersion()"
       | "domainSeparator"
       | "domainSeparator()"
-      | "initStatus"
-      | "initStatus()"
       | "initVersion"
       | "initVersion()"
       | "isSafeMode"
@@ -137,14 +134,6 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "domainSeparator()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "initStatus",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "initStatus()",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -298,11 +287,6 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "domainSeparator()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "initStatus", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "initStatus()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -542,10 +526,6 @@ export interface BaseUUPSProxy extends BaseContract {
 
     "domainSeparator()"(overrides?: CallOverrides): Promise<[string]>;
 
-    initStatus(overrides?: CallOverrides): Promise<[boolean]>;
-
-    "initStatus()"(overrides?: CallOverrides): Promise<[boolean]>;
-
     initVersion(overrides?: CallOverrides): Promise<[number]>;
 
     "initVersion()"(overrides?: CallOverrides): Promise<[number]>;
@@ -659,10 +639,6 @@ export interface BaseUUPSProxy extends BaseContract {
 
   "domainSeparator()"(overrides?: CallOverrides): Promise<string>;
 
-  initStatus(overrides?: CallOverrides): Promise<boolean>;
-
-  "initStatus()"(overrides?: CallOverrides): Promise<boolean>;
-
   initVersion(overrides?: CallOverrides): Promise<number>;
 
   "initVersion()"(overrides?: CallOverrides): Promise<number>;
@@ -775,10 +751,6 @@ export interface BaseUUPSProxy extends BaseContract {
     domainSeparator(overrides?: CallOverrides): Promise<string>;
 
     "domainSeparator()"(overrides?: CallOverrides): Promise<string>;
-
-    initStatus(overrides?: CallOverrides): Promise<boolean>;
-
-    "initStatus()"(overrides?: CallOverrides): Promise<boolean>;
 
     initVersion(overrides?: CallOverrides): Promise<number>;
 
@@ -963,10 +935,6 @@ export interface BaseUUPSProxy extends BaseContract {
 
     "domainSeparator()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    initStatus(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "initStatus()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     initVersion(overrides?: CallOverrides): Promise<BigNumber>;
 
     "initVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1090,10 +1058,6 @@ export interface BaseUUPSProxy extends BaseContract {
     "domainSeparator()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
-
-    initStatus(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "initStatus()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     initVersion(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
