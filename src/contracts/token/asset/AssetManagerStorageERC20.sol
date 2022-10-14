@@ -18,7 +18,7 @@ abstract contract AssetManagerStorageERC20 is BaseUUPSStorage {
     LEnumerableSet.AddressSet tokensSet;
   }
 
-  address _assetSubjectERC20;
+  address internal _assetSubjectERC20;
   bytes internal _assetCreationSignature;
   DataCollection internal _data;
 }

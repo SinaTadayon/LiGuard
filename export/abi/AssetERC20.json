@@ -16,7 +16,7 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "contractId",
+        "name": "assetId",
         "type": "address"
       },
       {
@@ -45,6 +45,18 @@
         "type": "address"
       },
       {
+        "indexed": true,
+        "internalType": "address",
+        "name": "tokenId",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "assetManager",
+        "type": "address"
+      },
+      {
         "indexed": false,
         "internalType": "string",
         "name": "name",
@@ -60,6 +72,12 @@
         "indexed": false,
         "internalType": "bytes32",
         "name": "realm",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "role",
         "type": "bytes32"
       }
     ],
@@ -78,7 +96,7 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "proxy",
+        "name": "assetId",
         "type": "address"
       },
       {
@@ -100,6 +118,19 @@
   {
     "stateMutability": "payable",
     "type": "fallback"
+  },
+  {
+    "inputs": [],
+    "name": "assetAcl",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "inputs": [],
@@ -242,18 +273,23 @@
       {
         "components": [
           {
-            "internalType": "string",
-            "name": "domainName",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "domainVersion",
-            "type": "string"
+            "internalType": "bytes32",
+            "name": "domainRealm",
+            "type": "bytes32"
           },
           {
             "internalType": "bytes32",
-            "name": "domainRealm",
+            "name": "assetRole",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "salt",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "bytesHash",
             "type": "bytes32"
           },
           {
@@ -272,19 +308,14 @@
             "type": "address"
           },
           {
-            "internalType": "bytes32",
-            "name": "assetRole",
-            "type": "bytes32"
+            "internalType": "string",
+            "name": "domainName",
+            "type": "string"
           },
           {
-            "internalType": "bytes32",
-            "name": "salt",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "bytesHash",
-            "type": "bytes32"
+            "internalType": "string",
+            "name": "domainVersion",
+            "type": "string"
           },
           {
             "internalType": "bytes",

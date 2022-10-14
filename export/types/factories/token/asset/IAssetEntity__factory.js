@@ -22,6 +22,18 @@ const _abi = [
                 type: "address",
             },
             {
+                indexed: true,
+                internalType: "address",
+                name: "tokenId",
+                type: "address",
+            },
+            {
+                indexed: false,
+                internalType: "address",
+                name: "assetManager",
+                type: "address",
+            },
+            {
                 indexed: false,
                 internalType: "string",
                 name: "name",
@@ -37,6 +49,12 @@ const _abi = [
                 indexed: false,
                 internalType: "bytes32",
                 name: "realm",
+                type: "bytes32",
+            },
+            {
+                indexed: false,
+                internalType: "bytes32",
+                name: "role",
                 type: "bytes32",
             },
         ],
@@ -55,7 +73,7 @@ const _abi = [
             {
                 indexed: true,
                 internalType: "address",
-                name: "proxy",
+                name: "assetId",
                 type: "address",
             },
             {
@@ -73,6 +91,19 @@ const _abi = [
         ],
         name: "AssetSafeModeChanged",
         type: "event",
+    },
+    {
+        inputs: [],
+        name: "assetAcl",
+        outputs: [
+            {
+                internalType: "address",
+                name: "",
+                type: "address",
+            },
+        ],
+        stateMutability: "view",
+        type: "function",
     },
     {
         inputs: [],

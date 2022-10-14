@@ -11,7 +11,7 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "contractId",
+        "name": "assetId",
         "type": "address"
       },
       {

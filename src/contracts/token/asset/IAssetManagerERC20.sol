@@ -33,7 +33,7 @@ interface IAssetManagerERC20 {
 
   function registerToken(address tokenId) external returns (bool);
 
-  function registerAsset(address tokenId, address assetId) external returns (bool);
+  function registerAsset(address assetId) external returns (bool);
 
   function removeAsset(address assetId) external returns (bool);
 

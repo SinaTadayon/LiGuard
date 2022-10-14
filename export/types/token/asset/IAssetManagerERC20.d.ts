@@ -76,7 +76,7 @@ export interface IAssetManagerERC20Interface extends utils.Interface {
         "isAssetExists(address)": FunctionFragment;
         "isTokenExists(address)": FunctionFragment;
         "predictAddress(address,bytes32,address)": FunctionFragment;
-        "registerAsset(address,address)": FunctionFragment;
+        "registerAsset(address)": FunctionFragment;
         "registerToken(address)": FunctionFragment;
         "removeAsset(address)": FunctionFragment;
         "setSafeModeToken(address,bool)": FunctionFragment;
@@ -91,7 +91,7 @@ export interface IAssetManagerERC20Interface extends utils.Interface {
         "tokenTransferFrom(address,address,address,uint256)": FunctionFragment;
         "updateAssetSubject(address,bytes)": FunctionFragment;
     };
-    getFunction(nameOrSignatureOrTopic: "createAsset" | "createAsset((bytes32,bytes32,address,string,string))" | "getAllTokens" | "getAllTokens()" | "getAssetSubject" | "getAssetSubject()" | "getTokenInfo" | "getTokenInfo(address)" | "isAssetExists" | "isAssetExists(address)" | "isTokenExists" | "isTokenExists(address)" | "predictAddress" | "predictAddress(address,bytes32,address)" | "registerAsset" | "registerAsset(address,address)" | "registerToken" | "registerToken(address)" | "removeAsset" | "removeAsset(address)" | "setSafeModeToken" | "setSafeModeToken(address,bool)" | "tokenApprove" | "tokenApprove(address,address,uint256)" | "tokenBatchLock" | "tokenBatchLock(address,(address,address,uint256,uint256)[])" | "tokenBatchTransfer" | "tokenBatchTransfer(address,(address,uint256)[])" | "tokenBatchTransferFrom" | "tokenBatchTransferFrom(address,(address,address,uint256)[])" | "tokenDecreaseAllowance" | "tokenDecreaseAllowance(address,address,uint256)" | "tokenIncreaseAllowance" | "tokenIncreaseAllowance(address,address,uint256)" | "tokenLock" | "tokenLock(address,(address,address,uint256,uint256))" | "tokenTransfer" | "tokenTransfer(address,address,uint256)" | "tokenTransferFrom" | "tokenTransferFrom(address,address,address,uint256)" | "updateAssetSubject" | "updateAssetSubject(address,bytes)"): FunctionFragment;
+    getFunction(nameOrSignatureOrTopic: "createAsset" | "createAsset((bytes32,bytes32,address,string,string))" | "getAllTokens" | "getAllTokens()" | "getAssetSubject" | "getAssetSubject()" | "getTokenInfo" | "getTokenInfo(address)" | "isAssetExists" | "isAssetExists(address)" | "isTokenExists" | "isTokenExists(address)" | "predictAddress" | "predictAddress(address,bytes32,address)" | "registerAsset" | "registerAsset(address)" | "registerToken" | "registerToken(address)" | "removeAsset" | "removeAsset(address)" | "setSafeModeToken" | "setSafeModeToken(address,bool)" | "tokenApprove" | "tokenApprove(address,address,uint256)" | "tokenBatchLock" | "tokenBatchLock(address,(address,address,uint256,uint256)[])" | "tokenBatchTransfer" | "tokenBatchTransfer(address,(address,uint256)[])" | "tokenBatchTransferFrom" | "tokenBatchTransferFrom(address,(address,address,uint256)[])" | "tokenDecreaseAllowance" | "tokenDecreaseAllowance(address,address,uint256)" | "tokenIncreaseAllowance" | "tokenIncreaseAllowance(address,address,uint256)" | "tokenLock" | "tokenLock(address,(address,address,uint256,uint256))" | "tokenTransfer" | "tokenTransfer(address,address,uint256)" | "tokenTransferFrom" | "tokenTransferFrom(address,address,address,uint256)" | "updateAssetSubject" | "updateAssetSubject(address,bytes)"): FunctionFragment;
     encodeFunctionData(functionFragment: "createAsset", values: [IAssetManagerERC20.CreateAssetRequestStruct]): string;
     encodeFunctionData(functionFragment: "createAsset((bytes32,bytes32,address,string,string))", values: [IAssetManagerERC20.CreateAssetRequestStruct]): string;
     encodeFunctionData(functionFragment: "getAllTokens", values?: undefined): string;
@@ -114,8 +114,8 @@ export interface IAssetManagerERC20Interface extends utils.Interface {
         PromiseOrValue<BytesLike>,
         PromiseOrValue<string>
     ]): string;
-    encodeFunctionData(functionFragment: "registerAsset", values: [PromiseOrValue<string>, PromiseOrValue<string>]): string;
-    encodeFunctionData(functionFragment: "registerAsset(address,address)", values: [PromiseOrValue<string>, PromiseOrValue<string>]): string;
+    encodeFunctionData(functionFragment: "registerAsset", values: [PromiseOrValue<string>]): string;
+    encodeFunctionData(functionFragment: "registerAsset(address)", values: [PromiseOrValue<string>]): string;
     encodeFunctionData(functionFragment: "registerToken", values: [PromiseOrValue<string>]): string;
     encodeFunctionData(functionFragment: "registerToken(address)", values: [PromiseOrValue<string>]): string;
     encodeFunctionData(functionFragment: "removeAsset", values: [PromiseOrValue<string>]): string;
@@ -205,7 +205,7 @@ export interface IAssetManagerERC20Interface extends utils.Interface {
     decodeFunctionResult(functionFragment: "predictAddress", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "predictAddress(address,bytes32,address)", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "registerAsset", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "registerAsset(address,address)", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "registerAsset(address)", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "registerToken", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "registerToken(address)", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "removeAsset", data: BytesLike): Result;
@@ -354,10 +354,10 @@ export interface IAssetManagerERC20 extends BaseContract {
         "isTokenExists(address)"(tokenId: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[boolean]>;
         predictAddress(implementation: PromiseOrValue<string>, salt: PromiseOrValue<BytesLike>, deployer: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[string]>;
         "predictAddress(address,bytes32,address)"(implementation: PromiseOrValue<string>, salt: PromiseOrValue<BytesLike>, deployer: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[string]>;
-        registerAsset(tokenId: PromiseOrValue<string>, assetId: PromiseOrValue<string>, overrides?: Overrides & {
+        registerAsset(assetId: PromiseOrValue<string>, overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<ContractTransaction>;
-        "registerAsset(address,address)"(tokenId: PromiseOrValue<string>, assetId: PromiseOrValue<string>, overrides?: Overrides & {
+        "registerAsset(address)"(assetId: PromiseOrValue<string>, overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<ContractTransaction>;
         registerToken(tokenId: PromiseOrValue<string>, overrides?: Overrides & {
@@ -457,10 +457,10 @@ export interface IAssetManagerERC20 extends BaseContract {
     "isTokenExists(address)"(tokenId: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
     predictAddress(implementation: PromiseOrValue<string>, salt: PromiseOrValue<BytesLike>, deployer: PromiseOrValue<string>, overrides?: CallOverrides): Promise<string>;
     "predictAddress(address,bytes32,address)"(implementation: PromiseOrValue<string>, salt: PromiseOrValue<BytesLike>, deployer: PromiseOrValue<string>, overrides?: CallOverrides): Promise<string>;
-    registerAsset(tokenId: PromiseOrValue<string>, assetId: PromiseOrValue<string>, overrides?: Overrides & {
+    registerAsset(assetId: PromiseOrValue<string>, overrides?: Overrides & {
         from?: PromiseOrValue<string>;
     }): Promise<ContractTransaction>;
-    "registerAsset(address,address)"(tokenId: PromiseOrValue<string>, assetId: PromiseOrValue<string>, overrides?: Overrides & {
+    "registerAsset(address)"(assetId: PromiseOrValue<string>, overrides?: Overrides & {
         from?: PromiseOrValue<string>;
     }): Promise<ContractTransaction>;
     registerToken(tokenId: PromiseOrValue<string>, overrides?: Overrides & {
@@ -556,8 +556,8 @@ export interface IAssetManagerERC20 extends BaseContract {
         "isTokenExists(address)"(tokenId: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
         predictAddress(implementation: PromiseOrValue<string>, salt: PromiseOrValue<BytesLike>, deployer: PromiseOrValue<string>, overrides?: CallOverrides): Promise<string>;
         "predictAddress(address,bytes32,address)"(implementation: PromiseOrValue<string>, salt: PromiseOrValue<BytesLike>, deployer: PromiseOrValue<string>, overrides?: CallOverrides): Promise<string>;
-        registerAsset(tokenId: PromiseOrValue<string>, assetId: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
-        "registerAsset(address,address)"(tokenId: PromiseOrValue<string>, assetId: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
+        registerAsset(assetId: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
+        "registerAsset(address)"(assetId: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
         registerToken(tokenId: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
         "registerToken(address)"(tokenId: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
         removeAsset(assetId: PromiseOrValue<string>, overrides?: CallOverrides): Promise<boolean>;
@@ -618,10 +618,10 @@ export interface IAssetManagerERC20 extends BaseContract {
         "isTokenExists(address)"(tokenId: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
         predictAddress(implementation: PromiseOrValue<string>, salt: PromiseOrValue<BytesLike>, deployer: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
         "predictAddress(address,bytes32,address)"(implementation: PromiseOrValue<string>, salt: PromiseOrValue<BytesLike>, deployer: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
-        registerAsset(tokenId: PromiseOrValue<string>, assetId: PromiseOrValue<string>, overrides?: Overrides & {
+        registerAsset(assetId: PromiseOrValue<string>, overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<BigNumber>;
-        "registerAsset(address,address)"(tokenId: PromiseOrValue<string>, assetId: PromiseOrValue<string>, overrides?: Overrides & {
+        "registerAsset(address)"(assetId: PromiseOrValue<string>, overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<BigNumber>;
         registerToken(tokenId: PromiseOrValue<string>, overrides?: Overrides & {
@@ -722,10 +722,10 @@ export interface IAssetManagerERC20 extends BaseContract {
         "isTokenExists(address)"(tokenId: PromiseOrValue<string>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
         predictAddress(implementation: PromiseOrValue<string>, salt: PromiseOrValue<BytesLike>, deployer: PromiseOrValue<string>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
         "predictAddress(address,bytes32,address)"(implementation: PromiseOrValue<string>, salt: PromiseOrValue<BytesLike>, deployer: PromiseOrValue<string>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
-        registerAsset(tokenId: PromiseOrValue<string>, assetId: PromiseOrValue<string>, overrides?: Overrides & {
+        registerAsset(assetId: PromiseOrValue<string>, overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<PopulatedTransaction>;
-        "registerAsset(address,address)"(tokenId: PromiseOrValue<string>, assetId: PromiseOrValue<string>, overrides?: Overrides & {
+        "registerAsset(address)"(assetId: PromiseOrValue<string>, overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<PopulatedTransaction>;
         registerToken(tokenId: PromiseOrValue<string>, overrides?: Overrides & {

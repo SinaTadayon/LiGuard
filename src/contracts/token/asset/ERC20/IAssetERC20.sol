@@ -6,7 +6,7 @@ import "../../lively/IERC20Lock.sol";
 
 interface IAssetERC20 {
 
-  event AssetERC20Called(address indexed sender, address indexed contractId, bytes4 indexed functionSelector);
+  event AssetERC20Called(address indexed sender, address indexed assetId, bytes4 indexed functionSelector);
 
   function tokenLock(IERC20Lock.LockTokenRequest calldata lockRequest) external returns (bytes32);
 

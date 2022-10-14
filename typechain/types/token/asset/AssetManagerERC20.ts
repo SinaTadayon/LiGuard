@@ -138,7 +138,7 @@ export interface AssetManagerERC20Interface extends utils.Interface {
     "localAdmin()": FunctionFragment;
     "predictAddress(address,bytes32,address)": FunctionFragment;
     "proxiableUUID()": FunctionFragment;
-    "registerAsset(address,address)": FunctionFragment;
+    "registerAsset(address)": FunctionFragment;
     "registerToken(address)": FunctionFragment;
     "removeAsset(address)": FunctionFragment;
     "setLocalAdmin(address)": FunctionFragment;
@@ -206,7 +206,7 @@ export interface AssetManagerERC20Interface extends utils.Interface {
       | "proxiableUUID"
       | "proxiableUUID()"
       | "registerAsset"
-      | "registerAsset(address,address)"
+      | "registerAsset(address)"
       | "registerToken"
       | "registerToken(address)"
       | "removeAsset"
@@ -427,11 +427,11 @@ export interface AssetManagerERC20Interface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "registerAsset",
-    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "registerAsset(address,address)",
-    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+    functionFragment: "registerAsset(address)",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "registerToken",
@@ -814,7 +814,7 @@ export interface AssetManagerERC20Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "registerAsset(address,address)",
+    functionFragment: "registerAsset(address)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1339,13 +1339,11 @@ export interface AssetManagerERC20 extends BaseContract {
     "proxiableUUID()"(overrides?: CallOverrides): Promise<[string]>;
 
     registerAsset(
-      tokenId: PromiseOrValue<string>,
       assetId: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "registerAsset(address,address)"(
-      tokenId: PromiseOrValue<string>,
+    "registerAsset(address)"(
       assetId: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -1720,13 +1718,11 @@ export interface AssetManagerERC20 extends BaseContract {
   "proxiableUUID()"(overrides?: CallOverrides): Promise<string>;
 
   registerAsset(
-    tokenId: PromiseOrValue<string>,
     assetId: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "registerAsset(address,address)"(
-    tokenId: PromiseOrValue<string>,
+  "registerAsset(address)"(
     assetId: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -2101,13 +2097,11 @@ export interface AssetManagerERC20 extends BaseContract {
     "proxiableUUID()"(overrides?: CallOverrides): Promise<string>;
 
     registerAsset(
-      tokenId: PromiseOrValue<string>,
       assetId: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "registerAsset(address,address)"(
-      tokenId: PromiseOrValue<string>,
+    "registerAsset(address)"(
       assetId: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
@@ -2620,13 +2614,11 @@ export interface AssetManagerERC20 extends BaseContract {
     "proxiableUUID()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     registerAsset(
-      tokenId: PromiseOrValue<string>,
       assetId: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "registerAsset(address,address)"(
-      tokenId: PromiseOrValue<string>,
+    "registerAsset(address)"(
       assetId: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -3014,13 +3006,11 @@ export interface AssetManagerERC20 extends BaseContract {
     "proxiableUUID()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     registerAsset(
-      tokenId: PromiseOrValue<string>,
       assetId: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "registerAsset(address,address)"(
-      tokenId: PromiseOrValue<string>,
+    "registerAsset(address)"(
       assetId: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;

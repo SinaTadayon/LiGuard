@@ -14,6 +14,8 @@ import "../../../lib/LAddress.sol";
 import "../../../acl/IAccessControl.sol";
 import "../../../acl/IContextManagement.sol";
 
+import "hardhat/console.sol";
+
 contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity {
   using LAddress for address;
 
@@ -21,7 +23,7 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
     bytes32 domainRealm;
     bytes32 assetRole;
     bytes32 salt;
-    bytes32 bytesHash;
+    address subject;
     address erc20Token;
     address accessControl;
     address assetManager;
@@ -87,16 +89,20 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
     _isSafeMode = false;
   
     (IContextManagement.RequestPredictContext memory rpc, IContextManagement.RequestRegisterContext[] memory rrc) = 
-      _createRequestContext(_domainName, _domainVersion, _domainRealm, _assetRole, request.salt, request.bytesHash, request.assetManager);
+      _createRequestContext(_domainName, _domainVersion, _domainRealm, _assetRole, request.salt, request.subject, request.assetManager);
 
     IContextManagement(_accessControlManager).registerPredictContext(request.signature, rpc, rrc);
 
     emit AssetInitialized(
       _msgSender(),
       address(this),
+      _erc20Token,
+      request.assetManager,
+      request.subject,
       request.domainName,
       request.domainVersion,
-      _domainRealm      
+      _domainRealm,
+      _assetRole      
     );
   }
 
@@ -106,7 +112,7 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
     bytes32 realm,
     bytes32 role,
     bytes32 salt,
-    bytes32 bytesHash,
+    address subject,
     address deployer
   )
     internal
@@ -139,7 +145,7 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
       version: domainVersion,
       realm: realm,
       salt: salt,
-      bytesHash: bytesHash, 
+      subject: subject, 
       deployer: deployer,
       status: true
     });
@@ -218,7 +224,7 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
   }
 
   function assetSafeModeSet(bool status) override public returns (bool) {
-    require(IAccessControl(_accessControlManager).hasAccess(LContextUtils.generateCtx(address(this)),_msgSender(),this.assetSafeModeSet.selector), "Access Denied");
+    require(IAccessControl(_accessControlManager).hasAccess(LContextUtils.generateCtx(address(this)),_msgSender(),this.assetSafeModeSet.selector), "AssetERC20 Access Denied");
     require(_getInitializedCount() > 0, "AssetERC20 Not Initialized");
     _isSafeMode = status;    
     emit AssetSafeModeChanged(_msgSender(), address(this), _domainRealm, status);
@@ -258,6 +264,10 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
     return _assetRole;
   }
 
+   function assetAcl() external view returns (address) {
+    return _accessControlManager;
+   }
+
   function assetInitVersion() external view returns (uint16) {
     return _getInitializedCount();
   }
@@ -277,8 +287,8 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
   }
 
   function _policyInterceptor(bytes4 funcSelector) private view {
-    require(!_isSafeMode, "SafeMode: Call Rejected");
-    require(IAccessControl(_accessControlManager).hasAccess(LContextUtils.generateCtx(address(this)),_msgSender(),funcSelector), "Access Denied");
+    require(!_isSafeMode, "SafeMode: AssetERC20 Call Rejected");
+    require(IAccessControl(_accessControlManager).hasAccess(LContextUtils.generateCtx(address(this)),_msgSender(),funcSelector), "AssetERC20 Access Denied");
   }
 
 }

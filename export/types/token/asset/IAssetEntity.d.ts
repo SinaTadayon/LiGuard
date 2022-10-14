@@ -4,6 +4,7 @@ import type { Listener, Provider } from "@ethersproject/providers";
 import type { TypedEventFilter, TypedEvent, TypedListener, OnEvent, PromiseOrValue } from "../../common";
 export interface IAssetEntityInterface extends utils.Interface {
     functions: {
+        "assetAcl()": FunctionFragment;
         "assetInitVersion()": FunctionFragment;
         "assetName()": FunctionFragment;
         "assetRealm()": FunctionFragment;
@@ -14,7 +15,9 @@ export interface IAssetEntityInterface extends utils.Interface {
         "assetType()": FunctionFragment;
         "assetVersion()": FunctionFragment;
     };
-    getFunction(nameOrSignatureOrTopic: "assetInitVersion" | "assetInitVersion()" | "assetName" | "assetName()" | "assetRealm" | "assetRealm()" | "assetRole" | "assetRole()" | "assetSafeMode" | "assetSafeMode()" | "assetSafeModeSet" | "assetSafeModeSet(bool)" | "assetToken" | "assetToken()" | "assetType" | "assetType()" | "assetVersion" | "assetVersion()"): FunctionFragment;
+    getFunction(nameOrSignatureOrTopic: "assetAcl" | "assetAcl()" | "assetInitVersion" | "assetInitVersion()" | "assetName" | "assetName()" | "assetRealm" | "assetRealm()" | "assetRole" | "assetRole()" | "assetSafeMode" | "assetSafeMode()" | "assetSafeModeSet" | "assetSafeModeSet(bool)" | "assetToken" | "assetToken()" | "assetType" | "assetType()" | "assetVersion" | "assetVersion()"): FunctionFragment;
+    encodeFunctionData(functionFragment: "assetAcl", values?: undefined): string;
+    encodeFunctionData(functionFragment: "assetAcl()", values?: undefined): string;
     encodeFunctionData(functionFragment: "assetInitVersion", values?: undefined): string;
     encodeFunctionData(functionFragment: "assetInitVersion()", values?: undefined): string;
     encodeFunctionData(functionFragment: "assetName", values?: undefined): string;
@@ -33,6 +36,8 @@ export interface IAssetEntityInterface extends utils.Interface {
     encodeFunctionData(functionFragment: "assetType()", values?: undefined): string;
     encodeFunctionData(functionFragment: "assetVersion", values?: undefined): string;
     encodeFunctionData(functionFragment: "assetVersion()", values?: undefined): string;
+    decodeFunctionResult(functionFragment: "assetAcl", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "assetAcl()", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "assetInitVersion", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "assetInitVersion()", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "assetName", data: BytesLike): Result;
@@ -52,22 +57,28 @@ export interface IAssetEntityInterface extends utils.Interface {
     decodeFunctionResult(functionFragment: "assetVersion", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "assetVersion()", data: BytesLike): Result;
     events: {
-        "AssetInitialized(address,address,string,string,bytes32)": EventFragment;
+        "AssetInitialized(address,address,address,address,string,string,bytes32,bytes32)": EventFragment;
         "AssetSafeModeChanged(address,address,bytes32,bool)": EventFragment;
     };
     getEvent(nameOrSignatureOrTopic: "AssetInitialized"): EventFragment;
-    getEvent(nameOrSignatureOrTopic: "AssetInitialized(address,address,string,string,bytes32)"): EventFragment;
+    getEvent(nameOrSignatureOrTopic: "AssetInitialized(address,address,address,address,string,string,bytes32,bytes32)"): EventFragment;
     getEvent(nameOrSignatureOrTopic: "AssetSafeModeChanged"): EventFragment;
     getEvent(nameOrSignatureOrTopic: "AssetSafeModeChanged(address,address,bytes32,bool)"): EventFragment;
 }
 export interface AssetInitializedEventObject {
     sender: string;
     assetId: string;
+    tokenId: string;
+    assetManager: string;
     name: string;
     version: string;
     realm: string;
+    role: string;
 }
 export declare type AssetInitializedEvent = TypedEvent<[
+    string,
+    string,
+    string,
     string,
     string,
     string,
@@ -77,7 +88,7 @@ export declare type AssetInitializedEvent = TypedEvent<[
 export declare type AssetInitializedEventFilter = TypedEventFilter<AssetInitializedEvent>;
 export interface AssetSafeModeChangedEventObject {
     sender: string;
-    proxy: string;
+    assetId: string;
     realm: string;
     status: boolean;
 }
@@ -103,6 +114,8 @@ export interface IAssetEntity extends BaseContract {
     once: OnEvent<this>;
     removeListener: OnEvent<this>;
     functions: {
+        assetAcl(overrides?: CallOverrides): Promise<[string]>;
+        "assetAcl()"(overrides?: CallOverrides): Promise<[string]>;
         assetInitVersion(overrides?: CallOverrides): Promise<[number]>;
         "assetInitVersion()"(overrides?: CallOverrides): Promise<[number]>;
         assetName(overrides?: CallOverrides): Promise<[string]>;
@@ -126,6 +139,8 @@ export interface IAssetEntity extends BaseContract {
         assetVersion(overrides?: CallOverrides): Promise<[string]>;
         "assetVersion()"(overrides?: CallOverrides): Promise<[string]>;
     };
+    assetAcl(overrides?: CallOverrides): Promise<string>;
+    "assetAcl()"(overrides?: CallOverrides): Promise<string>;
     assetInitVersion(overrides?: CallOverrides): Promise<number>;
     "assetInitVersion()"(overrides?: CallOverrides): Promise<number>;
     assetName(overrides?: CallOverrides): Promise<string>;
@@ -149,6 +164,8 @@ export interface IAssetEntity extends BaseContract {
     assetVersion(overrides?: CallOverrides): Promise<string>;
     "assetVersion()"(overrides?: CallOverrides): Promise<string>;
     callStatic: {
+        assetAcl(overrides?: CallOverrides): Promise<string>;
+        "assetAcl()"(overrides?: CallOverrides): Promise<string>;
         assetInitVersion(overrides?: CallOverrides): Promise<number>;
         "assetInitVersion()"(overrides?: CallOverrides): Promise<number>;
         assetName(overrides?: CallOverrides): Promise<string>;
@@ -169,12 +186,14 @@ export interface IAssetEntity extends BaseContract {
         "assetVersion()"(overrides?: CallOverrides): Promise<string>;
     };
     filters: {
-        "AssetInitialized(address,address,string,string,bytes32)"(sender?: PromiseOrValue<string> | null, assetId?: PromiseOrValue<string> | null, name?: null, version?: null, realm?: null): AssetInitializedEventFilter;
-        AssetInitialized(sender?: PromiseOrValue<string> | null, assetId?: PromiseOrValue<string> | null, name?: null, version?: null, realm?: null): AssetInitializedEventFilter;
-        "AssetSafeModeChanged(address,address,bytes32,bool)"(sender?: PromiseOrValue<string> | null, proxy?: PromiseOrValue<string> | null, realm?: PromiseOrValue<BytesLike> | null, status?: null): AssetSafeModeChangedEventFilter;
-        AssetSafeModeChanged(sender?: PromiseOrValue<string> | null, proxy?: PromiseOrValue<string> | null, realm?: PromiseOrValue<BytesLike> | null, status?: null): AssetSafeModeChangedEventFilter;
+        "AssetInitialized(address,address,address,address,string,string,bytes32,bytes32)"(sender?: PromiseOrValue<string> | null, assetId?: PromiseOrValue<string> | null, tokenId?: PromiseOrValue<string> | null, assetManager?: null, name?: null, version?: null, realm?: null, role?: null): AssetInitializedEventFilter;
+        AssetInitialized(sender?: PromiseOrValue<string> | null, assetId?: PromiseOrValue<string> | null, tokenId?: PromiseOrValue<string> | null, assetManager?: null, name?: null, version?: null, realm?: null, role?: null): AssetInitializedEventFilter;
+        "AssetSafeModeChanged(address,address,bytes32,bool)"(sender?: PromiseOrValue<string> | null, assetId?: PromiseOrValue<string> | null, realm?: PromiseOrValue<BytesLike> | null, status?: null): AssetSafeModeChangedEventFilter;
+        AssetSafeModeChanged(sender?: PromiseOrValue<string> | null, assetId?: PromiseOrValue<string> | null, realm?: PromiseOrValue<BytesLike> | null, status?: null): AssetSafeModeChangedEventFilter;
     };
     estimateGas: {
+        assetAcl(overrides?: CallOverrides): Promise<BigNumber>;
+        "assetAcl()"(overrides?: CallOverrides): Promise<BigNumber>;
         assetInitVersion(overrides?: CallOverrides): Promise<BigNumber>;
         "assetInitVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
         assetName(overrides?: CallOverrides): Promise<BigNumber>;
@@ -199,6 +218,8 @@ export interface IAssetEntity extends BaseContract {
         "assetVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
     };
     populateTransaction: {
+        assetAcl(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+        "assetAcl()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         assetInitVersion(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         "assetInitVersion()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         assetName(overrides?: CallOverrides): Promise<PopulatedTransaction>;

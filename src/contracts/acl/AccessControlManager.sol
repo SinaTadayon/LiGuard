@@ -191,8 +191,8 @@ contract AccessControlManager is
     RequestPredictContext calldata rpc,
     RequestRegisterContext[] calldata rrc
   ) external returns (bytes32) {
-    (bytes32 context, address signer) = LContextManagement.registerPredictContext(_dataMaps, signature, rpc, rrc);
-    emit PredictContextRegistered(context, rpc.deployer, signer, _msgSender(), rpc.realm, rpc.bytesHash);
+    (address contractId, bytes32 context, address signer) = LContextManagement.registerPredictContext(_dataMaps, signature, rpc, rrc);
+    emit PredictContextRegistered(context, contractId, _msgSender(), signer, rpc.deployer, rpc.subject, rpc.realm);
     return context;
   }
 

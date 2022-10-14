@@ -28,6 +28,7 @@ import type {
 
 export interface IAssetEntityInterface extends utils.Interface {
   functions: {
+    "assetAcl()": FunctionFragment;
     "assetInitVersion()": FunctionFragment;
     "assetName()": FunctionFragment;
     "assetRealm()": FunctionFragment;
@@ -41,6 +42,8 @@ export interface IAssetEntityInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "assetAcl"
+      | "assetAcl()"
       | "assetInitVersion"
       | "assetInitVersion()"
       | "assetName"
@@ -61,6 +64,11 @@ export interface IAssetEntityInterface extends utils.Interface {
       | "assetVersion()"
   ): FunctionFragment;
 
+  encodeFunctionData(functionFragment: "assetAcl", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "assetAcl()",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "assetInitVersion",
     values?: undefined
@@ -125,6 +133,8 @@ export interface IAssetEntityInterface extends utils.Interface {
     values?: undefined
   ): string;
 
+  decodeFunctionResult(functionFragment: "assetAcl", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "assetAcl()", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "assetInitVersion",
     data: BytesLike
@@ -184,13 +194,13 @@ export interface IAssetEntityInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "AssetInitialized(address,address,string,string,bytes32)": EventFragment;
+    "AssetInitialized(address,address,address,address,address,string,string,bytes32,bytes32)": EventFragment;
     "AssetSafeModeChanged(address,address,bytes32,bool)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "AssetInitialized"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "AssetInitialized(address,address,string,string,bytes32)"
+    nameOrSignatureOrTopic: "AssetInitialized(address,address,address,address,address,string,string,bytes32,bytes32)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AssetSafeModeChanged"): EventFragment;
   getEvent(
@@ -201,12 +211,16 @@ export interface IAssetEntityInterface extends utils.Interface {
 export interface AssetInitializedEventObject {
   sender: string;
   assetId: string;
+  tokenId: string;
+  assetManager: string;
+  assetSubject: string;
   name: string;
   version: string;
   realm: string;
+  role: string;
 }
 export type AssetInitializedEvent = TypedEvent<
-  [string, string, string, string, string],
+  [string, string, string, string, string, string, string, string, string],
   AssetInitializedEventObject
 >;
 
@@ -215,7 +229,7 @@ export type AssetInitializedEventFilter =
 
 export interface AssetSafeModeChangedEventObject {
   sender: string;
-  proxy: string;
+  assetId: string;
   realm: string;
   status: boolean;
 }
@@ -254,6 +268,10 @@ export interface IAssetEntity extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    assetAcl(overrides?: CallOverrides): Promise<[string]>;
+
+    "assetAcl()"(overrides?: CallOverrides): Promise<[string]>;
+
     assetInitVersion(overrides?: CallOverrides): Promise<[number]>;
 
     "assetInitVersion()"(overrides?: CallOverrides): Promise<[number]>;
@@ -296,6 +314,10 @@ export interface IAssetEntity extends BaseContract {
 
     "assetVersion()"(overrides?: CallOverrides): Promise<[string]>;
   };
+
+  assetAcl(overrides?: CallOverrides): Promise<string>;
+
+  "assetAcl()"(overrides?: CallOverrides): Promise<string>;
 
   assetInitVersion(overrides?: CallOverrides): Promise<number>;
 
@@ -340,6 +362,10 @@ export interface IAssetEntity extends BaseContract {
   "assetVersion()"(overrides?: CallOverrides): Promise<string>;
 
   callStatic: {
+    assetAcl(overrides?: CallOverrides): Promise<string>;
+
+    "assetAcl()"(overrides?: CallOverrides): Promise<string>;
+
     assetInitVersion(overrides?: CallOverrides): Promise<number>;
 
     "assetInitVersion()"(overrides?: CallOverrides): Promise<number>;
@@ -384,36 +410,48 @@ export interface IAssetEntity extends BaseContract {
   };
 
   filters: {
-    "AssetInitialized(address,address,string,string,bytes32)"(
+    "AssetInitialized(address,address,address,address,address,string,string,bytes32,bytes32)"(
       sender?: PromiseOrValue<string> | null,
       assetId?: PromiseOrValue<string> | null,
+      tokenId?: PromiseOrValue<string> | null,
+      assetManager?: null,
+      assetSubject?: null,
       name?: null,
       version?: null,
-      realm?: null
+      realm?: null,
+      role?: null
     ): AssetInitializedEventFilter;
     AssetInitialized(
       sender?: PromiseOrValue<string> | null,
       assetId?: PromiseOrValue<string> | null,
+      tokenId?: PromiseOrValue<string> | null,
+      assetManager?: null,
+      assetSubject?: null,
       name?: null,
       version?: null,
-      realm?: null
+      realm?: null,
+      role?: null
     ): AssetInitializedEventFilter;
 
     "AssetSafeModeChanged(address,address,bytes32,bool)"(
       sender?: PromiseOrValue<string> | null,
-      proxy?: PromiseOrValue<string> | null,
+      assetId?: PromiseOrValue<string> | null,
       realm?: PromiseOrValue<BytesLike> | null,
       status?: null
     ): AssetSafeModeChangedEventFilter;
     AssetSafeModeChanged(
       sender?: PromiseOrValue<string> | null,
-      proxy?: PromiseOrValue<string> | null,
+      assetId?: PromiseOrValue<string> | null,
       realm?: PromiseOrValue<BytesLike> | null,
       status?: null
     ): AssetSafeModeChangedEventFilter;
   };
 
   estimateGas: {
+    assetAcl(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "assetAcl()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     assetInitVersion(overrides?: CallOverrides): Promise<BigNumber>;
 
     "assetInitVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -458,6 +496,10 @@ export interface IAssetEntity extends BaseContract {
   };
 
   populateTransaction: {
+    assetAcl(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "assetAcl()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     assetInitVersion(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "assetInitVersion()"(

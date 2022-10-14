@@ -8,11 +8,13 @@ import "../../proxy/IProxy.sol";
 import "../LContextUtils.sol";
 import "./LAccessControl.sol";
 import "../cryptography/LECDSA.sol";
+import "../proxy/LClones.sol";
 
 import "hardhat/console.sol";
 
 library LContextManagement {
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
+  using LClones for address;
 
   bytes32 public constant LIB_NAME = keccak256(abi.encodePacked("LContextManagement"));
   bytes32 public constant LIB_VERSION = keccak256(abi.encodePacked("1.0.0"));
@@ -24,7 +26,7 @@ library LContextManagement {
     keccak256("Context(address contractId,string name,string version,string realm)");
   
   bytes32 public constant PREDICT_CTX_MESSAGE_TYPEHASH =
-    keccak256("PredictContext(address deployer,string realm,bytes32 bytesHash)");
+    keccak256("PredictContext(address deployer,address subject,string realm)");
 
   function registerAccessControlManagerContext(
     AccessControlStorage.DataMaps storage data,
@@ -71,10 +73,10 @@ library LContextManagement {
       bytes memory signature,
       IContextManagement.RequestPredictContext calldata rpc,
       IContextManagement.RequestRegisterContext[] calldata rrc
-  ) external returns (bytes32, address) {
+  ) external returns (address, bytes32, address) {
         require(!IProxy(address(this)).isSafeMode(), "SafeMode: Call Rejected");
 
-    bytes32 structHash = _getPredictContextMessageHash(rpc.deployer, rpc.realm, rpc.bytesHash);
+    bytes32 structHash = _getPredictContextMessageHash(rpc.deployer, rpc.subject, rpc.realm);
     bytes32 msgDigest = _hashTypedDataV4(structHash);
     (address msgSigner, LECDSA.RecoverError recoverErr) = LECDSA.tryRecover(msgDigest, signature);
 
@@ -88,7 +90,9 @@ library LContextManagement {
       ),
       "RegisterPredictContext Access Denied"
     );
-    return (_registerPredictContext(data, rrc, rpc), msgSigner);
+
+    (address contractId, bytes32 ctx) = _registerPredictContext(data, rrc, rpc);
+    return (contractId, ctx, msgSigner);
   }
 
 
@@ -103,10 +107,10 @@ library LContextManagement {
 
   function _getPredictContextMessageHash(
     address deployer,
-    bytes32 realm,
-    bytes32 bytesHash
+    address subject,
+    bytes32 realm
   ) internal pure returns (bytes32) {
-    return keccak256(abi.encode(PREDICT_CTX_MESSAGE_TYPEHASH, deployer, realm, bytesHash));
+    return keccak256(abi.encode(PREDICT_CTX_MESSAGE_TYPEHASH, deployer, subject, realm));
   }
 
   function _hashTypedDataV4(bytes32 structHash) internal view returns (bytes32) {
@@ -163,11 +167,17 @@ library LContextManagement {
     AccessControlStorage.DataMaps storage data,
     IContextManagement.RequestRegisterContext[] calldata rrc,
     IContextManagement.RequestPredictContext calldata rpc
-  ) private returns (bytes32) {
+  ) private returns (address, bytes32) {
     require(bytes(data.realmMap[rpc.realm].name).length != 0, "Realm Not Found");
 
-    address predictedContractId = address(uint160(uint(keccak256(abi.encodePacked(bytes1(0xff), rpc.deployer, rpc.salt, rpc.bytesHash)))));
+    // address predictedContractId = address(uint160(uint(keccak256(abi.encodePacked(bytes1(0xff), rpc.deployer, rpc.salt, rpc.bytesHash)))));
+    address predictedContractId = rpc.subject.predictDeterministicAddress(rpc.salt, rpc.deployer);
     bytes32 ctx = LContextUtils.generateCtx(predictedContractId);
+
+    // console.log("_registerPredictContext predictedContractId: %s", predictedContractId);
+    // console.log("predictedContractId context: ");
+    // console.logBytes32(ctx);
+
     require(data.ctxMap[ctx].contractId == address(0), "Context Already Registered");
     data.realmMap[rpc.realm].ctxSet.add(ctx);
     AccessControlStorage.Context storage newContext = data.ctxMap[ctx];
@@ -176,6 +186,9 @@ library LContextManagement {
     newContext.isEnabled = rpc.status;
 
     for (uint256 i = 0; i < rrc.length; i++) {
+      // console.log("i: %d, role name: %s", i, data.roleMap[rrc[i].role].name);
+      // console.log("role: ");
+      // console.logBytes32(rrc[i].role);
       require(bytes(data.roleMap[rrc[i].role].name).length != 0, "Role Not Found");
       for (uint256 j = 0; j < rrc[i].funcSelectors.length; j++) {
         newContext.resources[rrc[i].funcSelectors[j]].role = rrc[i].role;
@@ -186,7 +199,7 @@ library LContextManagement {
       }
     }
 
-    return ctx;
+    return (predictedContractId, ctx);
   }
 
   function updateContext(

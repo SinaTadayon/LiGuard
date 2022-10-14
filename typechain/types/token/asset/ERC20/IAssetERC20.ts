@@ -303,7 +303,7 @@ export interface IAssetERC20Interface extends utils.Interface {
 
 export interface AssetERC20CalledEventObject {
   sender: string;
-  contractId: string;
+  assetId: string;
   functionSelector: string;
 }
 export type AssetERC20CalledEvent = TypedEvent<
@@ -677,12 +677,12 @@ export interface IAssetERC20 extends BaseContract {
   filters: {
     "AssetERC20Called(address,address,bytes4)"(
       sender?: PromiseOrValue<string> | null,
-      contractId?: PromiseOrValue<string> | null,
+      assetId?: PromiseOrValue<string> | null,
       functionSelector?: PromiseOrValue<BytesLike> | null
     ): AssetERC20CalledEventFilter;
     AssetERC20Called(
       sender?: PromiseOrValue<string> | null,
-      contractId?: PromiseOrValue<string> | null,
+      assetId?: PromiseOrValue<string> | null,
       functionSelector?: PromiseOrValue<BytesLike> | null
     ): AssetERC20CalledEventFilter;
   };

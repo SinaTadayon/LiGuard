@@ -34,7 +34,6 @@ contract AssetManagerERC20 is AssetManagerStorageERC20, BaseUUPSProxy, IAssetMan
     (IContextManagement.RequestContext memory rc, IContextManagement.RequestRegisterContext[] memory rrc) = 
       LAssetManagerERC20.createRequestContext(_domainName, _domainVersion, _domainRealm);
 
-    // console.log("asset manager register context . . . ");
     IContextManagement(_accessControlManager).registerContext(request.assetManagerSignature, rc, rrc);
 
     emit Initialized(
@@ -68,7 +67,6 @@ contract AssetManagerERC20 is AssetManagerStorageERC20, BaseUUPSProxy, IAssetMan
   function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
     return interfaceId == type(IAssetManagerERC20).interfaceId || super.supportsInterface(interfaceId);
   }
-
 
   function tokenLock(address assetId, IERC20Lock.LockTokenRequest calldata lockRequest) external returns (bytes32) {
     _validationAndPolicyInterceptor(assetId, this.tokenLock.selector);
@@ -129,14 +127,15 @@ contract AssetManagerERC20 is AssetManagerStorageERC20, BaseUUPSProxy, IAssetMan
     return true;
   }
 
-  function registerAsset(address tokenId, address assetId) external returns (bool) {
-    _validationAndPolicyInterceptor(assetId, this.registerAsset.selector);    
+  function registerAsset(address assetId) external returns (bool) {
+    _policyInterceptor(this.registerAsset.selector);
+    (bool result, address tokenId) = LAssetManagerERC20.registerAsset(_data, assetId);
     emit AssetRegistered(_msgSender(), assetId, tokenId);
-    return LAssetManagerERC20.registerAsset(_data, tokenId, assetId);
+    return result;
   }
 
   function removeAsset(address assetId) external returns (bool) { 
-    _validationAndPolicyInterceptor(assetId, this.removeAsset.selector);
+    _policyInterceptor(this.removeAsset.selector);
     address tokenId = LAssetManagerERC20.removeAsset(_data, assetId);
     emit AssetRemoved(_msgSender(), assetId, tokenId);
     return true;
@@ -212,36 +211,9 @@ contract AssetManagerERC20 is AssetManagerStorageERC20, BaseUUPSProxy, IAssetMan
     }
 
     address tokenId = IAssetEntity(assetId).assetToken();
-    require(!_data.tokensSet.contains(tokenId), "TokenId Not Found");
+    require(_data.tokensSet.contains(tokenId), "TokenId Not Found");
     
     TokenData storage tokenData = _data.tokens[tokenId];    
     require(tokenData.assets.contains(assetId), "AssetId Not Found");
   }
-
-  // function _lockPolicyInterceptor(bytes4 funcSelector) private view {
-  //   require(!_isSafeMode, "SafeMode: Call Rejected");
-
-  //   if(_msgSender().code.length > 0) {
-  //     try IERC165(_msgSender()).supportsInterface(type(IAssetEntity).interfaceId) returns (bool isSupported) {
-  //       require(isSupported, "Invalid IAssetEntity");
-  //     } catch {
-  //       revert("Illegal IAssetEntity");
-  //     }
-
-  //     address tokenId = IAssetEntity(_msgSender()).assetToken();
-  //     require(!_data.tokensSet.contains(tokenId), "TokenId Not Found");
-      
-  //     TokenData storage tokenData = _data.tokens[tokenId];      
-  //     require(tokenData.assets.contains(_msgSender()), "AssetId Not Found");
-        
-  //     bytes32 context = LContextUtils.generateCtx(address(this));
-  //     require(IAccessControl(_accessControlManager).isContextFunctionEnabled(context, funcSelector), "Context Disabled");
-  //     require(IAccessControl(_accessControlManager).isRoleEnabled(LAssetManagerERC20.LIVELY_ASSET_MANAGER_ROLE), "AssetManager Role Disabled");
-  //     require(IAccessControl(_accessControlManager).isGroupEnabled(LAssetManagerERC20.LIVELY_ASSET_GROUP), "AssetGroup Disabled");
-  //     require(IAccessControl(_accessControlManager).isRealmEnabled(_domainRealm), "Realm Disabled");
-  //   } else {
-  //     require(IAccessControl(_accessControlManager).hasAccess(LContextUtils.generateCtx(address(this)),_msgSender(),funcSelector), "Access Denied");
-  //   }
-  // }
-  
 }

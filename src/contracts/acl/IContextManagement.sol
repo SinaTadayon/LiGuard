@@ -21,7 +21,7 @@ interface IContextManagement {
     bytes32 version;
     bytes32 realm;
     bytes32 salt;
-    bytes32 bytesHash;
+    address subject;
     address deployer;
     bool status;
   }
@@ -47,9 +47,9 @@ interface IContextManagement {
     bool isUpgradable;
   }
 
-  event ContextRegistered(bytes32 indexed context, address indexed contractId, address indexed signer, address sender, bytes32 realm);
+  event ContextRegistered(bytes32 indexed context, address indexed contractId, address indexed sender, address signer, bytes32 realm);
 
-  event PredictContextRegistered(bytes32 indexed context, address indexed base, address indexed signer, address sender, bytes32 realm, bytes32 bytesHash);
+  event PredictContextRegistered(bytes32 indexed context, address indexed contractId, address indexed sender, address signer, address deployer, address subject, bytes32 realm);
 
   event ContextUpdated(bytes32 indexed context, address indexed contractId, address indexed sender, bytes32 realm);
 

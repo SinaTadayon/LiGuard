@@ -10,7 +10,7 @@ export const MESSAGE_CONTEXT_TYPE_HASH: string = ethers.utils.keccak256(
   ethers.utils.toUtf8Bytes("Context(address contractId,string name,string version,string realm)")
 );
 export const MESSAGE_PREDICT_CONTEXT_TYPE_HASH: string = ethers.utils.keccak256(
-  ethers.utils.toUtf8Bytes("PredictContext(address deployer,string realm,bytes32 bytesHash)")
+  ethers.utils.toUtf8Bytes("PredictContext(address deployer,address subject,string realm)")
 );
 export const PERMIT_TYPE_HASH: string = ethers.utils.keccak256(
   ethers.utils.toUtf8Bytes("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)")
@@ -35,6 +35,13 @@ export const LIVELY_PUBLIC_SALE_ASSET_ROLE = ethers.utils.keccak256(ethers.utils
 export const LIVELY_TREASURY_ASSET_ROLE = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["LIVELY_TREASURY_ASSET_ROLE"]));
 export const LIVELY_FOUNDING_TEAM_ASSET_ROLE = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["LIVELY_FOUNDING_TEAM_ASSET_ROLE"]));
 export const LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_ROLE = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_ROLE"]));
+
+export enum LockState {
+  NONE,
+  LOCKED,
+  CLAIMED,
+  UNLOCKED
+}
 
 
 export async function generateContextDomainSignatureByHardhat(
@@ -179,7 +186,7 @@ export async function generatePredictContextDomainSignatureManually(
   verifyingContract: Address,
   signerAddress: Wallet,
   chainId: BigNumber,
-  bytesHash: BytesLike
+  subjectAddress: Address
 ): Promise<string> {
   const abiCoder = ethers.utils.defaultAbiCoder;
 
@@ -196,12 +203,12 @@ export async function generatePredictContextDomainSignatureManually(
   const domainEncode = ethers.utils.keccak256(domainAbiEncode);
 
   const messageAbiEncode = abiCoder.encode(
-    ["bytes32", "address", "bytes32", "bytes32"],
+    ["bytes32", "address", "address", "bytes32"],
     [
       MESSAGE_PREDICT_CONTEXT_TYPE_HASH,
       contractAddress,
+      subjectAddress,
       ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [contractRealm])),
-      bytesHash
     ]
   );
   const msgEncode = ethers.utils.keccak256(messageAbiEncode);

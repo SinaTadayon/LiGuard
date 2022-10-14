@@ -27,7 +27,7 @@ import {
   generatePermitDomainSignatureByHardhat,
   LIVELY_COMMUNITY_DAO_ROLE,
   LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE,
-  LIVELY_ADMIN_ROLE, LIVELY_ASSET_MANAGER_ROLE
+  LIVELY_ADMIN_ROLE, LIVELY_ASSET_MANAGER_ROLE, LockState
 } from "./TestUtils";
 /* eslint-disable node/no-extraneous-import */
 import { TransactionRequest, TransactionResponse } from "@ethersproject/abstract-provider";
@@ -37,13 +37,6 @@ import {
   TokenUnlockedEventObject
 } from "../../typechain/types/token/lively/LivelyToken";
 const { provider } = waffle;
-
-enum LockState {
-  NONE,
-  LOCKED,
-  CLAIMED,
-  UNLOCKED
-}
 
 describe("Lively Token Tests", function () {
   let admin: Signer;

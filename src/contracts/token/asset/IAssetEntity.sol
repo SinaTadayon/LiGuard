@@ -19,12 +19,16 @@ interface IAssetEntity {
   event AssetInitialized(
     address indexed sender,
     address indexed assetId,
+    address indexed tokenId,
+    address assetManager,
+    address assetSubject,
     string name,
     string version,
-    bytes32 realm
+    bytes32 realm,
+    bytes32 role
   );
   
-  event AssetSafeModeChanged(address indexed sender, address indexed proxy, bytes32 indexed realm, bool status);
+  event AssetSafeModeChanged(address indexed sender, address indexed assetId, bytes32 indexed realm, bool status);
 
   function assetSafeModeSet(bool status) external returns (bool);
 
@@ -41,6 +45,8 @@ interface IAssetEntity {
   function assetRealm() external view returns (bytes32);
 
   function assetRole() external view returns (bytes32);
+
+  function assetAcl() external view returns (address);
 
   function assetInitVersion() external view returns (uint16);
 }

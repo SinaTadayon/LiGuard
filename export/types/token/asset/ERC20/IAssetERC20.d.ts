@@ -120,7 +120,7 @@ export interface IAssetERC20Interface extends utils.Interface {
 }
 export interface AssetERC20CalledEventObject {
     sender: string;
-    contractId: string;
+    assetId: string;
     functionSelector: string;
 }
 export declare type AssetERC20CalledEvent = TypedEvent<[
@@ -286,8 +286,8 @@ export interface IAssetERC20 extends BaseContract {
         "tokenTransferFrom(address,address,uint256)"(from: PromiseOrValue<string>, to: PromiseOrValue<string>, amount: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<boolean>;
     };
     filters: {
-        "AssetERC20Called(address,address,bytes4)"(sender?: PromiseOrValue<string> | null, contractId?: PromiseOrValue<string> | null, functionSelector?: PromiseOrValue<BytesLike> | null): AssetERC20CalledEventFilter;
-        AssetERC20Called(sender?: PromiseOrValue<string> | null, contractId?: PromiseOrValue<string> | null, functionSelector?: PromiseOrValue<BytesLike> | null): AssetERC20CalledEventFilter;
+        "AssetERC20Called(address,address,bytes4)"(sender?: PromiseOrValue<string> | null, assetId?: PromiseOrValue<string> | null, functionSelector?: PromiseOrValue<BytesLike> | null): AssetERC20CalledEventFilter;
+        AssetERC20Called(sender?: PromiseOrValue<string> | null, assetId?: PromiseOrValue<string> | null, functionSelector?: PromiseOrValue<BytesLike> | null): AssetERC20CalledEventFilter;
     };
     estimateGas: {
         assetBalance(overrides?: CallOverrides): Promise<BigNumber>;
