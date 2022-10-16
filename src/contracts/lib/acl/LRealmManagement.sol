@@ -121,4 +121,8 @@ library LRealmManagement {
   {
     return data.realmMap[realm].ctxSet.values();
   }
+
+  function getLibrary() external pure returns (address) {
+    return address(LAccessControl);
+  }
 }

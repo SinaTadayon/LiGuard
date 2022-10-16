@@ -10,8 +10,6 @@ import "../struct/LEnumerableSet.sol";
 import "../../proxy/IProxy.sol";
 import "../LContextUtils.sol";
 
-import "hardhat/console.sol";
-
 library LAccessControl {
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
   using LEnumerableSet for LEnumerableSet.AddressSet;
@@ -70,7 +68,6 @@ library LAccessControl {
     data.roleMap[LIVELY_ANONYMOUS_ROLE].name = "LIVELY_ANONYMOUS_ROLE";
     data.roleMap[LIVELY_ANONYMOUS_ROLE].isEnabled = true;
     data.roleMap[LIVELY_ANONYMOUS_ROLE].group = LIVELY_GENERAL_GROUP;
-    // data.roleMap[LIVELY_ANONYMOUS_ROLE].accountSet.add(msg.sender);
 
     data.groupMap[LIVELY_GENERAL_GROUP].name = "LIVELY_GENERAL_GROUP";
     data.groupMap[LIVELY_GENERAL_GROUP].isEnabled = true;
@@ -101,37 +98,37 @@ library LAccessControl {
     IContextManagement.RequestRegisterContext[] memory rrc = new IContextManagement.RequestRegisterContext[](2);
     rrc[0].role = LIVELY_ADMIN_ROLE;
     rrc[0].isEnabled = true;
-    rrc[0].funcSelectors = new bytes4[](21);
+    rrc[0].funcSelectors = new bytes4[](22);
     rrc[0].funcSelectors[0] = IProxy.setUpgradeStatus.selector;
-    rrc[0].funcSelectors[1] = IContextManagement.addContextFuncRole.selector;
-    rrc[0].funcSelectors[2] = IContextManagement.removeContextFunc.selector;
-    rrc[0].funcSelectors[3] = IContextManagement.grantContextRole.selector;
-    rrc[0].funcSelectors[4] = IContextManagement.revokeContextRole.selector;
-    rrc[0].funcSelectors[5] = IContextManagement.setContextRealm.selector;
-    rrc[0].funcSelectors[6] = IContextManagement.setContextStatus.selector;
-    rrc[0].funcSelectors[7] = IRoleManagement.registerRole.selector;
-    rrc[0].funcSelectors[8] = IRoleManagement.batchRegisterRole.selector;
-    rrc[0].funcSelectors[9] = IRoleManagement.grantRoleAccount.selector;
-    rrc[0].funcSelectors[10] = IRoleManagement.batchGrantRoleAccount.selector;
-    rrc[0].funcSelectors[11] = IRoleManagement.revokeRoleAccount.selector;
-    rrc[0].funcSelectors[12] = IRoleManagement.batchRevokeRoleAccount.selector;
-    rrc[0].funcSelectors[13] = IRoleManagement.setRoleStatus.selector;
-    rrc[0].funcSelectors[14] = IRoleManagement.setRoleGroup.selector;
-    rrc[0].funcSelectors[15] = IGroupManagement.registerGroup.selector;
-    rrc[0].funcSelectors[16] = IGroupManagement.setGroupStatus.selector;
-    rrc[0].funcSelectors[17] = IRealmManagement.registerRealm.selector;
-    rrc[0].funcSelectors[18] = IRealmManagement.setRealmStatus.selector;
-    rrc[0].funcSelectors[19] = IRealmManagement.setRealmUpgradeStatus.selector;
-    rrc[0].funcSelectors[20] = bytes4(keccak256("withdrawBalance(address)"));
+    rrc[0].funcSelectors[1] = IProxy.setSafeMode.selector;
+    rrc[0].funcSelectors[2] = IContextManagement.addContextFuncRole.selector;
+    rrc[0].funcSelectors[3] = IContextManagement.removeContextFunc.selector;
+    rrc[0].funcSelectors[4] = IContextManagement.grantContextRole.selector;
+    rrc[0].funcSelectors[5] = IContextManagement.revokeContextRole.selector;
+    rrc[0].funcSelectors[6] = IContextManagement.setContextRealm.selector;
+    rrc[0].funcSelectors[7] = IContextManagement.setContextStatus.selector;
+    rrc[0].funcSelectors[8] = IRoleManagement.registerRole.selector;
+    rrc[0].funcSelectors[9] = IRoleManagement.batchRegisterRole.selector;
+    rrc[0].funcSelectors[10] = IRoleManagement.grantRoleAccount.selector;
+    rrc[0].funcSelectors[11] = IRoleManagement.batchGrantRoleAccount.selector;
+    rrc[0].funcSelectors[12] = IRoleManagement.revokeRoleAccount.selector;
+    rrc[0].funcSelectors[13] = IRoleManagement.batchRevokeRoleAccount.selector;
+    rrc[0].funcSelectors[14] = IRoleManagement.setRoleStatus.selector;
+    rrc[0].funcSelectors[15] = IRoleManagement.setRoleGroup.selector;
+    rrc[0].funcSelectors[16] = IGroupManagement.registerGroup.selector;
+    rrc[0].funcSelectors[17] = IGroupManagement.setGroupStatus.selector;
+    rrc[0].funcSelectors[18] = IRealmManagement.registerRealm.selector;
+    rrc[0].funcSelectors[19] = IRealmManagement.setRealmStatus.selector;
+    rrc[0].funcSelectors[20] = IRealmManagement.setRealmUpgradeStatus.selector;
+    rrc[0].funcSelectors[21] = bytes4(keccak256("withdrawBalance(address)"));
 
     rrc[1].role = LIVELY_SYSTEM_ADMIN_ROLE;
     rrc[1].isEnabled = true;
-    rrc[1].funcSelectors = new bytes4[](5);
+    rrc[1].funcSelectors = new bytes4[](4);
     rrc[1].funcSelectors[0] = IProxy.setLocalAdmin.selector;
-    rrc[1].funcSelectors[1] = IProxy.setSafeMode.selector;
-    rrc[1].funcSelectors[2] = IProxy.upgradeTo.selector;
-    rrc[1].funcSelectors[3] = IContextManagement.registerContext.selector;
-    rrc[1].funcSelectors[4] = IContextManagement.updateContext.selector;
+    rrc[1].funcSelectors[1] = IProxy.upgradeTo.selector;
+    rrc[1].funcSelectors[2] = IContextManagement.registerContext.selector;
+    rrc[1].funcSelectors[3] = IContextManagement.updateContext.selector;
 
     return rrc;
   }

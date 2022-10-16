@@ -100,6 +100,7 @@ export interface AssetManagerERC20Interface extends utils.Interface {
         "domainSeparator()": FunctionFragment;
         "getAllTokens()": FunctionFragment;
         "getAssetSubject()": FunctionFragment;
+        "getLibrary()": FunctionFragment;
         "getTokenInfo(address)": FunctionFragment;
         "initVersion()": FunctionFragment;
         "initialize((string,string,string,address,bytes))": FunctionFragment;
@@ -134,7 +135,7 @@ export interface AssetManagerERC20Interface extends utils.Interface {
         "upgradeTo(address,bytes,bool)": FunctionFragment;
         "withdrawBalance(address)": FunctionFragment;
     };
-    getFunction(nameOrSignatureOrTopic: "accessControlManager" | "accessControlManager()" | "contractContext" | "contractContext()" | "contractName" | "contractName()" | "contractRealm" | "contractRealm()" | "contractVersion" | "contractVersion()" | "createAsset" | "createAsset((bytes32,bytes32,address,string,string))" | "domainSeparator" | "domainSeparator()" | "getAllTokens" | "getAllTokens()" | "getAssetSubject" | "getAssetSubject()" | "getTokenInfo" | "getTokenInfo(address)" | "initVersion" | "initVersion()" | "initialize" | "initialize((string,string,string,address,bytes))" | "isAssetExists" | "isAssetExists(address)" | "isSafeMode" | "isSafeMode()" | "isSafeModeAsset" | "isSafeModeAsset(address)" | "isTokenExists" | "isTokenExists(address)" | "isUpgradable" | "isUpgradable()" | "livelyTokensDistribution" | "livelyTokensDistribution(address)" | "localAdmin" | "localAdmin()" | "predictAddress" | "predictAddress(address,bytes32,address)" | "proxiableUUID" | "proxiableUUID()" | "registerAsset" | "registerAsset(address)" | "registerToken" | "registerToken(address)" | "removeAsset" | "removeAsset(address)" | "setLocalAdmin" | "setLocalAdmin(address)" | "setSafeMode" | "setSafeMode(bool)" | "setSafeModeToken" | "setSafeModeToken(address,bool)" | "setUpgradeStatus" | "setUpgradeStatus(bool)" | "subjectAddress" | "subjectAddress()" | "supportsInterface" | "supportsInterface(bytes4)" | "tokenApprove" | "tokenApprove(address,address,uint256)" | "tokenBatchLock" | "tokenBatchLock(address,(address,address,uint256,uint256)[])" | "tokenBatchTransfer" | "tokenBatchTransfer(address,(address,uint256)[])" | "tokenBatchTransferFrom" | "tokenBatchTransferFrom(address,(address,address,uint256)[])" | "tokenDecreaseAllowance" | "tokenDecreaseAllowance(address,address,uint256)" | "tokenIncreaseAllowance" | "tokenIncreaseAllowance(address,address,uint256)" | "tokenLock" | "tokenLock(address,(address,address,uint256,uint256))" | "tokenTransfer" | "tokenTransfer(address,address,uint256)" | "tokenTransferFrom" | "tokenTransferFrom(address,address,address,uint256)" | "updateAssetSubject" | "updateAssetSubject(address,bytes)" | "upgradeTo" | "upgradeTo(address,bytes,bool)" | "withdrawBalance" | "withdrawBalance(address)"): FunctionFragment;
+    getFunction(nameOrSignatureOrTopic: "accessControlManager" | "accessControlManager()" | "contractContext" | "contractContext()" | "contractName" | "contractName()" | "contractRealm" | "contractRealm()" | "contractVersion" | "contractVersion()" | "createAsset" | "createAsset((bytes32,bytes32,address,string,string))" | "domainSeparator" | "domainSeparator()" | "getAllTokens" | "getAllTokens()" | "getAssetSubject" | "getAssetSubject()" | "getLibrary" | "getLibrary()" | "getTokenInfo" | "getTokenInfo(address)" | "initVersion" | "initVersion()" | "initialize" | "initialize((string,string,string,address,bytes))" | "isAssetExists" | "isAssetExists(address)" | "isSafeMode" | "isSafeMode()" | "isSafeModeAsset" | "isSafeModeAsset(address)" | "isTokenExists" | "isTokenExists(address)" | "isUpgradable" | "isUpgradable()" | "livelyTokensDistribution" | "livelyTokensDistribution(address)" | "localAdmin" | "localAdmin()" | "predictAddress" | "predictAddress(address,bytes32,address)" | "proxiableUUID" | "proxiableUUID()" | "registerAsset" | "registerAsset(address)" | "registerToken" | "registerToken(address)" | "removeAsset" | "removeAsset(address)" | "setLocalAdmin" | "setLocalAdmin(address)" | "setSafeMode" | "setSafeMode(bool)" | "setSafeModeToken" | "setSafeModeToken(address,bool)" | "setUpgradeStatus" | "setUpgradeStatus(bool)" | "subjectAddress" | "subjectAddress()" | "supportsInterface" | "supportsInterface(bytes4)" | "tokenApprove" | "tokenApprove(address,address,uint256)" | "tokenBatchLock" | "tokenBatchLock(address,(address,address,uint256,uint256)[])" | "tokenBatchTransfer" | "tokenBatchTransfer(address,(address,uint256)[])" | "tokenBatchTransferFrom" | "tokenBatchTransferFrom(address,(address,address,uint256)[])" | "tokenDecreaseAllowance" | "tokenDecreaseAllowance(address,address,uint256)" | "tokenIncreaseAllowance" | "tokenIncreaseAllowance(address,address,uint256)" | "tokenLock" | "tokenLock(address,(address,address,uint256,uint256))" | "tokenTransfer" | "tokenTransfer(address,address,uint256)" | "tokenTransferFrom" | "tokenTransferFrom(address,address,address,uint256)" | "updateAssetSubject" | "updateAssetSubject(address,bytes)" | "upgradeTo" | "upgradeTo(address,bytes,bool)" | "withdrawBalance" | "withdrawBalance(address)"): FunctionFragment;
     encodeFunctionData(functionFragment: "accessControlManager", values?: undefined): string;
     encodeFunctionData(functionFragment: "accessControlManager()", values?: undefined): string;
     encodeFunctionData(functionFragment: "contractContext", values?: undefined): string;
@@ -153,6 +154,8 @@ export interface AssetManagerERC20Interface extends utils.Interface {
     encodeFunctionData(functionFragment: "getAllTokens()", values?: undefined): string;
     encodeFunctionData(functionFragment: "getAssetSubject", values?: undefined): string;
     encodeFunctionData(functionFragment: "getAssetSubject()", values?: undefined): string;
+    encodeFunctionData(functionFragment: "getLibrary", values?: undefined): string;
+    encodeFunctionData(functionFragment: "getLibrary()", values?: undefined): string;
     encodeFunctionData(functionFragment: "getTokenInfo", values: [PromiseOrValue<string>]): string;
     encodeFunctionData(functionFragment: "getTokenInfo(address)", values: [PromiseOrValue<string>]): string;
     encodeFunctionData(functionFragment: "initVersion", values?: undefined): string;
@@ -301,6 +304,8 @@ export interface AssetManagerERC20Interface extends utils.Interface {
     decodeFunctionResult(functionFragment: "getAllTokens()", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "getAssetSubject", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "getAssetSubject()", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "getLibrary", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "getLibrary()", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "getTokenInfo", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "getTokenInfo(address)", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "initVersion", data: BytesLike): Result;
@@ -575,6 +580,8 @@ export interface AssetManagerERC20 extends BaseContract {
         "getAllTokens()"(overrides?: CallOverrides): Promise<[string[]]>;
         getAssetSubject(overrides?: CallOverrides): Promise<[string]>;
         "getAssetSubject()"(overrides?: CallOverrides): Promise<[string]>;
+        getLibrary(overrides?: CallOverrides): Promise<[string]>;
+        "getLibrary()"(overrides?: CallOverrides): Promise<[string]>;
         getTokenInfo(tokenId: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[number, string[]]>;
         "getTokenInfo(address)"(tokenId: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[number, string[]]>;
         initVersion(overrides?: CallOverrides): Promise<[number]>;
@@ -748,6 +755,8 @@ export interface AssetManagerERC20 extends BaseContract {
     "getAllTokens()"(overrides?: CallOverrides): Promise<string[]>;
     getAssetSubject(overrides?: CallOverrides): Promise<string>;
     "getAssetSubject()"(overrides?: CallOverrides): Promise<string>;
+    getLibrary(overrides?: CallOverrides): Promise<string>;
+    "getLibrary()"(overrides?: CallOverrides): Promise<string>;
     getTokenInfo(tokenId: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[number, string[]]>;
     "getTokenInfo(address)"(tokenId: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[number, string[]]>;
     initVersion(overrides?: CallOverrides): Promise<number>;
@@ -917,6 +926,8 @@ export interface AssetManagerERC20 extends BaseContract {
         "getAllTokens()"(overrides?: CallOverrides): Promise<string[]>;
         getAssetSubject(overrides?: CallOverrides): Promise<string>;
         "getAssetSubject()"(overrides?: CallOverrides): Promise<string>;
+        getLibrary(overrides?: CallOverrides): Promise<string>;
+        "getLibrary()"(overrides?: CallOverrides): Promise<string>;
         getTokenInfo(tokenId: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[number, string[]]>;
         "getTokenInfo(address)"(tokenId: PromiseOrValue<string>, overrides?: CallOverrides): Promise<[number, string[]]>;
         initVersion(overrides?: CallOverrides): Promise<number>;
@@ -1031,6 +1042,8 @@ export interface AssetManagerERC20 extends BaseContract {
         "getAllTokens()"(overrides?: CallOverrides): Promise<BigNumber>;
         getAssetSubject(overrides?: CallOverrides): Promise<BigNumber>;
         "getAssetSubject()"(overrides?: CallOverrides): Promise<BigNumber>;
+        getLibrary(overrides?: CallOverrides): Promise<BigNumber>;
+        "getLibrary()"(overrides?: CallOverrides): Promise<BigNumber>;
         getTokenInfo(tokenId: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
         "getTokenInfo(address)"(tokenId: PromiseOrValue<string>, overrides?: CallOverrides): Promise<BigNumber>;
         initVersion(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1205,6 +1218,8 @@ export interface AssetManagerERC20 extends BaseContract {
         "getAllTokens()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         getAssetSubject(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         "getAssetSubject()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+        getLibrary(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+        "getLibrary()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         getTokenInfo(tokenId: PromiseOrValue<string>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
         "getTokenInfo(address)"(tokenId: PromiseOrValue<string>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
         initVersion(overrides?: CallOverrides): Promise<PopulatedTransaction>;

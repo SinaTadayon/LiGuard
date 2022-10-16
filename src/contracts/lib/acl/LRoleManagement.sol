@@ -269,4 +269,8 @@ library LRoleManagement {
       account != address(0) &&
       data.accountMap[account][role] == AccessControlStorage.Status.ENABLED;
   }
+
+  function getLibrary() external pure returns (address) {
+    return address(LAccessControl);
+  }
 }

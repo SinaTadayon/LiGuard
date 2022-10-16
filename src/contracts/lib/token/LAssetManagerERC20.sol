@@ -15,8 +15,6 @@ import "../struct/LEnumerableSet.sol";
 import "../LContextUtils.sol";
 import "../proxy/LClones.sol";
 
-import "hardhat/console.sol";
-
 library LAssetManagerERC20 {
   using LEnumerableSet for LEnumerableSet.AddressSet;
   using LClones for address;
@@ -112,11 +110,6 @@ library LAssetManagerERC20 {
     });
 
     address newAsset = assetSubject.cloneDeterministic(request.salt);
-    // console.log("newAsset Address: %s, predicate address: %s", newAsset, predictedContractId);
-    // console.log("bytesHash: ");
-    // console.logBytes32(keccak256(abi.encodePacked(type(AssetERC20).creationCode)));
-    // console.log("Salt: ");
-    // console.logBytes32(initRequest.salt);
     AssetERC20(payable(newAsset)).initialize(initRequest);
     tokenData.assets.add(newAsset);
     return (newAsset, assetSubject);
@@ -143,9 +136,6 @@ library LAssetManagerERC20 {
       revert("Illegal ERC20Lock");
     }
 
-    // require(IERC165(tokenId).supportsInterface(type(IERC20).interfaceId), "Invalid ERC20");
-    // require(IERC165(tokenId).supportsInterface(type(IERC20Extra).interfaceId), "Invalid ERC20Extra");
-    // require(IERC165(tokenId).supportsInterface(type(IERC20Lock).interfaceId), "Invalid ERC20Lock");   
     string memory tokenName = IERC20(tokenId).name();
     string memory tokenSymbol = IERC20(tokenId).symbol();
 

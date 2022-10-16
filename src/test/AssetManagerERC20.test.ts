@@ -20,7 +20,6 @@ import {
   LRoleManagement__factory,
   LTokenERC20__factory,
   Proxy__factory,
-  Relay
 } from "../../typechain/types";
 import { ethers, waffle } from "hardhat";
 import { expect } from "chai";
@@ -51,6 +50,13 @@ enum AssetStatus {
   NONE,
   ACTIVE,
   SAFE_MODE
+}
+
+enum AssetType {
+  NONE,
+  ERC20,
+  ERC721,
+  ERC1155
 }
 
 describe("Asset Manager ERC20 Token Tests", function () {
@@ -389,6 +395,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
       expect(await assetManagerSubject.isSafeMode()).to.be.true;
       expect(await assetManagerSubject.isUpgradable()).to.be.false;
       expect(await assetManagerSubject.initVersion()).to.be.equal(0);
+      expect(await assetManagerSubject.getLibrary()).to.be.equal(lAssetManagerERC20.address)
       expect(await assetManagerSubject.localAdmin()).to.be.hexEqual(systemAdminAddress);
     });
 
@@ -504,6 +511,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
       expect(await assetManagerProxy.subjectAddress(), "Invalid Subject Address").to.be.hexEqual(
         assetManagerSubject.address
       );
+      expect(await assetManagerProxy.getLibrary(), "Invalid Library Address").to.be.equal(lAssetManagerERC20.address);
       expect(await assetManagerProxy.domainSeparator()).to.be.equal(
         generateDomainSeparator(
           assetManagerERC20DomainName,
@@ -975,7 +983,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
       assetManagerSubject = newAssetManagerSubject;
     });
 
-    it("Should add assetManagerProxy to LIVELY_ASSET_MANAGER_ROLE success", async() => {
+    it("Should grant role LIVELY_ASSET_MANAGER_ROLE to assetManagerProxy success", async() => {
       // given
       const isAssetManagerRoleHasMember = await accessControlManager.isLivelyAssetManagerRole(assetManagerProxy.address);
 
@@ -990,7 +998,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
 
     })
 
-    it("Should add assetManagerProxy to LIVELY_ASSET_ADMIN_ROLE success", async() => {
+    it("Should grant role LIVELY_ASSET_ADMIN_ROLE to assetManagerProxy success", async() => {
       // given
       const isAssetAdminRoleHasMember = await accessControlManager.isLivelyAssetAdminRole(assetManagerProxy.address);
 
@@ -1146,7 +1154,6 @@ describe("Asset Manager ERC20 Token Tests", function () {
 
     it("Should call updateAssetSubject by assetAdmin success", async() => {
       // given
-      // const bytesHashAssetSubjectERC20 = ethers.utils.keccak256(ethers.utils.solidityPack(["bytes"], [AssetERC20__factory.bytecode]));
       const signature = await generatePredictContextDomainSignatureManually(
         assetManagerProxy.address,
         assetManagerERC20DomainRealm,
@@ -1265,7 +1272,9 @@ describe("Asset Manager ERC20 Token Tests", function () {
       expect(await assetAudioVideoProgram.assetVersion()).to.be.equal(livelyAssetERC20DomainVersionHash);
       expect(await assetAudioVideoProgram.assetRealm()).to.be.equal(assetManagerERC20DomainRealmHash);
       expect(await assetAudioVideoProgram.assetInitVersion()).to.be.equal(1);
+      expect(await assetAudioVideoProgram.assetType()).to.be.equal(AssetType.ERC20);
       expect(await assetAudioVideoProgram.assetRole()).to.be.equal(LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_ROLE);
+      expect(await assetAudioVideoProgram.assetAcl()).to.be.equal(accessControlManager.address);
       expect(await assetAudioVideoProgram.assetToken()).to.be.equal(livelyToken.address);
       expect(await assetAudioVideoProgram.assetSafeMode()).to.be.false;
     })
@@ -1303,7 +1312,9 @@ describe("Asset Manager ERC20 Token Tests", function () {
       expect(await assetFoundingTeam.assetVersion()).to.be.equal(livelyAssetERC20DomainVersionHash);
       expect(await assetFoundingTeam.assetRealm()).to.be.equal(assetManagerERC20DomainRealmHash);
       expect(await assetFoundingTeam.assetInitVersion()).to.be.equal(1);
+      expect(await assetFoundingTeam.assetType()).to.be.equal(AssetType.ERC20);
       expect(await assetFoundingTeam.assetRole()).to.be.equal(LIVELY_FOUNDING_TEAM_ASSET_ROLE);
+      expect(await assetFoundingTeam.assetAcl()).to.be.equal(accessControlManager.address);
       expect(await assetFoundingTeam.assetToken()).to.be.equal(livelyToken.address);
       expect(await assetFoundingTeam.assetSafeMode()).to.be.false;
     })
@@ -1341,7 +1352,9 @@ describe("Asset Manager ERC20 Token Tests", function () {
       expect(await assetTreasury.assetVersion()).to.be.equal(livelyAssetERC20DomainVersionHash);
       expect(await assetTreasury.assetRealm()).to.be.equal(assetManagerERC20DomainRealmHash);
       expect(await assetTreasury.assetInitVersion()).to.be.equal(1);
+      expect(await assetTreasury.assetType()).to.be.equal(AssetType.ERC20);
       expect(await assetTreasury.assetRole()).to.be.equal(LIVELY_TREASURY_ASSET_ROLE);
+      expect(await assetTreasury.assetAcl()).to.be.equal(accessControlManager.address);
       expect(await assetTreasury.assetToken()).to.be.equal(livelyToken.address);
       expect(await assetTreasury.assetSafeMode()).to.be.false;
     })
@@ -1379,7 +1392,9 @@ describe("Asset Manager ERC20 Token Tests", function () {
       expect(await assetPublicSale.assetVersion()).to.be.equal(livelyAssetERC20DomainVersionHash);
       expect(await assetPublicSale.assetRealm()).to.be.equal(assetManagerERC20DomainRealmHash);
       expect(await assetPublicSale.assetInitVersion()).to.be.equal(1);
+      expect(await assetPublicSale.assetType()).to.be.equal(AssetType.ERC20);
       expect(await assetPublicSale.assetRole()).to.be.equal(LIVELY_PUBLIC_SALE_ASSET_ROLE);
+      expect(await assetPublicSale.assetAcl()).to.be.equal(accessControlManager.address);
       expect(await assetPublicSale.assetToken()).to.be.equal(livelyToken.address);
       expect(await assetPublicSale.assetSafeMode()).to.be.false;
     })
@@ -1417,7 +1432,9 @@ describe("Asset Manager ERC20 Token Tests", function () {
       expect(await assetValidatorsRewards.assetVersion()).to.be.equal(livelyAssetERC20DomainVersionHash);
       expect(await assetValidatorsRewards.assetRealm()).to.be.equal(assetManagerERC20DomainRealmHash);
       expect(await assetValidatorsRewards.assetInitVersion()).to.be.equal(1);
+      expect(await assetValidatorsRewards.assetType()).to.be.equal(AssetType.ERC20);
       expect(await assetValidatorsRewards.assetRole()).to.be.equal(LIVELY_VALIDATORS_REWARDS_ASSET_ROLE);
+      expect(await assetValidatorsRewards.assetAcl()).to.be.equal(accessControlManager.address);
       expect(await assetValidatorsRewards.assetToken()).to.be.equal(livelyToken.address);
       expect(await assetValidatorsRewards.assetSafeMode()).to.be.false;
     })
@@ -1455,7 +1472,9 @@ describe("Asset Manager ERC20 Token Tests", function () {
       expect(await assetCrowdFounding.assetVersion()).to.be.equal(livelyAssetERC20DomainVersionHash);
       expect(await assetCrowdFounding.assetRealm()).to.be.equal(assetManagerERC20DomainRealmHash);
       expect(await assetCrowdFounding.assetInitVersion()).to.be.equal(1);
+      expect(await assetCrowdFounding.assetType()).to.be.equal(AssetType.ERC20);
       expect(await assetCrowdFounding.assetRole()).to.be.equal(LIVELY_CROWD_FOUNDING_ASSET_ROLE);
+      expect(await assetCrowdFounding.assetAcl()).to.be.equal(accessControlManager.address);
       expect(await assetCrowdFounding.assetToken()).to.be.equal(livelyToken.address);
       expect(await assetCrowdFounding.assetSafeMode()).to.be.false;
     })
@@ -1491,7 +1510,9 @@ describe("Asset Manager ERC20 Token Tests", function () {
       expect(await assetTaxTreasury.assetVersion()).to.be.equal(livelyAssetERC20DomainVersionHash);
       expect(await assetTaxTreasury.assetRealm()).to.be.equal(assetManagerERC20DomainRealmHash);
       expect(await assetTaxTreasury.assetInitVersion()).to.be.equal(1);
+      expect(await assetTaxTreasury.assetType()).to.be.equal(AssetType.ERC20);
       expect(await assetTaxTreasury.assetRole()).to.be.equal(LIVELY_ASSET_ADMIN_ROLE);
+      expect(await assetTaxTreasury.assetAcl()).to.be.equal(accessControlManager.address);
       expect(await assetTaxTreasury.assetToken()).to.be.equal(livelyToken.address);
       expect(await assetTaxTreasury.assetSafeMode()).to.be.false;
     })
@@ -1526,7 +1547,11 @@ describe("Asset Manager ERC20 Token Tests", function () {
         {
           role: LIVELY_ASSET_ADMIN_ROLE,
           account: assetManagerProxy.address,
-        }
+        },
+        {
+          role: LIVELY_ASSET_MANAGER_ROLE,
+          account: assetManagerProxy.address,
+        },
       ]
 
       // when and then
@@ -1547,7 +1572,9 @@ describe("Asset Manager ERC20 Token Tests", function () {
         .emit(accessControlManager, "RoleAccountGranted")
         .withArgs(adminAddress, LIVELY_FOUNDING_TEAM_ASSET_ROLE, assetManagerProxy.address)
         .emit(accessControlManager, "RoleAccountGranted")
-        .withArgs(adminAddress, LIVELY_ASSET_ADMIN_ROLE, assetManagerProxy.address);
+        .withArgs(adminAddress, LIVELY_ASSET_ADMIN_ROLE, assetManagerProxy.address)
+        .emit(accessControlManager, "RoleAccountGranted")
+        .withArgs(adminAddress, LIVELY_ASSET_MANAGER_ROLE, assetManagerProxy.address);
 
       // then
       expect(
@@ -1595,6 +1622,13 @@ describe("Asset Manager ERC20 Token Tests", function () {
       expect(
         await accessControlManager.hasRoleAccount(
           LIVELY_ASSET_ADMIN_ROLE,
+          assetManagerProxy.address
+        )
+      ).to.be.true;
+
+      expect(
+        await accessControlManager.hasRoleAccount(
+          LIVELY_ASSET_MANAGER_ROLE,
           assetManagerProxy.address
         )
       ).to.be.true;

@@ -85,7 +85,7 @@ export declare namespace IContextManagement {
         version: PromiseOrValue<BytesLike>;
         realm: PromiseOrValue<BytesLike>;
         salt: PromiseOrValue<BytesLike>;
-        bytesHash: PromiseOrValue<BytesLike>;
+        subject: PromiseOrValue<string>;
         deployer: PromiseOrValue<string>;
         status: PromiseOrValue<boolean>;
     };
@@ -102,7 +102,7 @@ export declare namespace IContextManagement {
         version: string;
         realm: string;
         salt: string;
-        bytesHash: string;
+        subject: string;
         deployer: string;
         status: boolean;
     };
@@ -133,6 +133,7 @@ export interface AccessControlManagerInterface extends utils.Interface {
         "getContextInfo(bytes32)": FunctionFragment;
         "getGroupInfo(bytes32)": FunctionFragment;
         "getGroupRoles(bytes32)": FunctionFragment;
+        "getLibraries()": FunctionFragment;
         "getRealmContexts(bytes32)": FunctionFragment;
         "getRealmInfo(bytes32)": FunctionFragment;
         "getRoleAccounts(bytes32)": FunctionFragment;
@@ -176,7 +177,7 @@ export interface AccessControlManagerInterface extends utils.Interface {
         "proxiableUUID()": FunctionFragment;
         "registerContext(bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])": FunctionFragment;
         "registerGroup(string,bool)": FunctionFragment;
-        "registerPredictContext(bytes,(bytes32,bytes32,bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])": FunctionFragment;
+        "registerPredictContext(bytes,(bytes32,bytes32,bytes32,bytes32,address,address,bool),(bytes32,bytes4[],bool)[])": FunctionFragment;
         "registerRealm(string,bool,bool)": FunctionFragment;
         "registerRole(string,bytes32,bool)": FunctionFragment;
         "removeContextFunc(bytes32,bytes4)": FunctionFragment;
@@ -198,7 +199,7 @@ export interface AccessControlManagerInterface extends utils.Interface {
         "upgradeTo(address,bytes,bool)": FunctionFragment;
         "withdrawBalance(address)": FunctionFragment;
     };
-    getFunction(nameOrSignatureOrTopic: "accessControlManager" | "accessControlManager()" | "addContextFuncRole" | "addContextFuncRole(bytes32,bytes4,bytes32)" | "batchGrantRoleAccount" | "batchGrantRoleAccount((bytes32,address)[])" | "batchRegisterRole" | "batchRegisterRole((bytes32,string,bool)[])" | "batchRevokeRoleAccount" | "batchRevokeRoleAccount((bytes32,address)[])" | "contractContext" | "contractContext()" | "contractName" | "contractName()" | "contractRealm" | "contractRealm()" | "contractVersion" | "contractVersion()" | "domainSeparator" | "domainSeparator()" | "getContextFuncs" | "getContextFuncs(bytes32)" | "getContextInfo" | "getContextInfo(bytes32)" | "getGroupInfo" | "getGroupInfo(bytes32)" | "getGroupRoles" | "getGroupRoles(bytes32)" | "getRealmContexts" | "getRealmContexts(bytes32)" | "getRealmInfo" | "getRealmInfo(bytes32)" | "getRoleAccounts" | "getRoleAccounts(bytes32)" | "getRoleInfo" | "getRoleInfo(bytes32)" | "grantContextRole" | "grantContextRole(bytes32,bytes4,bytes32)" | "grantRoleAccount" | "grantRoleAccount(bytes32,address)" | "hasAccess" | "hasAccess(bytes32,address,bytes4)" | "hasContextRole" | "hasContextRole(bytes32,bytes32,bytes4)" | "hasGroupRole" | "hasGroupRole(bytes32,bytes32)" | "hasRealmContext" | "hasRealmContext(bytes32,bytes32)" | "hasRoleAccount" | "hasRoleAccount(bytes32,address)" | "initVersion" | "initVersion()" | "initialize" | "initialize(string,string,string,address)" | "isContextEnabled" | "isContextEnabled(bytes32)" | "isContextExists" | "isContextExists(bytes32)" | "isContextFunctionEnabled" | "isContextFunctionEnabled(bytes32,bytes4)" | "isContextFunctionExists" | "isContextFunctionExists(bytes32,bytes4)" | "isContextSafeMode" | "isContextSafeMode(bytes32)" | "isContextUpgradable" | "isContextUpgradable(bytes32)" | "isGroupEnabled" | "isGroupEnabled(bytes32)" | "isGroupExists" | "isGroupExists(bytes32)" | "isLivelyAdminRole" | "isLivelyAdminRole(address)" | "isLivelyAssetAdminRole" | "isLivelyAssetAdminRole(address)" | "isLivelyAssetGroup" | "isLivelyAssetGroup(bytes32)" | "isLivelyAssetManagerRole" | "isLivelyAssetManagerRole(address)" | "isLivelyAssetRealm" | "isLivelyAssetRealm(bytes32)" | "isLivelyCommunityDaoExecutorRole" | "isLivelyCommunityDaoExecutorRole(address)" | "isLivelyCommunityDaoRole" | "isLivelyCommunityDaoRole(address)" | "isLivelyDaoGroup" | "isLivelyDaoGroup(bytes32)" | "isLivelyGeneralGroup" | "isLivelyGeneralGroup(bytes32)" | "isLivelyGeneralRealm" | "isLivelyGeneralRealm(bytes32)" | "isLivelySystemAdminRole" | "isLivelySystemAdminRole(address)" | "isRealmEnabled" | "isRealmEnabled(bytes32)" | "isRealmExists" | "isRealmExists(bytes32)" | "isRealmUpgradable" | "isRealmUpgradable(bytes32)" | "isRoleEnabled" | "isRoleEnabled(bytes32)" | "isRoleExists" | "isRoleExists(bytes32)" | "isSafeMode" | "isSafeMode()" | "isUpgradable" | "isUpgradable()" | "localAdmin" | "localAdmin()" | "proxiableUUID" | "proxiableUUID()" | "registerContext" | "registerContext(bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])" | "registerGroup" | "registerGroup(string,bool)" | "registerPredictContext" | "registerPredictContext(bytes,(bytes32,bytes32,bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])" | "registerRealm" | "registerRealm(string,bool,bool)" | "registerRole" | "registerRole(string,bytes32,bool)" | "removeContextFunc" | "removeContextFunc(bytes32,bytes4)" | "revokeContextRole" | "revokeContextRole(bytes32,bytes4,bytes32)" | "revokeRoleAccount" | "revokeRoleAccount(bytes32,address)" | "setContextRealm" | "setContextRealm(bytes32,bytes32)" | "setContextStatus" | "setContextStatus(bytes32,bool)" | "setGroupStatus" | "setGroupStatus(bytes32,bool)" | "setLocalAdmin" | "setLocalAdmin(address)" | "setRealmStatus" | "setRealmStatus(bytes32,bool)" | "setRealmUpgradeStatus" | "setRealmUpgradeStatus(bytes32,bool)" | "setRoleGroup" | "setRoleGroup(bytes32,bytes32)" | "setRoleStatus" | "setRoleStatus(bytes32,bool)" | "setSafeMode" | "setSafeMode(bool)" | "setUpgradeStatus" | "setUpgradeStatus(bool)" | "subjectAddress" | "subjectAddress()" | "supportsInterface" | "supportsInterface(bytes4)" | "updateContext" | "updateContext(bytes32,bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],uint8)[])" | "upgradeTo" | "upgradeTo(address,bytes,bool)" | "withdrawBalance" | "withdrawBalance(address)"): FunctionFragment;
+    getFunction(nameOrSignatureOrTopic: "accessControlManager" | "accessControlManager()" | "addContextFuncRole" | "addContextFuncRole(bytes32,bytes4,bytes32)" | "batchGrantRoleAccount" | "batchGrantRoleAccount((bytes32,address)[])" | "batchRegisterRole" | "batchRegisterRole((bytes32,string,bool)[])" | "batchRevokeRoleAccount" | "batchRevokeRoleAccount((bytes32,address)[])" | "contractContext" | "contractContext()" | "contractName" | "contractName()" | "contractRealm" | "contractRealm()" | "contractVersion" | "contractVersion()" | "domainSeparator" | "domainSeparator()" | "getContextFuncs" | "getContextFuncs(bytes32)" | "getContextInfo" | "getContextInfo(bytes32)" | "getGroupInfo" | "getGroupInfo(bytes32)" | "getGroupRoles" | "getGroupRoles(bytes32)" | "getLibraries" | "getLibraries()" | "getRealmContexts" | "getRealmContexts(bytes32)" | "getRealmInfo" | "getRealmInfo(bytes32)" | "getRoleAccounts" | "getRoleAccounts(bytes32)" | "getRoleInfo" | "getRoleInfo(bytes32)" | "grantContextRole" | "grantContextRole(bytes32,bytes4,bytes32)" | "grantRoleAccount" | "grantRoleAccount(bytes32,address)" | "hasAccess" | "hasAccess(bytes32,address,bytes4)" | "hasContextRole" | "hasContextRole(bytes32,bytes32,bytes4)" | "hasGroupRole" | "hasGroupRole(bytes32,bytes32)" | "hasRealmContext" | "hasRealmContext(bytes32,bytes32)" | "hasRoleAccount" | "hasRoleAccount(bytes32,address)" | "initVersion" | "initVersion()" | "initialize" | "initialize(string,string,string,address)" | "isContextEnabled" | "isContextEnabled(bytes32)" | "isContextExists" | "isContextExists(bytes32)" | "isContextFunctionEnabled" | "isContextFunctionEnabled(bytes32,bytes4)" | "isContextFunctionExists" | "isContextFunctionExists(bytes32,bytes4)" | "isContextSafeMode" | "isContextSafeMode(bytes32)" | "isContextUpgradable" | "isContextUpgradable(bytes32)" | "isGroupEnabled" | "isGroupEnabled(bytes32)" | "isGroupExists" | "isGroupExists(bytes32)" | "isLivelyAdminRole" | "isLivelyAdminRole(address)" | "isLivelyAssetAdminRole" | "isLivelyAssetAdminRole(address)" | "isLivelyAssetGroup" | "isLivelyAssetGroup(bytes32)" | "isLivelyAssetManagerRole" | "isLivelyAssetManagerRole(address)" | "isLivelyAssetRealm" | "isLivelyAssetRealm(bytes32)" | "isLivelyCommunityDaoExecutorRole" | "isLivelyCommunityDaoExecutorRole(address)" | "isLivelyCommunityDaoRole" | "isLivelyCommunityDaoRole(address)" | "isLivelyDaoGroup" | "isLivelyDaoGroup(bytes32)" | "isLivelyGeneralGroup" | "isLivelyGeneralGroup(bytes32)" | "isLivelyGeneralRealm" | "isLivelyGeneralRealm(bytes32)" | "isLivelySystemAdminRole" | "isLivelySystemAdminRole(address)" | "isRealmEnabled" | "isRealmEnabled(bytes32)" | "isRealmExists" | "isRealmExists(bytes32)" | "isRealmUpgradable" | "isRealmUpgradable(bytes32)" | "isRoleEnabled" | "isRoleEnabled(bytes32)" | "isRoleExists" | "isRoleExists(bytes32)" | "isSafeMode" | "isSafeMode()" | "isUpgradable" | "isUpgradable()" | "localAdmin" | "localAdmin()" | "proxiableUUID" | "proxiableUUID()" | "registerContext" | "registerContext(bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])" | "registerGroup" | "registerGroup(string,bool)" | "registerPredictContext" | "registerPredictContext(bytes,(bytes32,bytes32,bytes32,bytes32,address,address,bool),(bytes32,bytes4[],bool)[])" | "registerRealm" | "registerRealm(string,bool,bool)" | "registerRole" | "registerRole(string,bytes32,bool)" | "removeContextFunc" | "removeContextFunc(bytes32,bytes4)" | "revokeContextRole" | "revokeContextRole(bytes32,bytes4,bytes32)" | "revokeRoleAccount" | "revokeRoleAccount(bytes32,address)" | "setContextRealm" | "setContextRealm(bytes32,bytes32)" | "setContextStatus" | "setContextStatus(bytes32,bool)" | "setGroupStatus" | "setGroupStatus(bytes32,bool)" | "setLocalAdmin" | "setLocalAdmin(address)" | "setRealmStatus" | "setRealmStatus(bytes32,bool)" | "setRealmUpgradeStatus" | "setRealmUpgradeStatus(bytes32,bool)" | "setRoleGroup" | "setRoleGroup(bytes32,bytes32)" | "setRoleStatus" | "setRoleStatus(bytes32,bool)" | "setSafeMode" | "setSafeMode(bool)" | "setUpgradeStatus" | "setUpgradeStatus(bool)" | "subjectAddress" | "subjectAddress()" | "supportsInterface" | "supportsInterface(bytes4)" | "updateContext" | "updateContext(bytes32,bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],uint8)[])" | "upgradeTo" | "upgradeTo(address,bytes,bool)" | "withdrawBalance" | "withdrawBalance(address)"): FunctionFragment;
     encodeFunctionData(functionFragment: "accessControlManager", values?: undefined): string;
     encodeFunctionData(functionFragment: "accessControlManager()", values?: undefined): string;
     encodeFunctionData(functionFragment: "addContextFuncRole", values: [
@@ -235,6 +236,8 @@ export interface AccessControlManagerInterface extends utils.Interface {
     encodeFunctionData(functionFragment: "getGroupInfo(bytes32)", values: [PromiseOrValue<BytesLike>]): string;
     encodeFunctionData(functionFragment: "getGroupRoles", values: [PromiseOrValue<BytesLike>]): string;
     encodeFunctionData(functionFragment: "getGroupRoles(bytes32)", values: [PromiseOrValue<BytesLike>]): string;
+    encodeFunctionData(functionFragment: "getLibraries", values?: undefined): string;
+    encodeFunctionData(functionFragment: "getLibraries()", values?: undefined): string;
     encodeFunctionData(functionFragment: "getRealmContexts", values: [PromiseOrValue<BytesLike>]): string;
     encodeFunctionData(functionFragment: "getRealmContexts(bytes32)", values: [PromiseOrValue<BytesLike>]): string;
     encodeFunctionData(functionFragment: "getRealmInfo", values: [PromiseOrValue<BytesLike>]): string;
@@ -368,7 +371,7 @@ export interface AccessControlManagerInterface extends utils.Interface {
         IContextManagement.RequestPredictContextStruct,
         IContextManagement.RequestRegisterContextStruct[]
     ]): string;
-    encodeFunctionData(functionFragment: "registerPredictContext(bytes,(bytes32,bytes32,bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])", values: [
+    encodeFunctionData(functionFragment: "registerPredictContext(bytes,(bytes32,bytes32,bytes32,bytes32,address,address,bool),(bytes32,bytes4[],bool)[])", values: [
         PromiseOrValue<BytesLike>,
         IContextManagement.RequestPredictContextStruct,
         IContextManagement.RequestRegisterContextStruct[]
@@ -483,6 +486,8 @@ export interface AccessControlManagerInterface extends utils.Interface {
     decodeFunctionResult(functionFragment: "getGroupInfo(bytes32)", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "getGroupRoles", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "getGroupRoles(bytes32)", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "getLibraries", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "getLibraries()", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "getRealmContexts", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "getRealmContexts(bytes32)", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "getRealmInfo", data: BytesLike): Result;
@@ -570,7 +575,7 @@ export interface AccessControlManagerInterface extends utils.Interface {
     decodeFunctionResult(functionFragment: "registerGroup", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "registerGroup(string,bool)", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "registerPredictContext", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "registerPredictContext(bytes,(bytes32,bytes32,bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "registerPredictContext(bytes,(bytes32,bytes32,bytes32,bytes32,address,address,bool),(bytes32,bytes4[],bool)[])", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "registerRealm", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "registerRealm(string,bool,bool)", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "registerRole", data: BytesLike): Result;
@@ -624,7 +629,7 @@ export interface AccessControlManagerInterface extends utils.Interface {
         "GroupStatusChanged(bytes32,address,bool)": EventFragment;
         "Initialized(address,address,address,string,string,bytes32,uint16)": EventFragment;
         "LocalAdminChanged(address,address,address)": EventFragment;
-        "PredictContextRegistered(bytes32,address,address,address,bytes32,bytes32)": EventFragment;
+        "PredictContextRegistered(bytes32,address,address,address,address,address,bytes32)": EventFragment;
         "RealmRegistered(bytes32,address,string,bool,bool)": EventFragment;
         "RealmStatusChanged(bytes32,address,bool)": EventFragment;
         "RealmUpgradeStatusChanged(bytes32,address,bool)": EventFragment;
@@ -662,7 +667,7 @@ export interface AccessControlManagerInterface extends utils.Interface {
     getEvent(nameOrSignatureOrTopic: "LocalAdminChanged"): EventFragment;
     getEvent(nameOrSignatureOrTopic: "LocalAdminChanged(address,address,address)"): EventFragment;
     getEvent(nameOrSignatureOrTopic: "PredictContextRegistered"): EventFragment;
-    getEvent(nameOrSignatureOrTopic: "PredictContextRegistered(bytes32,address,address,address,bytes32,bytes32)"): EventFragment;
+    getEvent(nameOrSignatureOrTopic: "PredictContextRegistered(bytes32,address,address,address,address,address,bytes32)"): EventFragment;
     getEvent(nameOrSignatureOrTopic: "RealmRegistered"): EventFragment;
     getEvent(nameOrSignatureOrTopic: "RealmRegistered(bytes32,address,string,bool,bool)"): EventFragment;
     getEvent(nameOrSignatureOrTopic: "RealmStatusChanged"): EventFragment;
@@ -730,8 +735,8 @@ export declare type ContextRealmChangedEventFilter = TypedEventFilter<ContextRea
 export interface ContextRegisteredEventObject {
     context: string;
     contractId: string;
-    signer: string;
     sender: string;
+    signer: string;
     realm: string;
 }
 export declare type ContextRegisteredEvent = TypedEvent<[
@@ -854,13 +859,15 @@ export declare type LocalAdminChangedEvent = TypedEvent<[
 export declare type LocalAdminChangedEventFilter = TypedEventFilter<LocalAdminChangedEvent>;
 export interface PredictContextRegisteredEventObject {
     context: string;
-    base: string;
-    signer: string;
+    contractId: string;
     sender: string;
+    signer: string;
+    deployer: string;
+    subject: string;
     realm: string;
-    bytesHash: string;
 }
 export declare type PredictContextRegisteredEvent = TypedEvent<[
+    string,
     string,
     string,
     string,
@@ -1065,6 +1072,8 @@ export interface AccessControlManager extends BaseContract {
         "getGroupInfo(bytes32)"(group: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<[string, boolean]>;
         getGroupRoles(group: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<[string[]]>;
         "getGroupRoles(bytes32)"(group: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<[string[]]>;
+        getLibraries(overrides?: CallOverrides): Promise<[string[]]>;
+        "getLibraries()"(overrides?: CallOverrides): Promise<[string[]]>;
         getRealmContexts(realm: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<[string[]]>;
         "getRealmContexts(bytes32)"(realm: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<[string[]]>;
         getRealmInfo(realm: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<[string, boolean, boolean]>;
@@ -1174,7 +1183,7 @@ export interface AccessControlManager extends BaseContract {
         registerPredictContext(signature: PromiseOrValue<BytesLike>, rpc: IContextManagement.RequestPredictContextStruct, rrc: IContextManagement.RequestRegisterContextStruct[], overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<ContractTransaction>;
-        "registerPredictContext(bytes,(bytes32,bytes32,bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])"(signature: PromiseOrValue<BytesLike>, rpc: IContextManagement.RequestPredictContextStruct, rrc: IContextManagement.RequestRegisterContextStruct[], overrides?: Overrides & {
+        "registerPredictContext(bytes,(bytes32,bytes32,bytes32,bytes32,address,address,bool),(bytes32,bytes4[],bool)[])"(signature: PromiseOrValue<BytesLike>, rpc: IContextManagement.RequestPredictContextStruct, rrc: IContextManagement.RequestRegisterContextStruct[], overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<ContractTransaction>;
         registerRealm(name: PromiseOrValue<string>, status: PromiseOrValue<boolean>, isUpgradable: PromiseOrValue<boolean>, overrides?: Overrides & {
@@ -1334,6 +1343,8 @@ export interface AccessControlManager extends BaseContract {
     "getGroupInfo(bytes32)"(group: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<[string, boolean]>;
     getGroupRoles(group: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<string[]>;
     "getGroupRoles(bytes32)"(group: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<string[]>;
+    getLibraries(overrides?: CallOverrides): Promise<string[]>;
+    "getLibraries()"(overrides?: CallOverrides): Promise<string[]>;
     getRealmContexts(realm: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<string[]>;
     "getRealmContexts(bytes32)"(realm: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<string[]>;
     getRealmInfo(realm: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<[string, boolean, boolean]>;
@@ -1443,7 +1454,7 @@ export interface AccessControlManager extends BaseContract {
     registerPredictContext(signature: PromiseOrValue<BytesLike>, rpc: IContextManagement.RequestPredictContextStruct, rrc: IContextManagement.RequestRegisterContextStruct[], overrides?: Overrides & {
         from?: PromiseOrValue<string>;
     }): Promise<ContractTransaction>;
-    "registerPredictContext(bytes,(bytes32,bytes32,bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])"(signature: PromiseOrValue<BytesLike>, rpc: IContextManagement.RequestPredictContextStruct, rrc: IContextManagement.RequestRegisterContextStruct[], overrides?: Overrides & {
+    "registerPredictContext(bytes,(bytes32,bytes32,bytes32,bytes32,address,address,bool),(bytes32,bytes4[],bool)[])"(signature: PromiseOrValue<BytesLike>, rpc: IContextManagement.RequestPredictContextStruct, rrc: IContextManagement.RequestRegisterContextStruct[], overrides?: Overrides & {
         from?: PromiseOrValue<string>;
     }): Promise<ContractTransaction>;
     registerRealm(name: PromiseOrValue<string>, status: PromiseOrValue<boolean>, isUpgradable: PromiseOrValue<boolean>, overrides?: Overrides & {
@@ -1587,6 +1598,8 @@ export interface AccessControlManager extends BaseContract {
         "getGroupInfo(bytes32)"(group: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<[string, boolean]>;
         getGroupRoles(group: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<string[]>;
         "getGroupRoles(bytes32)"(group: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<string[]>;
+        getLibraries(overrides?: CallOverrides): Promise<string[]>;
+        "getLibraries()"(overrides?: CallOverrides): Promise<string[]>;
         getRealmContexts(realm: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<string[]>;
         "getRealmContexts(bytes32)"(realm: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<string[]>;
         getRealmInfo(realm: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<[string, boolean, boolean]>;
@@ -1674,7 +1687,7 @@ export interface AccessControlManager extends BaseContract {
         registerGroup(name: PromiseOrValue<string>, status: PromiseOrValue<boolean>, overrides?: CallOverrides): Promise<string>;
         "registerGroup(string,bool)"(name: PromiseOrValue<string>, status: PromiseOrValue<boolean>, overrides?: CallOverrides): Promise<string>;
         registerPredictContext(signature: PromiseOrValue<BytesLike>, rpc: IContextManagement.RequestPredictContextStruct, rrc: IContextManagement.RequestRegisterContextStruct[], overrides?: CallOverrides): Promise<string>;
-        "registerPredictContext(bytes,(bytes32,bytes32,bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])"(signature: PromiseOrValue<BytesLike>, rpc: IContextManagement.RequestPredictContextStruct, rrc: IContextManagement.RequestRegisterContextStruct[], overrides?: CallOverrides): Promise<string>;
+        "registerPredictContext(bytes,(bytes32,bytes32,bytes32,bytes32,address,address,bool),(bytes32,bytes4[],bool)[])"(signature: PromiseOrValue<BytesLike>, rpc: IContextManagement.RequestPredictContextStruct, rrc: IContextManagement.RequestRegisterContextStruct[], overrides?: CallOverrides): Promise<string>;
         registerRealm(name: PromiseOrValue<string>, status: PromiseOrValue<boolean>, isUpgradable: PromiseOrValue<boolean>, overrides?: CallOverrides): Promise<string>;
         "registerRealm(string,bool,bool)"(name: PromiseOrValue<string>, status: PromiseOrValue<boolean>, isUpgradable: PromiseOrValue<boolean>, overrides?: CallOverrides): Promise<string>;
         registerRole(name: PromiseOrValue<string>, group: PromiseOrValue<BytesLike>, status: PromiseOrValue<boolean>, overrides?: CallOverrides): Promise<string>;
@@ -1723,8 +1736,8 @@ export interface AccessControlManager extends BaseContract {
         ContextFuncRoleAdded(context?: PromiseOrValue<BytesLike> | null, role?: PromiseOrValue<BytesLike> | null, sender?: PromiseOrValue<string> | null, functionSelector?: null, realm?: null): ContextFuncRoleAddedEventFilter;
         "ContextRealmChanged(bytes32,address,bytes32,bytes32)"(context?: PromiseOrValue<BytesLike> | null, sender?: PromiseOrValue<string> | null, realm?: PromiseOrValue<BytesLike> | null, oldRealm?: null): ContextRealmChangedEventFilter;
         ContextRealmChanged(context?: PromiseOrValue<BytesLike> | null, sender?: PromiseOrValue<string> | null, realm?: PromiseOrValue<BytesLike> | null, oldRealm?: null): ContextRealmChangedEventFilter;
-        "ContextRegistered(bytes32,address,address,address,bytes32)"(context?: PromiseOrValue<BytesLike> | null, contractId?: PromiseOrValue<string> | null, signer?: PromiseOrValue<string> | null, sender?: null, realm?: null): ContextRegisteredEventFilter;
-        ContextRegistered(context?: PromiseOrValue<BytesLike> | null, contractId?: PromiseOrValue<string> | null, signer?: PromiseOrValue<string> | null, sender?: null, realm?: null): ContextRegisteredEventFilter;
+        "ContextRegistered(bytes32,address,address,address,bytes32)"(context?: PromiseOrValue<BytesLike> | null, contractId?: PromiseOrValue<string> | null, sender?: PromiseOrValue<string> | null, signer?: null, realm?: null): ContextRegisteredEventFilter;
+        ContextRegistered(context?: PromiseOrValue<BytesLike> | null, contractId?: PromiseOrValue<string> | null, sender?: PromiseOrValue<string> | null, signer?: null, realm?: null): ContextRegisteredEventFilter;
         "ContextRoleGranted(bytes32,bytes32,address,bytes4,bytes32)"(context?: PromiseOrValue<BytesLike> | null, role?: PromiseOrValue<BytesLike> | null, sender?: PromiseOrValue<string> | null, functionSelector?: null, realm?: null): ContextRoleGrantedEventFilter;
         ContextRoleGranted(context?: PromiseOrValue<BytesLike> | null, role?: PromiseOrValue<BytesLike> | null, sender?: PromiseOrValue<string> | null, functionSelector?: null, realm?: null): ContextRoleGrantedEventFilter;
         "ContextRoleRevoked(bytes32,bytes32,address,bytes4,bytes32)"(context?: PromiseOrValue<BytesLike> | null, role?: PromiseOrValue<BytesLike> | null, sender?: PromiseOrValue<string> | null, functionSelector?: null, realm?: null): ContextRoleRevokedEventFilter;
@@ -1741,8 +1754,8 @@ export interface AccessControlManager extends BaseContract {
         Initialized(sender?: PromiseOrValue<string> | null, proxy?: PromiseOrValue<string> | null, subject?: PromiseOrValue<string> | null, name?: null, version?: null, realm?: null, initCount?: null): InitializedEventFilter;
         "LocalAdminChanged(address,address,address)"(sender?: PromiseOrValue<string> | null, proxy?: PromiseOrValue<string> | null, newAdmin?: null): LocalAdminChangedEventFilter;
         LocalAdminChanged(sender?: PromiseOrValue<string> | null, proxy?: PromiseOrValue<string> | null, newAdmin?: null): LocalAdminChangedEventFilter;
-        "PredictContextRegistered(bytes32,address,address,address,bytes32,bytes32)"(context?: PromiseOrValue<BytesLike> | null, base?: PromiseOrValue<string> | null, signer?: PromiseOrValue<string> | null, sender?: null, realm?: null, bytesHash?: null): PredictContextRegisteredEventFilter;
-        PredictContextRegistered(context?: PromiseOrValue<BytesLike> | null, base?: PromiseOrValue<string> | null, signer?: PromiseOrValue<string> | null, sender?: null, realm?: null, bytesHash?: null): PredictContextRegisteredEventFilter;
+        "PredictContextRegistered(bytes32,address,address,address,address,address,bytes32)"(context?: PromiseOrValue<BytesLike> | null, contractId?: PromiseOrValue<string> | null, sender?: PromiseOrValue<string> | null, signer?: null, deployer?: null, subject?: null, realm?: null): PredictContextRegisteredEventFilter;
+        PredictContextRegistered(context?: PromiseOrValue<BytesLike> | null, contractId?: PromiseOrValue<string> | null, sender?: PromiseOrValue<string> | null, signer?: null, deployer?: null, subject?: null, realm?: null): PredictContextRegisteredEventFilter;
         "RealmRegistered(bytes32,address,string,bool,bool)"(realm?: PromiseOrValue<BytesLike> | null, sender?: PromiseOrValue<string> | null, name?: null, status?: null, isUpgradable?: null): RealmRegisteredEventFilter;
         RealmRegistered(realm?: PromiseOrValue<BytesLike> | null, sender?: PromiseOrValue<string> | null, name?: null, status?: null, isUpgradable?: null): RealmRegisteredEventFilter;
         "RealmStatusChanged(bytes32,address,bool)"(realm?: PromiseOrValue<BytesLike> | null, sender?: PromiseOrValue<string> | null, status?: null): RealmStatusChangedEventFilter;
@@ -1811,6 +1824,8 @@ export interface AccessControlManager extends BaseContract {
         "getGroupInfo(bytes32)"(group: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
         getGroupRoles(group: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
         "getGroupRoles(bytes32)"(group: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
+        getLibraries(overrides?: CallOverrides): Promise<BigNumber>;
+        "getLibraries()"(overrides?: CallOverrides): Promise<BigNumber>;
         getRealmContexts(realm: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
         "getRealmContexts(bytes32)"(realm: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
         getRealmInfo(realm: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
@@ -1920,7 +1935,7 @@ export interface AccessControlManager extends BaseContract {
         registerPredictContext(signature: PromiseOrValue<BytesLike>, rpc: IContextManagement.RequestPredictContextStruct, rrc: IContextManagement.RequestRegisterContextStruct[], overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<BigNumber>;
-        "registerPredictContext(bytes,(bytes32,bytes32,bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])"(signature: PromiseOrValue<BytesLike>, rpc: IContextManagement.RequestPredictContextStruct, rrc: IContextManagement.RequestRegisterContextStruct[], overrides?: Overrides & {
+        "registerPredictContext(bytes,(bytes32,bytes32,bytes32,bytes32,address,address,bool),(bytes32,bytes4[],bool)[])"(signature: PromiseOrValue<BytesLike>, rpc: IContextManagement.RequestPredictContextStruct, rrc: IContextManagement.RequestRegisterContextStruct[], overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<BigNumber>;
         registerRealm(name: PromiseOrValue<string>, status: PromiseOrValue<boolean>, isUpgradable: PromiseOrValue<boolean>, overrides?: Overrides & {
@@ -2081,6 +2096,8 @@ export interface AccessControlManager extends BaseContract {
         "getGroupInfo(bytes32)"(group: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
         getGroupRoles(group: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
         "getGroupRoles(bytes32)"(group: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
+        getLibraries(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+        "getLibraries()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         getRealmContexts(realm: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
         "getRealmContexts(bytes32)"(realm: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
         getRealmInfo(realm: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -2190,7 +2207,7 @@ export interface AccessControlManager extends BaseContract {
         registerPredictContext(signature: PromiseOrValue<BytesLike>, rpc: IContextManagement.RequestPredictContextStruct, rrc: IContextManagement.RequestRegisterContextStruct[], overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<PopulatedTransaction>;
-        "registerPredictContext(bytes,(bytes32,bytes32,bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],bool)[])"(signature: PromiseOrValue<BytesLike>, rpc: IContextManagement.RequestPredictContextStruct, rrc: IContextManagement.RequestRegisterContextStruct[], overrides?: Overrides & {
+        "registerPredictContext(bytes,(bytes32,bytes32,bytes32,bytes32,address,address,bool),(bytes32,bytes4[],bool)[])"(signature: PromiseOrValue<BytesLike>, rpc: IContextManagement.RequestPredictContextStruct, rrc: IContextManagement.RequestRegisterContextStruct[], overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<PopulatedTransaction>;
         registerRealm(name: PromiseOrValue<string>, status: PromiseOrValue<boolean>, isUpgradable: PromiseOrValue<boolean>, overrides?: Overrides & {

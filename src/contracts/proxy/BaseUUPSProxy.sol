@@ -14,8 +14,6 @@ import "../utils/Message.sol";
 import "../utils/ERC165.sol";
 import "../lib/LContextUtils.sol";
 
-// import "hardhat/console.sol";
-
 /**
  * @dev This contract implements an upgradeable proxy. It is upgradeable because calls are delegated to an
  * implementation address that can be changed. This address is stored in storage in the location specified by

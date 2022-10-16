@@ -10,8 +10,6 @@ import "./LAccessControl.sol";
 import "../cryptography/LECDSA.sol";
 import "../proxy/LClones.sol";
 
-import "hardhat/console.sol";
-
 library LContextManagement {
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
   using LClones for address;
@@ -50,12 +48,6 @@ library LContextManagement {
     (address msgSigner, LECDSA.RecoverError recoverErr) = LECDSA.tryRecover(msgDigest, signature);
 
     require(recoverErr == LECDSA.RecoverError.NoError, "Illegal ECDASA Signature");
-
-    // console.log("blockchain id: %d", block.chainid);
-    // console.log("msgDigest id");
-    // console.logBytes32(msgDigest);
-    // console.log("registerContext msgSigner is %s", msgSigner);
-
     require(
       LAccessControl.hasAccess(
         data,
@@ -147,9 +139,6 @@ library LContextManagement {
     newContext.isEnabled = status;
 
     for (uint256 i = 0; i < rrc.length; i++) {
-      // console.log("i: %d, role name: %s", i, data.roleMap[rrc[i].role].name);
-      // console.log("role: ");
-      // console.logBytes32(rrc[i].role);
       require(bytes(data.roleMap[rrc[i].role].name).length != 0, "Role Not Found");
       for (uint256 j = 0; j < rrc[i].funcSelectors.length; j++) {
         newContext.resources[rrc[i].funcSelectors[j]].role = rrc[i].role;
@@ -170,13 +159,8 @@ library LContextManagement {
   ) private returns (address, bytes32) {
     require(bytes(data.realmMap[rpc.realm].name).length != 0, "Realm Not Found");
 
-    // address predictedContractId = address(uint160(uint(keccak256(abi.encodePacked(bytes1(0xff), rpc.deployer, rpc.salt, rpc.bytesHash)))));
     address predictedContractId = rpc.subject.predictDeterministicAddress(rpc.salt, rpc.deployer);
     bytes32 ctx = LContextUtils.generateCtx(predictedContractId);
-
-    // console.log("_registerPredictContext predictedContractId: %s", predictedContractId);
-    // console.log("predictedContractId context: ");
-    // console.logBytes32(ctx);
 
     require(data.ctxMap[ctx].contractId == address(0), "Context Already Registered");
     data.realmMap[rpc.realm].ctxSet.add(ctx);
@@ -185,10 +169,7 @@ library LContextManagement {
     newContext.contractId = predictedContractId;
     newContext.isEnabled = rpc.status;
 
-    for (uint256 i = 0; i < rrc.length; i++) {
-      // console.log("i: %d, role name: %s", i, data.roleMap[rrc[i].role].name);
-      // console.log("role: ");
-      // console.logBytes32(rrc[i].role);
+    for (uint256 i = 0; i < rrc.length; i++) {  
       require(bytes(data.roleMap[rrc[i].role].name).length != 0, "Role Not Found");
       for (uint256 j = 0; j < rrc[i].funcSelectors.length; j++) {
         newContext.resources[rrc[i].funcSelectors[j]].role = rrc[i].role;
@@ -464,5 +445,9 @@ library LContextManagement {
       funcs[i] = bytes4(data.ctxMap[ctx].funcSet.at(i));
     }
     return funcs;
+  }
+
+  function getLibrary() external pure returns (address) {
+    return address(LAccessControl);
   }
 }

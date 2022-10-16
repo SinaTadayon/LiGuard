@@ -137,6 +137,7 @@ export interface LivelyTokenInterface extends utils.Interface {
     "decimals()": FunctionFragment;
     "decreaseAllowance(address,uint256)": FunctionFragment;
     "domainSeparator()": FunctionFragment;
+    "getLibrary()": FunctionFragment;
     "increaseAllowance(address,uint256)": FunctionFragment;
     "initVersion()": FunctionFragment;
     "initialize((string,string,string,bytes,uint256,address))": FunctionFragment;
@@ -219,6 +220,8 @@ export interface LivelyTokenInterface extends utils.Interface {
       | "decreaseAllowance(address,uint256)"
       | "domainSeparator"
       | "domainSeparator()"
+      | "getLibrary"
+      | "getLibrary()"
       | "increaseAllowance"
       | "increaseAllowance(address,uint256)"
       | "initVersion"
@@ -448,6 +451,14 @@ export interface LivelyTokenInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "domainSeparator()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getLibrary",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getLibrary()",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -907,6 +918,11 @@ export interface LivelyTokenInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "domainSeparator()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "getLibrary", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getLibrary()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1787,6 +1803,10 @@ export interface LivelyToken extends BaseContract {
 
     "domainSeparator()"(overrides?: CallOverrides): Promise<[string]>;
 
+    getLibrary(overrides?: CallOverrides): Promise<[string]>;
+
+    "getLibrary()"(overrides?: CallOverrides): Promise<[string]>;
+
     increaseAllowance(
       spender: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
@@ -2284,6 +2304,10 @@ export interface LivelyToken extends BaseContract {
 
   "domainSeparator()"(overrides?: CallOverrides): Promise<string>;
 
+  getLibrary(overrides?: CallOverrides): Promise<string>;
+
+  "getLibrary()"(overrides?: CallOverrides): Promise<string>;
+
   increaseAllowance(
     spender: PromiseOrValue<string>,
     amount: PromiseOrValue<BigNumberish>,
@@ -2780,6 +2804,10 @@ export interface LivelyToken extends BaseContract {
     domainSeparator(overrides?: CallOverrides): Promise<string>;
 
     "domainSeparator()"(overrides?: CallOverrides): Promise<string>;
+
+    getLibrary(overrides?: CallOverrides): Promise<string>;
+
+    "getLibrary()"(overrides?: CallOverrides): Promise<string>;
 
     increaseAllowance(
       spender: PromiseOrValue<string>,
@@ -3563,6 +3591,10 @@ export interface LivelyToken extends BaseContract {
 
     "domainSeparator()"(overrides?: CallOverrides): Promise<BigNumber>;
 
+    getLibrary(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "getLibrary()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     increaseAllowance(
       spender: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
@@ -4070,6 +4102,10 @@ export interface LivelyToken extends BaseContract {
     "domainSeparator()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    getLibrary(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "getLibrary()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     increaseAllowance(
       spender: PromiseOrValue<string>,

@@ -96,4 +96,8 @@ library LGroupManagement {
   {
     return data.groupMap[group].roleSet.values();
   }
+
+  function getLibrary() external pure returns (address) {
+    return address(LAccessControl);
+  }
 }

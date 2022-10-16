@@ -168,6 +168,7 @@ export interface AccessControlManagerInterface extends utils.Interface {
     "getContextInfo(bytes32)": FunctionFragment;
     "getGroupInfo(bytes32)": FunctionFragment;
     "getGroupRoles(bytes32)": FunctionFragment;
+    "getLibraries()": FunctionFragment;
     "getRealmContexts(bytes32)": FunctionFragment;
     "getRealmInfo(bytes32)": FunctionFragment;
     "getRoleAccounts(bytes32)": FunctionFragment;
@@ -264,6 +265,8 @@ export interface AccessControlManagerInterface extends utils.Interface {
       | "getGroupInfo(bytes32)"
       | "getGroupRoles"
       | "getGroupRoles(bytes32)"
+      | "getLibraries"
+      | "getLibraries()"
       | "getRealmContexts"
       | "getRealmContexts(bytes32)"
       | "getRealmInfo"
@@ -513,6 +516,14 @@ export interface AccessControlManagerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "getGroupRoles(bytes32)",
     values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getLibraries",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getLibraries()",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "getRealmContexts",
@@ -1229,6 +1240,14 @@ export interface AccessControlManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getGroupRoles(bytes32)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getLibraries",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getLibraries()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -2323,6 +2342,10 @@ export interface AccessControlManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string[]]>;
 
+    getLibraries(overrides?: CallOverrides): Promise<[string[]]>;
+
+    "getLibraries()"(overrides?: CallOverrides): Promise<[string[]]>;
+
     getRealmContexts(
       realm: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -3116,6 +3139,10 @@ export interface AccessControlManager extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string[]>;
 
+  getLibraries(overrides?: CallOverrides): Promise<string[]>;
+
+  "getLibraries()"(overrides?: CallOverrides): Promise<string[]>;
+
   getRealmContexts(
     realm: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
@@ -3908,6 +3935,10 @@ export interface AccessControlManager extends BaseContract {
       group: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<string[]>;
+
+    getLibraries(overrides?: CallOverrides): Promise<string[]>;
+
+    "getLibraries()"(overrides?: CallOverrides): Promise<string[]>;
 
     getRealmContexts(
       realm: PromiseOrValue<BytesLike>,
@@ -5027,6 +5058,10 @@ export interface AccessControlManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    getLibraries(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "getLibraries()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     getRealmContexts(
       realm: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -5830,6 +5865,10 @@ export interface AccessControlManager extends BaseContract {
       group: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    getLibraries(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "getLibraries()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getRealmContexts(
       realm: PromiseOrValue<BytesLike>,

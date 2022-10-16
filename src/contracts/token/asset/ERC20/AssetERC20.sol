@@ -14,8 +14,6 @@ import "../../../lib/LAddress.sol";
 import "../../../acl/IAccessControl.sol";
 import "../../../acl/IContextManagement.sol";
 
-import "hardhat/console.sol";
-
 contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity {
   using LAddress for address;
 

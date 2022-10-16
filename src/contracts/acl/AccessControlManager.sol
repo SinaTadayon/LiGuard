@@ -408,4 +408,14 @@ contract AccessControlManager is
   function hasRoleAccount(bytes32 role, address account) external view returns (bool) {
     return LRoleManagement.hasRoleAccount(_dataMaps, role, account);
   }
+
+  function getLibraries() external pure returns (address[] memory) {
+    address[] memory libs = new address[](5);
+    libs[0] = address(LAccessControl);
+    libs[1] = address(LContextManagement);
+    libs[2] = address(LRealmManagement);
+    libs[3] = address(LRoleManagement);
+    libs[4] = address(LGroupManagement);
+    return libs;
+  }
 }

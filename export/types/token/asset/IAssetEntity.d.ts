@@ -57,11 +57,11 @@ export interface IAssetEntityInterface extends utils.Interface {
     decodeFunctionResult(functionFragment: "assetVersion", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "assetVersion()", data: BytesLike): Result;
     events: {
-        "AssetInitialized(address,address,address,address,string,string,bytes32,bytes32)": EventFragment;
+        "AssetInitialized(address,address,address,address,address,string,string,bytes32,bytes32)": EventFragment;
         "AssetSafeModeChanged(address,address,bytes32,bool)": EventFragment;
     };
     getEvent(nameOrSignatureOrTopic: "AssetInitialized"): EventFragment;
-    getEvent(nameOrSignatureOrTopic: "AssetInitialized(address,address,address,address,string,string,bytes32,bytes32)"): EventFragment;
+    getEvent(nameOrSignatureOrTopic: "AssetInitialized(address,address,address,address,address,string,string,bytes32,bytes32)"): EventFragment;
     getEvent(nameOrSignatureOrTopic: "AssetSafeModeChanged"): EventFragment;
     getEvent(nameOrSignatureOrTopic: "AssetSafeModeChanged(address,address,bytes32,bool)"): EventFragment;
 }
@@ -70,12 +70,14 @@ export interface AssetInitializedEventObject {
     assetId: string;
     tokenId: string;
     assetManager: string;
+    assetSubject: string;
     name: string;
     version: string;
     realm: string;
     role: string;
 }
 export declare type AssetInitializedEvent = TypedEvent<[
+    string,
     string,
     string,
     string,
@@ -186,8 +188,8 @@ export interface IAssetEntity extends BaseContract {
         "assetVersion()"(overrides?: CallOverrides): Promise<string>;
     };
     filters: {
-        "AssetInitialized(address,address,address,address,string,string,bytes32,bytes32)"(sender?: PromiseOrValue<string> | null, assetId?: PromiseOrValue<string> | null, tokenId?: PromiseOrValue<string> | null, assetManager?: null, name?: null, version?: null, realm?: null, role?: null): AssetInitializedEventFilter;
-        AssetInitialized(sender?: PromiseOrValue<string> | null, assetId?: PromiseOrValue<string> | null, tokenId?: PromiseOrValue<string> | null, assetManager?: null, name?: null, version?: null, realm?: null, role?: null): AssetInitializedEventFilter;
+        "AssetInitialized(address,address,address,address,address,string,string,bytes32,bytes32)"(sender?: PromiseOrValue<string> | null, assetId?: PromiseOrValue<string> | null, tokenId?: PromiseOrValue<string> | null, assetManager?: null, assetSubject?: null, name?: null, version?: null, realm?: null, role?: null): AssetInitializedEventFilter;
+        AssetInitialized(sender?: PromiseOrValue<string> | null, assetId?: PromiseOrValue<string> | null, tokenId?: PromiseOrValue<string> | null, assetManager?: null, assetSubject?: null, name?: null, version?: null, realm?: null, role?: null): AssetInitializedEventFilter;
         "AssetSafeModeChanged(address,address,bytes32,bool)"(sender?: PromiseOrValue<string> | null, assetId?: PromiseOrValue<string> | null, realm?: PromiseOrValue<BytesLike> | null, status?: null): AssetSafeModeChangedEventFilter;
         AssetSafeModeChanged(sender?: PromiseOrValue<string> | null, assetId?: PromiseOrValue<string> | null, realm?: PromiseOrValue<BytesLike> | null, status?: null): AssetSafeModeChangedEventFilter;
     };

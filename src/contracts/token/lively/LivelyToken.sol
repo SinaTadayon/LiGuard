@@ -18,8 +18,6 @@ import "../../lib/math/LSafeMath.sol";
 import "../../lib/struct/LEnumerableSet.sol";
 import "../../acl/IContextManagement.sol";
 
-import "hardhat/console.sol";
-
 contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC20Pause, IERC20Lock {
   using LEnumerableSet for LEnumerableSet.AddressSet;
   using LCounters for LCounters.Counter;
@@ -212,10 +210,7 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
     bytes32 hash = LECDSA.toTypedDataHash(_domainSeparatorV4(), structHash);
     address signer = LECDSA.recover(hash, signature);
 
-    // console.log("singer address: %s, nonce: %d", signer, this.nonce(owner));
-
     require(signer == owner, "Illegal ECDASA Signature");
-
     _approve(owner, spender, value);
     return true;
   }
@@ -331,11 +326,10 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
 
     for (uint i = 0; i < 7; i++) {
        try IERC165(assets[i]).supportsInterface(type(IAssetEntity).interfaceId) returns (bool isSupported) {
-        require(isSupported, "Invalid IAssetEntity Address");
+        require(isSupported, "Invalid IAssetEntity");
       } catch {
-        revert("Illegal IAssetEntity Address");
+        revert("Illegal IAssetEntity");
       }
-      require(IAssetEntity(assets[i]).assetType() == IAssetEntity.AssetType.ERC20, "Invalid Asset Type");
       require(IAssetEntity(assets[i]).assetToken() == address(this), "Invalid Asset Token");
       if (IAssetEntity(assets[i]).assetName() == keccak256(abi.encodePacked("LIVELY_AUDIO_VIDEO_PROGRAM_ASSET"))) {
         _tokensDistributionValidation(assets[i]);
@@ -381,6 +375,10 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
       interfaceId == type(IERC20Pause).interfaceId ||
       interfaceId == type(IERC20Lock).interfaceId ||
       super.supportsInterface(interfaceId);
+  }
+
+  function getLibrary() public pure returns(address) {
+    return address(LTokenERC20);
   }
 
   function _initContext(

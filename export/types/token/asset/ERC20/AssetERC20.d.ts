@@ -7,7 +7,7 @@ export declare namespace AssetERC20 {
         domainRealm: PromiseOrValue<BytesLike>;
         assetRole: PromiseOrValue<BytesLike>;
         salt: PromiseOrValue<BytesLike>;
-        bytesHash: PromiseOrValue<BytesLike>;
+        subject: PromiseOrValue<string>;
         erc20Token: PromiseOrValue<string>;
         accessControl: PromiseOrValue<string>;
         assetManager: PromiseOrValue<string>;
@@ -30,7 +30,7 @@ export declare namespace AssetERC20 {
         domainRealm: string;
         assetRole: string;
         salt: string;
-        bytesHash: string;
+        subject: string;
         erc20Token: string;
         accessControl: string;
         assetManager: string;
@@ -95,7 +95,7 @@ export interface AssetERC20Interface extends utils.Interface {
         "assetToken()": FunctionFragment;
         "assetType()": FunctionFragment;
         "assetVersion()": FunctionFragment;
-        "initialize((bytes32,bytes32,bytes32,bytes32,address,address,address,string,string,bytes))": FunctionFragment;
+        "initialize((bytes32,bytes32,bytes32,address,address,address,address,string,string,bytes))": FunctionFragment;
         "supportsInterface(bytes4)": FunctionFragment;
         "tokenApprove(address,uint256)": FunctionFragment;
         "tokenBalance()": FunctionFragment;
@@ -109,7 +109,7 @@ export interface AssetERC20Interface extends utils.Interface {
         "tokenTransferFrom(address,address,uint256)": FunctionFragment;
         "withdrawBalance(address)": FunctionFragment;
     };
-    getFunction(nameOrSignatureOrTopic: "assetAcl" | "assetAcl()" | "assetBalance" | "assetBalance()" | "assetInitVersion" | "assetInitVersion()" | "assetName" | "assetName()" | "assetRealm" | "assetRealm()" | "assetRole" | "assetRole()" | "assetSafeMode" | "assetSafeMode()" | "assetSafeModeSet" | "assetSafeModeSet(bool)" | "assetToken" | "assetToken()" | "assetType" | "assetType()" | "assetVersion" | "assetVersion()" | "initialize" | "initialize((bytes32,bytes32,bytes32,bytes32,address,address,address,string,string,bytes))" | "supportsInterface" | "supportsInterface(bytes4)" | "tokenApprove" | "tokenApprove(address,uint256)" | "tokenBalance" | "tokenBalance()" | "tokenBatchLock" | "tokenBatchLock((address,address,uint256,uint256)[])" | "tokenBatchTransfer" | "tokenBatchTransfer((address,uint256)[])" | "tokenBatchTransferFrom" | "tokenBatchTransferFrom((address,address,uint256)[])" | "tokenDecreaseAllowance" | "tokenDecreaseAllowance(address,uint256)" | "tokenIncreaseAllowance" | "tokenIncreaseAllowance(address,uint256)" | "tokenLock" | "tokenLock((address,address,uint256,uint256))" | "tokenTransfer" | "tokenTransfer(address,uint256)" | "tokenTransferFrom" | "tokenTransferFrom(address,address,uint256)" | "withdrawBalance" | "withdrawBalance(address)"): FunctionFragment;
+    getFunction(nameOrSignatureOrTopic: "assetAcl" | "assetAcl()" | "assetBalance" | "assetBalance()" | "assetInitVersion" | "assetInitVersion()" | "assetName" | "assetName()" | "assetRealm" | "assetRealm()" | "assetRole" | "assetRole()" | "assetSafeMode" | "assetSafeMode()" | "assetSafeModeSet" | "assetSafeModeSet(bool)" | "assetToken" | "assetToken()" | "assetType" | "assetType()" | "assetVersion" | "assetVersion()" | "initialize" | "initialize((bytes32,bytes32,bytes32,address,address,address,address,string,string,bytes))" | "supportsInterface" | "supportsInterface(bytes4)" | "tokenApprove" | "tokenApprove(address,uint256)" | "tokenBalance" | "tokenBalance()" | "tokenBatchLock" | "tokenBatchLock((address,address,uint256,uint256)[])" | "tokenBatchTransfer" | "tokenBatchTransfer((address,uint256)[])" | "tokenBatchTransferFrom" | "tokenBatchTransferFrom((address,address,uint256)[])" | "tokenDecreaseAllowance" | "tokenDecreaseAllowance(address,uint256)" | "tokenIncreaseAllowance" | "tokenIncreaseAllowance(address,uint256)" | "tokenLock" | "tokenLock((address,address,uint256,uint256))" | "tokenTransfer" | "tokenTransfer(address,uint256)" | "tokenTransferFrom" | "tokenTransferFrom(address,address,uint256)" | "withdrawBalance" | "withdrawBalance(address)"): FunctionFragment;
     encodeFunctionData(functionFragment: "assetAcl", values?: undefined): string;
     encodeFunctionData(functionFragment: "assetAcl()", values?: undefined): string;
     encodeFunctionData(functionFragment: "assetBalance", values?: undefined): string;
@@ -133,7 +133,7 @@ export interface AssetERC20Interface extends utils.Interface {
     encodeFunctionData(functionFragment: "assetVersion", values?: undefined): string;
     encodeFunctionData(functionFragment: "assetVersion()", values?: undefined): string;
     encodeFunctionData(functionFragment: "initialize", values: [AssetERC20.InitRequestStruct]): string;
-    encodeFunctionData(functionFragment: "initialize((bytes32,bytes32,bytes32,bytes32,address,address,address,string,string,bytes))", values: [AssetERC20.InitRequestStruct]): string;
+    encodeFunctionData(functionFragment: "initialize((bytes32,bytes32,bytes32,address,address,address,address,string,string,bytes))", values: [AssetERC20.InitRequestStruct]): string;
     encodeFunctionData(functionFragment: "supportsInterface", values: [PromiseOrValue<BytesLike>]): string;
     encodeFunctionData(functionFragment: "supportsInterface(bytes4)", values: [PromiseOrValue<BytesLike>]): string;
     encodeFunctionData(functionFragment: "tokenApprove", values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]): string;
@@ -189,7 +189,7 @@ export interface AssetERC20Interface extends utils.Interface {
     decodeFunctionResult(functionFragment: "assetVersion", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "assetVersion()", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
-    decodeFunctionResult(functionFragment: "initialize((bytes32,bytes32,bytes32,bytes32,address,address,address,string,string,bytes))", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "initialize((bytes32,bytes32,bytes32,address,address,address,address,string,string,bytes))", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "supportsInterface", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "supportsInterface(bytes4)", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "tokenApprove", data: BytesLike): Result;
@@ -216,13 +216,13 @@ export interface AssetERC20Interface extends utils.Interface {
     decodeFunctionResult(functionFragment: "withdrawBalance(address)", data: BytesLike): Result;
     events: {
         "AssetERC20Called(address,address,bytes4)": EventFragment;
-        "AssetInitialized(address,address,address,address,string,string,bytes32,bytes32)": EventFragment;
+        "AssetInitialized(address,address,address,address,address,string,string,bytes32,bytes32)": EventFragment;
         "AssetSafeModeChanged(address,address,bytes32,bool)": EventFragment;
     };
     getEvent(nameOrSignatureOrTopic: "AssetERC20Called"): EventFragment;
     getEvent(nameOrSignatureOrTopic: "AssetERC20Called(address,address,bytes4)"): EventFragment;
     getEvent(nameOrSignatureOrTopic: "AssetInitialized"): EventFragment;
-    getEvent(nameOrSignatureOrTopic: "AssetInitialized(address,address,address,address,string,string,bytes32,bytes32)"): EventFragment;
+    getEvent(nameOrSignatureOrTopic: "AssetInitialized(address,address,address,address,address,string,string,bytes32,bytes32)"): EventFragment;
     getEvent(nameOrSignatureOrTopic: "AssetSafeModeChanged"): EventFragment;
     getEvent(nameOrSignatureOrTopic: "AssetSafeModeChanged(address,address,bytes32,bool)"): EventFragment;
 }
@@ -242,12 +242,14 @@ export interface AssetInitializedEventObject {
     assetId: string;
     tokenId: string;
     assetManager: string;
+    assetSubject: string;
     name: string;
     version: string;
     realm: string;
     role: string;
 }
 export declare type AssetInitializedEvent = TypedEvent<[
+    string,
     string,
     string,
     string,
@@ -315,7 +317,7 @@ export interface AssetERC20 extends BaseContract {
         initialize(request: AssetERC20.InitRequestStruct, overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<ContractTransaction>;
-        "initialize((bytes32,bytes32,bytes32,bytes32,address,address,address,string,string,bytes))"(request: AssetERC20.InitRequestStruct, overrides?: Overrides & {
+        "initialize((bytes32,bytes32,bytes32,address,address,address,address,string,string,bytes))"(request: AssetERC20.InitRequestStruct, overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<ContractTransaction>;
         supportsInterface(interfaceId: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<[boolean]>;
@@ -412,7 +414,7 @@ export interface AssetERC20 extends BaseContract {
     initialize(request: AssetERC20.InitRequestStruct, overrides?: Overrides & {
         from?: PromiseOrValue<string>;
     }): Promise<ContractTransaction>;
-    "initialize((bytes32,bytes32,bytes32,bytes32,address,address,address,string,string,bytes))"(request: AssetERC20.InitRequestStruct, overrides?: Overrides & {
+    "initialize((bytes32,bytes32,bytes32,address,address,address,address,string,string,bytes))"(request: AssetERC20.InitRequestStruct, overrides?: Overrides & {
         from?: PromiseOrValue<string>;
     }): Promise<ContractTransaction>;
     supportsInterface(interfaceId: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<boolean>;
@@ -503,7 +505,7 @@ export interface AssetERC20 extends BaseContract {
         assetVersion(overrides?: CallOverrides): Promise<string>;
         "assetVersion()"(overrides?: CallOverrides): Promise<string>;
         initialize(request: AssetERC20.InitRequestStruct, overrides?: CallOverrides): Promise<void>;
-        "initialize((bytes32,bytes32,bytes32,bytes32,address,address,address,string,string,bytes))"(request: AssetERC20.InitRequestStruct, overrides?: CallOverrides): Promise<void>;
+        "initialize((bytes32,bytes32,bytes32,address,address,address,address,string,string,bytes))"(request: AssetERC20.InitRequestStruct, overrides?: CallOverrides): Promise<void>;
         supportsInterface(interfaceId: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<boolean>;
         "supportsInterface(bytes4)"(interfaceId: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<boolean>;
         tokenApprove(spender: PromiseOrValue<string>, amount: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<boolean>;
@@ -532,8 +534,8 @@ export interface AssetERC20 extends BaseContract {
     filters: {
         "AssetERC20Called(address,address,bytes4)"(sender?: PromiseOrValue<string> | null, assetId?: PromiseOrValue<string> | null, functionSelector?: PromiseOrValue<BytesLike> | null): AssetERC20CalledEventFilter;
         AssetERC20Called(sender?: PromiseOrValue<string> | null, assetId?: PromiseOrValue<string> | null, functionSelector?: PromiseOrValue<BytesLike> | null): AssetERC20CalledEventFilter;
-        "AssetInitialized(address,address,address,address,string,string,bytes32,bytes32)"(sender?: PromiseOrValue<string> | null, assetId?: PromiseOrValue<string> | null, tokenId?: PromiseOrValue<string> | null, assetManager?: null, name?: null, version?: null, realm?: null, role?: null): AssetInitializedEventFilter;
-        AssetInitialized(sender?: PromiseOrValue<string> | null, assetId?: PromiseOrValue<string> | null, tokenId?: PromiseOrValue<string> | null, assetManager?: null, name?: null, version?: null, realm?: null, role?: null): AssetInitializedEventFilter;
+        "AssetInitialized(address,address,address,address,address,string,string,bytes32,bytes32)"(sender?: PromiseOrValue<string> | null, assetId?: PromiseOrValue<string> | null, tokenId?: PromiseOrValue<string> | null, assetManager?: null, assetSubject?: null, name?: null, version?: null, realm?: null, role?: null): AssetInitializedEventFilter;
+        AssetInitialized(sender?: PromiseOrValue<string> | null, assetId?: PromiseOrValue<string> | null, tokenId?: PromiseOrValue<string> | null, assetManager?: null, assetSubject?: null, name?: null, version?: null, realm?: null, role?: null): AssetInitializedEventFilter;
         "AssetSafeModeChanged(address,address,bytes32,bool)"(sender?: PromiseOrValue<string> | null, assetId?: PromiseOrValue<string> | null, realm?: PromiseOrValue<BytesLike> | null, status?: null): AssetSafeModeChangedEventFilter;
         AssetSafeModeChanged(sender?: PromiseOrValue<string> | null, assetId?: PromiseOrValue<string> | null, realm?: PromiseOrValue<BytesLike> | null, status?: null): AssetSafeModeChangedEventFilter;
     };
@@ -567,7 +569,7 @@ export interface AssetERC20 extends BaseContract {
         initialize(request: AssetERC20.InitRequestStruct, overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<BigNumber>;
-        "initialize((bytes32,bytes32,bytes32,bytes32,address,address,address,string,string,bytes))"(request: AssetERC20.InitRequestStruct, overrides?: Overrides & {
+        "initialize((bytes32,bytes32,bytes32,address,address,address,address,string,string,bytes))"(request: AssetERC20.InitRequestStruct, overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<BigNumber>;
         supportsInterface(interfaceId: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<BigNumber>;
@@ -665,7 +667,7 @@ export interface AssetERC20 extends BaseContract {
         initialize(request: AssetERC20.InitRequestStruct, overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<PopulatedTransaction>;
-        "initialize((bytes32,bytes32,bytes32,bytes32,address,address,address,string,string,bytes))"(request: AssetERC20.InitRequestStruct, overrides?: Overrides & {
+        "initialize((bytes32,bytes32,bytes32,address,address,address,address,string,string,bytes))"(request: AssetERC20.InitRequestStruct, overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<PopulatedTransaction>;
         supportsInterface(interfaceId: PromiseOrValue<BytesLike>, overrides?: CallOverrides): Promise<PopulatedTransaction>;

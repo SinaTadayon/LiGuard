@@ -476,6 +476,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "getLibrary",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",

@@ -126,6 +126,7 @@ export interface AssetManagerERC20Interface extends utils.Interface {
     "domainSeparator()": FunctionFragment;
     "getAllTokens()": FunctionFragment;
     "getAssetSubject()": FunctionFragment;
+    "getLibrary()": FunctionFragment;
     "getTokenInfo(address)": FunctionFragment;
     "initVersion()": FunctionFragment;
     "initialize((string,string,string,address,bytes))": FunctionFragment;
@@ -181,6 +182,8 @@ export interface AssetManagerERC20Interface extends utils.Interface {
       | "getAllTokens()"
       | "getAssetSubject"
       | "getAssetSubject()"
+      | "getLibrary"
+      | "getLibrary()"
       | "getTokenInfo"
       | "getTokenInfo(address)"
       | "initVersion"
@@ -319,6 +322,14 @@ export interface AssetManagerERC20Interface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getAssetSubject()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getLibrary",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getLibrary()",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -720,6 +731,11 @@ export interface AssetManagerERC20Interface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getAssetSubject()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "getLibrary", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getLibrary()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1244,6 +1260,10 @@ export interface AssetManagerERC20 extends BaseContract {
 
     "getAssetSubject()"(overrides?: CallOverrides): Promise<[string]>;
 
+    getLibrary(overrides?: CallOverrides): Promise<[string]>;
+
+    "getLibrary()"(overrides?: CallOverrides): Promise<[string]>;
+
     getTokenInfo(
       tokenId: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -1623,6 +1643,10 @@ export interface AssetManagerERC20 extends BaseContract {
 
   "getAssetSubject()"(overrides?: CallOverrides): Promise<string>;
 
+  getLibrary(overrides?: CallOverrides): Promise<string>;
+
+  "getLibrary()"(overrides?: CallOverrides): Promise<string>;
+
   getTokenInfo(
     tokenId: PromiseOrValue<string>,
     overrides?: CallOverrides
@@ -2001,6 +2025,10 @@ export interface AssetManagerERC20 extends BaseContract {
     getAssetSubject(overrides?: CallOverrides): Promise<string>;
 
     "getAssetSubject()"(overrides?: CallOverrides): Promise<string>;
+
+    getLibrary(overrides?: CallOverrides): Promise<string>;
+
+    "getLibrary()"(overrides?: CallOverrides): Promise<string>;
 
     getTokenInfo(
       tokenId: PromiseOrValue<string>,
@@ -2519,6 +2547,10 @@ export interface AssetManagerERC20 extends BaseContract {
 
     "getAssetSubject()"(overrides?: CallOverrides): Promise<BigNumber>;
 
+    getLibrary(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "getLibrary()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     getTokenInfo(
       tokenId: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -2910,6 +2942,10 @@ export interface AssetManagerERC20 extends BaseContract {
     "getAssetSubject()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    getLibrary(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "getLibrary()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getTokenInfo(
       tokenId: PromiseOrValue<string>,

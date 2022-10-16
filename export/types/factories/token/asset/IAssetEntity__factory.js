@@ -35,6 +35,12 @@ const _abi = [
             },
             {
                 indexed: false,
+                internalType: "address",
+                name: "assetSubject",
+                type: "address",
+            },
+            {
+                indexed: false,
                 internalType: "string",
                 name: "name",
                 type: "string",

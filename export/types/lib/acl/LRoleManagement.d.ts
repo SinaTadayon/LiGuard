@@ -6,16 +6,21 @@ export interface LRoleManagementInterface extends utils.Interface {
     functions: {
         "LIB_NAME()": FunctionFragment;
         "LIB_VERSION()": FunctionFragment;
+        "getLibrary()": FunctionFragment;
     };
-    getFunction(nameOrSignatureOrTopic: "LIB_NAME" | "LIB_NAME()" | "LIB_VERSION" | "LIB_VERSION()"): FunctionFragment;
+    getFunction(nameOrSignatureOrTopic: "LIB_NAME" | "LIB_NAME()" | "LIB_VERSION" | "LIB_VERSION()" | "getLibrary" | "getLibrary()"): FunctionFragment;
     encodeFunctionData(functionFragment: "LIB_NAME", values?: undefined): string;
     encodeFunctionData(functionFragment: "LIB_NAME()", values?: undefined): string;
     encodeFunctionData(functionFragment: "LIB_VERSION", values?: undefined): string;
     encodeFunctionData(functionFragment: "LIB_VERSION()", values?: undefined): string;
+    encodeFunctionData(functionFragment: "getLibrary", values?: undefined): string;
+    encodeFunctionData(functionFragment: "getLibrary()", values?: undefined): string;
     decodeFunctionResult(functionFragment: "LIB_NAME", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "LIB_NAME()", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "LIB_VERSION", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "LIB_VERSION()", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "getLibrary", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "getLibrary()", data: BytesLike): Result;
     events: {};
 }
 export interface LRoleManagement extends BaseContract {
@@ -37,16 +42,22 @@ export interface LRoleManagement extends BaseContract {
         "LIB_NAME()"(overrides?: CallOverrides): Promise<[string]>;
         LIB_VERSION(overrides?: CallOverrides): Promise<[string]>;
         "LIB_VERSION()"(overrides?: CallOverrides): Promise<[string]>;
+        getLibrary(overrides?: CallOverrides): Promise<[string]>;
+        "getLibrary()"(overrides?: CallOverrides): Promise<[string]>;
     };
     LIB_NAME(overrides?: CallOverrides): Promise<string>;
     "LIB_NAME()"(overrides?: CallOverrides): Promise<string>;
     LIB_VERSION(overrides?: CallOverrides): Promise<string>;
     "LIB_VERSION()"(overrides?: CallOverrides): Promise<string>;
+    getLibrary(overrides?: CallOverrides): Promise<string>;
+    "getLibrary()"(overrides?: CallOverrides): Promise<string>;
     callStatic: {
         LIB_NAME(overrides?: CallOverrides): Promise<string>;
         "LIB_NAME()"(overrides?: CallOverrides): Promise<string>;
         LIB_VERSION(overrides?: CallOverrides): Promise<string>;
         "LIB_VERSION()"(overrides?: CallOverrides): Promise<string>;
+        getLibrary(overrides?: CallOverrides): Promise<string>;
+        "getLibrary()"(overrides?: CallOverrides): Promise<string>;
     };
     filters: {};
     estimateGas: {
@@ -54,11 +65,15 @@ export interface LRoleManagement extends BaseContract {
         "LIB_NAME()"(overrides?: CallOverrides): Promise<BigNumber>;
         LIB_VERSION(overrides?: CallOverrides): Promise<BigNumber>;
         "LIB_VERSION()"(overrides?: CallOverrides): Promise<BigNumber>;
+        getLibrary(overrides?: CallOverrides): Promise<BigNumber>;
+        "getLibrary()"(overrides?: CallOverrides): Promise<BigNumber>;
     };
     populateTransaction: {
         LIB_NAME(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         "LIB_NAME()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         LIB_VERSION(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         "LIB_VERSION()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+        getLibrary(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+        "getLibrary()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
     };
 }

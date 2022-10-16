@@ -58,6 +58,12 @@
       },
       {
         "indexed": false,
+        "internalType": "address",
+        "name": "assetSubject",
+        "type": "address"
+      },
+      {
+        "indexed": false,
         "internalType": "string",
         "name": "name",
         "type": "string"
@@ -288,9 +294,9 @@
             "type": "bytes32"
           },
           {
-            "internalType": "bytes32",
-            "name": "bytesHash",
-            "type": "bytes32"
+            "internalType": "address",
+            "name": "subject",
+            "type": "address"
           },
           {
             "internalType": "address",

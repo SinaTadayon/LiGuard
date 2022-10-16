@@ -10,8 +10,6 @@ import "../lively/LivelyToken.sol";
 import "../../proxy/BaseUUPSProxy.sol";
 import "../../lib/token/LAssetManagerERC20.sol";
 
-import "hardhat/console.sol";
-
 contract AssetManagerERC20 is AssetManagerStorageERC20, BaseUUPSProxy, IAssetManagerERC20 {
 
   using LEnumerableSet for LEnumerableSet.AddressSet;
@@ -196,6 +194,10 @@ contract AssetManagerERC20 is AssetManagerStorageERC20, BaseUUPSProxy, IAssetMan
 
   function getAssetSubject() external view returns (address) {
     return _assetSubjectERC20;
+  }
+
+  function getLibrary() public pure returns(address) {
+    return address(LAssetManagerERC20);
   }
 
   function _policyInterceptor(bytes4 funcSelector) private safeModeCheck aclCheck(funcSelector) {}

@@ -109,6 +109,7 @@ export interface LivelyTokenInterface extends utils.Interface {
         "decimals()": FunctionFragment;
         "decreaseAllowance(address,uint256)": FunctionFragment;
         "domainSeparator()": FunctionFragment;
+        "getLibrary()": FunctionFragment;
         "increaseAllowance(address,uint256)": FunctionFragment;
         "initVersion()": FunctionFragment;
         "initialize((string,string,string,bytes,uint256,address))": FunctionFragment;
@@ -150,7 +151,7 @@ export interface LivelyTokenInterface extends utils.Interface {
         "upgradeTo(address,bytes,bool)": FunctionFragment;
         "withdrawBalance(address)": FunctionFragment;
     };
-    getFunction(nameOrSignatureOrTopic: "accessControlManager" | "accessControlManager()" | "allowance" | "allowance(address,address)" | "approve" | "approve(address,uint256)" | "balanceOf" | "balanceOf(address)" | "batchClaimToken" | "batchClaimToken(bytes32[])" | "batchLockToken" | "batchLockToken((address,address,uint256,uint256)[])" | "batchTransfer" | "batchTransfer((address,uint256)[])" | "batchTransferFrom" | "batchTransferFrom((address,address,uint256)[])" | "batchUnlockToken" | "batchUnlockToken((bytes32,address,string)[])" | "batchUpdateTaxWhitelist" | "batchUpdateTaxWhitelist((address,bool)[])" | "burn" | "burn(address,uint256)" | "claimToken" | "claimToken(bytes32)" | "contractContext" | "contractContext()" | "contractName" | "contractName()" | "contractRealm" | "contractRealm()" | "contractVersion" | "contractVersion()" | "decimals" | "decimals()" | "decreaseAllowance" | "decreaseAllowance(address,uint256)" | "domainSeparator" | "domainSeparator()" | "increaseAllowance" | "increaseAllowance(address,uint256)" | "initVersion" | "initVersion()" | "initialize" | "initialize((string,string,string,bytes,uint256,address))" | "isPaused" | "isPaused(address)" | "isPausedAll" | "isPausedAll()" | "isSafeMode" | "isSafeMode()" | "isUpgradable" | "isUpgradable()" | "localAdmin" | "localAdmin()" | "lockBalanceOf" | "lockBalanceOf(address)" | "lockInfo" | "lockInfo(bytes32,address)" | "lockToken" | "lockToken((address,address,uint256,uint256))" | "mint" | "mint(address,uint256)" | "name" | "name()" | "nonce" | "nonce(address)" | "pause" | "pause(address)" | "pauseAll" | "pauseAll()" | "pausedAccounts" | "pausedAccounts()" | "permit" | "permit(address,address,uint256,uint256,bytes)" | "proxiableUUID" | "proxiableUUID()" | "setLocalAdmin" | "setLocalAdmin(address)" | "setSafeMode" | "setSafeMode(bool)" | "setUpgradeStatus" | "setUpgradeStatus(bool)" | "subjectAddress" | "subjectAddress()" | "supportsInterface" | "supportsInterface(bytes4)" | "symbol" | "symbol()" | "taxRate" | "taxRate()" | "taxTreasury" | "taxTreasury()" | "taxWhitelist" | "taxWhitelist()" | "tokensDistribution" | "tokensDistribution(address,address[7])" | "totalBalanceOf" | "totalBalanceOf(address)" | "totalSupply" | "totalSupply()" | "transfer" | "transfer(address,uint256)" | "transferFrom" | "transferFrom(address,address,uint256)" | "unlockToken" | "unlockToken((bytes32,address,string))" | "unpause" | "unpause(address)" | "unpauseAll" | "unpauseAll()" | "updateTaxRate" | "updateTaxRate(uint256)" | "updateTaxWhitelist" | "updateTaxWhitelist(address,bool)" | "upgradeTo" | "upgradeTo(address,bytes,bool)" | "withdrawBalance" | "withdrawBalance(address)"): FunctionFragment;
+    getFunction(nameOrSignatureOrTopic: "accessControlManager" | "accessControlManager()" | "allowance" | "allowance(address,address)" | "approve" | "approve(address,uint256)" | "balanceOf" | "balanceOf(address)" | "batchClaimToken" | "batchClaimToken(bytes32[])" | "batchLockToken" | "batchLockToken((address,address,uint256,uint256)[])" | "batchTransfer" | "batchTransfer((address,uint256)[])" | "batchTransferFrom" | "batchTransferFrom((address,address,uint256)[])" | "batchUnlockToken" | "batchUnlockToken((bytes32,address,string)[])" | "batchUpdateTaxWhitelist" | "batchUpdateTaxWhitelist((address,bool)[])" | "burn" | "burn(address,uint256)" | "claimToken" | "claimToken(bytes32)" | "contractContext" | "contractContext()" | "contractName" | "contractName()" | "contractRealm" | "contractRealm()" | "contractVersion" | "contractVersion()" | "decimals" | "decimals()" | "decreaseAllowance" | "decreaseAllowance(address,uint256)" | "domainSeparator" | "domainSeparator()" | "getLibrary" | "getLibrary()" | "increaseAllowance" | "increaseAllowance(address,uint256)" | "initVersion" | "initVersion()" | "initialize" | "initialize((string,string,string,bytes,uint256,address))" | "isPaused" | "isPaused(address)" | "isPausedAll" | "isPausedAll()" | "isSafeMode" | "isSafeMode()" | "isUpgradable" | "isUpgradable()" | "localAdmin" | "localAdmin()" | "lockBalanceOf" | "lockBalanceOf(address)" | "lockInfo" | "lockInfo(bytes32,address)" | "lockToken" | "lockToken((address,address,uint256,uint256))" | "mint" | "mint(address,uint256)" | "name" | "name()" | "nonce" | "nonce(address)" | "pause" | "pause(address)" | "pauseAll" | "pauseAll()" | "pausedAccounts" | "pausedAccounts()" | "permit" | "permit(address,address,uint256,uint256,bytes)" | "proxiableUUID" | "proxiableUUID()" | "setLocalAdmin" | "setLocalAdmin(address)" | "setSafeMode" | "setSafeMode(bool)" | "setUpgradeStatus" | "setUpgradeStatus(bool)" | "subjectAddress" | "subjectAddress()" | "supportsInterface" | "supportsInterface(bytes4)" | "symbol" | "symbol()" | "taxRate" | "taxRate()" | "taxTreasury" | "taxTreasury()" | "taxWhitelist" | "taxWhitelist()" | "tokensDistribution" | "tokensDistribution(address,address[7])" | "totalBalanceOf" | "totalBalanceOf(address)" | "totalSupply" | "totalSupply()" | "transfer" | "transfer(address,uint256)" | "transferFrom" | "transferFrom(address,address,uint256)" | "unlockToken" | "unlockToken((bytes32,address,string))" | "unpause" | "unpause(address)" | "unpauseAll" | "unpauseAll()" | "updateTaxRate" | "updateTaxRate(uint256)" | "updateTaxWhitelist" | "updateTaxWhitelist(address,bool)" | "upgradeTo" | "upgradeTo(address,bytes,bool)" | "withdrawBalance" | "withdrawBalance(address)"): FunctionFragment;
     encodeFunctionData(functionFragment: "accessControlManager", values?: undefined): string;
     encodeFunctionData(functionFragment: "accessControlManager()", values?: undefined): string;
     encodeFunctionData(functionFragment: "allowance", values: [PromiseOrValue<string>, PromiseOrValue<string>]): string;
@@ -189,6 +190,8 @@ export interface LivelyTokenInterface extends utils.Interface {
     encodeFunctionData(functionFragment: "decreaseAllowance(address,uint256)", values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]): string;
     encodeFunctionData(functionFragment: "domainSeparator", values?: undefined): string;
     encodeFunctionData(functionFragment: "domainSeparator()", values?: undefined): string;
+    encodeFunctionData(functionFragment: "getLibrary", values?: undefined): string;
+    encodeFunctionData(functionFragment: "getLibrary()", values?: undefined): string;
     encodeFunctionData(functionFragment: "increaseAllowance", values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]): string;
     encodeFunctionData(functionFragment: "increaseAllowance(address,uint256)", values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]): string;
     encodeFunctionData(functionFragment: "initVersion", values?: undefined): string;
@@ -335,6 +338,8 @@ export interface LivelyTokenInterface extends utils.Interface {
     decodeFunctionResult(functionFragment: "decreaseAllowance(address,uint256)", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "domainSeparator", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "domainSeparator()", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "getLibrary", data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: "getLibrary()", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "increaseAllowance", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "increaseAllowance(address,uint256)", data: BytesLike): Result;
     decodeFunctionResult(functionFragment: "initVersion", data: BytesLike): Result;
@@ -873,6 +878,8 @@ export interface LivelyToken extends BaseContract {
         }): Promise<ContractTransaction>;
         domainSeparator(overrides?: CallOverrides): Promise<[string]>;
         "domainSeparator()"(overrides?: CallOverrides): Promise<[string]>;
+        getLibrary(overrides?: CallOverrides): Promise<[string]>;
+        "getLibrary()"(overrides?: CallOverrides): Promise<[string]>;
         increaseAllowance(spender: PromiseOrValue<string>, amount: PromiseOrValue<BigNumberish>, overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<ContractTransaction>;
@@ -1112,6 +1119,8 @@ export interface LivelyToken extends BaseContract {
     }): Promise<ContractTransaction>;
     domainSeparator(overrides?: CallOverrides): Promise<string>;
     "domainSeparator()"(overrides?: CallOverrides): Promise<string>;
+    getLibrary(overrides?: CallOverrides): Promise<string>;
+    "getLibrary()"(overrides?: CallOverrides): Promise<string>;
     increaseAllowance(spender: PromiseOrValue<string>, amount: PromiseOrValue<BigNumberish>, overrides?: Overrides & {
         from?: PromiseOrValue<string>;
     }): Promise<ContractTransaction>;
@@ -1311,6 +1320,8 @@ export interface LivelyToken extends BaseContract {
         "decreaseAllowance(address,uint256)"(spender: PromiseOrValue<string>, amount: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<BigNumber>;
         domainSeparator(overrides?: CallOverrides): Promise<string>;
         "domainSeparator()"(overrides?: CallOverrides): Promise<string>;
+        getLibrary(overrides?: CallOverrides): Promise<string>;
+        "getLibrary()"(overrides?: CallOverrides): Promise<string>;
         increaseAllowance(spender: PromiseOrValue<string>, amount: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<BigNumber>;
         "increaseAllowance(address,uint256)"(spender: PromiseOrValue<string>, amount: PromiseOrValue<BigNumberish>, overrides?: CallOverrides): Promise<BigNumber>;
         initVersion(overrides?: CallOverrides): Promise<number>;
@@ -1525,6 +1536,8 @@ export interface LivelyToken extends BaseContract {
         }): Promise<BigNumber>;
         domainSeparator(overrides?: CallOverrides): Promise<BigNumber>;
         "domainSeparator()"(overrides?: CallOverrides): Promise<BigNumber>;
+        getLibrary(overrides?: CallOverrides): Promise<BigNumber>;
+        "getLibrary()"(overrides?: CallOverrides): Promise<BigNumber>;
         increaseAllowance(spender: PromiseOrValue<string>, amount: PromiseOrValue<BigNumberish>, overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<BigNumber>;
@@ -1765,6 +1778,8 @@ export interface LivelyToken extends BaseContract {
         }): Promise<PopulatedTransaction>;
         domainSeparator(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         "domainSeparator()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+        getLibrary(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+        "getLibrary()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
         increaseAllowance(spender: PromiseOrValue<string>, amount: PromiseOrValue<BigNumberish>, overrides?: Overrides & {
             from?: PromiseOrValue<string>;
         }): Promise<PopulatedTransaction>;

@@ -24,6 +24,7 @@ export interface LRoleManagementInterface extends utils.Interface {
   functions: {
     "LIB_NAME()": FunctionFragment;
     "LIB_VERSION()": FunctionFragment;
+    "getLibrary()": FunctionFragment;
   };
 
   getFunction(
@@ -32,6 +33,8 @@ export interface LRoleManagementInterface extends utils.Interface {
       | "LIB_NAME()"
       | "LIB_VERSION"
       | "LIB_VERSION()"
+      | "getLibrary"
+      | "getLibrary()"
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "LIB_NAME", values?: undefined): string;
@@ -47,6 +50,14 @@ export interface LRoleManagementInterface extends utils.Interface {
     functionFragment: "LIB_VERSION()",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "getLibrary",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getLibrary()",
+    values?: undefined
+  ): string;
 
   decodeFunctionResult(functionFragment: "LIB_NAME", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "LIB_NAME()", data: BytesLike): Result;
@@ -56,6 +67,11 @@ export interface LRoleManagementInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "LIB_VERSION()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "getLibrary", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getLibrary()",
     data: BytesLike
   ): Result;
 
@@ -96,6 +112,10 @@ export interface LRoleManagement extends BaseContract {
     LIB_VERSION(overrides?: CallOverrides): Promise<[string]>;
 
     "LIB_VERSION()"(overrides?: CallOverrides): Promise<[string]>;
+
+    getLibrary(overrides?: CallOverrides): Promise<[string]>;
+
+    "getLibrary()"(overrides?: CallOverrides): Promise<[string]>;
   };
 
   LIB_NAME(overrides?: CallOverrides): Promise<string>;
@@ -106,6 +126,10 @@ export interface LRoleManagement extends BaseContract {
 
   "LIB_VERSION()"(overrides?: CallOverrides): Promise<string>;
 
+  getLibrary(overrides?: CallOverrides): Promise<string>;
+
+  "getLibrary()"(overrides?: CallOverrides): Promise<string>;
+
   callStatic: {
     LIB_NAME(overrides?: CallOverrides): Promise<string>;
 
@@ -114,6 +138,10 @@ export interface LRoleManagement extends BaseContract {
     LIB_VERSION(overrides?: CallOverrides): Promise<string>;
 
     "LIB_VERSION()"(overrides?: CallOverrides): Promise<string>;
+
+    getLibrary(overrides?: CallOverrides): Promise<string>;
+
+    "getLibrary()"(overrides?: CallOverrides): Promise<string>;
   };
 
   filters: {};
@@ -126,6 +154,10 @@ export interface LRoleManagement extends BaseContract {
     LIB_VERSION(overrides?: CallOverrides): Promise<BigNumber>;
 
     "LIB_VERSION()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getLibrary(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "getLibrary()"(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -136,5 +168,9 @@ export interface LRoleManagement extends BaseContract {
     LIB_VERSION(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "LIB_VERSION()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getLibrary(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "getLibrary()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

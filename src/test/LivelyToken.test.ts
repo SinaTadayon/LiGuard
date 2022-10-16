@@ -6,8 +6,15 @@ import { Address } from "hardhat-deploy/dist/types";
 import {
   AccessControlManager,
   AccessControlManager__factory,
+  AssetERC20,
+  AssetERC20__factory,
+  AssetManagerERC20,
+  AssetManagerERC20__factory,
+  IAssetManagerERC20,
   IERC20Extra,
+  IRoleManagement,
   LAccessControl__factory,
+  LAssetManagerERC20__factory,
   LContextManagement__factory,
   LGroupManagement__factory,
   LivelyToken,
@@ -27,7 +34,17 @@ import {
   generatePermitDomainSignatureByHardhat,
   LIVELY_COMMUNITY_DAO_ROLE,
   LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE,
-  LIVELY_ADMIN_ROLE, LIVELY_ASSET_MANAGER_ROLE, LockState
+  LIVELY_ADMIN_ROLE,
+  LIVELY_ASSET_MANAGER_ROLE,
+  LockState,
+  generatePredictContextDomainSignatureManually,
+  LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_ROLE,
+  LIVELY_FOUNDING_TEAM_ASSET_ROLE,
+  LIVELY_TREASURY_ASSET_ROLE,
+  LIVELY_PUBLIC_SALE_ASSET_ROLE,
+  LIVELY_VALIDATORS_REWARDS_ASSET_ROLE,
+  LIVELY_CROWD_FOUNDING_ASSET_ROLE,
+  LIVELY_ASSET_ADMIN_ROLE
 } from "./TestUtils";
 /* eslint-disable node/no-extraneous-import */
 import { TransactionRequest, TransactionResponse } from "@ethersproject/abstract-provider";
@@ -41,22 +58,23 @@ const { provider } = waffle;
 describe("Lively Token Tests", function () {
   let admin: Signer;
   let systemAdmin: Signer;
-  let assetManager: Signer;
+  let assetAdmin: Signer;
   let user1: Signer;
   let user2: Signer;
-  let taxTreasury: Signer;
   let adminWallet: Wallet;
   let systemAdminWallet: Wallet;
   let user1Wallet: Wallet;
   let user2Wallet: Wallet;
-  let assetManagerWallet: Wallet;
-  let taxTreasuryWallet: Wallet;
+  let assetAdminWallet: Wallet;
   let adminAddress: Address;
   let systemAdminAddress: Address;
   let user1Address: Address;
   let user2Address: Address;
-  let assetManagerAddress: Address;
-  let taxTreasuryAddress: Address;
+  let assetAdminAddress: Address;
+  let assetAudioVideoProgram: AssetERC20;
+  let assetTaxTreasury: AssetERC20;
+  let assetSubjectERC20: AssetERC20;
+  let assetManagerERC20: AssetManagerERC20;
   let lTokenERC20: LTokenERC20;
   let linkLibraryAddresses: LivelyTokenLibraryAddresses;
   let accessControlManager: AccessControlManager;
@@ -67,7 +85,7 @@ describe("Lively Token Tests", function () {
   let user1LockIds: string[] = [];
   let user2LockIds: string[] = [];
   const taxValue = BigNumber.from(300);
-  const tokenDecimal = BigNumber.from(10).pow(BigNumber.from(18));
+  const tokenDecimal = BigNumber.from(10).pow(18);
   const dummyAmount = BigNumber.from(10000).mul(tokenDecimal);
   const livelyTokenDomainName = "LivelyToken";
   const livelyTokenDomainVersion = "1.0.0";
@@ -76,18 +94,20 @@ describe("Lively Token Tests", function () {
   const livelyTokenDomainVersionHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(livelyTokenDomainVersion));
   const livelyTokenDomainRealmHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(livelyTokenDomainRealm));
   const livelyTokenTotalSupply = BigNumber.from("5000000000").mul(tokenDecimal);
+  const assetManagerERC20DomainRealm = "LIVELY_ASSET_REALM";
+  const livelyAssetERC20DomainVersion = "1.0.0";
+  const assetManagerERC20DomainRealmHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(assetManagerERC20DomainRealm));
 
   this.beforeAll(async () => {
-    [admin, systemAdmin, user1, user2, assetManager, taxTreasury] = await ethers.getSigners();
+    [admin, systemAdmin, user1, user2, assetAdmin] = await ethers.getSigners();
     /* eslint-disable @typescript-eslint/no-unused-vars */
-    [adminWallet, systemAdminWallet, user1Wallet, user2Wallet, assetManagerWallet, taxTreasuryWallet] =
+    [adminWallet, systemAdminWallet, user1Wallet, user2Wallet, assetAdminWallet] =
       waffle.provider.getWallets();
     adminAddress = await admin.getAddress();
     systemAdminAddress = await systemAdmin.getAddress();
     user1Address = await user1.getAddress();
     user2Address = await user2.getAddress();
-    taxTreasuryAddress = await taxTreasury.getAddress();
-    assetManagerAddress = await assetManager.getAddress();
+    assetAdminAddress = await assetAdmin.getAddress();
     networkChainId = parseInt(await provider.send("eth_chainId", []));
     // console.log(`system admin address: ${systemAdminAddress}`);
   });
@@ -194,15 +214,6 @@ describe("Lively Token Tests", function () {
       expect(await accessControlManager.isLivelyAdminRole(systemAdminAddress)).to.be.false;
     });
 
-    it("Should grant LIVELY_ASSET_MANAGER_ROLE to asset manager account success", async () => {
-      // when
-      await expect(accessControlManager.connect(admin).grantRoleAccount(LIVELY_ASSET_MANAGER_ROLE, assetManagerAddress))
-        .to.emit(accessControlManager, "RoleAccountGranted")
-        .withArgs(adminAddress, LIVELY_ASSET_MANAGER_ROLE, assetManagerAddress);
-
-      // then
-      expect(await accessControlManager.isLivelyAssetManagerRole(assetManagerAddress)).to.be.true;
-    });
   });
 
   describe("Subject (LivelyToken Implementation) Tests", function () {
@@ -224,6 +235,7 @@ describe("Lively Token Tests", function () {
       expect(await livelyTokenSubject.isSafeMode()).to.be.true;
       expect(await livelyTokenSubject.isUpgradable()).to.be.false;
       expect(await livelyTokenSubject.initVersion()).to.be.equal(0);
+      expect(await livelyTokenSubject.getLibrary()).to.be.equal(lTokenERC20.address);
       expect(await livelyTokenSubject.localAdmin()).to.be.hexEqual(systemAdminAddress);
     });
 
@@ -336,6 +348,7 @@ describe("Lively Token Tests", function () {
       expect(await livelyTokenProxy.accessControlManager(), "Invalid Access Control").to.be.hexEqual(
         accessControlManager.address
       );
+      expect(await livelyTokenProxy.getLibrary()).to.be.equal(lTokenERC20.address);
       expect(await livelyTokenProxy.contractContext(), "Invalid Context").to.be.hexEqual(
         ethers.utils.keccak256(livelyTokenProxy.address)
       );
@@ -352,6 +365,397 @@ describe("Lively Token Tests", function () {
       );
     });
 
+    it("Should deploy and initialize AssetManagerERC20 success", async () => {
+      // given
+      const networkChainId = await provider.send("eth_chainId", []);
+      const assetManagerERC20DomainName = "AssetManagerERC20";
+      const assetManagerERC20DomainVersion = "1.0.0";
+      const assetManagerERC20DomainNameHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(assetManagerERC20DomainName));
+      const assetManagerERC20DomainVersionHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(assetManagerERC20DomainVersion));
+      const assetManagerERC20DomainRealmHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(assetManagerERC20DomainRealm));
+      const lAssetManagerERC20Factory = new LAssetManagerERC20__factory(systemAdmin);
+      const lAssetManagerERC20 = await lAssetManagerERC20Factory.deploy();
+      const assetManagerLinkLibraryAddresses = {
+        "src/contracts/lib/token/LAssetManagerERC20.sol:LAssetManagerERC20": lAssetManagerERC20.address,
+      };
+      const assetManagerFactory = new AssetManagerERC20__factory(assetManagerLinkLibraryAddresses, systemAdmin);
+      const assetManagerSubject = await assetManagerFactory.deploy();
+
+      // when
+      const proxyFactory = new Proxy__factory(systemAdmin);
+      const assetProxy = await proxyFactory.deploy(assetManagerSubject.address, new Int8Array(0));
+      const signature = await generateContextDomainSignatureManually(
+        assetProxy.address,
+        assetManagerERC20DomainName,
+        assetManagerERC20DomainVersion,
+        assetManagerERC20DomainRealm,
+        accessControlManager.address,
+        systemAdminWallet,
+        networkChainId
+      );
+      const request: AssetManagerERC20.InitRequestStruct = {
+        domainName: assetManagerERC20DomainName,
+        domainVersion: assetManagerERC20DomainVersion,
+        domainRealm: assetManagerERC20DomainRealm,
+        accessControlManager: accessControlManager.address,
+        assetManagerSignature: signature,
+      };
+
+      // when
+      assetManagerERC20 = assetManagerSubject.attach(assetProxy.address);
+      await expect(assetManagerERC20.connect(systemAdmin).initialize(request))
+        .to.emit(assetManagerERC20, "Upgraded")
+        .withArgs(systemAdminAddress, assetManagerERC20.address, assetManagerSubject.address)
+        .to.emit(assetManagerERC20, "LocalAdminChanged")
+        .withArgs(systemAdminAddress, assetManagerERC20.address, systemAdminAddress)
+        .to.emit(assetManagerERC20, "Initialized")
+        .withArgs(
+          systemAdminAddress,
+          assetManagerERC20.address,
+          assetManagerSubject.address,
+          assetManagerERC20DomainName,
+          assetManagerERC20DomainVersion,
+          assetManagerERC20DomainRealmHash,
+          1
+        );
+
+      // and
+      await expect(accessControlManager.connect(admin).grantRoleAccount(LIVELY_ASSET_ADMIN_ROLE, assetAdminAddress))
+        .to.emit(accessControlManager, "RoleAccountGranted")
+        .withArgs(adminAddress, LIVELY_ASSET_ADMIN_ROLE, assetAdminAddress);
+
+      // and
+      await expect(accessControlManager.connect(admin).grantRoleAccount(LIVELY_ASSET_MANAGER_ROLE, assetManagerERC20.address))
+        .to.emit(accessControlManager, "RoleAccountGranted")
+        .withArgs(adminAddress, LIVELY_ASSET_MANAGER_ROLE, assetManagerERC20.address);
+
+      // and
+      await expect(accessControlManager.connect(admin).grantRoleAccount(LIVELY_ASSET_ADMIN_ROLE, assetManagerERC20.address))
+        .to.emit(accessControlManager, "RoleAccountGranted")
+        .withArgs(adminAddress, LIVELY_ASSET_ADMIN_ROLE, assetManagerERC20.address);
+
+      // then
+      expect(await accessControlManager.isLivelyAssetManagerRole(assetManagerERC20.address)).to.be.true;
+      expect(await accessControlManager.isLivelyAssetAdminRole(assetManagerERC20.address)).to.be.true;
+      expect(await accessControlManager.isLivelyAssetAdminRole(assetAdminAddress)).to.be.true;
+      expect(await assetManagerERC20.isSafeMode(), "Invalid SafeMode").to.be.false;
+      expect(await assetManagerERC20.isUpgradable(), "Invalid Upgradability").to.be.false;
+      expect(await assetManagerERC20.initVersion(), "Invalid Init Version").to.be.equal(1);
+      expect(await assetManagerERC20.localAdmin(), "Invalid Local Admin").to.be.hexEqual(systemAdminAddress);
+      expect(await assetManagerERC20.contractName(), "Invalid Name").to.be.hexEqual(assetManagerERC20DomainNameHash);
+      expect(await assetManagerERC20.contractVersion(), "Invalid Version").to.be.hexEqual(assetManagerERC20DomainVersionHash);
+      expect(await assetManagerERC20.contractRealm(), "Invalid Realm").to.be.hexEqual(assetManagerERC20DomainRealmHash);
+      expect(await assetManagerERC20.accessControlManager(), "Invalid Access Control").to.be.hexEqual(
+        accessControlManager.address
+      );
+      expect(await assetManagerERC20.contractContext(), "Invalid Context").to.be.hexEqual(
+        ethers.utils.keccak256(assetManagerERC20.address)
+      );
+      expect(await assetManagerERC20.subjectAddress(), "Invalid Subject Address").to.be.hexEqual(
+        assetManagerSubject.address
+      );
+      expect(await assetManagerERC20.getLibrary(), "Invalid Library Address").to.be.equal(lAssetManagerERC20.address);
+      expect(await assetManagerERC20.domainSeparator()).to.be.equal(
+        generateDomainSeparator(
+          assetManagerERC20DomainName,
+          assetManagerERC20DomainVersion,
+          assetManagerERC20.address,
+          networkChainId
+        )
+      );
+    });
+
+    it("Should deploy assetERC20 and update assetManagerERC20 success", async() => {
+      // given
+      const factory = new AssetERC20__factory(systemAdmin);
+      const networkChainId = await provider.send("eth_chainId", []);
+      assetSubjectERC20 = await factory.deploy();
+      const signature = await generatePredictContextDomainSignatureManually(
+        assetManagerERC20.address,
+        assetManagerERC20DomainRealm,
+        accessControlManager.address,
+        systemAdminWallet,
+        networkChainId,
+        assetSubjectERC20.address
+      )
+
+      // when
+      await expect(assetManagerERC20.connect(assetAdmin).updateAssetSubject(assetSubjectERC20.address, signature))
+        .to.emit(assetManagerERC20, "AssetSubjectUpdated")
+        .withArgs(assetAdminAddress, assetSubjectERC20.address);
+
+      // then
+      expect(await assetManagerERC20.getAssetSubject()).to.be.hexEqual(assetSubjectERC20.address)
+    })
+
+    it("Should register lively token to assetManagerERC20 by assetAdmin success", async() => {
+      // given
+      const tokenName = await livelyTokenProxy.name();
+      const tokenSymbol = await livelyTokenProxy.symbol();
+
+      // when
+      await expect(assetManagerERC20.connect(assetAdmin).registerToken(livelyTokenProxy.address))
+        .to.emit(assetManagerERC20, "TokenRegistered")
+        .withArgs(assetAdminAddress, livelyTokenProxy.address, tokenName, tokenSymbol);
+
+      // then
+      expect(await assetManagerERC20.isTokenExists(livelyTokenProxy.address)).to.be.true;
+    })
+
+    it("Should create LIVELY_AUDIO_VIDEO_PROGRAM_ASSET asset by assetAdmin success", async() => {
+      // given
+      const livelyAudioVideoProgramAssetName = "LIVELY_AUDIO_VIDEO_PROGRAM_ASSET";
+      const factory = new AssetERC20__factory(systemAdmin);
+      const saltValue = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(`${Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)}`));
+      const assetId = await assetManagerERC20.predictAddress(assetSubjectERC20.address, saltValue, assetManagerERC20.address);
+      const createAssetRequest: IAssetManagerERC20.CreateAssetRequestStruct = {
+        assetName: livelyAudioVideoProgramAssetName,
+        assetVersion: livelyAssetERC20DomainVersion,
+        tokenId: livelyTokenProxy.address,
+        role: LIVELY_ASSET_ADMIN_ROLE,
+        salt: saltValue
+      }
+      assetAudioVideoProgram = await factory.attach(assetId);
+
+      // when
+      await expect(assetManagerERC20.connect(assetAdmin).createAsset(createAssetRequest))
+        .to.emit(assetManagerERC20, "AssetCreated")
+        .withArgs(assetAdminAddress, assetId, livelyTokenProxy.address, assetSubjectERC20.address)
+        .to.emit(assetAudioVideoProgram, "AssetInitialized")
+        .withArgs(assetManagerERC20.address, assetId, livelyTokenProxy.address, assetManagerERC20.address,
+          assetSubjectERC20.address, livelyAudioVideoProgramAssetName, livelyAssetERC20DomainVersion, assetManagerERC20DomainRealmHash,
+          LIVELY_ASSET_ADMIN_ROLE)
+
+      // and
+      await expect(accessControlManager.connect(admin).grantRoleAccount(LIVELY_ASSET_MANAGER_ROLE, assetAudioVideoProgram.address))
+        .to.emit(accessControlManager, "RoleAccountGranted")
+        .withArgs(adminAddress, LIVELY_ASSET_MANAGER_ROLE, assetAudioVideoProgram.address);
+
+      // then
+      expect(await accessControlManager.isContextExists(ethers.utils.keccak256(assetId))).to.be.true;
+      expect(await accessControlManager.hasRealmContext(assetManagerERC20DomainRealmHash, ethers.utils.keccak256(assetId))).to.be.true;
+      expect(await assetManagerERC20.isAssetExists(assetId)).to.be.true;
+    })
+
+    it("Should create LIVELY_FOUNDING_TEAM_ASSET asset by assetAdmin success", async() => {
+      // given
+      const livelyFoundingTeamAssetName = "LIVELY_FOUNDING_TEAM_ASSET";
+      const factory = new AssetERC20__factory(systemAdmin);
+      const saltValue = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(`${Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)}`));
+      const assetId = await assetManagerERC20.predictAddress(assetSubjectERC20.address, saltValue, assetManagerERC20.address);
+      const createAssetRequest: IAssetManagerERC20.CreateAssetRequestStruct = {
+        assetName: livelyFoundingTeamAssetName,
+        assetVersion: livelyAssetERC20DomainVersion,
+        tokenId: livelyTokenProxy.address,
+        role: LIVELY_ASSET_ADMIN_ROLE,
+        salt: saltValue
+      }
+      const assetFoundingTeam = await factory.attach(assetId);
+
+      // when
+      await expect(assetManagerERC20.connect(assetAdmin).createAsset(createAssetRequest))
+        .to.emit(assetManagerERC20, "AssetCreated")
+        .withArgs(assetAdminAddress, assetId, livelyTokenProxy.address, assetSubjectERC20.address)
+        .to.emit(assetFoundingTeam, "AssetInitialized")
+        .withArgs(assetManagerERC20.address, assetId, livelyTokenProxy.address, assetManagerERC20.address, assetSubjectERC20.address,
+          livelyFoundingTeamAssetName, livelyAssetERC20DomainVersion, assetManagerERC20DomainRealmHash,
+          LIVELY_ASSET_ADMIN_ROLE)
+
+      // and
+      await expect(accessControlManager.connect(admin).grantRoleAccount(LIVELY_ASSET_MANAGER_ROLE, assetFoundingTeam.address))
+        .to.emit(accessControlManager, "RoleAccountGranted")
+        .withArgs(adminAddress, LIVELY_ASSET_MANAGER_ROLE, assetFoundingTeam.address);
+
+      // then
+      expect(await accessControlManager.isContextExists(ethers.utils.keccak256(assetId))).to.be.true;
+      expect(await accessControlManager.hasRealmContext(assetManagerERC20DomainRealmHash, ethers.utils.keccak256(assetId))).to.be.true;
+      expect(await assetManagerERC20.isAssetExists(assetId)).to.be.true;
+    })
+
+    it("Should create LIVELY_TREASURY_ASSET asset by assetAdmin success", async() => {
+      // given
+      const livelyTreasuryAssetName = "LIVELY_TREASURY_ASSET";
+      const factory = new AssetERC20__factory(systemAdmin);
+      const saltValue = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(`${Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)}`));
+      const assetId = await assetManagerERC20.predictAddress(assetSubjectERC20.address, saltValue, assetManagerERC20.address);
+      const createAssetRequest: IAssetManagerERC20.CreateAssetRequestStruct = {
+        assetName: livelyTreasuryAssetName,
+        assetVersion: livelyAssetERC20DomainVersion,
+        tokenId: livelyTokenProxy.address,
+        role: LIVELY_ASSET_ADMIN_ROLE,
+        salt: saltValue
+      }
+      const assetTreasury = await factory.attach(assetId);
+
+      // when
+      await expect(assetManagerERC20.connect(assetAdmin).createAsset(createAssetRequest))
+        .to.emit(assetManagerERC20, "AssetCreated")
+        .withArgs(assetAdminAddress, assetId, livelyTokenProxy.address, assetSubjectERC20.address)
+        .to.emit(assetTreasury, "AssetInitialized")
+        .withArgs(assetManagerERC20.address, assetId, livelyTokenProxy.address, assetManagerERC20.address, assetSubjectERC20.address,
+          livelyTreasuryAssetName, livelyAssetERC20DomainVersion, assetManagerERC20DomainRealmHash,
+          LIVELY_ASSET_ADMIN_ROLE)
+
+      // and
+      await expect(accessControlManager.connect(admin).grantRoleAccount(LIVELY_ASSET_MANAGER_ROLE, assetTreasury.address))
+        .to.emit(accessControlManager, "RoleAccountGranted")
+        .withArgs(adminAddress, LIVELY_ASSET_MANAGER_ROLE, assetTreasury.address);
+
+      // then
+      expect(await accessControlManager.isContextExists(ethers.utils.keccak256(assetId))).to.be.true;
+      expect(await accessControlManager.hasRealmContext(assetManagerERC20DomainRealmHash, ethers.utils.keccak256(assetId))).to.be.true;
+      expect(await assetManagerERC20.isAssetExists(assetId)).to.be.true;
+    })
+
+    it("Should create LIVELY_PUBLIC_SALE_ASSET asset by assetAdmin success", async() => {
+      // given
+      const livelyPublicSaleAssetName = "LIVELY_PUBLIC_SALE_ASSET";
+      const factory = new AssetERC20__factory(systemAdmin);
+      const saltValue = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(`${Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)}`));
+      const assetId = await assetManagerERC20.predictAddress(assetSubjectERC20.address, saltValue, assetManagerERC20.address);
+      const createAssetRequest: IAssetManagerERC20.CreateAssetRequestStruct = {
+        assetName: livelyPublicSaleAssetName,
+        assetVersion: livelyAssetERC20DomainVersion,
+        tokenId: livelyTokenProxy.address,
+        role: LIVELY_ASSET_ADMIN_ROLE,
+        salt: saltValue
+      }
+      const assetPublicSale = await factory.attach(assetId);
+
+      // when
+      await expect(assetManagerERC20.connect(assetAdmin).createAsset(createAssetRequest))
+        .to.emit(assetManagerERC20, "AssetCreated")
+        .withArgs(assetAdminAddress, assetId, livelyTokenProxy.address, assetSubjectERC20.address)
+        .to.emit(assetPublicSale, "AssetInitialized")
+        .withArgs(assetManagerERC20.address, assetId, livelyTokenProxy.address, assetManagerERC20.address, assetSubjectERC20.address,
+          livelyPublicSaleAssetName, livelyAssetERC20DomainVersion, assetManagerERC20DomainRealmHash,
+          LIVELY_ASSET_ADMIN_ROLE)
+
+      // and
+      await expect(accessControlManager.connect(admin).grantRoleAccount(LIVELY_ASSET_MANAGER_ROLE, assetPublicSale.address))
+        .to.emit(accessControlManager, "RoleAccountGranted")
+        .withArgs(adminAddress, LIVELY_ASSET_MANAGER_ROLE, assetPublicSale.address);
+
+      // then
+      expect(await accessControlManager.isContextExists(ethers.utils.keccak256(assetId))).to.be.true;
+      expect(await accessControlManager.hasRealmContext(assetManagerERC20DomainRealmHash, ethers.utils.keccak256(assetId))).to.be.true;
+      expect(await assetManagerERC20.isAssetExists(assetId)).to.be.true;
+    })
+
+    it("Should create LIVELY_VALIDATORS_REWARDS_ASSET asset by assetAdmin success", async() => {
+      // given
+      const livelyValidatorRewardsAssetName = "LIVELY_VALIDATORS_REWARDS_ASSET";
+      const factory = new AssetERC20__factory(systemAdmin);
+      const saltValue = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(`${Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)}`));
+      const assetId = await assetManagerERC20.predictAddress(assetSubjectERC20.address, saltValue, assetManagerERC20.address);
+      const createAssetRequest: IAssetManagerERC20.CreateAssetRequestStruct = {
+        assetName: livelyValidatorRewardsAssetName,
+        assetVersion: livelyAssetERC20DomainVersion,
+        tokenId: livelyTokenProxy.address,
+        role: LIVELY_ASSET_ADMIN_ROLE,
+        salt: saltValue
+      }
+      const assetValidatorsRewards = await factory.attach(assetId);
+
+      // when
+      await expect(assetManagerERC20.connect(assetAdmin).createAsset(createAssetRequest))
+        .to.emit(assetManagerERC20, "AssetCreated")
+        .withArgs(assetAdminAddress, assetId, livelyTokenProxy.address, assetSubjectERC20.address)
+        .to.emit(assetValidatorsRewards, "AssetInitialized")
+        .withArgs(assetManagerERC20.address, assetId, livelyTokenProxy.address, assetManagerERC20.address, assetSubjectERC20.address,
+          livelyValidatorRewardsAssetName, livelyAssetERC20DomainVersion, assetManagerERC20DomainRealmHash,
+          LIVELY_ASSET_ADMIN_ROLE)
+
+      // and
+      await expect(accessControlManager.connect(admin).grantRoleAccount(LIVELY_ASSET_MANAGER_ROLE, assetValidatorsRewards.address))
+        .to.emit(accessControlManager, "RoleAccountGranted")
+        .withArgs(adminAddress, LIVELY_ASSET_MANAGER_ROLE, assetValidatorsRewards.address);
+
+      // then
+      expect(await accessControlManager.isContextExists(ethers.utils.keccak256(assetId))).to.be.true;
+      expect(await accessControlManager.hasRealmContext(assetManagerERC20DomainRealmHash, ethers.utils.keccak256(assetId))).to.be.true;
+      expect(await assetManagerERC20.isAssetExists(assetId)).to.be.true;
+    })
+
+    it("Should create LIVELY_CROWD_FOUNDING_ASSET asset by assetAdmin success", async() => {
+      // given
+      const livelyCrowdFoundingAssetName = "LIVELY_CROWD_FOUNDING_ASSET";
+      const factory = new AssetERC20__factory(systemAdmin);
+      const saltValue = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(`${Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)}`));
+      const assetId = await assetManagerERC20.predictAddress(assetSubjectERC20.address, saltValue, assetManagerERC20.address);
+      const createAssetRequest: IAssetManagerERC20.CreateAssetRequestStruct = {
+        assetName: livelyCrowdFoundingAssetName,
+        assetVersion: livelyAssetERC20DomainVersion,
+        tokenId: livelyTokenProxy.address,
+        role: LIVELY_ASSET_ADMIN_ROLE,
+        salt: saltValue
+      }
+      const assetCrowdFounding = await factory.attach(assetId);
+
+      // when
+      await expect(assetManagerERC20.connect(assetAdmin).createAsset(createAssetRequest))
+        .to.emit(assetManagerERC20, "AssetCreated")
+        .withArgs(assetAdminAddress, assetId, livelyTokenProxy.address, assetSubjectERC20.address)
+        .to.emit(assetCrowdFounding, "AssetInitialized")
+        .withArgs(assetManagerERC20.address, assetId, livelyTokenProxy.address, assetManagerERC20.address, assetSubjectERC20.address,
+          livelyCrowdFoundingAssetName, livelyAssetERC20DomainVersion, assetManagerERC20DomainRealmHash,
+          LIVELY_ASSET_ADMIN_ROLE)
+
+      // and
+      await expect(accessControlManager.connect(admin).grantRoleAccount(LIVELY_ASSET_MANAGER_ROLE, assetCrowdFounding.address))
+        .to.emit(accessControlManager, "RoleAccountGranted")
+        .withArgs(adminAddress, LIVELY_ASSET_MANAGER_ROLE, assetCrowdFounding.address);
+
+      // then
+      expect(await accessControlManager.isContextExists(ethers.utils.keccak256(assetId))).to.be.true;
+      expect(await accessControlManager.hasRealmContext(assetManagerERC20DomainRealmHash, ethers.utils.keccak256(assetId))).to.be.true;
+      expect(await assetManagerERC20.isAssetExists(assetId)).to.be.true;
+    })
+
+    it("Should create LIVELY_TAX_TREASURY_ASSET asset by assetAdmin success", async() => {
+      // given
+      const livelyTaxTreasuryAssetName = "LIVELY_TAX_TREASURY_ASSET";
+      const factory = new AssetERC20__factory(systemAdmin);
+      const saltValue = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(`${Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)}`));
+      const assetId = await assetManagerERC20.predictAddress(assetSubjectERC20.address, saltValue, assetManagerERC20.address);
+      const createAssetRequest: IAssetManagerERC20.CreateAssetRequestStruct = {
+        assetName: livelyTaxTreasuryAssetName,
+        assetVersion: livelyAssetERC20DomainVersion,
+        tokenId: livelyTokenProxy.address,
+        role: LIVELY_ASSET_ADMIN_ROLE,
+        salt: saltValue
+      }
+      assetTaxTreasury = await factory.attach(assetId);
+
+      // when
+      await expect(assetManagerERC20.connect(assetAdmin).createAsset(createAssetRequest))
+        .to.emit(assetManagerERC20, "AssetCreated")
+        .withArgs(assetAdminAddress, assetId, livelyTokenProxy.address, assetSubjectERC20.address)
+        .to.emit(assetTaxTreasury, "AssetInitialized")
+        .withArgs(assetManagerERC20.address, assetId, livelyTokenProxy.address, assetManagerERC20.address, assetSubjectERC20.address,
+          livelyTaxTreasuryAssetName, livelyAssetERC20DomainVersion, assetManagerERC20DomainRealmHash,
+          LIVELY_ASSET_ADMIN_ROLE)
+
+      // and
+      await expect(accessControlManager.connect(admin).grantRoleAccount(LIVELY_ASSET_MANAGER_ROLE, assetTaxTreasury.address))
+        .to.emit(accessControlManager, "RoleAccountGranted")
+        .withArgs(adminAddress, LIVELY_ASSET_MANAGER_ROLE, assetTaxTreasury.address);
+
+      // then
+      expect(await assetManagerERC20.isAssetExists(assetId)).to.be.true;
+    })
+
+    it("Should distribute token call by assetAdmin success", async() => {
+
+      const tokenDecimal = BigNumber.from(10).pow(18);
+      const livelyTokenTotalSupply = BigNumber.from(5_000_000_000).mul(tokenDecimal);
+
+      // when and then
+      await expect(assetManagerERC20.connect(assetAdmin).livelyTokensDistribution(livelyTokenProxy.address))
+        .to.emit(livelyTokenProxy, "Mint")
+        .withArgs(assetManagerERC20.address, assetManagerERC20.address, livelyTokenTotalSupply, livelyTokenTotalSupply)
+    })
+
     it("Should deploy relay contract success", async() => {
       // given
       const relayFactory = new Relay__factory(systemAdmin);
@@ -363,16 +767,16 @@ describe("Lively Token Tests", function () {
       expect(daoExecutorForwarder.address).not.null
     })
 
-    it("Should grant LIVELY_DAO_EXECUTOR_ROLE to admin account failed", async () => {
+    it("Should grant LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE to admin account failed", async () => {
       // when
       await expect(accessControlManager.connect(admin).grantRoleAccount(LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE, adminAddress))
-        .to.revertedWith("Illegal Grant Dao Executor Role");
+        .to.revertedWith("Illegal Grant Community Dao Executor Role");
 
       // then
       expect(await accessControlManager.isLivelyCommunityDaoExecutorRole(adminAddress)).to.be.false;
     });
 
-    it("Should grant LIVELY_DAO_EXECUTOR_ROLE to relay contract success", async () => {
+    it("Should grant LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE to relay contract success", async () => {
       // given
       // const daoExecutorRole = await accessControlManager.livelyCommunityDaoExecutorRole();
 
@@ -385,7 +789,7 @@ describe("Lively Token Tests", function () {
       expect(await accessControlManager.isLivelyCommunityDaoExecutorRole(daoExecutorForwarder.address)).to.be.true;
     });
 
-    it("Should grant LIVELY_DAO_EXECUTOR_ROLE to another contract failed", async () => {
+    it("Should grant LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE to another contract success", async () => {
       // given
       const relayFactory = new Relay__factory(systemAdmin);
       const forwarder = await relayFactory.deploy(livelyTokenProxy.address);
@@ -393,10 +797,11 @@ describe("Lively Token Tests", function () {
 
       // when
       await expect(accessControlManager.connect(admin).grantRoleAccount(LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE, forwarder.address))
-        .to.revertedWith("Illegal Grant Dao Executor Role")
+        .to.emit(accessControlManager, "RoleAccountGranted")
+        .withArgs(adminAddress, LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE, forwarder.address);
 
       // then
-      expect(await accessControlManager.isLivelyCommunityDaoExecutorRole(forwarder.address)).to.be.false;
+      expect(await accessControlManager.isLivelyCommunityDaoExecutorRole(forwarder.address)).to.be.true;
       expect(await accessControlManager.isLivelyCommunityDaoExecutorRole(daoExecutorForwarder.address)).to.be.true;
     });
 
@@ -424,25 +829,25 @@ describe("Lively Token Tests", function () {
       expect(safeMode).to.be.false;
     });
 
-    it("Should enable safeMode by admin failed", async () => {
+    it("Should enable safeMode by systemAdmin failed", async () => {
       // given
       const safeMode = await livelyTokenProxy.isSafeMode();
 
       // when and then
-      await expect(livelyTokenProxy.connect(admin).setSafeMode(true)).to.revertedWith("SetSafeMode Forbidden");
+      await expect(livelyTokenProxy.connect(systemAdmin).setSafeMode(true)).to.revertedWith("SetSafeMode Forbidden");
 
       // and
       expect(safeMode).to.be.false;
     });
 
-    it("Should enable safeMode by systemAdmin success", async () => {
+    it("Should enable safeMode by admin success", async () => {
       // given
       let safeMode = await livelyTokenProxy.isSafeMode();
 
       // when and then
-      await expect(livelyTokenProxy.connect(systemAdmin).setSafeMode(true))
+      await expect(livelyTokenProxy.connect(admin).setSafeMode(true))
         .to.emit(livelyTokenProxy, "SafeModeChanged")
-        .withArgs(systemAdminAddress, livelyTokenProxy.address, livelyTokenDomainRealmHash, true);
+        .withArgs(adminAddress, livelyTokenProxy.address, livelyTokenDomainRealmHash, true);
 
       // and
       expect(safeMode).to.be.false;
@@ -508,7 +913,7 @@ describe("Lively Token Tests", function () {
       };
 
       const lockRequest: IERC20Lock.LockTokenRequestStruct = {
-        source: assetManagerAddress,
+        source: assetAudioVideoProgram.address,
         dest: user2Address,
         amount: dummyAmount,
         timestamp: BigNumber.from(((Date.now() / 1000) | 0) + (24 * 60 * 60))
@@ -730,44 +1135,44 @@ describe("Lively Token Tests", function () {
       );
 
       // and
-      await expect(livelyTokenProxy.connect(assetManager).lockToken(lockRequest)).to.revertedWith("SafeMode: Call Rejected");
+      await expect(livelyTokenProxy.connect(assetAdmin).lockToken(lockRequest)).to.revertedWith("SafeMode: Call Rejected");
       await expect(livelyTokenProxy.connect(admin).lockToken(lockRequest)).to.revertedWith("SafeMode: Call Rejected");
       await expect(livelyTokenProxy.connect(systemAdmin).lockToken(lockRequest)).to.revertedWith("SafeMode: Call Rejected");
 
       // and
-      await expect(livelyTokenProxy.connect(assetManager).batchLockToken([lockRequest])).to.revertedWith("SafeMode: Call Rejected");
+      await expect(livelyTokenProxy.connect(assetAdmin).batchLockToken([lockRequest])).to.revertedWith("SafeMode: Call Rejected");
       await expect(livelyTokenProxy.connect(admin).batchLockToken([lockRequest])).to.revertedWith("SafeMode: Call Rejected");
       await expect(livelyTokenProxy.connect(systemAdmin).batchLockToken([lockRequest])).to.revertedWith("SafeMode: Call Rejected");
 
       // and
-      await expect(livelyTokenProxy.connect(assetManager).claimToken(ethers.utils.formatBytes32String("0"))).to.revertedWith("SafeMode: Call Rejected");
+      await expect(livelyTokenProxy.connect(assetAdmin).claimToken(ethers.utils.formatBytes32String("0"))).to.revertedWith("SafeMode: Call Rejected");
       await expect(livelyTokenProxy.connect(admin).claimToken(ethers.utils.formatBytes32String("0"))).to.revertedWith("SafeMode: Call Rejected");
       await expect(livelyTokenProxy.connect(systemAdmin).claimToken(ethers.utils.formatBytes32String("0"))).to.revertedWith("SafeMode: Call Rejected");
 
       // and
-      await expect(livelyTokenProxy.connect(assetManager).batchClaimToken([ethers.utils.formatBytes32String("0")])).to.revertedWith("SafeMode: Call Rejected");
+      await expect(livelyTokenProxy.connect(assetAdmin).batchClaimToken([ethers.utils.formatBytes32String("0")])).to.revertedWith("SafeMode: Call Rejected");
       await expect(livelyTokenProxy.connect(admin).batchClaimToken([ethers.utils.formatBytes32String("0")])).to.revertedWith("SafeMode: Call Rejected");
       await expect(livelyTokenProxy.connect(systemAdmin).batchClaimToken([ethers.utils.formatBytes32String("0")])).to.revertedWith("SafeMode: Call Rejected");
 
       // and
-      await expect(livelyTokenProxy.connect(assetManager).unlockToken(unlockRequest)).to.revertedWith("SafeMode: Call Rejected");
+      await expect(livelyTokenProxy.connect(assetAdmin).unlockToken(unlockRequest)).to.revertedWith("SafeMode: Call Rejected");
       await expect(livelyTokenProxy.connect(admin).unlockToken(unlockRequest)).to.revertedWith("SafeMode: Call Rejected");
       await expect(livelyTokenProxy.connect(systemAdmin).unlockToken(unlockRequest)).to.revertedWith("SafeMode: Call Rejected");
 
       // and
-      await expect(livelyTokenProxy.connect(assetManager).batchUnlockToken([unlockRequest])).to.revertedWith("SafeMode: Call Rejected");
+      await expect(livelyTokenProxy.connect(assetAdmin).batchUnlockToken([unlockRequest])).to.revertedWith("SafeMode: Call Rejected");
       await expect(livelyTokenProxy.connect(admin).batchUnlockToken([unlockRequest])).to.revertedWith("SafeMode: Call Rejected");
       await expect(livelyTokenProxy.connect(systemAdmin).batchUnlockToken([unlockRequest])).to.revertedWith("SafeMode: Call Rejected");
     });
 
-    it("Should disable safeMode by systemAdmin success", async () => {
+    it("Should disable safeMode by admin success", async () => {
       // given
       let safeMode = await livelyTokenProxy.isSafeMode();
 
       // when and then
-      await expect(livelyTokenProxy.connect(systemAdmin).setSafeMode(false))
+      await expect(livelyTokenProxy.connect(admin).setSafeMode(false))
         .to.emit(livelyTokenProxy, "SafeModeChanged")
-        .withArgs(systemAdminAddress, livelyTokenProxy.address, livelyTokenDomainRealmHash, false);
+        .withArgs(adminAddress, livelyTokenProxy.address, livelyTokenDomainRealmHash, false);
 
       // and
       expect(safeMode).to.be.true;
@@ -918,25 +1323,21 @@ describe("Lively Token Tests", function () {
       livelyTokenSubject = newLivelyTokenSubject;
     });
 
-    it("Should assetManager transfer token to user1 success", async () => {
+    it("Should assetManagerERC20 transfer token to user1 success", async () => {
       // given
-      let assetManagerBalance = await livelyTokenProxy.balanceOf(assetManagerAddress);
-      let user1Balance = await livelyTokenProxy.balanceOf(user1Address);
+      const assetAudioVideoProgramBalanceBefore = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
+      const user1BalanceBefore = await livelyTokenProxy.balanceOf(user1Address);
 
       // when
-      await expect(livelyTokenProxy.connect(assetManager).transfer(user1Address, dummyAmount))
+      await expect(assetManagerERC20.connect(assetAdmin).tokenTransfer(assetAudioVideoProgram.address, user1Address, dummyAmount))
         .to.emit(livelyTokenProxy, "Transfer")
-        .withArgs(assetManagerAddress, user1Address, dummyAmount);
-
-      // then
-      expect(assetManagerBalance.toString()).to.be.equal(livelyTokenTotalSupply.toString());
-      expect(user1Balance.toString()).to.be.equal(BigNumber.from(0).toString());
+        .withArgs(assetAudioVideoProgram.address, user1Address, dummyAmount);
 
       // and
-      assetManagerBalance = await livelyTokenProxy.balanceOf(assetManagerAddress);
-      user1Balance = await livelyTokenProxy.balanceOf(user1Address);
-      expect(assetManagerBalance.toString()).to.be.equal(livelyTokenTotalSupply.sub(dummyAmount).toString());
-      expect(user1Balance.toString()).to.be.equal(dummyAmount.toString());
+      const assetAudioVideoProgramBalanceAfter = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
+      const user1BalanceAfter = await livelyTokenProxy.balanceOf(user1Address);
+      expect(assetAudioVideoProgramBalanceAfter.toString()).to.be.equal(assetAudioVideoProgramBalanceBefore.sub(dummyAmount).toString());
+      expect(user1BalanceAfter.toString()).to.be.equal(user1BalanceBefore.add(dummyAmount).toString());
     });
 
     it("Should user1 to user2 transfer token success", async () => {
@@ -957,99 +1358,99 @@ describe("Lively Token Tests", function () {
       expect(user2BalanceAfter.toString()).to.be.equal(user2BalanceBefore.add(amount).toString());
     });
 
-    it("Should assetManager approve to user1 and user2 success", async () => {
+    it("Should assetManagerERC20 approve to user1 and user2 success", async () => {
       // given
-      const user2AllowanceBefore = await livelyTokenProxy.allowance(assetManagerAddress, user2Address);
-      const user1AllowanceBefore = await livelyTokenProxy.allowance(assetManagerAddress, user1Address);
+      const user2AllowanceBefore = await livelyTokenProxy.allowance(assetAudioVideoProgram.address, user2Address);
+      const user1AllowanceBefore = await livelyTokenProxy.allowance(assetAudioVideoProgram.address, user1Address);
 
       // when
-      await expect(livelyTokenProxy.connect(assetManager).approve(user2Address, dummyAmount))
+      await expect(assetManagerERC20.connect(assetAdmin).tokenApprove(assetAudioVideoProgram.address, user2Address, dummyAmount))
         .to.emit(livelyTokenProxy, "Approval")
-        .withArgs(assetManagerAddress, user2Address, user2AllowanceBefore.add(dummyAmount));
+        .withArgs(assetAudioVideoProgram.address, user2Address, user2AllowanceBefore.add(dummyAmount));
 
-      await expect(livelyTokenProxy.connect(assetManager).approve(user1Address, dummyAmount))
+      await expect(assetManagerERC20.connect(assetAdmin).tokenApprove(assetAudioVideoProgram.address, user1Address, dummyAmount))
         .to.emit(livelyTokenProxy, "Approval")
-        .withArgs(assetManagerAddress, user1Address, user1AllowanceBefore.add(dummyAmount));
+        .withArgs(assetAudioVideoProgram.address, user1Address, user1AllowanceBefore.add(dummyAmount));
 
       // then
-      const user2AllowanceAfter = await livelyTokenProxy.allowance(assetManagerAddress, user2Address);
-      const user1AllowanceAfter = await livelyTokenProxy.allowance(assetManagerAddress, user2Address);
+      const user2AllowanceAfter = await livelyTokenProxy.allowance(assetAudioVideoProgram.address, user2Address);
+      const user1AllowanceAfter = await livelyTokenProxy.allowance(assetAudioVideoProgram.address, user2Address);
       expect(user2AllowanceAfter.toString()).to.be.equal(user2AllowanceBefore.add(dummyAmount).toString());
       expect(user1AllowanceAfter.toString()).to.be.equal(user1AllowanceBefore.add(dummyAmount).toString());
     });
 
-    it("Should user2 transferFrom from assetManager account success", async () => {
+    it("Should user2 transferFrom from assetManagerERC20 account success", async () => {
       // given
-      const assetManagerAllowanceBefore = await livelyTokenProxy.allowance(assetManagerAddress, user2Address);
+      const assetManagerAllowanceBefore = await livelyTokenProxy.allowance(assetAudioVideoProgram.address, user2Address);
       const user1BalanceBefore = await livelyTokenProxy.balanceOf(user1Address);
       const amount = BigNumber.from(1000).mul(tokenDecimal);
       const finalAllowance = assetManagerAllowanceBefore.sub(amount);
 
       // when
-      await expect(livelyTokenProxy.connect(user2).transferFrom(assetManagerAddress, user1Address, amount))
+      await expect(livelyTokenProxy.connect(user2).transferFrom(assetAudioVideoProgram.address, user1Address, amount))
         .to.emit(livelyTokenProxy, "Transfer")
-        .withArgs(assetManagerAddress, user1Address, amount)
+        .withArgs(assetAudioVideoProgram.address, user1Address, amount)
         .to.emit(livelyTokenProxy, "TransferFrom")
-        .withArgs(user2Address, assetManagerAddress, user1Address, amount)
+        .withArgs(user2Address, assetAudioVideoProgram.address, user1Address, amount)
         .to.emit(livelyTokenProxy, "Approval")
-        .withArgs(assetManagerAddress, user2Address, finalAllowance);
+        .withArgs(assetAudioVideoProgram.address, user2Address, finalAllowance);
 
       // then
-      const assetManagerAllowanceAfter = await livelyTokenProxy.allowance(assetManagerAddress, user2Address);
+      const assetManagerAllowanceAfter = await livelyTokenProxy.allowance(assetAudioVideoProgram.address, user2Address);
       const user1BalanceAfter = await livelyTokenProxy.balanceOf(user1Address);
       expect(assetManagerAllowanceAfter.toString()).to.be.equal(finalAllowance.toString());
       expect(user1BalanceAfter.toString()).to.be.equal(user1BalanceBefore.add(amount).toString());
     });
 
-    it("Should assetManager increase allowance to user2 success", async () => {
+    it("Should assetManagerERC20 increase allowance to user2 success", async () => {
       // given
-      const assetManagerAllowanceBefore = await livelyTokenProxy.allowance(assetManagerAddress, user2Address);
+      const assetManagerAllowanceBefore = await livelyTokenProxy.allowance(assetAudioVideoProgram.address, user2Address);
       const finalAllowance = assetManagerAllowanceBefore.add(dummyAmount);
 
       // when
-      await expect(livelyTokenProxy.connect(assetManager).increaseAllowance(user2Address, dummyAmount))
+      await expect(assetManagerERC20.connect(assetAdmin).tokenIncreaseAllowance(assetAudioVideoProgram.address, user2Address, dummyAmount))
         .to.emit(livelyTokenProxy, "Approval")
-        .withArgs(assetManagerAddress, user2Address, finalAllowance)
+        .withArgs(assetAudioVideoProgram.address, user2Address, finalAllowance)
         .to.emit(livelyTokenProxy, "ApprovalIncreased")
-        .withArgs(assetManagerAddress, user2Address, dummyAmount);
+        .withArgs(assetAudioVideoProgram.address, user2Address, dummyAmount);
 
       // then
-      const assetManagerAllowanceAfter = await livelyTokenProxy.allowance(assetManagerAddress, user2Address);
+      const assetManagerAllowanceAfter = await livelyTokenProxy.allowance(assetAudioVideoProgram.address, user2Address);
       expect(assetManagerAllowanceAfter.toString()).to.be.equal(finalAllowance.toString());
     });
 
-    it("Should user2 transferFrom token exceeded allowance from assetManager account failed", async () => {
+    it("Should user2 transferFrom token exceeded allowance from assetManagerERC20 account failed", async () => {
       // given
-      const assetManagerAllowanceBefore = await livelyTokenProxy.allowance(assetManagerAddress, user2Address);
-      const assetMangerBalanceBefore = await livelyTokenProxy.balanceOf(assetManagerAddress);
+      const assetManagerAllowanceBefore = await livelyTokenProxy.allowance(assetAudioVideoProgram.address, user2Address);
+      const assetMangerBalanceBefore = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
       const amount = dummyAmount.mul(10);
 
       // when
       await expect(
-        livelyTokenProxy.connect(user2).transferFrom(assetManagerAddress, user1Address, amount)
+        livelyTokenProxy.connect(user2).transferFrom(assetAudioVideoProgram.address, user1Address, amount)
       ).to.revertedWith("Insufficient Account Allowance");
 
       // then
-      const assetManagerAllowanceAfter = await livelyTokenProxy.allowance(assetManagerAddress, user2Address);
-      const assetMangerBalanceAfter = await livelyTokenProxy.balanceOf(assetManagerAddress);
+      const assetManagerAllowanceAfter = await livelyTokenProxy.allowance(assetAudioVideoProgram.address, user2Address);
+      const assetMangerBalanceAfter = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
       expect(assetManagerAllowanceBefore.toString()).to.be.equal(assetManagerAllowanceAfter.toString());
       expect(assetMangerBalanceBefore.toString()).to.be.equal(assetMangerBalanceAfter.toString());
     });
 
-    it("Should assetManager decrease allowance from user2 success", async () => {
+    it("Should assetManagerERC20 decrease allowance from user2 success", async () => {
       // given
-      const assetManagerAllowanceBefore = await livelyTokenProxy.allowance(assetManagerAddress, user2Address);
+      const assetManagerAllowanceBefore = await livelyTokenProxy.allowance(assetAudioVideoProgram.address, user2Address);
       const finalAllowance = assetManagerAllowanceBefore.sub(dummyAmount);
 
       // when
-      await expect(livelyTokenProxy.connect(assetManager).decreaseAllowance(user2Address, dummyAmount))
+      await expect(assetManagerERC20.connect(assetAdmin).tokenDecreaseAllowance(assetAudioVideoProgram.address,user2Address, dummyAmount))
         .to.emit(livelyTokenProxy, "Approval")
-        .withArgs(assetManagerAddress, user2Address, finalAllowance)
+        .withArgs(assetAudioVideoProgram.address, user2Address, finalAllowance)
         .to.emit(livelyTokenProxy, "ApprovalDecreased")
-        .withArgs(assetManagerAddress, user2Address, dummyAmount);
+        .withArgs(assetAudioVideoProgram.address, user2Address, dummyAmount);
 
       // then
-      const assetManagerAllowanceAfter = await livelyTokenProxy.allowance(assetManagerAddress, user2Address);
+      const assetManagerAllowanceAfter = await livelyTokenProxy.allowance(assetAudioVideoProgram.address, user2Address);
       expect(assetManagerAllowanceAfter.toString()).to.be.equal(finalAllowance.toString());
     });
 
@@ -1502,39 +1903,39 @@ describe("Lively Token Tests", function () {
 
     it("Should admin pause an asset manager account success", async () => {
       // given
-      const isPausedBefore = await livelyTokenProxy.isPaused(assetManagerAddress);
+      const isPausedBefore = await livelyTokenProxy.isPaused(assetAudioVideoProgram.address);
 
       // when
-      await expect(livelyTokenProxy.connect(admin).pause(assetManagerAddress))
+      await expect(livelyTokenProxy.connect(admin).pause(assetAudioVideoProgram.address))
         .to.emit(livelyTokenProxy, "Paused")
-        .withArgs(adminAddress, assetManagerAddress);
+        .withArgs(adminAddress, assetAudioVideoProgram.address);
 
       // then
-      const isPausedAfter = await livelyTokenProxy.isPaused(assetManagerAddress);
+      const isPausedAfter = await livelyTokenProxy.isPaused(assetAudioVideoProgram.address);
       const pausedAccounts = await livelyTokenProxy.pausedAccounts();
       expect(isPausedBefore).to.be.false;
       expect(isPausedAfter).to.be.true;
-      expect(pausedAccounts[0]).to.be.equal(assetManagerAddress);
+      expect(pausedAccounts[0]).to.be.equal(assetAudioVideoProgram.address);
     });
 
-    it("Should lock token from paused assetManager failed", async() => {
+    it("Should lock token from paused assetManagerERC20 failed", async() => {
       // given
-      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetManagerAddress);
+      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
       const user2LockBalanceBefore = await livelyTokenProxy.lockBalanceOf(user2Address);
       const user2TotalBalanceBefore = await livelyTokenProxy.totalBalanceOf(user2Address);
       const lockRequest: IERC20Lock.LockTokenRequestStruct = {
-        source: assetManagerAddress,
+        source: assetAudioVideoProgram.address,
         dest: user2Address,
         amount: dummyAmount,
         timestamp: BigNumber.from(((Date.now() / 1000) | 0) + (24 * 60 * 60))
       }
 
       // when
-      await expect(livelyTokenProxy.connect(assetManager).lockToken(lockRequest))
+      await expect(assetManagerERC20.connect(assetAdmin).tokenLock(assetAudioVideoProgram.address, lockRequest))
         .revertedWith("ERC20Pause: Account Suspended")
 
       // then
-      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetManagerAddress);
+      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
       const user2LockBalanceAfter = await livelyTokenProxy.lockBalanceOf(user2Address);
       const user2TotalBalanceAfter = await livelyTokenProxy.totalBalanceOf(user2Address);
 
@@ -1543,24 +1944,24 @@ describe("Lively Token Tests", function () {
       expect(user2TotalBalanceAfter.toString()).to.be.equal(user2TotalBalanceBefore.toString());
     })
 
-    it("Should batch lock token from paused assetManager failed", async() => {
+    it("Should batch lock token from paused assetManagerERC20 failed", async() => {
       // given
-      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetManagerAddress);
+      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
       const user2LockBalanceBefore = await livelyTokenProxy.lockBalanceOf(user2Address);
       const user2TotalBalanceBefore = await livelyTokenProxy.totalBalanceOf(user2Address);
       const lockRequest: IERC20Lock.LockTokenRequestStruct = {
-        source: assetManagerAddress,
+        source: assetAudioVideoProgram.address,
         dest: user2Address,
         amount: dummyAmount,
         timestamp: BigNumber.from(((Date.now() / 1000) | 0) + (24 * 60 * 60))
       }
 
       // when
-      await expect(livelyTokenProxy.connect(assetManager).batchLockToken([lockRequest]))
+      await expect(assetManagerERC20.connect(assetAdmin).tokenBatchLock(assetAudioVideoProgram.address,[lockRequest]))
         .revertedWith("ERC20Pause: Account Suspended")
 
       // then
-      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetManagerAddress);
+      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
       const user2LockBalanceAfter = await livelyTokenProxy.lockBalanceOf(user2Address);
       const user2TotalBalanceAfter = await livelyTokenProxy.totalBalanceOf(user2Address);
 
@@ -1569,84 +1970,56 @@ describe("Lively Token Tests", function () {
       expect(user2TotalBalanceAfter.toString()).to.be.equal(user2TotalBalanceBefore.toString());
     })
 
-    it("Should claim token from paused assetManager  failed", async() => {
+    it("Should unlock token by paused assetAdmin failed", async() => {
       // given
-      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetManagerAddress);
-
-      // when
-      await expect(livelyTokenProxy.connect(assetManager).claimToken(ethers.utils.formatBytes32String("00")))
-        .revertedWith("ERC20Pause: Account Suspended")
-
-      // then
-      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetManagerAddress);
-
-      expect(assetManagerBalanceAfter.toString()).to.be.equal(assetManagerBalanceBefore.toString());
-    })
-
-    it("Should batch claim token from paused assetManager failed", async() => {
-      // given
-      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetManagerAddress);
-
-      // when
-      await expect(livelyTokenProxy.connect(assetManager).batchClaimToken([ethers.utils.formatBytes32String("00")]))
-        .revertedWith("ERC20Pause: Account Suspended")
-
-      // then
-      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetManagerAddress);
-
-      expect(assetManagerBalanceAfter.toString()).to.be.equal(assetManagerBalanceBefore.toString());
-    })
-
-    it("Should unlock token by paused asset manager failed", async() => {
-      // given
-      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetManagerAddress);
+      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
       const unlockRequest: IERC20Lock.UnLockTokenRequestStruct = {
         lockId: ethers.utils.formatBytes32String("0"),
-        account: assetManagerAddress,
+        account: assetAudioVideoProgram.address,
         reason: "Rollback"
       }
       const data = livelyTokenProxy.interface.encodeFunctionData("unlockToken", [unlockRequest]);
 
       // when
-      await expect(assetManager.sendTransaction({ to: daoExecutorForwarder.address, data: data}))
+      await expect(assetAdmin.sendTransaction({ to: daoExecutorForwarder.address, data: data}))
         .to.revertedWith("ERC20Pause: Account Suspended");
 
       // then
-      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetManagerAddress);
+      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
 
       expect(assetManagerBalanceAfter.toString()).to.be.equal(assetManagerBalanceBefore.toString());
     })
 
     it("Should batch unlock token by paused asset manager failed", async() => {
       // given
-      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetManagerAddress);
+      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
       const unlockRequest: IERC20Lock.UnLockTokenRequestStruct[] = [{
         lockId: ethers.utils.formatBytes32String("0"),
-        account: assetManagerAddress,
+        account: assetAudioVideoProgram.address,
         reason: "Rollback"
       }]
       const data = livelyTokenProxy.interface.encodeFunctionData("batchUnlockToken", [unlockRequest]);
 
       // when
-      await expect(assetManager.sendTransaction({ to: daoExecutorForwarder.address, data: data}))
+      await expect(assetAdmin.sendTransaction({ to: daoExecutorForwarder.address, data: data}))
         .to.revertedWith("ERC20Pause: Account Suspended");
 
       // then
-      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetManagerAddress);
+      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
       expect(assetManagerBalanceAfter.toString()).to.be.equal(assetManagerBalanceBefore.toString());
     })
 
     it("Should admin unpause asset manager account success", async () => {
       // given
-      const isPausedBefore = await livelyTokenProxy.isPaused(assetManagerAddress);
+      const isPausedBefore = await livelyTokenProxy.isPaused(assetAudioVideoProgram.address);
 
       // when
-      await expect(livelyTokenProxy.connect(admin).unpause(assetManagerAddress))
+      await expect(livelyTokenProxy.connect(admin).unpause(assetAudioVideoProgram.address))
         .to.emit(livelyTokenProxy, "Unpaused")
-        .withArgs(adminAddress, assetManagerAddress);
+        .withArgs(adminAddress, assetAudioVideoProgram.address);
 
       // then
-      const isPausedAfter = await livelyTokenProxy.isPaused(assetManagerAddress);
+      const isPausedAfter = await livelyTokenProxy.isPaused(assetAudioVideoProgram.address);
       const pausedAccounts = await livelyTokenProxy.pausedAccounts();
       expect(isPausedAfter).to.be.false;
       expect(isPausedBefore).to.be.true;
@@ -1726,13 +2099,13 @@ describe("Lively Token Tests", function () {
 
       // when
       await expect(
-        livelyTokenProxy.connect(user1).transferFrom(assetManagerAddress, user2Address, dummyAmount)
+        livelyTokenProxy.connect(user1).transferFrom(assetAudioVideoProgram.address, user2Address, dummyAmount)
       ).to.revertedWith("ERC20Pause: Call Rejected");
       await expect(
-        livelyTokenProxy.connect(admin).transferFrom(assetManagerAddress, user2Address, dummyAmount)
+        livelyTokenProxy.connect(admin).transferFrom(assetAudioVideoProgram.address, user2Address, dummyAmount)
       ).to.revertedWith("ERC20Pause: Call Rejected");
       await expect(
-        livelyTokenProxy.connect(systemAdmin).transferFrom(assetManagerAddress, user2Address, dummyAmount)
+        livelyTokenProxy.connect(systemAdmin).transferFrom(assetAudioVideoProgram.address, user2Address, dummyAmount)
       ).to.revertedWith("ERC20Pause: Call Rejected");
 
       // then
@@ -1927,22 +2300,22 @@ describe("Lively Token Tests", function () {
 
     it("Should lock token when token paused failed", async() => {
       // given
-      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetManagerAddress);
+      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
       const user2LockBalanceBefore = await livelyTokenProxy.lockBalanceOf(user2Address);
       const user2TotalBalanceBefore = await livelyTokenProxy.totalBalanceOf(user2Address);
       const lockRequest: IERC20Lock.LockTokenRequestStruct = {
-        source: assetManagerAddress,
+        source: assetAudioVideoProgram.address,
         dest: user2Address,
         amount: dummyAmount,
         timestamp: BigNumber.from(((Date.now() / 1000) | 0) + (24 * 60 * 60))
       }
 
       // when
-      await expect(livelyTokenProxy.connect(assetManager).lockToken(lockRequest))
+      await expect(assetManagerERC20.connect(assetAdmin).tokenLock(assetAudioVideoProgram.address, lockRequest))
         .revertedWith("ERC20Pause: Call Rejected")
 
       // then
-      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetManagerAddress);
+      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
       const user2LockBalanceAfter = await livelyTokenProxy.lockBalanceOf(user2Address);
       const user2TotalBalanceAfter = await livelyTokenProxy.totalBalanceOf(user2Address);
 
@@ -1953,22 +2326,22 @@ describe("Lively Token Tests", function () {
 
     it("Should batch lock token when token paused failed", async() => {
       // given
-      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetManagerAddress);
+      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
       const user2LockBalanceBefore = await livelyTokenProxy.lockBalanceOf(user2Address);
       const user2TotalBalanceBefore = await livelyTokenProxy.totalBalanceOf(user2Address);
       const lockRequest: IERC20Lock.LockTokenRequestStruct = {
-        source: assetManagerAddress,
+        source: assetAudioVideoProgram.address,
         dest: user2Address,
         amount: dummyAmount,
         timestamp: BigNumber.from(((Date.now() / 1000) | 0) + (24 * 60 * 60))
       }
 
       // when
-      await expect(livelyTokenProxy.connect(assetManager).batchLockToken([lockRequest]))
+      await expect(assetManagerERC20.connect(assetAdmin).tokenBatchLock(assetAudioVideoProgram.address,[lockRequest]))
         .revertedWith("ERC20Pause: Call Rejected")
 
       // then
-      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetManagerAddress);
+      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
       const user2LockBalanceAfter = await livelyTokenProxy.lockBalanceOf(user2Address);
       const user2TotalBalanceAfter = await livelyTokenProxy.totalBalanceOf(user2Address);
 
@@ -1979,68 +2352,68 @@ describe("Lively Token Tests", function () {
 
     it("Should claim token from when token paused  failed", async() => {
       // given
-      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetManagerAddress);
+      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
 
       // when
-      await expect(livelyTokenProxy.connect(assetManager).claimToken(ethers.utils.formatBytes32String("00")))
+      await expect(livelyTokenProxy.connect(assetAdmin).claimToken(ethers.utils.formatBytes32String("00")))
         .revertedWith("ERC20Pause: Call Rejected")
 
       // then
-      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetManagerAddress);
+      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
 
       expect(assetManagerBalanceAfter.toString()).to.be.equal(assetManagerBalanceBefore.toString());
     })
 
     it("Should batch claim token when token paused failed", async() => {
       // given
-      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetManagerAddress);
+      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
 
       // when
-      await expect(livelyTokenProxy.connect(assetManager).batchClaimToken([ethers.utils.formatBytes32String("00")]))
+      await expect(livelyTokenProxy.connect(assetAdmin).batchClaimToken([ethers.utils.formatBytes32String("00")]))
         .revertedWith("ERC20Pause: Call Rejected")
 
       // then
-      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetManagerAddress);
+      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
 
       expect(assetManagerBalanceAfter.toString()).to.be.equal(assetManagerBalanceBefore.toString());
     })
 
     it("Should unlock token when token paused failed", async() => {
       // given
-      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetManagerAddress);
+      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
       const unlockRequest: IERC20Lock.UnLockTokenRequestStruct = {
         lockId: ethers.utils.formatBytes32String("0"),
-        account: assetManagerAddress,
+        account: assetAudioVideoProgram.address,
         reason: "Rollback"
       }
       const data = livelyTokenProxy.interface.encodeFunctionData("unlockToken", [unlockRequest]);
 
       // when
-      await expect(assetManager.sendTransaction({ to: daoExecutorForwarder.address, data: data}))
+      await expect(assetAdmin.sendTransaction({ to: daoExecutorForwarder.address, data: data}))
         .to.revertedWith("ERC20Pause: Call Rejected");
 
       // then
-      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetManagerAddress);
+      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
       expect(assetManagerBalanceAfter.toString()).to.be.equal(assetManagerBalanceBefore.toString());
     })
 
     it("Should batch unlock token when token paused failed", async() => {
       // given
-      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetManagerAddress);
+      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
       const unlockRequest: IERC20Lock.UnLockTokenRequestStruct[] = [{
         lockId: ethers.utils.formatBytes32String("0"),
-        account: assetManagerAddress,
+        account: assetAudioVideoProgram.address,
         reason: "Rollback"
       }]
 
       const data = livelyTokenProxy.interface.encodeFunctionData("batchUnlockToken", [unlockRequest]);
 
       // when
-      await expect(assetManager.sendTransaction({ to: daoExecutorForwarder.address, data: data}))
+      await expect(assetAdmin.sendTransaction({ to: daoExecutorForwarder.address, data: data}))
         .to.revertedWith("ERC20Pause: Call Rejected");
 
       // then
-      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetManagerAddress);
+      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
       expect(assetManagerBalanceAfter.toString()).to.be.equal(assetManagerBalanceBefore.toString());
     })
 
@@ -2127,7 +2500,7 @@ describe("Lively Token Tests", function () {
       // given
       const user1BalanceBefore = await livelyTokenProxy.balanceOf(user1Address);
       const user2BalanceBefore = await livelyTokenProxy.balanceOf(user2Address);
-      const taxTreasuryBalanceBefore = await livelyTokenProxy.balanceOf(taxTreasuryAddress);
+      const taxTreasuryBalanceBefore = await livelyTokenProxy.balanceOf(assetTaxTreasury.address);
       const amount = BigNumber.from(100).mul(tokenDecimal);
       const taxAmount = BigNumber.from(3).mul(tokenDecimal);
 
@@ -2136,42 +2509,42 @@ describe("Lively Token Tests", function () {
         .to.emit(livelyTokenProxy, "Transfer")
         .withArgs(user1Address, user2Address, amount.sub(taxAmount))
         .to.emit(livelyTokenProxy, "Transfer")
-        .withArgs(user1Address, taxTreasuryAddress, taxAmount);
+        .withArgs(user1Address, assetTaxTreasury.address, taxAmount);
 
       // then
       const user2BalanceAfter = await livelyTokenProxy.balanceOf(user2Address);
       const user1BalanceAfter = await livelyTokenProxy.balanceOf(user1Address);
-      const taxTreasuryBalanceAfter = await livelyTokenProxy.balanceOf(taxTreasuryAddress);
+      const taxTreasuryBalanceAfter = await livelyTokenProxy.balanceOf(assetTaxTreasury.address);
       expect(user1BalanceAfter.toString()).to.be.equal(user1BalanceBefore.sub(amount).toString());
       expect(user2BalanceAfter.toString()).to.be.equal(user2BalanceBefore.add(amount).sub(taxAmount).toString());
       expect(taxTreasuryBalanceAfter.toString()).to.be.equal(taxTreasuryBalanceBefore.add(taxAmount).toString());
     });
 
-    it("Should user1 transferFrom token from assetManager along with tax success", async () => {
+    it("Should user1 transferFrom token from assetManagerERC20 along with tax success", async () => {
       // given
-      const assetManagerUser1AllowanceBefore = await livelyTokenProxy.allowance(assetManagerAddress, user1Address);
+      const assetManagerUser1AllowanceBefore = await livelyTokenProxy.allowance(assetAudioVideoProgram.address, user1Address);
       const user2BalanceBefore = await livelyTokenProxy.balanceOf(user2Address);
-      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetManagerAddress);
-      const taxTreasuryBalanceBefore = await livelyTokenProxy.balanceOf(taxTreasuryAddress);
+      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
+      const taxTreasuryBalanceBefore = await livelyTokenProxy.balanceOf(assetTaxTreasury.address);
       const amount = BigNumber.from(100).mul(tokenDecimal);
       const taxAmount = BigNumber.from(3).mul(tokenDecimal);
 
       // when
-      await expect(livelyTokenProxy.connect(user1).transferFrom(assetManagerAddress, user2Address, amount))
+      await expect(livelyTokenProxy.connect(user1).transferFrom(assetAudioVideoProgram.address, user2Address, amount))
         .to.emit(livelyTokenProxy, "Transfer")
-        .withArgs(assetManagerAddress, user2Address, amount.sub(taxAmount))
+        .withArgs(assetAudioVideoProgram.address, user2Address, amount.sub(taxAmount))
         .to.emit(livelyTokenProxy, "Transfer")
-        .withArgs(assetManagerAddress, taxTreasuryAddress, taxAmount)
+        .withArgs(assetAudioVideoProgram.address, assetTaxTreasury.address, taxAmount)
         .to.emit(livelyTokenProxy, "TransferFrom")
-        .withArgs(user1Address, assetManagerAddress, user2Address, amount)
+        .withArgs(user1Address, assetAudioVideoProgram.address, user2Address, amount)
         .to.emit(livelyTokenProxy, "Approval")
-        .withArgs(assetManagerAddress, user1Address, assetManagerUser1AllowanceBefore.sub(amount));
+        .withArgs(assetAudioVideoProgram.address, user1Address, assetManagerUser1AllowanceBefore.sub(amount));
 
       // then
-      const assetManagerUser1AllowanceAfter = await livelyTokenProxy.allowance(assetManagerAddress, user1Address);
+      const assetManagerUser1AllowanceAfter = await livelyTokenProxy.allowance(assetAudioVideoProgram.address, user1Address);
       const user2BalanceAfter = await livelyTokenProxy.balanceOf(user2Address);
-      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetManagerAddress);
-      const taxTreasuryBalanceAfter = await livelyTokenProxy.balanceOf(taxTreasuryAddress);
+      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
+      const taxTreasuryBalanceAfter = await livelyTokenProxy.balanceOf(assetTaxTreasury.address);
       expect(assetManagerUser1AllowanceAfter.toString()).to.be.equal(
         assetManagerUser1AllowanceBefore.sub(amount).toString()
       );
@@ -2226,7 +2599,7 @@ describe("Lively Token Tests", function () {
       // given
       const user2BalanceBefore = await livelyTokenProxy.balanceOf(user2Address);
       const user1BalanceBefore = await livelyTokenProxy.balanceOf(user1Address);
-      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetManagerAddress);
+      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
       const amount = BigNumber.from(100).mul(tokenDecimal);
 
       // when
@@ -2237,7 +2610,7 @@ describe("Lively Token Tests", function () {
       // then
       const user2BalanceAfter = await livelyTokenProxy.balanceOf(user2Address);
       const user1BalanceAfter = await livelyTokenProxy.balanceOf(user1Address);
-      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetManagerAddress);
+      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
       expect(user2BalanceAfter.toString()).to.be.equal(user2BalanceBefore.sub(amount).toString());
       expect(user1BalanceAfter.toString()).to.be.equal(user1BalanceBefore.add(amount).toString());
       expect(assetManagerBalanceAfter.toString()).to.be.equal(assetManagerBalanceBefore.toString());
@@ -2301,7 +2674,7 @@ describe("Lively Token Tests", function () {
       // given
       const user2BalanceBefore = await livelyTokenProxy.balanceOf(user2Address);
       const user1BalanceBefore = await livelyTokenProxy.balanceOf(user1Address);
-      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetManagerAddress);
+      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
       const amount = BigNumber.from(100).mul(tokenDecimal);
 
       // when
@@ -2312,7 +2685,7 @@ describe("Lively Token Tests", function () {
       // then
       const user2BalanceAfter = await livelyTokenProxy.balanceOf(user2Address);
       const user1BalanceAfter = await livelyTokenProxy.balanceOf(user1Address);
-      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetManagerAddress);
+      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
       expect(user2BalanceAfter.toString()).to.be.equal(user2BalanceBefore.add(amount).toString());
       expect(user1BalanceAfter.toString()).to.be.equal(user1BalanceBefore.sub(amount).toString());
       expect(assetManagerBalanceAfter.toString()).to.be.equal(assetManagerBalanceBefore.toString());
@@ -2398,7 +2771,7 @@ describe("Lively Token Tests", function () {
       const user2LockBalanceBefore = await livelyTokenProxy.lockBalanceOf(user2Address);
       const user2TotalBalanceBefore = await livelyTokenProxy.totalBalanceOf(user2Address);
       const lockRequest: IERC20Lock.LockTokenRequestStruct = {
-        source: assetManagerAddress,
+        source: assetAudioVideoProgram.address,
         dest: user2Address,
         amount: dummyAmount,
         timestamp: BigNumber.from( ((Date.now() / 1000) | 0) + (24 * 60 * 60))
@@ -2420,22 +2793,22 @@ describe("Lively Token Tests", function () {
 
     it("Should lock token from asset manager to user2 with illegal timestamp failed", async() => {
       // given
-      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetManagerAddress);
+      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
       const user2LockBalanceBefore = await livelyTokenProxy.lockBalanceOf(user2Address);
       const user2TotalBalanceBefore = await livelyTokenProxy.totalBalanceOf(user2Address);
       const lockRequest: IERC20Lock.LockTokenRequestStruct = {
-        source: assetManagerAddress,
+        source: assetAudioVideoProgram.address,
         dest: user2Address,
         amount: dummyAmount,
         timestamp: BigNumber.from( ((Date.now() / 1000) | 0) + (20 * 60 * 60))
       }
 
       // when
-      await expect(livelyTokenProxy.connect(assetManager).lockToken(lockRequest))
+      await expect(assetManagerERC20.connect(assetAdmin).tokenLock(assetAudioVideoProgram.address, lockRequest))
         .revertedWith("Illegal Timestamp")
 
       // then
-      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetManagerAddress);
+      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
       const user2LockBalanceAfter = await livelyTokenProxy.lockBalanceOf(user2Address);
       const user2TotalBalanceAfter = await livelyTokenProxy.totalBalanceOf(user2Address);
 
@@ -2446,22 +2819,22 @@ describe("Lively Token Tests", function () {
 
     it("Should lock token from asset manager to user2 with illegal dest failed", async() => {
       // given
-      const assetManagerLockBalanceBefore = await livelyTokenProxy.lockBalanceOf(assetManagerAddress);
-      const assetManagerTotalBalanceBefore = await livelyTokenProxy.totalBalanceOf(assetManagerAddress);
+      const assetManagerLockBalanceBefore = await livelyTokenProxy.lockBalanceOf(assetAudioVideoProgram.address);
+      const assetManagerTotalBalanceBefore = await livelyTokenProxy.totalBalanceOf(assetAudioVideoProgram.address);
       const lockRequest: IERC20Lock.LockTokenRequestStruct = {
-        source: assetManagerAddress,
-        dest: assetManagerAddress,
+        source: assetAudioVideoProgram.address,
+        dest: assetAudioVideoProgram.address,
         amount: dummyAmount,
         timestamp: BigNumber.from(((Date.now() / 1000) | 0) + (20 * 60 * 60))
       }
 
       // when
-      await expect(livelyTokenProxy.connect(assetManager).lockToken(lockRequest))
+      await expect(assetManagerERC20.connect(assetAdmin).tokenLock(assetAudioVideoProgram.address, lockRequest))
         .revertedWith("Illegal Destination Address")
 
       // then
-      const assetManagerLockBalanceAfter = await livelyTokenProxy.lockBalanceOf(assetManagerAddress);
-      const assetManagerTotalBalanceAfter = await livelyTokenProxy.totalBalanceOf(assetManagerAddress);
+      const assetManagerLockBalanceAfter = await livelyTokenProxy.lockBalanceOf(assetAudioVideoProgram.address);
+      const assetManagerTotalBalanceAfter = await livelyTokenProxy.totalBalanceOf(assetAudioVideoProgram.address);
 
       expect(assetManagerLockBalanceAfter.toString()).to.be.equal(assetManagerLockBalanceBefore.toString());
       expect(assetManagerTotalBalanceAfter.toString()).to.be.equal(assetManagerTotalBalanceBefore.toString());
@@ -2469,11 +2842,11 @@ describe("Lively Token Tests", function () {
 
     it("Should lock token from asset manager to user2 success", async() => {
       // given
-      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetManagerAddress);
+      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
       const user2LockBalanceBefore = await livelyTokenProxy.lockBalanceOf(user2Address);
       const user2TotalBalanceBefore = await livelyTokenProxy.totalBalanceOf(user2Address);
       const lockRequest: IERC20Lock.LockTokenRequestStruct = {
-        source: assetManagerAddress,
+        source: assetAudioVideoProgram.address,
         dest: user2Address,
         amount: dummyAmount,
         timestamp: BigNumber.from(((Date.now() / 1000) | 0) + (25 * 60 * 60))
@@ -2482,14 +2855,14 @@ describe("Lively Token Tests", function () {
         [lockRequest.source, lockRequest.dest, lockRequest.timestamp, lockRequest.amount])));
 
       // when
-      await expect(livelyTokenProxy.connect(assetManager).lockToken(lockRequest))
+      await expect(assetManagerERC20.connect(assetAdmin).tokenLock(assetAudioVideoProgram.address,lockRequest))
         .to.emit(livelyTokenProxy,"TokenLocked")
-        .withArgs(user2LockIds[user2LockIds.length - 1], assetManagerAddress, assetManagerAddress,
+        .withArgs(user2LockIds[user2LockIds.length - 1], assetAudioVideoProgram.address, assetAudioVideoProgram.address,
           user2Address, lockRequest.timestamp, lockRequest.amount)
 
       // then
       const [amount, lockedAt, claimedAt, source, status] = await livelyTokenProxy.lockInfo(user2LockIds[user2LockIds.length - 1], user2Address);
-      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetManagerAddress);
+      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
       const user2LockBalanceAfter = await livelyTokenProxy.lockBalanceOf(user2Address);
       const user2TotalBalanceAfter = await livelyTokenProxy.totalBalanceOf(user2Address);
       const latestBlockNumber = await provider.getBlockNumber();
@@ -2501,44 +2874,44 @@ describe("Lively Token Tests", function () {
       expect(amount.toString()).to.be.equal(lockRequest.amount.toString());
       expect(lockedAt.toString()).to.be.equal(block.timestamp.toString());
       expect(claimedAt.toString()).to.be.equal(lockRequest.timestamp.toString());
-      expect(source).to.be.hexEqual(assetManagerAddress);
+      expect(source).to.be.hexEqual(assetAudioVideoProgram.address);
       expect(<LockState>status).to.be.equal(LockState.LOCKED);
     })
 
     it("Should batch lock token from asset manager to user2 success", async() => {
       // given
-      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetManagerAddress);
+      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
       const user2LockBalanceBefore = await livelyTokenProxy.lockBalanceOf(user2Address);
       const user2TotalBalanceBefore = await livelyTokenProxy.totalBalanceOf(user2Address);
       const user1LockBalanceBefore = await livelyTokenProxy.lockBalanceOf(user1Address);
       const user1TotalBalanceBefore = await livelyTokenProxy.totalBalanceOf(user1Address);
       const lockRequests: IERC20Lock.LockTokenRequestStruct[] = [
         {
-          source: assetManagerAddress,
+          source: assetAudioVideoProgram.address,
           dest: user2Address,
           amount: dummyAmount.div(5),
           timestamp: BigNumber.from(((Date.now() / 1000) | 0) + (48 * 60 * 60))
         },
         {
-          source: assetManagerAddress,
+          source: assetAudioVideoProgram.address,
           dest: user2Address,
           amount: dummyAmount,
           timestamp: BigNumber.from(((Date.now() / 1000) | 0) + (72 * 60 * 60))
         },
         {
-          source: assetManagerAddress,
+          source: assetAudioVideoProgram.address,
           dest: user2Address,
           amount: dummyAmount.mul(2),
           timestamp: BigNumber.from(((Date.now() / 1000) | 0) + (96 * 60 * 60))
         },
         {
-          source: assetManagerAddress,
+          source: assetAudioVideoProgram.address,
           dest: user1Address,
           amount: dummyAmount,
           timestamp: BigNumber.from(((Date.now() / 1000) | 0) + (48 * 60 * 60))
         },
         {
-          source: assetManagerAddress,
+          source: assetAudioVideoProgram.address,
           dest: user1Address,
           amount: dummyAmount,
           timestamp: BigNumber.from(((Date.now() / 1000) | 0) + (72 * 60 * 60))
@@ -2563,24 +2936,24 @@ describe("Lively Token Tests", function () {
       }
 
       // when
-      await expect(livelyTokenProxy.connect(assetManager).batchLockToken(lockRequests))
+      await expect(assetManagerERC20.connect(assetAdmin).tokenBatchLock(assetAudioVideoProgram.address,lockRequests))
         .to.emit(livelyTokenProxy,"TokenLocked")
-        .withArgs(user2LockIds[user2LockIdsSize], assetManagerAddress, assetManagerAddress,
+        .withArgs(user2LockIds[user2LockIdsSize], assetAudioVideoProgram.address, assetAudioVideoProgram.address,
           user2Address, lockRequests[0].timestamp, lockRequests[0].amount)
         .to.emit(livelyTokenProxy,"TokenLocked")
-        .withArgs(user2LockIds[user2LockIdsSize+1], assetManagerAddress, assetManagerAddress,
+        .withArgs(user2LockIds[user2LockIdsSize+1], assetAudioVideoProgram.address, assetAudioVideoProgram.address,
           user2Address, lockRequests[1].timestamp, lockRequests[1].amount)
         .to.emit(livelyTokenProxy,"TokenLocked")
-        .withArgs(user2LockIds[user2LockIdsSize+2], assetManagerAddress, assetManagerAddress,
+        .withArgs(user2LockIds[user2LockIdsSize+2], assetAudioVideoProgram.address, assetAudioVideoProgram.address,
           user2Address, lockRequests[2].timestamp, lockRequests[2].amount)
         .to.emit(livelyTokenProxy,"TokenLocked")
-        .withArgs(user1LockIds[0], assetManagerAddress, assetManagerAddress,
+        .withArgs(user1LockIds[0], assetAudioVideoProgram.address, assetAudioVideoProgram.address,
           user1Address, lockRequests[3].timestamp, lockRequests[3].amount)
         .to.emit(livelyTokenProxy,"TokenLocked")
-        .withArgs(user1LockIds[1], assetManagerAddress, assetManagerAddress,
+        .withArgs(user1LockIds[1], assetAudioVideoProgram.address, assetAudioVideoProgram.address,
           user1Address, lockRequests[4].timestamp, lockRequests[4].amount)
         .to.emit(livelyTokenProxy,"BatchTokenLocked")
-        .withArgs(assetManagerAddress, totalAmount)
+        .withArgs(assetAudioVideoProgram.address, totalAmount)
 
       // then
       const user2Lock1 = {...await livelyTokenProxy.lockInfo(user2LockIds[user2LockIdsSize], user2Address)};
@@ -2588,7 +2961,7 @@ describe("Lively Token Tests", function () {
       const user2Lock3 = {...await livelyTokenProxy.lockInfo(user2LockIds[user2LockIdsSize+2], user2Address)};
       const user1Lock1 = {...await livelyTokenProxy.lockInfo(user1LockIds[0], user1Address)};
       const user1Lock2 = {...await livelyTokenProxy.lockInfo(user1LockIds[1], user1Address)};
-      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetManagerAddress);
+      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
       const user2LockBalanceAfter = await livelyTokenProxy.lockBalanceOf(user2Address);
       const user2TotalBalanceAfter = await livelyTokenProxy.totalBalanceOf(user2Address);
       const user1LockBalanceAfter = await livelyTokenProxy.lockBalanceOf(user1Address);
@@ -2606,35 +2979,35 @@ describe("Lively Token Tests", function () {
       expect(user2Lock1[0].toString()).to.be.equal(lockRequests[0].amount.toString());
       expect(user2Lock1[1].toString()).to.be.equal(block.timestamp.toString());
       expect(user2Lock1[2].toString()).to.be.equal(lockRequests[0].timestamp.toString());
-      expect(user2Lock1[3]).to.be.hexEqual(assetManagerAddress);
+      expect(user2Lock1[3]).to.be.hexEqual(assetAudioVideoProgram.address);
       expect(<LockState>user2Lock1[4]).to.be.equal(LockState.LOCKED);
 
       // and
       expect(user2Lock2[0].toString()).to.be.equal(lockRequests[1].amount.toString());
       expect(user2Lock2[1].toString()).to.be.equal(block.timestamp.toString());
       expect(user2Lock2[2].toString()).to.be.equal(lockRequests[1].timestamp.toString());
-      expect(user2Lock2[3]).to.be.hexEqual(assetManagerAddress);
+      expect(user2Lock2[3]).to.be.hexEqual(assetAudioVideoProgram.address);
       expect(<LockState>user2Lock2[4]).to.be.equal(LockState.LOCKED);
 
       // and
       expect(user2Lock3[0].toString()).to.be.equal(lockRequests[2].amount.toString());
       expect(user2Lock3[1].toString()).to.be.equal(block.timestamp.toString());
       expect(user2Lock3[2].toString()).to.be.equal(lockRequests[2].timestamp.toString());
-      expect(user2Lock3[3]).to.be.hexEqual(assetManagerAddress);
+      expect(user2Lock3[3]).to.be.hexEqual(assetAudioVideoProgram.address);
       expect(<LockState>user2Lock3[4]).to.be.equal(LockState.LOCKED);
 
       // and
       expect(user1Lock1[0].toString()).to.be.equal(lockRequests[3].amount.toString());
       expect(user1Lock1[1].toString()).to.be.equal(block.timestamp.toString());
       expect(user1Lock1[2].toString()).to.be.equal(lockRequests[3].timestamp.toString());
-      expect(user1Lock1[3]).to.be.hexEqual(assetManagerAddress);
+      expect(user1Lock1[3]).to.be.hexEqual(assetAudioVideoProgram.address);
       expect(<LockState>user1Lock1[4]).to.be.equal(LockState.LOCKED);
 
       // and
       expect(user1Lock2[0].toString()).to.be.equal(lockRequests[4].amount.toString());
       expect(user1Lock2[1].toString()).to.be.equal(block.timestamp.toString());
       expect(user1Lock2[2].toString()).to.be.equal(lockRequests[4].timestamp.toString());
-      expect(user1Lock2[3]).to.be.hexEqual(assetManagerAddress);
+      expect(user1Lock2[3]).to.be.hexEqual(assetAudioVideoProgram.address);
       expect(<LockState>user1Lock2[4]).to.be.equal(LockState.LOCKED);
     })
 
@@ -2646,7 +3019,7 @@ describe("Lively Token Tests", function () {
 
       // when
       await expect(livelyTokenProxy.connect(admin).claimToken(user2LockIds[0]))
-        .revertedWith("Lock Not Found");
+        .revertedWith("LockId Not Found");
 
       // then
       const adminBalanceAfter = await livelyTokenProxy.balanceOf(adminAddress);
@@ -2686,7 +3059,7 @@ describe("Lively Token Tests", function () {
       // when
       await expect(livelyTokenProxy.connect(user2).claimToken(user2LockIds[0]))
         .to.emit(livelyTokenProxy, "TokenClaimed")
-        .withArgs(user2LockIds[0], user2Address, assetManagerAddress, amount)
+        .withArgs(user2LockIds[0], user2Address, assetAudioVideoProgram.address, amount)
 
       // then
       const [,,,,status] = await livelyTokenProxy.lockInfo(user2LockIds[0], user2Address);
@@ -2713,9 +3086,9 @@ describe("Lively Token Tests", function () {
       // when
       await expect(livelyTokenProxy.connect(user2).batchClaimToken(ids))
         .to.emit(livelyTokenProxy, "TokenClaimed")
-        .withArgs(user2LockIds[1], user2Address, assetManagerAddress, amount1)
+        .withArgs(user2LockIds[1], user2Address, assetAudioVideoProgram.address, amount1)
         .to.emit(livelyTokenProxy, "TokenClaimed")
-        .withArgs(user2LockIds[2], user2Address, assetManagerAddress, amount2)
+        .withArgs(user2LockIds[2], user2Address, assetAudioVideoProgram.address, amount2)
 
       // then
       const [,,,,status1] = await livelyTokenProxy.lockInfo(user2LockIds[1], user2Address);
@@ -2784,7 +3157,7 @@ describe("Lively Token Tests", function () {
 
     it("Should unlock token by dao executor from user2 success", async() => {
       // given
-      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetManagerAddress);
+      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
       const user2LockBalanceBefore = await livelyTokenProxy.lockBalanceOf(user2Address);
       const user2TotalBalanceBefore = await livelyTokenProxy.totalBalanceOf(user2Address);
       const unlockRequest: IERC20Lock.UnLockTokenRequestStruct = {
@@ -2804,7 +3177,7 @@ describe("Lively Token Tests", function () {
       const logDesc = livelyTokenProxy.interface.parseLog(txReceipt.logs[0]);
       const eventUnlock: TokenUnlockedEventObject = <TokenUnlockedEventObject> (<unknown>logDesc.args)
       const [,,,,status] = await livelyTokenProxy.lockInfo(user2LockIds[3], user2Address);
-      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetManagerAddress);
+      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
       const user2LockBalanceAfter = await livelyTokenProxy.lockBalanceOf(user2Address);
       const user2TotalBalanceAfter = await livelyTokenProxy.totalBalanceOf(user2Address);
 
@@ -2824,7 +3197,7 @@ describe("Lively Token Tests", function () {
 
     it("Should batch unlock token by dao executor from user1 success", async() => {
       // given
-      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetManagerAddress);
+      const assetManagerBalanceBefore = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
       const user1LockBalanceBefore = await livelyTokenProxy.lockBalanceOf(user1Address);
       const user1TotalBalanceBefore = await livelyTokenProxy.totalBalanceOf(user1Address);
       const unlockRequests: IERC20Lock.UnLockTokenRequestStruct[] = [
@@ -2880,7 +3253,7 @@ describe("Lively Token Tests", function () {
       // and
       const [,,,,status1] = await livelyTokenProxy.lockInfo(user1LockIds[0], user1Address);
       const [,,,,status2] = await livelyTokenProxy.lockInfo(user1LockIds[0], user1Address);
-      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetManagerAddress);
+      const assetManagerBalanceAfter = await livelyTokenProxy.balanceOf(assetAudioVideoProgram.address);
       const user1LockBalanceAfter = await livelyTokenProxy.lockBalanceOf(user1Address);
       const user1TotalBalanceAfter = await livelyTokenProxy.totalBalanceOf(user1Address);
 

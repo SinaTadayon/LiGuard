@@ -93,10 +93,6 @@ describe("AccessControlManager Tests", function () {
 
       // when
       cml = await cmlFactory.deploy();
-      // linkLibraryAddresses = {
-      //   "src/contracts/lib/acl/LContextManagement.sol:LContextManagement":
-      //     contextManagementLib.address,
-      // };
 
       // then
       expect(cml.address).not.null;
@@ -104,6 +100,7 @@ describe("AccessControlManager Tests", function () {
         ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LContextManagement"))
       );
       expect(await cml.LIB_VERSION()).to.be.hexEqual(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("1.0.0")));
+      expect(await cml.getLibrary()).to.be.hexEqual(acl.address);
     });
 
     it("Should LRoleManagement deploy success", async () => {
@@ -120,6 +117,7 @@ describe("AccessControlManager Tests", function () {
       expect(rml.address).not.null;
       expect(await rml.LIB_NAME()).to.be.hexEqual(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LRoleManagement")));
       expect(await rml.LIB_VERSION()).to.be.hexEqual(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("1.0.0")));
+      expect(await rml.getLibrary()).to.be.hexEqual(acl.address);
     });
 
     it("Should LGroupManagement deploy success", async () => {
@@ -137,6 +135,7 @@ describe("AccessControlManager Tests", function () {
       expect(gml.address).not.null;
       expect(await gml.LIB_NAME()).to.be.hexEqual(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LGroupManagement")));
       expect(await gml.LIB_VERSION()).to.be.hexEqual(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("1.0.0")));
+      expect(await gml.getLibrary()).to.be.hexEqual(acl.address);
     });
 
     it("Should LRealmManagement deploy success", async () => {
@@ -156,6 +155,7 @@ describe("AccessControlManager Tests", function () {
         ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LRealmManagement"))
       );
       expect(await reml.LIB_VERSION()).to.be.hexEqual(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("1.0.0")));
+      expect(await reml.getLibrary()).to.be.hexEqual(acl.address);
     });
   });
 
@@ -183,6 +183,8 @@ describe("AccessControlManager Tests", function () {
       expect(await accessControlManagerSubject.isSafeMode()).to.be.true;
       expect(await accessControlManagerSubject.isUpgradable()).to.be.false;
       expect(await accessControlManagerSubject.initVersion()).to.be.equal(0);
+      expect(await accessControlManagerSubject.getLibraries())
+        .to.be.eql([acl.address, cml.address, reml.address, rml.address, gml.address])
     });
 
     it("Should initialize raise exception", async () => {
@@ -373,6 +375,8 @@ describe("AccessControlManager Tests", function () {
       expect(await accessControlManager.domainSeparator()).to.be.hexEqual(
         generateDomainSeparator("AccessControlManager", "1.0.0", accessControlManager.address, networkChainId)
       );
+      expect(await accessControlManager.getLibraries())
+        .to.be.eql([acl.address, cml.address, reml.address, rml.address, gml.address])
     });
 
     it("Should proxy raising events when deployment and initialization were successful", async () => {
@@ -503,6 +507,8 @@ describe("AccessControlManager Tests", function () {
       expect(await accessControlManagerProxy.domainSeparator()).to.be.equal(
         generateDomainSeparator("AccessControlManager", "1.0.0", accessControlManagerProxy.address, networkChainId)
       );
+      expect(await accessControlManagerProxy.getLibraries())
+        .to.be.eql([acl.address, cml.address, reml.address, rml.address, gml.address])
     });
 
     it("Should call proxyableUUID from proxy failed", async () => {
