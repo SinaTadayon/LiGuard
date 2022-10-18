@@ -35,7 +35,7 @@ library LAccessControl {
   
   bytes32 public constant LIVELY_ANONYMOUS_ROLE = keccak256(abi.encodePacked("LIVELY_ANONYMOUS_ROLE"));
 
-  function initializeContext(AccessControlStorage.DataMaps storage data) external {
+  function initializeContext(AccessControlStorage.DataCollections storage data) external {
     data.accountMap[msg.sender][LIVELY_ADMIN_ROLE] = AccessControlStorage.Status.ENABLED;
     data.accountMap[msg.sender][LIVELY_SYSTEM_ADMIN_ROLE] = AccessControlStorage.Status.ENABLED;
 
@@ -134,7 +134,7 @@ library LAccessControl {
   }
 
   function hasAccess(
-    AccessControlStorage.DataMaps storage data,
+    AccessControlStorage.DataCollections storage data,
     bytes32 context,
     address account,
     bytes4 signature
@@ -177,7 +177,7 @@ library LAccessControl {
     }
   }
 
-  function isLivelySystemAdminRole(AccessControlStorage.DataMaps storage data, address account)
+  function isLivelySystemAdminRole(AccessControlStorage.DataCollections storage data, address account)
     external
     view
     returns (bool)
@@ -185,39 +185,39 @@ library LAccessControl {
     return data.accountMap[account][LIVELY_SYSTEM_ADMIN_ROLE] == AccessControlStorage.Status.ENABLED;
   }
 
-  function isLivelyAdminRole(AccessControlStorage.DataMaps storage data, address account) external view returns (bool) {
+  function isLivelyAdminRole(AccessControlStorage.DataCollections storage data, address account) external view returns (bool) {
     return data.accountMap[account][LIVELY_ADMIN_ROLE] == AccessControlStorage.Status.ENABLED;
   }
 
-  function isLivelyAssetManagerRole(AccessControlStorage.DataMaps storage data, address account) external view returns (bool) {
+  function isLivelyAssetManagerRole(AccessControlStorage.DataCollections storage data, address account) external view returns (bool) {
     return data.accountMap[account][LIVELY_ASSET_MANAGER_ROLE] == AccessControlStorage.Status.ENABLED;
   }
 
-  function isLivelyAssetAdminRole(AccessControlStorage.DataMaps storage data, address account) external view returns (bool) {
+  function isLivelyAssetAdminRole(AccessControlStorage.DataCollections storage data, address account) external view returns (bool) {
     return data.accountMap[account][LIVELY_ASSET_ADMIN_ROLE] == AccessControlStorage.Status.ENABLED;
   }
 
-  function isLivelyCommunityDaoRole(AccessControlStorage.DataMaps storage data, address account) external view returns (bool) {
+  function isLivelyCommunityDaoRole(AccessControlStorage.DataCollections storage data, address account) external view returns (bool) {
     return data.accountMap[account][LIVELY_COMMUNITY_DAO_ROLE] == AccessControlStorage.Status.ENABLED;  
   }
 
-  function isLivelyCommunityDaoExecutorRole(AccessControlStorage.DataMaps storage data, address account) external view returns (bool) {
+  function isLivelyCommunityDaoExecutorRole(AccessControlStorage.DataCollections storage data, address account) external view returns (bool) {
     return data.accountMap[account][LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE] == AccessControlStorage.Status.ENABLED;
   }
 
-  function isLivelyGeneralGroup(AccessControlStorage.DataMaps storage data, bytes32 role) external view returns (bool) {
+  function isLivelyGeneralGroup(AccessControlStorage.DataCollections storage data, bytes32 role) external view returns (bool) {
     return data.groupMap[LIVELY_GENERAL_GROUP].roleSet.contains(role);
   }
 
-  function isLivelyAssetGroup(AccessControlStorage.DataMaps storage data, bytes32 role) external view returns (bool) {
+  function isLivelyAssetGroup(AccessControlStorage.DataCollections storage data, bytes32 role) external view returns (bool) {
     return data.groupMap[LIVELY_ASSET_GROUP].roleSet.contains(role);
   }
 
-  function isLivelyDaoGroup(AccessControlStorage.DataMaps storage data, bytes32 role) external view returns (bool) {
+  function isLivelyDaoGroup(AccessControlStorage.DataCollections storage data, bytes32 role) external view returns (bool) {
     return data.groupMap[LIVELY_DAO_GROUP].roleSet.contains(role);
   }
 
-  function isLivelyGeneralRealm(AccessControlStorage.DataMaps storage data, bytes32 context)
+  function isLivelyGeneralRealm(AccessControlStorage.DataCollections storage data, bytes32 context)
     external
     view
     returns (bool)
@@ -225,7 +225,7 @@ library LAccessControl {
     return data.realmMap[LIVELY_GENERAL_REALM].ctxSet.contains(context);
   }
 
-  function isLivelyAssetRealm(AccessControlStorage.DataMaps storage data, bytes32 context)
+  function isLivelyAssetRealm(AccessControlStorage.DataCollections storage data, bytes32 context)
     external
     view
     returns (bool)
@@ -234,11 +234,11 @@ library LAccessControl {
   }
 
 
-  function isContextSafeMode(AccessControlStorage.DataMaps storage data, bytes32 context) external view returns (bool) {
+  function isContextSafeMode(AccessControlStorage.DataCollections storage data, bytes32 context) external view returns (bool) {
     return IProxy(data.ctxMap[context].contractId).isSafeMode();
   }
 
-  function isContextUpgradable(AccessControlStorage.DataMaps storage data, bytes32 context)
+  function isContextUpgradable(AccessControlStorage.DataCollections storage data, bytes32 context)
     external
     view
     returns (bool)
@@ -246,25 +246,25 @@ library LAccessControl {
     return IProxy(data.ctxMap[context].contractId).isUpgradable();
   }
 
-  function isRealmUpgradable(AccessControlStorage.DataMaps storage data, bytes32 realm) external view returns (bool) {
+  function isRealmUpgradable(AccessControlStorage.DataCollections storage data, bytes32 realm) external view returns (bool) {
     if (bytes(data.realmMap[realm].name).length == 0) return false;
     return data.realmMap[realm].isUpgradable;
   }
 
-  function isGroupExists(AccessControlStorage.DataMaps storage data, bytes32 group) external view returns (bool) {
+  function isGroupExists(AccessControlStorage.DataCollections storage data, bytes32 group) external view returns (bool) {
     return bytes(data.groupMap[group].name).length > 0;
   }
 
-  function isGroupEnabled(AccessControlStorage.DataMaps storage data, bytes32 group) external view returns (bool) {
+  function isGroupEnabled(AccessControlStorage.DataCollections storage data, bytes32 group) external view returns (bool) {
     return bytes(data.groupMap[group].name).length > 0 && data.groupMap[group].isEnabled;
   }
 
-  function isContextExists(AccessControlStorage.DataMaps storage data, bytes32 context) external view returns (bool) {
+  function isContextExists(AccessControlStorage.DataCollections storage data, bytes32 context) external view returns (bool) {
     return data.ctxMap[context].contractId != address(0);
   }
 
   function isContextFunctionExists(
-    AccessControlStorage.DataMaps storage data,
+    AccessControlStorage.DataCollections storage data,
     bytes32 context,
     bytes4 functionSelector
   ) external view returns (bool) {
@@ -272,7 +272,7 @@ library LAccessControl {
   }
 
   function isContextFunctionEnabled(
-    AccessControlStorage.DataMaps storage data,
+    AccessControlStorage.DataCollections storage data,
     bytes32 context,
     bytes4 functionSelector
   ) external view returns (bool) {
@@ -281,23 +281,23 @@ library LAccessControl {
       data.ctxMap[context].resources[functionSelector].status == AccessControlStorage.Status.ENABLED;
   }
 
-  function isContextEnabled(AccessControlStorage.DataMaps storage data, bytes32 context) external view returns (bool) {
+  function isContextEnabled(AccessControlStorage.DataCollections storage data, bytes32 context) external view returns (bool) {
     return data.ctxMap[context].contractId != address(0) && data.ctxMap[context].isEnabled;
   }
 
-  function isRoleExists(AccessControlStorage.DataMaps storage data, bytes32 role) external view returns (bool) {
+  function isRoleExists(AccessControlStorage.DataCollections storage data, bytes32 role) external view returns (bool) {
     return bytes(data.roleMap[role].name).length > 0;
   }
 
-  function isRoleEnabled(AccessControlStorage.DataMaps storage data, bytes32 role) external view returns (bool) {
+  function isRoleEnabled(AccessControlStorage.DataCollections storage data, bytes32 role) external view returns (bool) {
     return bytes(data.roleMap[role].name).length > 0 && data.roleMap[role].isEnabled;
   }
 
-  function isRealmExists(AccessControlStorage.DataMaps storage data, bytes32 realm) external view returns (bool) {
+  function isRealmExists(AccessControlStorage.DataCollections storage data, bytes32 realm) external view returns (bool) {
     return bytes(data.realmMap[realm].name).length > 0;
   }
 
-  function isRealmEnabled(AccessControlStorage.DataMaps storage data, bytes32 realm) external view returns (bool) {
+  function isRealmEnabled(AccessControlStorage.DataCollections storage data, bytes32 realm) external view returns (bool) {
     return bytes(data.realmMap[realm].name).length > 0 && data.realmMap[realm].isEnabled;
   }
 }

@@ -47,12 +47,13 @@ abstract contract BaseUUPSStorage {
   bytes32 internal constant _TYPE_HASH =
     keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
 
-  /// @custom:oz-upgrades-unsafe-allow state-variable-immutable state-variable-assignment
+  
   address internal immutable __self = address(this);
-  address internal _accessControlManager;
+
   bytes32 internal _domainName;
   bytes32 internal _domainVersion;
   bytes32 internal _domainRealm;
+  address internal _accessControlManager;
   bool internal _isSafeMode;
   bool internal _isUpgradable;
 
@@ -60,5 +61,5 @@ abstract contract BaseUUPSStorage {
    * @dev This empty reserved space is put in place to allow future versions to add new
    * variables without shifting down storage in the inheritance chain.
    */
-  uint256[64] private __gap;
+  uint256[64] private __reserved;
 }

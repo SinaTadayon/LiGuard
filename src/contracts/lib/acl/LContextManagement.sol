@@ -27,7 +27,7 @@ library LContextManagement {
     keccak256("PredictContext(address deployer,address subject,string realm)");
 
   function registerAccessControlManagerContext(
-    AccessControlStorage.DataMaps storage data,
+    AccessControlStorage.DataCollections storage data,
     address newContract,
     bytes32 realm,
     IContextManagement.RequestRegisterContext[] calldata rc
@@ -36,7 +36,7 @@ library LContextManagement {
   }
 
   function registerContext(
-    AccessControlStorage.DataMaps storage data,
+    AccessControlStorage.DataCollections storage data,
     bytes memory signature,
     IContextManagement.RequestContext calldata rc,
     IContextManagement.RequestRegisterContext[] calldata rrc
@@ -61,7 +61,7 @@ library LContextManagement {
   }
 
   function registerPredictContext(
-      AccessControlStorage.DataMaps storage data,
+      AccessControlStorage.DataCollections storage data,
       bytes memory signature,
       IContextManagement.RequestPredictContext calldata rpc,
       IContextManagement.RequestRegisterContext[] calldata rrc
@@ -123,7 +123,7 @@ library LContextManagement {
   }
 
   function _registerContext(
-    AccessControlStorage.DataMaps storage data,
+    AccessControlStorage.DataCollections storage data,
     address newContract,
     bytes32 realm,
     bool status,
@@ -153,7 +153,7 @@ library LContextManagement {
   }
 
   function _registerPredictContext(
-    AccessControlStorage.DataMaps storage data,
+    AccessControlStorage.DataCollections storage data,
     IContextManagement.RequestRegisterContext[] calldata rrc,
     IContextManagement.RequestPredictContext calldata rpc
   ) private returns (address, bytes32) {
@@ -184,7 +184,7 @@ library LContextManagement {
   }
 
   function updateContext(
-    AccessControlStorage.DataMaps storage data,
+    AccessControlStorage.DataCollections storage data,
     bytes32 ctx,
     bytes memory signature,
     IContextManagement.RequestContext calldata rc,
@@ -209,7 +209,7 @@ library LContextManagement {
   }
 
   function _updateContext(
-    AccessControlStorage.DataMaps storage data,
+    AccessControlStorage.DataCollections storage data,
     bytes32 ctx,
     bytes32 realm,
     bool status,
@@ -253,7 +253,7 @@ library LContextManagement {
   }
 
   function addContextFuncRole(
-    AccessControlStorage.DataMaps storage data,
+    AccessControlStorage.DataCollections storage data,
     bytes32 ctx,
     bytes4 functionSelector,
     bytes32 role
@@ -278,7 +278,7 @@ library LContextManagement {
   }
 
   function removeContextFunc(
-    AccessControlStorage.DataMaps storage data,
+    AccessControlStorage.DataCollections storage data,
     bytes32 ctx,
     bytes4 functionSelector
   ) external returns (bytes32) {
@@ -303,7 +303,7 @@ library LContextManagement {
   }
 
   function grantContextRole(
-    AccessControlStorage.DataMaps storage data,
+    AccessControlStorage.DataCollections storage data,
     bytes32 ctx,
     bytes4 functionSelector,
     bytes32 role
@@ -329,7 +329,7 @@ library LContextManagement {
   }
 
   function revokeContextRole(
-    AccessControlStorage.DataMaps storage data,
+    AccessControlStorage.DataCollections storage data,
     bytes32 ctx,
     bytes4 functionSelector,
     bytes32 role
@@ -354,7 +354,7 @@ library LContextManagement {
   }
 
   function setContextStatus(
-    AccessControlStorage.DataMaps storage data,
+    AccessControlStorage.DataCollections storage data,
     bytes32 ctx,
     bool status
   ) external returns (bool, bytes32) {
@@ -376,7 +376,7 @@ library LContextManagement {
   }
 
   function setContextRealm(
-    AccessControlStorage.DataMaps storage data,
+    AccessControlStorage.DataCollections storage data,
     bytes32 ctx,
     bytes32 realm
   ) external returns (bool, bytes32) {
@@ -401,7 +401,7 @@ library LContextManagement {
   }
 
   function hasContextRole(
-    AccessControlStorage.DataMaps storage data,
+    AccessControlStorage.DataCollections storage data,
     bytes32 ctx,
     bytes32 role,
     bytes4 functionSelector
@@ -412,7 +412,7 @@ library LContextManagement {
       data.ctxMap[ctx].resources[functionSelector].status == AccessControlStorage.Status.ENABLED;
   }
 
-  function getContextInfo(AccessControlStorage.DataMaps storage data, bytes32 ctx)
+  function getContextInfo(AccessControlStorage.DataCollections storage data, bytes32 ctx)
     external
     view
     returns (IContextManagement.ResponseContext memory)
@@ -434,7 +434,7 @@ library LContextManagement {
       });
   }
 
-  function getContextFuncs(AccessControlStorage.DataMaps storage data, bytes32 ctx)
+  function getContextFuncs(AccessControlStorage.DataCollections storage data, bytes32 ctx)
     external
     view
     returns (bytes4[] memory)

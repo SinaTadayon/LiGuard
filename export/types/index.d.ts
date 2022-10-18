@@ -51,6 +51,8 @@ export type { IProxy } from "./proxy/IProxy";
 export { IProxy__factory } from "./factories/proxy/IProxy__factory";
 export type { Proxy } from "./proxy/Proxy";
 export { Proxy__factory } from "./factories/proxy/Proxy__factory";
+export type { AccessControlManagerTest } from "./test/acl/AccessControlManagerTest";
+export { AccessControlManagerTest__factory } from "./factories/test/acl/AccessControlManagerTest__factory";
 export type { BaseUUPSProxyTest } from "./test/proxy/BaseUUPSProxyTest";
 export { BaseUUPSProxyTest__factory } from "./factories/test/proxy/BaseUUPSProxyTest__factory";
 export type { ERC1967ProxyTest } from "./test/proxy/ERC1967ProxyTest";

@@ -15,7 +15,7 @@ library LRoleManagement {
   bytes32 public constant LIB_VERSION = keccak256(abi.encodePacked("1.0.0"));
 
   function registerRole(
-    AccessControlStorage.DataMaps storage data,
+    AccessControlStorage.DataCollections storage data,
     string calldata name,
     bytes32 group,
     bool isEnabled
@@ -34,7 +34,7 @@ library LRoleManagement {
     return _registerRole(data, name, group, isEnabled);
   }
 
-  function batchRegisterRole(AccessControlStorage.DataMaps storage data, IRoleManagement.RegiterRoleRequest[] calldata requests) external returns(bytes32[] memory) {
+  function batchRegisterRole(AccessControlStorage.DataCollections storage data, IRoleManagement.RegiterRoleRequest[] calldata requests) external returns(bytes32[] memory) {
     require(!IProxy(address(this)).isSafeMode(), "SafeMode: Call Rejected");
     require(
       LAccessControl.hasAccess(
@@ -53,7 +53,7 @@ library LRoleManagement {
   }
 
   function _registerRole(
-    AccessControlStorage.DataMaps storage data,
+    AccessControlStorage.DataCollections storage data,
     string calldata name,
     bytes32 group,
     bool isEnabled
@@ -73,7 +73,7 @@ library LRoleManagement {
 
 
   function grantRoleAccount(
-    AccessControlStorage.DataMaps storage data,
+    AccessControlStorage.DataCollections storage data,
     bytes32 role,
     address account
   ) external returns (bool) {
@@ -92,7 +92,7 @@ library LRoleManagement {
     return true;
   }
 
-  function batchGrantRoleAccount(AccessControlStorage.DataMaps storage data, IRoleManagement.UpdateRoleRequest[] calldata requests) external returns (bool) {
+  function batchGrantRoleAccount(AccessControlStorage.DataCollections storage data, IRoleManagement.UpdateRoleRequest[] calldata requests) external returns (bool) {
     require(!IProxy(address(this)).isSafeMode(), "SafeMode: Call Rejected");
     require(
       LAccessControl.hasAccess(
@@ -110,7 +110,7 @@ library LRoleManagement {
   }
 
    function _grantRoleAccount(
-    AccessControlStorage.DataMaps storage data,
+    AccessControlStorage.DataCollections storage data,
     bytes32 role,
     address account
   ) private returns (bool) {
@@ -133,7 +133,7 @@ library LRoleManagement {
   }
 
   function revokeRoleAccount(
-    AccessControlStorage.DataMaps storage data,
+    AccessControlStorage.DataCollections storage data,
     bytes32 role,
     address account
   ) external returns (bool) {
@@ -152,7 +152,7 @@ library LRoleManagement {
     return true;
   }
 
-  function batchRevokeRoleAccount(AccessControlStorage.DataMaps storage data, IRoleManagement.UpdateRoleRequest[] calldata requests) external returns (bool) {
+  function batchRevokeRoleAccount(AccessControlStorage.DataCollections storage data, IRoleManagement.UpdateRoleRequest[] calldata requests) external returns (bool) {
     require(!IProxy(address(this)).isSafeMode(), "SafeMode: Call Rejected");
     require(
       LAccessControl.hasAccess(
@@ -170,7 +170,7 @@ library LRoleManagement {
   }
 
   function _revokeRoleAccount(
-    AccessControlStorage.DataMaps storage data,
+    AccessControlStorage.DataCollections storage data,
     bytes32 role,
     address account
   ) private returns (bool) {    
@@ -188,7 +188,7 @@ library LRoleManagement {
   }
 
   function setRoleStatus(
-    AccessControlStorage.DataMaps storage data,
+    AccessControlStorage.DataCollections storage data,
     bytes32 role,
     bool status
   ) external returns (bool, bytes32) {
@@ -214,7 +214,7 @@ library LRoleManagement {
   }
 
   function setRoleGroup(
-    AccessControlStorage.DataMaps storage data,
+    AccessControlStorage.DataCollections storage data,
     bytes32 role,
     bytes32 group
   ) external returns (bool, bytes32) {
@@ -238,7 +238,7 @@ library LRoleManagement {
     return (true, oldGroup);
   }
 
-  function getRoleInfo(AccessControlStorage.DataMaps storage data, bytes32 role)
+  function getRoleInfo(AccessControlStorage.DataCollections storage data, bytes32 role)
     external
     view
     returns (
@@ -250,7 +250,7 @@ library LRoleManagement {
     return (data.roleMap[role].name, data.roleMap[role].group, data.roleMap[role].isEnabled);
   }
 
-  function getRoleAccounts(AccessControlStorage.DataMaps storage data, bytes32 role)
+  function getRoleAccounts(AccessControlStorage.DataCollections storage data, bytes32 role)
     external
     view
     returns (address[] memory)
@@ -260,7 +260,7 @@ library LRoleManagement {
   }
 
   function hasRoleAccount(
-    AccessControlStorage.DataMaps storage data,
+    AccessControlStorage.DataCollections storage data,
     bytes32 role,
     address account
   ) external view returns (bool) {

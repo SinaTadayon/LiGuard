@@ -5,7 +5,9 @@ import { ethers, waffle, deployments } from "hardhat";
 /* eslint-disable camelcase */
 import {
   AccessControlManager,
+  AccessControlManagerTest,
   AccessControlManager__factory,
+  AccessControlManagerTest__factory,
   BaseUUPSProxyTest,
   BaseUUPSProxyTest__factory, IRoleManagement,
   LAccessControl,
@@ -36,7 +38,11 @@ import ResponseContextStruct = IContextManagement.ResponseContextStruct;
 import {
   generateDomainSeparator,
   generateContextDomainSignatureByHardhat,
-  generateContextDomainSignatureManually, LIVELY_ASSET_GROUP, LIVELY_ADMIN_ROLE
+  generateContextDomainSignatureManually,
+  LIVELY_ASSET_GROUP,
+  LIVELY_ADMIN_ROLE,
+  readStorageSlot,
+  readStorageSlotFixedArray, readStorageSlotHashMap, LIVELY_GENERAL_GROUP, readStorageSlotStruct
 } from "./TestUtils";
 
 // ethers.utils.keccak256(ethers.utils.toUtf8Bytes("src/contracts/lib/acl/ContextManagementLib.sol:ContextManagementLib")) => 0x0304621006bd13fe54dc5f6b75a37ec856740450109fd223c2bfb60db9095cad => __$0304621006bd13fe54dc5f6b75a37ec856$__ ( library placeholder)
@@ -59,7 +65,9 @@ describe("AccessControlManager Tests", function () {
   let acl: LAccessControl;
   let linkLibraryAddresses: AccessControlManagerLibraryAddresses;
   let accessControlManagerSubject: AccessControlManager;
+  let accessControlManagerTestSubject: AccessControlManagerTest;
   let accessControlManagerProxy: AccessControlManager;
+  let accessControlManagerTestProxy: AccessControlManagerTest;
 
   this.beforeAll(async () => {
     [admin, user1, user2] = await ethers.getSigners();
@@ -2665,4 +2673,81 @@ describe("AccessControlManager Tests", function () {
       expect(await accessControlManagerProxy.isLivelySystemAdminRole(userAddress1)).to.be.false;
     });
   });
+
+  describe("Contract Upgradable Storage Test", function() {
+    it("Should AccessControlManager storage verification before upgrade success", async() => {
+      const baseProxy_slot_0 = await readStorageSlot(accessControlManagerProxy.address, 0);
+      const baseProxy_slot_1 = await readStorageSlot(accessControlManagerProxy.address, 1);
+      const baseProxy_slot_2 = await readStorageSlot(accessControlManagerProxy.address, 2);
+      const baseProxy_slot_3 = await readStorageSlotFixedArray(accessControlManagerProxy.address, 3, 0);
+      const baseProxy_slot_4 = await readStorageSlotFixedArray(accessControlManagerProxy.address, 3, 1);
+      const baseProxy_slot_67 = await readStorageSlotFixedArray(accessControlManagerProxy.address, 3, 64);
+      const acm_RoleMap_slot_70 = await readStorageSlotHashMap(accessControlManagerProxy.address, LIVELY_ADMIN_ROLE, 70);
+      const acm_GroupMap_slot_72 = await readStorageSlotHashMap(accessControlManagerProxy.address, LIVELY_GENERAL_GROUP, 72);
+
+      expect(baseProxy_slot_0).to.be.hexEqual(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("AccessControlManager")));
+      expect(baseProxy_slot_1).to.be.hexEqual(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("1.0.0")));
+      expect(baseProxy_slot_2).to.be.hexEqual(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_GENERAL_REALM")));
+      expect("0x" + baseProxy_slot_3.slice(26)).to.be.hexEqual(accessControlManagerProxy.address);
+      expect(baseProxy_slot_4).to.be.hexEqual("0x".padEnd(64, "0"))
+      expect(baseProxy_slot_67).to.be.hexEqual("0x".padEnd(64, "0"))
+      expect(acm_RoleMap_slot_70).to.be.hexEqual(LIVELY_GENERAL_GROUP);
+      expect(acm_GroupMap_slot_72.slice(0,acm_GroupMap_slot_72.length-2)).to.be.equal(ethers.utils.formatBytes32String("LIVELY_GENERAL_GROUP").slice(0,acm_GroupMap_slot_72.length-2));
+    })
+
+    it("Should AccessControlManagerTest subject deploy success", async () => {
+      // given
+      const accessControlManagerTestFactory = new AccessControlManagerTest__factory(admin);
+
+      // when
+      accessControlManagerTestSubject = await accessControlManagerTestFactory.deploy();
+
+      // then
+      expect(accessControlManagerTestSubject.address).not.null;
+      expect(await accessControlManagerTestSubject.isSafeMode()).to.be.true;
+      expect(await accessControlManagerTestSubject.isUpgradable()).to.be.false;
+      expect(await accessControlManagerTestSubject.initVersion()).to.be.equal(0);
+    });
+
+    it("Should upgrade proxy with accessControlManagerTestSubject by admin success", async () => {
+      // given
+      const typedArray1 = new Int8Array(0);
+
+      // when and then
+      await expect(
+        accessControlManagerProxy.connect(admin).upgradeTo(accessControlManagerTestSubject.address, typedArray1, false)
+      )
+        .to.emit(accessControlManagerProxy, "Upgraded")
+        .withArgs(adminAddress, accessControlManagerProxy.address, accessControlManagerTestSubject.address);
+
+      accessControlManagerTestProxy = accessControlManagerTestSubject.attach(accessControlManagerProxy.address);
+      await accessControlManagerTestProxy.connect(admin).initialize();
+      expect(await accessControlManagerTestProxy.initVersion()).to.be.equal(2);
+
+    });
+
+    it("Should AccessControlManagerTest storage verification after upgrade success", async() => {
+      const baseProxy_slot_0 = await readStorageSlot(accessControlManagerTestProxy.address, 0);
+      const baseProxy_slot_1 = await readStorageSlot(accessControlManagerTestProxy.address, 1);
+      const baseProxy_slot_2 = await readStorageSlot(accessControlManagerTestProxy.address, 2);
+      const baseProxy_slot_3 = await readStorageSlotFixedArray(accessControlManagerTestProxy.address, 3, 0);
+      const baseProxy_slot_4 = await readStorageSlotFixedArray(accessControlManagerTestProxy.address, 3, 1);
+      const baseProxy_slot_67 = await readStorageSlotFixedArray(accessControlManagerTestProxy.address, 3, 64);
+      const acm_RoleMap_slot_70 = await readStorageSlotHashMap(accessControlManagerTestProxy.address, LIVELY_ADMIN_ROLE, 70);
+      const acm_GroupMap_slot_72 = await readStorageSlotHashMap(accessControlManagerTestProxy.address, LIVELY_GENERAL_GROUP, 72);
+      const acm_dataCollection_slot_73 = await readStorageSlotStruct(accessControlManagerTestProxy.address, 68,5);
+      const acm_slot_74 = await readStorageSlot(accessControlManagerTestProxy.address, 74);
+
+      expect(baseProxy_slot_0).to.be.hexEqual(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("AccessControlManager")));
+      expect(baseProxy_slot_1).to.be.hexEqual(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("1.0.0")));
+      expect(baseProxy_slot_2).to.be.hexEqual(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_GENERAL_REALM")));
+      expect("0x" + baseProxy_slot_3.slice(26)).to.be.hexEqual(accessControlManagerProxy.address);
+      expect(baseProxy_slot_4).to.be.hexEqual("0x".padEnd(64, "0"))
+      expect(baseProxy_slot_67).to.be.hexEqual("0x".padEnd(64, "0"))
+      expect(acm_RoleMap_slot_70).to.be.hexEqual(LIVELY_GENERAL_GROUP);
+      expect(acm_GroupMap_slot_72.slice(0,acm_GroupMap_slot_72.length-2)).to.be.equal(ethers.utils.formatBytes32String("LIVELY_GENERAL_GROUP").slice(0,acm_GroupMap_slot_72.length-2));
+      expect(parseInt(acm_dataCollection_slot_73)).to.be.equal(100);
+      expect(acm_slot_74).to.be.hexEqual(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("UPDATE_TEST")));
+    })
+  })
 });

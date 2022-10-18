@@ -15,7 +15,7 @@ library LGroupManagement {
   bytes32 public constant LIB_VERSION = keccak256(abi.encodePacked("1.0.0"));
 
   function registerGroup(
-    AccessControlStorage.DataMaps storage data,
+    AccessControlStorage.DataCollections storage data,
     string calldata name,
     bool status
   ) external returns (bytes32) {
@@ -40,7 +40,7 @@ library LGroupManagement {
   }
 
   function setGroupStatus(
-    AccessControlStorage.DataMaps storage data,
+    AccessControlStorage.DataCollections storage data,
     bytes32 group,
     bool status
   ) external returns (bool) {
@@ -74,14 +74,14 @@ library LGroupManagement {
   }
 
   function hasGroupRole(
-    AccessControlStorage.DataMaps storage data,
+    AccessControlStorage.DataCollections storage data,
     bytes32 group,
     bytes32 role
   ) external view returns (bool) {
     return bytes(data.groupMap[group].name).length != 0 && data.groupMap[group].roleSet.contains(role);
   }
 
-  function getGroupInfo(AccessControlStorage.DataMaps storage data, bytes32 group)
+  function getGroupInfo(AccessControlStorage.DataCollections storage data, bytes32 group)
     external
     view
     returns (string memory, bool)
@@ -89,7 +89,7 @@ library LGroupManagement {
     return (data.groupMap[group].name, data.groupMap[group].isEnabled);
   }
 
-  function getGroupRoles(AccessControlStorage.DataMaps storage data, bytes32 group)
+  function getGroupRoles(AccessControlStorage.DataCollections storage data, bytes32 group)
     external
     view
     returns (bytes32[] memory)

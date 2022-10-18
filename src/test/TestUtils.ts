@@ -238,3 +238,23 @@ export function generateDomainSeparator(
   );
   return ethers.utils.keccak256(domainAbiEncode);
 }
+
+export async function readStorageSlotStruct(contract: Address, structSlot: number, memberIndex: number): Promise<string> {
+  return await provider.getStorageAt(contract, structSlot + memberIndex);
+}
+
+export async function readStorageSlotFixedArray(contract: Address, arraySlot: number, index: number): Promise<string> {
+  return await provider.getStorageAt(contract, arraySlot + index);
+}
+
+export async function readStorageSlot(contract: Address, slot: number): Promise<string> {
+  return await provider.getStorageAt(contract, slot);
+}
+
+export async function readStorageSlotHashMap(contract: Address, key: string, slot: number): Promise<string> {
+  const paddedAddress = ethers.utils.hexZeroPad(key, 32);
+  const paddedSlot = ethers.utils.hexZeroPad([slot], 32);
+  const concatenated = ethers.utils.concat([paddedAddress, paddedSlot]);
+  const hash = ethers.utils.keccak256(concatenated);
+  return await provider.getStorageAt(contract, hash);
+}

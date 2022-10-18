@@ -15,7 +15,7 @@ library LRealmManagement {
   bytes32 public constant LIB_VERSION = keccak256(abi.encodePacked("1.0.0"));
 
   function registerRealm(
-    AccessControlStorage.DataMaps storage data,
+    AccessControlStorage.DataCollections storage data,
     string calldata name,
     bool status,
     bool isUpgradable
@@ -42,7 +42,7 @@ library LRealmManagement {
   }
 
   function setRealmStatus(
-    AccessControlStorage.DataMaps storage data,
+    AccessControlStorage.DataCollections storage data,
     bytes32 realm,
     bool status
   ) external returns (bool) {
@@ -75,7 +75,7 @@ library LRealmManagement {
   }
 
   function setRealmUpgradeStatus(
-    AccessControlStorage.DataMaps storage data,
+    AccessControlStorage.DataCollections storage data,
     bytes32 realm,
     bool status
   ) external returns (bool) {
@@ -95,14 +95,14 @@ library LRealmManagement {
   }
 
   function hasRealmContext(
-    AccessControlStorage.DataMaps storage data,
+    AccessControlStorage.DataCollections storage data,
     bytes32 realm,
     bytes32 context
   ) external view returns (bool) {
     return bytes(data.realmMap[realm].name).length != 0 && data.realmMap[realm].ctxSet.contains(context);
   }
 
-  function getRealmInfo(AccessControlStorage.DataMaps storage data, bytes32 realm)
+  function getRealmInfo(AccessControlStorage.DataCollections storage data, bytes32 realm)
     external
     view
     returns (
@@ -114,7 +114,7 @@ library LRealmManagement {
     return (data.realmMap[realm].name, data.realmMap[realm].isEnabled, data.realmMap[realm].isUpgradable);
   }
 
-  function getRealmContexts(AccessControlStorage.DataMaps storage data, bytes32 realm)
+  function getRealmContexts(AccessControlStorage.DataCollections storage data, bytes32 realm)
     external
     view
     returns (bytes32[] memory)

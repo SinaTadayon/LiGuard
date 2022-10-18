@@ -31,8 +31,8 @@ abstract contract AccessControlStorage is BaseUUPSStorage {
   }
 
   struct Role {
-    string name;
     bytes32 group;
+    string name;
     bool isEnabled;
     LEnumerableSet.AddressSet accountSet;
   }
@@ -50,7 +50,7 @@ abstract contract AccessControlStorage is BaseUUPSStorage {
     LEnumerableSet.Bytes32Set roleSet;
   }
 
-  struct DataMaps {
+  struct DataCollections {
     mapping(address => mapping(bytes32 => Status)) accountMap;
     mapping(bytes32 => Context) ctxMap;
     mapping(bytes32 => Role) roleMap;
@@ -58,5 +58,5 @@ abstract contract AccessControlStorage is BaseUUPSStorage {
     mapping(bytes32 => Group) groupMap;
   }
 
-  DataMaps internal _dataMaps;
+  DataCollections internal _data;
 }
