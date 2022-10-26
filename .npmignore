@@ -1,0 +1,17 @@
+hardhat.config.ts
+src/scripts
+src/test
+build
+.idea/
+coverage.json
+.env.example
+.eslintignore
+.eslintrc.js
+.prettierrc
+.prettierignore
+.solcover.js
+.solhint.json
+.solhintignore
+.env
+tsconfig.json
+typechain
