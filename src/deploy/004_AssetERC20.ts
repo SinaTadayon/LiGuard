@@ -58,10 +58,10 @@ const assetManagerERC20DomainRealm = "LIVELY_ASSET_REALM";
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, ethers, getChainId } = hre;
   const { deploy } = deployments;
-  const [systemAdmin, admin, assetManager] = await ethers.getSigners();
+  const [systemAdmin, admin, assetAdmin] = await ethers.getSigners();
   const systemAdminAddress = systemAdmin.address;
   const adminAddress = admin.address;
-  const assetManagerAddress = assetManager.address;
+  const assetAdminAddress = assetAdmin.address;
   const accessControlManagerDeployed = await deployments.get("AccessControlManagerProxy");
   const assetManagerERC20Deployed = await deployments.get("AssetManagerERC20Proxy");
   const livelyTokenDeployed = await deployments.get("LivelyTokenProxy");
@@ -84,7 +84,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       assetManagerERC20,
       systemAdmin,
       adminAddress,
-      assetManagerAddress
+      assetAdminAddress
     );
 
     const assetsMap = await generateAssetsInfo(assetManagerERC20, assetERC20Subject.address);
@@ -99,7 +99,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     );
 
     let tx = await assetManagerERC20
-      .connect(assetManager)
+      .connect(assetAdmin)
       .updateAssetSubject(assetERC20Subject.address, assetSignature);
     let txReceipt;
     if (hre.network.name === "polygon" || hre.network.name === "bsc") {
@@ -113,7 +113,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     console.log();
 
     // register lively token
-    tx = await assetManagerERC20.connect(assetManager).registerToken(livelyToken.address);
+    tx = await assetManagerERC20.connect(assetAdmin).registerToken(livelyToken.address);
     if (hre.network.name === "polygon" || hre.network.name === "bsc") {
       txReceipt = await tx.wait(7);
     } else {
@@ -126,14 +126,14 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
     // create assets
     for (const assetInfo of assetsMap.values()) {
-      await createAsset(hre, assetManagerERC20, assetInfo, assetManager, livelyToken);
+      await createAsset(hre, assetManagerERC20, assetInfo, assetAdmin, livelyToken);
     }
 
     // grant role ASSET_MANAGER to ERC20 assets
     await grantAssetManagerRoleToAssets(hre, accessControlManager, assetManagerERC20, admin, assetsMap);
 
     // distribute tokens to assets ERC20
-    tx = await assetManagerERC20.connect(assetManager).livelyTokensDistribution(livelyToken.address);
+    tx = await assetManagerERC20.connect(assetAdmin).livelyTokensDistribution(livelyToken.address);
     if (hre.network.name === "polygon" || hre.network.name === "bsc") {
       txReceipt = await tx.wait(7);
     } else {

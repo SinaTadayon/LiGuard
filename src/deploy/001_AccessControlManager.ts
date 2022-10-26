@@ -8,11 +8,11 @@ const accessControlDomainRealm = "LIVELY_GENERAL_REALM";
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, ethers, getChainId } = hre;
   const { deploy } = deployments;
-  const [systemAdmin, admin, assetManager] = await ethers.getSigners();
+  const [systemAdmin, admin, assetAdmin] = await ethers.getSigners();
   const chainId = await getChainId();
   console.log(`systemAdmin address: ${systemAdmin.address}`);
   console.log(`admin address: ${admin.address}`);
-  console.log(`assetManager address: ${assetManager.address}`);
+  console.log(`assetAdmin address: ${assetAdmin.address}`);
   console.log(`network name: ${hre.network.name}`);
   console.log(`network chainId: ${chainId}`);
 

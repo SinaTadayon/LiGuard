@@ -15,9 +15,9 @@ dotenv.config();
 const mnemonic = process.env.MNEMONIC;
 const systemAdminKey = process.env.SYSTEM_ADMIN_KEY;
 const adminKey = process.env.ADMIN_KEY;
-const assetManagerKey = process.env.ASSET_MANAGER_KEY;
+const assetAdminKey = process.env.ASSET_ADMIN_KEY;
 
-const netAccounts = systemAdminKey && adminKey && assetManagerKey ? [systemAdminKey, adminKey, assetManagerKey] : [];
+const netAccounts = systemAdminKey && adminKey && assetAdminKey ? [systemAdminKey, adminKey, assetAdminKey] : [];
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html

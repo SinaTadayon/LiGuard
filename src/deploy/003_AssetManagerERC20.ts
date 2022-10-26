@@ -13,8 +13,8 @@ export let ASSET_MANAGER_INIT_VERSION: number;
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, ethers, getChainId } = hre;
   const { deploy } = deployments;
-  const [systemAdminSigner] = await ethers.getSigners();
-  const systemAdminAddress = systemAdminSigner.address;
+  const [systemAdmin] = await ethers.getSigners();
+  const systemAdminAddress = systemAdmin.address;
   const accessControlManager = await deployments.get("AccessControlManagerProxy");
   const chainId = await getChainId();
   const typedArray1 = new Int8Array(0);
@@ -64,10 +64,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     assetManagerSignature: signature,
   };
 
-  const assetManagerERC20 = AssetManagerERC20__factory.connect(assetManagerERC20Proxy.address, systemAdminSigner);
+  const assetManagerERC20 = AssetManagerERC20__factory.connect(assetManagerERC20Proxy.address, systemAdmin);
   ASSET_MANAGER_INIT_VERSION = await assetManagerERC20.initVersion();
   if (ASSET_MANAGER_INIT_VERSION === 0) {
-    const tx = await assetManagerERC20.connect(systemAdminSigner).initialize(request);
+    const tx = await assetManagerERC20.connect(systemAdmin).initialize(request);
     let txReceipt;
     if (hre.network.name === "polygon" || hre.network.name === "bsc") {
       txReceipt = await tx.wait(7);
