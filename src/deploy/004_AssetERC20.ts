@@ -5,7 +5,7 @@ import {
   AccessControlManager__factory, AssetERC20, AssetERC20__factory, AssetManagerERC20,
   AssetManagerERC20__factory, IAssetManagerERC20, IRoleManagement, LivelyToken,
   LivelyToken__factory
-} from "../../../typechain/types";
+} from "../../typechain/types";
 import {
   generatePredictContextDomainSignatureByHardhat,
   LIVELY_ADMIN_ROLE,
@@ -15,7 +15,8 @@ import {
   LIVELY_ASSET_MANAGER_ROLE,
   LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_NAME,
   LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_ROLE,
-  LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_ROLE_NAME, LIVELY_CROWD_FOUNDING_ASSET_NAME,
+  LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_ROLE_NAME,
+  LIVELY_CROWD_FOUNDING_ASSET_NAME,
   LIVELY_CROWD_FOUNDING_ASSET_ROLE,
   LIVELY_CROWD_FOUNDING_ASSET_ROLE_NAME,
   LIVELY_FOUNDING_TEAM_ASSET_NAME,
@@ -31,10 +32,12 @@ import {
   LIVELY_VALIDATORS_REWARDS_ASSET_NAME,
   LIVELY_VALIDATORS_REWARDS_ASSET_ROLE,
   LIVELY_VALIDATORS_REWARDS_ASSET_ROLE_NAME
-} from "../../utils/deployUtils";
+} from "../utils/deployUtils";
 import { Signer } from "ethers";
 import { ethers } from "hardhat";
 import { Address } from "hardhat-deploy/dist/types";
+import { LIVELY_TOKEN_INIT_VERSION } from "./002_LivelyToken";
+import { ASSET_MANAGER_INIT_VERSION } from "./003_AssetManagerERC20";
 
 type AssetInfo = {
   assetId: Address,
@@ -66,51 +69,82 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     skipIfAlreadyDeployed: true,
   })
 
-  await registerAssetRoles(accessControlManager, systemAdminSigner);
+  if(LIVELY_TOKEN_INIT_VERSION === 0 && ASSET_MANAGER_INIT_VERSION === 0) {
+    await registerAssetRoles(hre, accessControlManager, systemAdminSigner);
+    await grantRolesToAccounts(hre, accessControlManager, assetManagerERC20, systemAdminSigner, adminAddress, assetAdminAddress);
 
-  const assetsMap = await generateAssetsInfo(assetManagerERC20, assetERC20Subject.address);
+    const assetsMap = await generateAssetsInfo(assetManagerERC20, assetERC20Subject.address);
+    const assetSignature = await generatePredictContextDomainSignatureByHardhat(
+      hre,
+      assetManagerERC20.address,
+      assetManagerERC20DomainRealm,
+      accessControlManager.address,
+      systemAdminAddress,
+      parseInt(chainId),
+      assetERC20Subject.address
+    )
 
-  await grantRolesToAccounts(accessControlManager, assetManagerERC20, systemAdminSigner, adminAddress, assetAdminAddress);
+    let tx = await assetManagerERC20.connect(assetAdminSigner).updateAssetSubject(assetERC20Subject.address, assetSignature)
+    let txReceipt;
+    if (hre.network.name === 'polygon' || hre.network.name === 'bsc') {
+      txReceipt = await tx.wait(7);
+    } else {
+      txReceipt = await tx.wait(1);
+    }
+    console.log(`[ Update AssetSubject AssetManagerERC20 ]`);
+    console.log(`tx: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
+    console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
+    console.log();
 
-  const assetSignature = await generatePredictContextDomainSignatureByHardhat(
-    hre,
-    assetManagerERC20.address,
-    assetManagerERC20DomainRealm,
-    accessControlManager.address,
-    systemAdminAddress,
-    parseInt(chainId),
-    assetERC20Subject.address
-  )
+    // register lively token
+    tx = await assetManagerERC20.connect(assetAdminSigner).registerToken(livelyToken.address);
+    if (hre.network.name === 'polygon' || hre.network.name === 'bsc') {
+      txReceipt = await tx.wait(7);
+    } else {
+      txReceipt = await tx.wait(1);
+    }
+    console.log(`[ Register Token AssetManagerERC20 ]`);
+    console.log(`tx: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
+    console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
+    console.log();
 
-  let tx = await assetManagerERC20.connect(assetAdminSigner).updateAssetSubject(assetERC20Subject.address, assetSignature)
-  let txReceipt = await tx.wait(1);
-  console.log(`assetManagerERC20.updateAssetSubject, txHash: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
+    // create assets
+    for (const assetInfo of assetsMap.values()) {
+      await createAsset(hre, assetManagerERC20, assetInfo, assetAdminSigner, livelyToken);
+    }
 
-  // register lively token
-  tx = await assetManagerERC20.connect(assetAdminSigner).registerToken(livelyToken.address);
-  txReceipt = await tx.wait(1);
-  console.log(`assetManagerERC20.registerToken, txHash: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
+    // grant role ASSET_MANAGER to ERC20 assets
+    await grantAssetManagerRoleToAssets(hre, accessControlManager, assetManagerERC20, adminSigner, assetsMap);
 
-  // create assets
-  for (const assetInfo of assetsMap.values()) {
-    await createAsset(assetManagerERC20, assetInfo, assetAdminSigner, livelyToken);
+    // distribute tokens to assets ERC20
+    tx = await assetManagerERC20.connect(assetAdminSigner).livelyTokensDistribution(livelyToken.address)
+    if (hre.network.name === 'polygon' || hre.network.name === 'bsc') {
+      txReceipt = await tx.wait(7);
+    } else {
+      txReceipt = await tx.wait(1);
+    }
+    console.log(`[ Distribution LivelyTokens ]`);
+    console.log(`tx: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
+    console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
+    console.log();
+
+    // revoke systemAdmin from LIVELY_ADMIN_ROLE role
+    tx = await accessControlManager.connect(adminSigner).revokeRoleAccount(LIVELY_ADMIN_ROLE, systemAdminAddress);
+    if (hre.network.name === 'polygon' || hre.network.name === 'bsc') {
+      txReceipt = await tx.wait(7);
+    } else {
+      txReceipt = await tx.wait(1);
+    }
+    console.log(`[ Revoke Role LIVELY_ADMIN_ROLE From SystemAdmin ]`);
+    console.log(`tx: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
+    console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
+    console.log();
   }
-
-  // grant role ASSET_MANAGER to ERC20 assets
-  await grantAssetManagerRoleToAssets(accessControlManager, assetManagerERC20, adminSigner, assetsMap);
-
-  // distribute tokens to assets ERC20
-  tx = await assetManagerERC20.connect(assetAdminSigner).livelyTokensDistribution(livelyToken.address)
-  txReceipt = await tx.wait(1);
-  console.log(`RevokeRole livelyTokensDistribution from assetAdminSigner, txHash: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
-
-  // revoke systemAdmin from LIVELY_ADMIN_ROLE role
-  tx = await accessControlManager.connect(adminSigner).revokeRoleAccount(LIVELY_ADMIN_ROLE, systemAdminAddress);
-  txReceipt = await tx.wait(1);
-  console.log(`RevokeRole LIVELY_ADMIN_ROLE from systemAdmin, txHash: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
 }
 
-async function registerAssetRoles(accessControlManager: AccessControlManager, systemAdminSigner: Signer) {
+async function registerAssetRoles(hre:HardhatRuntimeEnvironment,
+                                  accessControlManager: AccessControlManager,
+                                  systemAdmin: Signer) {
   const registerRoleRequest: IRoleManagement.RegiterRoleRequestStruct[] = [
     {
       name: LIVELY_CROWD_FOUNDING_ASSET_ROLE_NAME,
@@ -144,12 +178,22 @@ async function registerAssetRoles(accessControlManager: AccessControlManager, sy
     }
   ]
 
-  let tx = await accessControlManager.connect(systemAdminSigner).batchRegisterRole(registerRoleRequest)
-  let txReceipt = await tx.wait(1);
-  console.log(`accessControlManager.batchRegisterRole, txHash: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
+  let tx = await accessControlManager.connect(systemAdmin).batchRegisterRole(registerRoleRequest)
+  let txReceipt;
+  if(hre.network.name === 'polygon' || hre.network.name === 'bsc') {
+    txReceipt = await tx.wait(7);
+  } else {
+    txReceipt = await tx.wait(1);
+  }
+  console.log(`[ BatchRegisterRole AccessControlManager ]`);
+  console.log(`tx: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
+  console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
+  console.log();
+
 }
 
-async function grantRolesToAccounts(accessControlManager: AccessControlManager,
+async function grantRolesToAccounts(hre:HardhatRuntimeEnvironment,
+                                    accessControlManager: AccessControlManager,
                                     assetManagerERC20: AssetManagerERC20,
                                     systemAdminSigner: Signer,
                                     adminAddress: string,
@@ -199,8 +243,16 @@ async function grantRolesToAccounts(accessControlManager: AccessControlManager,
   ]
 
   let tx = await accessControlManager.connect(systemAdminSigner).batchGrantRoleAccount(batchGrantRequest)
-  let txReceipt = await tx.wait(1);
-  console.log(`accessControlManager.batchGrantRoleAccount, txHash: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
+  let txReceipt;
+  if(hre.network.name === 'polygon' || hre.network.name === 'bsc') {
+    txReceipt = await tx.wait(7);
+  } else {
+    txReceipt = await tx.wait(1);
+  }
+  console.log(`[ BatchGrantRoleAccount AccessControlManager ]`);
+  console.log(`tx: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
+  console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
+  console.log();
 }
 
 async function generateAssetsInfo(assetManagerERC20: AssetManagerERC20,
@@ -238,7 +290,8 @@ async function generateAssetsInfo(assetManagerERC20: AssetManagerERC20,
   return assetMap;
 }
 
-async function createAsset(assetManagerERC20: AssetManagerERC20,
+async function createAsset(hre: HardhatRuntimeEnvironment,
+                           assetManagerERC20: AssetManagerERC20,
                            assetInfo: AssetInfo,
                            assetAdmin: Signer,
                            livelyToken: LivelyToken): Promise<AssetERC20> {
@@ -252,17 +305,28 @@ async function createAsset(assetManagerERC20: AssetManagerERC20,
   }
   let asset = await factory.attach(assetInfo.assetId);
   let tx = await assetManagerERC20.connect(assetAdmin).createAsset(createAssetRequest);
-  let txReceipt = await tx.wait(1);
-  console.log(`assetManagerERC20.createAsset: ${assetInfo.assetName}, deployed at: ${assetInfo.assetId}`);
+  let txReceipt;
+  if(hre.network.name === 'polygon' || hre.network.name === 'bsc') {
+    txReceipt = await tx.wait(7);
+  } else {
+    txReceipt = await tx.wait(1);
+  }
+  console.log(`[ CreateAsset AssetManagerERC20 ]`);
+  console.log(`name: ${assetInfo.assetName}, deployed at: ${assetInfo.assetId}`);
   console.log(`salt: ${assetInfo.salt}, role: ${assetInfo.assetRole}`);
-  console.log(`txHash: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
+  console.log(`tx: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
+  console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
+  console.log();
+
   return asset;
 }
 
-async function grantAssetManagerRoleToAssets(accessControlManager: AccessControlManager,
-                                    assetManagerERC20: AssetManagerERC20,
-                                    adminSigner: Signer,
-                                    assetsMap: Map<string, AssetInfo>) {
+async function grantAssetManagerRoleToAssets(
+      hre: HardhatRuntimeEnvironment,
+      accessControlManager: AccessControlManager,
+      assetManagerERC20: AssetManagerERC20,
+      adminSigner: Signer,
+      assetsMap: Map<string, AssetInfo>) {
 
   const batchGrantRequest: IRoleManagement.UpdateRoleRequestStruct[] = [
     {
@@ -303,8 +367,16 @@ async function grantAssetManagerRoleToAssets(accessControlManager: AccessControl
   ]
 
   let tx = await accessControlManager.connect(adminSigner).batchGrantRoleAccount(batchGrantRequest)
-  let txReceipt = await tx.wait(1);
-  console.log(`grantAssetManagerRoleToAssets batchGrantRoleAccount, txHash: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
+  let txReceipt;
+  if(hre.network.name === 'polygon' || hre.network.name === 'bsc') {
+    txReceipt = await tx.wait(7);
+  } else {
+    txReceipt = await tx.wait(1);
+  }
+  console.log(`[ BatchGrantRoleAccount AccessControlManager ]`);
+  console.log(`tx: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
+  console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
+  console.log();
 }
 
 func.dependencies = ["AccessControlManagerProxy", "LivelyTokenProxy", "AssetManagerERC20Proxy"];

@@ -51,4 +51,5 @@ abstract contract LivelyStorage is BaseUUPSStorage {
 
   DataCollection internal _data;
 
+  // Note: for next upgrade add new variables after this line
 }

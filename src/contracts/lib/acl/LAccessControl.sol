@@ -140,29 +140,6 @@ library LAccessControl {
     bytes4 signature
   ) external view returns (bool) {
     bytes32 role = data.ctxMap[context].resources[signature].role;
-    // console.log("hasAccess called, address: %s", account);
-
-    // console.log("data.ctxMap[context].smca: %s", data.ctxMap[context].smca);
-    // console.log("data.ctxMap[context].isEnabled:");
-    // console.logBool(data.ctxMap[context].isEnabled);
-    // console.log("data.ctxMap[context].realm: ");
-    // console.logBytes32(data.ctxMap[context].realm);
-    // console.log("data.ctxMap[context].resources[signature].status: ");
-    // console.logBytes1(bytes1(uint8(data.ctxMap[context].resources[signature].status)));
-    // console.log("data.ctxMap[context].resources[signature].role: ");
-    // console.logBytes32(data.ctxMap[context].resources[signature].role);
-
-    // console.log("data.realmMap[data.ctxMap[context].realm].name: %s", data.realmMap[data.ctxMap[context].realm].name);
-    // console.log("data.realmMap[data.ctxMap[context].realm].isEnabled: ");
-    // console.logBool(data.realmMap[data.ctxMap[context].realm].isEnabled);
-
-    // console.log("data.groupMap[data.roleMap[role].group].name: %s", data.groupMap[data.roleMap[role].group].name);
-    // console.log("data.groupMap[data.roleMap[role].group].isEnabled: ");
-    // console.logBool(data.groupMap[data.roleMap[role].group].isEnabled);
-
-    // console.log("data.accountMap[account][role]: ");
-    // console.logBytes1(bytes1(uint8(data.accountMap[account][role])));
-
     if (role == LIVELY_ANONYMOUS_ROLE) {
       return
         data.ctxMap[context].isEnabled &&

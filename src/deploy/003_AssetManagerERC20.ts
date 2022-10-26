@@ -1,15 +1,12 @@
 import { DeployFunction } from "hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { AssetManagerERC20, AssetManagerERC20__factory } from "../../../typechain/types";
-import {
-  generateContextDomainSignatureByHardhat, generatePredictContextDomainSignatureByHardhat,
-  generatePredictContextDomainSignatureManually
-} from "../../utils/deployUtils";
-
+import { AssetManagerERC20, AssetManagerERC20__factory } from "../../typechain/types";
+import { generateContextDomainSignatureByHardhat } from "../utils/deployUtils";
 
 const assetManagerERC20DomainName = "AssetManagerERC20";
 const assetManagerERC20DomainVersion = "1.0.0";
 const assetManagerERC20DomainRealm = "LIVELY_ASSET_REALM";
+export let ASSET_MANAGER_INIT_VERSION: number;
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, ethers, getChainId } = hre;
@@ -66,10 +63,20 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   };
 
   const assetManagerERC20 = AssetManagerERC20__factory.connect(assetManagerERC20Proxy.address, systemAdminSigner);
-  let tx = await assetManagerERC20.connect(systemAdminSigner).initialize(request);
-  let txReceipt = await tx.wait(1);
-  console.log(`assetManagerERC20 initialize, txHash: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
-
+  ASSET_MANAGER_INIT_VERSION = await assetManagerERC20.initVersion();
+  if(ASSET_MANAGER_INIT_VERSION === 0) {
+    let tx = await assetManagerERC20.connect(systemAdminSigner).initialize(request);
+    let txReceipt;
+    if (hre.network.name === 'polygon' || hre.network.name === 'bsc') {
+      txReceipt = await tx.wait(7);
+    } else {
+      txReceipt = await tx.wait(1);
+    }
+    console.log(`[Initialize AssetManagerERC20 ]`);
+    console.log(`tx: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
+    console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
+    console.log();
+  }
 }
 
 func.tags = ["AssetManagerERC20Subject", "AssetManagerERC20Proxy"];

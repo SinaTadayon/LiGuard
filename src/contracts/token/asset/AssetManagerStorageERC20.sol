@@ -21,4 +21,6 @@ abstract contract AssetManagerStorageERC20 is BaseUUPSStorage {
   address internal _assetSubjectERC20;
   bytes internal _assetCreationSignature;
   DataCollection internal _data;
+
+  // Note: for next upgrade add new variables after this line
 }

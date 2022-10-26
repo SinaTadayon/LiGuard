@@ -10,13 +10,16 @@ import "hardhat-gas-reporter";
 import "hardhat-contract-sizer";
 import "hardhat-abi-exporter";
 import "solidity-coverage";
-
 dotenv.config();
 
 const mnemonic = process.env.MNEMONIC;
-const privateKey = process.env.PRIVATE_KEY;
+const systemAdminKey = process.env.SYSTEM_ADMIN_KEY;
+const adminKey = process.env.ADMIN_KEY;
+const assetManagerKey = process.env.ASSET_MANAGER_KEY;
 
-const netAccounts = mnemonic ? { mnemonic } : privateKey ? [{ privateKey: `0x${privateKey}`, balance: "" }] : undefined;
+const netAccounts = systemAdminKey && adminKey && assetManagerKey ?
+  [systemAdminKey, adminKey, assetManagerKey] : [];
+
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -41,18 +44,12 @@ const config: HardhatUserConfig = {
       },
     },
   },
-  // networks: {
-  //   ropsten: {
-  //     url: process.env.ROPSTEN_URL || "",
-  //     accounts:
-  //       process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-  //   },
-  // },
+
   networks: {
     hardhat: mnemonic ? { accounts: { mnemonic } } : {},
     localhost: {
-      url: "http://localhost:8545",
-      accounts: netAccounts,
+      url: "http://127.0.0.1:8545",
+      // accounts: netAccounts,
     },
     bsc: {
       url: "https://bsc-dataseed1.binance.org/",
@@ -63,6 +60,16 @@ const config: HardhatUserConfig = {
     bsc_testnet: {
       url: "https://data-seed-prebsc-1-s1.binance.org:8545",
       chainId: 97,
+      accounts: netAccounts,
+    },
+    polygon: {
+      url: "https://polygon-rpc.com/",
+      chainId: 137,
+      accounts: netAccounts,
+    },
+    mumbai: {
+      url: "https://rpc-mumbai.maticvigil.com/",
+      chainId: 80001,
       accounts: netAccounts,
     },
   },
@@ -116,7 +123,7 @@ const config: HardhatUserConfig = {
     admin: {
       default: 1,
     },
-    assetAdmin: {
+    assetManager: {
       default: 2,
     },
   },

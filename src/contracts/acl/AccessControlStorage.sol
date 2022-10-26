@@ -59,4 +59,6 @@ abstract contract AccessControlStorage is BaseUUPSStorage {
   }
 
   DataCollections internal _data;
+
+  // Note: for next upgrade add new variables after this line
 }
