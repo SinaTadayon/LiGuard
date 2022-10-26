@@ -1,22 +1,33 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
+import { AccessControlManager__factory } from "../../../typechain/types";
+import { Signer } from "ethers";
+import { LIVELY_ADMIN_ROLE } from "../../test/TestUtils";
 // import { ethers } from "hardhat";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const { deployments, getNamedAccounts, ethers } = hre;
+  const { deployments, ethers } = hre;
   const { deploy } = deployments;
-  const { deployer } = await getNamedAccounts();
+  // const { systemAdminAddress, admin } = await getNamedAccounts();
+  const [systemAdminSigner, adminSigner, assetAdminSigner] = await ethers.getSigners();
+  const systemAdminAddress = systemAdminSigner.address;
+  const adminAddress = adminSigner.address;
+
+  // console.log(`systemAdminAddress address: ${systemAdminAddress}`);
+  // console.log(`admin address: ${admin}`);
+  console.log(`systemAdminSigner address: ${systemAdminSigner.address}`);
+  console.log(`adminSigner address: ${adminSigner.address}`);
 
   const acl = await deploy("ACL", {
     contract: "LAccessControl",
-    from: deployer,
+    from: systemAdminAddress,
     log: true,
     skipIfAlreadyDeployed: true,
   });
 
   const cml = await deploy("CML", {
     contract: "LContextManagement",
-    from: deployer,
+    from: systemAdminAddress,
     log: true,
     skipIfAlreadyDeployed: true,
     libraries: {
@@ -26,7 +37,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const rml = await deploy("RML", {
     contract: "LRoleManagement",
-    from: deployer,
+    from: systemAdminAddress,
     log: true,
     skipIfAlreadyDeployed: true,
     libraries: {
@@ -36,7 +47,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const reml = await deploy("REML", {
     contract: "LRealmManagement",
-    from: deployer,
+    from: systemAdminAddress,
     log: true,
     skipIfAlreadyDeployed: true,
     libraries: {
@@ -46,7 +57,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const gml = await deploy("GML", {
     contract: "LGroupManagement",
-    from: deployer,
+    from: systemAdminAddress,
     log: true,
     skipIfAlreadyDeployed: true,
     libraries: {
@@ -56,7 +67,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const accessControlManagerSubject = await deploy("AccessControlManagerSubject", {
     contract: "AccessControlManager",
-    from: deployer,
+    from: systemAdminAddress,
     args: [],
     log: true,
     skipIfAlreadyDeployed: true,
@@ -77,9 +88,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     ethers.constants.AddressZero,
   ]);
 
-  await deploy("AccessControlManagerProxy", {
+  const accessControlManagerProxy = await deploy("AccessControlManagerProxy", {
     contract: "Proxy",
-    from: deployer,
+    from: systemAdminAddress,
     args: [accessControlManagerSubject.address, data],
     log: true,
     skipIfAlreadyDeployed: true,

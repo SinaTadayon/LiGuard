@@ -110,8 +110,14 @@ const config: HardhatUserConfig = {
   },
 
   namedAccounts: {
-    deployer: {
+    systemAdmin: {
       default: 0,
+    },
+    admin: {
+      default: 1,
+    },
+    assetAdmin: {
+      default: 2,
     },
   },
 };
