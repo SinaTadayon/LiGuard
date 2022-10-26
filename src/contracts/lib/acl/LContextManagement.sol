@@ -19,10 +19,10 @@ library LContextManagement {
 
   bytes32 public constant TYPE_HASH =
     keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
-  
+
   bytes32 public constant CTX_MESSAGE_TYPEHASH =
     keccak256("Context(address contractId,string name,string version,string realm)");
-  
+
   bytes32 public constant PREDICT_CTX_MESSAGE_TYPEHASH =
     keccak256("PredictContext(address deployer,address subject,string realm)");
 
@@ -61,12 +61,19 @@ library LContextManagement {
   }
 
   function registerPredictContext(
-      AccessControlStorage.DataCollections storage data,
-      bytes memory signature,
-      IContextManagement.RequestPredictContext calldata rpc,
-      IContextManagement.RequestRegisterContext[] calldata rrc
-  ) external returns (address, bytes32, address) {
-        require(!IProxy(address(this)).isSafeMode(), "SafeMode: Call Rejected");
+    AccessControlStorage.DataCollections storage data,
+    bytes memory signature,
+    IContextManagement.RequestPredictContext calldata rpc,
+    IContextManagement.RequestRegisterContext[] calldata rrc
+  )
+    external
+    returns (
+      address,
+      bytes32,
+      address
+    )
+  {
+    require(!IProxy(address(this)).isSafeMode(), "SafeMode: Call Rejected");
 
     bytes32 structHash = _getPredictContextMessageHash(rpc.deployer, rpc.subject, rpc.realm);
     bytes32 msgDigest = _hashTypedDataV4(structHash);
@@ -86,7 +93,6 @@ library LContextManagement {
     (address contractId, bytes32 ctx) = _registerPredictContext(data, rrc, rpc);
     return (contractId, ctx, msgSigner);
   }
-
 
   function _getContextMessageHash(
     address contractId,
@@ -169,7 +175,7 @@ library LContextManagement {
     newContext.contractId = predictedContractId;
     newContext.isEnabled = rpc.status;
 
-    for (uint256 i = 0; i < rrc.length; i++) {  
+    for (uint256 i = 0; i < rrc.length; i++) {
       require(bytes(data.roleMap[rrc[i].role].name).length != 0, "Role Not Found");
       for (uint256 j = 0; j < rrc[i].funcSelectors.length; j++) {
         newContext.resources[rrc[i].funcSelectors[j]].role = rrc[i].role;

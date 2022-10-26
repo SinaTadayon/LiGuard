@@ -1,5 +1,7 @@
 import { DeployFunction } from "hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
+
+/* eslint-disable camelcase,node/no-unpublished-import */
 import { AssetManagerERC20, AssetManagerERC20__factory } from "../../typechain/types";
 import { generateContextDomainSignatureByHardhat } from "../utils/deployUtils";
 
@@ -22,7 +24,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     from: systemAdminAddress,
     log: true,
     skipIfAlreadyDeployed: true,
-  })
+  });
 
   const assetManagerERC20Subject = await deploy("AssetManagerERC20Subject", {
     contract: "AssetManagerERC20",
@@ -33,7 +35,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     libraries: {
       LAssetManagerERC20: lAssetManagerERC20.address,
     },
-  })
+  });
 
   const assetManagerERC20Proxy = await deploy("AssetManagerERC20Proxy", {
     contract: "Proxy",
@@ -64,10 +66,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const assetManagerERC20 = AssetManagerERC20__factory.connect(assetManagerERC20Proxy.address, systemAdminSigner);
   ASSET_MANAGER_INIT_VERSION = await assetManagerERC20.initVersion();
-  if(ASSET_MANAGER_INIT_VERSION === 0) {
-    let tx = await assetManagerERC20.connect(systemAdminSigner).initialize(request);
+  if (ASSET_MANAGER_INIT_VERSION === 0) {
+    const tx = await assetManagerERC20.connect(systemAdminSigner).initialize(request);
     let txReceipt;
-    if (hre.network.name === 'polygon' || hre.network.name === 'bsc') {
+    if (hre.network.name === "polygon" || hre.network.name === "bsc") {
       txReceipt = await tx.wait(7);
     } else {
       txReceipt = await tx.wait(1);
@@ -77,7 +79,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
     console.log();
   }
-}
+};
 
 func.tags = ["AssetManagerERC20Subject", "AssetManagerERC20Proxy"];
 func.dependencies = ["AccessControlManagerProxy", "LivelyTokenProxy"];

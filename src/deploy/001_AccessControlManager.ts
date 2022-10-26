@@ -6,13 +6,15 @@ const accessControlDomainVersion = "1.0.0";
 const accessControlDomainRealm = "LIVELY_GENERAL_REALM";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const { deployments, ethers } = hre;
+  const { deployments, ethers, getChainId } = hre;
   const { deploy } = deployments;
   const [systemAdmin, admin, assetManager] = await ethers.getSigners();
+  const chainId = await getChainId();
   console.log(`systemAdmin address: ${systemAdmin.address}`);
   console.log(`admin address: ${admin.address}`);
   console.log(`assetManager address: ${assetManager.address}`);
-  console.log(`network name: ${hre.network.name}` );
+  console.log(`network name: ${hre.network.name}`);
+  console.log(`network chainId: ${chainId}`);
 
   const acl = await deploy("LAccessControl", {
     contract: "LAccessControl",
@@ -84,7 +86,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     ethers.constants.AddressZero,
   ]);
 
-   await deploy("AccessControlManagerProxy", {
+  await deploy("AccessControlManagerProxy", {
     contract: "Proxy",
     from: systemAdmin.address,
     args: [accessControlManagerSubject.address, data],
@@ -100,6 +102,6 @@ func.tags = [
   "LContextManagement",
   "LRoleManagement",
   "LGroupManagement",
-  "LRealmManagement"
+  "LRealmManagement",
 ];
 export default func;

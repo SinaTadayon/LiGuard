@@ -4,8 +4,9 @@ import { DeployFunction } from "hardhat-deploy/types";
 /* eslint-disable  node/no-unpublished-import */
 import { BigNumber } from "ethers";
 
-/* eslint-disable node/no-extraneous-import */
 import { generateContextDomainSignatureByHardhat } from "../utils/deployUtils";
+/* eslint-disable node/no-extraneous-import */
+/* eslint-disable camelcase */
 import { LivelyToken, LivelyToken__factory } from "../../typechain/types";
 
 const livelyTokenDomainName = "LivelyToken";
@@ -16,7 +17,7 @@ export let LIVELY_TOKEN_INIT_VERSION: number;
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, ethers, getChainId } = hre;
   const { deploy } = deployments;
-  const [systemAdminSigner, adminSigner, assetManagerSigner] = await ethers.getSigners();
+  const [systemAdminSigner] = await ethers.getSigners();
   const systemAdminAddress = systemAdminSigner.address;
   const accessControlManager = await deployments.get("AccessControlManagerProxy");
   const chainId = await getChainId();
@@ -68,12 +69,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     accessControlManager: accessControlManager.address,
   };
 
-  let livelyToken = LivelyToken__factory.connect(livelyTokenProxy.address, systemAdminSigner);
+  const livelyToken = LivelyToken__factory.connect(livelyTokenProxy.address, systemAdminSigner);
   LIVELY_TOKEN_INIT_VERSION = await livelyToken.initVersion();
   if (LIVELY_TOKEN_INIT_VERSION === 0) {
-    let tx = await livelyToken.connect(systemAdminSigner).initialize(request);
+    const tx = await livelyToken.connect(systemAdminSigner).initialize(request);
     let txReceipt;
-    if (hre.network.name === 'polygon' || hre.network.name === 'bsc') {
+    if (hre.network.name === "polygon" || hre.network.name === "bsc") {
       txReceipt = await tx.wait(7);
     } else {
       txReceipt = await tx.wait(1);

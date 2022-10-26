@@ -2,10 +2,9 @@
 pragma solidity 0.8.17;
 
 interface IRoleManagement {
-
   struct RegiterRoleRequest {
     bytes32 group;
-    string name;    
+    string name;
     bool status;
   }
 
@@ -36,7 +35,7 @@ interface IRoleManagement {
     bool status
   ) external returns (bytes32);
 
-  function batchRegisterRole(RegiterRoleRequest[] calldata requests) external returns(bytes32[] memory);
+  function batchRegisterRole(RegiterRoleRequest[] calldata requests) external returns (bytes32[] memory);
 
   function grantRoleAccount(bytes32 role, address account) external returns (bool);
 

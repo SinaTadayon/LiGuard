@@ -17,9 +17,7 @@ const systemAdminKey = process.env.SYSTEM_ADMIN_KEY;
 const adminKey = process.env.ADMIN_KEY;
 const assetManagerKey = process.env.ASSET_MANAGER_KEY;
 
-const netAccounts = systemAdminKey && adminKey && assetManagerKey ?
-  [systemAdminKey, adminKey, assetManagerKey] : [];
-
+const netAccounts = systemAdminKey && adminKey && assetManagerKey ? [systemAdminKey, adminKey, assetManagerKey] : [];
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html

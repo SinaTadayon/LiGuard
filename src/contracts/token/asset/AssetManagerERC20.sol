@@ -11,13 +11,12 @@ import "../../proxy/BaseUUPSProxy.sol";
 import "../../lib/token/LAssetManagerERC20.sol";
 
 contract AssetManagerERC20 is AssetManagerStorageERC20, BaseUUPSProxy, IAssetManagerERC20 {
-
   using LEnumerableSet for LEnumerableSet.AddressSet;
 
   struct InitRequest {
     string domainName;
     string domainVersion;
-    string domainRealm;    
+    string domainRealm;
     address accessControlManager;
     bytes assetManagerSignature;
   }
@@ -25,12 +24,13 @@ contract AssetManagerERC20 is AssetManagerStorageERC20, BaseUUPSProxy, IAssetMan
   constructor() {}
 
   function initialize(InitRequest calldata request) public onlyProxy onlyLocalAdmin initializer {
-
     bytes32 realm = keccak256(abi.encodePacked(request.domainRealm));
     __BASE_UUPS_init(request.domainName, request.domainVersion, realm, request.accessControlManager);
 
-    (IContextManagement.RequestContext memory rc, IContextManagement.RequestRegisterContext[] memory rrc) = 
-      LAssetManagerERC20.createRequestContext(_domainName, _domainVersion, _domainRealm);
+    (
+      IContextManagement.RequestContext memory rc,
+      IContextManagement.RequestRegisterContext[] memory rrc
+    ) = LAssetManagerERC20.createRequestContext(_domainName, _domainVersion, _domainRealm);
 
     IContextManagement(_accessControlManager).registerContext(request.assetManagerSignature, rc, rrc);
 
@@ -48,18 +48,18 @@ contract AssetManagerERC20 is AssetManagerStorageERC20, BaseUUPSProxy, IAssetMan
   function livelyTokensDistribution(address tokenId) public returns (bool) {
     _policyInterceptor(this.livelyTokensDistribution.selector);
     require(_data.tokensSet.contains(tokenId), "TokenId Not Found");
-    
+
     TokenData storage tokenData = _data.tokens[tokenId];
     require(tokenData.assets.length() == 7, "Asset Required Failed");
 
     address[7] memory assets;
-    for(uint i = 0; i < 7; i++) {
+    for (uint256 i = 0; i < 7; i++) {
       assets[i] = tokenData.assets.at(i);
     }
     return LivelyToken(payable(tokenId)).tokensDistribution(address(this), assets);
   }
 
-   /**
+  /**
    * @dev See {IERC165-supportsInterface}.
    */
   function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
@@ -71,49 +71,85 @@ contract AssetManagerERC20 is AssetManagerStorageERC20, BaseUUPSProxy, IAssetMan
     return IAssetERC20(assetId).tokenLock(lockRequest);
   }
 
-  function tokenBatchLock(address assetId, IERC20Lock.LockTokenRequest[] calldata lockRequests) external returns (bytes32[] memory) {
+  function tokenBatchLock(address assetId, IERC20Lock.LockTokenRequest[] calldata lockRequests)
+    external
+    returns (bytes32[] memory)
+  {
     _validationAndPolicyInterceptor(assetId, this.tokenBatchLock.selector);
     return IAssetERC20(assetId).tokenBatchLock(lockRequests);
   }
 
-  function tokenTransfer(address assetId, address to, uint256 amount) external returns (bool) {
+  function tokenTransfer(
+    address assetId,
+    address to,
+    uint256 amount
+  ) external returns (bool) {
     _validationAndPolicyInterceptor(assetId, this.tokenTransfer.selector);
     return IAssetERC20(assetId).tokenTransfer(to, amount);
   }
 
-  function tokenBatchTransfer(address assetId, IERC20Extra.BatchTransferRequest[] calldata request) external returns (bool) {
+  function tokenBatchTransfer(address assetId, IERC20Extra.BatchTransferRequest[] calldata request)
+    external
+    returns (bool)
+  {
     _validationAndPolicyInterceptor(assetId, this.tokenBatchTransfer.selector);
     return IAssetERC20(assetId).tokenBatchTransfer(request);
   }
 
-  function tokenTransferFrom(address assetId, address from, address to, uint256 amount) external returns (bool) {
+  function tokenTransferFrom(
+    address assetId,
+    address from,
+    address to,
+    uint256 amount
+  ) external returns (bool) {
     _validationAndPolicyInterceptor(assetId, this.tokenTransferFrom.selector);
     return IAssetERC20(assetId).tokenTransferFrom(from, to, amount);
   }
 
-  function tokenBatchTransferFrom(address assetId, IERC20Extra.BatchTransferFromRequest[] calldata request) external returns (bool) {
+  function tokenBatchTransferFrom(address assetId, IERC20Extra.BatchTransferFromRequest[] calldata request)
+    external
+    returns (bool)
+  {
     _validationAndPolicyInterceptor(assetId, this.tokenBatchTransferFrom.selector);
     return IAssetERC20(assetId).tokenBatchTransferFrom(request);
   }
 
-  function tokenApprove(address assetId, address spender, uint256 amount) external returns (bool) {
+  function tokenApprove(
+    address assetId,
+    address spender,
+    uint256 amount
+  ) external returns (bool) {
     _validationAndPolicyInterceptor(assetId, this.tokenApprove.selector);
     return IAssetERC20(assetId).tokenApprove(spender, amount);
   }
 
-  function tokenIncreaseAllowance(address assetId, address spender, uint256 amount) external returns (uint256) {
+  function tokenIncreaseAllowance(
+    address assetId,
+    address spender,
+    uint256 amount
+  ) external returns (uint256) {
     _validationAndPolicyInterceptor(assetId, this.tokenIncreaseAllowance.selector);
     return IAssetERC20(assetId).tokenIncreaseAllowance(spender, amount);
   }
 
-  function tokenDecreaseAllowance(address assetId, address spender, uint256 amount) external returns (uint256) {
+  function tokenDecreaseAllowance(
+    address assetId,
+    address spender,
+    uint256 amount
+  ) external returns (uint256) {
     _validationAndPolicyInterceptor(assetId, this.tokenDecreaseAllowance.selector);
     return IAssetERC20(assetId).tokenDecreaseAllowance(spender, amount);
   }
 
   function createAsset(CreateAssetRequest calldata request) external returns (address) {
     _policyInterceptor(this.createAsset.selector);
-    (address newAsset, address assetSubject) = LAssetManagerERC20.createAsset(_data, request, _accessControlManager, _assetSubjectERC20, _assetCreationSignature);
+    (address newAsset, address assetSubject) = LAssetManagerERC20.createAsset(
+      _data,
+      request,
+      _accessControlManager,
+      _assetSubjectERC20,
+      _assetCreationSignature
+    );
     emit AssetCreated(_msgSender(), newAsset, request.tokenId, assetSubject);
     return newAsset;
   }
@@ -132,7 +168,7 @@ contract AssetManagerERC20 is AssetManagerStorageERC20, BaseUUPSProxy, IAssetMan
     return result;
   }
 
-  function removeAsset(address assetId) external returns (bool) { 
+  function removeAsset(address assetId) external returns (bool) {
     _policyInterceptor(this.removeAsset.selector);
     address tokenId = LAssetManagerERC20.removeAsset(_data, assetId);
     emit AssetRemoved(_msgSender(), assetId, tokenId);
@@ -167,12 +203,12 @@ contract AssetManagerERC20 is AssetManagerStorageERC20, BaseUUPSProxy, IAssetMan
     return LAssetManagerERC20.setSafeModeToken(_data, tokenId, isEnabled);
   }
 
-  function getAllTokens() external view returns(address[] memory) {
+  function getAllTokens() external view returns (address[] memory) {
     return _data.tokensSet.values();
   }
 
   function getTokenInfo(address tokenId) external view returns (IAssetEntity.Status, address[] memory) {
-   TokenData storage tokenData = _data.tokens[tokenId];
+    TokenData storage tokenData = _data.tokens[tokenId];
     return (tokenData.status, tokenData.assets.values());
   }
 
@@ -188,7 +224,11 @@ contract AssetManagerERC20 is AssetManagerStorageERC20, BaseUUPSProxy, IAssetMan
     return _data.tokensSet.contains(tokenId);
   }
 
-  function predictAddress(address implementation, bytes32 salt, address deployer) external pure returns (address) {
+  function predictAddress(
+    address implementation,
+    bytes32 salt,
+    address deployer
+  ) external pure returns (address) {
     return LAssetManagerERC20.predictAddress(implementation, salt, deployer);
   }
 
@@ -196,7 +236,7 @@ contract AssetManagerERC20 is AssetManagerStorageERC20, BaseUUPSProxy, IAssetMan
     return _assetSubjectERC20;
   }
 
-  function getLibrary() public pure returns(address) {
+  function getLibrary() public pure returns (address) {
     return address(LAssetManagerERC20);
   }
 
@@ -214,8 +254,8 @@ contract AssetManagerERC20 is AssetManagerStorageERC20, BaseUUPSProxy, IAssetMan
 
     address tokenId = IAssetEntity(assetId).assetToken();
     require(_data.tokensSet.contains(tokenId), "TokenId Not Found");
-    
-    TokenData storage tokenData = _data.tokens[tokenId];    
+
+    TokenData storage tokenData = _data.tokens[tokenId];
     require(tokenData.assets.contains(assetId), "AssetId Not Found");
   }
 }

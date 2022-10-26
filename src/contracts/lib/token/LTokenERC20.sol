@@ -20,7 +20,8 @@ library LTokenERC20 {
   bytes32 public constant LIVELY_ADMIN_ROLE = keccak256(abi.encodePacked("LIVELY_ADMIN_ROLE"));
   bytes32 public constant LIVELY_SYSTEM_ADMIN_ROLE = keccak256(abi.encodePacked("LIVELY_SYSTEM_ADMIN_ROLE"));
   bytes32 public constant LIVELY_ANONYMOUS_ROLE = keccak256(abi.encodePacked("LIVELY_ANONYMOUS_ROLE"));
-  bytes32 public constant LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE = keccak256(abi.encodePacked("LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE"));
+  bytes32 public constant LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE =
+    keccak256(abi.encodePacked("LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE"));
   bytes32 public constant LIVELY_ASSET_MANAGER_ROLE = keccak256(abi.encodePacked("LIVELY_ASSET_MANAGER_ROLE"));
 
   function createRequestContext(
@@ -55,7 +56,7 @@ library LTokenERC20 {
     rrc[1].funcSelectors[2] = IERC20Extra.burn.selector;
     rrc[1].funcSelectors[3] = IERC20Extra.mint.selector;
     rrc[1].funcSelectors[4] = IERC20Extra.updateTaxRate.selector;
-    rrc[1].funcSelectors[5] = IERC20Extra.updateTaxWhitelist.selector;   
+    rrc[1].funcSelectors[5] = IERC20Extra.updateTaxWhitelist.selector;
     rrc[1].funcSelectors[6] = IERC20Extra.batchUpdateTaxWhitelist.selector;
     rrc[1].funcSelectors[7] = IERC20Pause.pause.selector;
     rrc[1].funcSelectors[8] = IERC20Pause.unpause.selector;
@@ -72,10 +73,10 @@ library LTokenERC20 {
     rrc[3].role = LIVELY_ASSET_MANAGER_ROLE;
     rrc[3].isEnabled = true;
     rrc[3].funcSelectors = new bytes4[](3);
-    rrc[3].funcSelectors[0] = IERC20Lock.lockToken.selector;  
-    rrc[3].funcSelectors[1] = IERC20Lock.batchLockToken.selector;  
+    rrc[3].funcSelectors[0] = IERC20Lock.lockToken.selector;
+    rrc[3].funcSelectors[1] = IERC20Lock.batchLockToken.selector;
     rrc[3].funcSelectors[2] = bytes4(keccak256("tokensDistribution(address,address[7])"));
-    
+
     rrc[4].role = LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE;
     rrc[4].isEnabled = true;
     rrc[4].funcSelectors = new bytes4[](2);
@@ -93,16 +94,21 @@ library LTokenERC20 {
     return (rc, rrc);
   }
 
-  function lockToken(LivelyStorage.DataCollection storage data, IERC20Lock.LockTokenRequest memory lockRequest) external returns(bytes32) {
+  function lockToken(LivelyStorage.DataCollection storage data, IERC20Lock.LockTokenRequest memory lockRequest)
+    external
+    returns (bytes32)
+  {
     require(lockRequest.source != address(0), "Invalid Source Address");
     require(lockRequest.dest != address(0), "Invalid Destination Address");
     require(lockRequest.source != lockRequest.dest, "Illegal Destination Address");
     require(lockRequest.timestamp > block.timestamp + 1 days, "Illegal Timestamp");
     require(lockRequest.amount > 0, "Illegal amount");
 
-    bytes32 lockId = keccak256(abi.encodePacked(lockRequest.source, lockRequest.dest, lockRequest.timestamp, lockRequest.amount));
+    bytes32 lockId = keccak256(
+      abi.encodePacked(lockRequest.source, lockRequest.dest, lockRequest.timestamp, lockRequest.amount)
+    );
     require(data.locks[lockRequest.dest][lockId].source == address(0), "LockId Already Exists");
-    
+
     uint256 srcBalance = data.accounts[lockRequest.source].balance;
     require(srcBalance >= lockRequest.amount, "Insufficient Account Balance");
     unchecked {
@@ -119,7 +125,7 @@ library LTokenERC20 {
     return lockId;
   }
 
-  function claimToken(LivelyStorage.DataCollection storage data, bytes32 lockId) external returns(uint256) {
+  function claimToken(LivelyStorage.DataCollection storage data, bytes32 lockId) external returns (uint256) {
     require(lockId != bytes32(0), "Invalid LockId");
     require(data.locks[msg.sender][lockId].source != address(0), "LockId Not Found");
     require(data.locks[msg.sender][lockId].claimedAt < uint128(block.timestamp), "Illegal Claim Lock");
@@ -133,26 +139,37 @@ library LTokenERC20 {
     data.accounts[msg.sender].balance += lockAmount;
     data.locks[msg.sender][lockId].status = LivelyStorage.LockState.CLAIMED;
     return lockAmount;
-  }  
+  }
 
-  function unlockToken(LivelyStorage.DataCollection storage data, IERC20Lock.UnLockTokenRequest calldata unlockRequest) external returns (address, uint256) {
+  function unlockToken(LivelyStorage.DataCollection storage data, IERC20Lock.UnLockTokenRequest calldata unlockRequest)
+    external
+    returns (address, uint256)
+  {
     require(unlockRequest.lockId != bytes32(0), "Invalid LockId");
     require(data.locks[unlockRequest.account][unlockRequest.lockId].source != address(0), "LockId Not Found");
-    require(data.locks[unlockRequest.account][unlockRequest.lockId].status == LivelyStorage.LockState.LOCKED, "Invalid Lock State");
+    require(
+      data.locks[unlockRequest.account][unlockRequest.lockId].status == LivelyStorage.LockState.LOCKED,
+      "Invalid Lock State"
+    );
 
     uint256 lockAmount = data.locks[unlockRequest.account][unlockRequest.lockId].amount;
     uint256 lockBalance = data.accounts[unlockRequest.account].lockBalance;
-    address srcAccount = data.locks[unlockRequest.account][unlockRequest.lockId].source;    
+    address srcAccount = data.locks[unlockRequest.account][unlockRequest.lockId].source;
     require(lockBalance >= lockAmount, "Insufficient Account Lock Balance");
     unchecked {
       data.accounts[unlockRequest.account].lockBalance = lockBalance - lockAmount;
     }
     data.accounts[srcAccount].balance += lockAmount;
     data.locks[unlockRequest.account][unlockRequest.lockId].status = LivelyStorage.LockState.UNLOCKED;
-    return (srcAccount,lockAmount);
+    return (srcAccount, lockAmount);
   }
 
-  function transfer(LivelyStorage.DataCollection storage data, address src, address dest, uint256 amount) external {
+  function transfer(
+    LivelyStorage.DataCollection storage data,
+    address src,
+    address dest,
+    uint256 amount
+  ) external {
     require(src != address(0), "Invalid Source Address");
     require(dest != address(0), "Invalid Destination Address");
     require(src != dest, "Illegal Self Transfer");
@@ -166,7 +183,11 @@ library LTokenERC20 {
     data.accounts[dest].balance += amount;
   }
 
-  function updateTaxWhitelist(LivelyStorage.DataCollection storage data, address account, bool isDeleted) external returns (bool){
+  function updateTaxWhitelist(
+    LivelyStorage.DataCollection storage data,
+    address account,
+    bool isDeleted
+  ) external returns (bool) {
     require(account != address(0), "Invalid Account Address");
     if (isDeleted) {
       require(data.taxWhitelist.contains(account), "Account Not Found");
@@ -178,5 +199,4 @@ library LTokenERC20 {
 
     return true;
   }
-
 }

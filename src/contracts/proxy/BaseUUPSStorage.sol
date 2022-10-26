@@ -47,7 +47,6 @@ abstract contract BaseUUPSStorage {
   bytes32 internal constant _TYPE_HASH =
     keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
 
-  
   address internal immutable __self = address(this);
 
   bytes32 internal _domainName;

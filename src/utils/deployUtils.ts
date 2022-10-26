@@ -1,5 +1,6 @@
 import { Address } from "hardhat-deploy/dist/types";
 // import { ethers } from "hardhat";
+/* eslint-disable  node/no-unpublished-import */
 import { BigNumber, Wallet, ethers } from "ethers";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
@@ -45,30 +46,64 @@ export const LIVELY_TREASURY_ASSET_ROLE_NAME = "LIVELY_TREASURY_ASSET_ROLE";
 export const LIVELY_FOUNDING_TEAM_ASSET_ROLE_NAME = "LIVELY_FOUNDING_TEAM_ASSET_ROLE";
 export const LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_ROLE_NAME = "LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_ROLE";
 
-export const LIVELY_GENERAL_REALM = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [LIVELY_GENERAL_REALM_NAME]));
-export const LIVELY_ASSET_REALM = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [LIVELY_ASSET_REALM_NAME]));
-export const LIVELY_GENERAL_GROUP = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [LIVELY_GENERAL_GROUP_NAME]));
+export const LIVELY_GENERAL_REALM = ethers.utils.keccak256(
+  ethers.utils.solidityPack(["string"], [LIVELY_GENERAL_REALM_NAME])
+);
+export const LIVELY_ASSET_REALM = ethers.utils.keccak256(
+  ethers.utils.solidityPack(["string"], [LIVELY_ASSET_REALM_NAME])
+);
+export const LIVELY_GENERAL_GROUP = ethers.utils.keccak256(
+  ethers.utils.solidityPack(["string"], [LIVELY_GENERAL_GROUP_NAME])
+);
 export const LIVELY_DAO_GROUP = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [LIVELY_DAO_GROUP_NAME]));
-export const LIVELY_ASSET_GROUP = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [LIVELY_ASSET_GROUP_NAME]));
-export const LIVELY_ADMIN_ROLE = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [LIVELY_ADMIN_ROLE_NAME]));
-export const LIVELY_SYSTEM_ADMIN_ROLE = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [LIVELY_SYSTEM_ADMIN_ROLE_NAME]));
-export const LIVELY_ASSET_MANAGER_ROLE = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [LIVELY_ASSET_MANAGER_ROLE_NAME]));
-export const LIVELY_ASSET_ADMIN_ROLE = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [LIVELY_ASSET_ADMIN_ROLE_NAME]));
-export const LIVELY_COMMUNITY_DAO_ROLE = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [LIVELY_COMMUNITY_DAO_ROLE_NAME]));
-export const LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE_NAME]));
-export const LIVELY_ANONYMOUS_ROLE = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [LIVELY_ANONYMOUS_ROLE_NAME]));
-export const LIVELY_CROWD_FOUNDING_ASSET_ROLE = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [LIVELY_CROWD_FOUNDING_ASSET_ROLE_NAME]));
-export const LIVELY_VALIDATORS_REWARDS_ASSET_ROLE = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [LIVELY_VALIDATORS_REWARDS_ASSET_ROLE_NAME]));
-export const LIVELY_PUBLIC_SALE_ASSET_ROLE = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [LIVELY_PUBLIC_SALE_ASSET_ROLE_NAME]));
-export const LIVELY_TREASURY_ASSET_ROLE = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [LIVELY_TREASURY_ASSET_ROLE_NAME]));
-export const LIVELY_FOUNDING_TEAM_ASSET_ROLE = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [LIVELY_FOUNDING_TEAM_ASSET_ROLE_NAME]));
-export const LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_ROLE = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_ROLE_NAME]));
+export const LIVELY_ASSET_GROUP = ethers.utils.keccak256(
+  ethers.utils.solidityPack(["string"], [LIVELY_ASSET_GROUP_NAME])
+);
+export const LIVELY_ADMIN_ROLE = ethers.utils.keccak256(
+  ethers.utils.solidityPack(["string"], [LIVELY_ADMIN_ROLE_NAME])
+);
+export const LIVELY_SYSTEM_ADMIN_ROLE = ethers.utils.keccak256(
+  ethers.utils.solidityPack(["string"], [LIVELY_SYSTEM_ADMIN_ROLE_NAME])
+);
+export const LIVELY_ASSET_MANAGER_ROLE = ethers.utils.keccak256(
+  ethers.utils.solidityPack(["string"], [LIVELY_ASSET_MANAGER_ROLE_NAME])
+);
+export const LIVELY_ASSET_ADMIN_ROLE = ethers.utils.keccak256(
+  ethers.utils.solidityPack(["string"], [LIVELY_ASSET_ADMIN_ROLE_NAME])
+);
+export const LIVELY_COMMUNITY_DAO_ROLE = ethers.utils.keccak256(
+  ethers.utils.solidityPack(["string"], [LIVELY_COMMUNITY_DAO_ROLE_NAME])
+);
+export const LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE = ethers.utils.keccak256(
+  ethers.utils.solidityPack(["string"], [LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE_NAME])
+);
+export const LIVELY_ANONYMOUS_ROLE = ethers.utils.keccak256(
+  ethers.utils.solidityPack(["string"], [LIVELY_ANONYMOUS_ROLE_NAME])
+);
+export const LIVELY_CROWD_FOUNDING_ASSET_ROLE = ethers.utils.keccak256(
+  ethers.utils.solidityPack(["string"], [LIVELY_CROWD_FOUNDING_ASSET_ROLE_NAME])
+);
+export const LIVELY_VALIDATORS_REWARDS_ASSET_ROLE = ethers.utils.keccak256(
+  ethers.utils.solidityPack(["string"], [LIVELY_VALIDATORS_REWARDS_ASSET_ROLE_NAME])
+);
+export const LIVELY_PUBLIC_SALE_ASSET_ROLE = ethers.utils.keccak256(
+  ethers.utils.solidityPack(["string"], [LIVELY_PUBLIC_SALE_ASSET_ROLE_NAME])
+);
+export const LIVELY_TREASURY_ASSET_ROLE = ethers.utils.keccak256(
+  ethers.utils.solidityPack(["string"], [LIVELY_TREASURY_ASSET_ROLE_NAME])
+);
+export const LIVELY_FOUNDING_TEAM_ASSET_ROLE = ethers.utils.keccak256(
+  ethers.utils.solidityPack(["string"], [LIVELY_FOUNDING_TEAM_ASSET_ROLE_NAME])
+);
+export const LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_ROLE = ethers.utils.keccak256(
+  ethers.utils.solidityPack(["string"], [LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_ROLE_NAME])
+);
 
 export enum LockState {
   NONE,
   LOCKED,
   CLAIMED,
-  UNLOCKED
+  UNLOCKED,
 }
 
 export async function generateContextDomainSignatureByHardhat(
@@ -155,7 +190,6 @@ export async function generatePredictContextDomainSignatureByHardhat(
 
   return await hre.network.provider.send("eth_signTypedData_v4", [signerAddress, messageParams]);
 }
-
 
 export async function generatePermitDomainSignatureByHardhat(
   hre: HardhatRuntimeEnvironment,

@@ -8,7 +8,7 @@ import "../../lib/struct/LEnumerableSet.sol";
 abstract contract AssetManagerStorageERC20 is BaseUUPSStorage {
   using LEnumerableSet for LEnumerableSet.AddressSet;
 
-  struct TokenData {    
+  struct TokenData {
     LEnumerableSet.AddressSet assets;
     IAssetEntity.Status status;
   }

@@ -6,25 +6,24 @@ import "../lively/IERC20Lock.sol";
 import "./IAssetEntity.sol";
 
 interface IAssetManagerERC20 {
-
   struct CreateAssetRequest {
-    bytes32 role; 
+    bytes32 role;
     bytes32 salt;
-    address tokenId; 
-    string assetName; 
-    string assetVersion;     
+    address tokenId;
+    string assetName;
+    string assetVersion;
   }
 
   event AssetSubjectUpdated(address indexed sender, address indexed assetSubject);
 
   event TokenRegistered(address indexed sender, address indexed tokenId, string tokenName, string tokenSymbol);
-  
+
   event AssetCreated(address indexed sender, address indexed assetId, address indexed tokenId, address assetSubject);
 
   event AssetRegistered(address indexed sender, address indexed assetId, address indexed tokenId);
 
   event AssetRemoved(address indexed sender, address indexed assetId, address indexed tokenId);
-  
+
   event TokenSafeModeChanged(address indexed sender, address indexed tokenId, bool isEnabled);
 
   function createAsset(CreateAssetRequest calldata request) external returns (address);
@@ -41,23 +40,50 @@ interface IAssetManagerERC20 {
 
   function tokenLock(address assetId, IERC20Lock.LockTokenRequest calldata lockRequest) external returns (bytes32);
 
-  function tokenBatchLock(address assetId, IERC20Lock.LockTokenRequest[] calldata lockRequests) external returns (bytes32[] memory);
+  function tokenBatchLock(address assetId, IERC20Lock.LockTokenRequest[] calldata lockRequests)
+    external
+    returns (bytes32[] memory);
 
-  function tokenTransfer(address assetId, address to, uint256 amount) external returns (bool);
+  function tokenTransfer(
+    address assetId,
+    address to,
+    uint256 amount
+  ) external returns (bool);
 
-  function tokenBatchTransfer(address assetId, IERC20Extra.BatchTransferRequest[] calldata request) external returns (bool);
+  function tokenBatchTransfer(address assetId, IERC20Extra.BatchTransferRequest[] calldata request)
+    external
+    returns (bool);
 
-  function tokenTransferFrom(address assetId, address from, address to, uint256 amount) external returns (bool);
+  function tokenTransferFrom(
+    address assetId,
+    address from,
+    address to,
+    uint256 amount
+  ) external returns (bool);
 
-  function tokenBatchTransferFrom(address assetId, IERC20Extra.BatchTransferFromRequest[] calldata request) external returns (bool);
+  function tokenBatchTransferFrom(address assetId, IERC20Extra.BatchTransferFromRequest[] calldata request)
+    external
+    returns (bool);
 
-  function tokenApprove(address assetId, address spender, uint256 amount) external returns (bool);
+  function tokenApprove(
+    address assetId,
+    address spender,
+    uint256 amount
+  ) external returns (bool);
 
-  function tokenIncreaseAllowance(address assetId, address spender, uint256 amount) external returns (uint256);
+  function tokenIncreaseAllowance(
+    address assetId,
+    address spender,
+    uint256 amount
+  ) external returns (uint256);
 
-  function tokenDecreaseAllowance(address assetId, address spender, uint256 amount) external returns (uint256);
+  function tokenDecreaseAllowance(
+    address assetId,
+    address spender,
+    uint256 amount
+  ) external returns (uint256);
 
-  function getAllTokens() external view returns(address[] memory);
+  function getAllTokens() external view returns (address[] memory);
 
   function getTokenInfo(address tokenId) external view returns (IAssetEntity.Status, address[] memory);
 
@@ -67,5 +93,9 @@ interface IAssetManagerERC20 {
 
   function getAssetSubject() external view returns (address);
 
-  function predictAddress(address implementation, bytes32 salt, address deployer) external view returns (address);
+  function predictAddress(
+    address implementation,
+    bytes32 salt,
+    address deployer
+  ) external view returns (address);
 }

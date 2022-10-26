@@ -9,7 +9,8 @@ import {
   AccessControlManager__factory,
   AccessControlManagerTest__factory,
   BaseUUPSProxyTest,
-  BaseUUPSProxyTest__factory, IRoleManagement,
+  BaseUUPSProxyTest__factory,
+  IRoleManagement,
   LAccessControl,
   LAccessControl__factory,
   LContextManagement,
@@ -20,7 +21,7 @@ import {
   LRealmManagement__factory,
   LRoleManagement__factory,
   // Proxy,
-  Proxy__factory
+  Proxy__factory,
 } from "../../typechain/types";
 import {
   UpgradedEventObject,
@@ -42,7 +43,10 @@ import {
   LIVELY_ASSET_GROUP,
   LIVELY_ADMIN_ROLE,
   readStorageSlot,
-  readStorageSlotFixedArray, readStorageSlotHashMap, LIVELY_GENERAL_GROUP, readStorageSlotStruct
+  readStorageSlotFixedArray,
+  readStorageSlotHashMap,
+  LIVELY_GENERAL_GROUP,
+  readStorageSlotStruct,
 } from "./TestUtils";
 
 // ethers.utils.keccak256(ethers.utils.toUtf8Bytes("src/contracts/lib/acl/ContextManagementLib.sol:ContextManagementLib")) => 0x0304621006bd13fe54dc5f6b75a37ec856740450109fd223c2bfb60db9095cad => __$0304621006bd13fe54dc5f6b75a37ec856$__ ( library placeholder)
@@ -191,8 +195,13 @@ describe("AccessControlManager Tests", function () {
       expect(await accessControlManagerSubject.isSafeMode()).to.be.true;
       expect(await accessControlManagerSubject.isUpgradable()).to.be.false;
       expect(await accessControlManagerSubject.initVersion()).to.be.equal(0);
-      expect(await accessControlManagerSubject.getLibraries())
-        .to.be.eql([acl.address, cml.address, reml.address, rml.address, gml.address])
+      expect(await accessControlManagerSubject.getLibraries()).to.be.eql([
+        acl.address,
+        cml.address,
+        reml.address,
+        rml.address,
+        gml.address,
+      ]);
     });
 
     it("Should initialize raise exception", async () => {
@@ -383,8 +392,13 @@ describe("AccessControlManager Tests", function () {
       expect(await accessControlManager.domainSeparator()).to.be.hexEqual(
         generateDomainSeparator("AccessControlManager", "1.0.0", accessControlManager.address, networkChainId)
       );
-      expect(await accessControlManager.getLibraries())
-        .to.be.eql([acl.address, cml.address, reml.address, rml.address, gml.address])
+      expect(await accessControlManager.getLibraries()).to.be.eql([
+        acl.address,
+        cml.address,
+        reml.address,
+        rml.address,
+        gml.address,
+      ]);
     });
 
     it("Should proxy raising events when deployment and initialization were successful", async () => {
@@ -515,8 +529,13 @@ describe("AccessControlManager Tests", function () {
       expect(await accessControlManagerProxy.domainSeparator()).to.be.equal(
         generateDomainSeparator("AccessControlManager", "1.0.0", accessControlManagerProxy.address, networkChainId)
       );
-      expect(await accessControlManagerProxy.getLibraries())
-        .to.be.eql([acl.address, cml.address, reml.address, rml.address, gml.address])
+      expect(await accessControlManagerProxy.getLibraries()).to.be.eql([
+        acl.address,
+        cml.address,
+        reml.address,
+        rml.address,
+        gml.address,
+      ]);
     });
 
     it("Should call proxyableUUID from proxy failed", async () => {
@@ -770,11 +789,7 @@ describe("AccessControlManager Tests", function () {
           LIVELY_ADMIN_ROLE
         )
       ).to.be.true;
-      expect(
-        await accessControlManagerProxy.isLivelyGeneralGroup(
-          LIVELY_ADMIN_ROLE
-        )
-      ).to.be.true;
+      expect(await accessControlManagerProxy.isLivelyGeneralGroup(LIVELY_ADMIN_ROLE)).to.be.true;
       expect(
         await accessControlManagerProxy.hasGroupRole(
           ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_GENERAL_GROUP")),
@@ -839,37 +854,29 @@ describe("AccessControlManager Tests", function () {
     it("Should grant LIVELY_ADMIN_ROLE role to user2 by user1 failed", async () => {
       // when and then
       await expect(
-        accessControlManagerProxy
-          .connect(user1)
-          .grantRoleAccount(LIVELY_ADMIN_ROLE, userAddress2)
+        accessControlManagerProxy.connect(user1).grantRoleAccount(LIVELY_ADMIN_ROLE, userAddress2)
       ).to.revertedWith("GrantRoleAccount Access Denied");
     });
 
     it("Should revoke admin account from LIVELY_ADMIN_ROLE by user1 failed", async () => {
       // when and then
       await expect(
-        accessControlManagerProxy
-          .connect(user1)
-          .revokeRoleAccount(LIVELY_ADMIN_ROLE, adminAddress)
+        accessControlManagerProxy.connect(user1).revokeRoleAccount(LIVELY_ADMIN_ROLE, adminAddress)
       ).to.revertedWith("RevokeRoleAccount Access Denied");
     });
 
     it("Should revoke admin account from LIVELY_ADMIN_ROLE by admin failed", async () => {
       // when and then
       await expect(
-        accessControlManagerProxy
-          .connect(admin)
-          .revokeRoleAccount(LIVELY_ADMIN_ROLE, adminAddress)
+        accessControlManagerProxy.connect(admin).revokeRoleAccount(LIVELY_ADMIN_ROLE, adminAddress)
       ).to.revertedWith("Illegal Revoke Role Account");
     });
 
     it("Should disable status of LIVELY_ADMIN_ROLE role by user1 failed", async () => {
       // when and then
-      await expect(
-        accessControlManagerProxy
-          .connect(user1)
-          .setRoleStatus(LIVELY_ADMIN_ROLE, false)
-      ).to.revertedWith("SetRoleStatus Access Denied");
+      await expect(accessControlManagerProxy.connect(user1).setRoleStatus(LIVELY_ADMIN_ROLE, false)).to.revertedWith(
+        "SetRoleStatus Access Denied"
+      );
     });
 
     it("Should change group of LIVELY_ADMIN_ROLE role by user1 failed", async () => {
@@ -877,20 +884,15 @@ describe("AccessControlManager Tests", function () {
       await expect(
         accessControlManagerProxy
           .connect(user1)
-          .setRoleGroup(
-            LIVELY_ADMIN_ROLE,
-            ethers.utils.keccak256(ethers.utils.toUtf8Bytes("INOVERS_GROUP"))
-          )
+          .setRoleGroup(LIVELY_ADMIN_ROLE, ethers.utils.keccak256(ethers.utils.toUtf8Bytes("INOVERS_GROUP")))
       ).to.revertedWith("SetRoleGroup Access Denied");
     });
 
     it("Should disable status of LIVELY_ADMIN_ROLE role by admin failed", async () => {
       // when
-      await expect(
-        accessControlManagerProxy
-          .connect(admin)
-          .setRoleStatus(LIVELY_ADMIN_ROLE, false)
-      ).to.revertedWith("Illegal Change Role Status");
+      await expect(accessControlManagerProxy.connect(admin).setRoleStatus(LIVELY_ADMIN_ROLE, false)).to.revertedWith(
+        "Illegal Change Role Status"
+      );
     });
 
     it("Should grant new account to role of LIVELY_ANONYMOUS_ROLE role by admin failed", async () => {
@@ -904,9 +906,7 @@ describe("AccessControlManager Tests", function () {
 
     it("Should get role info of LIVELY_ADMIN_ROLE success", async () => {
       // when
-      const [name, group, status] = await accessControlManagerProxy.getRoleInfo(
-        LIVELY_ADMIN_ROLE
-      );
+      const [name, group, status] = await accessControlManagerProxy.getRoleInfo(LIVELY_ADMIN_ROLE);
 
       // then
       expect(name).to.be.equal("LIVELY_ADMIN_ROLE");
@@ -914,12 +914,7 @@ describe("AccessControlManager Tests", function () {
       expect(status).to.be.true;
 
       // and
-      expect(
-        await accessControlManagerProxy.hasRoleAccount(
-          LIVELY_ADMIN_ROLE,
-          adminAddress
-        )
-      ).to.be.true;
+      expect(await accessControlManagerProxy.hasRoleAccount(LIVELY_ADMIN_ROLE, adminAddress)).to.be.true;
       expect(await accessControlManagerProxy.isLivelyAdminRole(adminAddress)).to.be.true;
       expect(await accessControlManagerProxy.isLivelySystemAdminRole(adminAddress)).to.be.true;
       expect(
@@ -1190,28 +1185,26 @@ describe("AccessControlManager Tests", function () {
         {
           name: "TESTER_ROLE_1",
           group: LIVELY_ASSET_GROUP,
-          status: true
+          status: true,
         },
         {
           name: "TESTER_ROLE_2",
           group: LIVELY_ASSET_GROUP,
-          status: true
-        }
-      ]
+          status: true,
+        },
+      ];
 
       // when
-      await expect(
-        accessControlManagerProxy
-          .connect(admin)
-          .batchRegisterRole(registerRoleRequest)
-      ).to.emit(accessControlManagerProxy, "RoleRegistered")
+      await expect(accessControlManagerProxy.connect(admin).batchRegisterRole(registerRoleRequest))
+        .to.emit(accessControlManagerProxy, "RoleRegistered")
         .withArgs(
           adminAddress,
           ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["TESTER_ROLE_1"])),
           "TESTER_ROLE_1",
           LIVELY_ASSET_GROUP,
           true
-        ).emit(accessControlManagerProxy, "RoleRegistered")
+        )
+        .emit(accessControlManagerProxy, "RoleRegistered")
         .withArgs(
           adminAddress,
           ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["TESTER_ROLE_2"])),
@@ -1222,10 +1215,10 @@ describe("AccessControlManager Tests", function () {
 
       // then
       const [name1, group1, status1] = await accessControlManagerProxy.getRoleInfo(
-        ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["TESTER_ROLE_1"])),
+        ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["TESTER_ROLE_1"]))
       );
       const [name2, group2, status2] = await accessControlManagerProxy.getRoleInfo(
-        ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["TESTER_ROLE_2"])),
+        ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["TESTER_ROLE_2"]))
       );
       expect(name1).to.be.equal("TESTER_ROLE_1");
       expect(group1).to.be.hexEqual(LIVELY_ASSET_GROUP);
@@ -1245,18 +1238,23 @@ describe("AccessControlManager Tests", function () {
         {
           role: ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["TESTER_ROLE_2"])),
           account: userAddress2,
-        }
-      ]
+        },
+      ];
 
       // when and then
-      await expect(
-        accessControlManagerProxy
-          .connect(admin)
-          .batchGrantRoleAccount(batchGrantRequest)
-      ).to.emit(accessControlManagerProxy, "RoleAccountGranted")
-        .withArgs(adminAddress, ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["TESTER_ROLE_1"])), userAddress1)
+      await expect(accessControlManagerProxy.connect(admin).batchGrantRoleAccount(batchGrantRequest))
+        .to.emit(accessControlManagerProxy, "RoleAccountGranted")
+        .withArgs(
+          adminAddress,
+          ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["TESTER_ROLE_1"])),
+          userAddress1
+        )
         .emit(accessControlManagerProxy, "RoleAccountGranted")
-        .withArgs(adminAddress, ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["TESTER_ROLE_2"])), userAddress2);
+        .withArgs(
+          adminAddress,
+          ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["TESTER_ROLE_2"])),
+          userAddress2
+        );
 
       // then
       expect(
@@ -1297,18 +1295,23 @@ describe("AccessControlManager Tests", function () {
         {
           role: ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["TESTER_ROLE_2"])),
           account: userAddress2,
-        }
-      ]
+        },
+      ];
 
       // when and then
-      await expect(
-        accessControlManagerProxy
-          .connect(admin)
-          .batchRevokeRoleAccount(batchRevokeRequest)
-      ).to.emit(accessControlManagerProxy, "RoleAccountRevoked")
-        .withArgs(adminAddress, ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["TESTER_ROLE_1"])), userAddress1)
+      await expect(accessControlManagerProxy.connect(admin).batchRevokeRoleAccount(batchRevokeRequest))
+        .to.emit(accessControlManagerProxy, "RoleAccountRevoked")
+        .withArgs(
+          adminAddress,
+          ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["TESTER_ROLE_1"])),
+          userAddress1
+        )
         .emit(accessControlManagerProxy, "RoleAccountRevoked")
-        .withArgs(adminAddress, ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["TESTER_ROLE_2"])), userAddress2);
+        .withArgs(
+          adminAddress,
+          ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["TESTER_ROLE_2"])),
+          userAddress2
+        );
 
       // then
       expect(
@@ -1857,7 +1860,8 @@ describe("AccessControlManager Tests", function () {
             signature,
             accessControlManagerProxy.address
           )
-      ).to.emit(accessControlManagerProxy, "ContextRegistered")
+      )
+        .to.emit(accessControlManagerProxy, "ContextRegistered")
         .withArgs(
           ethers.utils.keccak256(baseUupsProxy.address),
           baseUupsProxy.address,
@@ -2674,26 +2678,36 @@ describe("AccessControlManager Tests", function () {
     });
   });
 
-  describe("Contract Upgradable Storage Test", function() {
-    it("Should AccessControlManager storage verification before upgrade success", async() => {
+  describe("Contract Upgradable Storage Test", function () {
+    it("Should AccessControlManager storage verification before upgrade success", async () => {
       const baseProxy_slot_0 = await readStorageSlot(accessControlManagerProxy.address, 0);
       const baseProxy_slot_1 = await readStorageSlot(accessControlManagerProxy.address, 1);
       const baseProxy_slot_2 = await readStorageSlot(accessControlManagerProxy.address, 2);
       const baseProxy_slot_3 = await readStorageSlotFixedArray(accessControlManagerProxy.address, 3, 0);
       const baseProxy_slot_4 = await readStorageSlotFixedArray(accessControlManagerProxy.address, 3, 1);
       const baseProxy_slot_67 = await readStorageSlotFixedArray(accessControlManagerProxy.address, 3, 64);
-      const acm_RoleMap_slot_70 = await readStorageSlotHashMap(accessControlManagerProxy.address, LIVELY_ADMIN_ROLE, 70);
-      const acm_GroupMap_slot_72 = await readStorageSlotHashMap(accessControlManagerProxy.address, LIVELY_GENERAL_GROUP, 72);
+      const acm_RoleMap_slot_70 = await readStorageSlotHashMap(
+        accessControlManagerProxy.address,
+        LIVELY_ADMIN_ROLE,
+        70
+      );
+      const acm_GroupMap_slot_72 = await readStorageSlotHashMap(
+        accessControlManagerProxy.address,
+        LIVELY_GENERAL_GROUP,
+        72
+      );
 
       expect(baseProxy_slot_0).to.be.hexEqual(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("AccessControlManager")));
       expect(baseProxy_slot_1).to.be.hexEqual(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("1.0.0")));
       expect(baseProxy_slot_2).to.be.hexEqual(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_GENERAL_REALM")));
       expect("0x" + baseProxy_slot_3.slice(26)).to.be.hexEqual(accessControlManagerProxy.address);
-      expect(baseProxy_slot_4).to.be.hexEqual("0x".padEnd(64, "0"))
-      expect(baseProxy_slot_67).to.be.hexEqual("0x".padEnd(64, "0"))
+      expect(baseProxy_slot_4).to.be.hexEqual("0x".padEnd(64, "0"));
+      expect(baseProxy_slot_67).to.be.hexEqual("0x".padEnd(64, "0"));
       expect(acm_RoleMap_slot_70).to.be.hexEqual(LIVELY_GENERAL_GROUP);
-      expect(acm_GroupMap_slot_72.slice(0,acm_GroupMap_slot_72.length-2)).to.be.equal(ethers.utils.formatBytes32String("LIVELY_GENERAL_GROUP").slice(0,acm_GroupMap_slot_72.length-2));
-    })
+      expect(acm_GroupMap_slot_72.slice(0, acm_GroupMap_slot_72.length - 2)).to.be.equal(
+        ethers.utils.formatBytes32String("LIVELY_GENERAL_GROUP").slice(0, acm_GroupMap_slot_72.length - 2)
+      );
+    });
 
     it("Should AccessControlManagerTest subject deploy success", async () => {
       // given
@@ -2723,31 +2737,40 @@ describe("AccessControlManager Tests", function () {
       accessControlManagerTestProxy = accessControlManagerTestSubject.attach(accessControlManagerProxy.address);
       await accessControlManagerTestProxy.connect(admin).initialize();
       expect(await accessControlManagerTestProxy.initVersion()).to.be.equal(2);
-
     });
 
-    it("Should AccessControlManagerTest storage verification after upgrade success", async() => {
+    it("Should AccessControlManagerTest storage verification after upgrade success", async () => {
       const baseProxy_slot_0 = await readStorageSlot(accessControlManagerTestProxy.address, 0);
       const baseProxy_slot_1 = await readStorageSlot(accessControlManagerTestProxy.address, 1);
       const baseProxy_slot_2 = await readStorageSlot(accessControlManagerTestProxy.address, 2);
       const baseProxy_slot_3 = await readStorageSlotFixedArray(accessControlManagerTestProxy.address, 3, 0);
       const baseProxy_slot_4 = await readStorageSlotFixedArray(accessControlManagerTestProxy.address, 3, 1);
       const baseProxy_slot_67 = await readStorageSlotFixedArray(accessControlManagerTestProxy.address, 3, 64);
-      const acm_RoleMap_slot_70 = await readStorageSlotHashMap(accessControlManagerTestProxy.address, LIVELY_ADMIN_ROLE, 70);
-      const acm_GroupMap_slot_72 = await readStorageSlotHashMap(accessControlManagerTestProxy.address, LIVELY_GENERAL_GROUP, 72);
-      const acm_dataCollection_slot_73 = await readStorageSlotStruct(accessControlManagerTestProxy.address, 68,5);
+      const acm_RoleMap_slot_70 = await readStorageSlotHashMap(
+        accessControlManagerTestProxy.address,
+        LIVELY_ADMIN_ROLE,
+        70
+      );
+      const acm_GroupMap_slot_72 = await readStorageSlotHashMap(
+        accessControlManagerTestProxy.address,
+        LIVELY_GENERAL_GROUP,
+        72
+      );
+      const acm_dataCollection_slot_73 = await readStorageSlotStruct(accessControlManagerTestProxy.address, 68, 5);
       const acm_slot_74 = await readStorageSlot(accessControlManagerTestProxy.address, 74);
 
       expect(baseProxy_slot_0).to.be.hexEqual(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("AccessControlManager")));
       expect(baseProxy_slot_1).to.be.hexEqual(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("1.0.0")));
       expect(baseProxy_slot_2).to.be.hexEqual(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_GENERAL_REALM")));
       expect("0x" + baseProxy_slot_3.slice(26)).to.be.hexEqual(accessControlManagerProxy.address);
-      expect(baseProxy_slot_4).to.be.hexEqual("0x".padEnd(64, "0"))
-      expect(baseProxy_slot_67).to.be.hexEqual("0x".padEnd(64, "0"))
+      expect(baseProxy_slot_4).to.be.hexEqual("0x".padEnd(64, "0"));
+      expect(baseProxy_slot_67).to.be.hexEqual("0x".padEnd(64, "0"));
       expect(acm_RoleMap_slot_70).to.be.hexEqual(LIVELY_GENERAL_GROUP);
-      expect(acm_GroupMap_slot_72.slice(0,acm_GroupMap_slot_72.length-2)).to.be.equal(ethers.utils.formatBytes32String("LIVELY_GENERAL_GROUP").slice(0,acm_GroupMap_slot_72.length-2));
+      expect(acm_GroupMap_slot_72.slice(0, acm_GroupMap_slot_72.length - 2)).to.be.equal(
+        ethers.utils.formatBytes32String("LIVELY_GENERAL_GROUP").slice(0, acm_GroupMap_slot_72.length - 2)
+      );
       expect(parseInt(acm_dataCollection_slot_73)).to.be.equal(100);
       expect(acm_slot_74).to.be.hexEqual(ethers.utils.keccak256(ethers.utils.toUtf8Bytes("UPDATE_TEST")));
-    })
-  })
+    });
+  });
 });

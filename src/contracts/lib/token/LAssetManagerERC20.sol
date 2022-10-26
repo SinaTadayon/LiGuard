@@ -63,7 +63,7 @@ library LAssetManagerERC20 {
     rrc[2].funcSelectors[6] = IAssetManagerERC20.tokenApprove.selector;
     rrc[2].funcSelectors[7] = IAssetManagerERC20.tokenIncreaseAllowance.selector;
     rrc[2].funcSelectors[8] = IAssetManagerERC20.tokenDecreaseAllowance.selector;
-    rrc[2].funcSelectors[9] =  IAssetManagerERC20.createAsset.selector;
+    rrc[2].funcSelectors[9] = IAssetManagerERC20.createAsset.selector;
     rrc[2].funcSelectors[10] = IAssetManagerERC20.updateAssetSubject.selector;
     rrc[2].funcSelectors[11] = IAssetManagerERC20.registerToken.selector;
     rrc[2].funcSelectors[12] = IAssetManagerERC20.registerAsset.selector;
@@ -71,7 +71,7 @@ library LAssetManagerERC20 {
     rrc[2].funcSelectors[14] = IAssetManagerERC20.setSafeModeToken.selector;
     rrc[2].funcSelectors[15] = bytes4(keccak256("livelyTokensDistribution(address)"));
     rrc[2].funcSelectors[16] = bytes4(keccak256("withdrawBalance(address)"));
-      
+
     IContextManagement.RequestContext memory rc = IContextManagement.RequestContext({
       name: domainName,
       version: domainVersion,
@@ -83,22 +83,31 @@ library LAssetManagerERC20 {
     return (rc, rrc);
   }
 
-  function createAsset(AssetManagerStorageERC20.DataCollection storage data, IAssetManagerERC20.CreateAssetRequest calldata request, address accessControlManager, address assetSubject, bytes calldata assetCreationSignature) external returns (address, address) {
-    require(bytes(request.assetName).length > 0 , "Invalid Asset Name");
-    require(bytes(request.assetVersion).length > 0 , "Invalid Asset Version");
-    require(request.tokenId != address(0) , "Invalid TokenId Address");
+  function createAsset(
+    AssetManagerStorageERC20.DataCollection storage data,
+    IAssetManagerERC20.CreateAssetRequest calldata request,
+    address accessControlManager,
+    address assetSubject,
+    bytes calldata assetCreationSignature
+  ) external returns (address, address) {
+    require(bytes(request.assetName).length > 0, "Invalid Asset Name");
+    require(bytes(request.assetVersion).length > 0, "Invalid Asset Version");
+    require(request.tokenId != address(0), "Invalid TokenId Address");
     require(assetSubject != address(0), "Invalid Asset Subject ERC20");
     require(data.tokensSet.contains(request.tokenId), "TokenId Not Found");
 
     bytes32 assetGroup = LIVELY_ASSET_GROUP;
     require(IGroupManagement(accessControlManager).hasGroupRole(assetGroup, request.role), "Asset Role Not Found");
-  
-    AssetManagerStorageERC20.TokenData storage tokenData = data.tokens[request.tokenId];
-    require(!tokenData.assets.contains(assetSubject.predictDeterministicAddress(request.salt)), "AssetId Already Exists");
 
-    AssetERC20.InitRequest memory initRequest = AssetERC20.InitRequest ({
+    AssetManagerStorageERC20.TokenData storage tokenData = data.tokens[request.tokenId];
+    require(
+      !tokenData.assets.contains(assetSubject.predictDeterministicAddress(request.salt)),
+      "AssetId Already Exists"
+    );
+
+    AssetERC20.InitRequest memory initRequest = AssetERC20.InitRequest({
       domainName: request.assetName,
-      domainVersion: request.assetVersion,  
+      domainVersion: request.assetVersion,
       domainRealm: IProxy(address(this)).contractRealm(),
       erc20Token: request.tokenId,
       accessControl: accessControlManager,
@@ -115,7 +124,10 @@ library LAssetManagerERC20 {
     return (newAsset, assetSubject);
   }
 
-  function registerToken(AssetManagerStorageERC20.DataCollection storage data, address tokenId) external returns (string memory, string memory) {   
+  function registerToken(AssetManagerStorageERC20.DataCollection storage data, address tokenId)
+    external
+    returns (string memory, string memory)
+  {
     require(!data.tokensSet.contains(tokenId), "TokenId Already Registered");
 
     try IERC165(tokenId).supportsInterface(type(IERC20).interfaceId) returns (bool isSupported) {
@@ -145,9 +157,12 @@ library LAssetManagerERC20 {
     return (tokenName, tokenSymbol);
   }
 
-  function registerAsset(AssetManagerStorageERC20.DataCollection storage data, address assetId) external returns (bool, address) {
+  function registerAsset(AssetManagerStorageERC20.DataCollection storage data, address assetId)
+    external
+    returns (bool, address)
+  {
     require(assetId != address(0), "Invalid AssetId Address");
-    
+
     try IERC165(assetId).supportsInterface(type(IAssetERC20).interfaceId) returns (bool isSupported) {
       require(isSupported, "Invalid IAssetERC20");
     } catch {
@@ -160,48 +175,58 @@ library LAssetManagerERC20 {
       revert("Illegal IAssetEntity");
     }
 
-
     address tokenId = IAssetEntity(assetId).assetToken();
     require(data.tokensSet.contains(tokenId), "TokenId Not Found");
-    
+
     AssetManagerStorageERC20.TokenData storage tokenData = data.tokens[tokenId];
     require(!tokenData.assets.contains(assetId), "AssetId Already Registered");
-    
+
     tokenData.assets.add(assetId);
-    if(IAssetEntity(assetId).assetSafeMode()) {
+    if (IAssetEntity(assetId).assetSafeMode()) {
       IAssetEntity(assetId).assetSafeModeSet(false);
     }
     return (true, tokenId);
   }
 
-  function removeAsset(AssetManagerStorageERC20.DataCollection storage data, address assetId) external returns (address) {
+  function removeAsset(AssetManagerStorageERC20.DataCollection storage data, address assetId)
+    external
+    returns (address)
+  {
     require(assetId != address(0), "Invalid AssetId Address");
-    
+
     address tokenId = IAssetEntity(assetId).assetToken();
     require(data.tokensSet.contains(tokenId), "TokenId Not Found");
-    
+
     AssetManagerStorageERC20.TokenData storage tokenData = data.tokens[tokenId];
     require(tokenData.assets.contains(assetId), "AssetId Not Found");
-    
+
     tokenData.assets.remove(assetId);
-    if(!IAssetEntity(assetId).assetSafeMode()) {
+    if (!IAssetEntity(assetId).assetSafeMode()) {
       IAssetEntity(assetId).assetSafeModeSet(true);
-    }    
+    }
     return tokenId;
   }
 
-  function setSafeModeToken(AssetManagerStorageERC20.DataCollection storage data, address tokenId, bool isEnabled) external returns (bool) {    
+  function setSafeModeToken(
+    AssetManagerStorageERC20.DataCollection storage data,
+    address tokenId,
+    bool isEnabled
+  ) external returns (bool) {
     require(data.tokensSet.contains(tokenId), "TokenId Not Found");
     AssetManagerStorageERC20.TokenData storage tokenData = data.tokens[tokenId];
-    for(uint i = 0; i < tokenData.assets.length(); i++) {
+    for (uint256 i = 0; i < tokenData.assets.length(); i++) {
       IAssetEntity(tokenData.assets.at(i)).assetSafeModeSet(isEnabled);
     }
 
-    tokenData.status = IAssetEntity.Status.SAFE_MODE;  
+    tokenData.status = IAssetEntity.Status.SAFE_MODE;
     return true;
   }
 
-  function predictAddress(address implementation, bytes32 salt, address deployer) external pure returns (address) {
+  function predictAddress(
+    address implementation,
+    bytes32 salt,
+    address deployer
+  ) external pure returns (address) {
     return implementation.predictDeterministicAddress(salt, deployer);
   }
 }

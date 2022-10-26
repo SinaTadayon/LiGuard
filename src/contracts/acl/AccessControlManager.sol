@@ -191,7 +191,12 @@ contract AccessControlManager is
     RequestPredictContext calldata rpc,
     RequestRegisterContext[] calldata rrc
   ) external returns (bytes32) {
-    (address contractId, bytes32 context, address signer) = LContextManagement.registerPredictContext(_data, signature, rpc, rrc);
+    (address contractId, bytes32 context, address signer) = LContextManagement.registerPredictContext(
+      _data,
+      signature,
+      rpc,
+      rrc
+    );
     emit PredictContextRegistered(context, contractId, _msgSender(), signer, rpc.deployer, rpc.subject, rpc.realm);
     return context;
   }
@@ -340,10 +345,10 @@ contract AccessControlManager is
   }
 
   function batchGrantRoleAccount(UpdateRoleRequest[] calldata requests) external returns (bool) {
-    for (uint i; i < requests.length; i++) {
+    for (uint256 i; i < requests.length; i++) {
       emit RoleAccountGranted(_msgSender(), requests[i].role, requests[i].account);
     }
-    return LRoleManagement.batchGrantRoleAccount(_data, requests);    
+    return LRoleManagement.batchGrantRoleAccount(_data, requests);
   }
 
   function revokeRoleAccount(bytes32 role, address account) external returns (bool) {
@@ -352,7 +357,7 @@ contract AccessControlManager is
   }
 
   function batchRevokeRoleAccount(UpdateRoleRequest[] calldata requests) external returns (bool) {
-    for (uint i; i < requests.length; i++) {
+    for (uint256 i; i < requests.length; i++) {
       emit RoleAccountRevoked(_msgSender(), requests[i].role, requests[i].account);
     }
     return LRoleManagement.batchRevokeRoleAccount(_data, requests);
@@ -368,12 +373,12 @@ contract AccessControlManager is
     return role;
   }
 
-  function batchRegisterRole(RegiterRoleRequest[] calldata requests) external returns(bytes32[] memory) {
+  function batchRegisterRole(RegiterRoleRequest[] calldata requests) external returns (bytes32[] memory) {
     bytes32[] memory roles = LRoleManagement.batchRegisterRole(_data, requests);
-    for (uint i; i < requests.length; i++) {
+    for (uint256 i; i < requests.length; i++) {
       emit RoleRegistered(_msgSender(), roles[i], requests[i].name, requests[i].group, requests[i].status);
     }
-    
+
     return roles;
   }
 

@@ -56,7 +56,7 @@ interface IAccessControl {
 
   function isRealmExists(bytes32 realm) external view returns (bool);
 
-  function isRealmEnabled(bytes32 realm) external view returns (bool); 
+  function isRealmEnabled(bytes32 realm) external view returns (bool);
 
   function isRealmUpgradable(bytes32 realm) external view returns (bool);
 }

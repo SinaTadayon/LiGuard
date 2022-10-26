@@ -27,7 +27,7 @@ abstract contract LivelyStorage is BaseUUPSStorage {
     uint128 lockedAt;
     uint128 claimedAt;
     address source;
-    LockState status;    
+    LockState status;
   }
 
   struct DataCollection {

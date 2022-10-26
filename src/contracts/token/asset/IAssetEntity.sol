@@ -2,7 +2,6 @@
 pragma solidity 0.8.17;
 
 interface IAssetEntity {
-
   enum Status {
     NONE,
     ACTIVE,
@@ -27,7 +26,7 @@ interface IAssetEntity {
     bytes32 realm,
     bytes32 role
   );
-  
+
   event AssetSafeModeChanged(address indexed sender, address indexed assetId, bytes32 indexed realm, bool status);
 
   function assetSafeModeSet(bool status) external returns (bool);
