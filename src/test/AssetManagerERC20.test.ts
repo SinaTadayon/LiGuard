@@ -45,7 +45,7 @@ import { AssetManagerERC20LibraryAddresses } from "../../typechain/types/factori
 import { IERC20Lock } from "../../typechain/types/token/lively/LivelyToken";
 /* eslint-disable node/no-extraneous-import */
 import { TransactionRequest } from "@ethersproject/abstract-provider";
-const { provider } = waffle;
+const { provider, deployMockContract } = waffle;
 
 enum AssetStatus {
   NONE,
@@ -1243,6 +1243,35 @@ describe("Asset Manager ERC20 Token Tests", function () {
       const [status, addresses] = await assetManagerProxy.getTokenInfo(livelyToken.address);
       expect(status).to.be.eq(AssetStatus.ACTIVE);
       expect(addresses).to.be.empty;
+    });
+
+    it("Should repeat again register lively token to assetManager by assetAdmin failed", async () => {
+      const beforeAllTokens = await assetManagerProxy.getAllTokens();
+
+      // when and then
+      await expect(assetManagerProxy.connect(assetAdmin).registerToken(livelyToken.address))
+        .to.revertedWith("TokenId Already Registered");
+
+      const afterAllTokens = await assetManagerProxy.getAllTokens();
+      expect(afterAllTokens).to.be.eql(beforeAllTokens);
+    });
+
+    it("Should register another token to assetManager by assetAdmin success", async () => {
+      // given
+      const tokenERC20 = await deployMockContract(systemAdmin, LivelyToken__factory.abi);
+      await tokenERC20.mock.supportsInterface.returns(true);
+      await tokenERC20.mock.name.returns("INV");
+      await tokenERC20.mock.symbol.returns("INOVERSE");
+
+      // when
+      await expect(assetManagerProxy.connect(assetAdmin).registerToken(tokenERC20.address))
+        .to.emit(assetManagerProxy, "TokenRegistered")
+        .withArgs(assetAdminAddress, tokenERC20.address, "INV", "INOVERSE");
+
+      // then
+      expect(await assetManagerProxy.isTokenExists(tokenERC20.address)).to.be.true;
+      const allTokens = await assetManagerProxy.getAllTokens();
+      expect(allTokens).to.be.eql([livelyToken.address, tokenERC20.address]);
     });
 
     it("Should create assets by anyone failed", async () => {

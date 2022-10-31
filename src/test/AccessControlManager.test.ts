@@ -50,7 +50,6 @@ import {
 } from "./TestUtils";
 
 // ethers.utils.keccak256(ethers.utils.toUtf8Bytes("src/contracts/lib/acl/ContextManagementLib.sol:ContextManagementLib")) => 0x0304621006bd13fe54dc5f6b75a37ec856740450109fd223c2bfb60db9095cad => __$0304621006bd13fe54dc5f6b75a37ec856$__ ( library placeholder)
-// const { provider, deployMockContract, deployContract } = waffle;
 const { provider, deployMockContract } = waffle;
 
 describe("AccessControlManager Tests", function () {

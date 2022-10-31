@@ -59,11 +59,7 @@ describe("Lively Token Tests", function () {
   let assetAdmin: Signer;
   let user1: Signer;
   let user2: Signer;
-  // let adminWallet: Wallet;
   let systemAdminWallet: Wallet;
-  // let user1Wallet: Wallet;
-  // let user2Wallet: Wallet;
-  // let assetAdminWallet: Wallet;
   let adminAddress: Address;
   let systemAdminAddress: Address;
   let user1Address: Address;
