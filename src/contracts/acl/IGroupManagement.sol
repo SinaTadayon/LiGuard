@@ -1,6 +1,14 @@
 // SPDX-License-Identifier: MIT
+// LivelyVerse Contracts (last updated v2.0.1)
+
 pragma solidity 0.8.17;
 
+/**
+ * @title Group Management Interface
+ * @author Sina Tadayon, https://github.com/SinaTadayon
+ * @dev
+ *
+ */
 interface IGroupManagement {
   event GroupRegistered(bytes32 indexed group, address indexed sender, string name, bool status);
 

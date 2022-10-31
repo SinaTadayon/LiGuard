@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: MIT
+// LivelyVerse Contracts (last updated v2.0.1)
+
 pragma solidity 0.8.17;
 
 /**
- * @dev This contract provides a fallback function that relay all calls to another contract using the EVM
- * instruction `call`. We refer to the second contract as the _destContract behind the forwarder
+ * @title Relay Contract
+ * @author Sina Tadayon, https://github.com/SinaTadayon
+ * @dev
  *
- * Additionally, forward to the _destContract can be triggered manually through the {_fallback} function, or to a
- * different contract through the {_forward} function.
- *
- * The success and return data of the call will be returned back to the caller of the relay.
  */
 contract Relay {
   address private _destContract;

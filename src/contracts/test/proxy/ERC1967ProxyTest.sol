@@ -1,10 +1,17 @@
 // SPDX-License-Identifier: MIT
+// LivelyVerse Contracts (last updated v2.0.1)
 
 pragma solidity 0.8.17;
 
 import "../../proxy/BaseProxy.sol";
 import "./ERC1967UpgradeTest.sol";
 
+/**
+ * @title ERC1967 Proxy Test
+ * @author Sina Tadayon, https://github.com/SinaTadayon
+ * @dev
+ *
+ */
 contract ERC1967ProxyTest is BaseProxy, ERC1967UpgradeTest {
   /**
    * @dev Initializes the upgradeable proxy with an initial implementation specified by `_logic`.

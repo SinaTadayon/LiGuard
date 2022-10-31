@@ -1,8 +1,16 @@
 // SPDX-License-Identifier: MIT
+// LivelyVerse Contracts (last updated v2.0.1)
+
 pragma solidity 0.8.17;
 
 import "./IBaseProxy.sol";
 
+/**
+ * @title Base Proxy Interface
+ * @author Sina Tadayon, https://github.com/SinaTadayon
+ * @dev
+ *
+ */
 interface IProxy is IBaseProxy {
   /**
    * @dev Emitted when the admin account has changed.

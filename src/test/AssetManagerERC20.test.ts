@@ -1249,8 +1249,9 @@ describe("Asset Manager ERC20 Token Tests", function () {
       const beforeAllTokens = await assetManagerProxy.getAllTokens();
 
       // when and then
-      await expect(assetManagerProxy.connect(assetAdmin).registerToken(livelyToken.address))
-        .to.revertedWith("TokenId Already Registered");
+      await expect(assetManagerProxy.connect(assetAdmin).registerToken(livelyToken.address)).to.revertedWith(
+        "TokenId Already Registered"
+      );
 
       const afterAllTokens = await assetManagerProxy.getAllTokens();
       expect(afterAllTokens).to.be.eql(beforeAllTokens);

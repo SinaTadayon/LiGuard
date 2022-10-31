@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: MIT
+// LivelyVerse Contracts (last updated v2.0.1)
+
 pragma solidity 0.8.17;
 
 import "./AccessControlStorageTest.sol";
@@ -17,15 +19,13 @@ import "../../lib/acl/LAccessControl.sol";
 import "../../proxy/Initializable.sol";
 import "../../proxy/BaseUUPSProxy.sol";
 
-contract AccessControlManagerTest is
-  AccessControlStorageTest,
-  BaseUUPSProxy
-  // IContextManagement,
-  // IAccessControl,
-  // IGroupManagement,
-  // IRealmManagement,
-  // IRoleManagement
-{
+/**
+ * @title Access Control Manager Test
+ * @author Sina Tadayon, https://github.com/SinaTadayon
+ * @dev
+ *
+ */
+contract AccessControlManagerTest is AccessControlStorageTest, BaseUUPSProxy {
   using LEnumerableSet for LEnumerableSet.AddressSet;
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
   using LEnumerableMap for LEnumerableMap.Bytes32ToBytes32Map;

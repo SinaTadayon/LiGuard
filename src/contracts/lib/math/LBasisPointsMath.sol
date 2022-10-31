@@ -1,8 +1,16 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
+// LivelyVerse Contracts (last updated v2.0.1)
+
 pragma solidity 0.8.17;
 
 import "./LSafeMath.sol";
 
+/**
+ * @title Basis Points Math Library
+ * @author Sina Tadayon, https://github.com/SinaTadayon
+ * @dev
+ *
+ */
 library LBasisPointsMath {
   using LSafeMath for uint256;
 

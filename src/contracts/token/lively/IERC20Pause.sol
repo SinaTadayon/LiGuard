@@ -1,6 +1,14 @@
 // SPDX-License-Identifier: MIT
+// LivelyVerse Contracts (last updated v2.0.1)
+
 pragma solidity 0.8.17;
 
+/**
+ * @title ERC20 Token Pause Interface
+ * @author Sina Tadayon, https://github.com/SinaTadayon
+ * @dev
+ *
+ */
 interface IERC20Pause {
   event Paused(address indexed sender, address indexed account);
 

@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: MIT
+// LivelyVerse Contracts (last updated v2.0.1)
+
 pragma solidity 0.8.17;
 
 import "./IAccessControl.sol";
@@ -17,6 +19,12 @@ import "../lib/acl/LAccessControl.sol";
 import "../proxy/Initializable.sol";
 import "../proxy/BaseUUPSProxy.sol";
 
+/**
+ * @title Access Control Manager Contract
+ * @author Sina Tadayon, https://github.com/SinaTadayon
+ * @dev
+ *
+ */
 contract AccessControlManager is
   AccessControlStorage,
   BaseUUPSProxy,
