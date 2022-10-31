@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: MIT
+// LivelyVerse Contracts (last updated v2.0.1)
+
 pragma solidity 0.8.17;
 
 import "../../acl/AccessControlStorage.sol";
@@ -7,6 +9,12 @@ import "../struct/LEnumerableSet.sol";
 import "../LContextUtils.sol";
 import "./LAccessControl.sol";
 
+/**
+ * @title Realm Management Library
+ * @author Sina Tadayon, https://github.com/SinaTadayon
+ * @dev
+ *
+ */
 library LRealmManagement {
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
   using LEnumerableSet for LEnumerableSet.AddressSet;

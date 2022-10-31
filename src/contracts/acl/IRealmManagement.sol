@@ -1,6 +1,14 @@
 // SPDX-License-Identifier: MIT
+// LivelyVerse Contracts (last updated v2.0.1)
+
 pragma solidity 0.8.17;
 
+/**
+ * @title Realm Management Interface
+ * @author Sina Tadayon, https://github.com/SinaTadayon
+ * @dev
+ *
+ */
 interface IRealmManagement {
   event RealmRegistered(bytes32 indexed realm, address indexed sender, string name, bool status, bool isUpgradable);
 

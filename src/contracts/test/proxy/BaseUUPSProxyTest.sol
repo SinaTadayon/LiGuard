@@ -1,10 +1,18 @@
 // SPDX-License-Identifier: MIT
+// LivelyVerse Contracts (last updated v2.0.1)
+
 pragma solidity 0.8.17;
 
 import "../../proxy/IERC1822.sol";
 import "../../proxy/BaseUUPSProxy.sol";
 import "../../acl/IContextManagement.sol";
 
+/**
+ * @title Base UUPS Proxy Test
+ * @author Sina Tadayon, https://github.com/SinaTadayon
+ * @dev
+ *
+ */
 contract BaseUUPSProxyTest is BaseUUPSProxy {
   bytes32 public constant LIVELY_ADMIN_ROLE = keccak256(abi.encodePacked("LIVELY_ADMIN_ROLE"));
   bytes32 public constant LIVELY_SYSTEM_ADMIN_ROLE = keccak256(abi.encodePacked("LIVELY_SYSTEM_ADMIN_ROLE"));
@@ -214,10 +222,6 @@ contract BaseUUPSProxyTest is BaseUUPSProxy {
     );
   }
 
-  //    function proxiableUUID() external view virtual override notDelegated returns (bytes32) {
-  //        return _IMPLEMENTATION_SLOT;
-  //    }
-
   function upgradeToTesterRole(address newImplementation) external virtual onlyProxy {
     require(!_isSafeMode, "SafeMode: Call Rejected");
     require(_isUpgradable, "Upgrade Call Rejected");
@@ -236,6 +240,4 @@ contract BaseUUPSProxyTest is BaseUUPSProxy {
     _authorizeUpgrade(newImplementation);
     _upgradeToAndCallUUPS(newImplementation, data, true);
   }
-
-  //    function _authorizeUpgrade(address newImplementation) internal virtual override {}
 }

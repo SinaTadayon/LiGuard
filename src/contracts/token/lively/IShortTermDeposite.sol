@@ -1,9 +1,13 @@
 // SPDX-License-Identifier: MIT
+// LivelyVerse Contracts (last updated v2.0.1)
+
 pragma solidity 0.8.17;
 
 /**
- * @dev Extension of {ERC20} that allows caller to freeze to token accounts
- * in a way that can be recognized off-chain (via event analysis).
+ * @title Short Term Deposite Staking Interface
+ * @author Sina Tadayon, https://github.com/SinaTadayon
+ * @dev
+ *
  */
 interface IShortTermDeposite {
   event STDDeposited(

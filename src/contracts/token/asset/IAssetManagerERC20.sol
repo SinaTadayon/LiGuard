@@ -1,10 +1,18 @@
 // SPDX-License-Identifier: MIT
+// LivelyVerse Contracts (last updated v2.0.1)
+
 pragma solidity 0.8.17;
 
 import "../lively/IERC20Extra.sol";
 import "../lively/IERC20Lock.sol";
 import "./IAssetEntity.sol";
 
+/**
+ * @title Asset Manager ERC20 Interface
+ * @author Sina Tadayon, https://github.com/SinaTadayon
+ * @dev
+ *
+ */
 interface IAssetManagerERC20 {
   struct CreateAssetRequest {
     bytes32 role;

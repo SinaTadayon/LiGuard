@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: MIT
+// LivelyVerse Contracts (last updated v2.0.1)
+
 pragma solidity 0.8.17;
 
 import "./IAssetERC20.sol";
@@ -14,6 +16,12 @@ import "../../../lib/LAddress.sol";
 import "../../../acl/IAccessControl.sol";
 import "../../../acl/IContextManagement.sol";
 
+/**
+ * @title Asset ERC20 Contract
+ * @author Sina Tadayon, https://github.com/SinaTadayon
+ * @dev
+ *
+ */
 contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity {
   using LAddress for address;
 

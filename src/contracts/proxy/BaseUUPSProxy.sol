@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: MIT
+// LivelyVerse Contracts (last updated v2.0.1)
+
 pragma solidity 0.8.17;
 
 import "./IERC1822.sol";
@@ -15,21 +17,11 @@ import "../utils/ERC165.sol";
 import "../lib/LContextUtils.sol";
 
 /**
- * @dev This contract implements an upgradeable proxy. It is upgradeable because calls are delegated to an
- * implementation address that can be changed. This address is stored in storage in the location specified by
- * https://eips.ethereum.org/EIPS/eip-1967[EIP1967], so that it doesn't conflict with the storage layout of the
- * implementation behind the proxy.
-
- * An upgradeability mechanism designed for UUPS proxies. The functions included here can perform an upgrade of an
- * {ERC1967Proxy}, when this contract is set as the implementation behind such a proxy.
+ * @title Abstract Base UUPS Proxy Contract
+ * @author Sina Tadayon, https://github.com/SinaTadayon
+ * @dev
  *
- * A security mechanism ensures that an upgrade does not turn off upgradeability accidentally, although this risk is
- * reinstated if the upgrade retains upgradeability but removes the security mechanism, e.g. by replacing
- * `UUPSUpgradeable` with a custom implementation of upgrades.
- *
- * The {_authorizeUpgrade} function must be overridden to include access restriction to the upgrade mechanism.
  */
-
 abstract contract BaseUUPSProxy is
   BaseUUPSStorage,
   BaseProxy,

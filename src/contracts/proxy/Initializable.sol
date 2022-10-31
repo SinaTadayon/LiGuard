@@ -1,4 +1,7 @@
 // SPDX-License-Identifier: MIT
+// LivelyVerse Contracts (last updated v2.0.1)
+// Author: OpenZeppelin, Sina Tadayon, https://github.com/SinaTadayon
+
 pragma solidity 0.8.17;
 
 import "../lib/LAddress.sol";

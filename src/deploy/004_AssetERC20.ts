@@ -98,9 +98,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       assetERC20Subject.address
     );
 
-    let tx = await assetManagerERC20
-      .connect(assetAdmin)
-      .updateAssetSubject(assetERC20Subject.address, assetSignature);
+    let tx = await assetManagerERC20.connect(assetAdmin).updateAssetSubject(assetERC20Subject.address, assetSignature);
     let txReceipt;
     if (hre.network.name === "polygon" || hre.network.name === "bsc") {
       txReceipt = await tx.wait(7);

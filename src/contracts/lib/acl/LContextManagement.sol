@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: MIT
+// LivelyVerse Contracts (last updated v2.0.1)
+
 pragma solidity 0.8.17;
 
 import "../../acl/IContextManagement.sol";
@@ -10,6 +12,12 @@ import "./LAccessControl.sol";
 import "../cryptography/LECDSA.sol";
 import "../proxy/LClones.sol";
 
+/**
+ * @title Context Management Library
+ * @author Sina Tadayon, https://github.com/SinaTadayon
+ * @dev
+ *
+ */
 library LContextManagement {
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
   using LClones for address;

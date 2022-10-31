@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: MIT
+// LivelyVerse Contracts (last updated v2.0.1)
+
 pragma solidity 0.8.17;
 
 import "./IAssetManagerERC20.sol";
@@ -10,6 +12,12 @@ import "../lively/LivelyToken.sol";
 import "../../proxy/BaseUUPSProxy.sol";
 import "../../lib/token/LAssetManagerERC20.sol";
 
+/**
+ * @title Asset Manager ERC20 Contract
+ * @author Sina Tadayon, https://github.com/SinaTadayon
+ * @dev
+ *
+ */
 contract AssetManagerERC20 is AssetManagerStorageERC20, BaseUUPSProxy, IAssetManagerERC20 {
   using LEnumerableSet for LEnumerableSet.AddressSet;
 

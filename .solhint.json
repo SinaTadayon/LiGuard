@@ -41,7 +41,7 @@
     "not-rely-on-block-hash": "warn",
     "reentrancy": "warn",
     "state-visibility": "warn",
-    "compiler-version": ["error", "^0.8.15"],
+    "compiler-version": ["error", "0.8.17"],
     "func-visibility": ["warn", { "ignoreConstructors": true }]
   }
 }

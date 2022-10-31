@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: MIT
+// LivelyVerse Contracts (last updated v2.0.1)
+
 pragma solidity 0.8.17;
 
 import "../../token/lively/IERC20.sol";
@@ -11,6 +13,12 @@ import "../../acl/IContextManagement.sol";
 import "../../acl/IAccessControl.sol";
 import "../struct/LEnumerableSet.sol";
 
+/**
+ * @title Token ERC20 Library
+ * @author Sina Tadayon, https://github.com/SinaTadayon
+ * @dev
+ *
+ */
 library LTokenERC20 {
   using LEnumerableSet for LEnumerableSet.AddressSet;
 

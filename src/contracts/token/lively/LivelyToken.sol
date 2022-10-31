@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: MIT
+// LivelyVerse Contracts (last updated v2.0.1)
+
 pragma solidity 0.8.17;
 
 import "./IERC20.sol";
@@ -18,6 +20,12 @@ import "../../lib/math/LSafeMath.sol";
 import "../../lib/struct/LEnumerableSet.sol";
 import "../../acl/IContextManagement.sol";
 
+/**
+ * @title Lively ERC20 Token Contract
+ * @author Sina Tadayon, https://github.com/SinaTadayon
+ * @dev
+ *
+ */
 contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC20Pause, IERC20Lock {
   using LEnumerableSet for LEnumerableSet.AddressSet;
   using LCounters for LCounters.Counter;

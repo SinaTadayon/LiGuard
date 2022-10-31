@@ -1,10 +1,18 @@
 // SPDX-License-Identifier: MIT
+// LivelyVerse Contracts (last updated v2.0.1)
+
 pragma solidity 0.8.17;
 
 import "../../proxy/IERC1822.sol";
 import "../../lib/LAddress.sol";
 import "../../lib/LStorageSlot.sol";
 
+/**
+ * @title ERC1967 Upgrade Test
+ * @author Sina Tadayon, https://github.com/SinaTadayon
+ * @dev
+ *
+ */
 abstract contract ERC1967UpgradeTest {
   bytes32 private constant _ROLLBACK_SLOT = 0x4910fdfa16fed3260ed0e7147f7cc6da11a60208b5b9406d12a635614ffd9143;
 

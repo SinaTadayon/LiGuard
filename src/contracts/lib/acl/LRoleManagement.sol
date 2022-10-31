@@ -1,6 +1,14 @@
 // SPDX-License-Identifier: MIT
+// LivelyVerse Contracts (last updated v2.0.1)
+
 pragma solidity 0.8.17;
 
+/**
+ * @title Role Management Library
+ * @author Sina Tadayon, https://github.com/SinaTadayon
+ * @dev
+ * @
+ */
 import "../../acl/AccessControlStorage.sol";
 import "../../acl/IRoleManagement.sol";
 import "../struct/LEnumerableSet.sol";

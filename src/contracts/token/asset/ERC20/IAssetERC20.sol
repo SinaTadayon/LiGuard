@@ -1,9 +1,17 @@
 // SPDX-License-Identifier: MIT
+// LivelyVerse Contracts (last updated v2.0.1)
+
 pragma solidity 0.8.17;
 
 import "../../lively/IERC20Extra.sol";
 import "../../lively/IERC20Lock.sol";
 
+/**
+ * @title Asset ERC20 Interface
+ * @author Sina Tadayon, https://github.com/SinaTadayon
+ * @dev
+ *
+ */
 interface IAssetERC20 {
   event AssetERC20Called(address indexed sender, address indexed assetId, bytes4 indexed functionSelector);
 

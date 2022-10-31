@@ -1,8 +1,13 @@
 // SPDX-License-Identifier: MIT
+// LivelyVerse Contracts (last updated v2.0.1)
+
 pragma solidity 0.8.17;
 
 /**
- * @dev Interface of the ERC20 standard as defined in the EIP.
+ * @title ERC20 Token Interface
+ * @author Sina Tadayon, https://github.com/SinaTadayon
+ * @dev
+ *
  */
 interface IERC20 {
   event Transfer(address indexed from, address indexed to, uint256 value);

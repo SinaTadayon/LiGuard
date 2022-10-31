@@ -1,10 +1,18 @@
 // SPDX-License-Identifier: MIT
+// LivelyVerse Contracts (last updated v2.0.1)
+
 pragma solidity 0.8.17;
 
 import "../../proxy/BaseUUPSStorage.sol";
 import "../../lib/LCounters.sol";
 import "../../lib/struct/LEnumerableSet.sol";
 
+/**
+ * @title Abstract Lively ERC20 Token Storage Contract
+ * @author Sina Tadayon, https://github.com/SinaTadayon
+ * @dev
+ *
+ */
 abstract contract LivelyStorage is BaseUUPSStorage {
   using LEnumerableSet for LEnumerableSet.AddressSet;
   using LCounters for LCounters.Counter;

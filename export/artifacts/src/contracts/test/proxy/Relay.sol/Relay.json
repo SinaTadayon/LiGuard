@@ -22,22 +22,24 @@
       "type": "receive"
     }
   ],
-  "bytecode": "0x608060405234801561001057600080fd5b5060405161010d38038061010d83398101604081905261002f91610054565b600080546001600160a01b0319166001600160a01b0392909216919091179055610084565b60006020828403121561006657600080fd5b81516001600160a01b038116811461007d57600080fd5b9392505050565b607b806100926000396000f3fe608060405236601057600e6013565b005b600e5b601a34601c565b565b600054366000803760008036600085855af190503d6000803e8080156040573d6000f35b3d6000fdfea2646970667358221220f7a9d15d534fff6c3891396833aad25bee368ea1de66a68b83e72c99fe046b1664736f6c63430008110033",
-  "deployedBytecode": "0x608060405236601057600e6013565b005b600e5b601a34601c565b565b600054366000803760008036600085855af190503d6000803e8080156040573d6000f35b3d6000fdfea2646970667358221220f7a9d15d534fff6c3891396833aad25bee368ea1de66a68b83e72c99fe046b1664736f6c63430008110033",
+  "bytecode": "0x608060405234801561001057600080fd5b5060405161010d38038061010d83398101604081905261002f91610054565b600080546001600160a01b0319166001600160a01b0392909216919091179055610084565b60006020828403121561006657600080fd5b81516001600160a01b038116811461007d57600080fd5b9392505050565b607b806100926000396000f3fe608060405236601057600e6013565b005b600e5b601a34601c565b565b600054366000803760008036600085855af190503d6000803e8080156040573d6000f35b3d6000fdfea2646970667358221220521098e50e3b87918aa0999d25f7ee64d68442f9fdabc98c3c6d8999c45f8ec964736f6c63430008110033",
+  "deployedBytecode": "0x608060405236601057600e6013565b005b600e5b601a34601c565b565b600054366000803760008036600085855af190503d6000803e8080156040573d6000f35b3d6000fdfea2646970667358221220521098e50e3b87918aa0999d25f7ee64d68442f9fdabc98c3c6d8999c45f8ec964736f6c63430008110033",
   "linkReferences": {},
   "deployedLinkReferences": {},
   "devdoc": {
-    "details": "This contract provides a fallback function that relay all calls to another contract using the EVM instruction `call`. We refer to the second contract as the _destContract behind the forwarder Additionally, forward to the _destContract can be triggered manually through the {_fallback} function, or to a different contract through the {_forward} function. The success and return data of the call will be returned back to the caller of the relay.",
+    "author": "Sina Tadayon, https://github.com/SinaTadayon",
+    "details": " ",
     "kind": "dev",
     "methods": {},
+    "title": "Relay Contract",
     "version": 1
   },
   "evm": {
     "bytecode": {
       "functionDebugData": {
-        "@_21915": {
+        "@_21935": {
           "entryPoint": null,
-          "id": 21915,
+          "id": 21935,
           "parameterSlots": 1,
           "returnSlots": 0
         },
@@ -348,32 +350,32 @@
         }
       ],
       "linkReferences": {},
-      "opcodes": "PUSH1 0x80 PUSH1 0x40 MSTORE CALLVALUE DUP1 ISZERO PUSH2 0x10 JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST POP PUSH1 0x40 MLOAD PUSH2 0x10D CODESIZE SUB DUP1 PUSH2 0x10D DUP4 CODECOPY DUP2 ADD PUSH1 0x40 DUP2 SWAP1 MSTORE PUSH2 0x2F SWAP2 PUSH2 0x54 JUMP JUMPDEST PUSH1 0x0 DUP1 SLOAD PUSH1 0x1 PUSH1 0x1 PUSH1 0xA0 SHL SUB NOT AND PUSH1 0x1 PUSH1 0x1 PUSH1 0xA0 SHL SUB SWAP3 SWAP1 SWAP3 AND SWAP2 SWAP1 SWAP2 OR SWAP1 SSTORE PUSH2 0x84 JUMP JUMPDEST PUSH1 0x0 PUSH1 0x20 DUP3 DUP5 SUB SLT ISZERO PUSH2 0x66 JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST DUP2 MLOAD PUSH1 0x1 PUSH1 0x1 PUSH1 0xA0 SHL SUB DUP2 AND DUP2 EQ PUSH2 0x7D JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST SWAP4 SWAP3 POP POP POP JUMP JUMPDEST PUSH1 0x7B DUP1 PUSH2 0x92 PUSH1 0x0 CODECOPY PUSH1 0x0 RETURN INVALID PUSH1 0x80 PUSH1 0x40 MSTORE CALLDATASIZE PUSH1 0x10 JUMPI PUSH1 0xE PUSH1 0x13 JUMP JUMPDEST STOP JUMPDEST PUSH1 0xE JUMPDEST PUSH1 0x1A CALLVALUE PUSH1 0x1C JUMP JUMPDEST JUMP JUMPDEST PUSH1 0x0 SLOAD CALLDATASIZE PUSH1 0x0 DUP1 CALLDATACOPY PUSH1 0x0 DUP1 CALLDATASIZE PUSH1 0x0 DUP6 DUP6 GAS CALL SWAP1 POP RETURNDATASIZE PUSH1 0x0 DUP1 RETURNDATACOPY DUP1 DUP1 ISZERO PUSH1 0x40 JUMPI RETURNDATASIZE PUSH1 0x0 RETURN JUMPDEST RETURNDATASIZE PUSH1 0x0 REVERT INVALID LOG2 PUSH5 0x6970667358 0x22 SLT KECCAK256 0xF7 0xA9 0xD1 0x5D MSTORE8 0x4F SELFDESTRUCT PUSH13 0x3891396833AAD25BEE368EA1DE PUSH7 0xA68B83E72C99FE DIV PUSH12 0x1664736F6C63430008110033 ",
-      "sourceMap": "536:2141:52:-:0;;;593:79;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;637:13;:28;;-1:-1:-1;;;;;;637:28:52;-1:-1:-1;;;;;637:28:52;;;;;;;;;;536:2141;;14:290:76;84:6;137:2;125:9;116:7;112:23;108:32;105:52;;;153:1;150;143:12;105:52;179:16;;-1:-1:-1;;;;;224:31:76;;214:42;;204:70;;270:1;267;260:12;204:70;293:5;14:290;-1:-1:-1;;;14:290:76:o;:::-;536:2141:52;;;;;;"
+      "opcodes": "PUSH1 0x80 PUSH1 0x40 MSTORE CALLVALUE DUP1 ISZERO PUSH2 0x10 JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST POP PUSH1 0x40 MLOAD PUSH2 0x10D CODESIZE SUB DUP1 PUSH2 0x10D DUP4 CODECOPY DUP2 ADD PUSH1 0x40 DUP2 SWAP1 MSTORE PUSH2 0x2F SWAP2 PUSH2 0x54 JUMP JUMPDEST PUSH1 0x0 DUP1 SLOAD PUSH1 0x1 PUSH1 0x1 PUSH1 0xA0 SHL SUB NOT AND PUSH1 0x1 PUSH1 0x1 PUSH1 0xA0 SHL SUB SWAP3 SWAP1 SWAP3 AND SWAP2 SWAP1 SWAP2 OR SWAP1 SSTORE PUSH2 0x84 JUMP JUMPDEST PUSH1 0x0 PUSH1 0x20 DUP3 DUP5 SUB SLT ISZERO PUSH2 0x66 JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST DUP2 MLOAD PUSH1 0x1 PUSH1 0x1 PUSH1 0xA0 SHL SUB DUP2 AND DUP2 EQ PUSH2 0x7D JUMPI PUSH1 0x0 DUP1 REVERT JUMPDEST SWAP4 SWAP3 POP POP POP JUMP JUMPDEST PUSH1 0x7B DUP1 PUSH2 0x92 PUSH1 0x0 CODECOPY PUSH1 0x0 RETURN INVALID PUSH1 0x80 PUSH1 0x40 MSTORE CALLDATASIZE PUSH1 0x10 JUMPI PUSH1 0xE PUSH1 0x13 JUMP JUMPDEST STOP JUMPDEST PUSH1 0xE JUMPDEST PUSH1 0x1A CALLVALUE PUSH1 0x1C JUMP JUMPDEST JUMP JUMPDEST PUSH1 0x0 SLOAD CALLDATASIZE PUSH1 0x0 DUP1 CALLDATACOPY PUSH1 0x0 DUP1 CALLDATASIZE PUSH1 0x0 DUP6 DUP6 GAS CALL SWAP1 POP RETURNDATASIZE PUSH1 0x0 DUP1 RETURNDATACOPY DUP1 DUP1 ISZERO PUSH1 0x40 JUMPI RETURNDATASIZE PUSH1 0x0 RETURN JUMPDEST RETURNDATASIZE PUSH1 0x0 REVERT INVALID LOG2 PUSH5 0x6970667358 0x22 SLT KECCAK256 MSTORE LT SWAP9 0xE5 0xE EXTCODESIZE DUP8 SWAP2 DUP11 LOG0 SWAP10 SWAP14 0x25 0xF7 0xEE PUSH5 0xD68442F9FD 0xAB 0xC9 DUP13 EXTCODECOPY PUSH14 0x8999C45F8EC964736F6C63430008 GT STOP CALLER ",
+      "sourceMap": "207:1937:52:-:0;;;260:73;;;;;;;;;;;;;;;;;;;;;;;;;;;;:::i;:::-;300:13;:28;;-1:-1:-1;;;;;;300:28:52;-1:-1:-1;;;;;300:28:52;;;;;;;;;;207:1937;;14:290:76;84:6;137:2;125:9;116:7;112:23;108:32;105:52;;;153:1;150;143:12;105:52;179:16;;-1:-1:-1;;;;;224:31:76;;214:42;;204:70;;270:1;267;260:12;204:70;293:5;14:290;-1:-1:-1;;;14:290:76:o;:::-;207:1937:52;;;;;;"
     },
     "deployedBytecode": {
       "functionDebugData": {
-        "@_21941": {
+        "@_21961": {
           "entryPoint": null,
-          "id": 21941,
+          "id": 21961,
           "parameterSlots": 0,
           "returnSlots": 0
         },
-        "@_21949": {
+        "@_21969": {
           "entryPoint": null,
-          "id": 21949,
+          "id": 21969,
           "parameterSlots": 0,
           "returnSlots": 0
         },
-        "@_fallback_21933": {
+        "@_fallback_21953": {
           "entryPoint": 19,
-          "id": 21933,
+          "id": 21953,
           "parameterSlots": 0,
           "returnSlots": 0
         },
-        "@_forward_21923": {
+        "@_forward_21943": {
           "entryPoint": 28,
-          "id": 21923,
+          "id": 21943,
           "parameterSlots": 1,
           "returnSlots": 0
         }
@@ -381,8 +383,8 @@
       "generatedSources": [],
       "immutableReferences": {},
       "linkReferences": {},
-      "opcodes": "PUSH1 0x80 PUSH1 0x40 MSTORE CALLDATASIZE PUSH1 0x10 JUMPI PUSH1 0xE PUSH1 0x13 JUMP JUMPDEST STOP JUMPDEST PUSH1 0xE JUMPDEST PUSH1 0x1A CALLVALUE PUSH1 0x1C JUMP JUMPDEST JUMP JUMPDEST PUSH1 0x0 SLOAD CALLDATASIZE PUSH1 0x0 DUP1 CALLDATACOPY PUSH1 0x0 DUP1 CALLDATASIZE PUSH1 0x0 DUP6 DUP6 GAS CALL SWAP1 POP RETURNDATASIZE PUSH1 0x0 DUP1 RETURNDATACOPY DUP1 DUP1 ISZERO PUSH1 0x40 JUMPI RETURNDATASIZE PUSH1 0x0 RETURN JUMPDEST RETURNDATASIZE PUSH1 0x0 REVERT INVALID LOG2 PUSH5 0x6970667358 0x22 SLT KECCAK256 0xF7 0xA9 0xD1 0x5D MSTORE8 0x4F SELFDESTRUCT PUSH13 0x3891396833AAD25BEE368EA1DE PUSH7 0xA68B83E72C99FE DIV PUSH12 0x1664736F6C63430008110033 ",
-      "sourceMap": "536:2141:52:-:0;;;;;;2657:11;:9;:11::i;:::-;536:2141;;2405:11;2059:74;2107:19;2116:9;2107:8;:19::i;:::-;2059:74::o;872:964::-;1012:18;1006:25;1290:14;1287:1;1284;1271:34;1493:1;1490;1474:14;1471:1;1464:5;1458:4;1451:5;1446:49;1432:63;;1569:16;1566:1;1563;1548:38;1607:6;1674:66;;;;1789:16;1786:1;1779:27;1674:66;1709:16;1706:1;1699:27"
+      "opcodes": "PUSH1 0x80 PUSH1 0x40 MSTORE CALLDATASIZE PUSH1 0x10 JUMPI PUSH1 0xE PUSH1 0x13 JUMP JUMPDEST STOP JUMPDEST PUSH1 0xE JUMPDEST PUSH1 0x1A CALLVALUE PUSH1 0x1C JUMP JUMPDEST JUMP JUMPDEST PUSH1 0x0 SLOAD CALLDATASIZE PUSH1 0x0 DUP1 CALLDATACOPY PUSH1 0x0 DUP1 CALLDATASIZE PUSH1 0x0 DUP6 DUP6 GAS CALL SWAP1 POP RETURNDATASIZE PUSH1 0x0 DUP1 RETURNDATACOPY DUP1 DUP1 ISZERO PUSH1 0x40 JUMPI RETURNDATASIZE PUSH1 0x0 RETURN JUMPDEST RETURNDATASIZE PUSH1 0x0 REVERT INVALID LOG2 PUSH5 0x6970667358 0x22 SLT KECCAK256 MSTORE LT SWAP9 0xE5 0xE EXTCODESIZE DUP8 SWAP2 DUP11 LOG0 SWAP10 SWAP14 0x25 0xF7 0xEE PUSH5 0xD68442F9FD 0xAB 0xC9 DUP13 EXTCODECOPY PUSH14 0x8999C45F8EC964736F6C63430008 GT STOP CALLER ",
+      "sourceMap": "207:1937:52:-:0;;;;;;2126:11;:9;:11::i;:::-;207:1937;;1892:11;1568:68;1612:19;1621:9;1612:8;:19::i;:::-;1568:68::o;521:836::-;645:18;639:25;899:14;896:1;893;880:34;1084:1;1081;1065:14;1062:1;1055:5;1049:4;1042:5;1037:49;1023:63;;1148:16;1145:1;1142;1127:38;1180:6;1235:52;;;;1322:16;1319:1;1312:27;1235:52;1262:16;1259:1;1252:27"
     },
     "gasEstimates": {
       "creation": {
@@ -400,11 +402,11 @@
     },
     "methodIdentifiers": {}
   },
-  "metadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"destContract\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"stateMutability\":\"payable\",\"type\":\"fallback\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}],\"devdoc\":{\"details\":\"This contract provides a fallback function that relay all calls to another contract using the EVM instruction `call`. We refer to the second contract as the _destContract behind the forwarder Additionally, forward to the _destContract can be triggered manually through the {_fallback} function, or to a different contract through the {_forward} function. The success and return data of the call will be returned back to the caller of the relay.\",\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/contracts/test/proxy/Relay.sol\":\"Relay\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"src/contracts/test/proxy/Relay.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity 0.8.17;\\n\\n/**\\n * @dev This contract provides a fallback function that relay all calls to another contract using the EVM\\n * instruction `call`. We refer to the second contract as the _destContract behind the forwarder\\n *\\n * Additionally, forward to the _destContract can be triggered manually through the {_fallback} function, or to a\\n * different contract through the {_forward} function.\\n *\\n * The success and return data of the call will be returned back to the caller of the relay.\\n */\\ncontract Relay {\\n    address private _destContract;\\n\\n    constructor(address destContract) {\\n        _destContract = destContract;\\n    }\\n\\n    /**\\n     * @dev Forwards the current call to `_destContract`.\\n     *\\n     * This function does not return to its internall call site, it will return directly to the external caller.\\n     */\\n    function _forward(uint256 value) internal {\\n        assembly {\\n            // loading state variable to stack\\n            let addr := sload(_destContract.slot)\\n\\n            // Copy msg.data. We take full control of memory in this inline assembly\\n            // block because it will not return to Solidity code. We overwrite the\\n            // Solidity scratch pad at memory position 0.\\n            calldatacopy(0, 0, calldatasize())\\n\\n            // Call the implementation.\\n            // out and outsize are 0 because we don't know the size yet.\\n            let result := call(gas(), addr, value, 0, calldatasize(), 0, 0)\\n\\n            // Copy the returned data.\\n            returndatacopy(0, 0, returndatasize())\\n\\n            switch result\\n            // delegatecall returns 0 on error.\\n            case 0 {\\n                revert(0, returndatasize())\\n            }\\n            default {\\n                return(0, returndatasize())\\n            }\\n        }\\n    }\\n\\n    /**\\n     * @dev Forward the current call to the address returned by `_destContract`.\\n     *\\n     * This function does not return to its internall call site, it will return directly to the external caller.\\n     */\\n    function _fallback() internal virtual {\\n        _forward(msg.value);\\n    }\\n\\n    /**\\n     * @dev Fallback function that delegates calls to the address returned by `_destContract`. Will run if no other\\n     * function in the contract matches the call data.\\n     */\\n    // solhint-disable-next-line\\n    fallback() external payable virtual {\\n        _fallback();\\n    }\\n\\n    /**\\n     * @dev Fallback function that delegates calls to the address returned by `_destContract`. Will run if call data\\n     * is empty.\\n     */\\n    // solhint-disable-next-line\\n    receive() external payable virtual {\\n        _fallback();\\n    }\\n}\\n\",\"keccak256\":\"0xaada6dc9473a7c307f882bf5ced614496923758714242a79fe262846290225d3\",\"license\":\"MIT\"}},\"version\":1}",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"destContract\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"stateMutability\":\"payable\",\"type\":\"fallback\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}],\"devdoc\":{\"author\":\"Sina Tadayon, https://github.com/SinaTadayon\",\"details\":\" \",\"kind\":\"dev\",\"methods\":{},\"title\":\"Relay Contract\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"src/contracts/test/proxy/Relay.sol\":\"Relay\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"src/contracts/test/proxy/Relay.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// LivelyVerse Contracts (last updated v2.0.1)\\n\\npragma solidity 0.8.17;\\n\\n/**\\n * @title Relay Contract\\n * @author Sina Tadayon, https://github.com/SinaTadayon\\n * @dev \\n * \\n */\\ncontract Relay {\\n  address private _destContract;\\n\\n  constructor(address destContract) {\\n    _destContract = destContract;\\n  }\\n\\n  /**\\n   * @dev Forwards the current call to `_destContract`.\\n   *\\n   * This function does not return to its internall call site, it will return directly to the external caller.\\n   */\\n  function _forward(uint256 value) internal {\\n    assembly {\\n      // loading state variable to stack\\n      let addr := sload(_destContract.slot)\\n\\n      // Copy msg.data. We take full control of memory in this inline assembly\\n      // block because it will not return to Solidity code. We overwrite the\\n      // Solidity scratch pad at memory position 0.\\n      calldatacopy(0, 0, calldatasize())\\n\\n      // Call the implementation.\\n      // out and outsize are 0 because we don't know the size yet.\\n      let result := call(gas(), addr, value, 0, calldatasize(), 0, 0)\\n\\n      // Copy the returned data.\\n      returndatacopy(0, 0, returndatasize())\\n\\n      switch result\\n      // delegatecall returns 0 on error.\\n      case 0 {\\n        revert(0, returndatasize())\\n      }\\n      default {\\n        return(0, returndatasize())\\n      }\\n    }\\n  }\\n\\n  /**\\n   * @dev Forward the current call to the address returned by `_destContract`.\\n   *\\n   * This function does not return to its internall call site, it will return directly to the external caller.\\n   */\\n  function _fallback() internal virtual {\\n    _forward(msg.value);\\n  }\\n\\n  /**\\n   * @dev Fallback function that delegates calls to the address returned by `_destContract`. Will run if no other\\n   * function in the contract matches the call data.\\n   */\\n  // solhint-disable-next-line\\n  fallback() external payable virtual {\\n    _fallback();\\n  }\\n\\n  /**\\n   * @dev Fallback function that delegates calls to the address returned by `_destContract`. Will run if call data\\n   * is empty.\\n   */\\n  // solhint-disable-next-line\\n  receive() external payable virtual {\\n    _fallback();\\n  }\\n}\\n\",\"keccak256\":\"0x690a6eecc14b543ece51b4b4aaf8e2c08e8e6ab36dea65037ca098a62b4daca9\",\"license\":\"MIT\"}},\"version\":1}",
   "storageLayout": {
     "storage": [
       {
-        "astId": 21905,
+        "astId": 21925,
         "contract": "src/contracts/test/proxy/Relay.sol:Relay",
         "label": "_destContract",
         "offset": 0,

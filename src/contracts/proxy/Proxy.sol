@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: MIT
+// LivelyVerse Contracts (last updated v2.0.1)
+
 pragma solidity 0.8.17;
 
 import "./IBaseProxy.sol";
@@ -11,12 +13,11 @@ import "../lib/LStorageSlot.sol";
 import "../utils/IERC165.sol";
 
 /**
- * @dev This contract implements an upgradeable proxy. It is upgradeable because calls are delegated to an
- * implementation address that can be changed. This address is stored in storage in the location specified by
- * https://eips.ethereum.org/EIPS/eip-1967[EIP1967], so that it doesn't conflict with the storage layout of the
- * implementation behind the proxy.
+ * @title Proxy Contract
+ * @author Sina Tadayon, https://github.com/SinaTadayon
+ * @dev
+ *
  */
-
 contract Proxy is BaseUUPSStorage, BaseProxy, IBaseProxy {
   /**
    * @dev Initializes the upgradeable proxy with an initial implementation specified by `_logic`.
