@@ -2,6 +2,7 @@ hardhat.config.ts
 src/scripts
 src/test
 build
+deployments
 .idea/
 coverage.json
 .env.example
