@@ -38,13 +38,13 @@ export declare namespace IRoleManagement {
     account: string;
   };
 
-  export type RegiterRoleRequestStruct = {
+  export type RegisterRoleRequestStruct = {
     group: PromiseOrValue<BytesLike>;
     name: PromiseOrValue<string>;
     status: PromiseOrValue<boolean>;
   };
 
-  export type RegiterRoleRequestStructOutput = [string, string, boolean] & {
+  export type RegisterRoleRequestStructOutput = [string, string, boolean] & {
     group: string;
     name: string;
     status: boolean;
@@ -169,6 +169,7 @@ export interface AccessControlManagerInterface extends utils.Interface {
     "getGroupInfo(bytes32)": FunctionFragment;
     "getGroupRoles(bytes32)": FunctionFragment;
     "getLibraries()": FunctionFragment;
+    "getPermitRegisterContext()": FunctionFragment;
     "getRealmContexts(bytes32)": FunctionFragment;
     "getRealmInfo(bytes32)": FunctionFragment;
     "getRoleAccounts(bytes32)": FunctionFragment;
@@ -181,7 +182,7 @@ export interface AccessControlManagerInterface extends utils.Interface {
     "hasRealmContext(bytes32,bytes32)": FunctionFragment;
     "hasRoleAccount(bytes32,address)": FunctionFragment;
     "initVersion()": FunctionFragment;
-    "initialize(string,string,string,address)": FunctionFragment;
+    "initialize(string,string,string,address,uint8)": FunctionFragment;
     "isContextEnabled(bytes32)": FunctionFragment;
     "isContextExists(bytes32)": FunctionFragment;
     "isContextFunctionEnabled(bytes32,bytes4)": FunctionFragment;
@@ -222,6 +223,7 @@ export interface AccessControlManagerInterface extends utils.Interface {
     "setContextStatus(bytes32,bool)": FunctionFragment;
     "setGroupStatus(bytes32,bool)": FunctionFragment;
     "setLocalAdmin(address)": FunctionFragment;
+    "setPermitRegisterContext(uint8)": FunctionFragment;
     "setRealmStatus(bytes32,bool)": FunctionFragment;
     "setRealmUpgradeStatus(bytes32,bool)": FunctionFragment;
     "setRoleGroup(bytes32,bytes32)": FunctionFragment;
@@ -230,7 +232,7 @@ export interface AccessControlManagerInterface extends utils.Interface {
     "setUpgradeStatus(bool)": FunctionFragment;
     "subjectAddress()": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
-    "updateContext(bytes32,bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],uint8)[])": FunctionFragment;
+    "updateContext(bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],uint8)[])": FunctionFragment;
     "upgradeTo(address,bytes,bool)": FunctionFragment;
     "withdrawBalance(address)": FunctionFragment;
   };
@@ -267,6 +269,8 @@ export interface AccessControlManagerInterface extends utils.Interface {
       | "getGroupRoles(bytes32)"
       | "getLibraries"
       | "getLibraries()"
+      | "getPermitRegisterContext"
+      | "getPermitRegisterContext()"
       | "getRealmContexts"
       | "getRealmContexts(bytes32)"
       | "getRealmInfo"
@@ -292,7 +296,7 @@ export interface AccessControlManagerInterface extends utils.Interface {
       | "initVersion"
       | "initVersion()"
       | "initialize"
-      | "initialize(string,string,string,address)"
+      | "initialize(string,string,string,address,uint8)"
       | "isContextEnabled"
       | "isContextEnabled(bytes32)"
       | "isContextExists"
@@ -373,6 +377,8 @@ export interface AccessControlManagerInterface extends utils.Interface {
       | "setGroupStatus(bytes32,bool)"
       | "setLocalAdmin"
       | "setLocalAdmin(address)"
+      | "setPermitRegisterContext"
+      | "setPermitRegisterContext(uint8)"
       | "setRealmStatus"
       | "setRealmStatus(bytes32,bool)"
       | "setRealmUpgradeStatus"
@@ -390,7 +396,7 @@ export interface AccessControlManagerInterface extends utils.Interface {
       | "supportsInterface"
       | "supportsInterface(bytes4)"
       | "updateContext"
-      | "updateContext(bytes32,bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],uint8)[])"
+      | "updateContext(bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],uint8)[])"
       | "upgradeTo"
       | "upgradeTo(address,bytes,bool)"
       | "withdrawBalance"
@@ -431,11 +437,11 @@ export interface AccessControlManagerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "batchRegisterRole",
-    values: [IRoleManagement.RegiterRoleRequestStruct[]]
+    values: [IRoleManagement.RegisterRoleRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "batchRegisterRole((bytes32,string,bool)[])",
-    values: [IRoleManagement.RegiterRoleRequestStruct[]]
+    values: [IRoleManagement.RegisterRoleRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "batchRevokeRoleAccount",
@@ -523,6 +529,14 @@ export interface AccessControlManagerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getLibraries()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getPermitRegisterContext",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getPermitRegisterContext()",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -651,16 +665,18 @@ export interface AccessControlManagerInterface extends utils.Interface {
       PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<string>,
-      PromiseOrValue<string>
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "initialize(string,string,string,address)",
+    functionFragment: "initialize(string,string,string,address,uint8)",
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<string>,
-      PromiseOrValue<string>
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>
     ]
   ): string;
   encodeFunctionData(
@@ -1024,6 +1040,14 @@ export interface AccessControlManagerInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
+    functionFragment: "setPermitRegisterContext",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setPermitRegisterContext(uint8)",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setRealmStatus",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<boolean>]
   ): string;
@@ -1091,15 +1115,13 @@ export interface AccessControlManagerInterface extends utils.Interface {
     functionFragment: "updateContext",
     values: [
       PromiseOrValue<BytesLike>,
-      PromiseOrValue<BytesLike>,
       IContextManagement.RequestContextStruct,
       IContextManagement.RequestUpdateContextStruct[]
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "updateContext(bytes32,bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],uint8)[])",
+    functionFragment: "updateContext(bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],uint8)[])",
     values: [
-      PromiseOrValue<BytesLike>,
       PromiseOrValue<BytesLike>,
       IContextManagement.RequestContextStruct,
       IContextManagement.RequestUpdateContextStruct[]
@@ -1251,6 +1273,14 @@ export interface AccessControlManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getPermitRegisterContext",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getPermitRegisterContext()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getRealmContexts",
     data: BytesLike
   ): Result;
@@ -1345,7 +1375,7 @@ export interface AccessControlManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "initialize(string,string,string,address)",
+    functionFragment: "initialize(string,string,string,address,uint8)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1663,6 +1693,14 @@ export interface AccessControlManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "setPermitRegisterContext",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setPermitRegisterContext(uint8)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setRealmStatus",
     data: BytesLike
   ): Result;
@@ -1731,7 +1769,7 @@ export interface AccessControlManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "updateContext(bytes32,bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],uint8)[])",
+    functionFragment: "updateContext(bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],uint8)[])",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "upgradeTo", data: BytesLike): Result;
@@ -1761,6 +1799,7 @@ export interface AccessControlManagerInterface extends utils.Interface {
     "GroupStatusChanged(bytes32,address,bool)": EventFragment;
     "Initialized(address,address,address,string,string,bytes32,uint16)": EventFragment;
     "LocalAdminChanged(address,address,address)": EventFragment;
+    "PermitRegisterContextUpdated(address,uint8)": EventFragment;
     "PredictContextRegistered(bytes32,address,address,address,address,address,bytes32)": EventFragment;
     "RealmRegistered(bytes32,address,string,bool,bool)": EventFragment;
     "RealmStatusChanged(bytes32,address,bool)": EventFragment;
@@ -1822,6 +1861,12 @@ export interface AccessControlManagerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "LocalAdminChanged"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "LocalAdminChanged(address,address,address)"
+  ): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "PermitRegisterContextUpdated"
+  ): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "PermitRegisterContextUpdated(address,uint8)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PredictContextRegistered"): EventFragment;
   getEvent(
@@ -2043,6 +2088,18 @@ export type LocalAdminChangedEvent = TypedEvent<
 export type LocalAdminChangedEventFilter =
   TypedEventFilter<LocalAdminChangedEvent>;
 
+export interface PermitRegisterContextUpdatedEventObject {
+  sender: string;
+  count: number;
+}
+export type PermitRegisterContextUpdatedEvent = TypedEvent<
+  [string, number],
+  PermitRegisterContextUpdatedEventObject
+>;
+
+export type PermitRegisterContextUpdatedEventFilter =
+  TypedEventFilter<PermitRegisterContextUpdatedEvent>;
+
 export interface PredictContextRegisteredEventObject {
   context: string;
   contractId: string;
@@ -2263,12 +2320,12 @@ export interface AccessControlManager extends BaseContract {
     ): Promise<ContractTransaction>;
 
     batchRegisterRole(
-      requests: IRoleManagement.RegiterRoleRequestStruct[],
+      requests: IRoleManagement.RegisterRoleRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "batchRegisterRole((bytes32,string,bool)[])"(
-      requests: IRoleManagement.RegiterRoleRequestStruct[],
+      requests: IRoleManagement.RegisterRoleRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2345,6 +2402,10 @@ export interface AccessControlManager extends BaseContract {
     getLibraries(overrides?: CallOverrides): Promise<[string[]]>;
 
     "getLibraries()"(overrides?: CallOverrides): Promise<[string[]]>;
+
+    getPermitRegisterContext(overrides?: CallOverrides): Promise<[number]>;
+
+    "getPermitRegisterContext()"(overrides?: CallOverrides): Promise<[number]>;
 
     getRealmContexts(
       realm: PromiseOrValue<BytesLike>,
@@ -2485,14 +2546,16 @@ export interface AccessControlManager extends BaseContract {
       domainVersion: PromiseOrValue<string>,
       domainRealm: PromiseOrValue<string>,
       accessControlManager: PromiseOrValue<string>,
+      initPermitRegisterContext: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "initialize(string,string,string,address)"(
+    "initialize(string,string,string,address,uint8)"(
       domainName: PromiseOrValue<string>,
       domainVersion: PromiseOrValue<string>,
       domainRealm: PromiseOrValue<string>,
       accessControlManager: PromiseOrValue<string>,
+      initPermitRegisterContext: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -2908,6 +2971,16 @@ export interface AccessControlManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    setPermitRegisterContext(
+      contextCount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "setPermitRegisterContext(uint8)"(
+      contextCount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     setRealmStatus(
       realm: PromiseOrValue<BytesLike>,
       status: PromiseOrValue<boolean>,
@@ -2991,15 +3064,13 @@ export interface AccessControlManager extends BaseContract {
     ): Promise<[boolean]>;
 
     updateContext(
-      ctx: PromiseOrValue<BytesLike>,
       signature: PromiseOrValue<BytesLike>,
       rc: IContextManagement.RequestContextStruct,
       rcr: IContextManagement.RequestUpdateContextStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "updateContext(bytes32,bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],uint8)[])"(
-      ctx: PromiseOrValue<BytesLike>,
+    "updateContext(bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],uint8)[])"(
       signature: PromiseOrValue<BytesLike>,
       rc: IContextManagement.RequestContextStruct,
       rcr: IContextManagement.RequestUpdateContextStruct[],
@@ -3060,12 +3131,12 @@ export interface AccessControlManager extends BaseContract {
   ): Promise<ContractTransaction>;
 
   batchRegisterRole(
-    requests: IRoleManagement.RegiterRoleRequestStruct[],
+    requests: IRoleManagement.RegisterRoleRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "batchRegisterRole((bytes32,string,bool)[])"(
-    requests: IRoleManagement.RegiterRoleRequestStruct[],
+    requests: IRoleManagement.RegisterRoleRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -3142,6 +3213,10 @@ export interface AccessControlManager extends BaseContract {
   getLibraries(overrides?: CallOverrides): Promise<string[]>;
 
   "getLibraries()"(overrides?: CallOverrides): Promise<string[]>;
+
+  getPermitRegisterContext(overrides?: CallOverrides): Promise<number>;
+
+  "getPermitRegisterContext()"(overrides?: CallOverrides): Promise<number>;
 
   getRealmContexts(
     realm: PromiseOrValue<BytesLike>,
@@ -3282,14 +3357,16 @@ export interface AccessControlManager extends BaseContract {
     domainVersion: PromiseOrValue<string>,
     domainRealm: PromiseOrValue<string>,
     accessControlManager: PromiseOrValue<string>,
+    initPermitRegisterContext: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "initialize(string,string,string,address)"(
+  "initialize(string,string,string,address,uint8)"(
     domainName: PromiseOrValue<string>,
     domainVersion: PromiseOrValue<string>,
     domainRealm: PromiseOrValue<string>,
     accessControlManager: PromiseOrValue<string>,
+    initPermitRegisterContext: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -3705,6 +3782,16 @@ export interface AccessControlManager extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  setPermitRegisterContext(
+    contextCount: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "setPermitRegisterContext(uint8)"(
+    contextCount: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   setRealmStatus(
     realm: PromiseOrValue<BytesLike>,
     status: PromiseOrValue<boolean>,
@@ -3788,15 +3875,13 @@ export interface AccessControlManager extends BaseContract {
   ): Promise<boolean>;
 
   updateContext(
-    ctx: PromiseOrValue<BytesLike>,
     signature: PromiseOrValue<BytesLike>,
     rc: IContextManagement.RequestContextStruct,
     rcr: IContextManagement.RequestUpdateContextStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "updateContext(bytes32,bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],uint8)[])"(
-    ctx: PromiseOrValue<BytesLike>,
+  "updateContext(bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],uint8)[])"(
     signature: PromiseOrValue<BytesLike>,
     rc: IContextManagement.RequestContextStruct,
     rcr: IContextManagement.RequestUpdateContextStruct[],
@@ -3857,12 +3942,12 @@ export interface AccessControlManager extends BaseContract {
     ): Promise<boolean>;
 
     batchRegisterRole(
-      requests: IRoleManagement.RegiterRoleRequestStruct[],
+      requests: IRoleManagement.RegisterRoleRequestStruct[],
       overrides?: CallOverrides
     ): Promise<string[]>;
 
     "batchRegisterRole((bytes32,string,bool)[])"(
-      requests: IRoleManagement.RegiterRoleRequestStruct[],
+      requests: IRoleManagement.RegisterRoleRequestStruct[],
       overrides?: CallOverrides
     ): Promise<string[]>;
 
@@ -3939,6 +4024,10 @@ export interface AccessControlManager extends BaseContract {
     getLibraries(overrides?: CallOverrides): Promise<string[]>;
 
     "getLibraries()"(overrides?: CallOverrides): Promise<string[]>;
+
+    getPermitRegisterContext(overrides?: CallOverrides): Promise<number>;
+
+    "getPermitRegisterContext()"(overrides?: CallOverrides): Promise<number>;
 
     getRealmContexts(
       realm: PromiseOrValue<BytesLike>,
@@ -4079,14 +4168,16 @@ export interface AccessControlManager extends BaseContract {
       domainVersion: PromiseOrValue<string>,
       domainRealm: PromiseOrValue<string>,
       accessControlManager: PromiseOrValue<string>,
+      initPermitRegisterContext: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "initialize(string,string,string,address)"(
+    "initialize(string,string,string,address,uint8)"(
       domainName: PromiseOrValue<string>,
       domainVersion: PromiseOrValue<string>,
       domainRealm: PromiseOrValue<string>,
       accessControlManager: PromiseOrValue<string>,
+      initPermitRegisterContext: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -4502,6 +4593,16 @@ export interface AccessControlManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
+    setPermitRegisterContext(
+      contextCount: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "setPermitRegisterContext(uint8)"(
+      contextCount: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
     setRealmStatus(
       realm: PromiseOrValue<BytesLike>,
       status: PromiseOrValue<boolean>,
@@ -4585,15 +4686,13 @@ export interface AccessControlManager extends BaseContract {
     ): Promise<boolean>;
 
     updateContext(
-      ctx: PromiseOrValue<BytesLike>,
       signature: PromiseOrValue<BytesLike>,
       rc: IContextManagement.RequestContextStruct,
       rcr: IContextManagement.RequestUpdateContextStruct[],
       overrides?: CallOverrides
     ): Promise<string>;
 
-    "updateContext(bytes32,bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],uint8)[])"(
-      ctx: PromiseOrValue<BytesLike>,
+    "updateContext(bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],uint8)[])"(
       signature: PromiseOrValue<BytesLike>,
       rc: IContextManagement.RequestContextStruct,
       rcr: IContextManagement.RequestUpdateContextStruct[],
@@ -4792,6 +4891,15 @@ export interface AccessControlManager extends BaseContract {
       newAdmin?: null
     ): LocalAdminChangedEventFilter;
 
+    "PermitRegisterContextUpdated(address,uint8)"(
+      sender?: PromiseOrValue<string> | null,
+      count?: null
+    ): PermitRegisterContextUpdatedEventFilter;
+    PermitRegisterContextUpdated(
+      sender?: PromiseOrValue<string> | null,
+      count?: null
+    ): PermitRegisterContextUpdatedEventFilter;
+
     "PredictContextRegistered(bytes32,address,address,address,address,address,bytes32)"(
       context?: PromiseOrValue<BytesLike> | null,
       contractId?: PromiseOrValue<string> | null,
@@ -4979,12 +5087,12 @@ export interface AccessControlManager extends BaseContract {
     ): Promise<BigNumber>;
 
     batchRegisterRole(
-      requests: IRoleManagement.RegiterRoleRequestStruct[],
+      requests: IRoleManagement.RegisterRoleRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "batchRegisterRole((bytes32,string,bool)[])"(
-      requests: IRoleManagement.RegiterRoleRequestStruct[],
+      requests: IRoleManagement.RegisterRoleRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -5061,6 +5169,10 @@ export interface AccessControlManager extends BaseContract {
     getLibraries(overrides?: CallOverrides): Promise<BigNumber>;
 
     "getLibraries()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getPermitRegisterContext(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "getPermitRegisterContext()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     getRealmContexts(
       realm: PromiseOrValue<BytesLike>,
@@ -5201,14 +5313,16 @@ export interface AccessControlManager extends BaseContract {
       domainVersion: PromiseOrValue<string>,
       domainRealm: PromiseOrValue<string>,
       accessControlManager: PromiseOrValue<string>,
+      initPermitRegisterContext: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "initialize(string,string,string,address)"(
+    "initialize(string,string,string,address,uint8)"(
       domainName: PromiseOrValue<string>,
       domainVersion: PromiseOrValue<string>,
       domainRealm: PromiseOrValue<string>,
       accessControlManager: PromiseOrValue<string>,
+      initPermitRegisterContext: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -5624,6 +5738,16 @@ export interface AccessControlManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    setPermitRegisterContext(
+      contextCount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "setPermitRegisterContext(uint8)"(
+      contextCount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     setRealmStatus(
       realm: PromiseOrValue<BytesLike>,
       status: PromiseOrValue<boolean>,
@@ -5707,15 +5831,13 @@ export interface AccessControlManager extends BaseContract {
     ): Promise<BigNumber>;
 
     updateContext(
-      ctx: PromiseOrValue<BytesLike>,
       signature: PromiseOrValue<BytesLike>,
       rc: IContextManagement.RequestContextStruct,
       rcr: IContextManagement.RequestUpdateContextStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "updateContext(bytes32,bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],uint8)[])"(
-      ctx: PromiseOrValue<BytesLike>,
+    "updateContext(bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],uint8)[])"(
       signature: PromiseOrValue<BytesLike>,
       rc: IContextManagement.RequestContextStruct,
       rcr: IContextManagement.RequestUpdateContextStruct[],
@@ -5781,12 +5903,12 @@ export interface AccessControlManager extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     batchRegisterRole(
-      requests: IRoleManagement.RegiterRoleRequestStruct[],
+      requests: IRoleManagement.RegisterRoleRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "batchRegisterRole((bytes32,string,bool)[])"(
-      requests: IRoleManagement.RegiterRoleRequestStruct[],
+      requests: IRoleManagement.RegisterRoleRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -5869,6 +5991,14 @@ export interface AccessControlManager extends BaseContract {
     getLibraries(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "getLibraries()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getPermitRegisterContext(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "getPermitRegisterContext()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     getRealmContexts(
       realm: PromiseOrValue<BytesLike>,
@@ -6009,14 +6139,16 @@ export interface AccessControlManager extends BaseContract {
       domainVersion: PromiseOrValue<string>,
       domainRealm: PromiseOrValue<string>,
       accessControlManager: PromiseOrValue<string>,
+      initPermitRegisterContext: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "initialize(string,string,string,address)"(
+    "initialize(string,string,string,address,uint8)"(
       domainName: PromiseOrValue<string>,
       domainVersion: PromiseOrValue<string>,
       domainRealm: PromiseOrValue<string>,
       accessControlManager: PromiseOrValue<string>,
+      initPermitRegisterContext: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -6432,6 +6564,16 @@ export interface AccessControlManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    setPermitRegisterContext(
+      contextCount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "setPermitRegisterContext(uint8)"(
+      contextCount: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     setRealmStatus(
       realm: PromiseOrValue<BytesLike>,
       status: PromiseOrValue<boolean>,
@@ -6517,15 +6659,13 @@ export interface AccessControlManager extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     updateContext(
-      ctx: PromiseOrValue<BytesLike>,
       signature: PromiseOrValue<BytesLike>,
       rc: IContextManagement.RequestContextStruct,
       rcr: IContextManagement.RequestUpdateContextStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "updateContext(bytes32,bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],uint8)[])"(
-      ctx: PromiseOrValue<BytesLike>,
+    "updateContext(bytes,(bytes32,bytes32,bytes32,address,bool),(bytes32,bytes4[],uint8)[])"(
       signature: PromiseOrValue<BytesLike>,
       rc: IContextManagement.RequestContextStruct,
       rcr: IContextManagement.RequestUpdateContextStruct[],

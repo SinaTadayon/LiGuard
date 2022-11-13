@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v2.0.1)
+// LivelyVerse Contracts (last updated v2.0.2)
 
 pragma solidity 0.8.17;
 
@@ -107,7 +107,7 @@ library LAccessControl {
     IContextManagement.RequestRegisterContext[] memory rrc = new IContextManagement.RequestRegisterContext[](2);
     rrc[0].role = LIVELY_ADMIN_ROLE;
     rrc[0].isEnabled = true;
-    rrc[0].funcSelectors = new bytes4[](22);
+    rrc[0].funcSelectors = new bytes4[](23);
     rrc[0].funcSelectors[0] = IProxy.setUpgradeStatus.selector;
     rrc[0].funcSelectors[1] = IProxy.setSafeMode.selector;
     rrc[0].funcSelectors[2] = IContextManagement.addContextFuncRole.selector;
@@ -116,20 +116,21 @@ library LAccessControl {
     rrc[0].funcSelectors[5] = IContextManagement.revokeContextRole.selector;
     rrc[0].funcSelectors[6] = IContextManagement.setContextRealm.selector;
     rrc[0].funcSelectors[7] = IContextManagement.setContextStatus.selector;
-    rrc[0].funcSelectors[8] = IRoleManagement.registerRole.selector;
-    rrc[0].funcSelectors[9] = IRoleManagement.batchRegisterRole.selector;
-    rrc[0].funcSelectors[10] = IRoleManagement.grantRoleAccount.selector;
-    rrc[0].funcSelectors[11] = IRoleManagement.batchGrantRoleAccount.selector;
-    rrc[0].funcSelectors[12] = IRoleManagement.revokeRoleAccount.selector;
-    rrc[0].funcSelectors[13] = IRoleManagement.batchRevokeRoleAccount.selector;
-    rrc[0].funcSelectors[14] = IRoleManagement.setRoleStatus.selector;
-    rrc[0].funcSelectors[15] = IRoleManagement.setRoleGroup.selector;
-    rrc[0].funcSelectors[16] = IGroupManagement.registerGroup.selector;
-    rrc[0].funcSelectors[17] = IGroupManagement.setGroupStatus.selector;
-    rrc[0].funcSelectors[18] = IRealmManagement.registerRealm.selector;
-    rrc[0].funcSelectors[19] = IRealmManagement.setRealmStatus.selector;
-    rrc[0].funcSelectors[20] = IRealmManagement.setRealmUpgradeStatus.selector;
-    rrc[0].funcSelectors[21] = bytes4(keccak256("withdrawBalance(address)"));
+    rrc[0].funcSelectors[8] = IContextManagement.setPermitRegisterContext.selector;
+    rrc[0].funcSelectors[9] = IRoleManagement.registerRole.selector;
+    rrc[0].funcSelectors[10] = IRoleManagement.batchRegisterRole.selector;
+    rrc[0].funcSelectors[11] = IRoleManagement.grantRoleAccount.selector;
+    rrc[0].funcSelectors[12] = IRoleManagement.batchGrantRoleAccount.selector;
+    rrc[0].funcSelectors[13] = IRoleManagement.revokeRoleAccount.selector;
+    rrc[0].funcSelectors[14] = IRoleManagement.batchRevokeRoleAccount.selector;
+    rrc[0].funcSelectors[15] = IRoleManagement.setRoleStatus.selector;
+    rrc[0].funcSelectors[16] = IRoleManagement.setRoleGroup.selector;
+    rrc[0].funcSelectors[17] = IGroupManagement.registerGroup.selector;
+    rrc[0].funcSelectors[18] = IGroupManagement.setGroupStatus.selector;
+    rrc[0].funcSelectors[19] = IRealmManagement.registerRealm.selector;
+    rrc[0].funcSelectors[20] = IRealmManagement.setRealmStatus.selector;
+    rrc[0].funcSelectors[21] = IRealmManagement.setRealmUpgradeStatus.selector;
+    rrc[0].funcSelectors[22] = bytes4(keccak256("withdrawBalance(address)"));
 
     rrc[1].role = LIVELY_SYSTEM_ADMIN_ROLE;
     rrc[1].isEnabled = true;

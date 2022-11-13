@@ -37,13 +37,13 @@ export declare namespace IRoleManagement {
     account: string;
   };
 
-  export type RegiterRoleRequestStruct = {
+  export type RegisterRoleRequestStruct = {
     group: PromiseOrValue<BytesLike>;
     name: PromiseOrValue<string>;
     status: PromiseOrValue<boolean>;
   };
 
-  export type RegiterRoleRequestStructOutput = [string, string, boolean] & {
+  export type RegisterRoleRequestStructOutput = [string, string, boolean] & {
     group: string;
     name: string;
     status: boolean;
@@ -101,11 +101,11 @@ export interface IRoleManagementInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "batchRegisterRole",
-    values: [IRoleManagement.RegiterRoleRequestStruct[]]
+    values: [IRoleManagement.RegisterRoleRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "batchRegisterRole((bytes32,string,bool)[])",
-    values: [IRoleManagement.RegiterRoleRequestStruct[]]
+    values: [IRoleManagement.RegisterRoleRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "batchRevokeRoleAccount",
@@ -413,12 +413,12 @@ export interface IRoleManagement extends BaseContract {
     ): Promise<ContractTransaction>;
 
     batchRegisterRole(
-      requests: IRoleManagement.RegiterRoleRequestStruct[],
+      requests: IRoleManagement.RegisterRoleRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "batchRegisterRole((bytes32,string,bool)[])"(
-      requests: IRoleManagement.RegiterRoleRequestStruct[],
+      requests: IRoleManagement.RegisterRoleRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -538,12 +538,12 @@ export interface IRoleManagement extends BaseContract {
   ): Promise<ContractTransaction>;
 
   batchRegisterRole(
-    requests: IRoleManagement.RegiterRoleRequestStruct[],
+    requests: IRoleManagement.RegisterRoleRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "batchRegisterRole((bytes32,string,bool)[])"(
-    requests: IRoleManagement.RegiterRoleRequestStruct[],
+    requests: IRoleManagement.RegisterRoleRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -663,12 +663,12 @@ export interface IRoleManagement extends BaseContract {
     ): Promise<boolean>;
 
     batchRegisterRole(
-      requests: IRoleManagement.RegiterRoleRequestStruct[],
+      requests: IRoleManagement.RegisterRoleRequestStruct[],
       overrides?: CallOverrides
     ): Promise<string[]>;
 
     "batchRegisterRole((bytes32,string,bool)[])"(
-      requests: IRoleManagement.RegiterRoleRequestStruct[],
+      requests: IRoleManagement.RegisterRoleRequestStruct[],
       overrides?: CallOverrides
     ): Promise<string[]>;
 
@@ -854,12 +854,12 @@ export interface IRoleManagement extends BaseContract {
     ): Promise<BigNumber>;
 
     batchRegisterRole(
-      requests: IRoleManagement.RegiterRoleRequestStruct[],
+      requests: IRoleManagement.RegisterRoleRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "batchRegisterRole((bytes32,string,bool)[])"(
-      requests: IRoleManagement.RegiterRoleRequestStruct[],
+      requests: IRoleManagement.RegisterRoleRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -980,12 +980,12 @@ export interface IRoleManagement extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     batchRegisterRole(
-      requests: IRoleManagement.RegiterRoleRequestStruct[],
+      requests: IRoleManagement.RegisterRoleRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "batchRegisterRole((bytes32,string,bool)[])"(
-      requests: IRoleManagement.RegiterRoleRequestStruct[],
+      requests: IRoleManagement.RegisterRoleRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

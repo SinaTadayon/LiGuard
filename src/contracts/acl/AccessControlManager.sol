@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v2.0.1)
+// LivelyVerse Contracts (last updated v2.0.2)
 
 pragma solidity 0.8.17;
 
@@ -45,7 +45,8 @@ contract AccessControlManager is
     string calldata domainName,
     string calldata domainVersion,
     string calldata domainRealm,
-    address accessControlManager
+    address accessControlManager,
+    uint8 initPermitRegisterContext
   ) public onlyProxy onlyLocalAdmin initializer {
     bytes32 realm = keccak256(abi.encodePacked(domainRealm));
 
@@ -55,6 +56,9 @@ contract AccessControlManager is
 
     RequestRegisterContext[] memory rc = LAccessControl.createRequestContext();
     LContextManagement.registerAccessControlManagerContext(_data, address(this), realm, rc);
+
+    // number of register context permited to sysadmin
+    _data.permitRegisterContextCount = initPermitRegisterContext;
 
     emit Initialized(
       _msgSender(),
@@ -184,6 +188,11 @@ contract AccessControlManager is
     return LAccessControl.isRealmEnabled(_data, realm);
   }
 
+  function setPermitRegisterContext(uint8 contextCount) external returns (bool) {
+    emit PermitRegisterContextUpdated(_msgSender(), contextCount);
+    return LContextManagement.setPermitRegisterContext(_data, contextCount);
+  }
+
   function registerContext(
     bytes memory signature,
     RequestContext calldata rc,
@@ -210,13 +219,12 @@ contract AccessControlManager is
   }
 
   function updateContext(
-    bytes32 ctx,
     bytes memory signature,
     RequestContext calldata rc,
     RequestUpdateContext[] calldata rcr
   ) external returns (address) {
-    (address contractId, address sender) = LContextManagement.updateContext(_data, ctx, signature, rc, rcr);
-    emit ContextUpdated(ctx, contractId, sender, rc.realm);
+    (address contractId, address sender) = LContextManagement.updateContext(_data, signature, rc, rcr);
+    emit ContextUpdated(LContextUtils.generateCtx(_msgSender()), contractId, sender, rc.realm);
     return contractId;
   }
 
@@ -381,7 +389,7 @@ contract AccessControlManager is
     return role;
   }
 
-  function batchRegisterRole(RegiterRoleRequest[] calldata requests) external returns (bytes32[] memory) {
+  function batchRegisterRole(RegisterRoleRequest[] calldata requests) external returns (bytes32[] memory) {
     bytes32[] memory roles = LRoleManagement.batchRegisterRole(_data, requests);
     for (uint256 i; i < requests.length; i++) {
       emit RoleRegistered(_msgSender(), roles[i], requests[i].name, requests[i].group, requests[i].status);
@@ -420,6 +428,10 @@ contract AccessControlManager is
 
   function hasRoleAccount(bytes32 role, address account) external view returns (bool) {
     return LRoleManagement.hasRoleAccount(_data, role, account);
+  }
+
+  function getPermitRegisterContext() external view returns (uint8) {
+    return _data.permitRegisterContextCount;
   }
 
   function getLibraries() external pure returns (address[] memory) {

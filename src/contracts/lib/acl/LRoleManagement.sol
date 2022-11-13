@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v2.0.1)
+// LivelyVerse Contracts (last updated v2.0.2)
 
 pragma solidity 0.8.17;
 
@@ -44,7 +44,7 @@ library LRoleManagement {
 
   function batchRegisterRole(
     AccessControlStorage.DataCollections storage data,
-    IRoleManagement.RegiterRoleRequest[] calldata requests
+    IRoleManagement.RegisterRoleRequest[] calldata requests
   ) external returns (bytes32[] memory) {
     require(!IProxy(address(this)).isSafeMode(), "SafeMode: Call Rejected");
     require(

@@ -208,7 +208,13 @@ describe("AccessControlManager Tests", function () {
       await expect(
         accessControlManagerSubject
           .connect(admin)
-          .initialize("AccessControlManagement", "1.0.0", "LIVELY_GENERAL_REALM", accessControlManagerSubject.address)
+          .initialize(
+            "AccessControlManagement",
+            "1.0.0",
+            "LIVELY_GENERAL_REALM",
+            accessControlManagerSubject.address,
+            0
+          )
       ).to.be.revertedWith("Illegal Contract Call");
     });
 
@@ -336,6 +342,7 @@ describe("AccessControlManager Tests", function () {
 
     it("Should deploy and initialize proxy success (etherjs)", async () => {
       // given
+      const permitRegisterContext = 1;
       const networkChainId = await provider.send("eth_chainId", []);
       const accessControlFactory = await ethers.getContractFactory("AccessControlManager", {
         libraries: {
@@ -354,6 +361,7 @@ describe("AccessControlManager Tests", function () {
         "1.0.0",
         "LIVELY_GENERAL_REALM",
         ethers.constants.AddressZero,
+        permitRegisterContext,
       ]);
 
       // when
@@ -398,10 +406,12 @@ describe("AccessControlManager Tests", function () {
         rml.address,
         gml.address,
       ]);
+      expect(await accessControlManager.getPermitRegisterContext()).to.be.equal(permitRegisterContext);
     });
 
     it("Should proxy raising events when deployment and initialization were successful", async () => {
       // given
+      const permitRegisterContext = 1;
       const accessControlManagerSubjectFactory = new AccessControlManager__factory(linkLibraryAddresses, admin);
       const proxyFactory = new Proxy__factory(admin);
 
@@ -413,6 +423,7 @@ describe("AccessControlManager Tests", function () {
         "1.0.0",
         "LIVELY_GENERAL_REALM",
         ethers.constants.AddressZero,
+        permitRegisterContext,
       ]);
 
       // when
@@ -462,7 +473,7 @@ describe("AccessControlManager Tests", function () {
       await expect(
         uupsProxy
           .connect(admin)
-          .initialize("AccessControlManager", "1.0.0", "LIVELY_GENERAL_REALM", invalidUupsAcl.address)
+          .initialize("AccessControlManager", "1.0.0", "LIVELY_GENERAL_REALM", invalidUupsAcl.address, 0)
       ).to.revertedWith("Invalid AccessControlManager");
     });
 
@@ -484,7 +495,7 @@ describe("AccessControlManager Tests", function () {
       await expect(
         uupsProxy
           .connect(admin)
-          .initialize("AccessControlManager", "1.0.0", "LIVELY_GENERAL_REALM", illegalUupsAcl.address)
+          .initialize("AccessControlManager", "1.0.0", "LIVELY_GENERAL_REALM", illegalUupsAcl.address, 0)
       ).to.revertedWith("Illegal AccessControlManager");
     });
 
@@ -500,7 +511,7 @@ describe("AccessControlManager Tests", function () {
       accessControlManagerProxy = accessControlManagerSubject.attach(acmProxy.address);
       await accessControlManagerProxy
         .connect(admin)
-        .initialize("AccessControlManager", "1.0.0", "LIVELY_GENERAL_REALM", ethers.constants.AddressZero);
+        .initialize("AccessControlManager", "1.0.0", "LIVELY_GENERAL_REALM", ethers.constants.AddressZero, 0);
 
       // then
       expect(await accessControlManagerProxy.isSafeMode(), "Invalid SafeMode").to.be.false;
@@ -675,7 +686,7 @@ describe("AccessControlManager Tests", function () {
       await expect(
         accessControlManagerProxy
           .connect(user1)
-          .initialize("AccessControlManager", "1.0.0", "LIVELY_GENERAL_REALM", ethers.constants.AddressZero)
+          .initialize("AccessControlManager", "1.0.0", "LIVELY_GENERAL_REALM", ethers.constants.AddressZero, 0)
       ).to.revertedWith("Contract Already Initialized");
     });
 
@@ -1180,7 +1191,7 @@ describe("AccessControlManager Tests", function () {
 
     it("Should batch register new TESTER_ROLE_1, TESTER_ROLE_2 role by admin success", async () => {
       // given
-      const registerRoleRequest: IRoleManagement.RegiterRoleRequestStruct[] = [
+      const registerRoleRequest: IRoleManagement.RegisterRoleRequestStruct[] = [
         {
           name: "TESTER_ROLE_1",
           group: LIVELY_ASSET_GROUP,
@@ -1762,6 +1773,63 @@ describe("AccessControlManager Tests", function () {
       ).to.revertedWith("Access Denied");
     });
 
+    it("Should register BaseUUPSContractTest context with don't permit register context by admin failed", async () => {
+      // given
+      const networkChainId = await provider.send("eth_chainId", []);
+      const baseUupsProxyFactory = new BaseUUPSProxyTest__factory(admin);
+      let baseUupsProxy: BaseUUPSProxyTest = await baseUupsProxyFactory.deploy();
+      const proxyFactory = new Proxy__factory(admin);
+      const typedArray1 = new Int8Array(0);
+      const proxy = await proxyFactory.connect(admin).deploy(baseUupsProxy.address, typedArray1);
+      const signature = await generateContextDomainSignatureByHardhat(
+        proxy.address,
+        "BaseUUPSContractTest",
+        "1.0.0",
+        "LIVELY_REALM",
+        accessControlManagerProxy.address,
+        adminAddress,
+        networkChainId
+      );
+
+      // when and then
+      baseUupsProxy = await baseUupsProxy.attach(proxy.address);
+      await expect(
+        baseUupsProxy
+          .connect(admin)
+          .initializeWithInvalidRealm(
+            "BaseUUPSContractTest",
+            "1.0.0",
+            "LIVELY_REALM",
+            signature,
+            accessControlManagerProxy.address
+          )
+      ).to.revertedWith("Register Context Not Permitted");
+    });
+
+    it("Should call permitRegisterContext by user failed", async () => {
+      // given
+      const permitCount = await accessControlManagerProxy.getPermitRegisterContext();
+
+      // when
+      await expect(accessControlManagerProxy.connect(user1).setPermitRegisterContext(8)).revertedWith("Access Denied");
+
+      // then
+      expect(await accessControlManagerProxy.getPermitRegisterContext()).to.equal(permitCount);
+    });
+
+    it("Should permitRegisterContext by admin success", async () => {
+      // given
+      const permitCount = 64;
+
+      // when
+      await expect(accessControlManagerProxy.connect(admin).setPermitRegisterContext(permitCount))
+        .to.emit(accessControlManagerProxy, "PermitRegisterContextUpdated")
+        .withArgs(adminAddress, permitCount);
+
+      // then
+      expect(await accessControlManagerProxy.getPermitRegisterContext()).to.equal(permitCount);
+    });
+
     it("Should register BaseUUPSContractTest context with Invalid Realm by admin failed", async () => {
       // given
       const networkChainId = await provider.send("eth_chainId", []);
@@ -1830,6 +1898,7 @@ describe("AccessControlManager Tests", function () {
 
     it("Should register BaseUUPSContractTest context by admin success", async () => {
       // given
+      const beforePermitRegisterContextCount = await accessControlManagerProxy.getPermitRegisterContext();
       const networkChainId = await provider.send("eth_chainId", []);
       const baseUupsProxyFactory = new BaseUUPSProxyTest__factory(admin);
       baseUupsProxy = await baseUupsProxyFactory.deploy();
@@ -1870,6 +1939,7 @@ describe("AccessControlManager Tests", function () {
         );
 
       // then
+      const afterPermitRegisterContextCount = await accessControlManagerProxy.getPermitRegisterContext();
       const response: ResponseContextStruct = await accessControlManagerProxy.getContextInfo(
         ethers.utils.keccak256(baseUupsProxy.address)
       );
@@ -1880,6 +1950,7 @@ describe("AccessControlManager Tests", function () {
       expect(response.contractId).to.be.hexEqual(baseUupsProxy.address);
       expect(response.isSafeMode).to.be.false;
       expect(response.isUpgradable).to.be.false;
+      expect(afterPermitRegisterContextCount).to.be.equal(beforePermitRegisterContextCount - 1);
 
       // and
       const iface = new ethers.utils.Interface(baseUUPSProxyArtifact.abi);
@@ -2247,7 +2318,7 @@ describe("AccessControlManager Tests", function () {
       );
     });
 
-    it("Should update BaseUUPSContractTest context with by admin success", async () => {
+    it("Should update BaseUUPSProxyTest context with by admin success", async () => {
       // given
       const networkChainId = await provider.send("eth_chainId", []);
       const baseUUPSProxyArtifact = await deployments.getArtifact("BaseUUPSProxyTest");

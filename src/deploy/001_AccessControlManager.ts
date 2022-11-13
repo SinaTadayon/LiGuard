@@ -84,6 +84,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     accessControlDomainVersion,
     accessControlDomainRealm,
     ethers.constants.AddressZero,
+    9,
   ]);
 
   await deploy("AccessControlManagerProxy", {

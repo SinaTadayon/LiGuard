@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v2.0.1)
+// LivelyVerse Contracts (last updated v2.0.2)
 
 pragma solidity 0.8.17;
 
@@ -105,6 +105,8 @@ interface IContextManagement {
 
   event ContextRealmChanged(bytes32 indexed context, address indexed sender, bytes32 indexed realm, bytes32 oldRealm);
 
+  event PermitRegisterContextUpdated(address indexed sender, uint8 count);
+
   function registerContext(
     bytes memory signature,
     RequestContext calldata rc,
@@ -118,7 +120,6 @@ interface IContextManagement {
   ) external returns (bytes32);
 
   function updateContext(
-    bytes32 ctx,
     bytes memory signature,
     RequestContext calldata rc,
     RequestUpdateContext[] calldata ruc
@@ -148,6 +149,8 @@ interface IContextManagement {
 
   function setContextStatus(bytes32 ctx, bool status) external returns (bool);
 
+  function setPermitRegisterContext(uint8 contextCount) external returns (bool);
+
   function hasContextRole(
     bytes32 ctx,
     bytes32 role,
@@ -157,4 +160,6 @@ interface IContextManagement {
   function getContextInfo(bytes32 ctx) external view returns (ResponseContext memory);
 
   function getContextFuncs(bytes32 ctx) external view returns (bytes4[] memory);
+
+  function getPermitRegisterContext() external view returns (uint8);
 }

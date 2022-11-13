@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v2.0.1)
+// LivelyVerse Contracts (last updated v2.0.2)
 
 pragma solidity 0.8.17;
 
@@ -50,7 +50,6 @@ library LContextManagement {
     IContextManagement.RequestRegisterContext[] calldata rrc
   ) external returns (bytes32, address) {
     require(!IProxy(address(this)).isSafeMode(), "SafeMode: Call Rejected");
-
     bytes32 structHash = _getContextMessageHash(rc.contractId, rc.name, rc.version, rc.realm);
     bytes32 msgDigest = _hashTypedDataV4(structHash);
     (address msgSigner, LECDSA.RecoverError recoverErr) = LECDSA.tryRecover(msgDigest, signature);
@@ -65,6 +64,8 @@ library LContextManagement {
       ),
       "RegisterContext Access Denied"
     );
+    require(data.permitRegisterContextCount > 0, "Register Context Not Permitted");
+    data.permitRegisterContextCount -= 1;
     return (_registerContext(data, rc.contractId, rc.realm, rc.status, rrc), msgSigner);
   }
 
@@ -98,6 +99,8 @@ library LContextManagement {
       "RegisterPredictContext Access Denied"
     );
 
+    require(data.permitRegisterContextCount > 0, "Register Predict Context Not Permitted");
+    data.permitRegisterContextCount -= 1;
     (address contractId, bytes32 ctx) = _registerPredictContext(data, rrc, rpc);
     return (contractId, ctx, msgSigner);
   }
@@ -199,7 +202,6 @@ library LContextManagement {
 
   function updateContext(
     AccessControlStorage.DataCollections storage data,
-    bytes32 ctx,
     bytes memory signature,
     IContextManagement.RequestContext calldata rc,
     IContextManagement.RequestUpdateContext[] calldata ruc
@@ -219,7 +221,7 @@ library LContextManagement {
       ),
       "UpdateContext Access Denied"
     );
-    return (_updateContext(data, ctx, rc.realm, rc.status, ruc), msgSigner);
+    return (_updateContext(data, LContextUtils.generateCtx(msg.sender), rc.realm, rc.status, ruc), msgSigner);
   }
 
   function _updateContext(
@@ -264,6 +266,23 @@ library LContextManagement {
       }
     }
     return contractId;
+  }
+
+  function setPermitRegisterContext(AccessControlStorage.DataCollections storage data, uint8 contextCount)
+    external
+    returns (bool)
+  {
+    require(
+      LAccessControl.hasAccess(
+        data,
+        LContextUtils.generateCtx(address(this)),
+        msg.sender,
+        IContextManagement.setPermitRegisterContext.selector
+      ),
+      "Access Denied"
+    );
+    data.permitRegisterContextCount = contextCount;
+    return true;
   }
 
   function addContextFuncRole(
