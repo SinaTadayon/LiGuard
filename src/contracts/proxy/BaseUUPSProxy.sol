@@ -18,7 +18,7 @@ import "../lib/LContextUtils.sol";
 
 /**
  * @title Abstract Base UUPS Proxy Contract
- * @author Sina Tadayon, https://github.com/SinaTadayon
+ * @author OpenZeppelin, Sina Tadayon, https://github.com/SinaTadayon
  * @dev
  *
  */

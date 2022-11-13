@@ -158,7 +158,7 @@ describe("Lively Token Tests", function () {
       accessControlManager = accessControlManagerSubject.attach(acmProxy.address);
       await accessControlManager
         .connect(systemAdmin)
-        .initialize("AccessControlManager", "1.0.0", "LIVELY_GENERAL_REALM", ethers.constants.AddressZero);
+        .initialize("AccessControlManager", "1.0.0", "LIVELY_GENERAL_REALM", ethers.constants.AddressZero, 2);
 
       // then
       expect(await accessControlManager.isSafeMode(), "Invalid SafeMode").to.be.false;
@@ -506,8 +506,42 @@ describe("Lively Token Tests", function () {
       expect(await assetManagerERC20.isTokenExists(livelyTokenProxy.address)).to.be.true;
     });
 
+    it("Should create LIVELY_AUDIO_VIDEO_PROGRAM_ASSET asset with don't permit register context by assetAdmin failed", async () => {
+      // given
+      const livelyAudioVideoProgramAssetName = "LIVELY_AUDIO_VIDEO_PROGRAM_ASSET";
+      const saltValue = ethers.utils.keccak256(
+        ethers.utils.toUtf8Bytes(`${Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)}`)
+      );
+      const createAssetRequest: IAssetManagerERC20.CreateAssetRequestStruct = {
+        assetName: livelyAudioVideoProgramAssetName,
+        assetVersion: livelyAssetERC20DomainVersion,
+        tokenId: livelyTokenProxy.address,
+        role: LIVELY_ASSET_ADMIN_ROLE,
+        salt: saltValue,
+      };
+
+      // when
+      await expect(assetManagerERC20.connect(assetAdmin).createAsset(createAssetRequest)).revertedWith(
+        "Register Predict Context Not Permitted"
+      );
+    });
+
+    it("Should permitRegisterContext by admin success", async () => {
+      // given
+      const permitCount = 7;
+
+      // when
+      await expect(accessControlManager.connect(admin).setPermitRegisterContext(permitCount))
+        .to.emit(accessControlManager, "PermitRegisterContextUpdated")
+        .withArgs(adminAddress, permitCount);
+
+      // then
+      expect(await accessControlManager.getPermitRegisterContext()).to.equal(permitCount);
+    });
+
     it("Should create LIVELY_AUDIO_VIDEO_PROGRAM_ASSET asset by assetAdmin success", async () => {
       // given
+      const beforePermitCount = await accessControlManager.getPermitRegisterContext();
       const livelyAudioVideoProgramAssetName = "LIVELY_AUDIO_VIDEO_PROGRAM_ASSET";
       const factory = new AssetERC20__factory(systemAdmin);
       const saltValue = ethers.utils.keccak256(
@@ -557,10 +591,12 @@ describe("Lively Token Tests", function () {
         await accessControlManager.hasRealmContext(assetManagerERC20DomainRealmHash, ethers.utils.keccak256(assetId))
       ).to.be.true;
       expect(await assetManagerERC20.isAssetExists(assetId)).to.be.true;
+      expect(await accessControlManager.getPermitRegisterContext()).to.be.equal(beforePermitCount - 1);
     });
 
     it("Should create LIVELY_FOUNDING_TEAM_ASSET asset by assetAdmin success", async () => {
       // given
+      const beforePermitCount = await accessControlManager.getPermitRegisterContext();
       const livelyFoundingTeamAssetName = "LIVELY_FOUNDING_TEAM_ASSET";
       const factory = new AssetERC20__factory(systemAdmin);
       const saltValue = ethers.utils.keccak256(
@@ -610,10 +646,12 @@ describe("Lively Token Tests", function () {
         await accessControlManager.hasRealmContext(assetManagerERC20DomainRealmHash, ethers.utils.keccak256(assetId))
       ).to.be.true;
       expect(await assetManagerERC20.isAssetExists(assetId)).to.be.true;
+      expect(await accessControlManager.getPermitRegisterContext()).to.be.equal(beforePermitCount - 1);
     });
 
     it("Should create LIVELY_TREASURY_ASSET asset by assetAdmin success", async () => {
       // given
+      const beforePermitCount = await accessControlManager.getPermitRegisterContext();
       const livelyTreasuryAssetName = "LIVELY_TREASURY_ASSET";
       const factory = new AssetERC20__factory(systemAdmin);
       const saltValue = ethers.utils.keccak256(
@@ -663,10 +701,12 @@ describe("Lively Token Tests", function () {
         await accessControlManager.hasRealmContext(assetManagerERC20DomainRealmHash, ethers.utils.keccak256(assetId))
       ).to.be.true;
       expect(await assetManagerERC20.isAssetExists(assetId)).to.be.true;
+      expect(await accessControlManager.getPermitRegisterContext()).to.be.equal(beforePermitCount - 1);
     });
 
     it("Should create LIVELY_PUBLIC_SALE_ASSET asset by assetAdmin success", async () => {
       // given
+      const beforePermitCount = await accessControlManager.getPermitRegisterContext();
       const livelyPublicSaleAssetName = "LIVELY_PUBLIC_SALE_ASSET";
       const factory = new AssetERC20__factory(systemAdmin);
       const saltValue = ethers.utils.keccak256(
@@ -716,10 +756,12 @@ describe("Lively Token Tests", function () {
         await accessControlManager.hasRealmContext(assetManagerERC20DomainRealmHash, ethers.utils.keccak256(assetId))
       ).to.be.true;
       expect(await assetManagerERC20.isAssetExists(assetId)).to.be.true;
+      expect(await accessControlManager.getPermitRegisterContext()).to.be.equal(beforePermitCount - 1);
     });
 
     it("Should create LIVELY_VALIDATORS_REWARDS_ASSET asset by assetAdmin success", async () => {
       // given
+      const beforePermitCount = await accessControlManager.getPermitRegisterContext();
       const livelyValidatorRewardsAssetName = "LIVELY_VALIDATORS_REWARDS_ASSET";
       const factory = new AssetERC20__factory(systemAdmin);
       const saltValue = ethers.utils.keccak256(
@@ -769,10 +811,12 @@ describe("Lively Token Tests", function () {
         await accessControlManager.hasRealmContext(assetManagerERC20DomainRealmHash, ethers.utils.keccak256(assetId))
       ).to.be.true;
       expect(await assetManagerERC20.isAssetExists(assetId)).to.be.true;
+      expect(await accessControlManager.getPermitRegisterContext()).to.be.equal(beforePermitCount - 1);
     });
 
     it("Should create LIVELY_CROWD_FOUNDING_ASSET asset by assetAdmin success", async () => {
       // given
+      const beforePermitCount = await accessControlManager.getPermitRegisterContext();
       const livelyCrowdFoundingAssetName = "LIVELY_CROWD_FOUNDING_ASSET";
       const factory = new AssetERC20__factory(systemAdmin);
       const saltValue = ethers.utils.keccak256(
@@ -822,6 +866,7 @@ describe("Lively Token Tests", function () {
         await accessControlManager.hasRealmContext(assetManagerERC20DomainRealmHash, ethers.utils.keccak256(assetId))
       ).to.be.true;
       expect(await assetManagerERC20.isAssetExists(assetId)).to.be.true;
+      expect(await accessControlManager.getPermitRegisterContext()).to.be.equal(beforePermitCount - 1);
     });
 
     it("Should create LIVELY_TAX_TREASURY_ASSET asset by assetAdmin success", async () => {
@@ -871,6 +916,7 @@ describe("Lively Token Tests", function () {
 
       // then
       expect(await assetManagerERC20.isAssetExists(assetId)).to.be.true;
+      expect(await accessControlManager.getPermitRegisterContext()).to.be.equal(0);
     });
 
     it("Should distribute token call by assetAdmin success", async () => {

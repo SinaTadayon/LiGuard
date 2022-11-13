@@ -161,7 +161,7 @@ async function registerAssetRoles(
   accessControlManager: AccessControlManager,
   systemAdmin: Signer
 ) {
-  const registerRoleRequest: IRoleManagement.RegiterRoleRequestStruct[] = [
+  const registerRoleRequest: IRoleManagement.RegisterRoleRequestStruct[] = [
     {
       name: LIVELY_CROWD_FOUNDING_ASSET_ROLE_NAME,
       group: LIVELY_ASSET_GROUP,

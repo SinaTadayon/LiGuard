@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v2.0.1)
+// LivelyVerse Contracts (last updated v2.0.2)
 
 pragma solidity 0.8.17;
 
@@ -64,6 +64,7 @@ abstract contract AccessControlStorage is BaseUUPSStorage {
     mapping(bytes32 => Role) roleMap;
     mapping(bytes32 => Realm) realmMap;
     mapping(bytes32 => Group) groupMap;
+    uint8 permitRegisterContextCount;
   }
 
   DataCollections internal _data;

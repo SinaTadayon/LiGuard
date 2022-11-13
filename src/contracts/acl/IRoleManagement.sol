@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v2.0.1)
+// LivelyVerse Contracts (last updated v2.0.2)
 
 pragma solidity 0.8.17;
 
@@ -10,7 +10,7 @@ pragma solidity 0.8.17;
  *
  */
 interface IRoleManagement {
-  struct RegiterRoleRequest {
+  struct RegisterRoleRequest {
     bytes32 group;
     string name;
     bool status;
@@ -43,7 +43,7 @@ interface IRoleManagement {
     bool status
   ) external returns (bytes32);
 
-  function batchRegisterRole(RegiterRoleRequest[] calldata requests) external returns (bytes32[] memory);
+  function batchRegisterRole(RegisterRoleRequest[] calldata requests) external returns (bytes32[] memory);
 
   function grantRoleAccount(bytes32 role, address account) external returns (bool);
 

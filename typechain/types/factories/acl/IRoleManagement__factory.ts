@@ -210,7 +210,7 @@ const _abi = [
             type: "bool",
           },
         ],
-        internalType: "struct IRoleManagement.RegiterRoleRequest[]",
+        internalType: "struct IRoleManagement.RegisterRoleRequest[]",
         name: "requests",
         type: "tuple[]",
       },

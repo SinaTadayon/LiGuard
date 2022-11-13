@@ -232,7 +232,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
       accessControlManager = accessControlManagerSubject.attach(acmProxy.address);
       await accessControlManager
         .connect(systemAdmin)
-        .initialize("AccessControlManager", "1.0.0", "LIVELY_GENERAL_REALM", ethers.constants.AddressZero);
+        .initialize("AccessControlManager", "1.0.0", "LIVELY_GENERAL_REALM", ethers.constants.AddressZero, 9);
 
       // then
       expect(await accessControlManager.isSafeMode(), "Invalid SafeMode").to.be.false;
@@ -1052,7 +1052,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
 
     it("Should register assets roles by admin success", async () => {
       // given
-      const registerRoleRequest: IRoleManagement.RegiterRoleRequestStruct[] = [
+      const registerRoleRequest: IRoleManagement.RegisterRoleRequestStruct[] = [
         {
           name: "LIVELY_CROWD_FOUNDING_ASSET_ROLE",
           group: LIVELY_ASSET_GROUP,

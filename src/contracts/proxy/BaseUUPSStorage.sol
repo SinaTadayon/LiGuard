@@ -5,7 +5,7 @@ pragma solidity 0.8.17;
 
 /**
  * @title Abstract Base UUPS Storage Contract
- * @author Sina Tadayon, https://github.com/SinaTadayon
+ * @author OpenZeppelin, Sina Tadayon, https://github.com/SinaTadayon
  * @dev
  *
  */

@@ -283,6 +283,25 @@ const _abi = [
         inputs: [
             {
                 indexed: true,
+                internalType: "address",
+                name: "sender",
+                type: "address",
+            },
+            {
+                indexed: false,
+                internalType: "uint8",
+                name: "count",
+                type: "uint8",
+            },
+        ],
+        name: "PermitRegisterContextUpdated",
+        type: "event",
+    },
+    {
+        anonymous: false,
+        inputs: [
+            {
+                indexed: true,
                 internalType: "bytes32",
                 name: "context",
                 type: "bytes32",
@@ -421,6 +440,19 @@ const _abi = [
                 internalType: "struct IContextManagement.ResponseContext",
                 name: "",
                 type: "tuple",
+            },
+        ],
+        stateMutability: "view",
+        type: "function",
+    },
+    {
+        inputs: [],
+        name: "getPermitRegisterContext",
+        outputs: [
+            {
+                internalType: "uint8",
+                name: "",
+                type: "uint8",
             },
         ],
         stateMutability: "view",
@@ -744,10 +776,24 @@ const _abi = [
     {
         inputs: [
             {
-                internalType: "bytes32",
-                name: "ctx",
-                type: "bytes32",
+                internalType: "uint8",
+                name: "contextCount",
+                type: "uint8",
             },
+        ],
+        name: "setPermitRegisterContext",
+        outputs: [
+            {
+                internalType: "bool",
+                name: "",
+                type: "bool",
+            },
+        ],
+        stateMutability: "nonpayable",
+        type: "function",
+    },
+    {
+        inputs: [
             {
                 internalType: "bytes",
                 name: "signature",

@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 // LivelyVerse Contracts (last updated v2.0.1)
+// Author: OpenZeppelin
 
 pragma solidity 0.8.17;
 
 /**
  * @title Abstract Base Proxy Contract
- * @author Sina Tadayon, https://github.com/SinaTadayon
  * @dev
  *
  */

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v2.0.1)
+// LivelyVerse Contracts (last updated v2.0.2)
 
 pragma solidity 0.8.17;
 
@@ -163,12 +163,7 @@ contract BaseUUPSProxyTest is BaseUUPSProxy {
     ruc[4].funcSelectors = new bytes4[](1);
     ruc[4].funcSelectors[0] = IProxy.setLocalAdmin.selector;
 
-    IContextManagement(_accessControlManager).updateContext(
-      LContextUtils.generateCtx(address(this)),
-      signature,
-      rc,
-      ruc
-    );
+    IContextManagement(_accessControlManager).updateContext(signature, rc, ruc);
   }
 
   function reInitializeWithInvalidRealm(bytes memory signature) public onlyLocalAdmin reinitializer(2) {
@@ -191,12 +186,7 @@ contract BaseUUPSProxyTest is BaseUUPSProxy {
     ruc[1].funcSelectors = new bytes4[](1);
     ruc[1].funcSelectors[0] = this.upgradeToAndCall.selector;
 
-    IContextManagement(_accessControlManager).updateContext(
-      LContextUtils.generateCtx(address(this)),
-      signature,
-      rc,
-      ruc
-    );
+    IContextManagement(_accessControlManager).updateContext(signature, rc, ruc);
   }
 
   function reInitializeWithInvalidRole(bytes memory signature) public onlyLocalAdmin reinitializer(2) {
@@ -214,12 +204,7 @@ contract BaseUUPSProxyTest is BaseUUPSProxy {
     rrc[0].funcSelectors = new bytes4[](1);
     rrc[0].funcSelectors[0] = IProxy.upgradeTo.selector;
 
-    IContextManagement(_accessControlManager).updateContext(
-      LContextUtils.generateCtx(address(this)),
-      signature,
-      rc,
-      rrc
-    );
+    IContextManagement(_accessControlManager).updateContext(signature, rc, rrc);
   }
 
   function upgradeToTesterRole(address newImplementation) external virtual onlyProxy {
