@@ -921,10 +921,10 @@
     tiny-glob "^0.2.9"
     tslib "^2.4.0"
 
-"@remix-project/remixd@^0.6.5":
-  version "0.6.7"
-  resolved "https://registry.yarnpkg.com/@remix-project/remixd/-/remixd-0.6.7.tgz#dbbee4526e2bda80ca4657dd9601ecba96fc1aa2"
-  integrity sha512-o21d5/5Jxgu9xH+HiQh1OBTsEni2TDSOhTaCaO05Ggu/DfQQCLmMvw40u6Ab+0dh4qtD25Z+WjjXmamkgdVGog==
+"@remix-project/remixd@0.6.5":
+  version "0.6.5"
+  resolved "https://registry.yarnpkg.com/@remix-project/remixd/-/remixd-0.6.5.tgz#7e7f36d702f4df13391ea13883b9dbdadd343d01"
+  integrity sha512-B6a8n6K73jO0TP075/zJe/wsd1X5B9xBkjG2QnvOEa/wsQMbEAqkFKL6XujRGAaEmLgiuQxkqEMpg7O8CA7tLA==
   dependencies:
     "@remixproject/plugin" "^0.3.11"
     "@remixproject/plugin-api" "^0.3.11"

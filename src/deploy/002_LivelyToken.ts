@@ -72,16 +72,17 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const livelyToken = LivelyToken__factory.connect(livelyTokenProxy.address, systemAdmin);
   LIVELY_TOKEN_INIT_VERSION = await livelyToken.initVersion();
   if (LIVELY_TOKEN_INIT_VERSION === 0) {
-    const tx = await livelyToken.connect(systemAdmin).initialize(request);
     let txReceipt;
+    console.log(`[Initialize LivelyToken]`);
+    const tx = await livelyToken.connect(systemAdmin).initialize(request);
+    console.log(`txHash: ${tx.hash} . . .`);
     if (hre.network.name === "polygon" || hre.network.name === "bsc") {
       txReceipt = await tx.wait(7);
     } else {
       txReceipt = await tx.wait(1);
     }
-    console.log(`[Initialize LivelyToken]`);
-    console.log(`tx: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
-    console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
+    console.log(`txHash: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
+    // console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
     console.log();
   }
 };

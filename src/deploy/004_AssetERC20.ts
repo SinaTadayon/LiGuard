@@ -98,28 +98,30 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       assetERC20Subject.address
     );
 
-    let tx = await assetManagerERC20.connect(assetAdmin).updateAssetSubject(assetERC20Subject.address, assetSignature);
     let txReceipt;
+    console.log(`[ Update AssetSubject AssetManagerERC20 ]`);
+    let tx = await assetManagerERC20.connect(assetAdmin).updateAssetSubject(assetERC20Subject.address, assetSignature);
+    console.log(`txHash: ${tx.hash} . . .`);
     if (hre.network.name === "polygon" || hre.network.name === "bsc") {
       txReceipt = await tx.wait(7);
     } else {
       txReceipt = await tx.wait(1);
     }
-    console.log(`[ Update AssetSubject AssetManagerERC20 ]`);
-    console.log(`tx: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
-    console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
+    console.log(`txHash: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
+    // console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
     console.log();
 
     // register lively token
+    console.log(`[ Register Token AssetManagerERC20 ]`);
     tx = await assetManagerERC20.connect(assetAdmin).registerToken(livelyToken.address);
+    console.log(`txHash: ${tx.hash} . . .`);
     if (hre.network.name === "polygon" || hre.network.name === "bsc") {
       txReceipt = await tx.wait(7);
     } else {
       txReceipt = await tx.wait(1);
     }
-    console.log(`[ Register Token AssetManagerERC20 ]`);
     console.log(`tx: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
-    console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
+    // console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
     console.log();
 
     // create assets
@@ -131,27 +133,29 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     await grantAssetManagerRoleToAssets(hre, accessControlManager, assetManagerERC20, admin, assetsMap);
 
     // distribute tokens to assets ERC20
+    console.log(`[ Distribution LivelyTokens ]`);
     tx = await assetManagerERC20.connect(assetAdmin).livelyTokensDistribution(livelyToken.address);
+    console.log(`txHash: ${tx.hash} . . .`);
     if (hre.network.name === "polygon" || hre.network.name === "bsc") {
       txReceipt = await tx.wait(7);
     } else {
       txReceipt = await tx.wait(1);
     }
-    console.log(`[ Distribution LivelyTokens ]`);
-    console.log(`tx: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
-    console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
+    console.log(`txHash: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
+    // console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
     console.log();
 
     // revoke systemAdmin from LIVELY_ADMIN_ROLE role
+    console.log(`[ Revoke Role LIVELY_ADMIN_ROLE From SystemAdmin ]`);
     tx = await accessControlManager.connect(admin).revokeRoleAccount(LIVELY_ADMIN_ROLE, systemAdminAddress);
+    console.log(`txHash: ${tx.hash} . . .`);
     if (hre.network.name === "polygon" || hre.network.name === "bsc") {
       txReceipt = await tx.wait(7);
     } else {
       txReceipt = await tx.wait(1);
     }
-    console.log(`[ Revoke Role LIVELY_ADMIN_ROLE From SystemAdmin ]`);
-    console.log(`tx: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
-    console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
+    console.log(`txHash: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
+    // console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
     console.log();
   }
 };
@@ -194,16 +198,17 @@ async function registerAssetRoles(
     },
   ];
 
-  const tx = await accessControlManager.connect(systemAdmin).batchRegisterRole(registerRoleRequest);
   let txReceipt;
+  console.log(`[ BatchRegisterRole AccessControlManager ]`);
+  const tx = await accessControlManager.connect(systemAdmin).batchRegisterRole(registerRoleRequest);
+  console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(7);
   } else {
     txReceipt = await tx.wait(1);
   }
-  console.log(`[ BatchRegisterRole AccessControlManager ]`);
-  console.log(`tx: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
-  console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
+  console.log(`txHash: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
+  // console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
   console.log();
 }
 
@@ -258,16 +263,17 @@ async function grantRolesToAccounts(
     },
   ];
 
-  const tx = await accessControlManager.connect(systemAdminSigner).batchGrantRoleAccount(batchGrantRequest);
   let txReceipt;
+  console.log(`[ BatchGrantRoleAccount AccessControlManager ]`);
+  const tx = await accessControlManager.connect(systemAdminSigner).batchGrantRoleAccount(batchGrantRequest);
+  console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(7);
   } else {
     txReceipt = await tx.wait(1);
   }
-  console.log(`[ BatchGrantRoleAccount AccessControlManager ]`);
-  console.log(`tx: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
-  console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
+  console.log(`txHash: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
+  // console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
   console.log();
 }
 
@@ -372,19 +378,20 @@ async function createAsset(
     role: assetInfo.assetRole,
     salt: assetInfo.salt,
   };
+  let txReceipt;
+  console.log(`[ CreateAsset AssetManagerERC20 ]`);
+  console.log(`name: ${assetInfo.assetName}, deployed at: ${assetInfo.assetId}`);
+  console.log(`salt: ${assetInfo.salt}, role: ${assetInfo.assetRole}`);
   const asset = await factory.attach(assetInfo.assetId);
   const tx = await assetManagerERC20.connect(assetAdmin).createAsset(createAssetRequest);
-  let txReceipt;
+  console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(7);
   } else {
     txReceipt = await tx.wait(1);
   }
-  console.log(`[ CreateAsset AssetManagerERC20 ]`);
-  console.log(`name: ${assetInfo.assetName}, deployed at: ${assetInfo.assetId}`);
-  console.log(`salt: ${assetInfo.salt}, role: ${assetInfo.assetRole}`);
-  console.log(`tx: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
-  console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
+  console.log(`txHash: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
+  // console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
   console.log();
 
   return asset;
@@ -442,16 +449,17 @@ async function grantAssetManagerRoleToAssets(
     },
   ];
 
-  const tx = await accessControlManager.connect(adminSigner).batchGrantRoleAccount(batchGrantRequest);
   let txReceipt;
+  console.log(`[ BatchGrantRoleAccount AccessControlManager ]`);
+  const tx = await accessControlManager.connect(adminSigner).batchGrantRoleAccount(batchGrantRequest);
+  console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(7);
   } else {
     txReceipt = await tx.wait(1);
   }
-  console.log(`[ BatchGrantRoleAccount AccessControlManager ]`);
-  console.log(`tx: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
-  console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
+  console.log(`txHash: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
+  // console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
   console.log();
 }
 

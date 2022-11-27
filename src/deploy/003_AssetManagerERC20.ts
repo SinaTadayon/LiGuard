@@ -67,16 +67,17 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const assetManagerERC20 = AssetManagerERC20__factory.connect(assetManagerERC20Proxy.address, systemAdmin);
   ASSET_MANAGER_INIT_VERSION = await assetManagerERC20.initVersion();
   if (ASSET_MANAGER_INIT_VERSION === 0) {
-    const tx = await assetManagerERC20.connect(systemAdmin).initialize(request);
     let txReceipt;
+    console.log(`[Initialize AssetManagerERC20 ]`);
+    const tx = await assetManagerERC20.connect(systemAdmin).initialize(request);
+    console.log(`txHash: ${tx.hash} . . .`);
     if (hre.network.name === "polygon" || hre.network.name === "bsc") {
       txReceipt = await tx.wait(7);
     } else {
       txReceipt = await tx.wait(1);
     }
-    console.log(`[Initialize AssetManagerERC20 ]`);
-    console.log(`tx: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
-    console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
+    console.log(`txHash: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
+    // console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
     console.log();
   }
 };
