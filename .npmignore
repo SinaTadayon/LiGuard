@@ -14,5 +14,9 @@ coverage.json
 .solhint.json
 .solhintignore
 .env
+.env.test
+.env.prod
+.env-prod
+.env-test
 tsconfig.json
 typechain
