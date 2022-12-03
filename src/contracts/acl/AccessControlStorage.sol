@@ -3,9 +3,8 @@
 
 pragma solidity 0.8.17;
 
-import "../lib/struct/LEnumerableSet.sol";
-import "../lib/struct/LEnumerableMap.sol";
 import "../proxy/BaseUUPSStorage.sol";
+import "./IACLCommons.sol";
 
 /**
  * @title Abstract Access Control Storage Contract
@@ -13,61 +12,21 @@ import "../proxy/BaseUUPSStorage.sol";
  * @dev
  *
  */
-abstract contract AccessControlStorage is BaseUUPSStorage {
-  using LEnumerableSet for LEnumerableSet.AddressSet;
-  using LEnumerableSet for LEnumerableSet.Bytes32Set;
-  using LEnumerableMap for LEnumerableMap.Bytes32ToBytes32Map;
-  using LEnumerableMap for LEnumerableMap.AddressToUintMap;
+abstract contract AccessControlStorage is BaseUUPSStorage, IACLCommons {
 
-  enum Status {
-    NONE,
-    ENABLED,
-    DISABLED
+  struct ACLMData {
+    mapping(bytes32 => Member) members;
+    mapping(bytes32 => Role) roles;
+    mapping(bytes32 => RType) rtypes;
+    mapping(bytes32 => Group) groups;
+    mapping(bytes32 => Function) functions;
+    mapping(bytes32 => Context) contexts;
+    mapping(bytes32 => Realm) realms;
+    Global global;
+    GeneralLimitation defaultLimitations;
   }
 
-  struct RoleStat {
-    bytes32 role;
-    Status status;
-  }
-
-  struct Context {
-    bytes32 realm;
-    address contractId;
-    bool isEnabled;
-    mapping(bytes4 => RoleStat) resources; // function selector => RoleStat
-    LEnumerableSet.Bytes32Set funcSet;
-  }
-
-  struct Role {
-    bytes32 group;
-    string name;
-    bool isEnabled;
-    LEnumerableSet.AddressSet accountSet;
-  }
-
-  struct Realm {
-    string name;
-    bool isEnabled;
-    bool isUpgradable;
-    LEnumerableSet.Bytes32Set ctxSet;
-  }
-
-  struct Group {
-    string name;
-    bool isEnabled;
-    LEnumerableSet.Bytes32Set roleSet;
-  }
-
-  struct DataCollections {
-    mapping(address => mapping(bytes32 => Status)) accountMap;
-    mapping(bytes32 => Context) ctxMap;
-    mapping(bytes32 => Role) roleMap;
-    mapping(bytes32 => Realm) realmMap;
-    mapping(bytes32 => Group) groupMap;
-    uint8 permitRegisterContextCount;
-  }
-
-  DataCollections internal _data;
+  ACLMData internal _data;
 
   // Note: for next upgrade add new variables after this line
 }

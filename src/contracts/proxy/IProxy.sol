@@ -46,11 +46,13 @@ interface IProxy is IBaseProxy {
 
   function setLocalAdmin(address newAdmin) external returns (bool);
 
-  function contractName() external view returns (bytes32);
+  function contractName() external view returns (string memory);
 
-  function contractVersion() external view returns (bytes32);
+  function contractVersion() external view returns (string memory);
 
   function contractRealm() external view returns (bytes32);
+
+  function contractDomain() external view returns (bytes32);
 
   function contractContext() external view returns (bytes32);
 

@@ -92,8 +92,9 @@ abstract contract BaseUUPSProxy is
   }
 
   function _isRealmUpgradable() internal returns (bool) {
+    bytes32 realm =  _accessControlManager.getContextRealm(this.contractContext());
     if (address(this) == _accessControlManager) {
-      bytes memory data = abi.encodeWithSelector(IAccessControl.isRealmUpgradable.selector, _domainRealm);
+      bytes memory data = abi.encodeWithSelector(IAccessControl.isRealmUpgradable.selector, realm);
       bytes memory returndata = LAddress.functionDelegateCall(
         _implementation(),
         data,
@@ -101,7 +102,7 @@ abstract contract BaseUUPSProxy is
       );
       return uint8(returndata[returndata.length - 1]) == 1;
     } else {
-      return IAccessControl(_accessControlManager).isRealmUpgradable(_domainRealm);
+      return IAccessControl(_accessControlManager).isRealmUpgradable(realm);
     }
   }
 
@@ -133,14 +134,16 @@ abstract contract BaseUUPSProxy is
   }
 
   function __BASE_UUPS_init_unchained(
-    string calldata domainName,
-    string calldata domainVersion,
+    string calldata conName,
+    string calldata conVersion,
     bytes32 domainRealm,
     address accessControl
   ) internal onlyInitializing {
-    _domainName = keccak256(abi.encodePacked(domainName));
-    _domainVersion = keccak256(abi.encodePacked(domainVersion));
-    _domainRealm = domainRealm;
+    // _domainName = keccak256(abi.encodePacked(domainName));
+    // _domainVersion = keccak256(abi.encodePacked(domainVersion));
+    // _domainRealm = domainRealm;
+    _contractName = conName;
+    _contractVersion = conVersion;
     if (accessControl == address(0)) {
       _accessControlManager = address(this);
     } else {
@@ -311,7 +314,7 @@ abstract contract BaseUUPSProxy is
     require(_getInitializedCount() > 0, "Contract Not Initialized");
     require(_hasPermission(this.setSafeMode.selector), "SetSafeMode Forbidden");
     _isSafeMode = status;
-    emit SafeModeChanged(_msgSender(), address(this), _domainRealm, status);
+    emit SafeModeChanged(_msgSender(), address(this), _accessControlManager.getContextRealm(this.contractContext()), status);
     return status;
   }
 
@@ -320,20 +323,24 @@ abstract contract BaseUUPSProxy is
     require(_hasPermission(this.setUpgradeStatus.selector), "SetUpgradeStatus Forbidden");
     require(_isRealmUpgradable(), "Realm Upgrade Forbidden");
     _isUpgradable = status;
-    emit UpgradeStatusChanged(_msgSender(), address(this), _domainRealm, status);
+    emit UpgradeStatusChanged(_msgSender(), address(this), _accessControlManager.getContextRealm(this.contractContext()), status);
     return status;
   }
 
-  function contractName() external view returns (bytes32) {
-    return _domainName;
+  function contractName() external view returns (string memory) {
+    return _contractName;
   }
 
-  function contractVersion() external view returns (bytes32) {
-    return _domainVersion;
+  function contractVersion() external view returns (string memroy) {
+    return _contractVersion;
   }
 
   function contractRealm() external view returns (bytes32) {
-    return _domainRealm;
+    return _accessControlManager.getContextRealm(this.contractContext());
+  }
+
+  function contractDomain() external view returns (bytes32) {
+    
   }
 
   function contractContext() external view returns (bytes32) {
@@ -356,6 +363,7 @@ abstract contract BaseUUPSProxy is
     return _isUpgradable;
   }
 
+  // TODO check it
   function domainSeparator() external view returns (bytes32) {
     return _domainSeparatorV4();
   }

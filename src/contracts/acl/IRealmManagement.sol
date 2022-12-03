@@ -28,6 +28,17 @@ interface IRealmManagement {
 
   function hasRealmContext(bytes32 realm, bytes32 context) external view returns (bool);
 
+
+  // TODO implement it
+  function hasRealmGroup(bytes32 realm, bytes32 group) external view returns (bool);
+
+  // TODO implement it
+  function getRealmDomain(bytes32 realm) external view returns(bytes32);
+
+  // TODO implement it
+  function getRealmGroups(bytes32 realm) external view returns(bytes32[] memory);
+
+  // TODO refactor it
   function getRealmInfo(bytes32 realm)
     external
     view

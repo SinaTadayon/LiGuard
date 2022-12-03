@@ -38,9 +38,10 @@ abstract contract BaseUUPSStorage {
 
   address internal immutable __self = address(this);
 
-  bytes32 internal _domainName;
-  bytes32 internal _domainVersion;
-  bytes32 internal _domainRealm;
+  string internal _contractName;
+  string internal _contractVersion;
+  // bytes32 internal _contractRealm;
+  // bytes32 internal _contractDomain;
   address internal _accessControlManager;
   bool internal _isSafeMode;
   bool internal _isUpgradable;

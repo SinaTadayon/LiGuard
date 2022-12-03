@@ -3,163 +3,200 @@
 
 pragma solidity 0.8.17;
 
+import "./IAclCommons.sol";
+
 /**
  * @title Context Management Interface
  * @author Sina Tadayon, https://github.com/SinaTadayon
  * @dev
  *
  */
-interface IContextManagement {
-  enum UpdateContextStatus {
-    DISABLE,
-    ENABLE,
-    REMOVE
-  }
-
+interface IContextManagement is IAclCommons {
+  
   struct RequestContext {
-    bytes32 name;
-    bytes32 version;
-    bytes32 realm;
+    bytes32 realmId;
+    bytes32 adminAgentId;
+    string name;
+    string version;
     address contractId;
-    bool status;
+    AgentType atype;
+    ActivityStatus acstat;
+    AlterabilityStatus alstat;
   }
 
   struct RequestPredictContext {
-    bytes32 name;
-    bytes32 version;
-    bytes32 realm;
+    bytes32 realmId;
     bytes32 salt;
+    bytes32 adminAgentId;
+    string name;
+    string version;
     address subject;
     address deployer;
-    bool status;
+    AgentType atype;
+    ActivityStatus acstat;
+    AlterabilityStatus alstat;
   }
 
-  struct RequestRegisterContext {
-    bytes32 role;
-    bytes4[] funcSelectors;
-    bool isEnabled;
+  struct RequestRegisterFunctionContext {
+    bytes32 agentId;
+    AgentType atype;
+    ActivityStatus acstat;
+    AlterabilityStatus alstat;
+    bytes4[] selectors;    
   }
 
-  struct RequestUpdateContext {
-    bytes32 role;
-    bytes4[] funcSelectors;
-    UpdateContextStatus updateStatus;
+  struct RequestAlterFunctionContext {
+    bytes32 agentId;
+    AgentType atype;
+    ActionType action;
+    ActivityStatus acstat;
+    AlterabilityStatus alstat;
+    bytes4[] funcSelectors;    
   }
 
-  struct ResponseContext {
-    bytes32 name;
-    bytes32 version;
-    bytes32 realm;
+  struct RequestUpdateAgentContext {
+    bytes32 agentId;
+    AgentType atype;
+    ActionType action;
+  }
+
+  struct ContextInfo {
+    bytes32 realmId;
+    bytes32 adminAgentId;
+    AgentLimit limits;
+    uint16 functionLimit;
+    string name;
+    string version;
     address contractId;
-    bool isSafeMode;
-    bool isUpgradable;
+    AgentType atype;
+    ActivityStatus acstat;
+    AlterabilityStatus alstate;
   }
 
-  event ContextRegistered(
-    bytes32 indexed context,
-    address indexed contractId,
+  event ContextRegistered (
     address indexed sender,
+    address indexed contractId,
+    bytes32 indexed contextId,
     address signer,
-    bytes32 realm
+    string name,
+    string version,
+    bytes32 realmId,
+    bytes32 adminAgentId,
+    AgentType atype,
+    ActivityStatus acstat,
+    AlterabilityStatus alstat
   );
 
   event PredictContextRegistered(
-    bytes32 indexed context,
-    address indexed contractId,
     address indexed sender,
+    bytes32 indexed contextId,
+    address indexed contractId,    
     address signer,
     address deployer,
     address subject,
-    bytes32 realm
+    string name,
+    string version,
+    bytes32 realmId,
+    bytes32 adminAgentId,
+    AgentType atype,
+    ActivityStatus acstat,
+    AlterabilityStatus alstat
   );
 
   event ContextUpdated(bytes32 indexed context, address indexed contractId, address indexed sender, bytes32 realm);
 
   event ContextStatusChanged(bytes32 indexed context, address indexed sender, bytes32 indexed realm, bool status);
 
-  event ContextFuncRoleAdded(
-    bytes32 indexed context,
-    bytes32 indexed role,
-    address indexed sender,
-    bytes4 functionSelector,
-    bytes32 realm
+  event ContextFunctionUpdated(
+    address indexed sender, 
+    bytes32 indexed contextId, 
+    bytes32 indexed functionId, 
+    bytes32 agentId, 
+    AgentType agentType, 
+    AccountType action,
+    ActivityStatus acstat,
+    AlterabilityStatus alstat
   );
 
-  event ContextFuncRemoved(bytes32 indexed context, address indexed sender, bytes4 functionSelector, bytes32 realm);
-
-  event ContextRoleGranted(
-    bytes32 indexed context,
-    bytes32 indexed role,
-    address indexed sender,
-    bytes4 functionSelector,
-    bytes32 realm
+  event ContextAgentUpdated(    
+    address indexed sender, 
+    bytes32 indexed contextId,
+    bytes32 indexed agentId,
+    AgentType agentType,
+    AccountType action
   );
 
-  event ContextRoleRevoked(
-    bytes32 indexed context,
-    bytes32 indexed role,
-    address indexed sender,
-    bytes4 functionSelector,
-    bytes32 realm
-  );
+  event ContextAdminAgentUpdated(address indexed sender, bytes32 indexed functionId, bytes32 indexed agentId, AgentType agentType);
 
-  event ContextRealmChanged(bytes32 indexed context, address indexed sender, bytes32 indexed realm, bytes32 oldRealm);
+  event ContextAgentLimitUpdated(address indexed sender, bytes32 indexed contextId, AgentLimit agentLimit);
 
-  event PermitRegisterContextUpdated(address indexed sender, uint8 count);
+  event ContextFunctionLimitUpdated(address indexed sender, bytes32 indexed contextId, uint16 functionLimit);
+
+  event FunctionActivityUpdated(address indexed sender, bytes32 indexed contextId, ActivityStatus acstat);
+
+  event FunctionAlterabilityUpdated(address indexed sender, bytes32 indexed contextId, AlterabilityStatus alstat);
+
+  event ContextRealmIdUpdated(address indexed sender, bytes32 indexed contextId, bytes32 indexed realmId);
 
   function registerContext(
     bytes memory signature,
     RequestContext calldata rc,
-    RequestRegisterContext[] calldata rcr
+    RequestRegisterFunctionContext[] calldata rcr
   ) external returns (bytes32);
 
   function registerPredictContext(
     bytes memory signature,
     RequestPredictContext calldata rpc,
-    RequestRegisterContext[] calldata rrc
+    RequestRegisterFunctionContext[] calldata rrfc
   ) external returns (bytes32);
 
-  function updateContext(
+  function upgradeContext(
     bytes memory signature,
     RequestContext calldata rc,
-    RequestUpdateContext[] calldata ruc
+    RequestAlterFunctionContext[] calldata rufc
   ) external returns (address);
 
-  function addContextFuncRole(
-    bytes32 ctx,
-    bytes4 functionSelector,
-    bytes32 role
-  ) external returns (bool);
+  function updateContextFunctions(bytes32 contextId, RequestAlterFunctionContext[] calldata rufc) external returns (bool);
 
-  function removeContextFunc(bytes32 ctx, bytes4 functionSelector) external returns (bool);
+  function updateContextAgents(bytes32 contextId, RequestUpdateAgentContext[] calldata ruac) external returns (bool);
+ 
+  function updateContextActivityStatus(bytes32 contextId, ActivityStatus acstat) external returns (ActivityStatus);
 
-  function grantContextRole(
-    bytes32 ctx,
-    bytes4 functionSelector,
-    bytes32 role
-  ) external returns (bool);
+  function updateContextAlterabilityStatus(bytes32 contextId, AlterabilityStatus alstat) external returns (AlterabilityStatus);
 
-  function revokeContextRole(
-    bytes32 ctx,
-    bytes4 functionSelector,
-    bytes32 role
-  ) external returns (bool);
+  function updateContextAdminAgent(bytes32 contextId, bytes32 newAdminAgentId, AgentType newAdminAgentType) external returns (bool);
 
-  function setContextRealm(bytes32 ctx, bytes32 realm) external returns (bool);
+  function updateContextRealmId(bytes32 contextId, bytes32 newRealmId) external returns (bool);
 
-  function setContextStatus(bytes32 ctx, bool status) external returns (bool);
+  function updateContextAgentLimit(bytes32 contextId, AgentLimit calldata agentLimit) external returns (bool);
 
-  function setPermitRegisterContext(uint8 contextCount) external returns (bool);
+  function updateContextFunctionLimit(bytes32 contextId, uint16 functionLimit) external returns (bool);
 
-  function hasContextRole(
-    bytes32 ctx,
-    bytes32 role,
-    bytes4 functionSelector
-  ) external view returns (bool);
+  function isContextExists(bytes32 contextId) external view returns (bool);
 
-  function getContextInfo(bytes32 ctx) external view returns (ResponseContext memory);
+  function hasContextAgent(bytes32 contextId, bytes32 agentId) external view returns (bool);
 
-  function getContextFuncs(bytes32 ctx) external view returns (bytes4[] memory);
+  function hasContextFunction(bytes32 contextId, bytes32 functionId) external view returns (bool);
 
-  function getPermitRegisterContext() external view returns (uint8);
+  function hasContextSelector(bytes32 contextId, bytes4 selector) external view returns (bool);
+
+  function getContextRealmId(bytes32 contextId) external view returns (bytes32);
+
+  function getContextAgentLimit(bytes32 contextId) external view returns (AgentLimit memory);
+
+  function getContextFunctionLimit(bytes32 contextId) external view returns (uint16);
+
+  function getContextAdminAgent(bytes32 contextId) external view returns (bytes32, AgentType);
+
+  function getContextActivityStatus(bytes32 contextId) external view returns (ActivityStatus);
+
+  function getContextAlterabilityStatus(bytes32 contextId) external view returns (AlterabilityStatus);
+
+  function getContextContractId(bytes32 contextId) external view returns (address);
+
+  function getContextInfo(bytes32 contextId) external view returns (ContextInfo memory);
+
+  function getContextFunctions(bytes32 contextId) external view returns (bytes32[] memory);
+
+  function getContextAgents(bytes32 contextId) external view returns (bytes32[] memory);
 }

@@ -14,33 +14,40 @@ interface IAccessControl {
    * @dev Function called by apps to check ACL
    * @return boolean indicating whether the ACL allows
    */
+  // TODO refactor it (for general call) 
   function hasAccess(
     bytes32 context,
     address account,
-    bytes4 signature
+    bytes4 selector
+  ) external view returns (bool);
+
+  // TODO implement called by contract
+  function hasAccess(
+    bytes32 context,
+    bytes4 selector
   ) external view returns (bool);
 
   function isLivelySystemAdminRole(address account) external view returns (bool);
 
   function isLivelyAdminRole(address account) external view returns (bool);
 
-  function isLivelyAssetManagerRole(address account) external view returns (bool);
+  // function isLivelyAssetManagerRole(address account) external view returns (bool);
 
-  function isLivelyAssetAdminRole(address account) external view returns (bool);
+  // function isLivelyAssetAdminRole(address account) external view returns (bool);
 
-  function isLivelyCommunityDaoRole(address account) external view returns (bool);
+  // function isLivelyCommunityDaoRole(address account) external view returns (bool);
 
-  function isLivelyCommunityDaoExecutorRole(address account) external view returns (bool);
+  // function isLivelyCommunityDaoExecutorRole(address account) external view returns (bool);
 
   function isLivelyGeneralGroup(bytes32 role) external view returns (bool);
 
-  function isLivelyDaoGroup(bytes32 role) external view returns (bool);
+  // function isLivelyDaoGroup(bytes32 role) external view returns (bool);
 
-  function isLivelyAssetGroup(bytes32 role) external view returns (bool);
+  // function isLivelyAssetGroup(bytes32 role) external view returns (bool);
 
-  function isLivelyGeneralRealm(bytes32 context) external view returns (bool);
+  // function isLivelyGeneralRealm(bytes32 context) external view returns (bool);
 
-  function isLivelyAssetRealm(bytes32 context) external view returns (bool);
+  // function isLivelyAssetRealm(bytes32 context) external view returns (bool);
 
   function isContextSafeMode(bytes32 context) external view returns (bool);
 
