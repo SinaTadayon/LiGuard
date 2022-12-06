@@ -21,22 +21,20 @@ interface IAclCommons {
     NONE,
     MEMBER,
     ROLE,
-    RTYPE,
+    TYPE,
     GROUP
   }
 
   enum ActivityStatus {
-    NONE,
     DISABLE,
-    ENABLE
+    ENABLE,
+    SAFE_MODE
   }
 
   enum AlterabilityStatus {
-    NONE,
     DISABLE,
     UPDATABLE,
-    UPGRADABLE,
-    ALL    
+    UPGRADABLE
   }
 
   enum ScopeType {
@@ -50,138 +48,133 @@ interface IAclCommons {
 
   enum ActionType {
     ADD,
-    // CREATE,
     UPDATE,
     REMOVE
   }
 
-  enum SecurityPolicy {
-    UNLOCK,
-    SLOCK,          // soft lock
-    MLOCK,          // medium lock
-    RLOCK,          // restrict lock
-    HLOCK,          // hard lock      
-    LOCK
+  enum PolicyType {
+    UNLOCK,         // 0
+    SLOCK,          // soft lock, 1 - 63
+    MLOCK,          // medium lock, 64 - 127
+    RLOCK,          // restrict lock, 128 - 191
+    HLOCK,          // hard lock, 192 - 254
+    LOCK            // 255
+  }
+
+  struct BaseAgent {
+    AgentType atype;
+    ActivityStatus acstat;
+    AlterabilityStatus alstat; 
+  }
+
+  struct BaseScope {
+    bytes32 adminId;
+    ScopeType stype;
+    ActivityStatus acstat;
+    AlterabilityStatus alstat;
+    uint8 policyCode;
+  }
+
+  struct Policy {
+    string name;
+    uint8 code;
+    ActivityStatus acstat;
+    AlterabilityStatus alstat;
+    PolicyType ptype;
   }
 
   struct AgentLimit {
-    uint16 memberLimit;
-    uint16 roleLimit;
-    uint16 rtypeLimit;
-    uint16 groupLimit;
+    uint24 memberLimit;
+    uint8 roleLimit;
+    uint8 typeLimit;
+    uint8 groupLimit;      
   }
 
   struct GeneralLimitation {
-    bytes32 adminAgentId;
     AgentLimit agentLimit; 
     uint16 functionLimit;
     uint16 contextLimit;
     uint16 realmLimit;
-    uint16 domainLimit;
+    uint8 domainLimit;
     uint8 nameLenLimit;
   }
 
   struct Function {
+    BaseScope baseScope;
     bytes32 functionId;
-    bytes32 agentId;
     bytes32 contextId;
-    ActivityStatus acstat;
-    AlterabilityStatus alstat;
-    AgentType atype;
     bytes4 selector;
   }
  
   struct Context {
-    bytes32 realmId;
-    bytes32 adminAgentId;
-    AgentLimit limits;
+    BaseScope baseScope;
+    AgentLimit agentLimits;
     uint16 functionLimit;
-    ActivityStatus acstat;
-    AlterabilityStatus alstat;
-    AgentType atype;
-    address contractId;
-    LEnumerableSet.Bytes32Set agents;
+    bytes32 realmId;    
+    address contractId;    
     LEnumerableSet.Bytes32Set functions;
+    LEnumerableSet.Bytes32Set groups;
   }
 
   struct Realm {
-    bytes32 domainId;
-    bytes32 adminAgentId;
-    AgentLimit limits;
+    BaseScope baseScope;
+    AgentLimit agentLimits;
     uint16 contextLimit;
-    ActivityStatus acstat;
-    AlterabilityStatus alstat;
-    AgentType atype;
+    bytes32 domainId;
     string name;
     LEnumerableSet.Bytes32Set contexts;
-    LEnumerableSet.Bytes32Set agents;
+    LEnumerableSet.Bytes32Set groups;
   }
 
   struct Domain {
-    bytes32 adminAgentId;
+    BaseScope baseScope;
     AgentLimit limits;
     uint16 realmLimit;
-    ActivityStatus acstat;
-    AlterabilityStatus alstat;
-    AgentType atype;
     string name;
     LEnumerableSet.Bytes32Set realms;
-    LEnumerableSet.Bytes32Set agents;
+    LEnumerableSet.Bytes32Set groups;
   }
 
   struct Global {
-    bytes32 adminAgentId;
-    AgentLimit limits;
-    uint16 domainLimit;
-    ActivityStatus acstat;
-    AlterabilityStatus alstat;
-    AgentType atype;
+    BaseScope baseScope;  
+    uint16 domainLimit;    
     LEnumerableSet.Bytes32Set domains;
     LEnumerableSet.Bytes32Set agents;
   }
 
   struct Member {
-    bytes32 scopeId;
-    ScopeType stype;
-    ActivityStatus acstat;
-    AlterabilityStatus alstat;
+    BaseAgent agent;
     uint8 roleLimit;
     address account;
-    LEnumerableSet.Bytes32Set roles;    
+    LEnumerableSet.Bytes32Set roles;
   }
 
   struct Role {
+    BaseAgent agent;
+    bytes32 adminId;
     bytes32 scopeId;
+    bytes32 policyId;
     uint24 memberLimit;
-    uint8 rtypeLimit;
-    ScopeType stype;
-    ActivityStatus acstat;
-    AlterabilityStatus alstat;
-    SecurityPolicy policyType;
+    uint8 typeLimit;
     string name;
     LEnumerableSet.Bytes32Set members;
-    LEnumerableSet.Bytes32Set rtypes;
+    LEnumerableSet.Bytes32Set types;
   }
 
-  struct RType {
-    bytes32 groupId;
-    bytes32 scopeId;
-    ScopeType stype;
-    ActivityStatus acstat;
-    AlterabilityStatus alstat;
-    SecurityPolicy policyType;
+  struct Type {
+    BaseAgent agent;
     uint8 roleLimit;
+    bytes32 scopeId;
+    bytes32 groupId;
     string name;
     LEnumerableSet.Bytes32Set roles;
   }
 
   struct Group {
+    BaseAgent agent;
+    uint8 typeLimit;
     bytes32 scopeId;
-    ScopeType stype;
-    ActivityStatus acstat;
-    AlterabilityStatus alstat;
-    uint8 rtypeLimit;
     string name;
-    LEnumerableSet.Bytes32Set rtypes;
+    LEnumerableSet.Bytes32Set types;
   }
 }

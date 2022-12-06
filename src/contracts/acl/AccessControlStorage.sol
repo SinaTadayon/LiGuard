@@ -4,7 +4,7 @@
 pragma solidity 0.8.17;
 
 import "../proxy/BaseUUPSStorage.sol";
-import "./IACLCommons.sol";
+import "./IAclCommons.sol";
 
 /**
  * @title Abstract Access Control Storage Contract
@@ -12,16 +12,20 @@ import "./IACLCommons.sol";
  * @dev
  *
  */
-abstract contract AccessControlStorage is BaseUUPSStorage, IACLCommons {
+abstract contract AccessControlStorage is BaseUUPSStorage, IAclCommons {
 
   struct ACLMData {
-    mapping(bytes32 => Member) members;
-    mapping(bytes32 => Role) roles;
-    mapping(bytes32 => RType) rtypes;
-    mapping(bytes32 => Group) groups;
-    mapping(bytes32 => Function) functions;
-    mapping(bytes32 => Context) contexts;
-    mapping(bytes32 => Realm) realms;
+    
+    mapping(bytes32 => BaseAgent) agents;
+    mapping(bytes32 => BaseScope) scopes;
+
+    // mapping(bytes32 => Member) members;
+    // mapping(bytes32 => Role) roles;
+    // mapping(bytes32 => RType) rtypes;
+    // mapping(bytes32 => Group) groups;
+    // mapping(bytes32 => Function) functions;
+    // mapping(bytes32 => Context) contexts;
+    // mapping(bytes32 => Realm) realms;
     Global global;
     GeneralLimitation defaultLimitations;
   }
