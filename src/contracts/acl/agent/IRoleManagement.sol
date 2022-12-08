@@ -13,11 +13,14 @@ import "../IAclCommons.sol";
  */
 interface IRoleManagement is IAclCommons {
   
-  struct RequestRegisterRole {
-    SecurityPolicy policyType;
+  /**
+   * regiter new role need to add to some type, must caller have permission to add role to target types 
+   */
+  struct RoleRegisterRequest {
     ActivityStatus acstat;
     AlterabilityStatus alstat;   
     bytes32 adminId;
+    bytes32 policyId;
     bytes32 scopeId;
     uint24 memberLimit;
     uint8 typeLimit;
@@ -26,49 +29,42 @@ interface IRoleManagement is IAclCommons {
     bytes32[] types;
   }
 
-  struct RequestAlterMemberRole {
+  struct RoleAddMembersRequest {
     bytes32 roleId;
-    ActionType action;  
     bytes32[] members;
   }
 
-  struct RequestAlterTypeRole {
+  struct RoleRemoveMembersRequest {
     bytes32 roleId;
-    ActionType action;  
-    bytes32[] types;
+    bytes32[] members;
   }
   
-  struct RequestUpdateAdminRole {
+  struct RoleUpdateAdminRequest {
     bytes32 roleId;
     bytes32 adminId;
   }
 
-  struct RequestUpdateScopeRole { 
+  struct RoleUpdateScopeRequest { 
     bytes32 roleId;
     bytes32 scopeId;
   }
 
-  struct RequestUpdateMemberLimitRole {
+  struct RoleUpdateMemberLimitRequest {
     bytes32 roleId;
     uint24 memberLimit;
   }
 
-  struct RequestUpdateTypeLimitRole {
+  struct RoleUpdateTypeLimitRequest {
     bytes32 roleId;
     uint8 typeLimit;
   }
 
-  struct RequestUpdatePolicyRole {
-    bytes32 roleId;
-    SecurityPolicy policyType;
-  }
-
-  struct RequestUpdateActivityRole {
+  struct RoleUpdateActivityRequest {
     bytes32 roleId;
     ActivityStatus acstat;
   }
 
-  struct RequestUpdateAlterabilityRole {
+  struct RoleUpdateAlterabilityRequest {
     bytes32 roleId;
     AlterabilityStatus alstate;
   }
@@ -78,7 +74,6 @@ interface IRoleManagement is IAclCommons {
     bytes32 scopeId;
     uint24 memberLimit;
     uint8 typeLimit;
-    SecurityPolicy policyType;
     ActivityStatus acstat;
     AlterabilityStatus alstat;   
   }
@@ -88,17 +83,17 @@ interface IRoleManagement is IAclCommons {
     bytes32 indexed roleId,
     string indexed name,
     bytes32 adminId,
+    bytes32 policyId,
     bytes32 scopeId,
     uint24 memberLimit,
     uint8 typeLimit,
-    SecurityPolicy policyType,
     ActivityStatus acstat,
     AlterabilityStatus alstat
   );
 
-  event RoleMemberAltered(address indexed sender, bytes32 indexed roleId, bytes32 indexed memberId, ActionType action);
+  event RoleMemberGranted(address indexed sender, bytes32 indexed roleId, bytes32 indexed memberId);
 
-  event RoleTypeAltered(address indexed sender, bytes32 indexed roleId, bytes32 indexed typeId, ActionType action);
+  event RoleMemberRevoked(address indexed sender, bytes32 indexed roleId, bytes32 indexed memberId);
 
   event RoleActivityUpdated(address indexed sender, bytes32 indexed roleId, ActivityStatus acstat);
 
@@ -112,55 +107,59 @@ interface IRoleManagement is IAclCommons {
 
   event RoleScopeUpdated(address indexed sender, bytes32 indexed roleId, bytes32 indexed scopeId);
 
-  event RolePolicyUpdated(address indexed sender, bytes32 indexed roleId, SecurityPolicy policy);
+  function roleRegister(RoleRegisterRequest[] calldata request) external returns (bool);
 
-  function registerRoles(RequestRegisterRole[] calldata request) external returns (bytes32);
+  function roleAddMembers(RoleAddMembersRequest[] calldata requests) external returns (bool);
 
-  function alterRolesMembers(RequestAlterMemberRole[] calldata requests) external returns (bool);
+  function roleRemoveMembers(RoleRemoveMembersRequest[] calldata requests) external returns (bool);
 
-  function alterRolesTypes(RequestAlterTypeRole[] calldata requests) external returns (bool);
+  function roleUpdateAdmin(RoleUpdateAdminRequest[] calldata requests) external returns (bool);
 
-  function updateRolesAdmin(RequestUpdateAdminRole[] calldata requests) external returns (bool);
-
-  function updateRolesScope(RequestUpdateScopeRole[] calldata requests) external returns (bool);
+  function roleUpdateScope(RoleUpdateScopeRequest[] calldata requests) external returns (bool);
  
-  function updateRolesActivityStatus(RequestUpdateActivityRole[] calldata requests) external returns (bool);
+  function roleUpdateActivityStatus(RoleUpdateActivityRequest[] calldata requests) external returns (bool);
 
-  function updateRolesAlterabilityStatus(RequestUpdateAlterabilityRole[] calldata requests) external returns (bool);
+  function roleUpdateAlterabilityStatus(RoleUpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
-  function updateRolesPolicy(RequestUpdatePolicyRole[] calldata requests) external returns (bool);
+  function roleUpdateMemberLimit(RoleUpdateMemberLimitRequest[] calldata requests) external returns (bool);
 
-  function updateRolesMemberLimit(RequestUpdateMemberLimitRole[] calldata requests) external returns (bool);
+  function roleUpdateTypeLimit(RoleUpdateTypeLimitRequest[] calldata requests) external returns (bool);
 
-  function updateRolesTypeLimit(RequestUpdateTypeLimitRole[] calldata requests) external returns (bool);
+  function roleCheckExistance(bytes32 roleId) external view returns (bool);
 
-  function isRoleExists(bytes32 roleId) external view returns (bool);
+  function roleCheckExistance(string calldata roleName) external view returns (bool);
 
-  function hasRoleMember(bytes32 roleId, bytes32 memberId) external view returns (bool);
+  function roleCheckAdmin(bytes32 roleId, bytes32 agentId) external view returns (bool);
 
-  function hasRoleType(bytes32 roleId, bytes32 typeId) external view returns (bool);
+  function roleCheckType(bytes32 roleId, bytes32 typeId) external view returns (bool);
 
-  function getRoleMemberLimit(bytes32 roleId) external view returns (uint24);
+  function roleHasAccount(bytes32 roleId, address account) external view returns (bool);
 
-  function getRoleTypeLimit(bytes32 roleId) external view returns (uint8);
+  function roleHasMember(bytes32 roleId, bytes32 memberId) external view returns (bool);
 
-  function getRoleActivityStatus(bytes32 roleId) external view returns (ActivityStatus);
+  function roleGetMemberLimit(bytes32 roleId) external view returns (uint24);
 
-  function getRoleAlterabilityStatus(bytes32 roleId) external view returns (AlterabilityStatus);
+  function roleGetTypeLimit(bytes32 roleId) external view returns (uint8);
 
-  function getRolePolicy(bytes32 roleId) external view returns (SecurityPolicy);
+  function roleGetActivityStatus(bytes32 roleId) external view returns (ActivityStatus);
 
-  function getRoleAdmin(bytes32 roleId) external view returns (bytes32);
+  function roleGetAlterabilityStatus(bytes32 roleId) external view returns (AlterabilityStatus);
 
-  function getRoleName(bytes32 roleId) external view returns (string memory);
+  function roleGetAdmin(bytes32 roleId) external view returns (bytes32);
 
-  function getRoleScope(bytes32 roleId) external view returns (bytes32);
+  function roleGetName(bytes32 roleId) external view returns (string memory);
 
-  function getRoleMembers(bytes32 roleId) external view returns (bytes32[] memory);
+  function roleGetScope(bytes32 roleId) external view returns (bytes32);
 
-  function getRoleTypes(bytes32 roleId) external view returns (bytes32[] memory);
+  function roleGetMembers(bytes32 roleId) external view returns (bytes32[] memory);
 
-  function getRoleInfo(bytes32 roleId) external view returns (RoleInfo memory);
+  function roleGetMembersCount(bytes32 roleId) external view returns (uint24);
+
+  function roleGetTypes(bytes32 roleId) external view returns (bytes32[] memory);
+
+  function roleGetTypesCount(bytes32 roleId) external view returns (uint8);
+
+  function roleGetInfo(bytes32 roleId) external view returns (RoleInfo memory);
 
   function generateRoleId(string calldata) external pure returns (bytes32);
 }

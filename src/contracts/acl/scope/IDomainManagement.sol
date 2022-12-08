@@ -105,6 +105,12 @@ interface IDomainManagement is IAclCommons {
 
   function isDomainExists(bytes32 domainId) external view returns (bool);
 
+  function isDomainAdmin(bytes32 domainId, bytes32 agentId) external view returns (bool);
+
+  function hasDomainFunction(bytes32 domainId, bytes32 functionId) external view returns (bool);
+
+  function hasDomainContext(bytes32 domainId, bytes32 contextId) external view returns (bool);
+
   function hasDomainAgent(bytes32 domainId, bytes32 agentId) external view returns (bool);
 
   function hasDomainRealm(bytes32 domainId, bytes32 realmId) external view returns (bool);

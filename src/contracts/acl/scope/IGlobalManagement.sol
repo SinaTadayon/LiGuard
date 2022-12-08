@@ -78,9 +78,17 @@ interface IGlobalManagement is IAclCommons {
 
   function updateGlobalDomainLimit(uint16 domainLimit) external returns (bool);
 
+  function isGlobalAdmin(bytes32 agentId) external view returns (bool);
+
+  // function isGlobalFunctionExisted(bytes32 functionId) external view returns (bool);
+
+  // function isGlobalContextExisted(bytes32 contextId) external view returns (bool);
+
+  // function isGlobalRealmExisted(bytes32 realmId) external view returns (bool);
+
   function hasGlobalAgent(bytes32 agentId) external view returns (bool);
 
-  function hasGlobalDomain(bytes32 contextId) external view returns (bool);
+  function hasGlobalDomain(bytes32 domainId) external view returns (bool);
 
   function getGlobalAgentLimit() external view returns (AgentLimit memory);
 

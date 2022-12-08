@@ -13,23 +13,17 @@ import "../IAclCommons.sol";
  */
 interface IMemberManagement is IAclCommons {
 
-  struct RequestAlterRoleMember {
-    bytes32 memberId;
-    ActionType action;
-    bytes32[] roles;
-  }
-
-  struct RequestUpdateActivityMember {
+  struct MemberUpdateActivityRequest {
     bytes32 memberId;
     ActivityStatus acstat;
   }
 
-  struct RequestUpdateAlterabilityMember {
+  struct MemberUpdateAlterabilityRequest {
     bytes32 memberId;
     AlterabilityStatus alstate;
   }
 
-  struct RequestUpdateRoleLimitMember {
+  struct MemberUpdateRoleLimitRequest {
     bytes32 memberId;
     uint8 roleLimit;
   }
@@ -41,50 +35,39 @@ interface IMemberManagement is IAclCommons {
     address account;
   }
 
-  event MemberRolesAltered(
-    address indexed sender, 
-    bytes32 indexed memberId,
-    ActionType action,
-    bytes32[] roles
-  );
-
-  event MemberUpdated(
-    address indexed sender, 
-    bytes32 indexed memberId, 
-    ActivityStatus acstat, 
-    AlterabilityStatus alstat, 
-    uint8 roleLimit
-  );
-
   event MemeberActivityUpdated(address indexed sender, bytes32 indexed memberId, ActivityStatus acstat);
 
   event MemberAlterabilityUpdated(address indexed sender, bytes32 indexed memberId, AlterabilityStatus alstat);
 
   event MemberRoleLimitUpdated(address indexed sender, bytes32 indexed memberId, uint8 roleLimit);
-
-  function alterMembersRoles(RequestAlterRoleMember[] calldata requests) external returns (bool);
  
-  function updateMemebersActivityStatus(RequestUpdateActivityMember[] calldata requests) external returns (bool);
+  function memberUpdateActivityStatus(MemberUpdateActivityRequest[] calldata requests) external returns (bool);
 
-  function updateMembersAlterabilityStatus(RequestUpdateAlterabilityMember[] calldata requests) external returns (bool);
+  function memberUpdatesAlterabilityStatus(MemberUpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
-  function updateMembersRoleLimit(RequestUpdateRoleLimitMember[] calldata requests) external returns (bool);
+  function memberUpdatesRoleLimit(MemberUpdateRoleLimitRequest[] calldata requests) external returns (bool);
 
-  function isMemberExists(bytes32 memberId) external view returns (bool);
+  function memberExist(bytes32 memberId) external view returns (bool);
 
-  function hasMemberRole(bytes32 memberId, bytes32 roleId) external view returns (bool);
+  function memberAccountExist(address account) external view returns (bool);
 
-  function getMemberRoleLimit(bytes32 memberId) external view returns (uint8);
+  function memberHasRole(bytes32 memberId, bytes32 roleId) external view returns (bool);
 
-  function getMemberActivityStatus(bytes32 memberId) external view returns (ActivityStatus);
+  function memberHasAccountRole(address account, bytes32 roleId) external view returns (bool);
 
-  function getMemberAlterabilityStatus(bytes32 memberId) external view returns (AlterabilityStatus);
+  function memberGetRoleLimit(bytes32 memberId) external view returns (uint8);
 
-  function getMemberRoles(bytes32 memberId) external view returns (bytes32[] memory);
+  function memberGetActivityStatus(bytes32 memberId) external view returns (ActivityStatus);
 
-  function getMemberAccount(bytes32 memberId) external view returns (address);
+  function memberGetAlterabilityStatus(bytes32 memberId) external view returns (AlterabilityStatus);
 
-  function getMemberInfo(bytes32 memberId) external view returns (MemberInfo memory);
+  function memberGetRoles(bytes32 memberId) external view returns (bytes32[] memory);
 
-  function generateMemberId(address account) external pure returns (bytes32);
+  function memberGetRolesCount(bytes32 memberId) external view returns (uint8);
+
+  function memberGetAccount(bytes32 memberId) external view returns (address);
+
+  function memberGetInfo(bytes32 memberId) external view returns (MemberInfo memory);
+
+  function memberGenerateId(address account) external pure returns (bytes32);
 }

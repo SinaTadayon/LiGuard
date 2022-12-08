@@ -12,7 +12,7 @@ import "../IAclCommons.sol";
  *
  */
 interface IGroupManagement is IAclCommons {
- struct RequestRegisterGroup {
+ struct GroupRegisterRequest {
     ActivityStatus acstat;
     AlterabilityStatus alstat;
     uint8 typeLimit;
@@ -21,28 +21,32 @@ interface IGroupManagement is IAclCommons {
     bytes32[] types;
   }
 
-  struct RequestAlterTypeGroup {
+  struct GroupAddTypesRequest {
     bytes32 groupId;
-    ActionType action;  
     bytes32[] types;
   }
-  
-  struct RequestUpdateScopeGroup { 
+
+  struct GroupRemoveTypesRequest {
+    bytes32 groupId;
+    bytes32[] types;
+  }
+
+  struct GroupUpdateScopeRequest { 
     bytes32 groupId;
     bytes32 scopeId;
   }
 
-  struct RequestUpdateTypeLimitGroup {
+  struct GroupUpdateTypeLimitRequest {
     bytes32 groupId;
     uint8 typeLimit;
   }
 
-  struct RequestUpdateActivityGroup {
+  struct GroupUpdateActivityRequest {
     bytes32 groupId;
     ActivityStatus acstat;
   }
 
-  struct RequestUpdateAlterabilityGroup {
+  struct GroupUpdateAlterabilityRequest {
     bytes32 groupId;
     AlterabilityStatus alstate;
   }
@@ -65,7 +69,9 @@ interface IGroupManagement is IAclCommons {
     AlterabilityStatus alstat
   );
 
-  event GroupTypeAltered(address indexed sender, bytes32 indexed groupId, bytes32 indexed typeId, ActionType action);
+  event GroupTypeGranted(address indexed sender, bytes32 indexed groupId, bytes32 indexed typeId);
+
+  event GroupTypeRevoked(address indexed sender, bytes32 indexed groupId, bytes32 indexed typeId);
 
   event GroupActivityUpdated(address indexed sender, bytes32 indexed groupId, ActivityStatus acstat);
 
@@ -75,33 +81,49 @@ interface IGroupManagement is IAclCommons {
 
   event GroupScopeUpdated(address indexed sender, bytes32 indexed groupId, bytes32 indexed scopeId);
 
-  function registerGroups(RequestRegisterGroup[] calldata requests) external returns (bool);
+  function groupRegister(GroupRegisterRequest[] calldata requests) external returns (bool);
 
-  function alterGroupsTypes(RequestAlterTypeGroup[] calldata requests) external returns (bool);
+  function groupAddTypes(GroupAddTypesRequest[] calldata requests) external returns (bool);
 
-  function updateGroupsScope(RequestUpdateScopeGroup[] calldata requests) external returns (bool);
+  function groupRemoveTypes(GroupRemoveTypesRequest[] calldata requests) external returns (bool);
+
+  function groupUpdateScope(GroupUpdateScopeRequest[] calldata requests) external returns (bool);
  
-  function updateGroupsActivityStatus(RequestUpdateActivityGroup[] calldata requests) external returns (bool);
+  function groupUpdateActivityStatus(GroupUpdateActivityRequest[] calldata requests) external returns (bool);
 
-  function updateGroupsAlterabilityStatus(RequestUpdateAlterabilityGroup[] calldata requests) external returns (bool);
+  function groupUpdateAlterabilityStatus(GroupUpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
-  function updateGroupsTypeLimit(RequestUpdateTypeLimitGroup[] calldata requests) external returns (bool);
+  function groupUpdateTypeLimit(GroupUpdateTypeLimitRequest[] calldata requests) external returns (bool);
 
-  function isGroupExists(bytes32 groupId) external view returns (bool);
+  function groupCheckExistance(bytes32 groupId) external view returns (bool);
 
-  function hasGroupType(bytes32 groupId, bytes32 typeId) external view returns (bool);
+  function groupCheckExistance(string calldata groupName) external view returns (bool);
 
-  function getGroupTypeLimit(bytes32 groupId) external view returns (uint8);
+  function groupHasType(bytes32 groupId, bytes32 typeId) external view returns (bool);
 
-  function getGroupActivityStatus(bytes32 groupId) external view returns (ActivityStatus);
+  function groupHasAccount(bytes32 groupId, address account) external view returns (bool);
 
-  function getGroupAlterabilityStatus(bytes32 groupId) external view returns (AlterabilityStatus);
+  function groupHasMember(bytes32 groupId, bytes32 memberId) external view returns (bool);
 
-  function getGroupName(bytes32 groupId) external view returns (string memory);
+  function groupHasRole(bytes32 groupId, bytes32 roleId) external view returns (bool);
 
-  function getTypeScope(bytes32 groupId) external view returns (bytes32);
+  function groupHasAgent(bytes32 typeId, bytes32 agentId) external view returns (bool);
 
-  function getGroupInfo(bytes32 roleId) external view returns (GroupInfo memory);
+  function groupGetTypeLimit(bytes32 groupId) external view returns (uint8);
 
-  function generateGroupId(string calldata) external pure returns (bytes32);
+  function groupGetActivityStatus(bytes32 groupId) external view returns (ActivityStatus);
+
+  function groupGetAlterabilityStatus(bytes32 groupId) external view returns (AlterabilityStatus);
+
+  function groupGetName(bytes32 groupId) external view returns (string memory);
+
+  function groupGetScope(bytes32 groupId) external view returns (bytes32);
+
+  function groupGetTypes(bytes32 groupId) external view returns (bytes32[] memory);
+
+  function groupGetTypesCount(bytes32 groupId) external view returns (uint8);
+
+  function groupGetInfo(bytes32 roleId) external view returns (GroupInfo memory);
+
+  function groupGenerateId(string calldata) external pure returns (bytes32);
 }

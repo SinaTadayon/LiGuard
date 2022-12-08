@@ -72,7 +72,6 @@ interface IAclCommons {
     ScopeType stype;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
-    uint8 policyCode;
   }
 
   struct Policy {
@@ -81,35 +80,34 @@ interface IAclCommons {
     ActivityStatus acstat;
     AlterabilityStatus alstat;
     PolicyType ptype;
-  }
-
-  struct AgentLimit {
-    uint24 memberLimit;
-    uint8 roleLimit;
-    uint8 typeLimit;
-    uint8 groupLimit;      
+    LEnumerableSet.Bytes32Set roles;
   }
 
   struct GeneralLimitation {
-    AgentLimit agentLimit; 
+    uint24 memberLimit;
     uint16 functionLimit;
     uint16 contextLimit;
     uint16 realmLimit;
     uint8 domainLimit;
+    uint8 roleLimit;
+    uint8 typeLimit;
+    uint8 groupLimit;      
     uint8 nameLenLimit;
   }
 
   struct Function {
-    BaseScope baseScope;
+    BaseScope baseScope;    
     bytes32 functionId;
     bytes32 contextId;
-    bytes4 selector;
+    bytes32 groupId;
+    uint8 policyCode;
+    bytes4 selector;    
   }
  
   struct Context {
     BaseScope baseScope;
-    AgentLimit agentLimits;
     uint16 functionLimit;
+    uint8 groupLimit;
     bytes32 realmId;    
     address contractId;    
     LEnumerableSet.Bytes32Set functions;
@@ -118,7 +116,7 @@ interface IAclCommons {
 
   struct Realm {
     BaseScope baseScope;
-    AgentLimit agentLimits;
+    uint8 groupLimit;
     uint16 contextLimit;
     bytes32 domainId;
     string name;
@@ -128,7 +126,7 @@ interface IAclCommons {
 
   struct Domain {
     BaseScope baseScope;
-    AgentLimit limits;
+    uint8 groupLimit;
     uint16 realmLimit;
     string name;
     LEnumerableSet.Bytes32Set realms;
@@ -137,9 +135,10 @@ interface IAclCommons {
 
   struct Global {
     BaseScope baseScope;  
-    uint16 domainLimit;    
+    uint16 domainLimit;
+    uint8 groupLimit;    
     LEnumerableSet.Bytes32Set domains;
-    LEnumerableSet.Bytes32Set agents;
+    LEnumerableSet.Bytes32Set groups;
   }
 
   struct Member {
@@ -152,8 +151,6 @@ interface IAclCommons {
   struct Role {
     BaseAgent agent;
     bytes32 adminId;
-    bytes32 scopeId;
-    bytes32 policyId;
     uint24 memberLimit;
     uint8 typeLimit;
     string name;

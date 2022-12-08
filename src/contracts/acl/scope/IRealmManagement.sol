@@ -112,6 +112,10 @@ interface IRealmManagement is IAclCommons {
 
   function isRealmExists(bytes32 realmId) external view returns (bool);
 
+  function isRealmAdmin(bytes32 contextId, bytes32 agentId) external view returns (bool);
+
+  function hasRealmFunction(bytes32 realmId, bytes32 functionId) external view returns (bool);
+
   function hasRealmAgent(bytes32 realmId, bytes32 agentId) external view returns (bool);
 
   function hasRealmContext(bytes32 realmId, bytes32 contextId) external view returns (bool);

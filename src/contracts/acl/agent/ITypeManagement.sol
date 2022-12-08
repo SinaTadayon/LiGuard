@@ -12,7 +12,7 @@ import "../IAclCommons.sol";
  *
  */
 interface ITypeManagement is IAclCommons {
-  struct RequestRegisterType {
+  struct TypeRegisterRequest {
     ActivityStatus acstat;
     AlterabilityStatus alstat;
     uint8 roleLimit;
@@ -22,33 +22,37 @@ interface ITypeManagement is IAclCommons {
     bytes32[] roles;
   }
 
-  struct RequestAlterRoleType {
+  struct TypeAddRolesRequest {
     bytes32 typeId;
-    ActionType action;  
     bytes32[] roles;
   }
-  
-  struct RequestUpdateScopeType { 
+
+  struct TypeRemoveRolesRequest {
+    bytes32 typeId;
+    bytes32[] roles;
+  }
+
+  struct TypeUpdateScopeRequest { 
     bytes32 typeId;
     bytes32 scopeId;
   }
 
-  struct RequestUpdateGroupType { 
+  struct TypeUpdateGroupRequest { 
     bytes32 typeId;
     bytes32 groupId;
   }
 
-  struct RequestUpdateRoleLimitType {
+  struct TypeUpdateRoleLimitRequest {
     bytes32 typeId;
     uint24 roleLimit;
   }
 
-  struct RequestUpdateActivityType {
+  struct TypeUpdateActivityRequest {
     bytes32 typeId;
     ActivityStatus acstat;
   }
 
-  struct RequestUpdateAlterabilityType {
+  struct TypeUpdateAlterabilityRequest {
     bytes32 typeId;
     AlterabilityStatus alstate;
   }
@@ -72,7 +76,9 @@ interface ITypeManagement is IAclCommons {
     AlterabilityStatus alstat
   );
 
-  event TypeRoleAltered(address indexed sender, bytes32 indexed typeId, bytes32 indexed roleId, ActionType action);
+  event TypeRoleGranted(address indexed sender, bytes32 indexed typeId, bytes32 indexed roleId);
+
+  event TypeRoleRevoked(address indexed sender, bytes32 indexed typeId, bytes32 indexed roleId);
 
   event TypeActivityUpdated(address indexed sender, bytes32 indexed typeId, ActivityStatus acstat);
 
@@ -84,35 +90,50 @@ interface ITypeManagement is IAclCommons {
 
   event TypeGroupUpdated(address indexed sender, bytes32 indexed typeId, bytes32 indexed groupId);
 
-  function registerTypes(RequestRegisterType[] calldata requests) external returns (bytes32);
+  function typeRegister(TypeRegisterRequest[] calldata requests) external returns (bytes32);
 
-  function alterTypesRoles(RequestAlterRoleType[] calldata requests) external returns (bool);
+  function typeAddRoles(TypeAddRolesRequest[] calldata requests) external returns (bool);
 
-  function updateTypesScope(RequestUpdateScopeType[] calldata requests) external returns (bool);
+  function typeRemoveRoles(TypeRemoveRolesRequest[] calldata requests) external returns (bool);
+
+  function typeUpdateScope(TypeUpdateScopeRequest[] calldata requests) external returns (bool);
  
-  function updateTypesActivityStatus(RequestUpdateActivityType[] calldata requests) external returns (bool);
+  function typeUpdateActivityStatus(TypeUpdateActivityRequest[] calldata requests) external returns (bool);
 
-  function updateTypesAlterabilityStatus(RequestUpdateAlterabilityType[] calldata requests) external returns (bool);
+  function typeUpdateAlterabilityStatus(TypeUpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
-  function updateTypesRoleLimit(RequestUpdateRoleLimitType[] calldata requests) external returns (bool);
+  function typeUpdatesRoleLimit(TypeUpdateRoleLimitRequest[] calldata requests) external returns (bool);
 
-  function updateTypesGroup(RequestUpdateGroupType[] calldata requests) external returns (bool);
+  // if think should be same realm needed to change type group
+  function typeUpdateGroup(TypeUpdateGroupRequest[] calldata requests) external returns (bool);
 
-  function isTypeExists(bytes32 typeId) external view returns (bool);
+  function typeCheckExistance(bytes32 typeId) external view returns (bool);
 
-  function hasTypeRole(bytes32 typeId, bytes32 roleId) external view returns (bool);
+  function typeCheckExistance(string calldata typeName) external view returns (bool);
 
-  function getTypeRoleLimit(bytes32 typeId) external view returns (uint8);
+  function typeHasAccount(bytes32 typeId, address account) external view returns (bool);
 
-  function getTypeActivityStatus(bytes32 typeId) external view returns (ActivityStatus);
+  function typeHasMember(bytes32 typeId, bytes32 memberId) external view returns (bool);
 
-  function getTypeAlterabilityStatus(bytes32 typeId) external view returns (AlterabilityStatus);
+  function typeHasAgent(bytes32 typeId, bytes32 agentId) external view returns (bool);
 
-  function getTypeName(bytes32 typeId) external view returns (string memory);
+  function typeHasRole(bytes32 typeId, bytes32 roleId) external view returns (bool);
 
-  function getTypeScope(bytes32 typeId) external view returns (bytes32);
+  function typeGetRoleLimit(bytes32 typeId) external view returns (uint8);
 
-  function getTypeInfo(bytes32 roleId) external view returns (TypeInfo memory);
+  function typeGetActivityStatus(bytes32 typeId) external view returns (ActivityStatus);
 
-  function generateTypeId(string calldata) external pure returns (bytes32);
+  function typeGetAlterabilityStatus(bytes32 typeId) external view returns (AlterabilityStatus);
+
+  function typeGetName(bytes32 typeId) external view returns (string memory);
+
+  function typeGetScope(bytes32 typeId) external view returns (ScopeType stype, bytes32);
+
+  function typeGetRoles(bytes32 typeId) external view returns (bytes32[] memory);
+
+  function typeGetRolesCount(bytes32 typeId) external view returns (uint8);
+
+  function typeGetInfo(bytes32 typeId) external view returns (TypeInfo memory);
+
+  function typeGenerateId(string calldata) external pure returns (bytes32);
 }
