@@ -12,22 +12,7 @@ import "../IAclCommons.sol";
  *
  */
 interface IRoleManagement is IAclCommons {
-  
-  /**
-   * regiter new role need to add to some type, must caller have permission to add role to target types 
-   */
-  struct RoleRegisterRequest {
-    ActivityStatus acstat;
-    AlterabilityStatus alstat;   
-    bytes32 adminId;
-    bytes32 policyId;
-    bytes32 scopeId;
-    uint24 memberLimit;
-    uint8 typeLimit;
-    string name;
-    bytes32[] members;
-    bytes32[] types;
-  }
+
 
   struct RoleAddMembersRequest {
     bytes32 roleId;

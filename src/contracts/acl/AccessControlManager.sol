@@ -5,10 +5,10 @@ pragma solidity 0.8.17;
 
 import "./IAccessControl.sol";
 import "./AccessControlStorage.sol";
-import "./IGroupManagement.sol";
-import "./IRealmManagement.sol";
-import "./IRoleManagement.sol";
-import "./IContextManagement.sol";
+import "./agent/IGroupManagement.sol";
+import "./scope/IRealmManagement.sol";
+import "./agent/IRoleManagement.sol";
+import "./scope/IContextManagement.sol";
 import "../lib/struct/LEnumerableSet.sol";
 import "../lib/struct/LEnumerableMap.sol";
 import "../lib/acl/LContextManagement.sol";
@@ -84,363 +84,377 @@ contract AccessControlManager is
       super.supportsInterface(interfaceId);
   }
 
-  function hasAccess(
-    bytes32 context,
-    address account,
-    bytes4 signature
-  ) external view returns (bool) {
-    return LAccessControl.hasAccess(_data, context, account, signature);
-  }
+  event aclmFacetRegistered(address indexed sender, address indexed facetId, bytes4 interfaceId);
 
-  function isLivelySystemAdminRole(address account) external view returns (bool) {
-    return LAccessControl.isLivelySystemAdminRole(_data, account);
-  }
+  event aclmFacetMigrated(
+    address indexed sender, 
+    address indexed facetId, 
+    address indexed newFacetId, 
+    bytes4 interfaceId, bytes4 newInterfaceId
+  );
 
-  function isLivelyAdminRole(address account) external view returns (bool) {
-    return LAccessControl.isLivelyAdminRole(_data, account);
-  }
+  function aclmRegisterFacet(FacetRegisterRequest[] calldata requests) public returns (bool) {}
 
-  function isLivelyAssetManagerRole(address account) external view returns (bool) {
-    return LAccessControl.isLivelyAssetManagerRole(_data, account);
-  }
+  function aclmMigrateFacet(FacetMigrateRequest[] calldata requests) public returns (bool) {}
 
-  function isLivelyAssetAdminRole(address account) external view returns (bool) {
-    return LAccessControl.isLivelyAssetAdminRole(_data, account);
-  }
 
-  function isLivelyCommunityDaoRole(address account) external view returns (bool) {
-    return LAccessControl.isLivelyCommunityDaoRole(_data, account);
-  }
+  // function hasAccess(
+  //   bytes32 context,
+  //   address account,
+  //   bytes4 signature
+  // ) external view returns (bool) {
+  //   return LAccessControl.hasAccess(_data, context, account, signature);
+  // }
 
-  function isLivelyCommunityDaoExecutorRole(address account) external view returns (bool) {
-    return LAccessControl.isLivelyCommunityDaoExecutorRole(_data, account);
-  }
+  // function isLivelySystemAdminRole(address account) external view returns (bool) {
+  //   return LAccessControl.isLivelySystemAdminRole(_data, account);
+  // }
 
-  function isLivelyGeneralGroup(bytes32 role) external view returns (bool) {
-    return LAccessControl.isLivelyGeneralGroup(_data, role);
-  }
+  // function isLivelyAdminRole(address account) external view returns (bool) {
+  //   return LAccessControl.isLivelyAdminRole(_data, account);
+  // }
 
-  function isLivelyDaoGroup(bytes32 role) external view returns (bool) {
-    return LAccessControl.isLivelyDaoGroup(_data, role);
-  }
+  // function isLivelyAssetManagerRole(address account) external view returns (bool) {
+  //   return LAccessControl.isLivelyAssetManagerRole(_data, account);
+  // }
 
-  function isLivelyAssetGroup(bytes32 role) external view returns (bool) {
-    return LAccessControl.isLivelyAssetGroup(_data, role);
-  }
+  // function isLivelyAssetAdminRole(address account) external view returns (bool) {
+  //   return LAccessControl.isLivelyAssetAdminRole(_data, account);
+  // }
 
-  function isLivelyGeneralRealm(bytes32 context) external view returns (bool) {
-    return LAccessControl.isLivelyGeneralRealm(_data, context);
-  }
+  // function isLivelyCommunityDaoRole(address account) external view returns (bool) {
+  //   return LAccessControl.isLivelyCommunityDaoRole(_data, account);
+  // }
 
-  function isLivelyAssetRealm(bytes32 context) external view returns (bool) {
-    return LAccessControl.isLivelyAssetRealm(_data, context);
-  }
+  // function isLivelyCommunityDaoExecutorRole(address account) external view returns (bool) {
+  //   return LAccessControl.isLivelyCommunityDaoExecutorRole(_data, account);
+  // }
 
-  function isContextSafeMode(bytes32 context) external view returns (bool) {
-    return LAccessControl.isContextSafeMode(_data, context);
-  }
+  // function isLivelyGeneralGroup(bytes32 role) external view returns (bool) {
+  //   return LAccessControl.isLivelyGeneralGroup(_data, role);
+  // }
 
-  function isContextUpgradable(bytes32 context) external view returns (bool) {
-    return LAccessControl.isContextUpgradable(_data, context);
-  }
+  // function isLivelyDaoGroup(bytes32 role) external view returns (bool) {
+  //   return LAccessControl.isLivelyDaoGroup(_data, role);
+  // }
 
-  function isRealmUpgradable(bytes32 realm) external view returns (bool) {
-    return LAccessControl.isRealmUpgradable(_data, realm);
-  }
+  // function isLivelyAssetGroup(bytes32 role) external view returns (bool) {
+  //   return LAccessControl.isLivelyAssetGroup(_data, role);
+  // }
 
-  function isGroupExists(bytes32 group) external view returns (bool) {
-    return LAccessControl.isGroupExists(_data, group);
-  }
+  // function isLivelyGeneralRealm(bytes32 context) external view returns (bool) {
+  //   return LAccessControl.isLivelyGeneralRealm(_data, context);
+  // }
 
-  function isGroupEnabled(bytes32 group) external view returns (bool) {
-    return LAccessControl.isGroupEnabled(_data, group);
-  }
+  // function isLivelyAssetRealm(bytes32 context) external view returns (bool) {
+  //   return LAccessControl.isLivelyAssetRealm(_data, context);
+  // }
 
-  function isContextExists(bytes32 context) external view returns (bool) {
-    return LAccessControl.isContextExists(_data, context);
-  }
+  // function isContextSafeMode(bytes32 context) external view returns (bool) {
+  //   return LAccessControl.isContextSafeMode(_data, context);
+  // }
 
-  function isContextFunctionExists(bytes32 context, bytes4 functionSelector) external view returns (bool) {
-    return LAccessControl.isContextFunctionExists(_data, context, functionSelector);
-  }
+  // function isContextUpgradable(bytes32 context) external view returns (bool) {
+  //   return LAccessControl.isContextUpgradable(_data, context);
+  // }
 
-  function isContextFunctionEnabled(bytes32 context, bytes4 functionSelector) external view returns (bool) {
-    return LAccessControl.isContextFunctionEnabled(_data, context, functionSelector);
-  }
+  // function isRealmUpgradable(bytes32 realm) external view returns (bool) {
+  //   return LAccessControl.isRealmUpgradable(_data, realm);
+  // }
 
-  function isContextEnabled(bytes32 context) external view returns (bool) {
-    return LAccessControl.isContextEnabled(_data, context);
-  }
+  // function isGroupExists(bytes32 group) external view returns (bool) {
+  //   return LAccessControl.isGroupExists(_data, group);
+  // }
 
-  function isRoleExists(bytes32 role) external view returns (bool) {
-    return LAccessControl.isRoleExists(_data, role);
-  }
+  // function isGroupEnabled(bytes32 group) external view returns (bool) {
+  //   return LAccessControl.isGroupEnabled(_data, group);
+  // }
 
-  function isRoleEnabled(bytes32 role) external view returns (bool) {
-    return LAccessControl.isRoleEnabled(_data, role);
-  }
+  // function isContextExists(bytes32 context) external view returns (bool) {
+  //   return LAccessControl.isContextExists(_data, context);
+  // }
 
-  function isRealmExists(bytes32 realm) external view returns (bool) {
-    return LAccessControl.isRealmExists(_data, realm);
-  }
+  // function isContextFunctionExists(bytes32 context, bytes4 functionSelector) external view returns (bool) {
+  //   return LAccessControl.isContextFunctionExists(_data, context, functionSelector);
+  // }
 
-  function isRealmEnabled(bytes32 realm) external view returns (bool) {
-    return LAccessControl.isRealmEnabled(_data, realm);
-  }
+  // function isContextFunctionEnabled(bytes32 context, bytes4 functionSelector) external view returns (bool) {
+  //   return LAccessControl.isContextFunctionEnabled(_data, context, functionSelector);
+  // }
 
-  function setPermitRegisterContext(uint8 contextCount) external returns (bool) {
-    emit PermitRegisterContextUpdated(_msgSender(), contextCount);
-    return LContextManagement.setPermitRegisterContext(_data, contextCount);
-  }
+  // function isContextEnabled(bytes32 context) external view returns (bool) {
+  //   return LAccessControl.isContextEnabled(_data, context);
+  // }
 
-  function registerContext(
-    bytes memory signature,
-    RequestContext calldata rc,
-    RequestRegisterContext[] calldata rrc
-  ) external returns (bytes32) {
-    (bytes32 context, address signer) = LContextManagement.registerContext(_data, signature, rc, rrc);
-    emit ContextRegistered(context, rc.contractId, signer, _msgSender(), rc.realm);
-    return context;
-  }
+  // function isRoleExists(bytes32 role) external view returns (bool) {
+  //   return LAccessControl.isRoleExists(_data, role);
+  // }
 
-  function registerPredictContext(
-    bytes memory signature,
-    RequestPredictContext calldata rpc,
-    RequestRegisterContext[] calldata rrc
-  ) external returns (bytes32) {
-    (address contractId, bytes32 context, address signer) = LContextManagement.registerPredictContext(
-      _data,
-      signature,
-      rpc,
-      rrc
-    );
-    emit PredictContextRegistered(context, contractId, _msgSender(), signer, rpc.deployer, rpc.subject, rpc.realm);
-    return context;
-  }
+  // function isRoleEnabled(bytes32 role) external view returns (bool) {
+  //   return LAccessControl.isRoleEnabled(_data, role);
+  // }
 
-  function updateContext(
-    bytes memory signature,
-    RequestContext calldata rc,
-    RequestUpdateContext[] calldata rcr
-  ) external returns (address) {
-    (address contractId, address sender) = LContextManagement.updateContext(_data, signature, rc, rcr);
-    emit ContextUpdated(LContextUtils.generateCtx(_msgSender()), contractId, sender, rc.realm);
-    return contractId;
-  }
+  // function isRealmExists(bytes32 realm) external view returns (bool) {
+  //   return LAccessControl.isRealmExists(_data, realm);
+  // }
 
-  function addContextFuncRole(
-    bytes32 ctx,
-    bytes4 functionSelector,
-    bytes32 role
-  ) external returns (bool) {
-    bytes32 realm = LContextManagement.addContextFuncRole(_data, ctx, functionSelector, role);
-    emit ContextFuncRoleAdded(ctx, role, msg.sender, functionSelector, realm);
-    return true;
-  }
+  // function isRealmEnabled(bytes32 realm) external view returns (bool) {
+  //   return LAccessControl.isRealmEnabled(_data, realm);
+  // }
 
-  function removeContextFunc(bytes32 ctx, bytes4 functionSelector) external returns (bool) {
-    bytes32 realm = LContextManagement.removeContextFunc(_data, ctx, functionSelector);
-    emit ContextFuncRemoved(ctx, msg.sender, functionSelector, realm);
-    return true;
-  }
+  // function setPermitRegisterContext(uint8 contextCount) external returns (bool) {
+  //   emit PermitRegisterContextUpdated(_msgSender(), contextCount);
+  //   return LContextManagement.setPermitRegisterContext(_data, contextCount);
+  // }
 
-  function grantContextRole(
-    bytes32 ctx,
-    bytes4 functionSelector,
-    bytes32 role
-  ) external returns (bool) {
-    bytes32 realm = LContextManagement.grantContextRole(_data, ctx, functionSelector, role);
-    emit ContextRoleGranted(ctx, role, msg.sender, functionSelector, realm);
-    return true;
-  }
+  // function registerContext(
+  //   bytes memory signature,
+  //   RequestContext calldata rc,
+  //   RequestRegisterContext[] calldata rrc
+  // ) external returns (bytes32) {
+  //   (bytes32 context, address signer) = LContextManagement.registerContext(_data, signature, rc, rrc);
+  //   emit ContextRegistered(context, rc.contractId, signer, _msgSender(), rc.realm);
+  //   return context;
+  // }
 
-  function revokeContextRole(
-    bytes32 ctx,
-    bytes4 functionSelector,
-    bytes32 role
-  ) external returns (bool) {
-    bytes32 realm = LContextManagement.revokeContextRole(_data, ctx, functionSelector, role);
-    emit ContextRoleRevoked(ctx, role, msg.sender, functionSelector, realm);
-    return true;
-  }
+  // function registerPredictContext(
+  //   bytes memory signature,
+  //   RequestPredictContext calldata rpc,
+  //   RequestRegisterContext[] calldata rrc
+  // ) external returns (bytes32) {
+  //   (address contractId, bytes32 context, address signer) = LContextManagement.registerPredictContext(
+  //     _data,
+  //     signature,
+  //     rpc,
+  //     rrc
+  //   );
+  //   emit PredictContextRegistered(context, contractId, _msgSender(), signer, rpc.deployer, rpc.subject, rpc.realm);
+  //   return context;
+  // }
 
-  function setContextStatus(bytes32 ctx, bool status) external returns (bool) {
-    (bool success, bytes32 realm) = LContextManagement.setContextStatus(_data, ctx, status);
-    emit ContextStatusChanged(ctx, _msgSender(), realm, status);
-    return success;
-  }
+  // function updateContext(
+  //   bytes memory signature,
+  //   RequestContext calldata rc,
+  //   RequestUpdateContext[] calldata rcr
+  // ) external returns (address) {
+  //   (address contractId, address sender) = LContextManagement.updateContext(_data, signature, rc, rcr);
+  //   emit ContextUpdated(LContextUtils.generateCtx(_msgSender()), contractId, sender, rc.realm);
+  //   return contractId;
+  // }
 
-  function setContextRealm(bytes32 ctx, bytes32 realm) external returns (bool) {
-    (bool success, bytes32 oldRealm) = LContextManagement.setContextRealm(_data, ctx, realm);
-    emit ContextRealmChanged(ctx, _msgSender(), realm, oldRealm);
-    return success;
-  }
+  // function addContextFuncRole(
+  //   bytes32 ctx,
+  //   bytes4 functionSelector,
+  //   bytes32 role
+  // ) external returns (bool) {
+  //   bytes32 realm = LContextManagement.addContextFuncRole(_data, ctx, functionSelector, role);
+  //   emit ContextFuncRoleAdded(ctx, role, msg.sender, functionSelector, realm);
+  //   return true;
+  // }
 
-  function hasContextRole(
-    bytes32 ctx,
-    bytes32 role,
-    bytes4 functionSelector
-  ) external view returns (bool) {
-    return LContextManagement.hasContextRole(_data, ctx, role, functionSelector);
-  }
+  // function removeContextFunc(bytes32 ctx, bytes4 functionSelector) external returns (bool) {
+  //   bytes32 realm = LContextManagement.removeContextFunc(_data, ctx, functionSelector);
+  //   emit ContextFuncRemoved(ctx, msg.sender, functionSelector, realm);
+  //   return true;
+  // }
 
-  function getContextInfo(bytes32 ctx) external view returns (ResponseContext memory) {
-    return LContextManagement.getContextInfo(_data, ctx);
-  }
+  // function grantContextRole(
+  //   bytes32 ctx,
+  //   bytes4 functionSelector,
+  //   bytes32 role
+  // ) external returns (bool) {
+  //   bytes32 realm = LContextManagement.grantContextRole(_data, ctx, functionSelector, role);
+  //   emit ContextRoleGranted(ctx, role, msg.sender, functionSelector, realm);
+  //   return true;
+  // }
 
-  function getContextFuncs(bytes32 ctx) external view returns (bytes4[] memory) {
-    return LContextManagement.getContextFuncs(_data, ctx);
-  }
+  // function revokeContextRole(
+  //   bytes32 ctx,
+  //   bytes4 functionSelector,
+  //   bytes32 role
+  // ) external returns (bool) {
+  //   bytes32 realm = LContextManagement.revokeContextRole(_data, ctx, functionSelector, role);
+  //   emit ContextRoleRevoked(ctx, role, msg.sender, functionSelector, realm);
+  //   return true;
+  // }
 
-  function registerGroup(string calldata name, bool status) external returns (bytes32) {
-    bytes32 group = LGroupManagement.registerGroup(_data, name, status);
-    emit GroupRegistered(group, _msgSender(), name, status);
-    return group;
-  }
+  // function setContextStatus(bytes32 ctx, bool status) external returns (bool) {
+  //   (bool success, bytes32 realm) = LContextManagement.setContextStatus(_data, ctx, status);
+  //   emit ContextStatusChanged(ctx, _msgSender(), realm, status);
+  //   return success;
+  // }
 
-  function setGroupStatus(bytes32 group, bool status) external returns (bool) {
-    emit GroupStatusChanged(group, _msgSender(), status);
-    return LGroupManagement.setGroupStatus(_data, group, status);
-  }
+  // function setContextRealm(bytes32 ctx, bytes32 realm) external returns (bool) {
+  //   (bool success, bytes32 oldRealm) = LContextManagement.setContextRealm(_data, ctx, realm);
+  //   emit ContextRealmChanged(ctx, _msgSender(), realm, oldRealm);
+  //   return success;
+  // }
 
-  function hasGroupRole(bytes32 group, bytes32 role) external view returns (bool) {
-    return LGroupManagement.hasGroupRole(_data, group, role);
-  }
+  // function hasContextRole(
+  //   bytes32 ctx,
+  //   bytes32 role,
+  //   bytes4 functionSelector
+  // ) external view returns (bool) {
+  //   return LContextManagement.hasContextRole(_data, ctx, role, functionSelector);
+  // }
 
-  function getGroupInfo(bytes32 group) external view returns (string memory, bool) {
-    return LGroupManagement.getGroupInfo(_data, group);
-  }
+  // function getContextInfo(bytes32 ctx) external view returns (ResponseContext memory) {
+  //   return LContextManagement.getContextInfo(_data, ctx);
+  // }
 
-  function getGroupRoles(bytes32 group) external view returns (bytes32[] memory) {
-    return LGroupManagement.getGroupRoles(_data, group);
-  }
+  // function getContextFuncs(bytes32 ctx) external view returns (bytes4[] memory) {
+  //   return LContextManagement.getContextFuncs(_data, ctx);
+  // }
 
-  function registerRealm(
-    string calldata name,
-    bool status,
-    bool isUpgradable
-  ) external returns (bytes32) {
-    bytes32 realm = LRealmManagement.registerRealm(_data, name, status, isUpgradable);
-    emit RealmRegistered(realm, _msgSender(), name, status, isUpgradable);
-    return realm;
-  }
+  // function registerGroup(string calldata name, bool status) external returns (bytes32) {
+  //   bytes32 group = LGroupManagement.registerGroup(_data, name, status);
+  //   emit GroupRegistered(group, _msgSender(), name, status);
+  //   return group;
+  // }
 
-  function setRealmStatus(bytes32 realm, bool status) external returns (bool) {
-    emit RealmStatusChanged(realm, _msgSender(), status);
-    return LRealmManagement.setRealmStatus(_data, realm, status);
-  }
+  // function setGroupStatus(bytes32 group, bool status) external returns (bool) {
+  //   emit GroupStatusChanged(group, _msgSender(), status);
+  //   return LGroupManagement.setGroupStatus(_data, group, status);
+  // }
 
-  function setRealmUpgradeStatus(bytes32 realm, bool status) external returns (bool) {
-    emit RealmUpgradeStatusChanged(realm, _msgSender(), status);
-    return LRealmManagement.setRealmUpgradeStatus(_data, realm, status);
-  }
+  // function hasGroupRole(bytes32 group, bytes32 role) external view returns (bool) {
+  //   return LGroupManagement.hasGroupRole(_data, group, role);
+  // }
 
-  function hasRealmContext(bytes32 realm, bytes32 context) external view returns (bool) {
-    return LRealmManagement.hasRealmContext(_data, realm, context);
-  }
+  // function getGroupInfo(bytes32 group) external view returns (string memory, bool) {
+  //   return LGroupManagement.getGroupInfo(_data, group);
+  // }
 
-  function getRealmInfo(bytes32 realm)
-    external
-    view
-    returns (
-      string memory,
-      bool,
-      bool
-    )
-  {
-    return LRealmManagement.getRealmInfo(_data, realm);
-  }
+  // function getGroupRoles(bytes32 group) external view returns (bytes32[] memory) {
+  //   return LGroupManagement.getGroupRoles(_data, group);
+  // }
 
-  function getRealmContexts(bytes32 realm) external view returns (bytes32[] memory) {
-    return LRealmManagement.getRealmContexts(_data, realm);
-  }
+  // function registerRealm(
+  //   string calldata name,
+  //   bool status,
+  //   bool isUpgradable
+  // ) external returns (bytes32) {
+  //   bytes32 realm = LRealmManagement.registerRealm(_data, name, status, isUpgradable);
+  //   emit RealmRegistered(realm, _msgSender(), name, status, isUpgradable);
+  //   return realm;
+  // }
 
-  function grantRoleAccount(bytes32 role, address account) external returns (bool) {
-    emit RoleAccountGranted(_msgSender(), role, account);
-    return LRoleManagement.grantRoleAccount(_data, role, account);
-  }
+  // function setRealmStatus(bytes32 realm, bool status) external returns (bool) {
+  //   emit RealmStatusChanged(realm, _msgSender(), status);
+  //   return LRealmManagement.setRealmStatus(_data, realm, status);
+  // }
 
-  function batchGrantRoleAccount(UpdateRoleRequest[] calldata requests) external returns (bool) {
-    for (uint256 i; i < requests.length; i++) {
-      emit RoleAccountGranted(_msgSender(), requests[i].role, requests[i].account);
-    }
-    return LRoleManagement.batchGrantRoleAccount(_data, requests);
-  }
+  // function setRealmUpgradeStatus(bytes32 realm, bool status) external returns (bool) {
+  //   emit RealmUpgradeStatusChanged(realm, _msgSender(), status);
+  //   return LRealmManagement.setRealmUpgradeStatus(_data, realm, status);
+  // }
 
-  function revokeRoleAccount(bytes32 role, address account) external returns (bool) {
-    emit RoleAccountRevoked(_msgSender(), role, account);
-    return LRoleManagement.revokeRoleAccount(_data, role, account);
-  }
+  // function hasRealmContext(bytes32 realm, bytes32 context) external view returns (bool) {
+  //   return LRealmManagement.hasRealmContext(_data, realm, context);
+  // }
 
-  function batchRevokeRoleAccount(UpdateRoleRequest[] calldata requests) external returns (bool) {
-    for (uint256 i; i < requests.length; i++) {
-      emit RoleAccountRevoked(_msgSender(), requests[i].role, requests[i].account);
-    }
-    return LRoleManagement.batchRevokeRoleAccount(_data, requests);
-  }
+  // function getRealmInfo(bytes32 realm)
+  //   external
+  //   view
+  //   returns (
+  //     string memory,
+  //     bool,
+  //     bool
+  //   )
+  // {
+  //   return LRealmManagement.getRealmInfo(_data, realm);
+  // }
 
-  function registerRole(
-    string calldata name,
-    bytes32 group,
-    bool status
-  ) external returns (bytes32) {
-    bytes32 role = LRoleManagement.registerRole(_data, name, group, status);
-    emit RoleRegistered(_msgSender(), role, name, group, status);
-    return role;
-  }
+  // function getRealmContexts(bytes32 realm) external view returns (bytes32[] memory) {
+  //   return LRealmManagement.getRealmContexts(_data, realm);
+  // }
 
-  function batchRegisterRole(RegisterRoleRequest[] calldata requests) external returns (bytes32[] memory) {
-    bytes32[] memory roles = LRoleManagement.batchRegisterRole(_data, requests);
-    for (uint256 i; i < requests.length; i++) {
-      emit RoleRegistered(_msgSender(), roles[i], requests[i].name, requests[i].group, requests[i].status);
-    }
+  // function grantRoleAccount(bytes32 role, address account) external returns (bool) {
+  //   emit RoleAccountGranted(_msgSender(), role, account);
+  //   return LRoleManagement.grantRoleAccount(_data, role, account);
+  // }
 
-    return roles;
-  }
+  // function batchGrantRoleAccount(UpdateRoleRequest[] calldata requests) external returns (bool) {
+  //   for (uint256 i; i < requests.length; i++) {
+  //     emit RoleAccountGranted(_msgSender(), requests[i].role, requests[i].account);
+  //   }
+  //   return LRoleManagement.batchGrantRoleAccount(_data, requests);
+  // }
 
-  function setRoleStatus(bytes32 role, bool status) external returns (bool) {
-    (bool success, bytes32 group) = LRoleManagement.setRoleStatus(_data, role, status);
-    emit RoleStatusChanged(_msgSender(), role, group, status);
-    return success;
-  }
+  // function revokeRoleAccount(bytes32 role, address account) external returns (bool) {
+  //   emit RoleAccountRevoked(_msgSender(), role, account);
+  //   return LRoleManagement.revokeRoleAccount(_data, role, account);
+  // }
 
-  function setRoleGroup(bytes32 role, bytes32 group) external returns (bool) {
-    (bool success, bytes32 oldGroup) = LRoleManagement.setRoleGroup(_data, role, group);
-    emit RoleGroupChanged(_msgSender(), role, group, oldGroup);
-    return success;
-  }
+  // function batchRevokeRoleAccount(UpdateRoleRequest[] calldata requests) external returns (bool) {
+  //   for (uint256 i; i < requests.length; i++) {
+  //     emit RoleAccountRevoked(_msgSender(), requests[i].role, requests[i].account);
+  //   }
+  //   return LRoleManagement.batchRevokeRoleAccount(_data, requests);
+  // }
 
-  function getRoleInfo(bytes32 role)
-    external
-    view
-    returns (
-      string memory,
-      bytes32,
-      bool
-    )
-  {
-    return LRoleManagement.getRoleInfo(_data, role);
-  }
+  // function registerRole(
+  //   string calldata name,
+  //   bytes32 group,
+  //   bool status
+  // ) external returns (bytes32) {
+  //   bytes32 role = LRoleManagement.registerRole(_data, name, group, status);
+  //   emit RoleRegistered(_msgSender(), role, name, group, status);
+  //   return role;
+  // }
 
-  function getRoleAccounts(bytes32 role) external view returns (address[] memory) {
-    return LRoleManagement.getRoleAccounts(_data, role);
-  }
+  // function batchRegisterRole(RegisterRoleRequest[] calldata requests) external returns (bytes32[] memory) {
+  //   bytes32[] memory roles = LRoleManagement.batchRegisterRole(_data, requests);
+  //   for (uint256 i; i < requests.length; i++) {
+  //     emit RoleRegistered(_msgSender(), roles[i], requests[i].name, requests[i].group, requests[i].status);
+  //   }
 
-  function hasRoleAccount(bytes32 role, address account) external view returns (bool) {
-    return LRoleManagement.hasRoleAccount(_data, role, account);
-  }
+  //   return roles;
+  // }
 
-  function getPermitRegisterContext() external view returns (uint8) {
-    return _data.permitRegisterContextCount;
-  }
+  // function setRoleStatus(bytes32 role, bool status) external returns (bool) {
+  //   (bool success, bytes32 group) = LRoleManagement.setRoleStatus(_data, role, status);
+  //   emit RoleStatusChanged(_msgSender(), role, group, status);
+  //   return success;
+  // }
 
-  function getLibraries() external pure returns (address[] memory) {
-    address[] memory libs = new address[](5);
-    libs[0] = address(LAccessControl);
-    libs[1] = address(LContextManagement);
-    libs[2] = address(LRealmManagement);
-    libs[3] = address(LRoleManagement);
-    libs[4] = address(LGroupManagement);
-    return libs;
-  }
+  // function setRoleGroup(bytes32 role, bytes32 group) external returns (bool) {
+  //   (bool success, bytes32 oldGroup) = LRoleManagement.setRoleGroup(_data, role, group);
+  //   emit RoleGroupChanged(_msgSender(), role, group, oldGroup);
+  //   return success;
+  // }
+
+  // function getRoleInfo(bytes32 role)
+  //   external
+  //   view
+  //   returns (
+  //     string memory,
+  //     bytes32,
+  //     bool
+  //   )
+  // {
+  //   return LRoleManagement.getRoleInfo(_data, role);
+  // }
+
+  // function getRoleAccounts(bytes32 role) external view returns (address[] memory) {
+  //   return LRoleManagement.getRoleAccounts(_data, role);
+  // }
+
+  // function hasRoleAccount(bytes32 role, address account) external view returns (bool) {
+  //   return LRoleManagement.hasRoleAccount(_data, role, account);
+  // }
+
+  // function getPermitRegisterContext() external view returns (uint8) {
+  //   return _data.permitRegisterContextCount;
+  // }
+
+  // function getLibraries() external pure returns (address[] memory) {
+  //   address[] memory libs = new address[](5);
+  //   libs[0] = address(LAccessControl);
+  //   libs[1] = address(LContextManagement);
+  //   libs[2] = address(LRealmManagement);
+  //   libs[3] = address(LRoleManagement);
+  //   libs[4] = address(LGroupManagement);
+  //   return libs;
+  // }
 }

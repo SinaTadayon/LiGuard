@@ -3,55 +3,65 @@
 
 pragma solidity 0.8.17;
 
-
 import "./IAclCommons.sol";
 
 /**
- * @title Function Management Interface
+ * @title Policy Management Interface
  * @author Sina Tadayon, https://github.com/SinaTadayon
  * @dev
  *
  */
 
- interface IPolicyManagement is IAclCommons {
-  struct RequestRegisterPolicy {
+interface IPolicyManagement is IAclCommons {
+  struct PolicyRegisterRequest {
+    bytes32 adminId;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
     uint8 code;
     string name;
+    uint32 roleLimit;
   }
 
-  struct RequestAlterRolePolicy {
+  struct PolicyAddRolesRequest {
     bytes32 policyId;
-    ActionType action;  
     bytes32[] roles;
   }
   
-  
-  struct RequestUpdateCodePolicy { 
+  struct PolicyRemoveRolesRequest {
+    bytes32 policyId;
+    bytes32[] roles;
+  }
+
+  struct PolicyUpdateCodeRequest { 
     bytes32 policyId;
     uint8 code;
   }
+  
+  struct PolicyUpdateRoleLimitRequest {
+    bytes32 policyId;
+    uint32 roleLimit;
+  }
 
-  struct RequestUpdateActivityPolicy {
+  struct PolicyUpdateActivityRequest {
     bytes32 policyId;
     ActivityStatus acstat;
   }
 
-  struct RequestUpdateAlterabilityPolicy {
+  struct PolicyUpdateAlterabilityRequest {
     bytes32 policyId;
     AlterabilityStatus alstate;
   }
 
   struct PolicyInfo {
     bytes32 policyId;
+    string name;
     uint8 code;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
-    string name;
+
   }
 
-  event TypeRegistered(
+  event PolicyRegistered(
     address indexed sender,
     bytes32 indexed policyId,
     string indexed name,    
@@ -61,7 +71,9 @@ import "./IAclCommons.sol";
     AlterabilityStatus alstat
   );
 
-  event PolicyRoleAltered(address indexed sender, bytes32 indexed policyId, bytes32 indexed roleId, ActionType action);
+  event PolicyRoleAdded(address indexed sender, bytes32 indexed policyId, bytes32 indexed roleId);
+
+  event PolicyRoleRemoved(address indexed sender, bytes32 indexed policyId, bytes32 indexed roleId);
 
   event PolicyActivityUpdated(address indexed sender, bytes32 indexed policyId, ActivityStatus acstat);
 
@@ -69,31 +81,41 @@ import "./IAclCommons.sol";
 
   event PolicyCodeUpdated(address indexed sender, bytes32 indexed policyId, uint8 code, PolicyType ptype);
 
-  function registerPolicies(RequestRegisterPolicy[] calldata requests) external returns (bool);
+  event PolicyRoleLimitUpdated(address indexed sender, bytes32 indexed policyId, uint32 roleLimit);
 
-  function alterPoliciesRoles(RequestAlterRolePolicy[] calldata requests) external returns (bool);
+  function policyRegister(PolicyRegisterRequest[] calldata requests) external returns (bool);
 
-  function updatePoliciesCode(RequestUpdateCodePolicy[] calldata requests) external returns (bool);
+  function policyAddRoles(PolicyAddRolesRequest[] calldata requests) external returns (bool);
+
+  function policyRemoveRoles(PolicyRemoveRolesRequest[] calldata requests) external returns (bool);
+
+  function policyUpdateCode(PolicyUpdateCodeRequest[] calldata requests) external returns (bool);
  
-  function updatePoliciesActivityStatus(RequestUpdateActivityPolicy[] calldata requests) external returns (bool);
+  function policyUpdateActivityStatus(PolicyUpdateActivityRequest[] calldata requests) external returns (bool);
 
-  function updatePoliciesAlterabilityStatus(RequestUpdateAlterabilityPolicy[] calldata requests) external returns (bool);
+  function policyUpdateAlterabilityStatus(PolicyUpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
-  function isPolicyExisted(bytes32 policyId) external view returns (bool);
+  function policyUpdatesRoleLimit(PolicyUpdateRoleLimitRequest[] calldata requests) external returns (bool);
 
-  function isPolicyOfRoleExisted(bytes32 roleId) external view returns (bool);
+  function policyCheckExistance(bytes32 policyId) external view returns (bool);
 
-  function getPolicyInfoOfRole(bytes32 roleId) external view returns (PolicyInfo memory);
+  function policyCheckExistance(string calldata policyName) external view returns (bool);
 
-  function getPolicyActivityStatus(bytes32 policyId) external view returns (ActivityStatus);
+  function policyCheckRoleExistance(bytes32 roleId) external view returns (bool);
 
-  function getPolicyAlterabilityStatus(bytes32 policyId) external view returns (AlterabilityStatus);
+  function policyGetActivityStatus(bytes32 policyId) external view returns (ActivityStatus);
 
-  function getPolicyName(bytes32 policyId) external view returns (string memory);
+  function policyGetAlterabilityStatus(bytes32 policyId) external view returns (AlterabilityStatus);
 
-  function getPolicyInfo(bytes32 policyId) external view returns (PolicyInfo memory);
+  function policyGetName(bytes32 policyId) external view returns (string memory);
 
-  function getPolicyRoles(bytes32 policyId) external view returns (bytes32[] memory);
+  function policyGetInfoByRole(bytes32 roleId) external view returns (PolicyInfo memory);
 
-  function generatePolicyId(string calldata) external pure returns (bytes32);  
- }
+  function policyGetInfo(bytes32 policyId) external view returns (PolicyInfo memory);
+
+  function policyGetRoles(bytes32 policyId) external view returns (bytes32[] memory);
+
+  function policyGetRolesCount(bytes32 policyId) external view returns (uint32);
+
+  function policyGenerateId(string calldata) external pure returns (bytes32);  
+}

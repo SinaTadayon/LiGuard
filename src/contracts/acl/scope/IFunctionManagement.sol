@@ -14,21 +14,6 @@ import "../IAclCommons.sol";
  */
 interface IFunctionManagement is IAclCommons {
 
-  struct FunctionUpdateActivityRequest {
-    bytes32 functionId;
-    ActivityStatus acstat;
-  }
-
-  struct FunctionUpdateAlterabilityRequest {
-    bytes32 functionId;
-    AlterabilityStatus alstate;
-  }
-
-  struct FunctionUpdateAdminRequest {
-    bytes32 functionId;
-    bytes32 adminId;
-  }
-
   struct FunctionUpdatePolicyRequest {
     bytes32 functionId;
     uint8 policyCode;
@@ -54,17 +39,37 @@ interface IFunctionManagement is IAclCommons {
 
   event FunctionPolicyUpdated(address indexed sender, bytes32 indexed functionId, uint8 policyCode);
 
-  function functionUpdateAdmin(bytes32 functionId, bytes32 adminId) external returns (bool);
+  event FunctionGroupAdded(address indexed sender, bytes32 indexed functionId, bytes32 indexed groupId);
 
-  function functionUpdateActivityStatus(bytes32 functionId, ActivityStatus acstat) external returns (ActivityStatus);
+  event FunctionGroupRemoved(address indexed sender, bytes32 indexed functionId, bytes32 indexed groupId);
 
-  function functionUpdateAlterabilityStatus(bytes32 functionId, AlterabilityStatus alstat) external returns (AlterabilityStatus);
+  function functionAddGroup(ScopeAddGroupsRequest[] calldata requests) external returns (bool);
+
+  function functionRemoveGroup(ScopeRemoveGroupsRequest[] calldata requests) external returns (bool);
+
+  function functionCreateGroup(GroupRegisterRequest calldata request) external returns (bytes32);
+
+  function functionCreateType(TypeRegisterRequest calldata request) external returns (bytes32);
+
+  function functionCreateRole(RoleRegisterRequest calldata request) external returns (bytes32);
+
+  function functionUpdateAdmin(ScopeUpdateAdminRequest[] calldata requests) external returns (bool);
+
+  function functionUpdateActivityStatus(ScopeUpdateActivityRequest[] calldata requests) external returns (bool);
+
+  function functionUpdateAlterabilityStatus(ScopeUpdateAlterabilityRequest[] calldata requests) external returns (bool);
+
+  function functionUpdatePolicy(FunctionUpdatePolicyRequest[] calldata requests) external returns (bool); 
 
   function functionCheckExistance(bytes32 functionId) external view returns (bool);
 
   function functionCheckExistance(address contractId, bytes4 selector) external view returns (bool);
 
   function functionCheckAdmin(bytes32 functionId, bytes32 agentId) external view returns (bool);
+
+  function functionHasAgent(bytes32 functionId, bytes32 agentId) external view returns (bool);
+
+  function functionHasAccount(bytes32 functionId, address account) external view returns (bool);
 
   function functionGetAdmin(bytes32 functionId) external view returns (bytes32, AgentType);
 

@@ -14,34 +14,31 @@ import "../IAclCommons.sol";
 
 interface IDomainManagement is IAclCommons {
 
-  struct RequestRegisterDomain {
+  struct DomainRegisterRequest {
     bytes32 adminId;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
+    uint16 realmLimit;
+    uint8 groupLimit;
     string name;
+    bytes32[] realms;  
   }
 
-  struct RequestAlterRealmDomain {
+  struct DomainAddRealmsRequest {
     bytes32 domainId;
-    bytes32 realmId;
-    bytes32 realmAdminId;
-    ActionType action;
-    ActivityStatus acstat;
-    AlterabilityStatus alstat;
-    bytes32[] contexts;
+    bytes32[] realms;
   }
 
-  struct RequestAlterAgentDomain {  
+  struct DomainRemoveRealmsRequest {
     bytes32 domainId;
-    bytes32[] agents;
-    ActionType action;
+    bytes32[] realms;
   }
 
   struct DomainInfo {
     bytes32 domainId;
     bytes32 adminId;
-    AgentLimit limits;
     uint16 realmLimit;
+    uint8 groupLimit;
     AgentType adminType;
     ActivityStatus acstat;
     AlterabilityStatus alstate;
@@ -55,31 +52,15 @@ interface IDomainManagement is IAclCommons {
     AgentType atype,
     ActivityStatus acstat,
     AlterabilityStatus alstate,
+    uint16 realmLimit,
+    uint8 groupLimit,
     string name
   );
   
-  event DomainRealmAltered(
-    address indexed sender,
-    bytes32 indexed domainId, 
-    bytes32 indexed realmId,  
-    bytes32 realmAdminId, 
-    AgentType adminType,
-    AccountType action,
-    ActivityStatus acstat,
-    AlterabilityStatus alstat,
-    bytes32[] contexts
-  );
-
-  event DomainAgentAltered(
-    address indexed sender,
-    bytes32 indexed domainId, 
-    bytes32[] agents,
-    AccountType action
-  );
 
   event DomainAdminUpdated(address indexed sender, bytes32 indexed domainId, bytes32 indexed adminId, AgentType adminType);
 
-  event DomainAgentLimitUpdated(address indexed sender, bytes32 indexed domainId, AgentLimit agentLimit);
+  event DomainGroupLimitUpdated(address indexed sender, bytes32 indexed domainId, uint8 groupLimit);
 
   event DomainRealmLimitUpdated(address indexed sender, bytes32 indexed domainId, uint16 realmLimit);
 
@@ -87,51 +68,77 @@ interface IDomainManagement is IAclCommons {
 
   event DomainAlterabilityUpdated(address indexed sender, bytes32 indexed domainId, AlterabilityStatus alstat);
 
-  function registerDomain(RequestRegisterDomain[] calldata requests) external returns (bool);
+  event DomainGroupAdded(address indexed sender, bytes32 indexed domainId, bytes32 indexed groupId);
 
-  function alterDomainRealms(RequestAlterRealmDomain[] calldata requests) external returns (bool);
+  event DomainGroupRemoved(address indexed sender, bytes32 indexed domainId, bytes32 indexed groupId);
 
-  function alterDomainAgents(RequestAlterAgentDomain[] calldata requests) external returns (bool);
+  event DomainRealmAdded(address indexed sender, bytes32 indexed domainId, bytes32 indexed realmId);
+
+  event DomainRealmRemoved(address indexed sender, bytes32 indexed domainId, bytes32 indexed realmId);
+
+  function domainRegister(DomainRegisterRequest[] calldata requests) external returns (bool);
+
+  function domainAddRealms(DomainAddRealmsRequest[] calldata requests) external returns (bool);
+
+  function domainRemoveRealms(DomainRemoveRealmsRequest[] calldata requests) external returns (bool);
  
-  function updateDomainActivityStatus(bytes32 domainId, ActivityStatus acstat) external returns (ActivityStatus);
+  function domainAddGroups(ScopeAddGroupsRequest[] calldata requests) external returns (bool);
 
-  function updateDomainAlterabilityStatus(bytes32 domainId, AlterabilityStatus alstat) external returns (AlterabilityStatus);
+  function domainRemoveGroups(ScopeRemoveGroupsRequest[] calldata requests) external returns (bool);
 
-  function updateDomainAdminAgent(bytes32 domainId, bytes32 newAdminId) external returns (bool);
+  function domainCreateGroup(GroupRegisterRequest[] calldata requests) external returns (bytes32);
 
-  function updateDomainAgentLimit(bytes32 domainId, AgentLimit calldata agentLimit) external returns (bool);
+  function domainCreateType(TypeRegisterRequest[] calldata requests) external returns (bytes32);
 
-  function updateDomainRealmLimit(bytes32 domainId, uint16 realmLimit) external returns (bool);
+  function domainCreateRole(RoleRegisterRequest[] calldata requests) external returns (bytes32);
 
-  function isDomainExists(bytes32 domainId) external view returns (bool);
+  function domainUpdateActivityStatus(ScopeUpdateActivityRequest[] calldata requests) external returns (bool);
 
-  function isDomainAdmin(bytes32 domainId, bytes32 agentId) external view returns (bool);
+  function domainUpdateAlterabilityStatus(ScopeUpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
-  function hasDomainFunction(bytes32 domainId, bytes32 functionId) external view returns (bool);
+  function domainUpdateAdmin(ScopeUpdateAdminRequest[] calldata requests) external returns (bool);
 
-  function hasDomainContext(bytes32 domainId, bytes32 contextId) external view returns (bool);
+  function domainUpdateGroupLimit(ScopeUpdateGroupLimitRequest[] calldata requests) external returns (bool);
 
-  function hasDomainAgent(bytes32 domainId, bytes32 agentId) external view returns (bool);
+  function domainUpdateRealmLimit(bytes32 domainId, uint16 realmLimit) external returns (bool);
 
-  function hasDomainRealm(bytes32 domainId, bytes32 realmId) external view returns (bool);
+  function domainCheckExistance(bytes32 domainId) external view returns (bool);
 
-  function getDomainName(bytes32 domainId) external view returns (string memory);
+  function domainCheckExistance(string calldata domainName) external view returns (bool);
 
-  function getDomainAgentLimit(bytes32 domainId) external view returns (AgentLimit memory);
+  function domainCheckAdmin(bytes32 domainId, bytes32 agentId) external view returns (bool);
 
-  function getDomainRealmLimit(bytes32 domainId) external view returns (uint16);
+  function domainCheckAgent(bytes32 domainId, bytes32 agentId) external view returns (bool);
 
-  function getDomainAdmin(bytes32 domainId) external view returns (bytes32, AgentType);
+  function domainCheckAccount(bytes32 domainId, address account) external view returns (bool);
 
-  function getDomainActivityStatus(bytes32 domainId) external view returns (ActivityStatus);
+  function domainHasFunction(bytes32 domainId, bytes32 functionId) external view returns (bool);
 
-  function getDomainAlterabilityStatus(bytes32 domainId) external view returns (AlterabilityStatus);
+  function domainHasContext(bytes32 domainId, bytes32 contextId) external view returns (bool);
 
-  function getDomainRealms(bytes32 domainId) external view returns (bytes32[] memory);
+  function domainHasRealm(bytes32 domainId, bytes32 realmId) external view returns (bool);
 
-  function getDomainAgents(bytes32 domainId) external view returns (bytes32[] memory);
+  function domainGetName(bytes32 domainId) external view returns (string memory);
 
-  function getDomainInfo(bytes32 domainId) external view returns (DomainInfo memory);
+  function domainGetGroupLimit(bytes32 domainId) external view returns (uint8);
 
-  function generateDomainId(string calldata name) external view returns (bytes32);
+  function domainGetRealmLimit(bytes32 domainId) external view returns (uint16);
+
+  function domainGetAdmin(bytes32 domainId) external view returns (bytes32, AgentType);
+
+  function domainGetActivityStatus(bytes32 domainId) external view returns (ActivityStatus);
+
+  function gomainGetAlterabilityStatus(bytes32 domainId) external view returns (AlterabilityStatus);
+
+  function domainGetRealms(bytes32 domainId) external view returns (bytes32[] memory);
+
+  function domainGetRealmsCount(bytes32 domainId) external view returns (uint16);
+
+  function domainGetGroups(bytes32 domainId) external view returns (bytes32[] memory);
+
+  function domainGetGroupsCount(bytes32 domainId) external view returns (bytes32[] memory);
+
+  function domainGetInfo(bytes32 domainId) external view returns (DomainInfo memory);
+
+  function domainGenerateId(string calldata name) external view returns (bytes32);
 }

@@ -21,6 +21,8 @@ interface IContextManagement is IAclCommons {
     address contractId;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
+    uint8 functionLimit;
+    uint8 groupLimit;
   }
 
   struct ContextRegisterPredictRequest {
@@ -33,18 +35,21 @@ interface IContextManagement is IAclCommons {
     address deployer;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
+    uint8 functionLimit;
+    uint8 groupLimit;
   }
 
   struct ContextUpgradeRequest {
-    bytes32 contextId;  
+    address contractId;
     string name;
     string version;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
+    uint8 functionLimit;
+    uint8 groupLimit;
   }
 
   struct ContextRegisterFunctionRequest {
-    bytes32 contextId;
     bytes32 adminId;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
@@ -52,32 +57,36 @@ interface IContextManagement is IAclCommons {
     bytes4[] selectors;    
   }
 
-  struct ContextRemoveFunctionRequest {
+  struct ContextUpgradeFunctionRequest {
+    bytes32 adminId;
+    ActivityStatus acstat;
+    AlterabilityStatus alstat;
+    uint8 policy;
+    ActionType action;
+    bytes4[] selectors;    
+  }
+
+  struct ContextUpdateRealmRequest {
     bytes32 contextId;
-    bytes32[] functions;
+    bytes32 realmId;
   }
 
-  struct ContextAddGroupsRequest {
-    bytes32 contextId; 
-    bytes32[] groups;
-  }
-
-  struct ContextRemoveGroupsRequest {
-    bytes32 contextId; 
-    bytes32[] groups;
+  struct ContextUpdateFunctionLimitRequest {
+    bytes32 contextId;
+    bytes8 functionLimit;
   }
 
   struct ContextInfo {
     bytes32 realmId;
     bytes32 adminId;
-    uint16 functionLimit;
-    uint8 groupLimit;
     string name;
     string version;
     address contractId;
     AgentType adminType;
     ActivityStatus acstat;
     AlterabilityStatus alstate;
+    uint8 functionLimit;
+    uint8 groupLimit;
   }
 
   event ContextRegistered (
@@ -91,7 +100,9 @@ interface IContextManagement is IAclCommons {
     bytes32 adminId,
     AgentType adminType,
     ActivityStatus acstat,
-    AlterabilityStatus alstat
+    AlterabilityStatus alstat,
+    uint8 functionLimit,
+    uint8 groupLimit
   );
 
   event PredictContextRegistered(
@@ -107,7 +118,9 @@ interface IContextManagement is IAclCommons {
     bytes32 adminId,
     AgentType adminType,
     ActivityStatus acstat,
-    AlterabilityStatus alstat
+    AlterabilityStatus alstat,
+    uint8 functionLimit,
+    uint8 groupLimit
   );
 
   event ContextUpgraded(
@@ -115,7 +128,11 @@ interface IContextManagement is IAclCommons {
     bytes32 indexed contextId, 
     address indexed contractId, 
     string name, 
-    string version
+    string version,
+    ActivityStatus acstat,
+    AlterabilityStatus alstat,
+    uint8 functionLimit,
+    uint8 groupLimit
   );
 
   event ContextFunctionRegistered(
@@ -124,35 +141,34 @@ interface IContextManagement is IAclCommons {
     bytes32 indexed functionId,
     bytes32 adminId, 
     AgentType adminType,
-    AccountType action,
     ActivityStatus acstat,
     AlterabilityStatus alstat,
+    uint8 policy,
     bytes4 selector    
   );
 
-  event ContextFunctionRemoved(
+  event ContextFunctionUpgraded(
     address indexed sender, 
     bytes32 indexed contextId,
-    bytes32 indexed functionId
+    bytes32 indexed functionId,
+    bytes32 adminId, 
+    AgentType adminType,
+    ActivityStatus acstat,
+    AlterabilityStatus alstat,
+    ActionType action,
+    uint8 policy,
+    bytes4 selector
   );
 
-  event ContextGroupAdded(
-    address indexed sender, 
-    bytes32 indexed contextId,
-    bytes32 indexed groupId
-  );
+  event ContextGroupAdded(address indexed sender, bytes32 indexed contextId, bytes32 indexed groupId);
 
-  event ContextGroupRemoved(
-    address indexed sender, 
-    bytes32 indexed contextId,
-    bytes32 indexed groupId
-  );
+  event ContextGroupRemoved(address indexed sender, bytes32 indexed contextId, bytes32 indexed groupId);
 
   event ContextAdminUpdated(address indexed sender, bytes32 indexed contextId, bytes32 indexed adminId, AgentType adminType);
 
   event ContextGroupLimitUpdated(address indexed sender, bytes32 indexed contextId, uint8 groupLimit);
 
-  event ContextFunctionLimitUpdated(address indexed sender, bytes32 indexed contextId, uint16 functionLimit);
+  event ContextFunctionLimitUpdated(address indexed sender, bytes32 indexed contextId, uint8 functionLimit);
 
   event ContextActivityUpdated(address indexed sender, bytes32 indexed contextId, ActivityStatus acstat);
 
@@ -178,58 +194,68 @@ interface IContextManagement is IAclCommons {
   function contextUpgrade(
     bytes memory signature,
     ContextUpgradeRequest calldata rc,
-    ContextRegisterFunctionRequest[] calldata rufc
+    ContextUpgradeFunctionRequest[] calldata rufc
   ) external returns (address);
 
+  function contextAddGroups(ScopeAddGroupsRequest[] calldata requests) external returns (bool);
 
-  function alterContextFunctions(RequestAlterFunctionContext[] calldata requests) external returns (bool);
-
-  function alterContextAgents(RequestAlterAgentContext[] calldata requests) external returns (bool);
+  function contextRemoveGroups(ScopeRemoveGroupsRequest[] calldata requests) external returns (bool);
  
-  function updateContextActivityStatus(bytes32 contextId, ActivityStatus acstat) external returns (ActivityStatus);
+  function contextCreateGroup(GroupRegisterRequest[] calldata requests) external returns (bytes32);
 
-  function updateContextAlterabilityStatus(bytes32 contextId, AlterabilityStatus alstat) external returns (AlterabilityStatus);
+  function contextCreateType(TypeRegisterRequest[] calldata requests) external returns (bytes32);
 
-  function updateContextAdmin(bytes32 contextId, bytes32 newAdminId) external returns (bool);
+  function contextCreateRole(RoleRegisterRequest[] calldata requests) external returns (bytes32);
 
-  function updateContextRealm(bytes32 contextId, bytes32 newRealmId) external returns (bool);
+  function contextUpdateActivityStatus(ScopeUpdateActivityRequest[] calldata requests) external returns (bool);
 
-  function updateContextAgentLimit(bytes32 contextId, AgentLimit calldata agentLimit) external returns (bool);
+  function contextUpdateAlterabilityStatus(ScopeUpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
-  function updateContextFunctionLimit(bytes32 contextId, uint16 functionLimit) external returns (bool);
+  function contextUpdateAdmin(ScopeUpdateAdminRequest[] calldata requests) external returns (bool);
 
-  function isContextExisted(bytes32 contextId) external view returns (bool);
+  function contextUpdateGroupLimit(ScopeUpdateGroupLimitRequest[] calldata requests) external returns (bool);
 
-  function isContextContractExisted(address contactId) external view returns (bool);
+  function contextUpdateRealm(ContextUpdateRealmRequest[] calldata requests) external returns (bool);
 
-  function isContextAdmin(bytes32 contextId, bytes32 agentId) external view returns (bool);
+  function contextUpdateFunctionLimit(ContextUpdateFunctionLimitRequest[] calldata requests) external returns (bool);
 
-  function hasContextAgent(bytes32 contextId, bytes32 agentId) external view returns (bool);
+  function contextCheckExistance(bytes32 contextId) external view returns (bool);
 
-  function hasContextFunction(bytes32 contextId, bytes32 functionId) external view returns (bool);
+  function contextCheckExistance(address contactId) external view returns (bool);
 
-  function hasContextSelector(bytes32 contextId, bytes4 selector) external view returns (bool);
+  function contextCheckAdmin(bytes32 contextId, bytes32 agentId) external view returns (bool);
 
-  function getContextRealmId(bytes32 contextId) external view returns (bytes32);
+  function contextCheckAgent(bytes32 contextId, bytes32 agentId) external view returns (bool);
 
-  function getContextAgentLimit(bytes32 contextId) external view returns (AgentLimit memory);
+  function contextCheckAccount(bytes32 contextId, address account) external view returns (bool);
 
-  function getContextFunctionLimit(bytes32 contextId) external view returns (uint16);
+  function contextHasFunction(bytes32 contextId, bytes32 functionId) external view returns (bool);
 
-  function getContextAdmin(bytes32 contextId) external view returns (bytes32, AgentType);
+  function contextHasSelector(bytes32 contextId, bytes4 selector) external view returns (bool);
 
-  function getContextActivityStatus(bytes32 contextId) external view returns (ActivityStatus);
+  function contextGetRealm(bytes32 contextId) external view returns (bytes32);
 
-  function getContextAlterabilityStatus(bytes32 contextId) external view returns (AlterabilityStatus);
+  function contextGetGroupLimit(bytes32 contextId) external view returns (uint8);
 
-  function getContextContractId(bytes32 contextId) external view returns (address);
+  function contextGetFunctionLimit(bytes32 contextId) external view returns (uint8);
 
-  function getContextFunctions(bytes32 contextId) external view returns (bytes32[] memory);
+  function contextGetAdmin(bytes32 contextId) external view returns (bytes32, AgentType);
 
-  function getContextAgents(bytes32 contextId) external view returns (bytes32[] memory);
+  function contextGetActivityStatus(bytes32 contextId) external view returns (ActivityStatus);
 
-  function getContextInfo(bytes32 contextId) external view returns (ContextInfo memory);
+  function contextGetAlterabilityStatus(bytes32 contextId) external view returns (AlterabilityStatus);
 
-  function generateContextId(address contractId) external pure returns (bytes32);
+  function contextGetContractId(bytes32 contextId) external view returns (address);
 
+  function contextGetFunctions(bytes32 contextId) external view returns (bytes32[] memory);
+
+  function contextGetFunctionsCount(bytes32 contextId) external view returns (uint8);
+
+  function contextGetGroups(bytes32 contextId) external view returns (bytes32[] memory);
+
+  function contextGetGroupsCount(bytes32 contextId) external view returns (uint8);
+
+  function contextGetContextInfo(bytes32 contextId) external view returns (ContextInfo memory);
+
+  function contextGenerateId(address contractId) external pure returns (bytes32);
 }

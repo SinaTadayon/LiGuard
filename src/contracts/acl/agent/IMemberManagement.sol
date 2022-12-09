@@ -47,9 +47,9 @@ interface IMemberManagement is IAclCommons {
 
   function memberUpdatesRoleLimit(MemberUpdateRoleLimitRequest[] calldata requests) external returns (bool);
 
-  function memberExist(bytes32 memberId) external view returns (bool);
+  function memberCheckExistance(bytes32 memberId) external view returns (bool);
 
-  function memberAccountExist(address account) external view returns (bool);
+  function memberCheckExistance(address account) external view returns (bool);
 
   function memberHasRole(bytes32 memberId, bytes32 roleId) external view returns (bool);
 

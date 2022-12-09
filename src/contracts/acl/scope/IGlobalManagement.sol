@@ -14,49 +14,18 @@ import "../IAclCommons.sol";
 
 interface IGlobalManagement is IAclCommons {
  
-  struct RequestAlterDomainGlobal {
-    bytes32 domainId;
-    bytes32 domainAdminId;
-    ActionType action;
-    ActivityStatus acstat;
-    AlterabilityStatus alstat;
-    bytes32[] domains;
-  }
-
-  struct RequestAlterAgentGlobal {  
-    bytes32[] agents;
-    ActionType action;
-  }
-
   struct GlobalInfo {
     bytes32 adminId;
-    AgentLimit limits;
-    uint16 domainLimit;
+    uint16 realmLimit;
+    uint8 groupLimit;
     AgentType adminType;
     ActivityStatus acstat;
     AlterabilityStatus alstate;
   }
-  
-  event GlobalDomainAltered(
-    address indexed sender,
-    bytes32 indexed domainId, 
-    bytes32 domainAdminId, 
-    AgentType adminType,
-    AccountType action,
-    ActivityStatus acstat,
-    AlterabilityStatus alstat,
-    bytes32[] domains
-  );
-
-  event GlobalAgentAltered(
-    address indexed sender,
-    bytes32[] agents,
-    AccountType action
-  );
-
+    
   event GlobalAdminUpdated(address indexed sender, bytes32 indexed adminId, AgentType adminType);
 
-  event GlobalAgentLimitUpdated(address indexed sender, AgentLimit agentLimit);
+  event GlobalGroupLimitUpdated(address indexed sender, uint8 groupLimit);
 
   event GlobalDomainLimitUpdated(address indexed sender, uint16 domainLimit);
 
@@ -64,46 +33,50 @@ interface IGlobalManagement is IAclCommons {
 
   event GlobalAlterabilityUpdated(address indexed sender, AlterabilityStatus alstat);
 
-  function alterGlobalDomains(RequestAlterDomainGlobal[] calldata requests) external returns (bool);
+  event GlobalGroupAdded(address indexed sender, bytes32 indexed domainId, bytes32 indexed groupId);
 
-  function alterGlobalAgents(RequestAlterAgentGlobal[] calldata requests) external returns (bool);
+  event GlobalGroupRemoved(address indexed sender, bytes32 indexed domainId, bytes32 indexed groupId);
  
-  function updateGlobalActivityStatus(ActivityStatus acstat) external returns (ActivityStatus);
+  function globalAddGroups(ScopeAddGroupsRequest[] calldata requests) external returns (bool);
 
-  function updateGlobalAlterabilityStatus(AlterabilityStatus alstat) external returns (AlterabilityStatus);
+  function globalRemoveGroups(ScopeRemoveGroupsRequest[] calldata requests) external returns (bool);
 
-  function updateGlobalAdminAgent(bytes32 newAdminId) external returns (bool);
+  function globalCreateGroup(GroupRegisterRequest[] calldata requests) external returns (bytes32);
 
-  function updateGlobalAgentLimit(AgentLimit calldata agentLimit) external returns (bool);
+  function globalCreateType(TypeRegisterRequest[] calldata requests) external returns (bytes32);
 
-  function updateGlobalDomainLimit(uint16 domainLimit) external returns (bool);
+  function globalCreateRole(RoleRegisterRequest[] calldata requests) external returns (bytes32);
 
-  function isGlobalAdmin(bytes32 agentId) external view returns (bool);
+  function globalUpdateActivityStatus(ActivityStatus acstat) external returns (ActivityStatus);
 
-  // function isGlobalFunctionExisted(bytes32 functionId) external view returns (bool);
+  function globalUpdateAlterabilityStatus(AlterabilityStatus alstat) external returns (AlterabilityStatus);
 
-  // function isGlobalContextExisted(bytes32 contextId) external view returns (bool);
+  function globalUpdateAdmin(bytes32 newAdminId) external returns (bool);
 
-  // function isGlobalRealmExisted(bytes32 realmId) external view returns (bool);
+  function globalUpdateDomainLimit(uint16 domainLimit) external returns (bool);
 
-  function hasGlobalAgent(bytes32 agentId) external view returns (bool);
+  function globalCheckAdmin(bytes32 agentId) external view returns (bool);
 
-  function hasGlobalDomain(bytes32 domainId) external view returns (bool);
+  function globalHasDomain(bytes32 domainId) external view returns (bool);
 
-  function getGlobalAgentLimit() external view returns (AgentLimit memory);
+  function globalGetDomainLimit() external view returns (uint16);
 
-  function getGlobalDomainLimit() external view returns (uint16);
+  function globalGetGroupLimit() external view returns (uint8);
 
-  function getGlobalAdmin() external view returns (bytes32, AgentType);
+  function globalGetAdmin() external view returns (bytes32, AgentType);
 
-  function getGlobalActivityStatus() external view returns (ActivityStatus);
+  function globalGetActivityStatus() external view returns (ActivityStatus);
 
-  function getGlobalAlterabilityStatus() external view returns (AlterabilityStatus);
+  function globalGetAlterabilityStatus() external view returns (AlterabilityStatus);
 
-  function getGlobalDomains() external view returns (bytes32[] memory);
+  function globalGetDomains() external view returns (bytes32[] memory);
 
-  function getGlobalAgents() external view returns (bytes32[] memory);
+  function globalGetDomainsCount() external view returns (uint16);
 
-  function getGlobalInfo() external view returns (GlobalInfo memory);
+  function globalGetGroups() external view returns (uint8);
+
+  function globalGetGroupsCount() external view returns (uint8);
+
+  function globalGetInfo() external view returns (GlobalInfo memory);
 
 }

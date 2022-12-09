@@ -17,45 +17,13 @@ interface IAccessControl is IAclCommons {
    * @return boolean indicating whether the ACL allows
    */
 
-  // function hasAccess(
-  //   bytes32 contextId,
-  //   address account,
-  //   bytes4 selector
-  // ) external view returns (bool);
+  function hasAccess(bytes32 contextId, address account, bytes32 functionId) external view returns (bool);
 
+  function hasAccess(bytes32 contextId, bytes32 functionId) external view returns (bool);
 
-  function hasAccess(
-    bytes32 contextId,
-    address account,
-    bytes32 functionId
-  ) external view returns (bool);
+  function hasAccess(address contractId, address account, bytes4 selector) external view returns (bool);
 
-  // // TODO implement called by contract
-  // function hasAccess(
-  //   bytes32 contextId,
-  //   bytes4 selector
-  // ) external view returns (bool);
-
-
-  // TODO implement called by contract
-  function hasAccess(
-    bytes32 contextId,
-    bytes32 functionId
-  ) external view returns (bool);
-
-
-  // TODO refactor it (for general call) 
-  function hasAccess(
-    address contractId,
-    address account,
-    bytes4 selector
-  ) external view returns (bool);
-
-  // TODO implement called by contract
-  function hasAccess(
-    address contractId,
-    bytes4 selector
-  ) external view returns (bool);
+  function hasAccess(address contractId, bytes4 selector) external view returns (bool);
 
   function getSuperGroup() external view returns (bytes32);
 
@@ -67,43 +35,62 @@ interface IAccessControl is IAclCommons {
 
   function getAnyType() external view returns (bytes32);
 
+  // scope admin type
+  function getScopeMasterType() external view returns (bytes32);
+
+  // role admin type
+  function getRoleMasterType() external view returns (bytes32);
+
+  
+  // super admin type
   function isRoleExistedInSuperAdminType(string calldata roleName) external view returns (bool);
 
   function isRoleExistedInSuperAdminType(bytes32 roleId) external view returns (bool);
 
   function isAccountExistedInSuperAdminType(address account) external view returns (bool);
 
-  function isAccountExistedInSuperAdminType(bytes32 memberId) external view returns (bool);
+  function isMemberExistedInSuperAdminType(bytes32 memberId) external view returns (bool);
+  
 
+  // system admin type
   function isRoleExistedInSystemAdminType(bytes32 roleId) external view returns (bool);
 
   function isRoleExistedInSystemAdminType(string calldata roleName) external view returns (bool);
 
   function isAccountExistedInSystemAdminType(address account) external view returns (bool);
 
-  function isAccountExistedInSystemAdminType(bytes32 memberId) external view returns (bool);
+  function isMemberExistedInSystemAdminType(bytes32 memberId) external view returns (bool);
 
+  // super group
   function isTypeExistedInSuperGroup(bytes32 typeId) external view returns (bool);
 
   function isTypeExistedInSuperGroup(string calldata typeName) external view returns (bool);
 
-  function isAdminOfRoleExistedInSuperAdminType(bytes32 agentId) external view returns (bool);
 
-  function isAdminOfRoleExistedInSystemAdminType(bytes32 agentId) external view returns (bool);
+  // Scope Master
+  function isRoleExistedInScopeMasterType(bytes32 roleId) external view returns (bool);
 
-  function isAdminOfFunctionExistedInSuperAdminType(bytes32 agentId) external view returns (bool);
+  function isRoleExistedInScopeMasterType(string calldata roleName) external view returns (bool);
 
-  function isAdminOfFunctionExistedInSystemAdminType(bytes32 agentId) external view returns (bool);
+  function isAccountExistedInScopeMasterType(address account) external view returns (bool);
 
-  function isAdminOfContextExistedInSuperAdminType(bytes32 agentId) external view returns (bool);
+  function isMemberExistedInScopeMasterType(bytes32 memberId) external view returns (bool);
 
-  function isAdminOfRealmExistedInSuperAdminType(bytes32 agentId) external view returns (bool);
 
-  function isAdminOfDomainExistedInSuperAdminType(bytes32 agentId) external view returns (bool);
+  // Role Master
+  function isRoleExistedInRoleMasterType(bytes32 roleId) external view returns (bool);
 
-  // function getAgentType(bytes32 agentId) external view returns (AgentType);
+  function isRoleExistedInRoleMasterType(string calldata roleName) external view returns (bool);
 
-  // function getScopeType(bytes32 scopeId) external view returns (ScopeType);
+  function isAccountExistedInRoleMasterType(address account) external view returns (bool);
+
+  function isMemberExistedInRoleMasterType(bytes32 memberId) external view returns (bool);
+
+
+  // general
+  function isAgentExisted(bytes32 agentId) external view returns (bool);
+
+  function isScopeExisted(bytes32 scopeId) external view returns (bool);
 
   function getScopeBaseInfo(bytes32 scopeId) external view returns (BaseScope memory);
 
@@ -112,37 +99,4 @@ interface IAccessControl is IAclCommons {
   function getScopeOfAgent(bytes32 agentId) external view returns (ScopeType stype, bytes32 scopeId);
 
   function getAgentOfScope(bytes32 scopeId) external view returns (AgentType stype, bytes32 agentId);
-
-
-
-
-
-
-  // function isLivelyGeneralGroup(bytes32 role) external view returns (bool);
-
-  // function isContextSafeMode(bytes32 context) external view returns (bool);
-
-  // function isContextUpgradable(bytes32 context) external view returns (bool);
-
-  // function isContextExists(bytes32 context) external view returns (bool);
-
-  // function isContextFunctionExists(bytes32 context, bytes4 functionSelector) external view returns (bool);
-
-  // function isContextFunctionEnabled(bytes32 context, bytes4 functionSelector) external view returns (bool);
-
-  // function isContextEnabled(bytes32 context) external view returns (bool);
-
-  // function isGroupExists(bytes32 group) external view returns (bool);
-
-  // function isGroupEnabled(bytes32 group) external view returns (bool);
-
-  // function isRoleExists(bytes32 role) external view returns (bool);
-
-  // function isRoleEnabled(bytes32 role) external view returns (bool);
-
-  // function isRealmExists(bytes32 realm) external view returns (bool);
-
-  // function isRealmEnabled(bytes32 realm) external view returns (bool);
-
-  // function isRealmUpgradable(bytes32 realm) external view returns (bool);
 }

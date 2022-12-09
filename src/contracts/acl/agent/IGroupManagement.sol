@@ -12,14 +12,6 @@ import "../IAclCommons.sol";
  *
  */
 interface IGroupManagement is IAclCommons {
- struct GroupRegisterRequest {
-    ActivityStatus acstat;
-    AlterabilityStatus alstat;
-    uint8 typeLimit;
-    bytes32 scopeId;
-    string name;
-    bytes32[] types;
-  }
 
   struct GroupAddTypesRequest {
     bytes32 groupId;

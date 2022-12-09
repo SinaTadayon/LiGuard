@@ -75,11 +75,13 @@ interface IAclCommons {
   }
 
   struct Policy {
+    bytes32 adminId;
     string name;
     uint8 code;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
     PolicyType ptype;
+    uint32 roleLimit;
     LEnumerableSet.Bytes32Set roles;
   }
 
@@ -100,25 +102,25 @@ interface IAclCommons {
     bytes32 functionId;
     bytes32 contextId;
     bytes32 groupId;
-    uint8 policyCode;
-    bytes4 selector;    
+    bytes4 selector;
+    uint8 policyCode;    
   }
  
   struct Context {
     BaseScope baseScope;
-    uint16 functionLimit;
-    uint8 groupLimit;
     bytes32 realmId;    
-    address contractId;    
     LEnumerableSet.Bytes32Set functions;
     LEnumerableSet.Bytes32Set groups;
+    address contractId;
+    uint8 functionLimit;
+    uint8 groupLimit;
   }
 
   struct Realm {
     BaseScope baseScope;
-    uint8 groupLimit;
-    uint16 contextLimit;
     bytes32 domainId;
+    uint32 contextLimit;
+    uint8 groupLimit;
     string name;
     LEnumerableSet.Bytes32Set contexts;
     LEnumerableSet.Bytes32Set groups;
@@ -126,8 +128,8 @@ interface IAclCommons {
 
   struct Domain {
     BaseScope baseScope;
-    uint8 groupLimit;
     uint16 realmLimit;
+    uint8 groupLimit;
     string name;
     LEnumerableSet.Bytes32Set realms;
     LEnumerableSet.Bytes32Set groups;
@@ -142,36 +144,127 @@ interface IAclCommons {
   }
 
   struct Member {
-    BaseAgent agent;
-    uint8 roleLimit;
-    address account;
+    BaseAgent agent;    
     LEnumerableSet.Bytes32Set roles;
+    address account;
+    uint8 roleLimit;
   }
 
   struct Role {
     BaseAgent agent;
     bytes32 adminId;
-    uint24 memberLimit;
-    uint8 typeLimit;
     string name;
     LEnumerableSet.Bytes32Set members;
     LEnumerableSet.Bytes32Set types;
+    uint24 memberLimit;
+    uint8 typeLimit;
   }
 
   struct Type {
     BaseAgent agent;
-    uint8 roleLimit;
     bytes32 scopeId;
     bytes32 groupId;
     string name;
     LEnumerableSet.Bytes32Set roles;
+    uint8 roleLimit;
   }
 
   struct Group {
     BaseAgent agent;
-    uint8 typeLimit;
     bytes32 scopeId;
     string name;
     LEnumerableSet.Bytes32Set types;
+    uint8 typeLimit;
+  }
+
+  struct Facet {
+    address facetId;
+    bytes4 interfaceId;
+    uint8 facetPosition;
+  }
+
+  // Request Types
+  struct FacetSelectorMigrateRequest {
+    ActionType action;
+    bytes4[] selectors;
+  }
+
+  struct FacetMigrateRequest {
+    address facetId;
+    address newFacetId;
+    bytes4 interfaceId;
+    bytes4 newInterfaceId;
+    FacetSelectorMigrateRequest[] migrateSelectors;
+  }
+
+  struct FacetRegisterRequest {
+    address facetId;
+    bytes4 interfaceId;
+    bytes4[] selectors;
+  }
+
+  struct ScopeAddGroupsRequest {
+    bytes32 scopeId; 
+    bytes32[] groups;
+  }
+
+  struct ScopeRemoveGroupsRequest {
+    bytes32 scopeId; 
+    bytes32[] groups;
+  }
+
+  struct ScopeUpdateActivityRequest {
+    bytes32 scopeId;
+    ActivityStatus acstat;
+  }
+
+  struct ScopeUpdateAlterabilityRequest {
+    bytes32 scopeId;
+    AlterabilityStatus alstate;
+  }
+
+  struct ScopeUpdateAdminRequest {
+    bytes32 scopeId;
+    bytes32 adminId;
+  }
+
+  struct ScopeUpdateGroupLimitRequest {
+    bytes32 scopeId;
+    bytes8 groupLimit;
+  }
+
+  struct GroupRegisterRequest {
+    ActivityStatus acstat;
+    AlterabilityStatus alstat;
+    uint8 typeLimit;
+    bytes32 scopeId;
+    string name;
+    bytes32[] types;
+  }
+
+  /**
+   * regiter new role need to add to some type, must caller have permission to add role to target types 
+   */
+  struct RoleRegisterRequest {
+    ActivityStatus acstat;
+    AlterabilityStatus alstat;   
+    bytes32 adminId;
+    bytes32 policyId;
+    bytes32 scopeId;
+    uint24 memberLimit;
+    uint8 typeLimit;
+    string name;
+    bytes32[] members;
+    bytes32[] types;
+  }
+
+  struct TypeRegisterRequest {
+    ActivityStatus acstat;
+    AlterabilityStatus alstat;
+    uint8 roleLimit;
+    bytes32 scopeId;
+    bytes32 groupId;
+    string name;
+    bytes32[] roles;
   }
 }

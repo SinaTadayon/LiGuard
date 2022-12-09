@@ -5,6 +5,7 @@ pragma solidity 0.8.17;
 
 import "../proxy/BaseUUPSStorage.sol";
 import "./IAclCommons.sol";
+import "../lib/struct/LEnumerableSet.sol";
 
 /**
  * @title Abstract Access Control Storage Contract
@@ -13,19 +14,17 @@ import "./IAclCommons.sol";
  *
  */
 abstract contract AccessControlStorage is BaseUUPSStorage, IAclCommons {
-
-  struct ACLMData {
-    
+  using LEnumerableSet for LEnumerableSet.AddressSet;
+  
+  struct ACLMData {    
     mapping(bytes32 => BaseAgent) agents;
     mapping(bytes32 => BaseScope) scopes;
-
-    // mapping(bytes32 => Member) members;
-    // mapping(bytes32 => Role) roles;
-    // mapping(bytes32 => RType) rtypes;
-    // mapping(bytes32 => Group) groups;
-    // mapping(bytes32 => Function) functions;
-    // mapping(bytes32 => Context) contexts;
-    // mapping(bytes32 => Realm) realms;
+    mapping(bytes32 => Policy) policies;
+    mapping(bytes32 => bytes32) rolePolicyMap;
+    
+    // function selector to facet index
+    mapping(bytes4 => uint8) selectors;
+    Facet[] facets;
     Global global;
     GeneralLimitation defaultLimitations;
   }

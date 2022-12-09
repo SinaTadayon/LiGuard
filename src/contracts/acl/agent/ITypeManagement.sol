@@ -12,15 +12,6 @@ import "../IAclCommons.sol";
  *
  */
 interface ITypeManagement is IAclCommons {
-  struct TypeRegisterRequest {
-    ActivityStatus acstat;
-    AlterabilityStatus alstat;
-    uint8 roleLimit;
-    bytes32 scopeId;
-    bytes32 groupId;
-    string name;
-    bytes32[] roles;
-  }
 
   struct TypeAddRolesRequest {
     bytes32 typeId;
