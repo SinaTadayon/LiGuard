@@ -39,13 +39,13 @@ interface IFunctionManagement is IAclCommons {
 
   event FunctionPolicyUpdated(address indexed sender, bytes32 indexed functionId, uint8 policyCode);
 
-  event FunctionGroupAdded(address indexed sender, bytes32 indexed functionId, bytes32 indexed groupId);
+  // event FunctionGroupAdded(address indexed sender, bytes32 indexed functionId, bytes32 indexed groupId);
 
-  event FunctionGroupRemoved(address indexed sender, bytes32 indexed functionId, bytes32 indexed groupId);
+  // event FunctionGroupRemoved(address indexed sender, bytes32 indexed functionId, bytes32 indexed groupId);
 
-  function functionAddGroup(ScopeAddGroupsRequest[] calldata requests) external returns (bool);
+  // function functionAddGroup(ScopeAddGroupsRequest[] calldata requests) external returns (bool);
 
-  function functionRemoveGroup(ScopeRemoveGroupsRequest[] calldata requests) external returns (bool);
+  // function functionRemoveGroup(ScopeRemoveGroupsRequest[] calldata requests) external returns (bool);
 
   function functionCreateGroup(GroupRegisterRequest calldata request) external returns (bytes32);
 
@@ -63,7 +63,7 @@ interface IFunctionManagement is IAclCommons {
 
   function functionCheckExistance(bytes32 functionId) external view returns (bool);
 
-  function functionCheckExistance(address contractId, bytes4 selector) external view returns (bool);
+  function functionCheckSelectorExistance(address contractId, bytes4 selector) external view returns (bool);
 
   function functionCheckAdmin(bytes32 functionId, bytes32 agentId) external view returns (bool);
 
@@ -88,4 +88,6 @@ interface IFunctionManagement is IAclCommons {
   function functionGetInfo(bytes32 functionId) external view returns (FunctionInfo memory);  
 
   function functionGenerateId(bytes32 contextId, bytes4 selector) external pure returns (bytes32);
+
+  function functionGenerateIdWithContract(address contractId, bytes4 selector) external pure returns (bytes32);
 }

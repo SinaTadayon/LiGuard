@@ -45,7 +45,7 @@ interface IGroupManagement is IAclCommons {
 
   struct GroupInfo {
     bytes32 scopeId;
-    uint8 groupLimit;
+    uint8 typeLimit;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
     string name;
@@ -61,9 +61,9 @@ interface IGroupManagement is IAclCommons {
     AlterabilityStatus alstat
   );
 
-  event GroupTypeGranted(address indexed sender, bytes32 indexed groupId, bytes32 indexed typeId);
+  event GroupTypeAdded(address indexed sender, bytes32 indexed groupId, bytes32 indexed typeId);
 
-  event GroupTypeRevoked(address indexed sender, bytes32 indexed groupId, bytes32 indexed typeId);
+  event GroupTypeRemoved(address indexed sender, bytes32 indexed groupId, bytes32 indexed typeId);
 
   event GroupActivityUpdated(address indexed sender, bytes32 indexed groupId, ActivityStatus acstat);
 
@@ -74,6 +74,8 @@ interface IGroupManagement is IAclCommons {
   event GroupScopeUpdated(address indexed sender, bytes32 indexed groupId, bytes32 indexed scopeId);
 
   function groupRegister(GroupRegisterRequest[] calldata requests) external returns (bool);
+
+  function groupAddType(bytes32 groupId, bytes32 typeId) external returns (bool);
 
   function groupAddTypes(GroupAddTypesRequest[] calldata requests) external returns (bool);
 
@@ -91,13 +93,11 @@ interface IGroupManagement is IAclCommons {
 
   function groupCheckExistance(string calldata groupName) external view returns (bool);
 
-  function groupHasType(bytes32 groupId, bytes32 typeId) external view returns (bool);
-
   function groupHasAccount(bytes32 groupId, address account) external view returns (bool);
 
   function groupHasMember(bytes32 groupId, bytes32 memberId) external view returns (bool);
 
-  function groupHasRole(bytes32 groupId, bytes32 roleId) external view returns (bool);
+  function groupHasType(bytes32 groupId, bytes32 typeId) external view returns (bool);
 
   function groupHasAgent(bytes32 typeId, bytes32 agentId) external view returns (bool);
 
@@ -115,7 +115,7 @@ interface IGroupManagement is IAclCommons {
 
   function groupGetTypesCount(bytes32 groupId) external view returns (uint8);
 
-  function groupGetInfo(bytes32 roleId) external view returns (GroupInfo memory);
+  function groupGetInfo(bytes32 typeId) external view returns (GroupInfo memory);
 
   function groupGenerateId(string calldata) external pure returns (bytes32);
 }

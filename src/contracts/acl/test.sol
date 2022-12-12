@@ -3,7 +3,7 @@
 
 pragma solidity 0.8.17;
 
-import "./AccessControlStorage.sol";
+import "./AclStorage.sol";
 import "../lib/struct/LEnumerableSet.sol";
 import "hardhat/console.sol";
 
@@ -13,7 +13,7 @@ import "hardhat/console.sol";
  * @dev
  *
  */
-contract Test is AccessControlStorage {
+contract Test is AclStorage {
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
 
   function init() public {
@@ -25,29 +25,31 @@ contract Test is AccessControlStorage {
       adminId: adminId,
       acstat: ActivityStatus.ENABLE,
       alstat: AlterabilityStatus.DISABLE,
-      stype: ScopeType.CONTEXT
+      stype: ScopeType.FUNCTION
     });
 
-    Function storage fc = writeFunction(fcId, bs, ctxId, fcSelector);
-    fc.agents.add(adminId);
+    FunctionEntity storage fc = writeFunction(fcId);
+    fc.baseScope = bs;
+    fc.contextId = ctxId;
+    // fc.agents.add(adminId);
     console.log("fc.baseScope.adminId: ");
     console.logBytes32(fc.baseScope.adminId);
 
     console.log("_data.scopes[fcId].adminId: ");
     console.logBytes32(_data.scopes[fcId].adminId); 
 
-    Function storage fc1 = readFunction(fcId);
-    console.log("fc1.baseScope.adminId: ");
+    FunctionEntity storage fc1 = readFunction(fcId);
+    console.log("read fc1.baseScope.adminId: ");
     console.logBytes32(fc1.baseScope.adminId);
 
-    console.log("fc1.contextId: ");
+    console.log("read fc1.contextId: ");
     console.logBytes32(fc1.contextId);
 
     console.log("fc1.agents: ");
-    console.logBytes32(fc1.agents.at(0));
+    // console.logBytes32(fc1.agents.at(0));
   }
 
-  function readFunction(bytes32 scopeId) internal view returns (Function storage fc) {
+  function readFunction(bytes32 scopeId) internal view returns (FunctionEntity storage fc) {
     BaseScope storage bs = _data.scopes[scopeId];
     if(bs.stype == ScopeType.FUNCTION) {
       assembly {
@@ -60,29 +62,22 @@ contract Test is AccessControlStorage {
       assembly {
         fc.slot := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
       }
+      // revert("Invalid Function ScopeType");
     } 
-
   }
 
-  function writeFunction(bytes32 scopeId, BaseScope memory bs, bytes32 ctxId, bytes4 fcSelector) internal returns (Function storage fc) {
-    uint dataSlot;
-
-    assembly {
-      let ptr := mload(0x40)
-      dataSlot := _data.slot
-      // mstore(0x40, add(ptr, 0x40))
-      mstore(add(ptr, 0x00), scopeId)
-      mstore(add(ptr, 0x20), add(dataSlot, 1))
-      let slot := keccak256(ptr, 0x40)      
-      fc.slot := slot
-    }
-
-    console.log("data slot: %d", dataSlot);
-    fc.baseScope = bs;
-    fc.contextId = ctxId;
-    fc.functionId = scopeId;
-    fc.selector = fcSelector;
-  
+  function writeFunction(bytes32 scopeId) internal view returns (FunctionEntity storage fc) {
+    BaseScope storage bs = _data.scopes[scopeId];
+    if(bs.stype == ScopeType.NONE || bs.stype == ScopeType.FUNCTION) {
+      assembly {
+        let ptr := mload(0x40)
+        mstore(add(ptr, 0x00), scopeId)
+        mstore(add(ptr, 0x20), add(_data.slot, 1))
+        let slot := keccak256(ptr, 0x40)      
+        fc.slot := slot
+      }
+    } else {
+      revert("Invalid Function Scope Slot");
+    }  
   }
-
 }

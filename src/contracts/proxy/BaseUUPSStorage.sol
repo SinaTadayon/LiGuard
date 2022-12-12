@@ -3,13 +3,15 @@
 
 pragma solidity 0.8.17;
 
+import "./IBaseProxy.sol";
+
 /**
  * @title Abstract Base UUPS Storage Contract
  * @author OpenZeppelin, Sina Tadayon, https://github.com/SinaTadayon
  * @dev
  *
  */
-abstract contract BaseUUPSStorage {
+abstract contract BaseUUPSStorage is IBaseProxy {
   // This is the keccak-256 hash of "eip1967.proxy.rollback" subtracted by 1
   bytes32 internal constant _ROLLBACK_SLOT = 0x4910fdfa16fed3260ed0e7147f7cc6da11a60208b5b9406d12a635614ffd9143;
 
@@ -40,11 +42,9 @@ abstract contract BaseUUPSStorage {
 
   string internal _contractName;
   string internal _contractVersion;
-  // bytes32 internal _contractRealm;
-  // bytes32 internal _contractDomain;
   address internal _accessControlManager;
-  bool internal _isSafeMode;
-  bool internal _isUpgradable;
+  ProxySafeModeStatus internal _smstat;
+  ProxyUpdatabilityStatus internal _ustat;
 
   /**
    * @dev This empty reserved space is put in place to allow future versions to add new

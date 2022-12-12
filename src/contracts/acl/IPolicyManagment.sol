@@ -58,7 +58,6 @@ interface IPolicyManagement is IAclCommons {
     uint8 code;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
-
   }
 
   event PolicyRegistered(

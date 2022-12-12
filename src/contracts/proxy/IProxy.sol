@@ -15,11 +15,11 @@ interface IProxy is IBaseProxy {
   /**
    * @dev Emitted when the admin account has changed.
    */
-  event LocalAdminChanged(address indexed sender, address indexed proxy, address newAdmin);
+  event ProxyLocalAdminUpdated(address indexed sender, address indexed proxy, address newAdmin);
 
-  event SafeModeChanged(address indexed sender, address indexed proxy, bytes32 indexed realm, bool status);
+  event ProxySafeModeUpdated(address indexed sender, address indexed proxy, ProxySafeModeStatus smstat);
 
-  event UpgradeStatusChanged(address indexed sender, address indexed proxy, bytes32 indexed realm, bool status);
+  event ProxyUpdatabilityUpdated(address indexed sender, address indexed proxy, ProxyUpdatabilityStatus ustat);
 
   /**
    * @dev Triggered when the contract has been initialized or reinitialized.
@@ -40,9 +40,9 @@ interface IProxy is IBaseProxy {
     bool forceCall
   ) external returns (bytes memory);
 
-  function setSafeMode(bool status) external returns (bool);
+  function setSafeModeStatus(ProxySafeModeStatus sfstat) external returns (bool);
 
-  function setUpgradeStatus(bool status) external returns (bool);
+  function setUpdatabilityStatus(ProxyUpdatabilityStatus ustat) external returns (bool);
 
   function setLocalAdmin(address newAdmin) external returns (bool);
 
@@ -50,19 +50,13 @@ interface IProxy is IBaseProxy {
 
   function contractVersion() external view returns (string memory);
 
-  function contractRealm() external view returns (bytes32);
-
-  function contractDomain() external view returns (bytes32);
-
-  function contractContext() external view returns (bytes32);
-
   function accessControlManager() external view returns (address);
 
   function subjectAddress() external view returns (address);
 
-  function isSafeMode() external view returns (bool);
+  function safeModeStatus() external returns (ProxySafeModeStatus);
 
-  function isUpgradable() external view returns (bool);
+  function UpdatabilityStatus() external returns (ProxyUpdatabilityStatus);
 
   function localAdmin() external view returns (address);
 

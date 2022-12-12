@@ -77,6 +77,10 @@ library LEnumerableMap {
     return map._keys.add(key);
   }
 
+  function keys(Bytes32ToBytes32Map storage map) internal view returns(bytes32[] memory) {
+    return map._keys.values();
+  }
+
   /**
    * @dev Removes a key-value pair from a map. O(1).
    *

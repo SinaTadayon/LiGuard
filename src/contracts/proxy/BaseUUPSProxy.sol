@@ -11,7 +11,7 @@ import "./Initializable.sol";
 import "../lib/LAddress.sol";
 import "../lib/LStorageSlot.sol";
 import "../acl/IAccessControl.sol";
-import "../acl/IContextManagement.sol";
+import "../acl/scope/IContextManagement.sol";
 import "../utils/Message.sol";
 import "../utils/ERC165.sol";
 import "../lib/LContextUtils.sol";
@@ -62,7 +62,7 @@ abstract contract BaseUUPSProxy is
   }
 
   modifier safeModeCheck() {
-    require(!_isSafeMode, "SafeMode: Call Rejected");
+    require(_smstat == ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
     _;
   }
 
@@ -74,18 +74,18 @@ abstract contract BaseUUPSProxy is
   function _hasPermission(bytes4 selector) internal returns (bool) {
     if (address(this) == _accessControlManager) {
       bytes memory data = abi.encodeWithSelector(
-        IAccessControl.hasAccess.selector,
-        LContextUtils.generateCtx(address(this)),
-        _msgSender(),
+        IAccessControl.hasCSAccess.selector,
+        address(this),
+        // _msgSender(),
         selector
       );
       bytes memory returndata = LAddress.functionDelegateCall(_implementation(), data, "Delegatecall hasAccess Failed");
       return uint8(returndata[returndata.length - 1]) == 1;
     } else {
       return
-        IAccessControl(_accessControlManager).hasAccess(
-          LContextUtils.generateCtx(address(this)),
-          _msgSender(),
+        IAccessControl(_accessControlManager).hasCSAccess(
+          address(this),
+          // _msgSender(),
           selector
         );
     }
@@ -120,30 +120,25 @@ abstract contract BaseUUPSProxy is
     LStorageSlot.getAddressSlot(_ADMIN_SLOT).value = _msgSender();
 
     // set _isUpgradable and _isSafeMode of contact
-    _isUpgradable = false;
-    _isSafeMode = true;
+    _ustat = ProxyUpdatabilityStatus.DISABLE;
+    _smstat = ProxySafeModeStatus.ENABLE;
   }
 
   function __BASE_UUPS_init(
-    string calldata domainName,
-    string calldata domainVersion,
-    bytes32 domainRealm,
+    string calldata cname,
+    string calldata cverion,
     address accessControl
   ) internal {
-    __BASE_UUPS_init_unchained(domainName, domainVersion, domainRealm, accessControl);
+    __BASE_UUPS_init_unchained(cname, cverion, accessControl);
   }
 
   function __BASE_UUPS_init_unchained(
-    string calldata conName,
-    string calldata conVersion,
-    bytes32 domainRealm,
+    string calldata cname,
+    string calldata cverion,
     address accessControl
   ) internal onlyInitializing {
-    // _domainName = keccak256(abi.encodePacked(domainName));
-    // _domainVersion = keccak256(abi.encodePacked(domainVersion));
-    // _domainRealm = domainRealm;
-    _contractName = conName;
-    _contractVersion = conVersion;
+    _contractName = cname;
+    _contractVersion = cverion;
     if (accessControl == address(0)) {
       _accessControlManager = address(this);
     } else {
@@ -154,8 +149,8 @@ abstract contract BaseUUPSProxy is
       }
       _accessControlManager = accessControl;
     }
-    _isUpgradable = false;
-    _isSafeMode = false;
+    _ustat = ProxyUpdatabilityStatus.DISABLE;
+    _smstat = ProxySafeModeStatus.DISABLE;
     _setLocalAdmin(_msgSender());
   }
 
@@ -191,7 +186,7 @@ abstract contract BaseUUPSProxy is
    */
   function _upgradeTo(address newImplementation) internal {
     _setImplementation(newImplementation);
-    emit Upgraded(msg.sender, address(this), newImplementation);
+    emit ProxyUpgraded(msg.sender, address(this), newImplementation);
   }
 
   /**
@@ -261,8 +256,8 @@ abstract contract BaseUUPSProxy is
     bytes memory data,
     bool forceCall
   ) external virtual onlyProxy returns (bytes memory) {
-    require(!_isSafeMode, "SafeMode: Call Rejected");
-    require(_isUpgradable, "Upgrade Call Rejected");
+    require(_smstat == ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
+    require(_ustat == ProxyUpdatabilityStatus.ENABLE, "Upgrade Call Rejected");
     _authorizeUpgrade(newImplementation);
     return _upgradeToAndCallUUPS(newImplementation, data, forceCall);
   }
@@ -287,7 +282,8 @@ abstract contract BaseUUPSProxy is
   }
 
   function setLocalAdmin(address newLocalAdmin) external onlyProxy returns (bool) {
-    require(!_isSafeMode, "SafeMode: Call Rejected");
+    require(_smstat == ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
+    require(_ustat == ProxyUpdatabilityStatus.ENABLE, "Update Call Rejected");
     require(_hasPermission(this.setLocalAdmin.selector), "SetLocalAdmin Forbidden");
     require(newLocalAdmin != address(0), "Address Invalid");
     _setLocalAdmin(newLocalAdmin);
@@ -306,41 +302,35 @@ abstract contract BaseUUPSProxy is
    */
   function _setLocalAdmin(address newAdmin) internal {
     LStorageSlot.getAddressSlot(_ADMIN_SLOT).value = newAdmin;
-    emit LocalAdminChanged(_msgSender(), address(this), newAdmin);
+    emit LocalAdminUpdated(_msgSender(), address(this), newAdmin);
   }
 
   // In each upgrade the initialize requirement must be changed
-  function setSafeMode(bool status) external onlyProxy returns (bool) {
+  function setSafeModeStatus(ProxySafeModeStatus smstat) external onlyProxy returns (bool) {
     require(_getInitializedCount() > 0, "Contract Not Initialized");
-    require(_hasPermission(this.setSafeMode.selector), "SetSafeMode Forbidden");
-    _isSafeMode = status;
-    emit SafeModeChanged(_msgSender(), address(this), _accessControlManager.getContextRealm(this.contractContext()), status);
-    return status;
+    require(_hasPermission(this.setSafeModeStatus.selector), "SetSafeMode Forbidden");
+    _smstat = smstat;
+    emit ProxySafeModeUpdated(_msgSender(), address(this), _accessControlManager.getContextRealm(this.contractContext()), smstat);
+    return true;
   }
 
-  function setUpgradeStatus(bool status) external onlyProxy returns (bool) {
-    require(!_isSafeMode, "SafeMode: Call Rejected");
+  function setUpdatabilityStatus(ProxyUpdatabilityStatus ustat) external onlyProxy returns (bool) {
+    require(_smstat == ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
     require(_hasPermission(this.setUpgradeStatus.selector), "SetUpgradeStatus Forbidden");
+
+    // TODO check it
     require(_isRealmUpgradable(), "Realm Upgrade Forbidden");
-    _isUpgradable = status;
-    emit UpgradeStatusChanged(_msgSender(), address(this), _accessControlManager.getContextRealm(this.contractContext()), status);
-    return status;
+    _ustat = ustat;
+    emit ProxyUpdatabilityUpdated(_msgSender(), address(this), _accessControlManager.getContextRealm(this.contractContext()), ustat);
+    return true;
   }
 
   function contractName() external view returns (string memory) {
     return _contractName;
   }
 
-  function contractVersion() external view returns (string memroy) {
+  function contractVersion() external view returns (string memory) {
     return _contractVersion;
-  }
-
-  function contractRealm() external view returns (bytes32) {
-    return _accessControlManager.getContextRealm(this.contractContext());
-  }
-
-  function contractDomain() external view returns (bytes32) {
-    
   }
 
   function contractContext() external view returns (bytes32) {
@@ -355,12 +345,12 @@ abstract contract BaseUUPSProxy is
     return _implementation();
   }
 
-  function isSafeMode() external view returns (bool) {
-    return _isSafeMode;
+  function safeModeStatus() external view returns (ProxySafeModeStatus) {
+    return _smstat;
   }
 
-  function isUpgradable() external view returns (bool) {
-    return _isUpgradable;
+  function UpdatabilityStatus() external view returns (ProxyUpdatabilityStatus) {
+    return _ustat;
   }
 
   // TODO check it
@@ -369,7 +359,7 @@ abstract contract BaseUUPSProxy is
   }
 
   function _domainSeparatorV4() internal view returns (bytes32) {
-    return keccak256(abi.encode(_TYPE_HASH, _domainName, _domainVersion, block.chainid, address(this)));
+    return keccak256(abi.encode(_TYPE_HASH, _contractName, _contractVersion, block.chainid, address(this)));
   }
 
   function initVersion() external view returns (uint16) {
@@ -377,7 +367,7 @@ abstract contract BaseUUPSProxy is
   }
 
   function withdrawBalance(address recepient) public {
-    require(!_isSafeMode, "SafeMode: Call Rejected");
+    require(_smstat == ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
     require(_hasPermission(this.withdrawBalance.selector), "Withdraw Balance Forbidden");
     payable(recepient).transfer(address(this).balance);
   }

@@ -18,7 +18,7 @@ import "../utils/IERC165.sol";
  * @dev
  *
  */
-contract Proxy is BaseUUPSStorage, BaseProxy, IBaseProxy {
+contract Proxy is BaseUUPSStorage, BaseProxy {
   /**
    * @dev Initializes the upgradeable proxy with an initial implementation specified by `_logic`.
    *
@@ -29,7 +29,7 @@ contract Proxy is BaseUUPSStorage, BaseProxy, IBaseProxy {
     assert(_IMPLEMENTATION_SLOT == bytes32(uint256(keccak256("eip1967.proxy.implementation")) - 1));
     assert(_ADMIN_SLOT == bytes32(uint256(keccak256("eip1967.proxy.admin")) - 1));
     LStorageSlot.getAddressSlot(_ADMIN_SLOT).value = msg.sender;
-    _isSafeMode = true;
+    _acstat = ActivityStatus.SAFE_MODE;
     _upgradeToAndCallUUPS(logic, data, false);
   }
 
@@ -55,7 +55,7 @@ contract Proxy is BaseUUPSStorage, BaseProxy, IBaseProxy {
    */
   function _upgradeTo(address newImplementation) private {
     _setImplementation(newImplementation);
-    emit Upgraded(msg.sender, address(this), _implementation());
+    emit ProxyUpgraded(msg.sender, address(this), _implementation());
   }
 
   /**

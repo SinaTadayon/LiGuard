@@ -17,13 +17,13 @@ interface IAccessControl is IAclCommons {
    * @return boolean indicating whether the ACL allows
    */
 
-  function hasAccess(bytes32 contextId, address account, bytes32 functionId) external view returns (bool);
+  function hasCAFAccess(bytes32 contextId, address account, bytes32 functionId) external view returns (bool);
 
-  function hasAccess(bytes32 contextId, bytes32 functionId) external view returns (bool);
+  function hasCFAccess(bytes32 contextId, bytes32 functionId) external view returns (bool);
 
-  function hasAccess(address contractId, address account, bytes4 selector) external view returns (bool);
+  function hasCASAccess(address contractId, address account, bytes4 selector) external view returns (bool);
 
-  function hasAccess(address contractId, bytes4 selector) external view returns (bool);
+  function hasCSAccess(address contractId, bytes4 selector) external view returns (bool);
 
   function getSuperGroup() external view returns (bytes32);
 
@@ -77,14 +77,37 @@ interface IAccessControl is IAclCommons {
   function isMemberExistedInScopeMasterType(bytes32 memberId) external view returns (bool);
 
 
-  // Role Master
+  // Member Master
+  function isRoleExistedInMemberMasterType(bytes32 roleId) external view returns (bool);
+
+  function isRoleNameExistedInMemberMasterType(string calldata roleName) external view returns (bool);
+
+  function isAccountExistedInMemberMasterType(address account) external view returns (bool);
+
+  function isMemberExistedInMemberMasterType(bytes32 memberId) external view returns (bool);
+
+
+  // Type Master
+  function getRoleMasterId() external view returns (bytes32);
+
   function isRoleExistedInRoleMasterType(bytes32 roleId) external view returns (bool);
 
-  function isRoleExistedInRoleMasterType(string calldata roleName) external view returns (bool);
+  // function isRoleExistedInTypeMasterType(string calldata roleName) external view returns (bool);
 
   function isAccountExistedInRoleMasterType(address account) external view returns (bool);
 
-  function isMemberExistedInRoleMasterType(bytes32 memberId) external view returns (bool);
+  // function isMemberExistedInTypeMasterType(bytes32 memberId) external view returns (bool);
+
+  // Type Master
+  function getTypeMasterId() external view returns (bytes32);
+
+  function isRoleExistedInTypeMasterType(bytes32 roleId) external view returns (bool);
+
+  // function isRoleExistedInTypeMasterType(string calldata roleName) external view returns (bool);
+
+  function isAccountExistedInTypeMasterType(address account) external view returns (bool);
+
+  // function isMemberExistedInTypeMasterType(bytes32 memberId) external view returns (bool);
 
 
   // general
@@ -99,4 +122,6 @@ interface IAccessControl is IAclCommons {
   function getScopeOfAgent(bytes32 agentId) external view returns (ScopeType stype, bytes32 scopeId);
 
   function getAgentOfScope(bytes32 scopeId) external view returns (AgentType stype, bytes32 agentId);
+
+  function isScopeExistedInAnotherScope(bytes32 baseScopeId, bytes32 targetScopeId) external view returns (bool);
 }

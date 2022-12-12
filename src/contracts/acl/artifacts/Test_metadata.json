@@ -1,0 +1,128 @@
+{
+	"compiler": {
+		"version": "0.8.17+commit.8df45f5f"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "sender",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "proxy",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "newImplementation",
+						"type": "address"
+					}
+				],
+				"name": "ProxyUpgraded",
+				"type": "event"
+			},
+			{
+				"inputs": [],
+				"name": "init",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"author": "Sina Tadayon, https://github.com/SinaTadayon",
+			"kind": "dev",
+			"methods": {},
+			"title": "Abstract Access Control Storage Contract",
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"src/contracts/acl/test.sol": "Test"
+		},
+		"evmVersion": "london",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"hardhat/console.sol": {
+			"keccak256": "0x60b0215121bf25612a6739fb2f1ec35f31ee82e4a8216c032c8243d904ab3aa9",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://6e29880d33dd479bb046ba306993d26ccb779a4b1d94a046cb3567f22948bb4d",
+				"dweb:/ipfs/QmfTY1qzPt5C63Wc7y6JqfZr5899NRvXYdCpyLzR5FXQic"
+			]
+		},
+		"src/contracts/acl/AclStorage.sol": {
+			"keccak256": "0xc067eb426dd22d78d705b44490fd65215298bd645b2f2dd1483ed449ecb25681",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://ba32ddb3850f125ebd4591f4d9aae03123c5cdc8189fb4fe15e0d68e3256768c",
+				"dweb:/ipfs/QmbNLLTTG43aNh7SXKfrBQFmBCLHjZrUHXuFdovvZx9Gx9"
+			]
+		},
+		"src/contracts/acl/IAclCommons.sol": {
+			"keccak256": "0x5e2a873821f9f2fc3b7b0fde940e60075cd9d37b71b820ce29a8d1cf39ebb929",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://6e1720020f276acb6fd07a1fd0f5445285a5a187805de2dc8d23837bbc8902be",
+				"dweb:/ipfs/QmTLczdgbgpzY9Q34a6giZ9P715pLKr9PTRVw9f63imMrz"
+			]
+		},
+		"src/contracts/acl/test.sol": {
+			"keccak256": "0xb7594441a2fec97e41da4c6368bed1a4311ca627746c87d7f96cbc534405948c",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://9eb68a8b186055b8df6e9b9343073998f5abf13b2561d7fe9e3aef7d0c5d3e4a",
+				"dweb:/ipfs/QmQ3eddwghZupPtzsJwwPEyzqrhNgmAtZeWbKBowMd6ndA"
+			]
+		},
+		"src/contracts/lib/struct/LEnumerableSet.sol": {
+			"keccak256": "0xfff4307cba47977196bd7c868492b88b9e52168df13be81c86a82e124cc185b9",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://5592c7eb165f4a58b1d5b82500830ea92d3be7305d4cad62da0d37de1a08e959",
+				"dweb:/ipfs/QmV7U8LFydRBuL7M9DUntBhQoodAtNcfCubYUL1CRiJJMz"
+			]
+		},
+		"src/contracts/proxy/BaseUUPSStorage.sol": {
+			"keccak256": "0x3b542f36434fb6a1f256bd310b4267253b77f0242f94e50a4f0e57f0fa5db20d",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://7aabcb63f35e386e282cbeebcd407c340d3167af203a69e0a6278f5a43829d99",
+				"dweb:/ipfs/QmPLtX8nUUexhtHDhMznUYXXqbLYyRBG1yPLN51zpeMc2b"
+			]
+		},
+		"src/contracts/proxy/IBaseProxy.sol": {
+			"keccak256": "0x20321e89474b2c521cb0d70a72c2dfe50c541e7a4fdeff5bc1fe90ac31e251c7",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://437eda049d2fcd54a682d6670399c7ce08d944a4af17bdcc473699dd5ffe785f",
+				"dweb:/ipfs/QmUhWfqEDXLejTcNZw7BCehr729W4eb5uxySXC5dXK3eSi"
+			]
+		}
+	},
+	"version": 1
+}

@@ -4,6 +4,8 @@
 pragma solidity 0.8.17;
 
 import "../lib/struct/LEnumerableSet.sol";
+import "../lib/struct/LEnumerableMap.sol";
+
 
 /**
  * @title Access Control Interface
@@ -26,12 +28,14 @@ interface IAclCommons {
   }
 
   enum ActivityStatus {
+    NONE,
     DISABLE,
     ENABLE,
     SAFE_MODE
   }
 
   enum AlterabilityStatus {
+    NONE,
     DISABLE,
     UPDATABLE,
     UPGRADABLE
@@ -74,7 +78,7 @@ interface IAclCommons {
     AlterabilityStatus alstat;
   }
 
-  struct Policy {
+  struct PolicyEntity {
     bytes32 adminId;
     string name;
     uint8 code;
@@ -97,17 +101,17 @@ interface IAclCommons {
     uint8 nameLenLimit;
   }
 
-  struct Function {
-    BaseScope baseScope;    
-    bytes32 functionId;
+  struct FunctionEntity {
+    BaseScope bs;    
+    // bytes32 functionId;
     bytes32 contextId;
     bytes32 groupId;
     bytes4 selector;
     uint8 policyCode;    
   }
  
-  struct Context {
-    BaseScope baseScope;
+  struct ContextEntity {
+    BaseScope bs;
     bytes32 realmId;    
     LEnumerableSet.Bytes32Set functions;
     LEnumerableSet.Bytes32Set groups;
@@ -116,8 +120,8 @@ interface IAclCommons {
     uint8 groupLimit;
   }
 
-  struct Realm {
-    BaseScope baseScope;
+  struct RealmEntity {
+    BaseScope bs;
     bytes32 domainId;
     uint32 contextLimit;
     uint8 groupLimit;
@@ -126,8 +130,8 @@ interface IAclCommons {
     LEnumerableSet.Bytes32Set groups;
   }
 
-  struct Domain {
-    BaseScope baseScope;
+  struct DomainEntity {
+    BaseScope bs;
     uint16 realmLimit;
     uint8 groupLimit;
     string name;
@@ -135,53 +139,54 @@ interface IAclCommons {
     LEnumerableSet.Bytes32Set groups;
   }
 
-  struct Global {
-    BaseScope baseScope;  
+  struct GlobalEntity {
+    BaseScope bs;
     uint16 domainLimit;
     uint8 groupLimit;    
     LEnumerableSet.Bytes32Set domains;
     LEnumerableSet.Bytes32Set groups;
   }
 
-  struct Member {
-    BaseAgent agent;    
-    LEnumerableSet.Bytes32Set roles;
-    address account;
-    uint8 roleLimit;
-  }
-
-  struct Role {
-    BaseAgent agent;
-    bytes32 adminId;
-    string name;
-    LEnumerableSet.Bytes32Set members;
+  struct MemberEntity {
+    BaseAgent ba;
+    bytes32 adminId;    
     LEnumerableSet.Bytes32Set types;
-    uint24 memberLimit;
+    address account;
     uint8 typeLimit;
   }
 
-  struct Type {
-    BaseAgent agent;
+  struct RoleEntity {
+    BaseAgent ba;
+    // bytes32 adminId;
+    bytes32 scopeId;
+    bytes32 typeId;
+    string name;
+    uint32 memberLimit;
+    uint32 totalMember;
+  }
+
+  struct TypeEntity {
+    BaseAgent ba;
+    bytes32 adminId;
     bytes32 scopeId;
     bytes32 groupId;
+    uint32 totalMember;
+    uint32 memberLimit;
+    uint8 roleLimit;    
     string name;
+    mapping(bytes32 => bytes32) members;
+    // LEnumerableMap.Bytes32ToBytes32Map members;
     LEnumerableSet.Bytes32Set roles;
-    uint8 roleLimit;
   }
 
-  struct Group {
-    BaseAgent agent;
+  struct GroupEntity {
+    BaseAgent ba;
     bytes32 scopeId;
     string name;
     LEnumerableSet.Bytes32Set types;
     uint8 typeLimit;
   }
 
-  struct Facet {
-    address facetId;
-    bytes4 interfaceId;
-    uint8 facetPosition;
-  }
 
   // Request Types
   struct FacetSelectorMigrateRequest {
@@ -194,7 +199,7 @@ interface IAclCommons {
     address newFacetId;
     bytes4 interfaceId;
     bytes4 newInterfaceId;
-    FacetSelectorMigrateRequest[] migrateSelectors;
+    FacetSelectorMigrateRequest[] migrations;
   }
 
   struct FacetRegisterRequest {
@@ -242,29 +247,32 @@ interface IAclCommons {
     bytes32[] types;
   }
 
-  /**
-   * regiter new role need to add to some type, must caller have permission to add role to target types 
-   */
-  struct RoleRegisterRequest {
-    ActivityStatus acstat;
-    AlterabilityStatus alstat;   
-    bytes32 adminId;
-    bytes32 policyId;
-    bytes32 scopeId;
-    uint24 memberLimit;
-    uint8 typeLimit;
-    string name;
-    bytes32[] members;
-    bytes32[] types;
-  }
+  // /**
+  //  * regiter new role need to add to some type, must caller have permission to add role to target types 
+  //  * role registered by scope master or role master or super admin types
+  //  */
+  // struct RoleRegisterRequest {
+  //   // bytes32 adminId;          // should role or member in any scope 
+  //   bytes32 scopeId;          // related to request sender scope and sender and it can be one of sender scope and under it
+  //   bytes32 typeId;
+  //   bytes32 policyId;
+  //   uint24 memberLimit;
+  //   // uint8 typeLimit;
+  //   string name;
+  //   ActivityStatus acstat;
+  //   AlterabilityStatus alstat;   
+  // }
 
-  struct TypeRegisterRequest {
-    ActivityStatus acstat;
-    AlterabilityStatus alstat;
-    uint8 roleLimit;
-    bytes32 scopeId;
-    bytes32 groupId;
-    string name;
-    bytes32[] roles;
-  }
+  // struct TypeRegisterRequest {
+  //   bytes32 adminId;          // should role or member in any scope 
+  //   bytes32 scopeId;
+  //   bytes32 groupId;
+  //   string name;
+  //   uint24 memberLimit;
+  //   uint8 roleLimit;
+  //   // bytes32[] roles;
+  //   ActivityStatus acstat;
+  //   AlterabilityStatus alstat;
+
+  // }
 }
