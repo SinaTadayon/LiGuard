@@ -23,12 +23,13 @@ interface IAclCommons {
     NONE,
     MEMBER,
     ROLE,
-    TYPE,
-    GROUP
+    TYPE
+    // GROUP
   }
 
   enum ActivityStatus {
     NONE,
+    DELETED,
     DISABLE,
     ENABLE,
     SAFE_MODE
@@ -66,6 +67,7 @@ interface IAclCommons {
   }
 
   struct BaseAgent {
+    bytes32 adminId;
     AgentType atype;
     ActivityStatus acstat;
     AlterabilityStatus alstat; 
@@ -76,6 +78,7 @@ interface IAclCommons {
     ScopeType stype;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
+    uint16 typelimit;
   }
 
   struct PolicyEntity {
@@ -89,104 +92,102 @@ interface IAclCommons {
     LEnumerableSet.Bytes32Set roles;
   }
 
-  struct GeneralLimitation {
-    uint24 memberLimit;
-    uint16 functionLimit;
-    uint16 contextLimit;
-    uint16 realmLimit;
-    uint8 domainLimit;
-    uint8 roleLimit;
-    uint8 typeLimit;
-    uint8 groupLimit;      
-    uint8 nameLenLimit;
-  }
+  // struct GeneralLimitation {
+  //   uint24 memberLimit;
+  //   uint16 functionLimit;
+  //   uint16 contextLimit;
+  //   uint16 realmLimit;
+  //   uint8 domainLimit;
+  //   uint8 roleLimit;
+  //   uint8 typeLimit;
+  //   uint8 groupLimit;      
+  //   uint8 nameLenLimit;
+  // }
 
   struct FunctionEntity {
     BaseScope bs;    
-    // bytes32 functionId;
+    bytes32 agentId;
     bytes32 contextId;
-    bytes32 groupId;
     bytes4 selector;
-    uint8 policyCode;    
+    // uint16 agentLimit;
+    uint8 policyCode;        
+    // LEnumerableSet.Bytes32Set agents;
   }
  
   struct ContextEntity {
     BaseScope bs;
-    bytes32 realmId;    
-    LEnumerableSet.Bytes32Set functions;
-    LEnumerableSet.Bytes32Set groups;
+    bytes32 realmId;
     address contractId;
-    uint8 functionLimit;
-    uint8 groupLimit;
+    uint32 factoryLimit;
+    uint32 factoryTotal;
+    uint8 functionLimit;    
+    LEnumerableSet.Bytes32Set functions;
+    // LEnumerableSet.Bytes32Set agents;
   }
 
   struct RealmEntity {
     BaseScope bs;
     bytes32 domainId;
     uint32 contextLimit;
-    uint8 groupLimit;
+    // uint16 agentLimit;
     string name;
     LEnumerableSet.Bytes32Set contexts;
-    LEnumerableSet.Bytes32Set groups;
+    // LEnumerableSet.Bytes32Set agents;
   }
 
   struct DomainEntity {
     BaseScope bs;
     uint16 realmLimit;
-    uint8 groupLimit;
+    // uint16 agentLimit;
     string name;
     LEnumerableSet.Bytes32Set realms;
-    LEnumerableSet.Bytes32Set groups;
+    // LEnumerableSet.Bytes32Set agents;
   }
 
   struct GlobalEntity {
     BaseScope bs;
     uint16 domainLimit;
-    uint8 groupLimit;    
+    // uint16 agentLimit;    
     LEnumerableSet.Bytes32Set domains;
-    LEnumerableSet.Bytes32Set groups;
+    // LEnumerableSet.Bytes32Set agents;
   }
 
   struct MemberEntity {
     BaseAgent ba;
-    bytes32 adminId;    
+    uint16 typeLimit;
+    address account;    
     LEnumerableSet.Bytes32Set types;
-    address account;
-    uint8 typeLimit;
   }
 
   struct RoleEntity {
-    BaseAgent ba;
-    // bytes32 adminId;
+    BaseAgent ba;    
     bytes32 scopeId;
     bytes32 typeId;
     string name;
     uint32 memberLimit;
-    uint32 totalMember;
+    uint32 memberTotal;
   }
 
   struct TypeEntity {
     BaseAgent ba;
-    bytes32 adminId;
-    bytes32 scopeId;
-    bytes32 groupId;
-    uint32 totalMember;
+    uint32 memberTotal;
     uint32 memberLimit;
-    uint8 roleLimit;    
+    uint8 roleLimit;
+    bytes32 scopeId;
+    // bytes32 groupId;    
     string name;
     mapping(bytes32 => bytes32) members;
     // LEnumerableMap.Bytes32ToBytes32Map members;
     LEnumerableSet.Bytes32Set roles;
   }
 
-  struct GroupEntity {
-    BaseAgent ba;
-    bytes32 scopeId;
-    string name;
-    LEnumerableSet.Bytes32Set types;
-    uint8 typeLimit;
-  }
-
+  // struct GroupEntity {
+  //   BaseAgent ba;
+  //   uint8 typeLimit;
+  //   bytes32 scopeId;
+  //   string name;
+  //   LEnumerableSet.Bytes32Set types;
+  // }
 
   // Request Types
   struct FacetSelectorMigrateRequest {
@@ -208,71 +209,41 @@ interface IAclCommons {
     bytes4[] selectors;
   }
 
-  struct ScopeAddGroupsRequest {
-    bytes32 scopeId; 
-    bytes32[] groups;
-  }
-
-  struct ScopeRemoveGroupsRequest {
-    bytes32 scopeId; 
-    bytes32[] groups;
-  }
-
-  struct ScopeUpdateActivityRequest {
-    bytes32 scopeId;
+  struct UpdateActivityRequest {
+    bytes32 id;
     ActivityStatus acstat;
   }
 
-  struct ScopeUpdateAlterabilityRequest {
-    bytes32 scopeId;
-    AlterabilityStatus alstate;
+  struct UpdateAlterabilityRequest {
+    bytes32 id;
+    AlterabilityStatus alstat;
   }
 
-  struct ScopeUpdateAdminRequest {
-    bytes32 scopeId;
+  struct UpdateAdminRequest {
+    bytes32 id;
     bytes32 adminId;
   }
 
-  struct ScopeUpdateGroupLimitRequest {
+  // Agent Requests
+  struct AgentUpdateScopeRequest { 
+    bytes32 agentId;
     bytes32 scopeId;
-    bytes8 groupLimit;
   }
 
-  struct GroupRegisterRequest {
-    ActivityStatus acstat;
-    AlterabilityStatus alstat;
-    uint8 typeLimit;
-    bytes32 scopeId;
-    string name;
-    bytes32[] types;
+  // Scope Requests
+  struct ScopeUpdateTypeLimitRequest {
+    bytes32 scopeId; 
+    uint16 typeLimit;
   }
 
-  // /**
-  //  * regiter new role need to add to some type, must caller have permission to add role to target types 
-  //  * role registered by scope master or role master or super admin types
-  //  */
-  // struct RoleRegisterRequest {
-  //   // bytes32 adminId;          // should role or member in any scope 
-  //   bytes32 scopeId;          // related to request sender scope and sender and it can be one of sender scope and under it
-  //   bytes32 typeId;
-  //   bytes32 policyId;
-  //   uint24 memberLimit;
-  //   // uint8 typeLimit;
-  //   string name;
-  //   ActivityStatus acstat;
-  //   AlterabilityStatus alstat;   
+  // struct ScopeRemoveGroupsRequest {
+  //   bytes32 scopeId; 
+  //   bytes32[] groups;
   // }
 
-  // struct TypeRegisterRequest {
-  //   bytes32 adminId;          // should role or member in any scope 
+  // struct ScopeUpdateGroupLimitRequest {
   //   bytes32 scopeId;
-  //   bytes32 groupId;
-  //   string name;
-  //   uint24 memberLimit;
-  //   uint8 roleLimit;
-  //   // bytes32[] roles;
-  //   ActivityStatus acstat;
-  //   AlterabilityStatus alstat;
-
+  //   bytes8 groupLimit;
   // }
+
 }

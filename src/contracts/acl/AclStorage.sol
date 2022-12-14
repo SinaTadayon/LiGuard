@@ -16,6 +16,17 @@ import "../lib/struct/LEnumerableSet.sol";
 abstract contract AclStorage is BaseUUPSStorage, IAclCommons {
   using LEnumerableSet for LEnumerableSet.AddressSet;
   
+  bytes32 public constant TYPE_HASH =
+    keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
+
+  bytes32 public constant CTX_MESSAGE_TYPEHASH =
+    keccak256("Context(address contractId,string name,string version,string realm)");
+
+  bytes32 public constant PREDICT_CTX_MESSAGE_TYPEHASH =
+    keccak256("PredictContext(address deployer,address subject,string realm)");
+
+
+
   struct DataCollection {    
     mapping(bytes32 => BaseAgent) agents;
     mapping(bytes32 => BaseScope) scopes;

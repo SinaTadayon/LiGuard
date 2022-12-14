@@ -21,14 +21,15 @@ interface IFunctionManagement is IAclCommons {
 
   struct FunctionInfo {
     bytes32 adminId;
-    bytes32 contextId;
-    bytes32 groupId;
+    bytes32 agentId;
+    bytes32 contextId;    
+    bytes4 selector;
+    uint16 typeLimit;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
     AgentType adminType;
+    AgentType agentType;
     uint8 policyCode;
-    address contractId;
-    bytes4 selector;
   }
 
   event FunctionAdminUpdated(address indexed sender, bytes32 indexed functionId, bytes32 indexed adminId, AgentType adminType);
@@ -39,6 +40,8 @@ interface IFunctionManagement is IAclCommons {
 
   event FunctionPolicyUpdated(address indexed sender, bytes32 indexed functionId, uint8 policyCode);
 
+  event FunctionTypeLimitUpdated(address indexed sender, bytes32 indexed functionId, uint16 typeLimit);
+
   // event FunctionGroupAdded(address indexed sender, bytes32 indexed functionId, bytes32 indexed groupId);
 
   // event FunctionGroupRemoved(address indexed sender, bytes32 indexed functionId, bytes32 indexed groupId);
@@ -47,47 +50,51 @@ interface IFunctionManagement is IAclCommons {
 
   // function functionRemoveGroup(ScopeRemoveGroupsRequest[] calldata requests) external returns (bool);
 
-  function functionCreateGroup(GroupRegisterRequest calldata request) external returns (bytes32);
+  function functionUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);
 
-  function functionCreateType(TypeRegisterRequest calldata request) external returns (bytes32);
+  function functionUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
 
-  function functionCreateRole(RoleRegisterRequest calldata request) external returns (bytes32);
-
-  function functionUpdateAdmin(ScopeUpdateAdminRequest[] calldata requests) external returns (bool);
-
-  function functionUpdateActivityStatus(ScopeUpdateActivityRequest[] calldata requests) external returns (bool);
-
-  function functionUpdateAlterabilityStatus(ScopeUpdateAlterabilityRequest[] calldata requests) external returns (bool);
+  function functionUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
   function functionUpdatePolicy(FunctionUpdatePolicyRequest[] calldata requests) external returns (bool); 
 
-  function functionCheckExistance(bytes32 functionId) external view returns (bool);
+  function functionUpdateTypeLimit(ScopeUpdateTypeLimitRequest[] calldata requests) external returns (bool);
 
-  function functionCheckSelectorExistance(address contractId, bytes4 selector) external view returns (bool);
+  function functionCheckId(bytes32 functionId) external view returns (bool);
 
-  function functionCheckAdmin(bytes32 functionId, bytes32 agentId) external view returns (bool);
+  function functionCheckSelector(address contractId, bytes4 selector) external view returns (bool);
 
-  function functionHasAgent(bytes32 functionId, bytes32 agentId) external view returns (bool);
+  // function functionCheckAdmin(bytes32 functionId, bytes32 agentId) external view returns (bool);
 
-  function functionHasAccount(bytes32 functionId, address account) external view returns (bool);
+  function functionCheckAdminAccount(bytes32 functionId, address account) external view returns (bool);
 
-  function functionGetAdmin(bytes32 functionId) external view returns (bytes32, AgentType);
+  // function functionCheckAgent(bytes32 functionId, bytes32 agentId) external view returns (bool);
+
+  function functionCheckAgentAccount(bytes32 functionId, address account) external view returns (bool);
+
+  // function functionHasAgent(bytes32 functionId, bytes32 agentId) external view returns (bool);
+
+  // function functionHasAccount(bytes32 functionId, address account) external view returns (bool);
+
+  function functionGetAdmin(bytes32 functionId) external view returns (AgentType, bytes32);
+
+  function functionGetAgent(bytes32 functionId) external view returns (AgentType, bytes32);
 
   function functionGetContext(bytes32 functionId) external view returns (bytes32);
 
   function functionGetActivityStatus(bytes32 functionId) external view returns (ActivityStatus);
 
-  function functionGeAlterabilityStatus(bytes32 functionId) external view returns (AlterabilityStatus);
+  function functionGetAlterabilityStatus(bytes32 functionId) external view returns (AlterabilityStatus);
 
   function functionGetSelector(bytes32 functionId) external view returns (bytes4);
 
-  function functionGetGroup(bytes32 functionId) external view returns (bytes32);
+  // function functionGetGroup(bytes32 functionId) external view returns (bytes32);
 
-  function functionGetPolicy(bytes32 functionId) external view returns (uint8);
+  function functionGetPolicy(bytes32 functionId) external view returns (bool, uint8);
 
   function functionGetInfo(bytes32 functionId) external view returns (FunctionInfo memory);  
 
-  function functionGenerateId(bytes32 contextId, bytes4 selector) external pure returns (bytes32);
+  // function functionGenerateId(bytes32 contextId, bytes4 selector) external pure returns (bytes32);
 
-  function functionGenerateIdWithContract(address contractId, bytes4 selector) external pure returns (bytes32);
+  function functionGenerateId(address contractId, bytes4 selector) external pure returns (bytes32);
 }

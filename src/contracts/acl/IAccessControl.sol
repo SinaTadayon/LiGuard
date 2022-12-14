@@ -76,38 +76,21 @@ interface IAccessControl is IAclCommons {
 
   function isMemberExistedInScopeMasterType(bytes32 memberId) external view returns (bool);
 
-
-  // Member Master
-  function isRoleExistedInMemberMasterType(bytes32 roleId) external view returns (bool);
-
-  function isRoleNameExistedInMemberMasterType(string calldata roleName) external view returns (bool);
-
-  function isAccountExistedInMemberMasterType(address account) external view returns (bool);
-
-  function isMemberExistedInMemberMasterType(bytes32 memberId) external view returns (bool);
+  function getScopeMasterTypeId() external view returns (bytes32);
 
 
-  // Type Master
-  function getRoleMasterId() external view returns (bytes32);
+  // Agent Master
+  function isRoleExistedInAgentMasterType(bytes32 roleId) external view returns (bool);
 
-  function isRoleExistedInRoleMasterType(bytes32 roleId) external view returns (bool);
+  function isAccountExistedInAgentMasterType(address account) external view returns (bool);
 
-  // function isRoleExistedInTypeMasterType(string calldata roleName) external view returns (bool);
+  function isMemberExistedInAgentMasterType(bytes32 memberId) external view returns (bool);
 
-  function isAccountExistedInRoleMasterType(address account) external view returns (bool);
+  function getAgentMasterTypeId() external view returns (bytes32);
 
-  // function isMemberExistedInTypeMasterType(bytes32 memberId) external view returns (bool);
+  function getRoleAccountOfAgentMasterType(address account) external view returns (bytes32);
 
-  // Type Master
-  function getTypeMasterId() external view returns (bytes32);
-
-  function isRoleExistedInTypeMasterType(bytes32 roleId) external view returns (bool);
-
-  // function isRoleExistedInTypeMasterType(string calldata roleName) external view returns (bool);
-
-  function isAccountExistedInTypeMasterType(address account) external view returns (bool);
-
-  // function isMemberExistedInTypeMasterType(bytes32 memberId) external view returns (bool);
+  function getScopeAccountOfAgentMasterType(address account) external view returns (ScopeType stype, bytes32 scopeId);
 
 
   // general

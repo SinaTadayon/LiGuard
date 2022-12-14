@@ -23,10 +23,6 @@ interface IRoleManagement is IAclCommons {
     uint32 count;
   }
   
-  struct RoleUpdateAdminRequest {
-    bytes32 roleId;
-    bytes32 adminId;
-  }
    /**
    * regiter new role need to add to some type, must caller have permission to add role to target types 
    * role registered by scope master or role master or super admin types
@@ -44,30 +40,17 @@ interface IRoleManagement is IAclCommons {
     AlterabilityStatus alstat;   
   }
 
-  struct RoleUpdateScopeRequest { 
-    bytes32 roleId;
-    bytes32 scopeId;
-  }
-
   struct RoleUpdateMemberLimitRequest {
     bytes32 roleId;
     uint24 memberLimit;
   }
 
-  struct RoleUpdateActivityRequest {
-    bytes32 roleId;
-    ActivityStatus acstat;
-  }
-
-  struct RoleUpdateAlterabilityRequest {
-    bytes32 roleId;
-    AlterabilityStatus alstate;
-  }
-
   struct RoleInfo {
     bytes32 scopeId;
     bytes32 typeId;
-    uint24 memberLimit;
+    bytes32 adminId;
+    uint32 memberLimit;
+    uint32 memberTotal;
     string name;
     ActivityStatus acstat;
     AlterabilityStatus alstat;   
@@ -75,11 +58,12 @@ interface IRoleManagement is IAclCommons {
 
   event RoleRegistered(
     address indexed sender,
-    bytes32 indexed typeId,
     bytes32 indexed roleId,
+    bytes32 indexed typeId,
     string name,
+    bytes32 adminId,
     bytes32 scopeId,
-    uint24 memberLimit,
+    uint32 memberLimit,
     ActivityStatus acstat,
     AlterabilityStatus alstat
   );
@@ -108,21 +92,23 @@ interface IRoleManagement is IAclCommons {
 
   function roleDecreaseMembers(RoleDecreaseMemberRequest[] calldata requests) external returns (bool);
 
-  function roleUpdateAdmin(RoleUpdateAdminRequest[] calldata requests) external returns (bool);
+  function roleUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);
 
-  function roleUpdateScope(RoleUpdateScopeRequest[] calldata requests) external returns (bool);
+  // function roleUpdateScope(AgentUpdateScopeRequest[] calldata requests) external returns (bool);
  
-  function roleUpdateActivityStatus(RoleUpdateActivityRequest[] calldata requests) external returns (bool);
+  function roleUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
 
-  function roleUpdateAlterabilityStatus(RoleUpdateAlterabilityRequest[] calldata requests) external returns (bool);
+  function roleUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
   function roleUpdateMemberLimit(RoleUpdateMemberLimitRequest[] calldata requests) external returns (bool);
 
-  function roleCheckIdExistance(bytes32 roleId) external view returns (bool);
+  function roleCheckId(bytes32 roleId) external view returns (bool);
 
-  function roleCheckNameExistance(string calldata roleName) external view returns (bool);
+  function roleCheckName(string calldata roleName) external view returns (bool);
 
-  function roleCheckAdmin(bytes32 roleId, bytes32 agentId) external view returns (bool);
+  // function roleCheckAdminMember(bytes32 roleId, bytes32 memberId) external view returns (bool);
+
+  function roleCheckAdminAccount(bytes32 roleId, address account) external view returns (bool);
 
   function roleHasAccount(bytes32 roleId, address account) external view returns (bool);
 
