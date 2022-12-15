@@ -15,9 +15,10 @@ import "../IAclCommons.sol";
 interface IGlobalManagement is IAclCommons {
  
   struct GlobalInfo {
+    bytes32 id;
     bytes32 adminId;
     uint16 realmLimit;
-    uint8 groupLimit;
+    uint16 typeLimit;
     AgentType adminType;
     ActivityStatus acstat;
     AlterabilityStatus alstate;
@@ -25,27 +26,13 @@ interface IGlobalManagement is IAclCommons {
     
   event GlobalAdminUpdated(address indexed sender, bytes32 indexed adminId, AgentType adminType);
 
-  event GlobalGroupLimitUpdated(address indexed sender, uint8 groupLimit);
-
   event GlobalDomainLimitUpdated(address indexed sender, uint16 domainLimit);
 
   event GlobalActivityUpdated(address indexed sender, ActivityStatus acstat);
 
   event GlobalAlterabilityUpdated(address indexed sender, AlterabilityStatus alstat);
 
-  event GlobalGroupAdded(address indexed sender, bytes32 indexed domainId, bytes32 indexed groupId);
-
-  event GlobalGroupRemoved(address indexed sender, bytes32 indexed domainId, bytes32 indexed groupId);
- 
-  function globalAddGroups(ScopeAddGroupsRequest[] calldata requests) external returns (bool);
-
-  function globalRemoveGroups(ScopeRemoveGroupsRequest[] calldata requests) external returns (bool);
-
-  function globalCreateGroup(GroupRegisterRequest[] calldata requests) external returns (bytes32);
-
-  function globalCreateType(TypeRegisterRequest[] calldata requests) external returns (bytes32);
-
-  function globalCreateRole(RoleRegisterRequest[] calldata requests) external returns (bytes32);
+  event GlobalTypeLimitUpdated(address indexed sender, bytes32 indexed globalId, uint16 typeLimit);
 
   function globalUpdateActivityStatus(ActivityStatus acstat) external returns (ActivityStatus);
 
@@ -55,13 +42,11 @@ interface IGlobalManagement is IAclCommons {
 
   function globalUpdateDomainLimit(uint16 domainLimit) external returns (bool);
 
-  function globalCheckAdmin(bytes32 agentId) external view returns (bool);
+  function globalUpdateTypeLimit(uint16 typeLimit) external returns (bool);
 
-  function globalHasDomain(bytes32 domainId) external view returns (bool);
+  function globalCheckAdmin(address account) external view returns (bool);
 
   function globalGetDomainLimit() external view returns (uint16);
-
-  function globalGetGroupLimit() external view returns (uint8);
 
   function globalGetAdmin() external view returns (bytes32, AgentType);
 
@@ -72,10 +57,6 @@ interface IGlobalManagement is IAclCommons {
   function globalGetDomains() external view returns (bytes32[] memory);
 
   function globalGetDomainsCount() external view returns (uint16);
-
-  function globalGetGroups() external view returns (uint8);
-
-  function globalGetGroupsCount() external view returns (uint8);
 
   function globalGetInfo() external view returns (GlobalInfo memory);
 

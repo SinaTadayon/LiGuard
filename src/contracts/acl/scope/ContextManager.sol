@@ -393,45 +393,197 @@ contract ContextManager is AclStorage, IContextManagement {
     return contractId;
   }
 
-  function contextUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
+  function contextUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
+    require(IAccessControl(address(this)).hasCSAccess(address(this), this.contextUpdateActivityStatus.selector), "Access Denied");
 
-  function contextUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool);
+    for(uint i = 0; i < requests.length; i++) {      
+      require(_data.scopes[requests[i].id].stype == ScopeType.CONTEXT, "Invalid Function ID Slot");
+      require(_data.scopes[requests[i].id].alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update Function");
 
-  function contextUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);
+      // check admin function
+      require(_doContextCheckAdmin(requests[i].id, msg.sender), "Operation Not Permitted");
 
-  function functionUpdateTypeLimit(ScopeUpdateTypeLimitRequest[] calldata requests) external returns (bool);
+      _data.scopes[requests[i].id].acstat = requests[i].acstat;
+      emit ContextActivityUpdated(msg.sender, requests[i].id, requests[i].acstat);
+    }
+    return true;
+  }
 
-  function contextUpdateFactoryLimit(ContextUpdateFactoryLimitRequest[] calldata requests) external returns (bool);
+  function contextUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
+    require(IAccessControl(address(this)).hasCSAccess(address(this), this.contextUpdateAlterabilityStatus.selector), "Access Denied");
 
-  function contextUpdateFunctionLimit(ContextUpdateFunctionLimitRequest[] calldata requests) external returns (bool);
+    for(uint i = 0; i < requests.length; i++) {
+      // check admin function
+      require(_doContextCheckAdmin(requests[i].id, msg.sender), "Operation Not Permitted");
+      require(_data.scopes[requests[i].id].stype == ScopeType.CONTEXT, "Invalid Function ID Slot");
+      _data.scopes[requests[i].id].alstat = requests[i].alstat;
+      emit ContextAlterabilityUpdated(msg.sender, requests[i].id, requests[i].alstat);
+    }
+    return true;
+  }
 
-  function contextCheckId(bytes32 contextId) external view returns (bool);
+  function contextUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool) {
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
+    require(IAccessControl(address(this)).hasCSAccess(address(this), this.contextUpdateAdmin.selector), "Access Denied");
+    
+    for(uint i = 0; i < requests.length; i++) {
+      ContextEntity storage contextEntity = _data.contextReadSlot(requests[i].id);
+      require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update Context");
+      require(_doContextCheckAdminAccount(requests[i].id, msg.sender), "Operation Not Permitted");
 
-  function contextCheckAddress(address contactId) external view returns (bool);
+      // checking requested type admin 
+      if(requests[i].adminId != bytes32(0)) {                
+        BaseAgent storage adminBaseAgent = _data.agents[requests[i].adminId];
+        require(adminBaseAgent.atype >= AgentType.MEMBER, "Illegal Admin Context AgentType");
+        (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = IAccessControl(address(this)).getScopeAccountOfScopeMasterType(requests[i].adminId);
+        require(ScopeType.CONTEXT <= requestAdminScopeType, "Illegal Admin Scope Type");
 
-  function functionCheckAdmin(bytes32 functionId, address account) external view returns (bool);
+        if(ScopeType.CONTEXT == requestAdminScopeType) {
+          require(requestAdminScopeId == requests[i].id, "Illegal Amind Scope ID");
+        } else {
+          require(IAccessControl(address(this)).isScopeExistedInAnotherScope(requestAdminScopeId, requests[i].id), "Illegal Admin Scope ID");
+        }
+        contextEntity.bs.adminId = requests[i].adminId;
 
-  function contextHasFunction(bytes32 contextId, bytes32 functionId) external view returns (bool);
+      } else {
+        contextEntity.bs.adminId = IAccessControl(address(this)).getAgentMasterTypeId();
+      }
 
-  function contextHasSelector(address contractId, bytes4 selector) external view returns (bool);
+      emit ContextAdminUpdated(msg.sender, requests[i].id, requests[i].adminId);
+    }
+    return true;
+  }
 
-  function contextGetRealm(bytes32 contextId) external view returns (bytes32);
+  function contextUpdateTypeLimit(ScopeUpdateTypeLimitRequest[] calldata requests) external returns (bool) {
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
+    require(IAccessControl(address(this)).hasCSAccess(address(this), this.contextUpdateTypeLimit.selector), "Access Denied");
 
-  function contextGetFunctionLimit(bytes32 contextId) external view returns (uint8);
+    for(uint i = 0; i < requests.length; i++) {
+      // check admin function
+      require(_doContextCheckAdmin(requests[i].id, msg.sender), "Operation Not Permitted");
 
-  function contextGetAdmin(bytes32 contextId) external view returns (AgentType, bytes32);
+      require(_data.scopes[requests[i].id].stype == ScopeType.CONTEXT, "Invalid Context ID Slot");
+      _data.scopes[requests[i].id].typeLimit = requests[i].typeLimit;
+      emit ContextTypeLimitUpdated(msg.sender, requests[i].id, requests[i].typeLimit);
+    }
+    return true;
+  }
 
-  function contextGetActivityStatus(bytes32 contextId) external view returns (ActivityStatus);
+  function contextCheckId(bytes32 contextId) external view returns (bool) {
+    return _data.scopes[contextId].stype == ScopeType.CONTEXT;
+  }
 
-  function contextGetAlterabilityStatus(bytes32 contextId) external view returns (AlterabilityStatus);
+  function contextCheckAccount(address contactId) external view returns (bool) {
+    return _data.scopes[LAclUtils.accountGenerateId(contractId)].stype == ScopeType.CONTEXT;
+  }
 
-  function contextGetContractId(bytes32 contextId) external view returns (address);
+  function contextCheckAdmin(bytes32 contextId, address account) external view returns (bool) {
+    _doContextCheckAdmin(contextId, account);
+  }
 
-  function contextGetFunctions(bytes32 contextId) external view returns (bytes32[] memory);
+  function _doContextCheckAdmin(bytes32 contextId, address account) internal view returns (bool) {
+    (ContextEntity storage ce, bool result) = _data.contextTryReadSlot(contextId);
+    if(!result) return false;  
+    
+    bytes32 contextAdminId = ce.bs.adminId;
+    bytes32 memberId = LAclUtils.accountGenerateId(account);
+    AgentType adminAgentType = _data.agents[contextAdminId].atype;
+    if(adminAgenType == AgentType.MEMBER) {
+      return memberId == contextAdminId;
 
-  function contextGetFunctionsCount(bytes32 contextId) external view returns (uint8);
+    } else if(adminAgenType == AgentType.ROLE || adminAgenType == AgentType.TYPE) {
+      return ITypeManagement(address(this)).typeHasMember(IAccessControl(address(this)).getScopeMasterTypeId(), memberId);
+    } 
+  
+    return false;
+  }
 
-  function contextGetContextInfo(bytes32 contextId) external view returns (ContextInfo memory);
+  function contextHasFunction(bytes32 contextId, bytes32 functionId) external view returns (bool) {
+    return _doContextHasFunction(contextId, functionId);
+  }
 
-  function contextGenerateId(address contractId) external pure returns (bytes32);
+  function contextHasSelector(address contractId, bytes4 selector) external view returns (bool) {
+    bytes32 contextId = LAclUtils.accountGenerateId(contractId);
+    bytes32 functionId = LAclUtils.functionIdGenerateId(contractId, selector);
+    return _doContextHasFunction(contextId, functionId);
+  }
+
+  function _doContextHasFunction(bytes32 contextId, bytes32 functionId) internal view returns (bool) {
+    (ContextEntity storage ce, bool result) = _data.contextTryReadSlot(contextId);
+    if(!result) return false;
+    return ce.functions.contains(functionId);    
+  }
+
+  function contextGetRealm(bytes32 contextId) external view returns (bytes32) {
+    (ContextEntity storage ce, bool result) = _data.contextTryReadSlot(contextId);
+    if(!result) return bytes32(0);
+    return ce.realmId;    
+  }
+
+  function contextGetAdmin(bytes32 contextId) external view returns (AgentType, bytes32) {
+    return (_data.agents[_data.scopes[contextId].adminId].atype, _data.scopes[contextId].adminId);
+  }
+
+  function contextGetActivityStatus(bytes32 contextId) external view returns (ActivityStatus){
+    (ContextEntity storage ce, bool result) = _data.contextTryReadSlot(contextId);
+    if(!result) return AlterabilityStatus.NONE;
+    return ce.bs.alstat;
+  }
+
+  function contextGetAlterabilityStatus(bytes32 contextId) external view returns (AlterabilityStatus) {
+    (ContextEntity storage ce, bool result) = _data.contextTryReadSlot(contextId);
+    if(!result) return AlterabilityStatus.NONE;
+    return ce.bs.alstat;
+  }
+
+  function contextGetContractId(bytes32 contextId) external view returns (address) {
+    (ContextEntity storage ce, bool result) = _data.contextTryReadSlot(contextId);
+    if(!result) return address(0);
+    return ce.contractId;
+  }
+
+  function contextGetFunctions(bytes32 contextId) external view returns (bytes32[] memory) {
+    (ContextEntity storage ce, bool result) = _data.contextTryReadSlot(contextId);
+    if(!result) return new bytes32[](0);
+    return ce.functions.values();
+  }
+
+  function contextGetFunctionsCount(bytes32 contextId) external view returns (uint8) {
+    (ContextEntity storage ce, bool result) = _data.contextTryReadSlot(contextId);
+    if(!result) return 0;
+    return ce.functions.length();
+  }
+
+  function contextGetContextInfo(bytes32 contextId) external view returns (ContextInfo memory) {
+    (ContextEntity storage ce, bool result) = _data.contextTryReadSlot(contextId);
+    if(!result) {
+      return ContextInfo ({
+        realmId: bytes32(0),
+        adminId: bytes32(0),
+        name: "", 
+        version: "",
+        contractId: address(0),
+        typeLimit: 0,
+        functionsCount: 0,
+        adminType: AgentType.NONE,        
+        acstat: ActivityStatus.NONE,
+        alstate: AlterabilityStatus.NONE
+      });
+    }
+
+    return ContextInfo ({
+      realmId: ce.realmId,
+      adminId: ce.bs.adminId,
+      name: IProxy(ce.contractId).contractName(), 
+      version: IProxy(ce.contractId).contractVersion(),
+      contractId: ce.contractId,
+      typeLimit: ce.bs.typeLimit,
+      functionsCount: ce.functions.length(),
+      adminType: _data.agents[ce.adminId].atype,        
+      acstat: ce.bs.acstat,
+      alstate: ce.bs.alstat
+    });
+  }
 }

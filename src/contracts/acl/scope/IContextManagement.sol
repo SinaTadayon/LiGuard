@@ -19,11 +19,9 @@ interface IContextManagement is IAclCommons {
     string name;
     string version;
     address contractId;
-    // uint32 factoryLimit;
     uint16 typeLimit;  
     ActivityStatus acstat;
     AlterabilityStatus alstat;
-    // uint8 functionLimit;    
   }
 
   struct ContextRegisterPredictRequest {
@@ -34,22 +32,18 @@ interface IContextManagement is IAclCommons {
     string version;
     address subject;
     address deployer;
-    // uint32 factoryLimit;
     uint16 typeLimit;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
-    // uint8 functionLimit;    
   }
 
   struct ContextUpgradeRequest {
     address contractId;
     string name;
     string version;
-    // uint32 factoryLimit;
     uint16 typeLimit;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
-    // uint8 functionLimit;
   }
 
   struct ContextRegisterFunctionRequest {
@@ -94,13 +88,11 @@ interface IContextManagement is IAclCommons {
     string name;
     string version;
     address contractId;
+    uint16 typeLimit;
     AgentType adminType;
-    // uint32 factoryTotal;
-    // uint32 factoryLimit;
-    uint16 typeLimit; 
+    uint8 functionsCount; 
     ActivityStatus acstat;
     AlterabilityStatus alstate;
-    // uint8 functionLimit;
   }
 
   event ContextRegistered (
@@ -112,12 +104,10 @@ interface IContextManagement is IAclCommons {
     string version,
     bytes32 realmId,
     bytes32 adminId,
-    // uint32 factoryLimit,
     uint16 typeLimit,
     AgentType adminType,
     ActivityStatus acstat,
     AlterabilityStatus alstat
-    // uint8 functionLimit
   );
 
   event PredictContextRegistered(
@@ -143,11 +133,9 @@ interface IContextManagement is IAclCommons {
     address indexed contractId, 
     string name, 
     string version,
-    // uint32 factoryLimit,
     uint16 typeLimit,
     ActivityStatus acstat,
     AlterabilityStatus alstat
-    // uint8 functionLimit
   );
 
   event ContextFunctionRegistered(
@@ -186,25 +174,14 @@ interface IContextManagement is IAclCommons {
     bytes32 indexed functionId
   );
 
-  // event ContextGroupAdded(address indexed sender, bytes32 indexed contextId, bytes32 indexed groupId);
-
-  // event ContextGroupRemoved(address indexed sender, bytes32 indexed contextId, bytes32 indexed groupId);
-
   event ContextAdminUpdated(address indexed sender, bytes32 indexed contextId, bytes32 indexed adminId, AgentType adminType);
-
-  // event ContextGroupLimitUpdated(address indexed sender, bytes32 indexed contextId, uint8 groupLimit);
-
-  // event ContextFunctionLimitUpdated(address indexed sender, bytes32 indexed contextId, uint8 functionLimit);
 
   event ContextActivityUpdated(address indexed sender, bytes32 indexed contextId, ActivityStatus acstat);
 
   event ContextAlterabilityUpdated(address indexed sender, bytes32 indexed contextId, AlterabilityStatus alstat);
 
-  event ContextTypeLimitUpdated(address indexed sender, bytes32 indexed functionId, uint16 typeLimit);
+  event ContextTypeLimitUpdated(address indexed sender, bytes32 indexed contextId, uint16 typeLimit);
 
-  // event ContextFactoryLimitUpdated(address indexed sender, bytes32 indexed functionId, uint32 factoryLimit);
-
-  // event ContextRealmUpdated(address indexed sender, bytes32 indexed contextId, bytes32 indexed realmId);
 
   // called by contract that want to register itself
   function contextRegister(
@@ -235,12 +212,6 @@ interface IContextManagement is IAclCommons {
 
   function functionUpdateTypeLimit(ScopeUpdateTypeLimitRequest[] calldata requests) external returns (bool);
 
-  // function contextUpdateRealm(ContextUpdateRealmRequest[] calldata requests) external returns (bool);
-
-  // function contextUpdateFactoryLimit(ContextUpdateFactoryLimitRequest[] calldata requests) external returns (bool);
-
-  // function contextUpdateFunctionLimit(ContextUpdateFunctionLimitRequest[] calldata requests) external returns (bool);
-
   function contextCheckId(bytes32 contextId) external view returns (bool);
 
   function contextCheckAccount(address contactId) external view returns (bool);
@@ -257,8 +228,6 @@ interface IContextManagement is IAclCommons {
 
   function contextGetRealm(bytes32 contextId) external view returns (bytes32);
 
-  // function contextGetFunctionLimit(bytes32 contextId) external view returns (uint8);
-
   function contextGetAdmin(bytes32 contextId) external view returns (AgentType, bytes32);
 
   function contextGetActivityStatus(bytes32 contextId) external view returns (ActivityStatus);
@@ -271,9 +240,6 @@ interface IContextManagement is IAclCommons {
 
   function contextGetFunctionsCount(bytes32 contextId) external view returns (uint8);
 
-  // function contextGetFactoryLimit(bytes32 contextId) external view returns (uint32);
-
   function contextGetContextInfo(bytes32 contextId) external view returns (ContextInfo memory);
 
-  // function contextGenerateId(address contractId) external pure returns (bytes32);
 }

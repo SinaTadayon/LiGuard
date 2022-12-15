@@ -146,6 +146,7 @@ interface IAclCommons {
 
   struct GlobalEntity {
     BaseScope bs;
+    bytes32 id;
     uint16 domainLimit;
     // uint16 agentLimit;    
     LEnumerableSet.Bytes32Set domains;

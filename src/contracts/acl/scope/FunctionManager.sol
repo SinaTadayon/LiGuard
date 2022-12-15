@@ -24,14 +24,14 @@ contract FunctionManager is AclStorage, IFunctionManagement {
     
     for(uint i = 0; i < requests.length; i++) {
       FunctionEntity storage functionEntity = _data.functionReadSlot(requests[i].id);
-      require(functionEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update Function");
+      require(functionEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update Function");
       require(_doFunctionCheckAdminAccount(requests[i].id, msg.sender), "Operation Not Permitted");
 
       // checking requested type admin 
       if(requests[i].adminId != bytes32(0)) {                
         BaseAgent storage adminBaseAgent = _data.agents[requests[i].adminId];
         require(adminBaseAgent.atype >= AgentType.MEMBER && adminBaseAgent.atype <= AgentType.ROLE, "Illegal Admin Function AgentType");
-        (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = IAccessControl(address(this)).getScopeAccountOfAgentMasterType(requests[i].adminId);
+        (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = IAccessControl(address(this)).getScopeAccountOfScopeMasterType(requests[i].adminId);
         require(ScopeType.FUNCTION <= requestAdminScopeType, "Illegal Admin Scope Type");
 
         if(ScopeType.FUNCTION == requestAdminScopeType) {
@@ -104,11 +104,9 @@ contract FunctionManager is AclStorage, IFunctionManagement {
     for(uint i = 0; i < requests.length; i++) {
       // check admin function
       require(_doFunctionCheckAdmin(requests[i].id, msg.sender), "Operation Not Permitted");
-
-      FunctionEntity storage fe = _data.functionReadSlot(requests[i].id);
       require(_data.scopes[requests[i].id].stype == ScopeType.FUNCTION, "Invalid Function ID Slot");
       _data.scopes[requests[i].id].typeLimit = requests[i].typeLimit;
-      emit FunctionTypeLimitUpdated(msg.sender, requests[i].id, requests[i].policy);
+      emit FunctionTypeLimitUpdated(msg.sender, requests[i].id, requests[i].typeLimit);
     }
     return true;
   }
@@ -118,7 +116,7 @@ contract FunctionManager is AclStorage, IFunctionManagement {
   }
 
   function functionCheckSelector(address contractId, bytes4 selector) external view returns (bool) {
-    return _data.scopes[keccak256(abi.encodePacked(contractId, selector))].stype == ScopeType.FUNCTION;
+    return _data.scopes[LAclUtils.functionGenerateId(contractId, selector)].stype == ScopeType.FUNCTION;
   }
 
   // function functionCheckAdmin(bytes32 functionId, bytes32 agentId) external view returns (bool) {
@@ -148,7 +146,7 @@ contract FunctionManager is AclStorage, IFunctionManagement {
     bytes32 memberId = keccak256(abi.encodePacked(account));
     AgentType adminAgentType = _data.agents[functionAdminId].atype;
     if(adminAgenType == AgentType.MEMBER) {
-      return agentId == functionAdminId;
+      return memberId == functionAdminId;
 
     } else if(adminAgenType == AgentType.ROLE || adminAgenType == AgentType.TYPE) {
       return ITypeManagement(address(this)).typeHasMember(IAccessControl(address(this)).getScopeMasterTypeId(), memberId);

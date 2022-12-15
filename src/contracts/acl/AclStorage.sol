@@ -36,7 +36,7 @@ abstract contract AclStorage is BaseUUPSStorage, IAclCommons {
     mapping(bytes4 => address) interfaces;           // function interface to facet address
     LEnumerableSet.AddressSet facets;
     GlobalEntity global;
-    GeneralLimitation defaultLimitations;
+    // GeneralLimitation defaultLimitations;
   }
 
   bool internal _firstInit;
