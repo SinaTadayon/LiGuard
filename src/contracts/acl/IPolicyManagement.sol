@@ -15,11 +15,12 @@ import "./IAclCommons.sol";
 interface IPolicyManagement is IAclCommons {
   struct PolicyRegisterRequest {
     bytes32 adminId;
+    bytes32 scopeId;
+    uint32 roleLimit;
+    uint8 policyCode;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
-    uint8 code;
-    string name;
-    uint32 roleLimit;
+    string name;    
   }
 
   struct PolicyAddRolesRequest {
@@ -34,7 +35,7 @@ interface IPolicyManagement is IAclCommons {
 
   struct PolicyUpdateCodeRequest { 
     bytes32 policyId;
-    uint8 code;
+    uint8 policyCode;
   }
   
   struct PolicyUpdateRoleLimitRequest {
@@ -42,20 +43,15 @@ interface IPolicyManagement is IAclCommons {
     uint32 roleLimit;
   }
 
-  struct PolicyUpdateActivityRequest {
-    bytes32 policyId;
-    ActivityStatus acstat;
-  }
-
-  struct PolicyUpdateAlterabilityRequest {
-    bytes32 policyId;
-    AlterabilityStatus alstate;
-  }
-
   struct PolicyInfo {
-    bytes32 policyId;
+    bytes32 adminId;
+    bytes32 scopeId;
     string name;
-    uint8 code;
+    uint32 roleLimit;
+    uint32 roleTotal;
+    uint8 policyCode;
+    AgentType adminType;
+    PolicyType ptype;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
   }
@@ -63,8 +59,11 @@ interface IPolicyManagement is IAclCommons {
   event PolicyRegistered(
     address indexed sender,
     bytes32 indexed policyId,
-    string indexed name,    
-    uint8 code,
+    bytes32 indexed scopeId,
+    bytes32 adminId,
+    string name,
+    uint32 roleLimit,
+    uint8 policyCode,
     PolicyType ptype,
     ActivityStatus acstat,
     AlterabilityStatus alstat
@@ -82,25 +81,31 @@ interface IPolicyManagement is IAclCommons {
 
   event PolicyRoleLimitUpdated(address indexed sender, bytes32 indexed policyId, uint32 roleLimit);
 
+  event PolicyAdminUpdated(address indexed sender, bytes32 indexed policyId, bytes32 indexed adminId);
+
   function policyRegister(PolicyRegisterRequest[] calldata requests) external returns (bool);
 
   function policyAddRoles(PolicyAddRolesRequest[] calldata requests) external returns (bool);
 
   function policyRemoveRoles(PolicyRemoveRolesRequest[] calldata requests) external returns (bool);
 
-  function policyUpdateCode(PolicyUpdateCodeRequest[] calldata requests) external returns (bool);
- 
-  function policyUpdateActivityStatus(PolicyUpdateActivityRequest[] calldata requests) external returns (bool);
+  function policyUpdateCodes(PolicyUpdateCodeRequest[] calldata requests) external returns (bool);
 
-  function policyUpdateAlterabilityStatus(PolicyUpdateAlterabilityRequest[] calldata requests) external returns (bool);
+  function policyUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);
+ 
+  function policyUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
+
+  function policyUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
   function policyUpdatesRoleLimit(PolicyUpdateRoleLimitRequest[] calldata requests) external returns (bool);
 
-  function policyCheckExistance(bytes32 policyId) external view returns (bool);
+  function policyCheckId(bytes32 policyId) external view returns (bool);
 
-  function policyCheckExistance(string calldata policyName) external view returns (bool);
+  function policyCheckName(string calldata policyName) external view returns (bool);
 
-  function policyCheckRoleExistance(bytes32 roleId) external view returns (bool);
+  function policyCheckAdmin(bytes32 policyId, address account) external view returns (bool);
+
+  function policyHasRole(bytes32 roleId) external view returns (bool);
 
   function policyGetActivityStatus(bytes32 policyId) external view returns (ActivityStatus);
 
@@ -116,5 +121,5 @@ interface IPolicyManagement is IAclCommons {
 
   function policyGetRolesCount(bytes32 policyId) external view returns (uint32);
 
-  function policyGenerateId(string calldata) external pure returns (bytes32);  
+  function policyGetPolicyType(uint8 policyCode) external pure returns (PolicyType);
 }

@@ -83,12 +83,13 @@ interface IAclCommons {
 
   struct PolicyEntity {
     bytes32 adminId;
+    bytes32 scopeId;
     string name;
-    uint8 code;
+    uint32 roleLimit;
+    uint8 policyCode;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
-    PolicyType ptype;
-    uint32 roleLimit;
+    PolicyType ptype;    
     LEnumerableSet.Bytes32Set roles;
   }
 
