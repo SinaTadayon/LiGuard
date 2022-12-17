@@ -18,11 +18,19 @@ interface IAccessControl is IAclCommons {
    */
   function hasAccess(bytes32 functionId) external view returns (bool);
 
-  function hasMemberAccess(bytes32 memberId, bytes32 functionId) external view returns (bool);
+  function hasMemberAccess(bytes32 functionId, bytes32 memberId) external view returns (bool);
 
   function hasCSAccess(address contractId, bytes4 selector) external view returns (bool);
   
   function hasCSMAccess(address contractId, bytes4 selector, bytes32 memberId) external view returns (bool);
+
+  function hasAccessToAgent(bytes32 agentId, bytes32 functionId) external view returns (bool);
+
+  function hasMemberAccessToAgent(bytes32 agentId, bytes32 functionId, bytes32 memberId) external view returns (bool);
+
+  function hasCSAccessToAgent(bytes32 agentId, address contractId, bytes4 selector) external view returns (bool);
+  
+  function hasCSMAccessToAgent(bytes32 agentId, address contractId, bytes4 selector, bytes32 memberId) external view returns (bool);
 
   
   // Anonymouse type
@@ -36,33 +44,14 @@ interface IAccessControl is IAclCommons {
 
   // role admin type
   function getAgentMasterType() external pure returns (bytes32);
-
   
   // super admin type
-  // function isAgentExistedInSuperAdminType(bytes32 agentId) external view returns (bool);
-  // function getScopeAgentOfSuperAdminType(bytes32 agentId) external view returns (ScopeType stype, bytes32 scopeId);
   function getSystemAdminType() external pure returns (bytes32);
 
   // system admin type
-  // function isAgentExistedInSystemAdminType(bytes32 agentId) external view returns (bool);
-  // function getScopeAgentOfSystemAdminType(bytes32 agentId) external view returns (ScopeType stype, bytes32 scopeId);
   function getAdminType() external pure returns (bytes32);
 
-
-  // // Scope Master
-  // // function isAgentExistedInScopeMasterType(bytes32 agentId) external view returns (bool);
-  // // function getScopeAgentOfScopeMasterType(bytes32 agentId) external view returns (ScopeType stype, bytes32 scopeId);
-  // function getScopeMasterTypeId() external view returns (bytes32);
-
-
-  // // Agent Master
-  // // function isAgentExistedInAgentMasterType(bytes32 agentId) external view returns (bool);
-  // // function getScopeAgentOfAgentMasterType(bytes32 agentId) external view returns (ScopeType stype, bytes32 scopeId);
-  // function getAgentMasterTypeId() external view returns (bytes32);
-
   // Policy Master
-  // function isAgentExistedInPolicyMasterType(address account) external view returns (bool);
-  // function getScopeAgentOfPolicyMasterType(bytes32 agentId) external view returns (ScopeType, bytes32);
   function getPolicyMasterType() external view returns (bytes32);
 
 

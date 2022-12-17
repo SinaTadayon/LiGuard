@@ -3,7 +3,7 @@
 
 pragma solidity 0.8.17;
 
-import "../IAclCommons.sol";
+import "./IAgentCommons.sol";
 
 /**
  * @title Role Management Interface
@@ -11,7 +11,7 @@ import "../IAclCommons.sol";
  * @dev
  *
  */
-interface IRoleManagement is IAclCommons {
+interface IRoleManagement is IAgentCommons {
 
   struct RoleIncreaseMemberRequest {
     bytes32 roleId;
@@ -33,8 +33,8 @@ interface IRoleManagement is IAclCommons {
     bytes32 adminId;          // should role or member in any scope 
     bytes32 scopeId;          // related to request sender scope and sender and it can be one of sender scope and under it
     bytes32 typeId;
-    bytes32 policyId;
-    uint24 memberLimit;
+    // bytes32 policyId;
+    uint32 memberLimit;
     string name;
     ActivityStatus acstat;
     AlterabilityStatus alstat;   
@@ -72,15 +72,9 @@ interface IRoleManagement is IAclCommons {
 
   event RoleMemberDecreased(address indexed sender, bytes32 indexed roleId, uint32 total);
 
-  event RoleActivityUpdated(address indexed sender, bytes32 indexed roleId, ActivityStatus acstat);
-
-  event RoleAlterabilityUpdated(address indexed sender, bytes32 indexed roleId, AlterabilityStatus alstat);
-
   event RoleMemberLimitUpdated(address indexed sender, bytes32 indexed roleId, uint8 memberLimit);
 
   event RoleAdminUpdated(address indexed sender, bytes32 indexed roleId, bytes32 indexed adminId);
-
-  event RoleScopeUpdated(address indexed sender, bytes32 indexed roleId, bytes32 indexed scopeId);
 
   function roleRegister(RoleRegisterRequest[] calldata requests) external returns (bool);
 
@@ -96,9 +90,9 @@ interface IRoleManagement is IAclCommons {
 
   // function roleUpdateScope(AgentUpdateScopeRequest[] calldata requests) external returns (bool);
  
-  function roleUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
+  // function roleUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
 
-  function roleUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool);
+  // function roleUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
   function roleUpdateMemberLimit(RoleUpdateMemberLimitRequest[] calldata requests) external returns (bool);
 
@@ -110,27 +104,27 @@ interface IRoleManagement is IAclCommons {
 
   function roleCheckAdminAccount(bytes32 roleId, address account) external view returns (bool);
 
-  function roleHasAccount(bytes32 roleId, address account) external view returns (bool);
+  // function roleHasAccount(bytes32 roleId, address account) external view returns (bool);
 
   function roleHasMember(bytes32 roleId, bytes32 memberId) external view returns (bool);
 
   function roleGetMemberLimit(bytes32 roleId) external view returns (uint24);
 
-  function roleGetActivityStatus(bytes32 roleId) external view returns (ActivityStatus);
+  // function roleGetActivityStatus(bytes32 roleId) external view returns (ActivityStatus);
 
-  function roleGetAlterabilityStatus(bytes32 roleId) external view returns (AlterabilityStatus);
+  // function roleGetAlterabilityStatus(bytes32 roleId) external view returns (AlterabilityStatus);
 
-  function roleGetAdmin(bytes32 roleId) external view returns (bytes32);
+  // function roleGetAdmin(bytes32 roleId) external view returns (bytes32);
 
-  function roleGetName(bytes32 roleId) external view returns (string memory);
+  // function roleGetName(bytes32 roleId) external view returns (string memory);
 
-  function roleGetScope(bytes32 roleId) external view returns (ScopeType, bytes32);
+  // function roleGetScope(bytes32 roleId) external view returns (ScopeType, bytes32);
 
-  function roleGetMembersCount(bytes32 roleId) external view returns (uint32);
+  // function roleGetMembersCount(bytes32 roleId) external view returns (uint32);
 
-  function roleGetType(bytes32 typeId) external view returns (bytes32);
+  // function roleGetType(bytes32 typeId) external view returns (bytes32);
 
   function roleGetInfo(bytes32 roleId) external view returns (RoleInfo memory);
 
-  function roleGenerateId(string calldata) external pure returns (bytes32);
+  // function roleGenerateId(string calldata) external pure returns (bytes32);
 }

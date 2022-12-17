@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v2.0.2)
+// LivelyVerse Contracts (last updated v3.0.0)
 
 pragma solidity 0.8.17;
 
-import "../IAclCommons.sol";
+import "./IAgentCommons.sol";
 
 /**
  * @title Member Management Interface
@@ -11,12 +11,16 @@ import "../IAclCommons.sol";
  * @dev
  *
  */
-interface IMemberManagement is IAclCommons {
+interface IMemberManagement is IAgentCommons {
 
-  // struct MemberUpdateTypesRequest {
-  //   bytes32 memberId;
-  //   bytes32 typeId;
-  // }
+  struct MemberRegister {
+    // bytes32 adminId;
+    bytes32 roleId;
+    address account;
+    uint16 typeLimit;
+    ActivityStatus acstat;
+    AlterabilityStatus alstat;
+  }
 
   struct MemberUpdateTypeLimitRequest {
     bytes32 memberId;
@@ -25,62 +29,57 @@ interface IMemberManagement is IAclCommons {
 
   struct MemberInfo {
     bytes32 adminId;
-    ActivityStatus acstat;
-    AlterabilityStatus alstat;
+    address account;
     uint16 typeLimit;
     uint16 typeCount;
-    address account;
+    AgentType atype;
+    ActivityStatus acstat;
+    AlterabilityStatus alstat;
   }
 
-  event MemeberActivityUpdated(address indexed sender, bytes32 indexed memberId, ActivityStatus acstat);
-
-  event MemberAlterabilityUpdated(address indexed sender, bytes32 indexed memberId, AlterabilityStatus alstat);
+  event MemberRegistered(
+    address indexed sender, 
+    bytes32 indexed memberId, 
+    address indexed account,
+    bytes32 roleId,
+    uint16 typeLimit, 
+    ActivityStatus acstat,
+    AlterabilityStatus alstat
+  );
 
   event MemberTypeLimitUpdated(address indexed sender, bytes32 indexed memberId, uint16 typeLimit);
 
   event MemberAdminUpdated(address indexed sender, bytes32 indexed memberId, bytes32 indexed adminId);
 
-  event MemberTypeGranted(address indexed sender, bytes32 indexed memberId, bytes32 indexed roleId);
+  event MemberActivityUpdated(address indexed sender, bytes32 indexed memberId, ActivityStatus acstat);
 
-  event MemberTypeRevoked(address indexed sender, bytes32 indexed memberId, bytes32 indexed roleId);
- 
+  event MemberAlterabilityUpdated(address indexed sender, bytes32 indexed memberId, AlterabilityStatus alstat);
+
+  // function memberEnableActivity(bytes32[] calldata requests) external returns (bool);
+
+  // function memberDisableActivity(bytes32[] calldata requests) external returns (bool);
+
+  // function memberSafeModeActivity(bytes32[] calldata requests) external returns (bool);
+
+  // function memberDisableAlterability(bytes32[] calldata requests) external returns (bool);
+
+  // function memberUpdateableAlterability(bytes32[] calldata requests) external returns (bool);
+
+  // function memberUpgradableAlterability(bytes32[] calldata requests) external returns (bool);
+
   function memberUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
 
   function memberUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
-  function memberUpdateTypeLimit(MemberUpdateTypeLimitRequest[] calldata requests) external returns (bool);
-
   function memberUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);
 
-  // function memberAddTypes(MemberUpdateTypesRequest[] calldata requests) external returns (bool);
-
-  // function memberRemoveTypes(MemberUpdateTypesRequest[] calldata requests) external returns (bool);
+  function memberUpdateTypeLimit(MemberUpdateTypeLimitRequest[] calldata requests) external returns (bool);
 
   function memberCheckId(bytes32 memberId) external view returns (bool);
 
-  function memberCheckAccount(address account) external view returns (bool);
-
-  function memberCheckAdmin(address account) external view returns (bool);
-
-  function memberHasType(bytes32 memberId, bytes32 roleId) external view returns (bool);
-
-  function memberHasAccountType(address account, bytes32 roleId) external view returns (bool);
-
-  function memberGetTypeLimit(bytes32 memberId) external view returns (uint16);
-
-  function memberGetActivityStatus(bytes32 memberId) external view returns (ActivityStatus);
-
-  function memberGetAlterabilityStatus(bytes32 memberId) external view returns (AlterabilityStatus);
-
-  function memberGetAdmin(bytes32 memberId) external view returns (bytes32);
+  function memberHasType(bytes32 memberId, bytes32 typeId) external view returns (bool);
 
   function memberGetTypes(bytes32 memberId) external view returns (bytes32[] memory);
 
-  function memberGetTypesCount(bytes32 memberId) external view returns (uint8);
-
-  function memberGetAccount(bytes32 memberId) external view returns (address);
-
   function memberGetInfo(bytes32 memberId) external view returns (MemberInfo memory);
-
-  function memberGenerateId(address account) external pure returns (bytes32);
 }

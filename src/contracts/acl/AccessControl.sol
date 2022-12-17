@@ -25,58 +25,101 @@ contract AccessControl is AclStorage, IAccessControl {
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
 
   function hasAccess(bytes32 functionId) external view returns (bool) {
-    return _doHashAccess(LAclUtils.accountGenerateId(msg.sender), functionId);
+    (FunctionEntity storage functionEntity, bool result) = _data.functionTryReadSlot(functionId);
+    if (!result) return false;
+    return _doHashAccess(functionEntity.agentId, LAclUtils.accountGenerateId(msg.sender), functionEntity);
   }
 
   function hasMemberAccess(bytes32 memberId, bytes32 functionId) external view returns (bool) {
-    return _doHashAccess(memberId, functionId);
+    (FunctionEntity storage functionEntity, bool result) = _data.functionTryReadSlot(functionId);
+    if (!result) return false;
+    return _doHashAccess(functionEntity.agentId, memberId, functionEntity);
   }
 
   function hasCSAccess(address contractId, bytes4 selector) external view returns (bool) {
-    return _doHashAccess(LAclUtils.accountGenerateId(msg.sender), LAclUtils.functionGenerateId(contractId, selector));
+    bytes32 functionId = LAclUtils.functionGenerateId(contractId, selector);
+    (FunctionEntity storage functionEntity, bool result) = _data.functionTryReadSlot(functionId);
+    if (!result) return false;
+    return _doHashAccess(functionEntity.agentId, LAclUtils.accountGenerateId(msg.sender), functionEntity);
   }
 
   function hasCSMAccess(address contractId, bytes4 selector, bytes32 memberId) external view returns (bool) {
-    return _doHashAccess(memberId, LAclUtils.functionGenerateId(contractId, selector));
-  }
-
-  function _doHashAccess(bytes32 memberId, bytes32 functionId) internal view returns (bool) {
+    bytes32 functionId = LAclUtils.functionGenerateId(contractId, selector);
     (FunctionEntity storage functionEntity, bool result) = _data.functionTryReadSlot(functionId);
     if (!result) return false;
+    return _doHashAccess(functionEntity.agentId, memberId, functionEntity);
+  }
 
-    AgentType atype = _data.agents[functionEntity.agentId].atype;
-    // if(atype == AgentType.MEMBER) {
-    //   (MemberEntity storage member, bool result1) = _data.memberTryReadSlot(memberId);
-    //   if(!result1) return false;
-    //   if(member.ba.acstat != ActivityStatus.ENABLE) return false;
-    //   if(functionEntity.agentId != memberId) return false;    
+  function hasAccessToAgent(bytes32 agentId, bytes32 functionId) external view returns (bool) {
+    (FunctionEntity storage functionEntity, bool result) = _data.functionTryReadSlot(functionId);
+    if (!result) return false;
+    return _doHashAccess(agentId, LAclUtils.accountGenerateId(msg.sender), functionEntity);
+  }
+
+  function hasMemberAccessToAgent(bytes32 agentId, bytes32 functionId, bytes32 memberId) external view returns (bool) {
+    (FunctionEntity storage functionEntity, bool result) = _data.functionTryReadSlot(functionId);
+    if (!result) return false;
+    return _doHashAccess(agentId, memberId, functionEntity);
+  }
+
+  function hasCSAccessToAgent(bytes32 agentId, address contractId, bytes4 selector) external view returns (bool) {
+    bytes32 functionId = LAclUtils.functionGenerateId(contractId, selector);
+    (FunctionEntity storage functionEntity, bool result) = _data.functionTryReadSlot(functionId);
+    if (!result) return false;
+    return _doHashAccess(agentId, LAclUtils.accountGenerateId(msg.sender), functionEntity);
+  }
+  
+  function hasCSMAccessToAgent(bytes32 agentId, address contractId, bytes4 selector, bytes32 memberId) external view returns (bool) {
+    bytes32 functionId = LAclUtils.functionGenerateId(contractId, selector);
+    (FunctionEntity storage functionEntity, bool result) = _data.functionTryReadSlot(functionId);
+    if (!result) return false;
+    return _doHashAccess(agentId, memberId, functionEntity);
+  }
+
+  function _doHashAccess(bytes32 agentId, bytes32 memberId, FunctionEntity storage functionEntity) internal view returns (bool) {
     
+    AgentType atype = _data.agents[agentId].atype;
     if(atype == AgentType.ROLE) {
-      (RoleEntity storage roleEntity, bool result1) = _data.roleTryReadSlot(functionEntity.agentId);
-      if(!result1) return false;
-      if(roleEntity.ba.acstat != ActivityStatus.ENABLE) return false;
+      // check member activation
+      if(_data.agents[memberId].ba.acstat != ActivityStatus.ENABLED) return false;
 
+      // check role activation
+      (RoleEntity storage roleEntity, bool result1) = _data.roleTryReadSlot(agentId);
+      if(!result1 || roleEntity.ba.acstat != ActivityStatus.ENABLE) return false;
+
+      // check type activation
       (TypeEntity storage typeEntity, bool result2) = _data.typeTryReadSlot(roleEntity.typeId);
-      if(!result2) return false;
-      if(typeEntity.members[memberId] == bytes32(0)) return false;
+      if(!result2 || typeEntity.ba.acstat != ActivityStatus.ENABLE) return false;
 
-      PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[functionEntity.agentId]];
+      // check policy activation
+      PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[agentId]];
       if(policyEntity.acstat == ActivityStatus.ENABLE && policyEntity.policyCode >= functionEntity.policyCode)  
         return false;
 
-    } else if(atype == AgentType.TYPE && functionEntity.agentId != IAccessControl(address(this)).getAnonymouseType()) {
-      (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(functionEntity.agentId);
-      if(!result1) return false;
-      if(typeEntity.ba.acstat != ActivityStatus.ENABLE) return false;
+    } else if(atype == AgentType.TYPE) {
+      if(agentId == LIVELY_VERSE_ANY_TYPE_ID && _data.agents[memberId].ba.acstat != ActivityStatus.ENABLED) {
+        return false; 
 
-      bytes32 roleId = typeEntity.members[memberId];
-      (RoleEntity storage roleEntity, bool result2) = _data.roleTryReadSlot(roleId);
-      if(!result2) return false;
-      if(roleEntity.ba.acstat != ActivityStatus.ENABLE) return false;
-       
-      PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[roleId]];
-      if(policyEntity.acstat == ActivityStatus.ENABLE && policyEntity.policyCode >= functionEntity.policyCode)  
-        return false;
+      } else if(agentId != LIVELY_VERSE_ANONYMOUSE_TYPE_ID) {
+        // check member activation
+        if(_data.agents[memberId].ba.acstat != ActivityStatus.ENABLED) return false;
+        
+        // check type activation
+        (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(agentId);
+        if(!result1 || typeEntity.ba.acstat != ActivityStatus.ENABLE) return false;
+
+        // check role activation
+        bytes32 roleId = typeEntity.members[memberId];
+        (RoleEntity storage roleEntity, bool result2) = _data.roleTryReadSlot(roleId);
+        if(!result2 || roleEntity.ba.acstat != ActivityStatus.ENABLE) return false;
+        
+        // check policy activation
+        PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[roleId]];
+        if(policyEntity.acstat == ActivityStatus.ENABLE && policyEntity.policyCode >= functionEntity.policyCode)  
+          return false;
+      } 
+    } else if(atype <= AgentType.MEMBER) {
+      return false;
     }
 
     // check function activity
@@ -84,18 +127,15 @@ contract AccessControl is AclStorage, IAccessControl {
 
     // check context activity
     (ContextEntity storage contextEntity, bool res1) = _data.contextTryReadSlot(functionEntity.contextId);
-    if(!res1) return false;
-    if(contextEntity.bs.acstat != ActivityStatus.ENABLE) return false;
+    if(!res1 || contextEntity.bs.acstat != ActivityStatus.ENABLE) return false;
 
     // check realm activity
     (RealmEntity storage realmEntity, bool res2) = _data.realmTryReadSlot(contextEntity.realmId);
-    if(!res2) return false;
-    if(realmEntity.bs.acstat != ActivityStatus.ENABLE) return false;
+    if(!res2 || realmEntity.bs.acstat != ActivityStatus.ENABLE) return false;
 
     // check domain activity
     (DomainEntity storage domainEntity, bool res3) = _data.domainTryReadSlot(realmEntity.domainId);
-    if(!res3) return false;
-    if(domainEntity.bs.acstat != ActivityStatus.ENABLE) return false;
+    if(!res3 || domainEntity.bs.acstat != ActivityStatus.ENABLE) return false;
 
     // check global activity
     if(_data.global.bs.acstat != ActivityStatus.ENABLE) return false;

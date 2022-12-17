@@ -22,14 +22,14 @@ interface IAclCommons {
   enum ActivityStatus {
     NONE,
     DELETED,
-    DISABLE,
-    ENABLE,
-    SAFE_MODE
+    DISABLED,
+    SAFE_MODE,
+    ENABLED
   }
 
   enum AlterabilityStatus {
     NONE,
-    DISABLE,
+    DISABLED,
     UPDATABLE,
     UPGRADABLE
   }
@@ -47,6 +47,8 @@ interface IAclCommons {
     ADD,
     UPDATE,
     REMOVE
+    // INCREASE,
+    // DECREASE
   }
 
   enum PolicyType {
@@ -60,8 +62,8 @@ interface IAclCommons {
 
   struct BaseAgent {
     bytes32 adminId;
-    uint16 scopeToAgent;
-    uint16 policyToAgent;
+    uint16 referredByScope;
+    uint16 referredByPolicy;
     AgentType atype;
     ActivityStatus acstat;
     AlterabilityStatus alstat;    
@@ -70,8 +72,8 @@ interface IAclCommons {
   struct BaseScope {
     bytes32 adminId;
     uint16 agentlimit;
-    uint16 agentToScope;
-    uint16 policyToScope;
+    uint16 referredByAgent;
+    uint16 referredByPolicy;
     ScopeType stype;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
@@ -131,8 +133,8 @@ interface IAclCommons {
 
   struct MemberEntity {
     BaseAgent ba;
-    uint16 typeLimit;
     address account;
+    uint16 typeLimit;
     LEnumerableSet.Bytes32Set types;
   }
 
@@ -189,6 +191,12 @@ interface IAclCommons {
   struct UpdateAdminRequest {
     bytes32 id;
     bytes32 adminId;
+  }
+
+  struct UpdateReferredByRequest {
+    bytes32 id;
+    bytes32 entityId;
+    ActionType action;
   }
 
   // Agent Requests
