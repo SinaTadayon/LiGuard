@@ -105,6 +105,10 @@ interface IPolicyManagement is IAclCommons {
 
   function policyCheckAdmin(bytes32 policyId, address account) external view returns (bool);
 
+  function policyCheckAccess(bytes32 policyId, bytes32 functionId) external view returns (bool);
+
+  function policyCheckRoleAccess(bytes32 roleId, bytes32 functionId) external view returns (bool);
+
   function policyHasRole(bytes32 roleId) external view returns (bool);
 
   function policyGetActivityStatus(bytes32 policyId) external view returns (ActivityStatus);

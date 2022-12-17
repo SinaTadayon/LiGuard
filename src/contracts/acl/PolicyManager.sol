@@ -289,6 +289,26 @@ contract PolicyManager is AclStorage, IPolicyManagement {
     } 
   }
 
+  function policyCheckAccess(bytes32 policyId, bytes32 functionId) external view returns (bool) {
+    return _doCheckAccessPolicy(policyId, functionId);
+  }
+
+  function policyCheckRoleAccess(bytes32 roleId, bytes32 functionId) external view returns (bool) {
+    return _doCheckAccessPolicy(_data.rolePolicyMap[roleId], functionId);
+  }
+
+  function _doCheckAccessPolicy(bytes32 policyId, bytes32 functionId) internal view returns (bool) {
+    (FunctionEntity storage functionEntity, bool result) = _data.functionTryReadSlot(functionId);
+    if (!result) return false;
+
+    PolicyEntity storage policyEntity = _data.policies[policyId];
+    if(policyEntity.acstat != ActivityStatus.ENABLE) return false;
+    if(policyEntity.policyCode >= functionEntity.policyCode) return false;
+
+    return true;
+  
+  }
+
   function policyHasRole(bytes32 roleId) external view returns (bool) {
     return _data.rolePolicyMap[roleId] != bytes32(0);
   }

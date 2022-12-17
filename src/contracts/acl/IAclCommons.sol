@@ -4,8 +4,6 @@
 pragma solidity 0.8.17;
 
 import "../lib/struct/LEnumerableSet.sol";
-import "../lib/struct/LEnumerableMap.sol";
-
 
 /**
  * @title Access Control Interface
@@ -13,18 +11,12 @@ import "../lib/struct/LEnumerableMap.sol";
  * @dev
  *
  */
-interface IAclCommons {
-  enum AccountType {
-    EOA,      // external of account
-    SCA       // smart contract account
-  }
-
+interface IAclCommons { 
   enum AgentType {
     NONE,
     MEMBER,
     ROLE,
     TYPE
-    // GROUP
   }
 
   enum ActivityStatus {
@@ -68,17 +60,21 @@ interface IAclCommons {
 
   struct BaseAgent {
     bytes32 adminId;
+    uint16 scopeToAgent;
+    uint16 policyToAgent;
     AgentType atype;
     ActivityStatus acstat;
-    AlterabilityStatus alstat; 
+    AlterabilityStatus alstat;    
   }
 
   struct BaseScope {
     bytes32 adminId;
+    uint16 agentlimit;
+    uint16 agentToScope;
+    uint16 policyToScope;
     ScopeType stype;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
-    uint16 typelimit;
   }
 
   struct PolicyEntity {
@@ -93,26 +89,12 @@ interface IAclCommons {
     LEnumerableSet.Bytes32Set roles;
   }
 
-  // struct GeneralLimitation {
-  //   uint24 memberLimit;
-  //   uint16 functionLimit;
-  //   uint16 contextLimit;
-  //   uint16 realmLimit;
-  //   uint8 domainLimit;
-  //   uint8 roleLimit;
-  //   uint8 typeLimit;
-  //   uint8 groupLimit;      
-  //   uint8 nameLenLimit;
-  // }
-
   struct FunctionEntity {
     BaseScope bs;    
     bytes32 agentId;
     bytes32 contextId;
     bytes4 selector;
-    // uint16 agentLimit;
     uint8 policyCode;        
-    // LEnumerableSet.Bytes32Set agents;
   }
  
   struct ContextEntity {
@@ -123,41 +105,34 @@ interface IAclCommons {
     uint32 factoryTotal;
     uint8 functionLimit;    
     LEnumerableSet.Bytes32Set functions;
-    // LEnumerableSet.Bytes32Set agents;
   }
 
   struct RealmEntity {
     BaseScope bs;
     bytes32 domainId;
     uint32 contextLimit;
-    // uint16 agentLimit;
     string name;
     LEnumerableSet.Bytes32Set contexts;
-    // LEnumerableSet.Bytes32Set agents;
   }
 
   struct DomainEntity {
     BaseScope bs;
     uint16 realmLimit;
-    // uint16 agentLimit;
     string name;
     LEnumerableSet.Bytes32Set realms;
-    // LEnumerableSet.Bytes32Set agents;
   }
 
   struct GlobalEntity {
     BaseScope bs;
     bytes32 id;
     uint16 domainLimit;
-    // uint16 agentLimit;    
     LEnumerableSet.Bytes32Set domains;
-    // LEnumerableSet.Bytes32Set agents;
   }
 
   struct MemberEntity {
     BaseAgent ba;
     uint16 typeLimit;
-    address account;    
+    address account;
     LEnumerableSet.Bytes32Set types;
   }
 
@@ -172,24 +147,14 @@ interface IAclCommons {
 
   struct TypeEntity {
     BaseAgent ba;
+    bytes32 scopeId;
+    string name;
     uint32 memberTotal;
     uint32 memberLimit;
     uint8 roleLimit;
-    bytes32 scopeId;
-    // bytes32 groupId;    
-    string name;
     mapping(bytes32 => bytes32) members;
-    // LEnumerableMap.Bytes32ToBytes32Map members;
     LEnumerableSet.Bytes32Set roles;
   }
-
-  // struct GroupEntity {
-  //   BaseAgent ba;
-  //   uint8 typeLimit;
-  //   bytes32 scopeId;
-  //   string name;
-  //   LEnumerableSet.Bytes32Set types;
-  // }
 
   // Request Types
   struct FacetSelectorMigrateRequest {
@@ -233,19 +198,8 @@ interface IAclCommons {
   }
 
   // Scope Requests
-  struct ScopeUpdateTypeLimitRequest {
+  struct ScopeUpdateAgentLimitRequest {
     bytes32 scopeId; 
-    uint16 typeLimit;
+    uint16 agentLimit;
   }
-
-  // struct ScopeRemoveGroupsRequest {
-  //   bytes32 scopeId; 
-  //   bytes32[] groups;
-  // }
-
-  // struct ScopeUpdateGroupLimitRequest {
-  //   bytes32 scopeId;
-  //   bytes8 groupLimit;
-  // }
-
 }
