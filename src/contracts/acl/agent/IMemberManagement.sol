@@ -3,7 +3,7 @@
 
 pragma solidity 0.8.17;
 
-import "./IAgentCommons.sol";
+import "../IAclCommons.sol";
 
 /**
  * @title Member Management Interface
@@ -11,7 +11,7 @@ import "./IAgentCommons.sol";
  * @dev
  *
  */
-interface IMemberManagement is IAgentCommons {
+interface IMemberManagement is IAclCommons {
 
   struct MemberRegister {
     // bytes32 adminId;

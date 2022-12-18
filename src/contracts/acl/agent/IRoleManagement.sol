@@ -3,7 +3,7 @@
 
 pragma solidity 0.8.17;
 
-import "./IAgentCommons.sol";
+import "../IAclCommons.sol";
 
 /**
  * @title Role Management Interface
@@ -11,17 +11,17 @@ import "./IAgentCommons.sol";
  * @dev
  *
  */
-interface IRoleManagement is IAgentCommons {
+interface IRoleManagement is IAclCommons {
 
-  struct RoleIncreaseMemberRequest {
-    bytes32 roleId;
-    uint32 count;
-  }
+  // struct RoleIncreaseMemberRequest {
+  //   bytes32 roleId;
+  //   uint32 count;
+  // }
 
-  struct RoleDecreaseMemberRequest {
-    bytes32 roleId;
-    uint32 count;
-  }
+  // struct RoleDecreaseMemberRequest {
+  //   bytes32 roleId;
+  //   uint32 count;
+  // }
   
    /**
    * regiter new role need to add to some type, must caller have permission to add role to target types 
@@ -35,9 +35,19 @@ interface IRoleManagement is IAgentCommons {
     bytes32 typeId;
     // bytes32 policyId;
     uint32 memberLimit;
-    string name;
     ActivityStatus acstat;
     AlterabilityStatus alstat;   
+    string name;
+  }
+
+  struct RoleGrantMembersRequest {
+    bytes32 roleId;
+    bytes32[] members;
+  }
+
+  struct RoleRevokeMembersRequest {
+    bytes32 roleId;
+    bytes32[] members;
   }
 
   struct RoleUpdateMemberLimitRequest {
@@ -51,9 +61,11 @@ interface IRoleManagement is IAgentCommons {
     bytes32 adminId;
     uint32 memberLimit;
     uint32 memberTotal;
-    string name;
+    uint16 referredByScope;
+    uint16 referredByPolicy;
     ActivityStatus acstat;
     AlterabilityStatus alstat;   
+    string name;    
   }
 
   event RoleRegistered(
@@ -68,47 +80,51 @@ interface IRoleManagement is IAgentCommons {
     AlterabilityStatus alstat
   );
 
-  event RoleMemberIncreased(address indexed sender, bytes32 indexed roleId, uint32 total);
+  event RoleMemberGranted(address indexed sender, bytes32 indexed roleId, bytes32 indexed memberId, bytes32 typeId);
 
-  event RoleMemberDecreased(address indexed sender, bytes32 indexed roleId, uint32 total);
+  event RoleMemberRevoked(address indexed sender, bytes32 indexed roleId, bytes32 indexed memberId, bytes32 typeId);
+
+  event RoleReferredByScopeUpdated(address indexed sender, bytes32 indexed roleId, bytes32 indexed scopeId, uint16 total, ActionType action);
+
+  event RoleReferredByPolicyUpdated(address indexed sender, bytes32 indexed roleId, bytes32 indexed policyId, uint16 total, ActionType action);
 
   event RoleMemberLimitUpdated(address indexed sender, bytes32 indexed roleId, uint8 memberLimit);
 
   event RoleAdminUpdated(address indexed sender, bytes32 indexed roleId, bytes32 indexed adminId);
 
+  event RoleActivityUpdated(address indexed sender, bytes32 indexed roleId, ActivityStatus acstat);
+
+  event RoleAlterabilityUpdated(address indexed sender, bytes32 indexed roleId, AlterabilityStatus alstat);
+
   function roleRegister(RoleRegisterRequest[] calldata requests) external returns (bool);
 
-  function roleIncreaseMember(bytes32 roleId, uint32 count) external returns (uint32);
+  function roleGrantMembers(RoleGrantMembersRequest[] calldata requests) external returns (bool);
 
-  function roleDecreaseMember(bytes32 roleId, uint32 count) external returns (uint32);
-
-  function roleIncreaseMembers(RoleIncreaseMemberRequest[] calldata requests) external returns (bool);
-
-  function roleDecreaseMembers(RoleDecreaseMemberRequest[] calldata requests) external returns (bool);
+  function roleRevokeMembers(RoleRevokeMembersRequest[] calldata requests) external returns (bool);
 
   function roleUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);
-
-  // function roleUpdateScope(AgentUpdateScopeRequest[] calldata requests) external returns (bool);
  
-  // function roleUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
+  function roleUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
 
-  // function roleUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool);
+  function roleUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
   function roleUpdateMemberLimit(RoleUpdateMemberLimitRequest[] calldata requests) external returns (bool);
+
+  function roleUpdateReferredByScope(UpdateReferredByRequest[] calldata requests) external returns (bool);
+
+  function roleUpdateReferredByPolicy(UpdateReferredByRequest[] calldata requests) external returns (bool);
 
   function roleCheckId(bytes32 roleId) external view returns (bool);
 
   function roleCheckName(string calldata roleName) external view returns (bool);
 
-  // function roleCheckAdminMember(bytes32 roleId, bytes32 memberId) external view returns (bool);
+  function roleCheckAdmin(bytes32 roleId, address account) external view returns (bool);
 
-  function roleCheckAdminAccount(bytes32 roleId, address account) external view returns (bool);
+  function roleHasAccount(bytes32 roleId, address account) external view returns (bool);
 
-  // function roleHasAccount(bytes32 roleId, address account) external view returns (bool);
+  function roleGetInfo(bytes32 roleId) external view returns (RoleInfo memory);
 
-  function roleHasMember(bytes32 roleId, bytes32 memberId) external view returns (bool);
-
-  function roleGetMemberLimit(bytes32 roleId) external view returns (uint24);
+    // function roleGetMemberLimit(bytes32 roleId) external view returns (uint24);
 
   // function roleGetActivityStatus(bytes32 roleId) external view returns (ActivityStatus);
 
@@ -124,7 +140,10 @@ interface IRoleManagement is IAgentCommons {
 
   // function roleGetType(bytes32 typeId) external view returns (bytes32);
 
-  function roleGetInfo(bytes32 roleId) external view returns (RoleInfo memory);
-
   // function roleGenerateId(string calldata) external pure returns (bytes32);
+
+  // function roleCheckAdminMember(bytes32 roleId, bytes32 memberId) external view returns (bool);
+
+  // function roleHasAccount(bytes32 roleId, address account) external view returns (bool);
+
 }

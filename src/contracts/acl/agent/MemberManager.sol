@@ -50,7 +50,8 @@ contract MemberManager is AclStorage, IMemberManagement {
       require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Type Update");
 
       // check access
-      require(IAccessControl(address(this)).hasMemberAccessToAgent(typeEntity.ba.admin, functionId, memberId), "Access Denied");
+      require(_doAgentCheckAdminAccess(typeEntity.ba.adminId, memberId, functionId), "Operation Not Permitted");
+      // require(IAccessControl(address(this)).hasMemberAccessToAgent(typeEntity.ba.admin, functionId, memberId), "Access Denied");
 
       // add new member to type
       typeEntity.members[newMemberId] = requests[i].roleId;
@@ -80,27 +81,6 @@ contract MemberManager is AclStorage, IMemberManagement {
     return true;
   }
 
-
-  // function memberEnableActivity(bytes32[] calldata requests) external returns (bool) {
-  //   return _doMemberUpdateActivity(requests, ActivityStatus.ENABLED, IMemberManagement.memberEnableActivity.selector);
-  // }
-
-  // function memberDisableActivity(bytes32[] calldata requests) external returns (bool) {
-  //   return _doMemberUpdateActivity(requests, ActivityStatus.DISABLED, IMemberManagement.memberDisableActivity.selector);
-  // }
-
-  // function memberSafeModeActivity(bytes32[] calldata requests) external returns (bool) {
-  //   return _doMemberUpdateActivity(requests, ActivityStatus.SAFE_MODE, IMemberManagement.memberSafeModeActivity.selector);
-  // }
-
-  // function memberDisableAlterability(bytes32[] calldata requests) external returns (bool) {
-  //   return _doMemberUpdateAlterability(requests, AlterabilityStatus.DISABLED, IMemberManagement.memberDisableAlterability.selector);
-  // }
-
-  // function memberUpdateableAlterability(bytes32[] calldata requests) external returns (bool) {
-  //   return _doMemberUpdateAlterability(requests, AlterabilityStatus.UPDATABLE, IMemberManagement.memberUpdateableAlterability.selector);
-  // }
-
   function memberUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
      require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
 
@@ -110,13 +90,13 @@ contract MemberManager is AclStorage, IMemberManagement {
 
     bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {      
-      BaseAgent storage baseAgent = _data.agents[requests[i].id];
-      require(baseAgent.acstat > ActivityStatus.DELETED, "Agent is Deleted");
+      BaseAgent storage baseAgent = _data.agents[requests[i].id];      
       require(baseAgent.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Agent Update");
       require(_doAgentCheckAdminAccess(baseAgent.adminId, memberId, functionId), "Operation Not Permitted");
 
-      baseAgent.acstat = status;
-      emit MemberActivityUpdated(msg.sender, requests[i].id, requests[i].status);
+      require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity Status");
+      baseAgent.acstat = requests[i].acstat;
+      emit MemberActivityUpdated(msg.sender, requests[i].id, requests[i].acstat);
     }
     return true;  
   }
@@ -130,18 +110,14 @@ contract MemberManager is AclStorage, IMemberManagement {
 
     bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {      
-      BaseAgent storage baseAgent = _data.agents[requests[i]];
-      require(baseAgent.acstat > ActivityStatus.DELETED, "Agent is Deleted");
+      BaseAgent storage baseAgent = _data.agents[requests[i].id];
+      // require(baseAgent.acstat > ActivityStatus.DELETED, "Agent is Deleted");
       require(_doAgentCheckAdminAccess(baseAgent.adminId, memberId, functionId), "Operation Not Permitted");
     
-      baseAgent.alstat = status;
-      emit MemberAlterabilityUpdated(msg.sender, requests[i], status);
+      baseAgent.alstat = requests[i].alstat;
+      emit MemberAlterabilityUpdated(msg.sender, requests[i], requests[i].alstat);
     }
     return true;
-  }
-
-  function memberUpgradableAlterability(bytes32[] calldata requests) external returns (bool) {
-    return _doMemberUpdateAlterability(requests, AlterabilityStatus.UPGRADABLE, IMemberManagement.memberUpgradableAlterability.selector);
   }
 
   // Note: member default admin is 
@@ -165,13 +141,12 @@ contract MemberManager is AclStorage, IMemberManagement {
         require(requestedAdminAgent.atype > AgentType.MEMBER, "Illegal Member Admin Type");
         if(requestedAgent.atype == AgentType.ROLE) {
           TypeEntity storage typeEntity = _data.typeReadSlot(LIVELY_VERSE_ADMIN_TYPE_ID);
-          require(typeEntity.roles.containts(), "Illegal Member Admin ID");
-          baseAgent.adminId = requests[i].adminId;
-
-        } else {
-          require(LIVELY_VERSE_ADMIN_TYPE_ID == requests[i].adminId, "Illegal Member Admin ID");
-          baseAgent.adminId = requests[i].adminId;
-        }
+          require(typeEntity.roles.containts(requests[i].adminId), "Illegal Member Admin ID");
+          // baseAgent.adminId = requests[i].adminId;
+        } 
+         
+        baseAgent.adminId = requests[i].adminId;
+      
       } else {
         baseAgent.adminId = LIVELY_VERSE_ADMIN_TYPE_ID;
       }
@@ -263,46 +238,6 @@ contract MemberManager is AclStorage, IMemberManagement {
     return (ScopeType.NONE, bytes32(0));  
   }
 
-
-  // function _doMemberUpdateActivity(bytes32[] calldata requests, ActivityStatus status, bytes4 selector) internal returns (bool) {
-  //   require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
-
-  //   address functionFacetId = _data.interfaces[type(IRoleManagement).interfaceId];
-  //   bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, selector);
-  //   require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied"); 
-
-  //   bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
-  //   for(uint i = 0; i < requests.length; i++) {      
-  //     BaseAgent storage baseAgent = _data.agents[requests[i]];
-  //     require(baseAgent.acstat > ActivityStatus.DELETED, "Agent is Deleted");
-  //     require(baseAgent.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Agent Update");
-  //     require(_doAgentCheckAdminAccess(baseAgent.adminId, memberId, functionId), "Operation Not Permitted");
-
-  //     baseAgent.acstat = status;
-  //     emit MemberActivityUpdated(msg.sender, requests[i], status);
-  //   }
-  //   return true;  
-  // }
-
-  // function _doAgentUpdateAlterability(bytes32[] calldata requests, AlterabilityStatus status, bytes4 selector) internal returns (bool) {
-  //   require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
-    
-  //   address functionFacetId = _data.interfaces[type(IRoleManagement).interfaceId];
-  //   bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, selector); 
-  //   require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied"); 
-
-  //   bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
-  //   for(uint i = 0; i < requests.length; i++) {      
-  //     BaseAgent storage baseAgent = _data.agents[requests[i]];
-  //     require(baseAgent.acstat > ActivityStatus.DELETED, "Agent is Deleted");
-  //     require(_doAgentCheckAdminAccess(baseAgent.adminId, memberId, functionId), "Operation Not Permitted");
-    
-  //     baseAgent.alstat = status;
-  //     emit MemberAlterabilityUpdated(msg.sender, requests[i], status);
-  //   }
-  //   return true;
-  // }
-
   // Note: Member could not assigned to any entities as admin
   function _doAgentCheckAdminAccess(bytes32 adminId, bytes32 agentId, bytes32 functionId) internal view returns (bool) {
     (FunctionEntity storage functionEntity, bool res) = _data.functionTryReadSlot(functionId);    
@@ -340,127 +275,4 @@ contract MemberManager is AclStorage, IMemberManagement {
 
     return false;   
   }
-
-
-
-    // function memberAddTypes(MemberUpdateTypesRequest[] calldata requests) external returns (bool) {
-  //   require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
-  //   require(IAccessControl(address(this)).hasCSAccess(address(this), IMemberManagement.memberAddTypes.selector), "Access Denied");
-    
-  //   for(uint i = 0; i < requests.length; i++) {
-  //     MemberEntity storage member = _data.memberReadSlot(requests[i].memberId);
-  //     require(member.ba.acstat != ActivityStatus.DELETED, "Member is Deleted");
-  //     require(member.ba.alstat >= AlterabilityStatus.UPDATABLE, "Member Update Disabled");
-
-  //     // check admin member
-  //     require(this._doMemberCheckAdmin(requests[i].memberId, msg.sender), "Operation Not Permitted");
-
-  //     for(uint j = 0; j < requests[i].types; j++) {
-  //       require(IRoleManagement(address(this)).typeCheckAdmin(requests[i].types[j], msg.sender), "Operation Not Permitted");
-  //       require(_data.agents[requests[i].types[j]].atype == AgentType.TYPE, "Type Not Found");
-  //       member.types.add(requests[i].types[j]);
-  //       emit MemberTypeGranted(msg.sender, requests[i].memberId, requests[i].types[j]);
-  //     }      
-  //   }
-  //   return true;
-  // }
-
-  // function memberRemoveTypes(MemberUpdateTypesRequest[] calldata requests) external returns (bool) {
-  //   require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");    
-  //   require(IAccessControl(address(this)).hasCSAccess(address(this), IMemberManagement.memberRemoveTypes.selector), "Access Denied");
-    
-  //   for(uint i = 0; i < requests.length; i++) {
-  //     MemberEntity storage member = _data.memberReadSlot(requests[i].memberId);
-  //     require(member.ba.alstat >= AlterabilityStatus.UPDATABLE, "Member Update Disabled");
-
-  //     // check admin member
-  //     require(this._doMemberCheckAdmin(requests[i].memberId, msg.sender), "Operation Not Permitted");
-
-  //     for(uint j = 0; j < requests[i].types; j++) {
-  //       require(IRoleManagement(address(this)).typeCheckAdmin(requests[i].types[j], msg.sender), "Operation Not Permitted");
-  //       require(member.types.contains(requests[i].types[j]), "Type Not Found");
-  //       member.types.remove(requests[i].types[j]);
-  //       emit MemberTypeRevoked(msg.sender, requests[i].memberId, requests[i].types[j]);
-  //     }      
-  //   }
-  //   return true;
-  // }
-
-
-  // function memberCheckAccount(address account) external view returns (bool) {
-  //   return _data.agents[keccak256(abi.encodePacked(account))].atype == AgentType.MEMBER;
-  // }
-
-  // function memberCheckAdmin(bytes32 memberId, address account) external view returns (bool) {
-  //   return _doMemberCheckAdmin(memberId, account);
-  // }
-
-  // function _doMemberCheckAdmin(bytes32 memberId, address account) internal view returns (bool) {
-  //   if (_data.agents[memberId].atype != AgentType.MEMBER) return false;    
-    
-  //   bytes32 memberAdminId = _data.agents[memberId].adminId;
-  //   AgentType adminAgenType = _data.agents[memberAdminId].atype;
-  //   if(adminAgenType == AgentType.MEMBER) {
-  //     return msg.sender == memberAdminId;
-
-  //   } else if(adminAgenType == AgentType.ROLE) {
-  //     return IRoleManagement(address(this)).roleHasAccount(memberAdminId, msg.sender);
-  //   } 
-  
-  //   return false;
-  // }
-
-  // function memberHasAccountType(address account, bytes32 typeId) external view returns (bool) {
-  //   bytes32 memberId = keccak256(abi.encodePacked(account));
-  //   (MemberEntity storage member, bool result) = _data.memberTryReadSlot(memberId);
-  //   if (result) return member.types.contains(typeId);
-  //   return false;
-  // }
-
-  // function memberGetTypeLimit(bytes32 memberId) external view returns (uint16) {
-  //   (MemberEntity storage member, bool result) = _data.memberTryReadSlot(memberId);
-  //   if(result) return member.typeLimit;
-  //   return 0;
-  // }
-
-  // function memberGetActivityStatus(bytes32 memberId) external view returns (ActivityStatus) {
-  //   (MemberEntity storage member, bool result) = _data.memberTryReadSlot(memberId);    
-  //   if(!result) return IAclCommons.ActivityStatus.NONE;
-  //   return member.ba.acstat;
-  // }
-
-  // function memberGetAlterabilityStatus(bytes32 memberId) external view returns (AlterabilityStatus) {
-  //   (MemberEntity storage member, bool result) = _data.memberTryReadSlot(memberId);    
-  //   if(!result) return IAclCommons.AlterabilityStatus.NONE;
-  //   return ba.alstat;
-  // }
-
-  // function memberGetTypesCount(bytes32 memberId) external view returns (uint8) {
-  //   (MemberEntity storage member, bool result) = _data.memberTryReadSlot(memberId);
-  //   if(!result) return 0;
-  //   return uint8(member.types.length());   
-  // }
-
-  // function memberGetAccount(bytes32 memberId) external view returns (address) {
-  //   (MemberEntity storage member, bool result) = _data.memberTryReadSlot(memberId);
-  //   if(!result) return address(0);
-  //   return member.account;
-  // }
-
-  // function memberGetAdmin(bytes32 memberId) external view returns (bytes32) {
-  //   (MemberEntity storage member, bool result) = _data.memberTryReadSlot(memberId);
-  //   if(!result) return bytes32(0);
-  //   return member.ba.adminId;
-  // }    
-
-  // function memberCheckAdmin(bytes32 memberId) external view returns (bool);
-
-  // function memberHasType(bytes32 memberId, bytes32 typeId) external view returns (bool);
-
-  // function memberGetTypes(bytes32 memberId) external view returns (bytes32[] memory);
-
-  // function memberGetTypesCount(bytes32 memberId) external view returns (uint8);
-
-  // function memberGetInfo(bytes32 memberId) external view returns (MemberInfo memory);
-
 }
