@@ -210,4 +210,11 @@ interface IAclCommons {
     bytes32 scopeId; 
     uint16 agentLimit;
   }
+
+
+  event AgentReferredByScopeUpdated(address indexed sender, bytes32 indexed agentId, bytes32 indexed scopeId, uint16 total, AgentType atype, ActionType action);
+  event AgentReferredByPolicyUpdated(address indexed sender, bytes32 indexed agentId, bytes32 indexed policyId, uint16 total, AgentType atype, ActionType action);
+
+  event ScopeReferredByAgentUpdated(address indexed sender, bytes32 indexed scopeId, bytes32 indexed agentId, uint16 total, ScopeType stype, ActionType action);
+  event ScopeReferredByPolicyUpdated(address indexed sender, bytes32 indexed scopeId, bytes32 indexed policyId, uint16 total, ScopeType stype, ActionType action);
 }

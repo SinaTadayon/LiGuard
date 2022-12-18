@@ -13,22 +13,7 @@ import "../IAclCommons.sol";
  */
 interface IRoleManagement is IAclCommons {
 
-  // struct RoleIncreaseMemberRequest {
-  //   bytes32 roleId;
-  //   uint32 count;
-  // }
-
-  // struct RoleDecreaseMemberRequest {
-  //   bytes32 roleId;
-  //   uint32 count;
-  // }
-  
-   /**
-   * regiter new role need to add to some type, must caller have permission to add role to target types 
-   * role registered by scope master or role master or super admin types
-   *
-   ***** scope admin must be have in upper type of scope of requested scope
-   */
+ 
   struct RoleRegisterRequest {
     bytes32 adminId;          // should role or member in any scope 
     bytes32 scopeId;          // related to request sender scope and sender and it can be one of sender scope and under it
@@ -82,11 +67,7 @@ interface IRoleManagement is IAclCommons {
 
   event RoleMemberGranted(address indexed sender, bytes32 indexed roleId, bytes32 indexed memberId, bytes32 typeId);
 
-  event RoleMemberRevoked(address indexed sender, bytes32 indexed roleId, bytes32 indexed memberId, bytes32 typeId);
-
-  event RoleReferredByScopeUpdated(address indexed sender, bytes32 indexed roleId, bytes32 indexed scopeId, uint16 total, ActionType action);
-
-  event RoleReferredByPolicyUpdated(address indexed sender, bytes32 indexed roleId, bytes32 indexed policyId, uint16 total, ActionType action);
+  event RoleMemberRevoked(address indexed sender, bytes32 indexed roleId, bytes32 indexed memberId, bytes32 typeId);  
 
   event RoleMemberLimitUpdated(address indexed sender, bytes32 indexed roleId, uint8 memberLimit);
 
@@ -104,15 +85,17 @@ interface IRoleManagement is IAclCommons {
 
   function roleUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);
  
+  function roleDeleteActivity(bytes32[] calldata requests) external returns (bool);
+
   function roleUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
 
   function roleUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
   function roleUpdateMemberLimit(RoleUpdateMemberLimitRequest[] calldata requests) external returns (bool);
 
-  function roleUpdateReferredByScope(UpdateReferredByRequest[] calldata requests) external returns (bool);
+  // function roleUpdateReferredByScope(UpdateReferredByRequest[] calldata requests) external returns (bool);
 
-  function roleUpdateReferredByPolicy(UpdateReferredByRequest[] calldata requests) external returns (bool);
+  // function roleUpdateReferredByPolicy(UpdateReferredByRequest[] calldata requests) external returns (bool);
 
   function roleCheckId(bytes32 roleId) external view returns (bool);
 
@@ -124,26 +107,5 @@ interface IRoleManagement is IAclCommons {
 
   function roleGetInfo(bytes32 roleId) external view returns (RoleInfo memory);
 
-    // function roleGetMemberLimit(bytes32 roleId) external view returns (uint24);
-
-  // function roleGetActivityStatus(bytes32 roleId) external view returns (ActivityStatus);
-
-  // function roleGetAlterabilityStatus(bytes32 roleId) external view returns (AlterabilityStatus);
-
-  // function roleGetAdmin(bytes32 roleId) external view returns (bytes32);
-
-  // function roleGetName(bytes32 roleId) external view returns (string memory);
-
-  // function roleGetScope(bytes32 roleId) external view returns (ScopeType, bytes32);
-
-  // function roleGetMembersCount(bytes32 roleId) external view returns (uint32);
-
-  // function roleGetType(bytes32 typeId) external view returns (bytes32);
-
-  // function roleGenerateId(string calldata) external pure returns (bytes32);
-
-  // function roleCheckAdminMember(bytes32 roleId, bytes32 memberId) external view returns (bool);
-
-  // function roleHasAccount(bytes32 roleId, address account) external view returns (bool);
 
 }

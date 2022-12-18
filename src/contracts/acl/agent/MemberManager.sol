@@ -90,12 +90,12 @@ contract MemberManager is AclStorage, IMemberManagement {
 
     bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {      
-      BaseAgent storage baseAgent = _data.agents[requests[i].id];      
-      require(baseAgent.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Agent Update");
-      require(_doAgentCheckAdminAccess(baseAgent.adminId, memberId, functionId), "Operation Not Permitted");
+      MemberEntity storage memberEntity = _data.memberReadSlot(requests[i].id);
+      require(memberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Agent Update");
+      require(_doAgentCheckAdminAccess(memberEntity.ba.adminId, memberId, functionId), "Operation Not Permitted");
 
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity Status");
-      baseAgent.acstat = requests[i].acstat;
+      memberEntity.ba.acstat = requests[i].acstat;
       emit MemberActivityUpdated(msg.sender, requests[i].id, requests[i].acstat);
     }
     return true;  
@@ -110,11 +110,11 @@ contract MemberManager is AclStorage, IMemberManagement {
 
     bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {      
-      BaseAgent storage baseAgent = _data.agents[requests[i].id];
-      // require(baseAgent.acstat > ActivityStatus.DELETED, "Agent is Deleted");
-      require(_doAgentCheckAdminAccess(baseAgent.adminId, memberId, functionId), "Operation Not Permitted");
+      MemberEntity storage memberEntity = _data.memberReadSlot(requests[i].id);
+      require(memberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Agent Update");
+      require(_doAgentCheckAdminAccess(memberEntity.ba.adminId, memberId, functionId), "Operation Not Permitted");
     
-      baseAgent.alstat = requests[i].alstat;
+      memberEntity.ba.alstat = requests[i].alstat;
       emit MemberAlterabilityUpdated(msg.sender, requests[i], requests[i].alstat);
     }
     return true;
@@ -130,10 +130,10 @@ contract MemberManager is AclStorage, IMemberManagement {
 
     bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
     for (uint256 i = 0; i < requests.length; i++) {
-      BaseAgent storage baseAgent = _data.agents[requests[i].id];
-      require(baseAgent.acstat > ActivityStatus.DELETED, "Member is Deleted");
-      require(baseAgent.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Agent Update");
-      require(_doAgentCheckAdminAccess(baseAgent.adminId, memberId, functionId), "Operation Not Permitted");
+      MemberEntity storage memberEntity = _data.memberReadSlot(requests[i].id);
+      // require(memberEntity.ba.acstat > ActivityStatus.DELETED, "Member is Deleted");
+      require(memberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Agent Update");
+      require(_doAgentCheckAdminAccess(memberEntity.ba.adminId, memberId, functionId), "Operation Not Permitted");
 
       // checking requested admin of member
       if (requests[i].adminId == bytes32(0)) {
@@ -142,13 +142,11 @@ contract MemberManager is AclStorage, IMemberManagement {
         if(requestedAgent.atype == AgentType.ROLE) {
           TypeEntity storage typeEntity = _data.typeReadSlot(LIVELY_VERSE_ADMIN_TYPE_ID);
           require(typeEntity.roles.containts(requests[i].adminId), "Illegal Member Admin ID");
-          // baseAgent.adminId = requests[i].adminId;
-        } 
-         
-        baseAgent.adminId = requests[i].adminId;
+        }          
+        memberEntity.ba.adminId = requests[i].adminId;
       
       } else {
-        baseAgent.adminId = LIVELY_VERSE_ADMIN_TYPE_ID;
+        memberEntity.ba.adminId = LIVELY_VERSE_ADMIN_TYPE_ID;
       }
       emit MemberAdminUpdated(msg.sender, requests[i].id, requests[i].adminId);
     }
@@ -218,24 +216,6 @@ contract MemberManager is AclStorage, IMemberManagement {
       acstat: member.ba.acstat,
       alstat: member.ba.alstat
     });
-  }
-
-
-  function _doGetScopeInfo(bytes32 agentId) internal returns (ScopeType, bytes32) {
-
-    BaseAgent atype = _data.agents[agentId].atype;
-    if (atype == AgentType.ROLE) {
-      RoleEntity storage roleEntity = _data.roleReadSlot(agentId);
-      BaseScope storage baseScope = _data.scopes[roleEntity.scopeId];
-      return (baseScope.stype, roleEntity.scopeId);
-
-    } else if(atype == AgentType.TYPE) {
-      TypeEntity storage TypeEntity = _data.typeReadSlot(agentId);
-      BaseScope storage baseScope = _data.scopes[typeEntity.scopeId];
-      return (baseScope.stype, typeEntity.scopeId);
-    }
-
-    return (ScopeType.NONE, bytes32(0));  
   }
 
   // Note: Member could not assigned to any entities as admin

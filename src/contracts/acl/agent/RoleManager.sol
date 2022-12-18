@@ -39,9 +39,10 @@ contract RoleManager is AgentCommons, IRoleManagement {
       require(requests[i].alstat > AlterabilityStatus.NONE, "Illegal Alterability status");
 
       // check type 
-      TypeEntity storage typeEntity = _data.typeReadSlot(roleEntity.typeId);
+      TypeEntity storage typeEntity = _data.typeReadSlot(requests[i].typeId);
       require(typeEntity.ba.acstat > ActivityStatus.DELETED, "Type is Deleted");
       require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Type Update");
+      require(typeEntity.roles.length() < typeEntity.roleLimit, "Illegal Role Register");
 
       // check access
       require(_doRoleCheckAdminAccess(typeEntity.ba.adminId, memberId, functionId), "Operation Not Permitted");
@@ -49,9 +50,14 @@ contract RoleManager is AgentCommons, IRoleManagement {
       // checking requested role scope
       BaseScope storage requestRoleScope = _data.scopes[requests[i].scopeId];
       require(requestRoleScope.stype != ScopeType.NONE , "Scope Not Found");
+      require(requestRoleScope.acstat > ActivityStatus.DELETED , "Scope Is Deleted");
+
+      // increase referred count to target scope
+      requestRoleScope.referredByAgent +=1;
+      emit ScopeReferredByAgentUpdated(msg.sender, requests[i].scopeId, newRoleId, requestRoleScope.referredByAgent, requestRoleScope.stype, ActionType.ADD);
      
       // checking requested role type scope with role scope
-      ScopeType requestTypeScopeType = _data.scopes[typeEntity.scopeId].ba.stype;
+      ScopeType requestTypeScopeType = _data.scopes[typeEntity.scopeId].stype;
       require(requestTypeScopeType >= requestRoleScope.stype, "Illegal Type Scope");
       if (requestTypeScopeType == requestRoleScope.stype) {
         require(requestTypeScopeId == requests[i].scopeId, "Illegal Type Scope ID");
@@ -89,6 +95,8 @@ contract RoleManager is AgentCommons, IRoleManagement {
       newRole.ba.atype = AgentType.ROLE;
       newRole.ba.acstat = requests[i].acstat;
       newRole.ba.alstat = requests[i].alstat;
+      newRole.ba.referredByPolicy = 0;
+      newRole.ba.referredByScope = 0;
       newRole.name = requests[i].name;
       newRole.scopeId = requests[i].scopeId;
       newRole.memberLimit = requests[i].memberLimit;
@@ -109,34 +117,35 @@ contract RoleManager is AgentCommons, IRoleManagement {
     }
   }
 
+  // Note: Admin must be Role or Type, and it can't be a member 
   function roleUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
     
-    address functionFacetId = _data.interfaces[type(IMemberManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IMemberManagement.memberUpdateAdmin.selector);
+    address functionFacetId = _data.interfaces[type(IRoleManagement).interfaceId];
+    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IRoleManagement.roleUpdateAdmin.selector);
     require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
 
     bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {
-      RoleEntity storage roleEntity = _data.roleReadSlot(requests[i].memberId);
-      require(roleEntity.ba.acstat > ActivityStatus.DELETED, "Member is Deleted");
-      require(roleEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Agent Update");
+      RoleEntity storage roleEntity = _data.roleReadSlot(requests[i].id);
+      require(roleEntity.ba.acstat > ActivityStatus.DELETED, "Role is Deleted");
+      require(roleEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Role Update");
 
        // check access admin role
       require(_doRoleCheckAdminAccess(roleEntity.ba.adminId, memberId, functionId), "Operation Not Permitted");
 
       // checking requested type admin 
       if(requests[i].adminId != bytes32(0)) {
-        ScopeType roleScopeType = _data.agents[scopeId].bs.stype;
+        ScopeType roleScopeType = _data.scopes[roleEntity.scopeId].stype;
         BaseAgent storage adminBaseAgent = _data.agents[requests[i].adminId];
         require(adminBaseAgent.atype > AgentType.MEMBER, "Illegal Admin AgentType");
         (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(requests[i].adminId);
         if(adminBaseAgent.atype == AgentType.Role) {
           require(roleScopeType <= requestAdminScopeType, "Illegal Admin Scope Type");
           if(roleScopeType == requestAdminScopeType) {
-            require(requestAdminScopeId == roleScopeType, "Illegal Amind Scope");
+            require(requestAdminScopeId == roleEntity.scopeId, "Illegal Amind Scope");
           } else {
-            require(IAccessControl(address(this)).isScopesCompatible(requestAdminScopeId, roleScopeType), "Illegal Role Scope");
+            require(IAccessControl(address(this)).isScopesCompatible(requestAdminScopeId, roleEntity.scopeId), "Illegal Role Scope");
           }
         }     
         roleEntity.ba.adminId = requests[i].adminId;
@@ -151,15 +160,19 @@ contract RoleManager is AgentCommons, IRoleManagement {
   }
  
   function roleDeleteActivity(bytes32[]  calldata requests) external returns (bool) {
+    address functionFacetId = _data.interfaces[type(IRoleManagement).interfaceId];
+    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IRoleManagement.roleDeleteActivity.selector);
     for(uint i = 0; i < requests.length; i++) {
-      _doRoleUpdateActivityStatus(requests[i].id, ActivityStatus.DELETED);
+      _doRoleUpdateActivityStatus(requests[i].id, ActivityStatus.DELETED, functionId);
     }
   }
 
   function roleUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
+    address functionFacetId = _data.interfaces[type(IRoleManagement).interfaceId];
+    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IRoleManagement.roleDeleteActivity.selector);
     for(uint i = 0; i < requests.length; i++) {
       require(requests[i].acstat != ActivityStatus.DELETED, "Illegal Activity Status");
-      _doRoleUpdateActivityStatus(requests[i].id, requests[i].acstat);
+      _doRoleUpdateActivityStatus(requests[i].id, requests[i].acstat, functionId);
     }
   }
 
@@ -172,13 +185,12 @@ contract RoleManager is AgentCommons, IRoleManagement {
 
     bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {      
-      BaseAgent storage baseAgent = _data.agents[requests[i].id];
-      require(baseAgent.acstat > ActivityStatus.DELETED, "Role Is Deleted");
-
-      require(_doRoleCheckAdminAccess(baseAgent.adminId, memberId, functionId), "Operation Not Permitted");
+      RoleEntity storage roleEntity = _data.roleReadSlot(requests[i].roleId);
+      require(roleEntity.ba.acstat > ActivityStatus.DELETED, "Role is Deleted");
+      require(_doRoleCheckAdminAccess(roleEntity.ba.adminId, memberId, functionId), "Operation Not Permitted");
     
-      baseAgent.alstat = requests[i].alstat;
-      emit MemberAlterabilityUpdated(msg.sender, requests[i], requests[i].alstat);
+      roleEntity.ba.alstat = requests[i].alstat;
+      emit MemberAlterabilityUpdated(msg.sender, requests[i].id, requests[i].alstat);
     }
     return true;
   }
@@ -224,8 +236,11 @@ contract RoleManager is AgentCommons, IRoleManagement {
       for (uint256 j = 0; j < requests[i].members.length; j++) {
         require(_data.agents[requests[i].members[j]].ba.atype == AgentType.MEMBER, "Illegal Member AgentType");
         require(typeEntity.members[requests[i].members[j]] == bytes32(0), "Member Already Exists");
+        require(roleEntity.memberTotal < roleEntity.memberLimit, "Illegal Role Grant Member");
+        require(typeEntity.memberTotal < typeEntity.memberLimit, "Illegal Type Add Member");
         typeEntity.members[requests[i].members[j]] = requests[i].roleId;
         roleEntity.memberTotal += 1;
+        typeEntity.memberTotal += 1;
         emit RoleMemberGranted(msg.sender, requests[i].roleId, requests[i].members[j], roleEntity.typeId);
       }
     }
@@ -253,89 +268,93 @@ contract RoleManager is AgentCommons, IRoleManagement {
       for (uint256 j = 0; j < requests[i].members.length; j++) {
         require(_data.agents[requests[i].members[j]].ba.atype == AgentType.MEMBER, "Invalid Member AgentType");
         require(typeEntity.members[requests[i].members[j]] != bytes32(0), "Member Not Found");
+        require(typeEntity.memberTotal > 0, "Illegal Type MemberTotal");
         require(roleEntity.memberTotal > 0, "Illegal Role MemberTotal");
         delete typeEntity.members[requests[i].members[j]];
-        unchecked { roleEntity.memberTotal -= 1; }
+        unchecked { 
+          roleEntity.memberTotal -= 1; 
+          typeEntity.memberTotal -= 1; 
+        }
         emit RoleMemberRevoked(msg.sender, requests[i].roleId, requests[i].members[j], roleEntity.typeId);
       }
     }
     return true;
   }
   
-  function roleUpdateReferredByScope(UpdateReferredByRequest[] calldata requests) external returns (bool) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
+  // function roleUpdateReferredByScope(UpdateReferredByRequest[] calldata requests) external returns (bool) {
+  //   require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
    
-    address functionFacetId = _data.interfaces[type(IRoleManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IRoleManagement.roleRevokeMembers.selector); 
-    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied"); 
+  //   address functionFacetId = _data.interfaces[type(IRoleManagement).interfaceId];
+  //   bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IRoleManagement.roleRevokeMembers.selector); 
+  //   require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied"); 
 
-    bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
-    for(uint i = 0; i < requests.length; i++) {      
-      RoleEntity storage roleEntity = _data.roleReadSlot(requests[i].roleId);
-      // require(roleEntity.ba.acstat > ActivityStatus.DELETED, "Role is Deleted");
-      // require(roleEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Role Update");
+  //   bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
+  //   for(uint i = 0; i < requests.length; i++) {      
+  //     RoleEntity storage roleEntity = _data.roleReadSlot(requests[i].roleId);
+  //     // require(roleEntity.ba.acstat > ActivityStatus.DELETED, "Role is Deleted");
+  //     // require(roleEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Role Update");
       
-      // TypeEntity storage typeEntity = _data.typeReadSlot(roleEntity.typeId);
-      // require(typeEntity.ba.acstat > ActivityStatus.DELETED, "Type is Deleted");
-      // require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Type Update");
+  //     // TypeEntity storage typeEntity = _data.typeReadSlot(roleEntity.typeId);
+  //     // require(typeEntity.ba.acstat > ActivityStatus.DELETED, "Type is Deleted");
+  //     // require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Type Update");
       
-      // check scope admin
-      bytes32 scopeAdmin = _data.scopes[requests[i].entityId].admin;
-      require(_doRoleCheckAdminAccess(scopeAdmin, memberId, functionId), "Operation Not Permitted");
+  //     // check scope admin
+  //     bytes32 scopeAdmin = _data.scopes[requests[i].entityId].admin;
+  //     require(_doRoleCheckAdminAccess(scopeAdmin, memberId, functionId), "Operation Not Permitted");
 
-      if(requests[i].action == ActionType.ADD) {
-        require(roleEntity.ba.acstat != ActivityStatus.DELETED, "Agent Is Deleted");
-        roleEntity.ba.referredByScope += 1;
-        emit RoleReferredByScopeUpdated(msg.sender, requests[i].id, requests[i].entityId, baseAgent.referredByScope, requests[i].action);
+  //     if(requests[i].action == ActionType.ADD) {
+  //       require(roleEntity.ba.acstat != ActivityStatus.DELETED, "Agent Is Deleted");
+  //       roleEntity.ba.referredByScope += 1;
+  //       emit RoleReferredByScopeUpdated(msg.sender, requests[i].id, requests[i].entityId, baseAgent.referredByScope, requests[i].action);
       
-      } else if(requests[i].action == ActionType.REMOVE) {
-          require(roleEntity.ba.referredByScope > 0, "Illegal ReferredByScope Remove");
-          unchecked { roleEntity.ba.referredByScope -= 1; }
-          emit RoleReferredByScopeUpdated(msg.sender, requests[i].id, requests[i].entityId, baseAgent.referredByScope, requests[i].action);
-      } else {
-        revert ("Illegal Action Type");
-      }
-    }
-    return true;
-  }
+  //     } else if(requests[i].action == ActionType.REMOVE) {
+  //         require(roleEntity.ba.referredByScope > 0, "Illegal ReferredByScope Remove");
+  //         unchecked { roleEntity.ba.referredByScope -= 1; }
+  //         emit RoleReferredByScopeUpdated(msg.sender, requests[i].id, requests[i].entityId, baseAgent.referredByScope, requests[i].action);
+  //     } else {
+  //       revert ("Illegal Action Type");
+  //     }
+  //   }
+  //   return true;
+  // }
 
-  function roleUpdateReferredByPolicy(UpdateReferredByRequest[] calldata requests) external returns (bool) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
+  // function roleUpdateReferredByPolicy(UpdateReferredByRequest[] calldata requests) external returns (bool) {
+  //   require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
     
-    address functionFacetId = _data.interfaces[type(IRoleManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IRoleManagement.roleUpdateReferredByPolicy.selector); 
-    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied"); 
+  //   address functionFacetId = _data.interfaces[type(IRoleManagement).interfaceId];
+  //   bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IRoleManagement.roleUpdateReferredByPolicy.selector); 
+  //   require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied"); 
 
-    bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
-    for(uint i = 0; i < requests.length; i++) {      
-      RoleEntity storage roleEntity = _data.roleReadSlot(requests[i].roleId);
-      // require(roleEntity.ba.acstat > ActivityStatus.DELETED, "Role is Deleted");
-      // require(roleEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Role Update");
+  //   bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
+  //   for(uint i = 0; i < requests.length; i++) {      
+  //     RoleEntity storage roleEntity = _data.roleReadSlot(requests[i].roleId);
+  //     // require(roleEntity.ba.acstat > ActivityStatus.DELETED, "Role is Deleted");
+  //     // require(roleEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Role Update");
       
-      // TypeEntity storage typeEntity = _data.typeReadSlot(roleEntity.typeId);
-      // require(typeEntity.ba.acstat > ActivityStatus.DELETED, "Type is Deleted");
-      // require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Type Update");
+  //     // TypeEntity storage typeEntity = _data.typeReadSlot(roleEntity.typeId);
+  //     // require(typeEntity.ba.acstat > ActivityStatus.DELETED, "Type is Deleted");
+  //     // require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Type Update");
       
-      // check policy admin
-      bytes32 policyAdmin = _data.policies[requests[i].entityId].admin;
-      require(_doRoleCheckAdminAccess(policyAdmin, memberId, functionId), "Operation Not Permitted");
+  //     // check policy admin
+  //     bytes32 policyAdmin = _data.policies[requests[i].entityId].admin;
+  //     require(_doRoleCheckAdminAccess(policyAdmin, memberId, functionId), "Operation Not Permitted");
 
-      if(requests[i].action == ActionType.ADD) {
-        require(roleEntity.ba.acstat != ActivityStatus.DELETED, "Agent Is Deleted");
-        roleEntity.ba.referredByPolicy += 1;
-        emit AgentReferredByPolicyUpdated(msg.sender, requests[i].id, requests[i].entityId, requests[i].action);
+  //     if(requests[i].action == ActionType.ADD) {
+  //       require(roleEntity.ba.acstat != ActivityStatus.DELETED, "Agent Is Deleted");
+  //       roleEntity.ba.referredByPolicy += 1;
+  //       emit RoleReferredByPolicyUpdated(msg.sender, requests[i].id, requests[i].entityId, requests[i].action);
       
-      } else if(requests[i].action == ActionType.REMOVE) {
-        require(roleEntity.ba.referredByPolicy > 0, "Illegal ReferredByPolicy Remove");
-        unchecked { roleEntity.ba.referredByPolicy -= 1; }
-        emit AgentReferredByPolicyUpdated(msg.sender, requests[i].id, requests[i].entityId, requests[i].action);
+  //     } else if(requests[i].action == ActionType.REMOVE) {
+  //       require(roleEntity.ba.referredByPolicy > 0, "Illegal ReferredByPolicy Remove");
+  //       unchecked { roleEntity.ba.referredByPolicy -= 1; }
+  //       emit RoleReferredByPolicyUpdated(msg.sender, requests[i].id, requests[i].entityId, requests[i].action);
       
-      } else {
-        revert ("Illegal Action Type");
-      }
-    }
-    return true;
-  }
+  //     } else {
+  //       revert ("Illegal Action Type");
+  //     }
+  //   }
+  //   return true;
+  // }
 
 
   function roleCheckId(bytes32 roleId) external view returns (bool) {
@@ -410,7 +429,7 @@ contract RoleManager is AgentCommons, IRoleManagement {
     });
   }
 
-   function _doAgentGetScopeInfo(bytes32 agentId) internal returns (ScopeType, bytes32) {
+  function _doAgentGetScopeInfo(bytes32 agentId) internal returns (ScopeType, bytes32) {
     BaseAgent atype = _data.agents[agentId].atype;
     if (atype == AgentType.ROLE) {
       RoleEntity storage roleEntity = _data.roleReadSlot(agentId);
@@ -426,21 +445,18 @@ contract RoleManager is AgentCommons, IRoleManagement {
     return (ScopeType.NONE, bytes32(0));  
   }
 
-  function _doRoleUpdateActivityStatus(bytes32 roleId, AlterabilityStatus status) internal returns (bool) {
+  function _doRoleUpdateActivityStatus(bytes32 roleId, AlterabilityStatus status, bytes32 functionId) internal returns (bool) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
-
-    address functionFacetId = _data.interfaces[type(IRoleManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IRoleManagement.roleUpdateActivityStatus.selector);
     require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied"); 
 
     bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
-    BaseAgent storage baseAgent = _data.agents[roleId];
-    require(baseAgent.acstat > ActivityStatus.DELETED, "Role Is Deleted");
-    require(baseAgent.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Agent Update");
-    require(_doRoleCheckAdminAccess(baseAgent.adminId, memberId, functionId), "Operation Not Permitted");
+    RoleEntity storage roleEntity = _data.roleReadSlot(roleId);
+      require(roleEntity.ba.acstat > ActivityStatus.DELETED, "Role is Deleted");
+      require(roleEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Role Update");
+      require(_doRoleCheckAdminAccess(roleEntity.ba.adminId, memberId, functionId), "Operation Not Permitted");
 
-    baseAgent.acstat = status;
-    emit MemberActivityUpdated(msg.sender, roleId, status);
+    roleEntity.ba.acstat = status;
+    emit RoleActivityUpdated(msg.sender, roleId, status);
     return true;  
   }
 
