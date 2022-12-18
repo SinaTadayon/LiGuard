@@ -47,8 +47,6 @@ interface IAclCommons {
     ADD,
     UPDATE,
     REMOVE
-    // INCREASE,
-    // DECREASE
   }
 
   enum PolicyType {
@@ -62,6 +60,7 @@ interface IAclCommons {
 
   struct BaseAgent {
     bytes32 adminId;
+    uint16 scopelimit;
     uint16 referredByScope;
     uint16 referredByPolicy;
     AgentType atype;
@@ -153,7 +152,7 @@ interface IAclCommons {
     string name;
     uint32 memberTotal;
     uint32 memberLimit;
-    uint8 roleLimit;
+    uint16 roleLimit;
     mapping(bytes32 => bytes32) members;
     LEnumerableSet.Bytes32Set roles;
   }
@@ -193,16 +192,16 @@ interface IAclCommons {
     bytes32 adminId;
   }
 
-  struct UpdateReferredByRequest {
-    bytes32 id;
-    bytes32 entityId;
-    ActionType action;
-  }
+  // struct UpdateReferredByRequest {
+  //   bytes32 id;
+  //   bytes32 entityId;
+  //   ActionType action;
+  // }
 
   // Agent Requests
-  struct AgentUpdateScopeRequest { 
+  struct AgentUpdateScopeLimitRequest { 
     bytes32 agentId;
-    bytes32 scopeId;
+    uint16 scopeLimit;
   }
 
   // Scope Requests

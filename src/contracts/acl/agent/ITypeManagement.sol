@@ -69,7 +69,7 @@ interface ITypeManagement is IAclCommons {
 
   event TypeAdminUpdated(address indexed sender, bytes32 indexed typeId, bytes32 indexed adminId);
 
-  function typeRegister(TypeRegisterRequest[] calldata requests) external returns (bytes32);
+  function typeRegister(TypeRegisterRequest[] calldata requests) external returns (bool);
 
   function typeUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);
  
@@ -96,48 +96,4 @@ interface ITypeManagement is IAclCommons {
   function typeGetRoles(bytes32 typeId) external view returns (bytes32[] memory);
 
   function typeGetInfo(bytes32 typeId) external view returns (TypeInfo memory);
-
-  // function typeGenerateId(string calldata) external pure returns (bytes32);
-
-  // function typeGetAccountRole(bytes32 typeId, address account) external view returns (bytes32);
-
-  // function typeGetMemberRole(bytes32 typeId, bytes32 memberId) external view returns (bytes32);
-
-  // function typeGetRoleLimit(bytes32 typeId) external view returns (uint8);
-
-  // function typeGetActivityStatus(bytes32 typeId) external view returns (ActivityStatus);
-
-  // function typeGetAlterabilityStatus(bytes32 typeId) external view returns (AlterabilityStatus);
-
-  // function typeGetName(bytes32 typeId) external view returns (string memory);
-
-  // function typeGetAdminId(bytes32 typeId) external view returns (bytes32);
-
-  // function typeGetGroupId(bytes32 typeId) external view returns (bytes32);
-
-  // function typeGetScopeId(bytes32 typeId) external view returns (ScopeType stype, bytes32);
-
-  // function typeGetMembersCount(bytes32 typeId) external view returns (bytes32);
-
-  // function typeGetRolesCount(bytes32 typeId) external view returns (uint8);
-
-  // function typeHasMember(bytes32 typeId, bytes32 memberId) external view returns (bool);
-
-  // function typeHasAgent(bytes32 typeId, bytes32 agentId) external view returns (bool);
-
-  // function typeAddRole(bytes32 typeId, bytes32 roleId) external returns (bool);
-
-  // function typeRemoveRole(bytes32 typeId, bytes32 roleId) external returns (bool);
-
-  // function typeAddRoles(TypeAddRolesRequest[] calldata requests) external returns (bool);
-
-  // function typeRemoveRoles(TypeRemoveRolesRequest[] calldata requests) external returns (bool);
-
-  // function typeAddMembers(TypeAddMembersRequest[] calldata requests) external returns (bool);
-
-  // function typeRemoveMembers(TypeRemoveMembersRequest[] calldata requests) external returns (bool);
-
-  // function typeUpdateScope(AgentUpdateScopeRequest[] calldata requests) external returns (bool);
-
-
 }

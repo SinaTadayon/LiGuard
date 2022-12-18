@@ -76,15 +76,12 @@ contract RoleManager is AgentCommons, IRoleManagement {
         BaseAgent storage adminBaseAgent = _data.agents[requests[i].adminId];
         require(adminBaseAgent.atype > AgentType.MEMBER, "Illegal Admin AgentType");
         (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(requests[i].adminId);
-        if(adminBaseAgent.atype == AgentType.Role) {
-          require(requestRoleScope.stype <= requestAdminScopeType, "Illegal Admin Scope Type");
-          if(requestRoleScope.stype == requestAdminScopeType) {
-            require(requestAdminScopeId == requests[i].scopeId, "Illegal Amind Scope");
-          } else {
-            require(IAccessControl(address(this)).isScopesCompatible(requestAdminScopeId, requests[i].scopeId), "Illegal Role Scope");
-          }
-        }     
-
+        require(requestRoleScope.stype <= requestAdminScopeType, "Illegal Admin Scope Type");
+        if(requestRoleScope.stype == requestAdminScopeType) {
+          require(requestAdminScopeId == requests[i].scopeId, "Illegal Amind Scope");
+        } else {
+          require(IAccessControl(address(this)).isScopesCompatible(requestAdminScopeId, requests[i].scopeId), "Illegal Role Scope");
+        }
         newRole.ba.adminId = requests[i].adminId;
 
       } else {
@@ -140,14 +137,12 @@ contract RoleManager is AgentCommons, IRoleManagement {
         BaseAgent storage adminBaseAgent = _data.agents[requests[i].adminId];
         require(adminBaseAgent.atype > AgentType.MEMBER, "Illegal Admin AgentType");
         (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(requests[i].adminId);
-        if(adminBaseAgent.atype == AgentType.Role) {
-          require(roleScopeType <= requestAdminScopeType, "Illegal Admin Scope Type");
-          if(roleScopeType == requestAdminScopeType) {
-            require(requestAdminScopeId == roleEntity.scopeId, "Illegal Amind Scope");
-          } else {
-            require(IAccessControl(address(this)).isScopesCompatible(requestAdminScopeId, roleEntity.scopeId), "Illegal Role Scope");
-          }
-        }     
+        require(roleScopeType <= requestAdminScopeType, "Illegal Admin Scope Type");
+        if(roleScopeType == requestAdminScopeType) {
+          require(requestAdminScopeId == roleEntity.scopeId, "Illegal Amind Scope");
+        } else {
+          require(IAccessControl(address(this)).isScopesCompatible(requestAdminScopeId, roleEntity.scopeId), "Illegal Role Scope");
+        }
         roleEntity.ba.adminId = requests[i].adminId;
 
       } else {
@@ -159,7 +154,7 @@ contract RoleManager is AgentCommons, IRoleManagement {
     return true;
   }
  
-  function roleDeleteActivity(bytes32[]  calldata requests) external returns (bool) {
+  function roleDeleteActivity(bytes32[] calldata requests) external returns (bool) {
     address functionFacetId = _data.interfaces[type(IRoleManagement).interfaceId];
     bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IRoleManagement.roleDeleteActivity.selector);
     for(uint i = 0; i < requests.length; i++) {
@@ -455,6 +450,15 @@ contract RoleManager is AgentCommons, IRoleManagement {
       require(roleEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Role Update");
       require(_doRoleCheckAdminAccess(roleEntity.ba.adminId, memberId, functionId), "Operation Not Permitted");
 
+      if(status == ActivityStatus.DELETED) {
+        BaseScope storage bs = _data.scopes[roleEntity.scopeId];
+        require(bs.referredByAgent > 0, "Illegal Scope ReferredByAgent");
+        unchecked {
+          bs.referredByAgent -= 1;  
+        }
+        emit ScopeReferredByAgentUpdated(msg.sender, roleEntity.scopeId, roleId, bs.referredByAgent, bs.stype, ActionType.REMOVE);
+      }
+
     roleEntity.ba.acstat = status;
     emit RoleActivityUpdated(msg.sender, roleId, status);
     return true;  
@@ -497,117 +501,4 @@ contract RoleManager is AgentCommons, IRoleManagement {
 
     return false;   
   }
-
-  // function roleGenerateId(string calldata name) external pure returns (bytes32) {
-  //   return keccak256(abi.encodePacked(name));
-  // }
-
-  // function roleGetMemberLimit(bytes32 roleId) external view returns (uint24) {
-  //   (IAclCommons.RoleEntity storage re, bool result) = _data.roleTryReadSlot(roleId);
-  //   if(!result) return false;
-  //   return re.memberLimit;
-  // }
-
-  // function roleGetActivityStatus(bytes32 roleId) external view returns (ActivityStatus) {
-  //   (IAclCommons.RoleEntity storage re, bool result) = _data.roleTryReadSlot(roleId);
-  //   if(!result) return false;
-  //   return re.ba.acstat;
-  // }
-
-  // function roleGetAlterabilityStatus(bytes32 roleId) external view returns (AlterabilityStatus) {
-  //   (IAclCommons.RoleEntity storage re, bool result) = _data.roleTryReadSlot(roleId);
-  //   if(!result) return false;
-  //   return re.ba.alstat;
-  // }
-
-  // function roleGetName(bytes32 roleId) external view returns (string memory) {
-  //   (IAclCommons.RoleEntity storage re, bool result) = _data.roleTryReadSlot(roleId);
-  //   if(!result) return false;
-  //   return re.name;
-  // }
-
-  // function roleGetScope(bytes32 roleId) external view returns (ScopeType, bytes32) {
-  //   (IAclCommons.RoleEntity storage re, bool result) = _data.roleTryReadSlot(roleId);
-  //   if(!result) return false;
-  //   return (_data.scopes[re.scopeId].stype, re.scopeId);
-  // }
-
-  // function roleGetType(bytes32 typeId) external view returns (bytes32) {
-  //   (IAclCommons.RoleEntity storage re, bool result) = _data.roleTryReadSlot(roleId);
-  //   if(!result) return false;
-  //   return re.typeId;
-  // }
-
-  // function roleGetAdmin(bytes32 roleId) external view returns (bytes32) {
-  //   (IAclCommons.RoleEntity storage re, bool result) = _data.roleTryReadSlot(roleId);
-  //   if(!result) return false;
-  //   return re.ba.adminId;
-  // }
-
-    // function roleIncreaseMember(bytes32 roleId, uint32 count) external returns (uint32) {
-  //   require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
-  //   require(IAccessControl(address(this)).hasCSAccess(address(this), this.roleIncreaseCountMember.selector), "Access Denied");
-    
-  //   // check admin role
-  //   require(_doRoleCheckAdmin(requests[i].roleId, msg.sender), "Operation Not Permitted");
-
-  //   RoleEntity storage role = _data.roleReadSlot(roleId);
-  //   role.totalMember += count;
-  //   require(role.totalMember <= role.roleLimit, "Illegal Role Member Count");
-  //   emit RoleMemberIncreased(msg.sender, roleId, role.totalMember);
-  //   return role.totalMember;    
-  // }
-
-  // function roleDecreaseMember(bytes32 roleId, uint32 count) external returns (uint32) {
-  //   require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
-  //   require(IAccessControl(address(this)).hasCSAccess(address(this), this.roleDecreaseCountMember.selector), "Access Denied");
-
-  //   // check admin role
-  //   require(_doRoleCheckAdmin(requests[i].roleId, msg.sender), "Operation Not Permitted");
-
-  //   RoleEntity storage role = _data.roleReadSlot(roleId);
-  //   require(role.totalMember >= count, "Illegal Role Member Count");
-  //   unchecked {
-  //     role.totalMember -= count;
-  //   }
-  //   emit RoleMemberDecreased(msg.sender, roleId, role.totalMember);
-  //   return role.totalMember;
-  // }
-
-  // function roleIncreaseMembers(RoleIncreaseMemberCountRequest[] calldata requests) external returns (bool) {
-  //   require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
-  //   require(IAccessControl(address(this)).hasCSAccess(address(this), this.roleIncreaseCountMembers.selector), "Access Denied");
-
-  //   for (uint i = 0; index < requests.length; i++) {
-  //     // check admin role  
-  //     require(_doRoleCheckAdmin(requests[i].roleId, msg.sender), "Operation Not Permitted");
-
-  //     RoleEntity storage role = _data.roleReadSlot(requests[i].roleId);
-  //     role.totalMember += requests[i].count;
-  //     require(role.totalMember <= role.roleLimit, "Illegal Role Member Count");
-  //     emit RoleMemberDecreased(msg.sender, requests[i].roleId, role.totalMember);
-  //   }
-  //   return true;
-  // }
-
-  // function roleDecreaseMembers(RoleDecreaseMemberCountRequest[] calldata requests) external returns (bool) {
-  //   require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
-  //   require(IAccessControl(address(this)).hasCSAccess(address(this), this.roleDecreaseCountMembers.selector), "Access Denied");
-
-  //   for (uint i = 0; index < requests.length; i++) {
-  //     // check admin role
-  //     require(_doRoleCheckAdmin(requests[i].roleId, msg.sender), "Operation Not Permitted");
-  
-  //     RoleEntity storage role = _data.roleReadSlot(requests[i].roleId);
-  //     require(role.totalMember >= requests[i].count, "Illegal Role Member Count");
-  //     unchecked {
-  //       role.totalMember -= requests[i].count;
-  //     }
-  //     emit RoleMemberDecreased(msg.sender, requests[i].roleId, role.totalMember);
-  //   }
-  //   return true;
-  // }
-
-
-
 }
