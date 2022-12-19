@@ -19,7 +19,7 @@ interface IContextManagement is IAclCommons {
     string name;
     string version;
     address contractId;
-    uint16 typeLimit;  
+    uint16 agentLimit;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
   }
@@ -32,7 +32,7 @@ interface IContextManagement is IAclCommons {
     string version;
     address subject;
     address deployer;
-    uint16 typeLimit;
+    uint16 agentLimit;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
   }
@@ -41,7 +41,6 @@ interface IContextManagement is IAclCommons {
     address contractId;
     string name;
     string version;
-    uint16 typeLimit;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
   }
@@ -49,8 +48,8 @@ interface IContextManagement is IAclCommons {
   struct ContextRegisterFunctionRequest {
     bytes32 adminId;
     bytes32 agentId;
-    uint16 typeLimit;
-    uint8 policy;
+    uint16 agentLimit;
+    uint8 policyCode;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
     bytes4 selector;    
@@ -59,28 +58,13 @@ interface IContextManagement is IAclCommons {
   struct ContextUpgradeFunctionRequest {
     bytes32 adminId;
     bytes32 agentId;
-    uint16 typeLimit;
-    uint8 policy;
+    uint16 agentLimit;
+    uint8 policyCode;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
     ActionType action;
     bytes4 selector;    
   }
-
-  struct ContextUpdateRealmRequest {
-    bytes32 contextId;
-    bytes32 realmId;
-  }
-
-  // struct ContextUpdateFactoryLimitRequest {
-  //   bytes32 scopeId; 
-  //   uint32 factoryLimit;
-  // }
-
-  // struct ContextUpdateFunctionLimitRequest {
-  //   bytes32 contextId;
-  //   bytes8 functionLimit;
-  // }
 
   struct ContextInfo {
     bytes32 realmId;
@@ -88,9 +72,10 @@ interface IContextManagement is IAclCommons {
     string name;
     string version;
     address contractId;
-    uint16 typeLimit;
+    uint16 agentLimit;
+    uint16 referredByAgent;
+    uint16 referredByPolicy;
     AgentType adminType;
-    uint8 functionsCount; 
     ActivityStatus acstat;
     AlterabilityStatus alstate;
   }
@@ -104,7 +89,7 @@ interface IContextManagement is IAclCommons {
     string version,
     bytes32 realmId,
     bytes32 adminId,
-    uint16 typeLimit,
+    uint16 agentLimit,
     AgentType adminType,
     ActivityStatus acstat,
     AlterabilityStatus alstat
@@ -121,7 +106,7 @@ interface IContextManagement is IAclCommons {
     string version,
     bytes32 realmId,
     bytes32 adminId,
-    uint16 typeLimit,
+    uint16 agentLimit,
     AgentType adminType,
     ActivityStatus acstat,
     AlterabilityStatus alstat
@@ -133,7 +118,7 @@ interface IContextManagement is IAclCommons {
     address indexed contractId, 
     string name, 
     string version,
-    uint16 typeLimit,
+    uint16 agentLimit,
     ActivityStatus acstat,
     AlterabilityStatus alstat
   );
@@ -144,13 +129,13 @@ interface IContextManagement is IAclCommons {
     bytes32 indexed functionId,
     bytes32 adminId, 
     bytes32 agentId,
-    uint16 typeLimit,
+    bytes4 selector,
+    uint16 agentLimit,
     AgentType adminType,
     AgentType agentType,
     ActivityStatus acstat,
     AlterabilityStatus alstat,
-    uint8 policy,
-    bytes4 selector    
+    uint8 policyCode
   );
 
   event ContextUpgradeFunctionAdded(
@@ -159,13 +144,13 @@ interface IContextManagement is IAclCommons {
     bytes32 indexed functionId,
     bytes32 adminId,
     bytes32 agentId,
-    uint16 typeLimit,
+    bytes4 selector,
+    uint16 agentLimit,
     AgentType adminType,
     AgentType agentType,
     ActivityStatus acstat,
     AlterabilityStatus alstat,
-    uint8 policy,
-    bytes4 selector
+    uint8 policyCode
   );
 
   event ContextUpgradeFunctionRemoved(
@@ -180,29 +165,31 @@ interface IContextManagement is IAclCommons {
 
   event ContextAlterabilityUpdated(address indexed sender, bytes32 indexed contextId, AlterabilityStatus alstat);
 
-  event ContextTypeLimitUpdated(address indexed sender, bytes32 indexed contextId, uint16 typeLimit);
+  event ContextAgentLimitUpdated(address indexed sender, bytes32 indexed contextId, uint16 agentLimit);
 
 
   // called by contract that want to register itself
   function contextRegister(
     bytes memory signature,
-    ContextRegisterRequest calldata rc,
-    ContextRegisterFunctionRequest[] calldata rcr
+    ContextRegisterRequest calldata request,
+    ContextRegisterFunctionRequest[] calldata functionRequests
   ) external returns (bytes32);
 
   // called by factory contract that want to register new created contract
   function contextRegisterPredict(
     bytes memory signature,
-    ContextRegisterPredictRequest calldata rpc,
-    ContextRegisterFunctionRequest[] calldata rrfc
+    ContextRegisterPredictRequest calldata request,
+    ContextRegisterFunctionRequest[] calldata functionRequests
   ) external returns (bytes32);
 
   // called by contract that want to upgrade itself
   function contextUpgrade(
     bytes memory signature,
-    ContextUpgradeRequest calldata rc,
-    ContextUpgradeFunctionRequest[] calldata rufc
+    ContextUpgradeRequest calldata request,
+    ContextUpgradeFunctionRequest[] calldata functionRequests
   ) external returns (address);
+
+  function contextDeleteActivity(bytes32[] calldata requests) external returns (bool);
 
   function contextUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
 
@@ -210,36 +197,36 @@ interface IContextManagement is IAclCommons {
 
   function contextUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);
 
-  function functionUpdateTypeLimit(ScopeUpdateTypeLimitRequest[] calldata requests) external returns (bool);
+  function contextUpdateAgentLimit(ScopeUpdateAgentLimitRequest[] calldata requests) external returns (bool);
 
   function contextCheckId(bytes32 contextId) external view returns (bool);
 
   function contextCheckAccount(address contactId) external view returns (bool);
 
-  function functionCheckAdmin(bytes32 functionId, address account) external view returns (bool);
-
-  // function contextCheckAdmin(bytes32 contextId, bytes32 agentId) external view returns (bool);
-
-  // function contextCheckAccount(bytes32 contextId, address account) external view returns (bool);
+  function contextCheckAdmin(bytes32 contextId, address account) external view returns (bool);
 
   function contextHasFunction(bytes32 contextId, bytes32 functionId) external view returns (bool);
 
   function contextHasSelector(address contractId, bytes4 selector) external view returns (bool);
 
-  function contextGetRealm(bytes32 contextId) external view returns (bytes32);
-
-  function contextGetAdmin(bytes32 contextId) external view returns (AgentType, bytes32);
-
-  function contextGetActivityStatus(bytes32 contextId) external view returns (ActivityStatus);
-
-  function contextGetAlterabilityStatus(bytes32 contextId) external view returns (AlterabilityStatus);
-
-  function contextGetContractId(bytes32 contextId) external view returns (address);
-
-  function contextGetFunctions(bytes32 contextId) external view returns (bytes32[] memory);
-
-  function contextGetFunctionsCount(bytes32 contextId) external view returns (uint8);
-
   function contextGetContextInfo(bytes32 contextId) external view returns (ContextInfo memory);
+
+  // function contextGetRealm(bytes32 contextId) external view returns (bytes32);
+
+  // function contextGetAdmin(bytes32 contextId) external view returns (AgentType, bytes32);
+
+  // function contextGetActivityStatus(bytes32 contextId) external view returns (ActivityStatus);
+
+  // function contextGetAlterabilityStatus(bytes32 contextId) external view returns (AlterabilityStatus);
+
+  // function contextGetContractId(bytes32 contextId) external view returns (address);
+
+  // function contextGetFunctions(bytes32 contextId) external view returns (bytes32[] memory);
+
+  // function contextGetFunctionsCount(bytes32 contextId) external view returns (uint8);
+
+  // function contextCheckAdmin(bytes32 contextId, bytes32 agentId) external view returns (bool);
+
+  // function contextCheckAccount(bytes32 contextId, address account) external view returns (bool);
 
 }

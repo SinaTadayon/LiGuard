@@ -67,6 +67,8 @@ interface IMemberManagement is IAclCommons {
 
   // function memberUpgradableAlterability(bytes32[] calldata requests) external returns (bool);
 
+  function memberRegister(MemberRegister[] calldata requests) external returns (bool);
+
   function memberUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
 
   function memberUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool);

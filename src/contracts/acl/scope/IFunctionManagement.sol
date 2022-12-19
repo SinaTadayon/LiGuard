@@ -29,7 +29,7 @@ interface IFunctionManagement is IAclCommons {
     bytes32 agentId;
     bytes32 contextId;
     bytes4 selector;        
-    uint16 agentlimit;
+    uint16 agentLimit;
     uint16 referredByAgent;
     uint16 referredByPolicy;
     ActivityStatus acstat;
@@ -74,28 +74,4 @@ interface IFunctionManagement is IAclCommons {
   function functionCheckAgent(bytes32 functionId, address account) external view returns (bool);
 
   function functionGetInfo(bytes32 functionId) external view returns (FunctionInfo memory);  
-
-  // function functionHasAgent(bytes32 functionId, bytes32 agentId) external view returns (bool);
-
-  // function functionHasAccount(bytes32 functionId, address account) external view returns (bool);
-
-  // function functionGetAdmin(bytes32 functionId) external view returns (AgentType, bytes32);
-
-  // function functionGetAgent(bytes32 functionId) external view returns (AgentType, bytes32);
-
-  // function functionGetContext(bytes32 functionId) external view returns (bytes32);
-
-  // function functionGetActivityStatus(bytes32 functionId) external view returns (ActivityStatus);
-
-  // function functionGetAlterabilityStatus(bytes32 functionId) external view returns (AlterabilityStatus);
-
-  // function functionGetSelector(bytes32 functionId) external view returns (bytes4);
-
-  // function functionGetGroup(bytes32 functionId) external view returns (bytes32);
-
-  // function functionGetPolicy(bytes32 functionId) external view returns (bool, uint8);
-
-  // function functionGenerateId(bytes32 contextId, bytes4 selector) external pure returns (bytes32);
-
-  // function functionGenerateId(address contractId, bytes4 selector) external pure returns (bytes32);
 }

@@ -81,41 +81,41 @@ contract AccessControl is AclStorage, IAccessControl {
     AgentType atype = _data.agents[agentId].atype;
     if(atype == AgentType.ROLE) {
       // check member activation
-      if(_data.agents[memberId].ba.acstat != ActivityStatus.ENABLED) return false;
+      if(_data.agents[memberId].acstat != ActivityStatus.ENABLED) return false;
 
       // check role activation
       (RoleEntity storage roleEntity, bool result1) = _data.roleTryReadSlot(agentId);
-      if(!result1 || roleEntity.ba.acstat != ActivityStatus.ENABLE) return false;
+      if(!result1 || roleEntity.ba.acstat != ActivityStatus.ENABLED) return false;
 
       // check type activation
       (TypeEntity storage typeEntity, bool result2) = _data.typeTryReadSlot(roleEntity.typeId);
-      if(!result2 || typeEntity.ba.acstat != ActivityStatus.ENABLE) return false;
+      if(!result2 || typeEntity.ba.acstat != ActivityStatus.ENABLED) return false;
 
       // check policy activation
       PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[agentId]];
-      if(policyEntity.acstat == ActivityStatus.ENABLE && policyEntity.policyCode >= functionEntity.policyCode)  
+      if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
         return false;
 
     } else if(atype == AgentType.TYPE) {
-      if(agentId == LIVELY_VERSE_ANY_TYPE_ID && _data.agents[memberId].ba.acstat != ActivityStatus.ENABLED) {
+      if(agentId == LIVELY_VERSE_ANY_TYPE_ID && _data.agents[memberId].acstat != ActivityStatus.ENABLED) {
         return false; 
 
       } else if(agentId != LIVELY_VERSE_ANONYMOUSE_TYPE_ID) {
         // check member activation
-        if(_data.agents[memberId].ba.acstat != ActivityStatus.ENABLED) return false;
+        if(_data.agents[memberId].acstat != ActivityStatus.ENABLED) return false;
         
         // check type activation
         (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(agentId);
-        if(!result1 || typeEntity.ba.acstat != ActivityStatus.ENABLE) return false;
+        if(!result1 || typeEntity.ba.acstat != ActivityStatus.ENABLED) return false;
 
         // check role activation
         bytes32 roleId = typeEntity.members[memberId];
         (RoleEntity storage roleEntity, bool result2) = _data.roleTryReadSlot(roleId);
-        if(!result2 || roleEntity.ba.acstat != ActivityStatus.ENABLE) return false;
+        if(!result2 || roleEntity.ba.acstat != ActivityStatus.ENABLED) return false;
         
         // check policy activation
         PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[roleId]];
-        if(policyEntity.acstat == ActivityStatus.ENABLE && policyEntity.policyCode >= functionEntity.policyCode)  
+        if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
           return false;
       } 
     } else if(atype <= AgentType.MEMBER) {
@@ -123,22 +123,22 @@ contract AccessControl is AclStorage, IAccessControl {
     }
 
     // check function activity
-    if(functionEntity.bs.acstat != ActivityStatus.ENABLE) return false;
+    if(functionEntity.bs.acstat != ActivityStatus.ENABLED) return false;
 
     // check context activity
     (ContextEntity storage contextEntity, bool res1) = _data.contextTryReadSlot(functionEntity.contextId);
-    if(!res1 || contextEntity.bs.acstat != ActivityStatus.ENABLE) return false;
+    if(!res1 || contextEntity.bs.acstat != ActivityStatus.ENABLED) return false;
 
     // check realm activity
     (RealmEntity storage realmEntity, bool res2) = _data.realmTryReadSlot(contextEntity.realmId);
-    if(!res2 || realmEntity.bs.acstat != ActivityStatus.ENABLE) return false;
+    if(!res2 || realmEntity.bs.acstat != ActivityStatus.ENABLED) return false;
 
     // check domain activity
     (DomainEntity storage domainEntity, bool res3) = _data.domainTryReadSlot(realmEntity.domainId);
-    if(!res3 || domainEntity.bs.acstat != ActivityStatus.ENABLE) return false;
+    if(!res3 || domainEntity.bs.acstat != ActivityStatus.ENABLED) return false;
 
     // check global activity
-    if(_data.global.bs.acstat != ActivityStatus.ENABLE) return false;
+    if(_data.global.bs.acstat != ActivityStatus.ENABLED) return false;
     
     return true;
   }
@@ -154,14 +154,14 @@ contract AccessControl is AclStorage, IAccessControl {
   }
 
   // scope master type
-  function getScopeMasterType() external pure returns (bytes32) {
-    return LIVELY_VERSE_SCOPE_MASTER_TYPE_ID;
-  }
+  // function getScopeMasterType() external pure returns (bytes32) {
+  //   return LIVELY_VERSE_SCOPE_MASTER_TYPE_ID;
+  // }
 
-  // agent master type
-  function getAgentMasterType() external pure returns (bytes32) {
-    return LIVELY_VERSE_AGENT_MASTER_TYPE_ID;
-  }
+  // // agent master type
+  // function getAgentMasterType() external pure returns (bytes32) {
+  //   return LIVELY_VERSE_AGENT_MASTER_TYPE_ID;
+  // }
 
   // system admin type
   function getSystemAdminType() external pure returns (bytes32) {
@@ -173,10 +173,10 @@ contract AccessControl is AclStorage, IAccessControl {
     return LIVELY_VERSE_ADMIN_TYPE_ID;
   }
 
-  // Policy Master
-  function getPolicyMasterType() external pure returns (bytes32) {
-    return LIVELY_VERSE_POLICY_MASTER_TYPE_ID;
-  }
+  // // Policy Master
+  // function getPolicyMasterType() external pure returns (bytes32) {
+  //   return LIVELY_VERSE_POLICY_MASTER_TYPE_ID;
+  // }
 
   // general
   function isAgentExist(bytes32 agentId) external view returns (bool) {
@@ -215,6 +215,9 @@ contract AccessControl is AclStorage, IAccessControl {
       ContextEntity storage ce = _data.contextReadSlot(fe.contextId);
       DomainEntity storage de = _data.domainReadSlot(destScopeId);
       return de.realms.contains(ce.realmId);
+
+    } else if(destScopeType == ScopeType.GLOBAL && srcScopeType == ScopeType.FUNCTION) {
+      return _data.scopes[srcScopeId].stype == ScopeType.FUNCTION; 
     
     } else if(destScopeType == ScopeType.REALM && srcScopeType == ScopeType.CONTEXT) {
       RealmEntity storage re = _data.realmReadSlot(destScopeId);
@@ -224,10 +227,16 @@ contract AccessControl is AclStorage, IAccessControl {
       ContextEntity storage ce = _data.contextReadSlot(srcScopeId);
       DomainEntity storage de = _data.domainReadSlot(destScopeId);
       return de.realms.contains(ce.realmId);
-    
+
+    } else if(destScopeType == ScopeType.GLOBAL && srcScopeType == ScopeType.CONTEXT) {
+      return _data.scopes[srcScopeId].stype == ScopeType.CONTEXT; 
+      
     } else if(destScopeType == ScopeType.DOMAIN && srcScopeType == ScopeType.REALM) {
       DomainEntity storage de = _data.domainReadSlot(destScopeId);
       return de.realms.contains(srcScopeId);
+    
+    } else if(destScopeType == ScopeType.GLOBAL && srcScopeType == ScopeType.REALM) {
+      return _data.scopes[srcScopeId].stype == ScopeType.REALM; 
     }
 
     return false;

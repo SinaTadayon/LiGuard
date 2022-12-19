@@ -6,7 +6,7 @@ pragma solidity 0.8.17;
 import "./IRoleManagement.sol";
 import "./IMemberManagement.sol";
 import "./ITypeManagement.sol";
-import "./AgentCommons.sol";
+import "../AclStorage.sol";
 import "../IAccessControl.sol";
 import "../scope/IFunctionManagement.sol";
 import "../../lib/acl/LAclStorage.sol";
@@ -19,11 +19,11 @@ import "../../proxy/IProxy.sol";
  * @dev
  *
  */
-contract RoleManager is AgentCommons, IRoleManagement {
+contract RoleManager is AclStorage, IRoleManagement {
   using LAclStorage for DataCollection;
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
 
-  // type admins can call roleRegister function
+  // type admins call roleRegister function
   function roleRegister(RoleRegisterRequest[] calldata requests) external returns (bool) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");    
     
@@ -60,9 +60,9 @@ contract RoleManager is AgentCommons, IRoleManagement {
       ScopeType requestTypeScopeType = _data.scopes[typeEntity.scopeId].stype;
       require(requestTypeScopeType >= requestRoleScope.stype, "Illegal Type Scope");
       if (requestTypeScopeType == requestRoleScope.stype) {
-        require(requestTypeScopeId == requests[i].scopeId, "Illegal Type Scope ID");
+        require(typeEntity.scopeId == requests[i].scopeId, "Illegal Type Scope ID");
       } else {
-        require(IAccessControl(address(this)).isScopesCompatible(requestTypeScopeId, requests[i].scopeId), "Illegal Type Scope ID");
+        require(IAccessControl(address(this)).isScopesCompatible(typeEntity.scopeId, requests[i].scopeId), "Illegal Type Scope ID");
       }
 
       // add role to type 

@@ -22,4 +22,8 @@ library LAclUtils {
   function generateId(string calldata name) internal pure returns (bytes32) {
     return keccak256(abi.encodePacked(name));
   }
+
+  function generateHash(string memory name) internal pure returns (bytes32) {
+    return keccak256(abi.encodePacked(name));
+  }
 }

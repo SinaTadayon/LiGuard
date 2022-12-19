@@ -42,6 +42,8 @@ contract TypeManager is AclStorage, ITypeManagement {
       require(requestedScope.stype != ScopeType.NONE , "Scope Not Found");
       require(requestedScope.acstat > ActivityStatus.DELETED , "Scope Is Deleted");
        
+      // TODO check compatiblity sender scope (function.agentId) with requested type scope
+
       // increase referred count to target scope
       requestedScope.referredByAgent +=1;
       emit ScopeReferredByAgentUpdated(msg.sender, requests[i].scopeId, newTypeId, requestedScope.referredByAgent, requestedScope.stype, ActionType.ADD);

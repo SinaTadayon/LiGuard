@@ -70,7 +70,7 @@ interface IAclCommons {
 
   struct BaseScope {
     bytes32 adminId;
-    uint16 agentlimit;
+    uint16 agentLimit;
     uint16 referredByAgent;
     uint16 referredByPolicy;
     ScopeType stype;
@@ -102,9 +102,6 @@ interface IAclCommons {
     BaseScope bs;
     bytes32 realmId;
     address contractId;
-    uint32 factoryLimit;
-    uint32 factoryTotal;
-    uint8 functionLimit;    
     LEnumerableSet.Bytes32Set functions;
   }
 
@@ -133,6 +130,8 @@ interface IAclCommons {
   struct MemberEntity {
     BaseAgent ba;
     address account;
+    uint32 factoryLimit;
+    uint32 factoryTotal;
     uint16 typeLimit;
     LEnumerableSet.Bytes32Set types;
   }

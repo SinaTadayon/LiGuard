@@ -5,7 +5,6 @@ pragma solidity 0.8.17;
 
 import "./IMemberManagement.sol";
 import "./ITypeManagement.sol";
-import "./AgentCommons.sol";
 import "../AclStorage.sol";
 import "../IAccessControl.sol";
 import "../scope/IFunctionManagement.sol";

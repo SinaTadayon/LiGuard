@@ -3,11 +3,13 @@
 
 pragma solidity 0.8.17;
 
-import "../AclStorage.sol";
 import "./IFunctionManagement.sol";
 import "./IContextManagement.sol";
 import "../IAccessControl.sol";
+import "../AclStorage.sol";
 import "../../lib/acl/LAclStorage.sol";
+import "../../lib/acl/LAclUtils.sol";
+import "../../proxy/IProxy.sol";
 
 /**
  * @title Function Manager Contract
@@ -19,7 +21,7 @@ contract FunctionManager is AclStorage, IFunctionManagement {
   using LAclStorage for DataCollection;
 
   function functionUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool){
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "Call Rejected");
     
     address functionFacetId = _data.interfaces[type(IFunctionManagement).interfaceId];
     bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IFunctionManagement.functionUpdateAdmin.selector);
@@ -28,8 +30,8 @@ contract FunctionManager is AclStorage, IFunctionManagement {
     bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {
       FunctionEntity storage functionEntity = _data.functionReadSlot(requests[i].id);
-      require(functionEntity.bs.acstat > ActivityStatus.DELETED, "Function is Deleted");
-      require(functionEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Function Update");
+      require(functionEntity.bs.acstat > ActivityStatus.DELETED, "Function Deleted");
+      require(functionEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
 
       // check access admin role
       require(_doFunctionCheckAdminAccess(functionEntity.bs.adminId, memberId, functionId), "Operation Not Permitted");
@@ -67,8 +69,8 @@ contract FunctionManager is AclStorage, IFunctionManagement {
 
       // checking new admin Id 
       BaseAgent storage newBaseAgent = _data.agents[requests[i].adminId];
-      require(newBaseAgent.atype != NONE, "Admin Not Found");
-      require(newBaseAgent.acstat > ActivityStatus.DELETED, "Agent Is Deleted");
+      require(newBaseAgent.atype != AgentType.NONE, "Admin Not Found");
+      require(newBaseAgent.acstat > ActivityStatus.DELETED, "Agent Deleted");
       require(newBaseAgent.scopelimit > newBaseAgent.referredByScope, "Illegal Agent ReferredByScope");
       newBaseAgent.referredByScope += 1;
       emit AgentReferredByScopeUpdated(
@@ -80,14 +82,13 @@ contract FunctionManager is AclStorage, IFunctionManagement {
         ActionType.ADD
       );  
 
-
-      emit FunctionAdminUpdated(msg.sender, requests[i].id, requests[i].adminId);
+      emit FunctionAdminUpdated(msg.sender, requests[i].id, requests[i].adminId, newBaseAgent.atype);
     }
     return true;  
   }
 
   function functionUpdateAgent(FunctionUpdateAgentRequest[] calldata requests) external returns (bool) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "Call Rejected");
     
     address functionFacetId = _data.interfaces[type(IFunctionManagement).interfaceId];
     bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IFunctionManagement.functionUpdateAgent.selector);
@@ -95,9 +96,9 @@ contract FunctionManager is AclStorage, IFunctionManagement {
 
     bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {
-      FunctionEntity storage functionEntity = _data.functionReadSlot(requests[i].id);
-      require(functionEntity.bs.acstat > ActivityStatus.DELETED, "Function is Deleted");
-      require(functionEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Function Update");
+      FunctionEntity storage functionEntity = _data.functionReadSlot(requests[i].functionId);
+      require(functionEntity.bs.acstat > ActivityStatus.DELETED, "Function Deleted");
+      require(functionEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
 
       // check access admin role
       require(_doFunctionCheckAdminAccess(functionEntity.bs.adminId, memberId, functionId), "Operation Not Permitted");
@@ -109,7 +110,7 @@ contract FunctionManager is AclStorage, IFunctionManagement {
       emit AgentReferredByScopeUpdated(
         msg.sender, 
         functionEntity.agentId, 
-        requests[i].id, 
+        requests[i].functionId,
         functionBaseAgent.referredByScope, 
         functionBaseAgent.atype, 
         ActionType.REMOVE
@@ -117,46 +118,46 @@ contract FunctionManager is AclStorage, IFunctionManagement {
 
       // checking new agent Id 
       BaseAgent storage newBaseAgent = _data.agents[requests[i].agentId];
-      require(newBaseAgent.atype != NONE, "Agent Not Found");
-      require(newBaseAgent.acstat > ActivityStatus.DELETED, "Agent Is Deleted");
+      require(newBaseAgent.atype != AgentType.NONE, "Agent Not Found");
+      require(newBaseAgent.acstat > ActivityStatus.DELETED, "Agent Deleted");
       require(newBaseAgent.scopelimit > newBaseAgent.referredByScope, "Illegal Agent ReferredByScope");
       newBaseAgent.referredByScope += 1;
       emit AgentReferredByScopeUpdated(
         msg.sender, 
         requests[i].agentId, 
-        requests[i].id, 
+        requests[i].functionId,
         newBaseAgent.referredByScope, 
         newBaseAgent.atype, 
         ActionType.ADD
       );
 
       functionEntity.agentId = requests[i].agentId;
-      emit FunctionAgentUpdated(msg.sender, requests[i].id, requests[i].agentId);
+      emit FunctionAgentUpdated(msg.sender, requests[i].functionId, requests[i].agentId, newBaseAgent.atype);
     }
     return true;  
   }
 
   function functionDeleteActivity(bytes32[] calldata requests) external returns (bool) {
     address functionFacetId = _data.interfaces[type(IFunctionManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IFunctionManagement.typeDeleteActivity.selector);
+    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IFunctionManagement.functionDeleteActivity.selector);
     for(uint i = 0; i < requests.length; i++) {
       _doFunctionUpdateActivityStatus(requests[i], ActivityStatus.DELETED, functionId);
     }
     return true;
   }
 
-  function typeUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
+  function functionUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
     address functionFacetId = _data.interfaces[type(IFunctionManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IFunctionManagement.typeUpdateActivityStatus.selector);
+    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IFunctionManagement.functionUpdateActivityStatus.selector);
     for(uint i = 0; i < requests.length; i++) {
-      require(requests[i].acstat != ActivityStatus.DELETED, "Illegal Activity Status");
+      require(requests[i].acstat != ActivityStatus.DELETED, "Illegal Activity");
       _doFunctionUpdateActivityStatus(requests[i].id, requests[i].acstat, functionId);
     }
     return true;
   }
 
   function functionUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "Call Rejected");
     
     address functionFacetId = _data.interfaces[type(IFunctionManagement).interfaceId];
     bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IFunctionManagement.functionUpdateAlterabilityStatus.selector); 
@@ -164,8 +165,8 @@ contract FunctionManager is AclStorage, IFunctionManagement {
 
     bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {      
-      FunctionEntity storage functionEntity = _data.typeReadSlot(requests[i].id);
-      require(functionEntity.bs.acstat > ActivityStatus.DELETED, "Type Is Deleted");
+      FunctionEntity storage functionEntity = _data.functionReadSlot(requests[i].id);
+      require(functionEntity.bs.acstat > ActivityStatus.DELETED, "Type Deleted");
       require(_doFunctionCheckAdminAccess(functionEntity.bs.adminId, memberId, functionId), "Operation Not Permitted");
 
       functionEntity.bs.alstat = requests[i].alstat;
@@ -175,7 +176,7 @@ contract FunctionManager is AclStorage, IFunctionManagement {
   }
 
   function functionUpdatePolicy(FunctionUpdatePolicyRequest[] calldata requests) external returns (bool) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "Call Rejected");
 
     address functionFacetId = _data.interfaces[type(IFunctionManagement).interfaceId];
     bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IFunctionManagement.functionUpdatePolicy.selector);
@@ -183,19 +184,19 @@ contract FunctionManager is AclStorage, IFunctionManagement {
     
     bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);    
     for (uint256 i = 0; i < requests.length; i++) {
-      FunctionEntity storage functionEntity = _data.functionReadSlot(requests[i].typeId);
+      FunctionEntity storage functionEntity = _data.functionReadSlot(requests[i].functionId);
       require(functionEntity.bs.acstat > ActivityStatus.DELETED, "Function Deleted");
       require(functionEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
       require(_doFunctionCheckAdminAccess(functionEntity.bs.adminId, memberId, functionId), "Operation Not Permitted");
 
       functionEntity.policyCode = requests[i].policyCode;
-      emit FunctionPolicyCodeUpdated(msg.sender, requests[i].typeId, requests[i].roleLimit);
+      emit FunctionPolicyUpdated(msg.sender, requests[i].functionId, requests[i].policyCode);
     }
     return true;
   }
 
   function functionUpdateAgentLimit(ScopeUpdateAgentLimitRequest[] calldata requests) external returns (bool) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "Call Rejected");
 
     address functionFacetId = _data.interfaces[type(IFunctionManagement).interfaceId];
     bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IFunctionManagement.functionUpdatePolicy.selector);
@@ -203,13 +204,13 @@ contract FunctionManager is AclStorage, IFunctionManagement {
     
     bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);    
     for (uint256 i = 0; i < requests.length; i++) {
-      FunctionEntity storage functionEntity = _data.functionReadSlot(requests[i].typeId);
+      FunctionEntity storage functionEntity = _data.functionReadSlot(requests[i].scopeId);
       require(functionEntity.bs.acstat > ActivityStatus.DELETED, "Function Deleted");
       require(functionEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
       require(_doFunctionCheckAdminAccess(functionEntity.bs.adminId, memberId, functionId), "Operation Not Permitted");
 
-      functionEntity.bs.agentLimit = requests[i].agentLimit;
-      emit FunctionAgentLimitUpdated(msg.sender, requests[i].typeId, requests[i].roleLimit);
+      functionEntity.bs.agentLimit = requests[i].agentLimit;      
+      emit FunctionAgentLimitUpdated(msg.sender, requests[i].scopeId, requests[i].agentLimit);
     }
     return true;
   }
@@ -226,14 +227,14 @@ contract FunctionManager is AclStorage, IFunctionManagement {
     (FunctionEntity storage fe, bool result) = _data.functionTryReadSlot(functionId);
     if(!result) return false;  
 
-    return _doFunctionCheckAdmin(fe.bs.adminId, account);
+    return _doFunctionCheckAccount(fe.bs.adminId, account);
   }
 
    function functionCheckAgent(bytes32 functionId, address account) external view returns (bool) {
     (FunctionEntity storage fe, bool result) = _data.functionTryReadSlot(functionId);
     if(!result) return false;  
 
-    return _doFunctionCheckAdmin(fe.agentId, account);
+    return _doFunctionCheckAccount(fe.agentId, account);
   }
 
   function _doFunctionCheckAccount(bytes32 agentId, address account) internal view returns (bool) {
@@ -242,10 +243,10 @@ contract FunctionManager is AclStorage, IFunctionManagement {
     bytes32 memberId = LAclUtils.accountGenerateId(account);
 
     if(agentType == AgentType.ROLE) {
-      return _doRoleHasMember(agentType, memberId);
+      return _doRoleHasMember(agentId, memberId);
     
     } else if(agentType == AgentType.TYPE) {
-      (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(agentType);
+      (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(agentId);
       if(!result1) return false;  
 
       return typeEntity.members[memberId] != bytes32(0);  
@@ -253,6 +254,17 @@ contract FunctionManager is AclStorage, IFunctionManagement {
   
     return false;
   }
+
+  function _doRoleHasMember(bytes32 roleId, bytes32 memberId) internal view returns (bool) {
+    (RoleEntity storage roleEntity, bool result) = _data.roleTryReadSlot(roleId);
+    if(!result) return false;
+
+    (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(roleEntity.typeId);
+    if(!result1) return false;  
+
+    return typeEntity.members[memberId] != bytes32(0);
+  }
+ 
 
   function functionGetInfo(bytes32 functionId) external view returns (FunctionInfo memory) {
     (FunctionEntity storage fe, bool result) = _data.functionTryReadSlot(functionId);
@@ -262,7 +274,7 @@ contract FunctionManager is AclStorage, IFunctionManagement {
         agentId: bytes32(0),
         contextId: bytes32(0),
         selector: bytes4(0),
-        agentlimit: 0,
+        agentLimit: 0,
         referredByAgent: 0,
         referredByPolicy: 0,
         acstat: ActivityStatus.NONE,
@@ -278,7 +290,7 @@ contract FunctionManager is AclStorage, IFunctionManagement {
       agentId: fe.agentId,
       contextId: fe.contextId,
       selector: fe.selector,
-      agentlimit: fe.bs.agentlimit,
+      agentLimit: fe.bs.agentLimit,
       referredByAgent: fe.bs.referredByAgent,
       referredByPolicy: fe.bs.referredByPolicy,
       acstat: fe.bs.acstat,
@@ -305,16 +317,16 @@ contract FunctionManager is AclStorage, IFunctionManagement {
     return (ScopeType.NONE, bytes32(0));  
   }
 
-    function _doFunctionUpdateActivityStatus(bytes32 functionId, ActivityStatus status, bytes32 updateFunctionId) internal returns (bool) {
+  function _doFunctionUpdateActivityStatus(bytes32 functionId, ActivityStatus status, bytes32 updateFunctionId) internal returns (bool) {
 
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
-    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied"); 
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "Call Rejected");
+    require(IAccessControl(address(this)).hasAccess(updateFunctionId), "Access Denied"); 
 
     bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
-    FunctionEntity storage functionEntity = _data.functionReadSlot(typeId);
-    require(functionEntity.bs.acstat > ActivityStatus.DELETED, "Function Is Deleted");
-    require(functionEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Function Update");
-    require(_doFunctionCheckAdminAccess(functionEntity.bs.adminId, memberId, functionId), "Operation Not Permitted");
+    FunctionEntity storage functionEntity = _data.functionReadSlot(functionId);
+    require(functionEntity.bs.acstat > ActivityStatus.DELETED, "Function Deleted");
+    require(functionEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
+    require(_doFunctionCheckAdminAccess(functionEntity.bs.adminId, memberId, updateFunctionId), "Operation Not Permitted");
 
     if(status == ActivityStatus.DELETED) {
       BaseAgent storage functionAgent = _data.agents[functionEntity.agentId];
@@ -323,7 +335,7 @@ contract FunctionManager is AclStorage, IFunctionManagement {
       emit AgentReferredByScopeUpdated(
         msg.sender, 
         functionEntity.agentId, 
-        requests[i].id, 
+        functionId, 
         functionAgent.referredByScope, 
         functionAgent.atype, 
         ActionType.REMOVE
@@ -335,7 +347,7 @@ contract FunctionManager is AclStorage, IFunctionManagement {
       emit AgentReferredByScopeUpdated(
         msg.sender, 
         functionEntity.bs.adminId,
-        requests[i].id, 
+        functionId, 
         functionAdmin.referredByScope, 
         functionAdmin.atype, 
         ActionType.REMOVE
@@ -343,7 +355,7 @@ contract FunctionManager is AclStorage, IFunctionManagement {
     }
 
     functionEntity.bs.acstat = status;
-    emit FunctionActivityUpdated(msg.sender, typeId, status);
+    emit FunctionActivityUpdated(msg.sender, functionId, status);
     return true;
   }
 
@@ -383,91 +395,5 @@ contract FunctionManager is AclStorage, IFunctionManagement {
     } 
 
     return false;   
-  }
-
-    // function functionCheckAdmin(bytes32 functionId, bytes32 agentId) external view returns (bool) {
-  //   return _doFunctionCheckAdmin(functionId, agentId);
-  // }
-
-  // function _doFunctionCheckAdmin(bytes32 functionId, bytes32 agentId) internal view returns (bool) {
-  //   (FunctionEntity storage fe, bool result) = _data.functionTryReadSlot(functoinId);
-  //   if(!result) return false;
-  //   BaseAgent storage ba = _data.agents[fe.bs.adminId];
-  //   if(ba.atype == AgentType.NONE) return false;
-  //   else if (ba.atype == AgentType.MEMBER) return agentId == fe.bs.adminId;
-  //   else if (ba.atype == AgentType.ROLE || ba.atype == AgentType.TYPE) 
-  //     return ITypeManagement(address(this)).typeHasMember(IAccessControl(address(this)).getScopeMasterTypeId(), agentId);
-  //   else return false;
-  // }
-
-
-    // function functionCheckAgent(bytes32 functionId, bytes32 agentId) external view returns (bool) {
-  //   return _doFunctionCheckAgent(functionId, agentId);
-  // }
-
-  // function _doFunctionCheckAgent(bytes32 functionId, bytes32 agentId) internal view returns (bool) {
-  //   (FunctionEntity storage fe, bool result) = _data.functionTryReadSlot(functoinId);
-  //   if(!result) return false;
-  //   BaseAgent storage ba = _data.agents[fe.agentId];
-  //   if (ba.atype == AgentType.MEMBER) return agentId == fe.agentId;
-  //   else if (ba.atype == AgentType.ROLE) {
-  //     (RoleEntity storage re, bool result1) = _data.roleTryReadSlot(roleId);
-  //     if(!result1) return false;
-  //     return ITypeManagement(address(this)).typeHasMember(re.typeId, memberId);
-  //     return ITypeManagement(address(this)).typeHasMember(IAccessControl(address(this)).getScopeMasterTypeId(), agentId);
-  //   }
-  //   else return false;
-  // }
-
-
-  // function functionGetAdmin(bytes32 functionId) external view returns (AgentType, bytes32) {
-  //   return (_data.agents[_data.scopes[functionId].adminId].atype, _data.scopes[functionId].adminId);
-  // }
-
-  // function functionGetAgent(bytes32 functionId) external view returns (AgentType, bytes32) {
-  //   (FunctionEntity storage fe, bool result) = _data.functionTryReadSlot(functionId);
-  //   if(!result) return (AgentType.NONE, bytes32(0));
-  //   return (_data.agents[fe.agentId].atype, fe.agentId);
-  // }
-
-  // function functionGetContext(bytes32 functionId) external view returns (bytes32) {
-  //   (FunctionEntity storage fe, bool result) = _data.functionTryReadSlot(functionId);
-  //   if(!result) return bytes32(0);
-  //   return fe.contextId;
-  // }
-
-  // function functionGetActivityStatus(bytes32 functionId) external view returns (ActivityStatus) {
-  //   (FunctionEntity storage fe, bool result) = _data.functionTryReadSlot(functionId);
-  //   if(!result) return ActivityStatus.NONE;
-  //   return fe.bs.acstat;
-  // }
-
-  // function functionGetAlterabilityStatus(bytes32 functionId) external view returns (AlterabilityStatus) {
-  //   (FunctionEntity storage fe, bool result) = _data.functionTryReadSlot(functionId);
-  //   if(!result) return AlterabilityStatus.NONE;
-  //   return fe.bs.alstat;
-  // }
-
-  // function functionGetSelector(bytes32 functionId) external view returns (bytes4) {
-  //   (FunctionEntity storage fe, bool result) = _data.functionTryReadSlot(functionId);
-  //   if(!result) return bytes4(0);
-  //   return fe.selector;
-  // }
-
-  // function functionGetPolicy(bytes32 functionId) external view returns (bool, uint8) {
-  //   (FunctionEntity storage fe, bool result) = _data.functionTryReadSlot(functionId);
-  //   if(!result) return (false, 0);
-  //   return (true, fe.policyCode);
-  // }
-
-
-  // function functionGenerateId(address contractId, bytes4 selector) external pure returns (bytes32) {
-  //   return keccak256(abi.encodePacked(contractId, selector));
-  // }
-
-  // function functionCreateFacetRegisterRequest() public returns (FacetRegisterRequest memory) {}
-
-  // function functionCreateContextRegisterFacetRequest() public returns (IContextManagement.ContextRegisterFunctionRequest memory) {}
-
-  
+  } 
 }
