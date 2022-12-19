@@ -295,7 +295,7 @@ contract DomainManager is AclStorage, IDomainManagement {
     (ContextEntity storage ce, bool result1) = _data.contextTryReadSlot(fe.contextId);
     if(!result1) return false;
 
-    (RealmEntity storage re, bool result2) = _data.realmTryReadSlot(fe.contextId);
+    (RealmEntity storage re, bool result2) = _data.realmTryReadSlot(ce.realmId);
     if(!result2) return false;
 
     return re.domainId == domainId;
