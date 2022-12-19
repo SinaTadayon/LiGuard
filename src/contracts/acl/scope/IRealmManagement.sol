@@ -18,7 +18,7 @@ interface IRealmManagement is IAclCommons {
     bytes32 domainId;
     bytes32 adminId;
     uint32 contextLimit;
-    uint16 typeLimit;
+    uint16 agentLimit;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
     string name; 
@@ -26,14 +26,16 @@ interface IRealmManagement is IAclCommons {
 
   struct RealmUpdateContextLimitRequest {
     bytes32 realmId;
-    bytes32 contextLimit;
+    uint32 contextLimit;
   }
 
   struct RealmInfo {
     bytes32 domainId;
     bytes32 adminId;
     uint32 contextLimit;
-    uint16 typeLimit;    
+    uint16 agentLimit;
+    uint16 referredByAgent;
+    uint16 referredByPolicy;
     ActivityStatus acstat;
     AlterabilityStatus alstate;
     AgentType adminType;
@@ -47,7 +49,7 @@ interface IRealmManagement is IAclCommons {
     bytes32 adminId,
     string name,
     uint32 contextLimit,
-    uint16 typeLimit,
+    uint16 agentLimit,
     AgentType adminType,
     ActivityStatus acstat,
     AlterabilityStatus alstate    
@@ -61,45 +63,47 @@ interface IRealmManagement is IAclCommons {
 
   event RealmAlterabilityUpdated(address indexed sender, bytes32 indexed realmId, AlterabilityStatus alstat);
 
-  event RealmTypeLimitUpdated(address indexed sender, bytes32 indexed realmId, uint16 typeLimit);
+  event RealmAgentLimitUpdated(address indexed sender, bytes32 indexed realmId, uint16 agentLimit);
 
   function realmRegister(RealmRegisterRequest[] calldata requests) external returns (bool);
 
   function realmUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);
  
+  function realmDeleteActivity(bytes32[] calldata requests) external returns (bool);
+
   function realmUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
 
   function realmUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
   function realmUpdateContextLimit(RealmUpdateContextLimitRequest[] calldata requests) external returns (bool);
 
-  function realmUpdateTypeLimit(ScopeUpdateTypeLimitRequest[] calldata requests) external returns (bool);
+  function realmUpdateAgentLimit(ScopeUpdateAgentLimitRequest[] calldata requests) external returns (bool);
 
   function realmCheckId(bytes32 realmId) external view returns (bool);
 
   function realmCheckName(string calldata realmName) external view returns (bool);
 
-  function realmCheckAdmin(bytes32 contextId, bytes32 agentId) external view returns (bool);
+  function realmCheckAdmin(bytes32 contextId, address account) external view returns (bool);
 
   function realmHasFunction(bytes32 realmId, bytes32 functionId) external view returns (bool);
 
   function realmHasContext(bytes32 realmId, bytes32 contextId) external view returns (bool);
 
-  function realmGetName(bytes32 realmId) external view returns (string memory);
-
-  function realmGetDomain(bytes32 realmId) external view returns (bytes32);
-
-  function realmGetContextLimit(bytes32 realmId) external view returns (uint16);
-
-  function realmGetAdmin(bytes32 realmId) external view returns (bytes32, AgentType);
-
-  function realmGetActivityStatus(bytes32 realmId) external view returns (ActivityStatus);
-
-  function realmGetAlterabilityStatus(bytes32 realmId) external view returns (AlterabilityStatus);
-
-  function realmGetContexts(bytes32 realmId) external view returns (bytes32[] memory);
-
-  function realmGetContextsCount(bytes32 realmId) external view returns (uint32);
-
   function realmGetInfo(bytes32 realmId) external view returns (RealmInfo memory);
+
+  // function realmGetName(bytes32 realmId) external view returns (string memory);
+
+  // function realmGetDomain(bytes32 realmId) external view returns (bytes32);
+
+  // function realmGetContextLimit(bytes32 realmId) external view returns (uint16);
+
+  // function realmGetAdmin(bytes32 realmId) external view returns (bytes32, AgentType);
+
+  // function realmGetActivityStatus(bytes32 realmId) external view returns (ActivityStatus);
+
+  // function realmGetAlterabilityStatus(bytes32 realmId) external view returns (AlterabilityStatus);
+
+  // function realmGetContexts(bytes32 realmId) external view returns (bytes32[] memory);
+
+  // function realmGetContextsCount(bytes32 realmId) external view returns (uint32);
 }

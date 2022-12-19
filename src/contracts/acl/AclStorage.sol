@@ -29,7 +29,7 @@ abstract contract AclStorage is BaseUUPSStorage, IAclCommons {
   bytes32 public constant LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID  = keccak256("LIVELY_VERSE_SYSTEM_ADMIN_TYPE");
   bytes32 public constant LIVELY_VERSE_ANONYMOUSE_TYPE_ID    = keccak256("LIVELY_VERSE_ANONYMOUSE_TYPE");
   bytes32 public constant LIVELY_VERSE_ANY_TYPE_ID           = keccak256("LIVELY_VERSE_ANY_TYPE");
-  // bytes32 public constant LIVELY_VERSE_SCOPE_MASTER_TYPE_ID  = keccak256("LIVELY_VERSE_SCOPE_MASTER_TYPE");
+  bytes32 public constant LIVELY_VERSE_SCOPE_MASTER_TYPE_ID  = keccak256("LIVELY_VERSE_SCOPE_MASTER_TYPE");
   // bytes32 public constant LIVELY_VERSE_AGENT_MASTER_TYPE_ID  = keccak256("LIVELY_VERSE_AGENT_MASTER_TYPE");
   // bytes32 public constant LIVELY_VERSE_POLICY_MASTER_TYPE_ID = keccak256("LIVELY_VERSE_POLICY_MASTER_TYPE");
 

@@ -24,7 +24,7 @@ contract TypeManager is AclStorage, ITypeManagement {
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
 
   function typeRegister(TypeRegisterRequest[] calldata requests) external returns (bool) {
-   require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");    
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");    
     
     address functionFacetId = _data.interfaces[type(ITypeManagement).interfaceId];
     bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, ITypeManagement.typeRegister.selector);    

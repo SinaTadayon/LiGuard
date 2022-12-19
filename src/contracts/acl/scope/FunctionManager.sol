@@ -50,11 +50,11 @@ contract FunctionManager is AclStorage, IFunctionManagement {
       );
 
       // checking requested type admin 
-      (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(requests[i].adminId);
       if(requests[i].adminId != bytes32(0)) {
-        // ScopeType typeScopeType = _data.scopes[typeEntity.scopeId].stype;
         BaseAgent storage adminBaseAgent = _data.agents[requests[i].adminId];
         require(adminBaseAgent.atype > AgentType.MEMBER, "Illegal Admin AgentType");
+
+        (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(requests[i].adminId);
         require(ScopeType.FUNCTION <= requestAdminScopeType, "Illegal Admin ScopeType");
         if(ScopeType.FUNCTION == requestAdminScopeType) {
           require(requestAdminScopeId == requests[i].id, "Illegal Amind Scope");
@@ -64,7 +64,7 @@ contract FunctionManager is AclStorage, IFunctionManagement {
         functionEntity.bs.adminId = requests[i].adminId;
 
       } else {
-        functionEntity.bs.adminId = _data.scopes[requestAdminScopeId].adminId;
+        functionEntity.bs.adminId = _data.scopes[functionEntity.contextId].adminId;
       }
 
       // checking new admin Id 

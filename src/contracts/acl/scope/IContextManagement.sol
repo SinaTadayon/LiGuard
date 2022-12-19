@@ -211,22 +211,4 @@ interface IContextManagement is IAclCommons {
 
   function contextGetContextInfo(bytes32 contextId) external view returns (ContextInfo memory);
 
-  // function contextGetRealm(bytes32 contextId) external view returns (bytes32);
-
-  // function contextGetAdmin(bytes32 contextId) external view returns (AgentType, bytes32);
-
-  // function contextGetActivityStatus(bytes32 contextId) external view returns (ActivityStatus);
-
-  // function contextGetAlterabilityStatus(bytes32 contextId) external view returns (AlterabilityStatus);
-
-  // function contextGetContractId(bytes32 contextId) external view returns (address);
-
-  // function contextGetFunctions(bytes32 contextId) external view returns (bytes32[] memory);
-
-  // function contextGetFunctionsCount(bytes32 contextId) external view returns (uint8);
-
-  // function contextCheckAdmin(bytes32 contextId, bytes32 agentId) external view returns (bool);
-
-  // function contextCheckAccount(bytes32 contextId, address account) external view returns (bool);
-
 }

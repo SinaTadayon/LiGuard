@@ -8,6 +8,10 @@ import "./IRealmManagement.sol";
 import "./IContextManagement.sol";
 import "../IAccessControl.sol";
 import "../../lib/acl/LAclStorage.sol";
+import "../../lib/acl/LAclUtils.sol";
+import "../../lib/struct/LEnumerableSet.sol";
+import "../../proxy/IProxy.sol";
+
 
 /**
  * @title Realm Manager Contract
@@ -15,73 +19,93 @@ import "../../lib/acl/LAclStorage.sol";
  * @dev
  *
  */
-contract RealmManager is AclStorage, IRealmManagement {
+contract RealmManager is AclStorage, IRealmManagement {  
   using LAclStorage for DataCollection;
+  using LEnumerableSet for LEnumerableSet.Bytes32Set;
 
+  // calld by scope master type
+  // admin of realm can be any type or any role
   function realmRegister(RealmRegisterRequest[] calldata requests) external returns (bool) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");        
-    (ScopeType senderScopeType, bytes32 senderScopeId) = IAccessControl(address(this)).getScopeAccountOfScopeMasterType(msg.sender);
-    require(senderScopeType != ScopeType.NONE, "Access Denied");
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");    
     
-    address functionFacetId = _data.interfaces[type(IFunctionManagement).interfaceId];
-    bytes32 functionId = IFunctionManagement(address(this)).functionGenerateIdWithContract(functionFacetId, this.realmRegister.selector);
-    (AgentType functionAgentType, bytes32 functionAgentId) = IFunctionManagement(address(this)).functionGetAgent(functionId);
-   
-    if(functionAgentType == AgentType.ROLE) {
-      require(IRoleManagement(address(this)).roleHasAccount(functionAgentId, msg.sender), "Operation Not Permitted");      
+    address functionFacetId = _data.interfaces[type(IRealmManagement).interfaceId];
+    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IRealmManagement.realmRegister.selector);    
+    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
+    
+    bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
+    TypeEntity storage scopeMasterType = _data.typeReadSlot(LIVELY_VERSE_SCOPE_MASTER_TYPE_ID);
+    bytes32 memberRoleId = scopeMasterType.members[memberId];
+    RoleEntity storage memberScopeMasterRole = _data.roleReadSlot(memberRoleId);
+    ScopeType memberScopeType = _data.scopes[memberScopeMasterRole.scopeId].stype;
 
-    } else if (functionAgentType == AgentType.MEMBER) {
-      require(msg.sender == functionAgentId, "Operation Not Permitted");
-    } 
-    //  for functionAgentType == AgentType.Type this function agent Id must be Agent Master Type
 
     for(uint i = 0; i < requests.length; i++) {
       bytes32 newRealmId = LAclUtils.generateId(requests[i].name);
-      require(_data.agents[newRealmId].atype == AgentType.NONE, "Realm Already Exists");
-      require(requests[i].acstat != ActivityStatus.NONE, "Invalid Realm Activity");
-      require(requests[i].alstat != AlterabilityStatus.NONE, "Invalid Reealm Alterability");
+      require(_data.scopes[newRealmId].stype == ScopeType.NONE, "Realm Already Exists");
+      require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity status");
+      require(requests[i].alstat > AlterabilityStatus.NONE, "Illegal Alterability status");
 
-      // add realm to domain 
-      // check sender permit to add rew real to domain
-      DomainEntity storage de = _data.domainReadSlot(requests[i].domainId);
-      BaseAgent domainAdminBaseAgent = _data.agents[de.bs.adminId];
-      if(domainAdminBaseAgent.atype == AgentType.MEMBER) {
-        require(de.bs.adminId == LAclUtils.accountGenerateId(msg.sender), "Operation Not Permitted");
-      } else if(domainAdminBaseAgent.atype == AgentType.ROLE) {
-        require(IRoleManagement(address(this)).roleHasAccount(de.bs.adminId, msg.sender), "Operation Not Permitted");
-      }  
-      de.realms.add(newRealmId);
+      // check sender scopes
+      require(memberScopeType >= ScopeType.DOMAIN, "Illegal ScopeType");
+      if(memberScopeType == ScopeType.DOMAIN) {
+        require(memberScopeMasterRole.scopeId == requests[i].domainId, "Illegal Domain Scope");
+
+      } else {
+        require(memberScopeMasterRole.scopeId == _data.global.id, "Illegal Global Scope");
+      }
+
+      DomainEntity storage domainEntity = _data.domainReadSlot(requests[i].domainId);
+      require(domainEntity.bs.acstat > ActivityStatus.DELETED, "Domain Deleted");
+      require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
+
+      // check access admin realm
+      require(_doCheckAdminAccess(domainEntity.bs.adminId, memberId, functionId), "Operation Not Permitted");
+
+      domainEntity.realms.add(newRealmId);
 
       // create new realm entity
       RealmEntity storage newRealm = _data.realmWriteSlot(newRealmId);
        
-      // checking requested realm admin 
+      // checking requested context admin 
       if(requests[i].adminId != bytes32(0)) {
-        BaseAgent storage ba = _data.agents[requests[i].adminId];
-        require(ba.atype >= AgentType.MEMBER, "Illegal Admin Realm AgentType");
-        (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = IAccessControl(address(this)).getScopeAccountOfScopeMasterType(requests[i].adminId);
-        if(ba.atype != AgentType.TYPE) {
-          require(ScopeType.DOMAIN <= requestAdminScopeType, "Illegal Admin Scope Type");
-          if(ScopeType.DOMAIN == requestAdminScopeType) {
-            require(requestAdminScopeId == requests[i].domainId, "Illegal Admin Scope ID");
-          } else {
-            require(requestAdminScopeId == _data.global.globalId, "Illegal Admin Scope ID");
-          }
-        } 
-        newRole.ba.adminId = requests[i].adminId;
+        BaseAgent storage adminBaseAgent = _data.agents[requests[i].adminId];
+        require(adminBaseAgent.atype > AgentType.MEMBER, "Illegal Admin AgentType");
+
+        (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(requests[i].adminId);
+        require(ScopeType.DOMAIN <= requestAdminScopeType, "Illegal Admin ScopeType");
+        if(ScopeType.DOMAIN == requestAdminScopeType){
+          require(requestAdminScopeId == requests[i].domainId, "Illegal Amind Scope");
+
+        } else {
+          require(requestAdminScopeId == _data.global.id, "Illegal Amind Scope");
+        }
+        newRealm.bs.adminId = requests[i].adminId;
+
       } else {
-        newRole.ba.adminId = IAccessControl(address(this)).getAgentMasterTypeId();
+        newRealm.bs.adminId = domainEntity.bs.adminId;
       }
       
       newRealm.bs.stype = ScopeType.REALM;
       newRealm.bs.acstat = requests[i].acstat;
       newRealm.bs.alstat = requests[i].alstat;
       newRealm.bs.adminId = requests[i].adminId;
-      newRealm.bs.typelimit = requests[i].typeLimit;
+      newRealm.bs.agentLimit = requests[i].agentLimit;
       newRealm.name = requests[i].name;
       newRealm.domainId = requests[i].domainId;
       newRealm.contextLimit = requests[i].contextLimit;
       
+      // add reference of admin agent
+      BaseAgent storage realmAdminAgent = _data.agents[newRealm.bs.adminId];
+      realmAdminAgent.referredByScope += 1; 
+      emit AgentReferredByScopeUpdated(
+        msg.sender, 
+        newRealm.bs.adminId,
+        newRealmId, 
+        realmAdminAgent.referredByScope, 
+        realmAdminAgent.atype, 
+        ActionType.ADD
+      );
+
       emit RealmRegistered(
         msg.sender,
         newRealmId,
@@ -89,7 +113,7 @@ contract RealmManager is AclStorage, IRealmManagement {
         requests[i].adminId,
         requests[i].name,
         requests[i].contextLimit,
-        requests[i].typeLimit,
+        requests[i].agentLimit,
         _data.agents[requests[i].adminId].atype,
         requests[i].acstat,
         requests[i].alstat
@@ -98,95 +122,145 @@ contract RealmManager is AclStorage, IRealmManagement {
   }
 
   function realmUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
-    require(IAccessControl(address(this)).hasCSAccess(address(this), this.realmUpdateAdmin.selector), "Access Denied");
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "Call Rejected");
     
+    address functionFacetId = _data.interfaces[type(IRealmManagement).interfaceId];
+    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IRealmManagement.realmUpdateAdmin.selector);
+    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
+
+    bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {
       RealmEntity storage realmEntity = _data.realmReadSlot(requests[i].id);
-      require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update Function");
-      require(_doRealmCheckAdminAccount(requests[i].id, msg.sender), "Operation Not Permitted");
+      require(realmEntity.bs.acstat > ActivityStatus.DELETED, "Realm Deleted");
+      require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
+
+      // check access admin role
+      require(_doCheckAdminAccess(realmEntity.bs.adminId, memberId, functionId), "Operation Not Permitted");
+
+       // update function admin Id
+      BaseAgent storage realmAdminAgent = _data.agents[realmEntity.bs.adminId];
+      require(realmAdminAgent.referredByScope > 0, "Illegal Admin ReferredByScope");
+      unchecked { realmAdminAgent.referredByScope -= 1; }
+      emit AgentReferredByScopeUpdated(
+        msg.sender, 
+        realmEntity.bs.adminId, 
+        requests[i].id, 
+        realmAdminAgent.referredByScope, 
+        realmAdminAgent.atype, 
+        ActionType.REMOVE
+      );
 
       // checking requested type admin 
-      if(requests[i].adminId != bytes32(0)) {                
-        BaseAgent storage adminBaseAgent = _data.agents[requests[i].adminId];
-        require(adminBaseAgent.atype >= AgentType.MEMBER, "Illegal Admin Realm AgentType");
-        (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = IAccessControl(address(this)).getScopeAccountOfScopeMasterType(requests[i].adminId);
-        require(ScopeType.REALM <= requestAdminScopeType, "Illegal Admin Scope Type");
+      if(requests[i].adminId != bytes32(0)) {        
+        BaseAgent storage newRealmAdminAgent = _data.agents[requests[i].adminId];
+        require(newRealmAdminAgent.atype > AgentType.MEMBER, "Illegal Admin AgentType");
 
+        (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(requests[i].adminId);
+        require(ScopeType.REALM <= requestAdminScopeType, "Illegal Admin ScopeType");
         if(ScopeType.REALM == requestAdminScopeType) {
-          require(requestAdminScopeId == requests[i].id, "Illegal Amind Scope ID");
-        } else if (ScopeType.DOMAIN == requestAdminScopeType){
-          require(requestAdminScopeId == realmEntity.domainId, "Illegal Amind Scope ID");
+          require(requestAdminScopeId == requests[i].id, "Illegal Amind Scope");
         } else {
-          require(requestAdminScopeId == _data.global.globalId, "Illegal Amind Scope ID");
+          require(IAccessControl(address(this)).isScopesCompatible(requestAdminScopeId, requests[i].id), "Illegal Admin Scope");
         }
         realmEntity.bs.adminId = requests[i].adminId;
 
       } else {
-        realmEntity.bs.adminId = IAccessControl(address(this)).getAgentMasterTypeId();
+        realmEntity.bs.adminId = _data.scopes[realmEntity.domainId].adminId;
       }
 
-      emit RealmAdminUpdated(msg.sender, requests[i].id, requests[i].adminId);
+      // checking new admin Id 
+      BaseAgent storage newBaseAgent = _data.agents[requests[i].adminId];
+      require(newBaseAgent.atype != AgentType.NONE, "Admin Not Found");
+      require(newBaseAgent.acstat > ActivityStatus.DELETED, "Admin Deleted");
+      require(newBaseAgent.scopelimit > newBaseAgent.referredByScope, "Illegal Agent ReferredByScope");
+      newBaseAgent.referredByScope += 1;
+      emit AgentReferredByScopeUpdated(
+        msg.sender, 
+        requests[i].adminId, 
+        requests[i].id, 
+        newBaseAgent.referredByScope, 
+        newBaseAgent.atype, 
+        ActionType.ADD
+      );  
+
+      emit RealmAdminUpdated(msg.sender, requests[i].id, requests[i].adminId, newBaseAgent.atype);
     }
     return true;
   }
  
+  function realmDeleteActivity(bytes32[] calldata requests) external returns (bool) {
+    address functionFacetId = _data.interfaces[type(IRealmManagement).interfaceId];
+    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IRealmManagement.realmDeleteActivity.selector);
+    for(uint i = 0; i < requests.length; i++) {
+      _doRealmUpdateActivityStatus(requests[i], ActivityStatus.DELETED, functionId);
+    }
+    return true;
+  }
+
   function realmUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
-    require(IAccessControl(address(this)).hasCSAccess(address(this), this.realmUpdateActivityStatus.selector), "Access Denied");
-
-    for(uint i = 0; i < requests.length; i++) {      
-      require(_data.scopes[requests[i].id].stype == ScopeType.REALM, "Invalid Realm ID Slot");
-      require(_data.scopes[requests[i].id].alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update Function");
-
-      // check admin function
-      require(_doRealmCheckAdmin(requests[i].id, msg.sender), "Operation Not Permitted");
-
-      _data.scopes[requests[i].id].acstat = requests[i].acstat;
-      emit RealmActivityUpdated(msg.sender, requests[i].id, requests[i].acstat);
+    address functionFacetId = _data.interfaces[type(IRealmManagement).interfaceId];
+    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IRealmManagement.realmUpdateActivityStatus.selector);
+    for(uint i = 0; i < requests.length; i++) {
+      require(requests[i].acstat != ActivityStatus.DELETED, "Illegal Activity");
+      _doRealmUpdateActivityStatus(requests[i].id, requests[i].acstat, functionId);
     }
     return true;
   }
 
   function realmUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
-    require(IAccessControl(address(this)).hasCSAccess(address(this), this.realmUpdateAlterabilityStatus.selector), "Access Denied");
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "Call Rejected");
+    
+    address functionFacetId = _data.interfaces[type(IRealmManagement).interfaceId];
+    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IRealmManagement.realmUpdateAlterabilityStatus.selector); 
+    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied"); 
 
-    for(uint i = 0; i < requests.length; i++) {
-      // check admin function
-      require(_doRealmCheckAdmin(requests[i].id, msg.sender), "Operation Not Permitted");
-      require(_data.scopes[requests[i].id].stype == ScopeType.REALM, "Invalid Realm ID Slot");
-      _data.scopes[requests[i].id].alstat = requests[i].alstat;
+    bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
+    for(uint i = 0; i < requests.length; i++) {      
+      RealmEntity storage realmEntity = _data.realmReadSlot(requests[i].id);
+      require(realmEntity.bs.acstat > ActivityStatus.DELETED, "Type Deleted");
+      require(_doCheckAdminAccess(realmEntity.bs.adminId, memberId, functionId), "Operation Not Permitted");
+
+      realmEntity.bs.alstat = requests[i].alstat;
       emit RealmAlterabilityUpdated(msg.sender, requests[i].id, requests[i].alstat);
     }
-    return true;
-  }
+    return true;  }
 
   function realmUpdateContextLimit(RealmUpdateContextLimitRequest[] calldata requests) external returns (bool) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
-    require(IAccessControl(address(this)).hasCSAccess(address(this), this.realmUpdateContextLimit.selector), "Access Denied");
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "Call Rejected");
 
-    for(uint i = 0; i < requests.length; i++) {
-      // check admin function
-      require(_doRealmCheckAdmin(requests[i].id, msg.sender), "Operation Not Permitted");
-      RealmEntity storage realmEntity = _data.realmReadSlot(requests[i].id);
-      require(_data.scopes[requests[i].id].stype == ScopeType.REALM, "Invalid Function ID Slot");
-      realmEntity.contextLimit = requests[i].contextLimit;
-      emit RealmContextLimitUpdated(msg.sender, requests[i].id, requests[i].contextLimit);
+    address functionFacetId = _data.interfaces[type(IRealmManagement).interfaceId];
+    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IRealmManagement.realmUpdateContextLimit.selector);
+    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
+    
+    bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);    
+    for (uint256 i = 0; i < requests.length; i++) {
+      RealmEntity storage realmEntity = _data.realmReadSlot(requests[i].realmId);
+      require(realmEntity.bs.acstat > ActivityStatus.DELETED, "Function Deleted");
+      require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
+      require(_doCheckAdminAccess(realmEntity.bs.adminId, memberId, functionId), "Operation Not Permitted");
+
+      realmEntity.contextLimit = requests[i].contextLimit;      
+      emit RealmContextLimitUpdated(msg.sender, requests[i].realmId, requests[i].contextLimit);
     }
     return true;
   }
 
-  function realmUpdateTypeLimit(ScopeUpdateTypeLimitRequest[] calldata requests) external returns (bool) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
-    require(IAccessControl(address(this)).hasCSAccess(address(this), this.realmUpdateTypeLimit.selector), "Access Denied");
+  function realmUpdateAgentLimit(ScopeUpdateAgentLimitRequest[] calldata requests) external returns (bool) {
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "Call Rejected");
 
-    for(uint i = 0; i < requests.length; i++) {
-      // check admin function
-      require(_doRealmCheckAdmin(requests[i].id, msg.sender), "Operation Not Permitted");
-      require(_data.scopes[requests[i].id].stype == ScopeType.REALM, "Invalid Function ID Slot");
-      _data.scopes[requests[i].id].typeLimit = requests[i].typeLimit;
-      emit RealmTypeLimitUpdated(msg.sender, requests[i].id, requests[i].typeLimit);
+    address functionFacetId = _data.interfaces[type(IRealmManagement).interfaceId];
+    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IRealmManagement.realmUpdateAgentLimit.selector);
+    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
+    
+    bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);    
+    for (uint256 i = 0; i < requests.length; i++) {
+      RealmEntity storage realmEntity = _data.realmReadSlot(requests[i].scopeId);
+      require(realmEntity.bs.acstat > ActivityStatus.DELETED, "Function Deleted");
+      require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
+      require(_doCheckAdminAccess(realmEntity.bs.adminId, memberId, functionId), "Operation Not Permitted");
+
+      realmEntity.bs.agentLimit = requests[i].agentLimit;
+      emit RealmAgentLimitUpdated(msg.sender, requests[i].scopeId, requests[i].agentLimit);
     }
     return true;
   }
@@ -199,25 +273,35 @@ contract RealmManager is AclStorage, IRealmManagement {
     return _data.scopes[LAclUtils.generateId(realmName)].stype == ScopeType.REALM;
   }
 
-  function realmCheckAdmin(bytes32 realmId, address account) external view returns (bool) {
-    _doContextCheckAdmin(realmId, account);
-  }
-
-  function _doContextCheckAdmin(bytes32 realmId, address account) internal view returns (bool) {
-    (RealmEntity storage re, bool result) = _data.realmTryReadSlot(realmId);
+   function realmCheckAdmin(bytes32 realmId, address account) external view returns (bool) {
+    (RealmEntity storage realmEntity, bool result) = _data.realmTryReadSlot(realmId);
     if(!result) return false;  
-    
-    bytes32 realmAdminId = re.bs.adminId;
-    bytes32 memberId = LAclUtils.accountGenerateId(account);
-    AgentType adminAgentType = _data.agents[realmAdminId].atype;
-    if(adminAgentType == AgentType.MEMBER) {
-      return memberId == realmAdminId;
 
-    } else if(adminAgentType == AgentType.ROLE || adminAgenType == AgentType.TYPE) {
-      return ITypeManagement(address(this)).typeHasMember(IAccessControl(address(this)).getScopeMasterTypeId(), memberId);
-    } 
+    bytes32 contextAdminId = realmEntity.bs.adminId;
+    AgentType agentType = _data.agents[contextAdminId].atype;
+    bytes32 memberId = LAclUtils.accountGenerateId(account);
+
+    if(agentType == AgentType.ROLE) {
+      return _doRoleHasMember(contextAdminId, memberId);
+    
+    } else if(agentType == AgentType.TYPE) {
+      (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(contextAdminId);
+      if(!result1) return false;  
+
+      return typeEntity.members[memberId] != bytes32(0);  
+    }
   
     return false;
+  } 
+
+  function _doRoleHasMember(bytes32 roleId, bytes32 memberId) internal view returns (bool) {
+    (RoleEntity storage roleEntity, bool result) = _data.roleTryReadSlot(roleId);
+    if(!result) return false;
+
+    (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(roleEntity.typeId);
+    if(!result1) return false;  
+
+    return typeEntity.members[memberId] != bytes32(0);
   }
 
   function realmHasFunction(bytes32 realmId, bytes32 functionId) external view returns (bool) {
@@ -236,52 +320,6 @@ contract RealmManager is AclStorage, IRealmManagement {
     return re.contexts.contains(contextId);
   }
 
-  function realmGetName(bytes32 realmId) external view returns (string memory) {
-    (RealmEntity storage re, bool result) = _data.realmTryReadSlot(realmId);
-    if(!result) return "";  
-    return re.name;
-  }
-
-  function realmGetDomain(bytes32 realmId) external view returns (bytes32) {
-    (RealmEntity storage re, bool result) = _data.realmTryReadSlot(realmId);
-    if(!result) return bytes(0);  
-    return re.domainId;
-  }
-
-  function realmGetContextLimit(bytes32 realmId) external view returns (uint16) {
-    (RealmEntity storage re, bool result) = _data.realmTryReadSlot(realmId);
-    if(!result) return 0;  
-    return re.contextLimit;
-  }
-
-  function realmGetAdmin(bytes32 realmId) external view returns (bytes32, AgentType) {
-     return (_data.agents[_data.scopes[realmId].adminId].atype, _data.scopes[realmId].adminId);
-  }
-
-  function realmGetActivityStatus(bytes32 realmId) external view returns (ActivityStatus) {
-    (RealmEntity storage re, bool result) = _data.realmTryReadSlot(realmId);
-    if(!result) return ActivityStatus.NONE;  
-    return re.bs.acstat;
-  }
-
-  function realmGetAlterabilityStatus(bytes32 realmId) external view returns (AlterabilityStatus) {
-    (RealmEntity storage re, bool result) = _data.realmTryReadSlot(realmId);
-    if(!result) return AlterabilityStatus.NONE;  
-    return re.bs.alstat;
-  }
-
-  function realmGetContexts(bytes32 realmId) external view returns (bytes32[] memory) {
-    (RealmEntity storage re, bool result) = _data.realmTryReadSlot(realmId);
-    if(!result) return new bytes32[](0);  
-    return re.contexts.values();
-  }
-
-  function realmGetContextsCount(bytes32 realmId) external view returns (uint32) {
-    (RealmEntity storage re, bool result) = _data.realmTryReadSlot(realmId);
-    if(!result) return 0;  
-    return re.contexts.length();
-  }
-
   function realmGetInfo(bytes32 realmId) external view returns (RealmInfo memory) {
     (RealmEntity storage re, bool result) = _data.realmTryReadSlot(realmId);
     if(!result) {
@@ -289,23 +327,107 @@ contract RealmManager is AclStorage, IRealmManagement {
         domainId: bytes32(0),
         adminId: bytes32(0),
         contextLimit: 0, 
-        typeLimit: 0,
+        agentLimit: 0,
+        referredByAgent: 0,
+        referredByPolicy: 0,
         acstat: ActivityStatus.NONE, 
         alstate: AlterabilityStatus.NONE, 
         adminType: AgentType.NONE,
         name: ""
       });
-    } 
+    }
 
     return RealmInfo ({
       domainId: re.domainId,
       adminId: re.bs.adminId,
       contextLimit: re.contextLimit, 
-      typeLimit: re.bs.typeLimit,
+      agentLimit: re.bs.agentLimit,
+      referredByAgent: re.bs.referredByAgent,
+      referredByPolicy: re.bs.referredByPolicy,
       acstat: re.bs.acstat, 
       alstate: re.bs.alstat, 
       adminType: _data.agents[re.bs.adminId].atype,
       name: ""
     });
+  }
+
+  function _doAgentGetScopeInfo(bytes32 agentId) internal view returns (ScopeType, bytes32) {
+    AgentType atype = _data.agents[agentId].atype;
+    if (atype == AgentType.ROLE) {
+      RoleEntity storage roleEntity = _data.roleReadSlot(agentId);
+      BaseScope storage baseScope = _data.scopes[roleEntity.scopeId];
+      return (baseScope.stype, roleEntity.scopeId);
+
+    } else if(atype == AgentType.TYPE) {
+      TypeEntity storage typeEntity = _data.typeReadSlot(agentId);
+      BaseScope storage baseScope = _data.scopes[typeEntity.scopeId];
+      return (baseScope.stype, typeEntity.scopeId);
+    }
+
+    return (ScopeType.NONE, bytes32(0));  
+  }
+
+  function _doCheckAdminAccess(bytes32 adminId, bytes32 memberId, bytes32 functionId) internal view returns (bool) {
+    (FunctionEntity storage functionEntity, bool res) = _data.functionTryReadSlot(functionId);    
+    if (!res) return false;
+
+    AgentType adminAgentType = _data.agents[adminId].atype;
+    if(adminAgentType == AgentType.ROLE) {
+      (RoleEntity storage roleEntity, bool result) = _data.roleTryReadSlot(adminId);
+      if(!result || roleEntity.ba.acstat != ActivityStatus.ENABLED) return false;
+
+      (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(roleEntity.typeId);
+      if(!result1 || typeEntity.ba.acstat != ActivityStatus.ENABLED) return false;
+      
+      if (typeEntity.members[memberId] != adminId) return false;
+
+      PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[adminId]];
+      if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
+        return false;
+
+      return true;
+   
+    } else if(adminAgentType == AgentType.TYPE) { 
+      (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(adminId);
+      if(!result1 || typeEntity.ba.acstat != ActivityStatus.ENABLED) return false;
+
+      bytes32 roleId = typeEntity.members[memberId];
+      (RoleEntity storage roleEntity, bool result2) = _data.roleTryReadSlot(roleId);
+      if(!result2 || roleEntity.ba.acstat != ActivityStatus.ENABLED) return false;
+      
+      PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[roleId]];
+      if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
+        return false;
+
+      return true;
+    } 
+
+    return false;   
+  } 
+
+  function _doRealmUpdateActivityStatus(bytes32 realmId, ActivityStatus status, bytes32 functionId) internal returns (bool) {
+
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "Call Rejected");
+    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied"); 
+
+    bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
+    RealmEntity storage realmEntity = _data.realmReadSlot(realmId);
+    require(realmEntity.bs.acstat > ActivityStatus.DELETED, "Function Deleted");
+    require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
+    require(_doCheckAdminAccess(realmEntity.bs.adminId, memberId, functionId), "Operation Not Permitted");
+
+    if(status == ActivityStatus.DELETED) {    
+      BaseAgent storage realmAdminAgent = _data.agents[realmEntity.bs.adminId];
+      require(realmAdminAgent.referredByScope > 0, "Illegal Admin ReferredByScope");
+      unchecked { realmAdminAgent.referredByScope -= 1; }
+      emit AgentReferredByScopeUpdated(
+        msg.sender, 
+        realmEntity.bs.adminId,
+        functionId, 
+        realmAdminAgent.referredByScope, 
+        realmAdminAgent.atype, 
+        ActionType.REMOVE
+      );
+    }
   }
 }
