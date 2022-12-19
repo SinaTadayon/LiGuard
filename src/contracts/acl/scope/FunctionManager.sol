@@ -166,7 +166,7 @@ contract FunctionManager is AclStorage, IFunctionManagement {
     bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {      
       FunctionEntity storage functionEntity = _data.functionReadSlot(requests[i].id);
-      require(functionEntity.bs.acstat > ActivityStatus.DELETED, "Type Deleted");
+      require(functionEntity.bs.acstat > ActivityStatus.DELETED, "Function Deleted");
       require(_doFunctionCheckAdminAccess(functionEntity.bs.adminId, memberId, functionId), "Operation Not Permitted");
 
       functionEntity.bs.alstat = requests[i].alstat;

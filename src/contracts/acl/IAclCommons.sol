@@ -60,22 +60,22 @@ interface IAclCommons {
 
   struct BaseAgent {
     bytes32 adminId;
-    uint16 scopelimit;
-    uint16 referredByScope;
-    uint16 referredByPolicy;
     AgentType atype;
     ActivityStatus acstat;
-    AlterabilityStatus alstat;    
+    AlterabilityStatus alstat;  
+    uint16 referredByScope;
+    uint16 referredByPolicy;
+    uint16 scopelimit;
   }
 
   struct BaseScope {
     bytes32 adminId;
-    uint16 agentLimit;
-    uint16 referredByAgent;
-    uint16 referredByPolicy;
     ScopeType stype;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
+    uint16 referredByAgent;
+    uint16 referredByPolicy;    
+    uint16 agentLimit;
   }
 
   struct PolicyEntity {

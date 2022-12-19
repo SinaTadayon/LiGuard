@@ -211,7 +211,8 @@ contract ContextManager is AclStorage, IContextManagement {
 
     RealmEntity storage realmEntity = _data.realmReadSlot(request.realmId);
     require(realmEntity.bs.acstat > ActivityStatus.DELETED, "Realm Deleted");
-    require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
+    require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Realm Update");
+    require(realmEntity.contextLimit > realmEntity.contexts.length(), "Illegal Context Register");
 
     // check access admin realm
     require(_doCheckAdminAccess(realmEntity.bs.adminId, memberId, functionId), "Operation Not Permitted");
@@ -565,7 +566,7 @@ contract ContextManager is AclStorage, IContextManagement {
     bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {      
       ContextEntity storage contextEntity = _data.contextReadSlot(requests[i].id);
-      require(contextEntity.bs.acstat > ActivityStatus.DELETED, "Type Deleted");
+      require(contextEntity.bs.acstat > ActivityStatus.DELETED, "Context Deleted");
       require(_doCheckAdminAccess(contextEntity.bs.adminId, memberId, functionId), "Operation Not Permitted");
 
       contextEntity.bs.alstat = requests[i].alstat;
@@ -799,6 +800,12 @@ contract ContextManager is AclStorage, IContextManagement {
     contextEntity.bs.acstat = status;
     emit ContextActivityUpdated(msg.sender, functionId, status);
     return true;
+  }
+
+  function contextGetFunctions(bytes32 contextId) external view returns (bytes32[] memory) {
+    (ContextEntity storage ce, bool result) = _data.contextTryReadSlot(contextId);
+    if (!result) return new bytes32[](0);
+    return ce.functions.values();
   }
 
   function contextGetContextInfo(bytes32 contextId) external view returns (ContextInfo memory) {

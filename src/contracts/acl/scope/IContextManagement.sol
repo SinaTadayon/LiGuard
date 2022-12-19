@@ -209,6 +209,8 @@ interface IContextManagement is IAclCommons {
 
   function contextHasSelector(address contractId, bytes4 selector) external view returns (bool);
 
+  function contextGetFunctions(bytes32 contextId) external view returns (bytes32[] memory);
+
   function contextGetContextInfo(bytes32 contextId) external view returns (ContextInfo memory);
 
 }

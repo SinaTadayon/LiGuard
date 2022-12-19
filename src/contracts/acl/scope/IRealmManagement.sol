@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v2.0.1)
+// LivelyVerse Contracts (last updated v3.0.0)
 
 pragma solidity 0.8.17;
 
@@ -89,21 +89,10 @@ interface IRealmManagement is IAclCommons {
 
   function realmHasContext(bytes32 realmId, bytes32 contextId) external view returns (bool);
 
+  function realmGetContexts(bytes32 realmId) external view returns (bytes32[] memory);
+
   function realmGetInfo(bytes32 realmId) external view returns (RealmInfo memory);
 
-  // function realmGetName(bytes32 realmId) external view returns (string memory);
 
-  // function realmGetDomain(bytes32 realmId) external view returns (bytes32);
 
-  // function realmGetContextLimit(bytes32 realmId) external view returns (uint16);
-
-  // function realmGetAdmin(bytes32 realmId) external view returns (bytes32, AgentType);
-
-  // function realmGetActivityStatus(bytes32 realmId) external view returns (ActivityStatus);
-
-  // function realmGetAlterabilityStatus(bytes32 realmId) external view returns (AlterabilityStatus);
-
-  // function realmGetContexts(bytes32 realmId) external view returns (bytes32[] memory);
-
-  // function realmGetContextsCount(bytes32 realmId) external view returns (uint32);
 }

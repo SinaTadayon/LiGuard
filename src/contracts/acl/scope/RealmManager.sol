@@ -56,7 +56,8 @@ contract RealmManager is AclStorage, IRealmManagement {
 
       DomainEntity storage domainEntity = _data.domainReadSlot(requests[i].domainId);
       require(domainEntity.bs.acstat > ActivityStatus.DELETED, "Domain Deleted");
-      require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
+      require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Domain Update");
+      require(domainEntity.realmLimit > domainEntity.realms.length(), "Illegal Realm Register");
 
       // check access admin realm
       require(_doCheckAdminAccess(domainEntity.bs.adminId, memberId, functionId), "Operation Not Permitted");
@@ -96,6 +97,9 @@ contract RealmManager is AclStorage, IRealmManagement {
       
       // add reference of admin agent
       BaseAgent storage realmAdminAgent = _data.agents[newRealm.bs.adminId];
+      require(realmAdminAgent.atype != AgentType.NONE, "Admin Not Found");
+      require(realmAdminAgent.acstat > ActivityStatus.DELETED, "Admin Deleted");
+      require(realmAdminAgent.scopelimit > realmAdminAgent.referredByScope, "Illegal Agent ReferredByScope");
       realmAdminAgent.referredByScope += 1; 
       emit AgentReferredByScopeUpdated(
         msg.sender, 
@@ -119,6 +123,8 @@ contract RealmManager is AclStorage, IRealmManagement {
         requests[i].alstat
       );
     }
+
+    return true;
   }
 
   function realmUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool) {
@@ -217,7 +223,7 @@ contract RealmManager is AclStorage, IRealmManagement {
     bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {      
       RealmEntity storage realmEntity = _data.realmReadSlot(requests[i].id);
-      require(realmEntity.bs.acstat > ActivityStatus.DELETED, "Type Deleted");
+      require(realmEntity.bs.acstat > ActivityStatus.DELETED, "Realm Deleted");
       require(_doCheckAdminAccess(realmEntity.bs.adminId, memberId, functionId), "Operation Not Permitted");
 
       realmEntity.bs.alstat = requests[i].alstat;
@@ -277,15 +283,15 @@ contract RealmManager is AclStorage, IRealmManagement {
     (RealmEntity storage realmEntity, bool result) = _data.realmTryReadSlot(realmId);
     if(!result) return false;  
 
-    bytes32 contextAdminId = realmEntity.bs.adminId;
-    AgentType agentType = _data.agents[contextAdminId].atype;
+    bytes32 realmAdminId = realmEntity.bs.adminId;
+    AgentType agentType = _data.agents[realmAdminId].atype;
     bytes32 memberId = LAclUtils.accountGenerateId(account);
 
     if(agentType == AgentType.ROLE) {
-      return _doRoleHasMember(contextAdminId, memberId);
+      return _doRoleHasMember(realmAdminId, memberId);
     
     } else if(agentType == AgentType.TYPE) {
-      (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(contextAdminId);
+      (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(realmAdminId);
       if(!result1) return false;  
 
       return typeEntity.members[memberId] != bytes32(0);  
@@ -318,6 +324,12 @@ contract RealmManager is AclStorage, IRealmManagement {
     (RealmEntity storage re, bool result) = _data.realmTryReadSlot(realmId);
     if(!result) return false;  
     return re.contexts.contains(contextId);
+  }
+
+  function realmGetContexts(bytes32 realmId) external view returns (bytes32[] memory) {
+    (RealmEntity storage re, bool result) = _data.realmTryReadSlot(realmId);
+    if (!result) return new bytes32[](0);
+    return re.contexts.values();
   }
 
   function realmGetInfo(bytes32 realmId) external view returns (RealmInfo memory) {
