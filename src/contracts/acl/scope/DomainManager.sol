@@ -25,7 +25,7 @@ contract DomainManager is AclStorage, IDomainManagement {
 
   // called by account that member of VERSE SCOPE MASTER TYPE
   function domainRegister(DomainRegisterRequest[] calldata requests) external returns (bool) {
-     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "Call Rejected");
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "Call Rejected");
     
     address functionFacetId = _data.interfaces[type(IDomainManagement).interfaceId];
     bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IDomainManagement.domainRegister.selector);    
@@ -36,7 +36,7 @@ contract DomainManager is AclStorage, IDomainManagement {
     TypeEntity storage scopeMasterType = _data.typeReadSlot(LIVELY_VERSE_SCOPE_MASTER_TYPE_ID);
     bytes32 memberRoleId = scopeMasterType.members[memberId];
     RoleEntity storage memberScopeMasterRole = _data.roleReadSlot(memberRoleId);
-    ScopeType memberScopeType = _data.scopes[memberScopeMasterRole.scopeId].stype;
+    // ScopeType memberScopeType = _data.scopes[memberScopeMasterRole.scopeId].stype;
 
     for(uint i = 0; i < requests.length; i++) {
       bytes32 newDomainId = LAclUtils.generateId(requests[i].name);

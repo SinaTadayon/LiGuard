@@ -229,7 +229,8 @@ contract RealmManager is AclStorage, IRealmManagement {
       realmEntity.bs.alstat = requests[i].alstat;
       emit RealmAlterabilityUpdated(msg.sender, requests[i].id, requests[i].alstat);
     }
-    return true;  }
+    return true;  
+  }
 
   function realmUpdateContextLimit(RealmUpdateContextLimitRequest[] calldata requests) external returns (bool) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "Call Rejected");

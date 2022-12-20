@@ -396,6 +396,7 @@ contract ContextManager is AclStorage, IContextManagement {
     // check access admin realm
     require(_doCheckAdminAccess(contextEntity.bs.adminId, memberId, functionId), "Operation Not Permitted");
 
+    // get scope id of sender
     TypeEntity storage systemAdminType = _data.typeReadSlot(LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID);
     bytes32 signerRoleId = systemAdminType.members[memberId];
     RoleEntity storage signerSystemRole =  _data.roleReadSlot(signerRoleId);

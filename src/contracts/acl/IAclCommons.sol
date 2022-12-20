@@ -84,9 +84,9 @@ interface IAclCommons {
     string name;
     uint32 roleLimit;
     uint8 policyCode;
+    PolicyType ptype; 
     ActivityStatus acstat;
-    AlterabilityStatus alstat;
-    PolicyType ptype;    
+    AlterabilityStatus alstat;   
     LEnumerableSet.Bytes32Set roles;
   }
 

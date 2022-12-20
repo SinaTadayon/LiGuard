@@ -36,6 +36,9 @@ interface IGlobalManagement is IAclCommons {
 
   event GlobalAgentLimitUpdated(address indexed sender, uint16 agentLimit);
 
+  /**
+   * global funtions must call by members of ADMIN TYPE  
+   */
   function globalUpdateActivityStatus(ActivityStatus acstat) external returns (ActivityStatus);
 
   function globalUpdateAlterabilityStatus(AlterabilityStatus alstat) external returns (AlterabilityStatus);

@@ -93,6 +93,8 @@ interface IPolicyManagement is IAclCommons {
 
   function policyUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);
  
+  function policyDeleteActivity(bytes32[] calldata requests) external returns (bool);
+
   function policyUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
 
   function policyUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool);
@@ -111,19 +113,9 @@ interface IPolicyManagement is IAclCommons {
 
   function policyHasRole(bytes32 roleId) external view returns (bool);
 
-  function policyGetActivityStatus(bytes32 policyId) external view returns (ActivityStatus);
-
-  function policyGetAlterabilityStatus(bytes32 policyId) external view returns (AlterabilityStatus);
-
-  function policyGetName(bytes32 policyId) external view returns (string memory);
-
   function policyGetInfoByRole(bytes32 roleId) external view returns (PolicyInfo memory);
 
   function policyGetInfo(bytes32 policyId) external view returns (PolicyInfo memory);
 
   function policyGetRoles(bytes32 policyId) external view returns (bytes32[] memory);
-
-  function policyGetRolesCount(bytes32 policyId) external view returns (uint32);
-
-  function policyGetPolicyType(uint8 policyCode) external pure returns (PolicyType);
 }
