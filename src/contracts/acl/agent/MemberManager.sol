@@ -10,6 +10,7 @@ import "../IAccessControl.sol";
 import "../scope/IFunctionManagement.sol";
 import "../../lib/acl/LAclStorage.sol";
 import "../../lib/struct/LEnumerableSet.sol";
+import "../../lib/acl/LAclUtils.sol";
 import "../../proxy/IProxy.sol";
 
 /**
@@ -22,7 +23,7 @@ contract MemberManager is AclStorage, IMemberManagement {
   using LAclStorage for DataCollection;
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
 
-  // Note: called by member has joined to ACL 
+  // Note: called by eveny admin of role
   function memberRegister(MemberRegister[] calldata requests) external returns (bool) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
 
@@ -37,23 +38,28 @@ contract MemberManager is AclStorage, IMemberManagement {
       require(requests[i].typeLimit >= 1, "Illegal TypeLimit");
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity status");
       require(requests[i].alstat > AlterabilityStatus.NONE, "Illegal Alterability status");
-
+      
       // check role
       RoleEntity storage roleEntity = _data.roleReadSlot(requests[i].roleId);
       require(roleEntity.ba.acstat > ActivityStatus.DELETED, "Role is Deleted");
       require(roleEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Role Update");
+      require(roleEntity.memberLimit < roleEntity.memberTotal, "Illegal Member Register");
+      
 
       // check type 
       TypeEntity storage typeEntity = _data.typeReadSlot(roleEntity.typeId);
       require(typeEntity.ba.acstat > ActivityStatus.DELETED, "Type is Deleted");
       require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Type Update");
 
+
       // check access
       require(_doAgentCheckAdminAccess(typeEntity.ba.adminId, memberId, functionId), "Operation Not Permitted");
-      // require(IAccessControl(address(this)).hasMemberAccessToAgent(typeEntity.ba.admin, functionId, memberId), "Access Denied");
 
       // add new member to type
       typeEntity.members[newMemberId] = requests[i].roleId;
+
+      // add new member to type
+      roleEntity.memberTotal +=1;
 
       // create new member
       MemberEntity storage newMember = _data.memberWriteSlot(newMemberId);
@@ -61,8 +67,6 @@ contract MemberManager is AclStorage, IMemberManagement {
       newMember.ba.atype = AgentType.MEMBER;
       newMember.ba.acstat = requests[i].acstat;
       newMember.ba.alstat = requests[i].alstat;
-      newMember.ba.referredByPolicy = 0;
-      newMember.ba.referredByScope = 0;
       newMember.account = requests[i].account;
       newMember.types.add(roleEntity.typeId);
 
@@ -114,13 +118,13 @@ contract MemberManager is AclStorage, IMemberManagement {
       require(_doAgentCheckAdminAccess(memberEntity.ba.adminId, memberId, functionId), "Operation Not Permitted");
     
       memberEntity.ba.alstat = requests[i].alstat;
-      emit MemberAlterabilityUpdated(msg.sender, requests[i], requests[i].alstat);
+      emit MemberAlterabilityUpdated(msg.sender, requests[i].id, requests[i].alstat);
     }
     return true;
   }
 
   // Note: member default admin is 
-  function memberUpdateAdmin(MemberUpdateAdminRequest[] calldata requests) external returns (bool) {
+  function memberUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
 
     address functionFacetId = _data.interfaces[type(IMemberManagement).interfaceId];
@@ -138,9 +142,9 @@ contract MemberManager is AclStorage, IMemberManagement {
       if (requests[i].adminId == bytes32(0)) {
         BaseAgent storage requestedAdminAgent = _data.agents[requests[i].adminId];
         require(requestedAdminAgent.atype > AgentType.MEMBER, "Illegal Member Admin Type");
-        if(requestedAgent.atype == AgentType.ROLE) {
+        if(requestedAdminAgent.atype == AgentType.ROLE) {
           TypeEntity storage typeEntity = _data.typeReadSlot(LIVELY_VERSE_ADMIN_TYPE_ID);
-          require(typeEntity.roles.containts(requests[i].adminId), "Illegal Member Admin ID");
+          require(typeEntity.roles.contains(requests[i].adminId), "Illegal Member Admin ID");
         }          
         memberEntity.ba.adminId = requests[i].adminId;
       
@@ -156,10 +160,10 @@ contract MemberManager is AclStorage, IMemberManagement {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
 
     address functionFacetId = _data.interfaces[type(IMemberManagement).interfaceId];
+    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IMemberManagement.memberUpdateTypeLimit.selector);
     bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);
     require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
 
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IMemberManagement.memberUpdateTypeLimit.selector);
     for (uint256 i = 0; i < requests.length; i++) {
       MemberEntity storage member = _data.memberReadSlot(requests[i].memberId);
       require(member.ba.acstat > ActivityStatus.DELETED, "Member is Deleted");
@@ -194,8 +198,6 @@ contract MemberManager is AclStorage, IMemberManagement {
       return MemberInfo({
         adminId: bytes32(0),
         account: address(0),
-        referredByScope: 0,
-        referredByPolicy: 0,
         typeLimit: 0,
         typeCount: 0,
         atype: AgentType.NONE,
@@ -207,8 +209,6 @@ contract MemberManager is AclStorage, IMemberManagement {
     return MemberInfo({
       adminId: member.ba.adminId,
       account: member.account,
-      referredByScope: member.ba.referredByScope,
-      referredByPolicy: member.ba.referredByPolicy,
       typeLimit: member.typeLimit,
       typeCount: uint16(member.types.length()),
       atype: AgentType.NONE,
@@ -233,7 +233,7 @@ contract MemberManager is AclStorage, IMemberManagement {
       if (typeEntity.members[agentId] != adminId) return false;
 
       PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[adminId]];
-      if(policyEntity.acstat == ActivityStatus.ENABLE && policyEntity.policyCode >= functionEntity.policyCode)  
+      if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
         return false;
 
       return true;
@@ -242,11 +242,12 @@ contract MemberManager is AclStorage, IMemberManagement {
       (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(adminId);
       if(!result1 || typeEntity.ba.acstat != ActivityStatus.ENABLED) return false;
 
-      (RoleEntity storage roleEntity, bool result2) = _data.roleTryReadSlot(typeEntity.members[agentId]);
+      bytes32 roleId = typeEntity.members[agentId];
+      (RoleEntity storage roleEntity, bool result2) = _data.roleTryReadSlot(roleId);
       if(!result2 || roleEntity.ba.acstat != ActivityStatus.ENABLED) return false;
       
       PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[roleId]];
-      if(policyEntity.acstat == ActivityStatus.ENABLE && policyEntity.policyCode >= functionEntity.policyCode)  
+      if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
         return false;
 
       return true;

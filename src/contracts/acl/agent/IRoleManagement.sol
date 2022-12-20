@@ -13,13 +13,12 @@ import "../IAclCommons.sol";
  */
 interface IRoleManagement is IAclCommons {
 
- 
   struct RoleRegisterRequest {
     bytes32 adminId;          // should role or member in any scope 
     bytes32 scopeId;          // related to request sender scope and sender and it can be one of sender scope and under it
-    bytes32 typeId;
-    // bytes32 policyId;
+    bytes32 typeId;    
     uint32 memberLimit;
+    uint16 scopeLimit;
     ActivityStatus acstat;
     AlterabilityStatus alstat;   
     string name;
@@ -37,7 +36,7 @@ interface IRoleManagement is IAclCommons {
 
   struct RoleUpdateMemberLimitRequest {
     bytes32 roleId;
-    uint24 memberLimit;
+    uint32 memberLimit;
   }
 
   struct RoleInfo {
@@ -46,6 +45,7 @@ interface IRoleManagement is IAclCommons {
     bytes32 adminId;
     uint32 memberLimit;
     uint32 memberTotal;
+    uint16 scopeLimit;
     uint16 referredByScope;
     uint16 referredByPolicy;
     ActivityStatus acstat;
@@ -61,6 +61,7 @@ interface IRoleManagement is IAclCommons {
     bytes32 adminId,
     bytes32 scopeId,
     uint32 memberLimit,
+    uint16 scopeLimit,
     ActivityStatus acstat,
     AlterabilityStatus alstat
   );
@@ -69,7 +70,9 @@ interface IRoleManagement is IAclCommons {
 
   event RoleMemberRevoked(address indexed sender, bytes32 indexed roleId, bytes32 indexed memberId, bytes32 typeId);  
 
-  event RoleMemberLimitUpdated(address indexed sender, bytes32 indexed roleId, uint8 memberLimit);
+  event RoleMemberLimitUpdated(address indexed sender, bytes32 indexed roleId, uint32 memberLimit);
+
+  event RoleScopeLimitUpdated(address indexed sender, bytes32 indexed roleId, uint16 scopeLimit);
 
   event RoleAdminUpdated(address indexed sender, bytes32 indexed roleId, bytes32 indexed adminId);
 
@@ -93,9 +96,7 @@ interface IRoleManagement is IAclCommons {
 
   function roleUpdateMemberLimit(RoleUpdateMemberLimitRequest[] calldata requests) external returns (bool);
 
-  // function roleUpdateReferredByScope(UpdateReferredByRequest[] calldata requests) external returns (bool);
-
-  // function roleUpdateReferredByPolicy(UpdateReferredByRequest[] calldata requests) external returns (bool);
+  function roleUpdateScopeLimit(AgentUpdateScopeLimitRequest[] calldata requests) external returns (bool);
 
   function roleCheckId(bytes32 roleId) external view returns (bool);
 

@@ -71,7 +71,7 @@ contract FunctionManager is AclStorage, IFunctionManagement {
       BaseAgent storage newBaseAgent = _data.agents[requests[i].adminId];
       require(newBaseAgent.atype != AgentType.NONE, "Admin Not Found");
       require(newBaseAgent.acstat > ActivityStatus.DELETED, "Agent Deleted");
-      require(newBaseAgent.scopelimit > newBaseAgent.referredByScope, "Illegal Agent ReferredByScope");
+      require(newBaseAgent.scopeLimit > newBaseAgent.referredByScope, "Illegal Agent ReferredByScope");
       newBaseAgent.referredByScope += 1;
       emit AgentReferredByScopeUpdated(
         msg.sender, 
@@ -120,7 +120,7 @@ contract FunctionManager is AclStorage, IFunctionManagement {
       BaseAgent storage newBaseAgent = _data.agents[requests[i].agentId];
       require(newBaseAgent.atype != AgentType.NONE, "Agent Not Found");
       require(newBaseAgent.acstat > ActivityStatus.DELETED, "Agent Deleted");
-      require(newBaseAgent.scopelimit > newBaseAgent.referredByScope, "Illegal Agent ReferredByScope");
+      require(newBaseAgent.scopeLimit > newBaseAgent.referredByScope, "Illegal Agent ReferredByScope");
       newBaseAgent.referredByScope += 1;
       emit AgentReferredByScopeUpdated(
         msg.sender, 

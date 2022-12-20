@@ -265,10 +265,10 @@ contract PolicyManager is AclStorage, IPolicyManagement {
       unchecked { policyAdminAgent.referredByPolicy -= 1; }
       emit AgentReferredByPolicyUpdated(
         msg.sender, 
-        policyEntity.bs.adminId, 
+        policyEntity.adminId, 
         requests[i].id, 
-        policyEntity.referredByScope, 
-        policyEntity.atype, 
+        policyAdminAgent.referredByScope, 
+        policyAdminAgent.atype, 
         ActionType.REMOVE
       );
 
@@ -341,7 +341,7 @@ contract PolicyManager is AclStorage, IPolicyManagement {
       PolicyEntity storage policyEntity = _data.policies[requests[i].id];
       require(policyEntity.adminId != bytes32(0), "Policy Not Found");      
       require(policyEntity.acstat > ActivityStatus.DELETED, "Realm Deleted");
-      require(_doCheckAdminAccess(policyEntity.adminId, memberId, functionId), "Operation Not Permitted");
+      require(_doPolicyCheckAdminAccess(policyEntity.adminId, memberId, functionId), "Operation Not Permitted");
 
       policyEntity.alstat = requests[i].alstat;
       emit PolicyAlterabilityUpdated(msg.sender, requests[i].id, requests[i].alstat);
@@ -362,7 +362,7 @@ contract PolicyManager is AclStorage, IPolicyManagement {
       require(policyEntity.adminId != bytes32(0), "Policy Not Found");      
       require(policyEntity.acstat > ActivityStatus.DELETED, "Function Deleted");
       require(policyEntity.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
-      require(_doCheckAdminAccess(policyEntity.adminId, memberId, functionId), "Operation Not Permitted");
+      require(_doPolicyCheckAdminAccess(policyEntity.adminId, memberId, functionId), "Operation Not Permitted");
 
       policyEntity.roleLimit = requests[i].roleLimit;      
       emit PolicyRoleLimitUpdated(msg.sender, requests[i].policyId, requests[i].roleLimit);
@@ -387,7 +387,7 @@ contract PolicyManager is AclStorage, IPolicyManagement {
     bytes32 memberId = LAclUtils.accountGenerateId(account);
 
     if(agentType == AgentType.ROLE) {
-      (RoleEntity storage roleEntity, bool result) = _data.roleTryReadSlot(roleId);
+      (RoleEntity storage roleEntity, bool result) = _data.roleTryReadSlot(policyEntity.adminId);
       if(!result) return false;
 
       (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(roleEntity.typeId);
@@ -416,7 +416,7 @@ contract PolicyManager is AclStorage, IPolicyManagement {
     if (!result) return false;
 
     PolicyEntity storage policyEntity = _data.policies[policyId];
-    if(policyEntity.acstat != ActivityStatus.ENABLE) return false;
+    if(policyEntity.acstat != ActivityStatus.ENABLED) return false;
     if(policyEntity.policyCode >= functionEntity.policyCode) return false;
 
     return true;
@@ -550,16 +550,18 @@ contract PolicyManager is AclStorage, IPolicyManagement {
     return false;   
   }
 
-   function _doPolicyUpdateActivityStatus(bytes32 policyId, ActivityStatus status, bytes32 functionId) internal returns (bool) {
+  function _doPolicyUpdateActivityStatus(bytes32 policyId, ActivityStatus status, bytes32 functionId) internal returns (bool) {
 
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "Call Rejected");
     require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied"); 
 
     bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
-    PolicyEntity storage policyEntity = _data.policyReadSlot(realmId);
-    require(policyEntity.acstat > ActivityStatus.DELETED, "Function Deleted");
+    PolicyEntity storage policyEntity = _data.policies[policyId];
+    require(policyEntity.adminId != bytes32(0), "Policy Not Found");   
+    require(policyEntity.acstat > ActivityStatus.DELETED, "Policy Deleted");
     require(policyEntity.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
-    require(_doCheckAdminAccess(policyEntity.adminId, memberId, functionId), "Operation Not Permitted");
+
+    require(_doPolicyCheckAdminAccess(policyEntity.adminId, memberId, functionId), "Operation Not Permitted");
 
     if(status == ActivityStatus.DELETED) {    
       BaseAgent storage policyAdminAgent = _data.agents[policyEntity.adminId];
@@ -574,4 +576,5 @@ contract PolicyManager is AclStorage, IPolicyManagement {
         ActionType.REMOVE
       );
     }
+  }
 }

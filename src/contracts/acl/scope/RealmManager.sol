@@ -99,7 +99,7 @@ contract RealmManager is AclStorage, IRealmManagement {
       BaseAgent storage realmAdminAgent = _data.agents[newRealm.bs.adminId];
       require(realmAdminAgent.atype != AgentType.NONE, "Admin Not Found");
       require(realmAdminAgent.acstat > ActivityStatus.DELETED, "Admin Deleted");
-      require(realmAdminAgent.scopelimit > realmAdminAgent.referredByScope, "Illegal Agent ReferredByScope");
+      require(realmAdminAgent.scopeLimit > realmAdminAgent.referredByScope, "Illegal Agent ReferredByScope");
       realmAdminAgent.referredByScope += 1; 
       emit AgentReferredByScopeUpdated(
         msg.sender, 
@@ -178,7 +178,7 @@ contract RealmManager is AclStorage, IRealmManagement {
       BaseAgent storage newBaseAgent = _data.agents[requests[i].adminId];
       require(newBaseAgent.atype != AgentType.NONE, "Admin Not Found");
       require(newBaseAgent.acstat > ActivityStatus.DELETED, "Admin Deleted");
-      require(newBaseAgent.scopelimit > newBaseAgent.referredByScope, "Illegal Agent ReferredByScope");
+      require(newBaseAgent.scopeLimit > newBaseAgent.referredByScope, "Illegal Agent ReferredByScope");
       newBaseAgent.referredByScope += 1;
       emit AgentReferredByScopeUpdated(
         msg.sender, 

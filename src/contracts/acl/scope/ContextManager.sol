@@ -201,6 +201,8 @@ contract ContextManager is AclStorage, IContextManagement {
   ) private returns (bytes32) {
 
     bytes32 memberId = LAclUtils.accountGenerateId(signer);  
+
+    // fetch scope type and scope id of sender
     TypeEntity storage systemAdminType = _data.typeReadSlot(LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID);
     bytes32 signerRoleId = systemAdminType.members[memberId];
     RoleEntity storage signerSystemRole =  _data.roleReadSlot(signerRoleId);

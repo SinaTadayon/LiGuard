@@ -62,10 +62,10 @@ interface IAclCommons {
     bytes32 adminId;
     AgentType atype;
     ActivityStatus acstat;
-    AlterabilityStatus alstat;  
+    AlterabilityStatus alstat;      
     uint16 referredByScope;
     uint16 referredByPolicy;
-    uint16 scopelimit;
+    uint16 scopeLimit;
   }
 
   struct BaseScope {
@@ -149,8 +149,6 @@ interface IAclCommons {
     BaseAgent ba;
     bytes32 scopeId;
     string name;
-    uint32 memberTotal;
-    uint32 memberLimit;
     uint16 roleLimit;
     mapping(bytes32 => bytes32) members;
     LEnumerableSet.Bytes32Set roles;

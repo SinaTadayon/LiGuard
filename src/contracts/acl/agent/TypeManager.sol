@@ -26,11 +26,18 @@ contract TypeManager is AclStorage, ITypeManagement {
   function typeRegister(TypeRegisterRequest[] calldata requests) external returns (bool) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");    
     
+
     address functionFacetId = _data.interfaces[type(ITypeManagement).interfaceId];
     bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, ITypeManagement.typeRegister.selector);    
     require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
     
+    // fetch scope type and scope id of sender
     bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
+    TypeEntity storage agentAdminType = _data.typeReadSlot(LIVELY_VERSE_AGENT_MASTER_TYPE_ID);
+    bytes32 memberRoleId = agentAdminType.members[memberId];
+    RoleEntity storage memberAgentRole =  _data.roleReadSlot(memberRoleId);
+    ScopeType memberScopeType = _data.scopes[memberAgentRole.scopeId].stype;
+
     for(uint i = 0; i < requests.length; i++) {
       bytes32 newTypeId = LAclUtils.generateId(requests[i].name);
       require(_data.agents[newTypeId].atype == AgentType.NONE, "Type Already Exists");
@@ -41,12 +48,27 @@ contract TypeManager is AclStorage, ITypeManagement {
       BaseScope storage requestedScope = _data.scopes[requests[i].scopeId];
       require(requestedScope.stype != ScopeType.NONE , "Scope Not Found");
       require(requestedScope.acstat > ActivityStatus.DELETED , "Scope Is Deleted");
-       
-      // TODO check compatiblity sender scope (function.agentId) with requested type scope
+      require(requestedScope.agentLimit > requestedScope.referredByAgent, "Illegal Scope ReferredByAgent");
 
       // increase referred count to target scope
-      requestedScope.referredByAgent +=1;
-      emit ScopeReferredByAgentUpdated(msg.sender, requests[i].scopeId, newTypeId, requestedScope.referredByAgent, requestedScope.stype, ActionType.ADD);
+      requestedScope.referredByAgent += 1; 
+      emit ScopeReferredByAgentUpdated(
+        msg.sender, 
+        requests[i].scopeId, 
+        newTypeId, 
+        requestedScope.referredByAgent, 
+        requestedScope.stype, 
+        ActionType.ADD
+      );
+            
+      // check sender scope with request scope
+      require(memberScopeType >= requestedScope.stype, "Illegal Sender ScopeType");
+      if(memberScopeType == requestedScope.stype) {
+        require(memberAgentRole.scopeId == requests[i].scopeId, "Illegal Sender Scope");
+
+      } else {
+        require(IAccessControl(address(this)).isScopesCompatible(memberAgentRole.scopeId, requests[i].scopeId), "Illegal Admin Scope");
+      }       
 
       // check access
       require(_doTypeCheckAdminAccess(requestedScope.adminId, memberId, functionId), "Operation Not Permitted");
@@ -70,7 +92,7 @@ contract TypeManager is AclStorage, ITypeManagement {
       } else {
         newType.ba.adminId = requestedScope.adminId;
       }
-            
+                        
       newType.ba.atype = AgentType.TYPE;
       newType.ba.acstat = requests[i].acstat;
       newType.ba.alstat = requests[i].alstat;
@@ -79,8 +101,7 @@ contract TypeManager is AclStorage, ITypeManagement {
       newType.ba.referredByScope = 0;
       newType.scopeId = requests[i].scopeId;
       newType.roleLimit = requests[i].roleLimit;
-      newType.memberLimit = requests[i].memberLimit;
-      newType.memberTotal = 0;
+      newType.ba.scopeLimit = requests[i].scopeLimit;
       newType.name = requests[i].name;
 
       emit TypeRegistered(
@@ -89,8 +110,8 @@ contract TypeManager is AclStorage, ITypeManagement {
         requests[i].scopeId,
         requests[i].adminId,
         requests[i].name,                
-        requests[i].memberLimit,
         requests[i].roleLimit,
+        requests[i].scopeLimit,
         requests[i].acstat,
         requests[i].alstat
       );
@@ -196,22 +217,22 @@ contract TypeManager is AclStorage, ITypeManagement {
     return true;
   }
 
-  function typeUpdateMemberLimit(TypeUpdateMemberLimitRequest[] calldata requests) external returns (bool) {
+  function typeUpdateScopeLimit(AgentUpdateScopeLimitRequest[] calldata requests) external returns (bool) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
 
     address functionFacetId = _data.interfaces[type(ITypeManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, ITypeManagement.typeUpdateMemberLimit.selector);
+    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, ITypeManagement.typeUpdateScopeLimit.selector);
     require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
     
     bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);    
     for (uint256 i = 0; i < requests.length; i++) {
-      TypeEntity storage typeEntity = _data.typeReadSlot(requests[i].typeId);
+      TypeEntity storage typeEntity = _data.typeReadSlot(requests[i].agentId);
       require(typeEntity.ba.acstat > ActivityStatus.DELETED, "Type is Deleted");
       require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Type Update");
       require(_doTypeCheckAdminAccess(typeEntity.ba.adminId, memberId, functionId), "Operation Not Permitted");
 
-      typeEntity.memberLimit = requests[i].memberLimit;
-      emit TypeMemberLimitUpdated(msg.sender, requests[i].typeId, requests[i].memberLimit);
+      typeEntity.ba.scopeLimit = requests[i].scopeLimit;      
+      emit TypeScopeLimitUpdated(msg.sender, requests[i].agentId, requests[i].scopeLimit);
     }
     return true;
   }
@@ -268,10 +289,9 @@ contract TypeManager is AclStorage, ITypeManagement {
     return TypeInfo ({
         scopeId: bytes32(0),
         adminId: bytes32(0),
-        memberLimit: 0,
-        memberTotal: 0,
         roleLimit: 0,
         roleTotal: 0,
+        scopeLimit: 0,
         referredByScope: 0,
         referredByPolicy: 0,
         acstat: ActivityStatus.NONE,
@@ -282,11 +302,10 @@ contract TypeManager is AclStorage, ITypeManagement {
 
     return TypeInfo ({
       scopeId: te.scopeId,
-      adminId: te.ba.adminId,
-      memberLimit: te.memberLimit,
-      memberTotal: te.memberTotal,
+      adminId: te.ba.adminId,      
       roleLimit: te.roleLimit,
       roleTotal: uint16(te.roles.length()),
+      scopeLimit: te.ba.scopeLimit,
       referredByScope: te.ba.referredByScope,
       referredByPolicy: te.ba.referredByPolicy,
       acstat: te.ba.acstat,
@@ -337,7 +356,14 @@ contract TypeManager is AclStorage, ITypeManagement {
       unchecked {
         bs.referredByAgent -= 1;  
       }
-      emit ScopeReferredByAgentUpdated(msg.sender, typeEntity.scopeId, typeId, bs.referredByAgent, bs.stype, ActionType.REMOVE);
+      emit ScopeReferredByAgentUpdated(
+        msg.sender, 
+        typeEntity.scopeId, 
+        typeId, 
+        bs.referredByAgent, 
+        bs.stype, 
+        ActionType.REMOVE
+      );
     }
 
     typeEntity.ba.acstat = status;

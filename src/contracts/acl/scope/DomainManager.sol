@@ -80,7 +80,7 @@ contract DomainManager is AclStorage, IDomainManagement {
       // add reference of admin agent
       BaseAgent storage domainAdminAgent = _data.agents[newDomain.bs.adminId];
       require(domainAdminAgent.acstat > ActivityStatus.DELETED, "Admin Deleted");
-      require(domainAdminAgent.scopelimit > domainAdminAgent.referredByScope, "Illegal Agent ReferredByScope");
+      require(domainAdminAgent.scopeLimit > domainAdminAgent.referredByScope, "Illegal Agent ReferredByScope");
       domainAdminAgent.referredByScope += 1; 
       emit AgentReferredByScopeUpdated(
         msg.sender, 
@@ -191,7 +191,7 @@ contract DomainManager is AclStorage, IDomainManagement {
       // checking new admin Id 
       BaseAgent storage newBaseAgent = _data.agents[requests[i].adminId];
       require(newBaseAgent.acstat > ActivityStatus.DELETED, "Admin Deleted");
-      require(newBaseAgent.scopelimit > newBaseAgent.referredByScope, "Illegal Agent ReferredByScope");
+      require(newBaseAgent.scopeLimit > newBaseAgent.referredByScope, "Illegal Agent ReferredByScope");
       newBaseAgent.referredByScope += 1;
       emit AgentReferredByScopeUpdated(
         msg.sender, 

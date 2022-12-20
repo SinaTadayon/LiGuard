@@ -16,8 +16,8 @@ interface ITypeManagement is IAclCommons {
   struct TypeRegisterRequest {
     bytes32 adminId;          // should role or member in any scope 
     bytes32 scopeId;
-    uint32 memberLimit;
     uint16 roleLimit;
+    uint16 scopeLimit;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
     string name;
@@ -28,18 +28,12 @@ interface ITypeManagement is IAclCommons {
     uint16 roleLimit;
   }
 
-  struct TypeUpdateMemberLimitRequest {
-    bytes32 typeId;
-    uint32 memberLimit;
-  }
-
   struct TypeInfo {
     bytes32 scopeId;
     bytes32 adminId;
-    uint32 memberLimit;
-    uint32 memberTotal;
     uint16 roleLimit;
     uint16 roleTotal;
+    uint16 scopeLimit;
     uint16 referredByScope;
     uint16 referredByPolicy;
     ActivityStatus acstat;
@@ -53,8 +47,8 @@ interface ITypeManagement is IAclCommons {
     bytes32 indexed scopeId,
     bytes32 adminId,
     string name,        
-    uint32 memberLimit,
     uint16 roleLimit,
+    uint16 scopeLimit,
     ActivityStatus acstat,
     AlterabilityStatus alstat
   );
@@ -65,7 +59,7 @@ interface ITypeManagement is IAclCommons {
 
   event TypeRoleLimitUpdated(address indexed sender, bytes32 indexed typeId, uint16 roleLimit);
 
-  event TypeMemberLimitUpdated(address indexed sender, bytes32 indexed typeId, uint32 roleLimit);
+  event TypeScopeLimitUpdated(address indexed sender, bytes32 indexed typeId, uint16 scopeLimit);
 
   event TypeAdminUpdated(address indexed sender, bytes32 indexed typeId, bytes32 indexed adminId);
 
@@ -81,7 +75,7 @@ interface ITypeManagement is IAclCommons {
 
   function typeUpdateRoleLimit(TypeUpdateRoleLimitRequest[] calldata requests) external returns (bool);
 
-  function typeUpdateMemberLimit(TypeUpdateMemberLimitRequest[] calldata requests) external returns (bool);
+  function typeUpdateScopeLimit(AgentUpdateScopeLimitRequest[] calldata requests) external returns (bool);
 
   function typeCheckId(bytes32 typeId) external view returns (bool);
 

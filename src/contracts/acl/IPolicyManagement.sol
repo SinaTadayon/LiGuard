@@ -81,7 +81,7 @@ interface IPolicyManagement is IAclCommons {
 
   event PolicyRoleLimitUpdated(address indexed sender, bytes32 indexed policyId, uint32 roleLimit);
 
-  event PolicyAdminUpdated(address indexed sender, bytes32 indexed policyId, bytes32 indexed adminId);
+  event PolicyAdminUpdated(address indexed sender, bytes32 indexed policyId, bytes32 indexed adminId, AgentType adminType);
 
   function policyRegister(PolicyRegisterRequest[] calldata requests) external returns (bool);
 
