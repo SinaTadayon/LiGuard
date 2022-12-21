@@ -23,21 +23,16 @@ import "../lib/struct/LEnumerableSet.sol";
 contract PolicyManager is AclStorage, IPolicyManagement {
   using LAclStorage for DataCollection;
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
-
+ 
   // called by members of Policy Master type
-  function policyRegister(PolicyRegisterRequest[] calldata requests) external returns (bool) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "Call Rejected");    
-    
-    address functionFacetId = _data.interfaces[type(IPolicyManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IPolicyManagement.policyRegister.selector);    
-    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
-    
-    bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
+  function policyRegister(PolicyRegisterRequest[] calldata requests) external returns (bool) {    
+    _accessPermission(IPolicyManagement.policyRegister.selector);
+        
     for(uint i = 0; i < requests.length; i++) {
       bytes32 newPolicyId = LAclUtils.generateId(requests[i].name);
       require(_data.policies[newPolicyId].acstat == ActivityStatus.NONE , "Policy Already Exist");
-      require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity status");
-      require(requests[i].alstat > AlterabilityStatus.NONE, "Illegal Alterability status");
+      require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
+      require(requests[i].alstat > AlterabilityStatus.NONE, "Illegal Alterability");
 
       // checking requested type scope
       BaseScope storage requestedScope = _data.scopes[requests[i].scopeId];
@@ -48,17 +43,10 @@ contract PolicyManager is AclStorage, IPolicyManagement {
         msg.sender, 
         requests[i].scopeId, 
         newPolicyId, 
-        requestedScope.referredByPolicy, 
-        requestedScope.stype, 
         ActionType.ADD
       );
 
-      // get scope id of sender
-      TypeEntity storage policyMasterType = _data.typeReadSlot(LIVELY_VERSE_POLICY_MASTER_TYPE_ID);
-      bytes32 senderRoleId = policyMasterType.members[memberId];
-      RoleEntity storage senderPolicyRole =  _data.roleReadSlot(senderRoleId);
-      ScopeType senderScopeType = _data.scopes[senderPolicyRole.scopeId].stype;
-      bytes32 senderScopeId = senderPolicyRole.scopeId;
+      (ScopeType senderScopeType, bytes32 senderScopeId) = _getMemberPolicyScopeInfo(msg.sender);
 
       require(requestedScope.stype <= senderScopeType, "Illegal Scope Type");
       if(requestedScope.stype == senderScopeType) {
@@ -75,25 +63,25 @@ contract PolicyManager is AclStorage, IPolicyManagement {
       policyEntity.alstat = requests[i].alstat;
       policyEntity.name = requests[i].name;
       policyEntity.scopeId = requests[i].scopeId;
-      policyEntity.adminId = requests[i].adminId;
       policyEntity.roleLimit = requests[i].roleLimit;
+      policyEntity.adminId = _getPolicyAdmin(requestedScope.stype, requestedScope.adminId, requests[i].scopeId, requests[i].adminId);
 
-      // checking requested type admin       
-      if(requests[i].adminId != bytes32(0)) {
-        BaseAgent storage adminBaseAgent = _data.agents[requests[i].adminId];
-        require(adminBaseAgent.atype > AgentType.MEMBER, "Illegal Admin AgentType");
-        (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(requests[i].adminId);
-        require(requestedScope.stype <= requestAdminScopeType, "Illegal Admin Scope Type");
-        if(requestedScope.stype == requestAdminScopeType) {
-          require(requestAdminScopeId == requests[i].scopeId, "Illegal Amind Scope");
-        } else {
-          require(IAccessControl(address(this)).isScopesCompatible(requestAdminScopeId, requests[i].scopeId), "Illegal Admin Scope");
-        }
-        policyEntity.adminId = requests[i].adminId;
+      // // checking requested type admin       
+      // if(requests[i].adminId != bytes32(0)) {
+      //   BaseAgent storage adminBaseAgent = _data.agents[requests[i].adminId];
+      //   require(adminBaseAgent.atype > AgentType.MEMBER, "Illegal Admin AgentType");
+      //   (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(requests[i].adminId);
+      //   require(requestedScope.stype <= requestAdminScopeType, "Illegal Admin Scope Type");
+      //   if(requestedScope.stype == requestAdminScopeType) {
+      //     require(requestAdminScopeId == requests[i].scopeId, "Illegal Amind Scope");
+      //   } else {
+      //     require(IAccessControl(address(this)).isScopesCompatible(requestAdminScopeId, requests[i].scopeId), "Illegal Admin Scope");
+      //   }
+      //   policyEntity.adminId = requests[i].adminId;
 
-      } else {
-        policyEntity.adminId = requestedScope.adminId;
-      }
+      // } else {
+      //   policyEntity.adminId = requestedScope.adminId;
+      // }
       
       // add reference of admin agent
       BaseAgent storage policyAdminAgent = _data.agents[policyEntity.adminId];
@@ -104,8 +92,6 @@ contract PolicyManager is AclStorage, IPolicyManagement {
         msg.sender, 
         policyEntity.adminId,
         newPolicyId, 
-        policyAdminAgent.referredByPolicy, 
-        policyAdminAgent.atype, 
         ActionType.ADD
       );
 
@@ -114,12 +100,7 @@ contract PolicyManager is AclStorage, IPolicyManagement {
         newPolicyId,
         requests[i].scopeId, 
         requests[i].adminId,
-        requests[i].name,
-        requests[i].roleLimit,
-        requests[i].policyCode, 
-        policyEntity.ptype,
-        requests[i].acstat,
-        requests[i].alstat
+        requests[i].policyCode
       );
     }
 
@@ -127,27 +108,15 @@ contract PolicyManager is AclStorage, IPolicyManagement {
   }
 
   // called by policy admin
-  function policyAddRoles(PolicyAddRolesRequest[] calldata requests) external returns (bool) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "Call Rejected");    
-    
-    address functionFacetId = _data.interfaces[type(IPolicyManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IPolicyManagement.policyAddRoles.selector);    
-    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
-    
+  function policyAddRoles(PolicyAddRolesRequest[] calldata requests) external returns (bool) {    
+
+    bytes32 functionId = _accessPermission(IPolicyManagement.policyAddRoles.selector);            
     bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {
-      PolicyEntity storage policyEntity = _data.policies[requests[i].policyId];
-      require(policyEntity.adminId != bytes32(0), "Policy Not Found");      
-      require(policyEntity.acstat > ActivityStatus.DELETED, "Policy Deleted");
-      require(policyEntity.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update Policy");
-
-      // check access admin role
-      require(_doPolicyCheckAdminAccess(policyEntity.adminId, memberId, functionId), "Operation Not Permitted");
-
+      PolicyEntity storage policyEntity = _doGetPolicyAndCheckAdminAccess(requests[i].policyId, memberId, functionId);      
       ScopeType policyScopeType = _data.scopes[policyEntity.scopeId].stype;
 
       for (uint256 j = 0; j < requests[i].roles.length; j++) {
-        // require(!policyEntity.roles.contains(requests[i].roles[j]), "Role Already Exist");
         require(_data.rolePolicyMap[requests[i].roles[j]] == bytes32(0), "Role Already Exist");        
         RoleEntity storage roleEntity = _data.roleReadSlot(requests[i].roles[j]);
         require(roleEntity.ba.atype == AgentType.ROLE, "Invalid Role Entity");
@@ -157,8 +126,6 @@ contract PolicyManager is AclStorage, IPolicyManagement {
           msg.sender, 
           policyEntity.adminId,
           requests[i].policyId, 
-          roleEntity.ba.referredByPolicy, 
-          roleEntity.ba.atype, 
           ActionType.ADD
         );
 
@@ -180,21 +147,11 @@ contract PolicyManager is AclStorage, IPolicyManagement {
 
   // called by policy admin
   function policyRemoveRoles(PolicyRemoveRolesRequest[] calldata requests) external returns (bool) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "Call Rejected");    
-    
-    address functionFacetId = _data.interfaces[type(IPolicyManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IPolicyManagement.policyRemoveRoles.selector);    
-    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
-    
+
+    bytes32 functionId = _accessPermission(IPolicyManagement.policyRemoveRoles.selector);
     bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {
-      PolicyEntity storage policyEntity = _data.policies[requests[i].policyId];
-      require(policyEntity.adminId != bytes32(0), "Policy Not Found");      
-      require(policyEntity.acstat > ActivityStatus.DELETED, "Policy Deleted");
-      require(policyEntity.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update Policy");
-
-      // check access admin role
-      require(_doPolicyCheckAdminAccess(policyEntity.adminId, memberId, functionId), "Operation Not Permitted");
+      PolicyEntity storage policyEntity = _doGetPolicyAndCheckAdminAccess(requests[i].policyId, memberId, functionId);
 
       for (uint256 j = 0; j < requests[i].roles.length && j < 32; j++) {
         require(policyEntity.roles.contains(requests[i].roles[j]), "Role Not Found");
@@ -205,8 +162,6 @@ contract PolicyManager is AclStorage, IPolicyManagement {
           msg.sender, 
           policyEntity.adminId,
           requests[i].policyId, 
-          roleEntity.ba.referredByPolicy, 
-          roleEntity.ba.atype, 
           ActionType.REMOVE
         );
 
@@ -219,21 +174,11 @@ contract PolicyManager is AclStorage, IPolicyManagement {
   }
 
   function policyUpdateCodes(PolicyUpdateCodeRequest[] calldata requests) external returns (bool) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "Call Rejected");    
-    
-    address functionFacetId = _data.interfaces[type(IPolicyManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IPolicyManagement.policyUpdateCodes.selector);    
-    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
-    
+
+    bytes32 functionId = _accessPermission(IPolicyManagement.policyUpdateCodes.selector);
     bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {
-      PolicyEntity storage policyEntity = _data.policies[requests[i].policyId];
-      require(policyEntity.adminId != bytes32(0), "Policy Not Found");      
-      require(policyEntity.acstat > ActivityStatus.DELETED, "Policy Deleted");
-      require(policyEntity.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update Policy");
-
-      // check access admin role
-      require(_doPolicyCheckAdminAccess(policyEntity.adminId, memberId, functionId), "Operation Not Permitted");
+      PolicyEntity storage policyEntity = _doGetPolicyAndCheckAdminAccess(requests[i].policyId, memberId, functionId);
 
       policyEntity.policyCode = requests[i].policyCode;
       policyEntity.ptype = _doGetPolicyType(requests[i].policyCode);
@@ -243,22 +188,12 @@ contract PolicyManager is AclStorage, IPolicyManagement {
   }
 
   function policyUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "Call Rejected");    
-    
-    address functionFacetId = _data.interfaces[type(IPolicyManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IPolicyManagement.policyUpdateAdmin.selector);    
-    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
-    
+
+    bytes32 functionId = _accessPermission(IPolicyManagement.policyUpdateAdmin.selector);   
     bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {
-      PolicyEntity storage policyEntity = _data.policies[requests[i].id];
-      require(policyEntity.adminId != bytes32(0), "Policy Not Found");      
-      require(policyEntity.acstat > ActivityStatus.DELETED, "Policy Deleted");
-      require(policyEntity.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update Policy");
-
-      // check access admin role
-      require(_doPolicyCheckAdminAccess(policyEntity.adminId, memberId, functionId), "Operation Not Permitted");
-
+      PolicyEntity storage policyEntity = _doGetPolicyAndCheckAdminAccess(requests[i].id, memberId, functionId);
+      
        // update function admin Id
       BaseAgent storage policyAdminAgent = _data.agents[policyEntity.adminId];
       require(policyAdminAgent.referredByPolicy > 0, "Illegal Admin ReferredByScope");
@@ -267,29 +202,28 @@ contract PolicyManager is AclStorage, IPolicyManagement {
         msg.sender, 
         policyEntity.adminId, 
         requests[i].id, 
-        policyAdminAgent.referredByScope, 
-        policyAdminAgent.atype, 
         ActionType.REMOVE
       );
 
       // checking requested type admin       
-      if(requests[i].adminId != bytes32(0)) {
-        BaseAgent storage adminBaseAgent = _data.agents[requests[i].adminId];
-        require(adminBaseAgent.atype > AgentType.MEMBER, "Illegal Admin AgentType");
-        (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(requests[i].adminId);
-        ScopeType policyScopeType = _data.scopes[policyEntity.scopeId].stype;
-        require(policyScopeType <= requestAdminScopeType, "Illegal Admin Scope Type");
-        if(policyScopeType == requestAdminScopeType) {
-          require(requestAdminScopeId == policyEntity.scopeId, "Illegal Amind Scope");
-        } else {
-          require(IAccessControl(address(this)).isScopesCompatible(requestAdminScopeId, policyEntity.scopeId), "Illegal Admin Scope");
-        }
-        policyEntity.adminId = requests[i].adminId;
+      // if(requests[i].adminId != bytes32(0)) {
+      //   BaseAgent storage adminBaseAgent = _data.agents[requests[i].adminId];
+      //   require(adminBaseAgent.atype > AgentType.MEMBER, "Illegal Admin AgentType");
+      //   (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(requests[i].adminId);
+      //   ScopeType policyScopeType = _data.scopes[policyEntity.scopeId].stype;
+      //   require(policyScopeType <= requestAdminScopeType, "Illegal Admin Scope Type");
+      //   if(policyScopeType == requestAdminScopeType) {
+      //     require(requestAdminScopeId == policyEntity.scopeId, "Illegal Amind Scope");
+      //   } else {
+      //     require(IAccessControl(address(this)).isScopesCompatible(requestAdminScopeId, policyEntity.scopeId), "Illegal Admin Scope");
+      //   }
+      //   policyEntity.adminId = requests[i].adminId;
 
-      } else {
-        policyEntity.adminId = _data.scopes[policyEntity.scopeId].adminId;
-      }
+      // } else {
+      //   policyEntity.adminId = _data.scopes[policyEntity.scopeId].adminId;
+      // }
       
+      policyEntity.adminId = _getPolicyAdmin(_data.scopes[policyEntity.scopeId].stype, _data.scopes[policyEntity.scopeId].adminId, policyEntity.scopeId, requests[i].adminId);
 
       // checking new admin Id 
       BaseAgent storage newBaseAgent = _data.agents[requests[i].adminId];
@@ -300,19 +234,16 @@ contract PolicyManager is AclStorage, IPolicyManagement {
         msg.sender, 
         requests[i].adminId, 
         requests[i].id, 
-        newBaseAgent.referredByPolicy, 
-        newBaseAgent.atype, 
         ActionType.ADD
       );  
 
-      emit PolicyAdminUpdated(msg.sender, requests[i].id, requests[i].adminId, newBaseAgent.atype);
+      emit PolicyAdminUpdated(msg.sender, requests[i].id, requests[i].adminId);
     }
     return true;
   }
  
   function policyDeleteActivity(bytes32[] calldata requests) external returns (bool) {
-    address functionFacetId = _data.interfaces[type(IPolicyManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IPolicyManagement.policyDeleteActivity.selector);
+    bytes32 functionId = _accessPermission(IPolicyManagement.policyDeleteActivity.selector);   
     for(uint i = 0; i < requests.length; i++) {
       _doPolicyUpdateActivityStatus(requests[i], ActivityStatus.DELETED, functionId);
     }
@@ -320,8 +251,7 @@ contract PolicyManager is AclStorage, IPolicyManagement {
   }
 
   function policyUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
-    address functionFacetId = _data.interfaces[type(IPolicyManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IPolicyManagement.policyUpdateActivityStatus.selector);
+    bytes32 functionId = _accessPermission(IPolicyManagement.policyUpdateActivityStatus.selector);   
     for(uint i = 0; i < requests.length; i++) {
       require(requests[i].acstat != ActivityStatus.DELETED, "Illegal Activity");
       _doPolicyUpdateActivityStatus(requests[i].id, requests[i].acstat, functionId);
@@ -330,18 +260,10 @@ contract PolicyManager is AclStorage, IPolicyManagement {
   }
 
   function policyUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
-   require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "Call Rejected");
-    
-    address functionFacetId = _data.interfaces[type(IPolicyManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IPolicyManagement.policyUpdateAlterabilityStatus.selector); 
-    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied"); 
-
+    bytes32 functionId = _accessPermission(IPolicyManagement.policyUpdateAdmin.selector);   
     bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
-    for(uint i = 0; i < requests.length; i++) {      
-      PolicyEntity storage policyEntity = _data.policies[requests[i].id];
-      require(policyEntity.adminId != bytes32(0), "Policy Not Found");      
-      require(policyEntity.acstat > ActivityStatus.DELETED, "Realm Deleted");
-      require(_doPolicyCheckAdminAccess(policyEntity.adminId, memberId, functionId), "Operation Not Permitted");
+    for(uint i = 0; i < requests.length; i++) {
+      PolicyEntity storage policyEntity = _doGetPolicyAndCheckAdminAccess(requests[i].id, memberId, functionId);
 
       policyEntity.alstat = requests[i].alstat;
       emit PolicyAlterabilityUpdated(msg.sender, requests[i].id, requests[i].alstat);
@@ -350,19 +272,10 @@ contract PolicyManager is AclStorage, IPolicyManagement {
   }
 
   function policyUpdatesRoleLimit(PolicyUpdateRoleLimitRequest[] calldata requests) external returns (bool) {
-     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "Call Rejected");
-
-    address functionFacetId = _data.interfaces[type(IPolicyManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IPolicyManagement.policyUpdatesRoleLimit.selector);
-    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
-    
-    bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);    
-    for (uint256 i = 0; i < requests.length; i++) {
-      PolicyEntity storage policyEntity = _data.policies[requests[i].policyId];
-      require(policyEntity.adminId != bytes32(0), "Policy Not Found");      
-      require(policyEntity.acstat > ActivityStatus.DELETED, "Function Deleted");
-      require(policyEntity.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
-      require(_doPolicyCheckAdminAccess(policyEntity.adminId, memberId, functionId), "Operation Not Permitted");
+    bytes32 functionId = _accessPermission(IPolicyManagement.policyUpdateAdmin.selector);   
+    bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
+    for(uint i = 0; i < requests.length; i++) {
+      PolicyEntity storage policyEntity = _doGetPolicyAndCheckAdminAccess(requests[i].policyId, memberId, functionId);
 
       policyEntity.roleLimit = requests[i].roleLimit;      
       emit PolicyRoleLimitUpdated(msg.sender, requests[i].policyId, requests[i].roleLimit);
@@ -551,17 +464,8 @@ contract PolicyManager is AclStorage, IPolicyManagement {
   }
 
   function _doPolicyUpdateActivityStatus(bytes32 policyId, ActivityStatus status, bytes32 functionId) internal returns (bool) {
-
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "Call Rejected");
-    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied"); 
-
     bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
-    PolicyEntity storage policyEntity = _data.policies[policyId];
-    require(policyEntity.adminId != bytes32(0), "Policy Not Found");   
-    require(policyEntity.acstat > ActivityStatus.DELETED, "Policy Deleted");
-    require(policyEntity.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
-
-    require(_doPolicyCheckAdminAccess(policyEntity.adminId, memberId, functionId), "Operation Not Permitted");
+    PolicyEntity storage policyEntity = _doGetPolicyAndCheckAdminAccess(policyId, memberId, functionId);
 
     if(status == ActivityStatus.DELETED) {    
       BaseAgent storage policyAdminAgent = _data.agents[policyEntity.adminId];
@@ -571,10 +475,57 @@ contract PolicyManager is AclStorage, IPolicyManagement {
         msg.sender, 
         policyEntity.adminId,
         functionId, 
-        policyAdminAgent.referredByPolicy, 
-        policyAdminAgent.atype,
         ActionType.REMOVE
       );
     }
+    return true;
+  }
+
+  function _accessPermission(bytes4 selector) internal returns (bytes32) {
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
+    
+    address functionFacetId = _data.interfaces[type(IPolicyManagement).interfaceId];
+    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, selector);    
+    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
+    return functionId;
+  }
+
+  function _getMemberPolicyScopeInfo(address account) internal view returns (ScopeType, bytes32){
+    bytes32 memberId = LAclUtils.accountGenerateId(account);  
+
+    // get scope id of sender
+    TypeEntity storage policyMasterType = _data.typeReadSlot(LIVELY_VERSE_POLICY_MASTER_TYPE_ID);
+    bytes32 senderRoleId = policyMasterType.members[memberId];
+    RoleEntity storage senderPolicyRole =  _data.roleReadSlot(senderRoleId);
+    return (_data.scopes[senderPolicyRole.scopeId].stype, senderPolicyRole.scopeId);
+  }
+
+  function _getPolicyAdmin(ScopeType requestScopeType, bytes32 requestScopeAdmin, bytes32 scopeId, bytes32 adminId) internal view returns (bytes32 policyAdminId) {
+  // checking requested type admin       
+    if(adminId != bytes32(0)) {
+      require(_data.agents[adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
+      (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(adminId);
+      require(requestScopeType <= requestAdminScopeType, "Illegal Admin ScopeType");
+      if(requestScopeType == requestAdminScopeType) {
+        require(requestAdminScopeId == scopeId, "Illegal Amind Scope");
+      } else {
+        require(IAccessControl(address(this)).isScopesCompatible(requestAdminScopeId, scopeId), "Illegal Admin Scope");
+      }
+      policyAdminId = adminId;
+
+    } else {
+      policyAdminId = requestScopeAdmin;
+    }      
+  }
+  
+  function _doGetPolicyAndCheckAdminAccess(bytes32 policyId, bytes32 memberId, bytes32 functionId) internal view returns (PolicyEntity storage) {
+      PolicyEntity storage policyEntity = _data.policies[policyId];
+      require(policyEntity.adminId != bytes32(0), "Policy Not Found");      
+      require(policyEntity.acstat > ActivityStatus.DELETED, "Policy Deleted");
+      require(policyEntity.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
+
+      // check access admin role
+      require(_doPolicyCheckAdminAccess(policyEntity.adminId, memberId, functionId), "Forbidden");
+      return policyEntity;
   }
 }

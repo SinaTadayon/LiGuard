@@ -29,7 +29,7 @@ contract Proxy is BaseUUPSStorage, BaseProxy {
     assert(_IMPLEMENTATION_SLOT == bytes32(uint256(keccak256("eip1967.proxy.implementation")) - 1));
     assert(_ADMIN_SLOT == bytes32(uint256(keccak256("eip1967.proxy.admin")) - 1));
     LStorageSlot.getAddressSlot(_ADMIN_SLOT).value = msg.sender;
-    _acstat = ActivityStatus.SAFE_MODE;
+    _sstat = ProxySafeModeStatus.DISABLED;
     _upgradeToAndCallUUPS(logic, data, false);
   }
 
@@ -93,15 +93,15 @@ contract Proxy is BaseUUPSStorage, BaseProxy {
       return new bytes(0);
     } else {
       try IERC1822Proxiable(newImplementation).proxiableUUID() returns (bytes32 slot) {
-        require(slot == _IMPLEMENTATION_SLOT, "Invalid UUPS Contract");
+        require(slot == _IMPLEMENTATION_SLOT, "Invalid UUPS");
       } catch {
-        revert("Illegal UUPS Contract");
+        revert("Illegal UUPS");
       }
 
       try IERC165(newImplementation).supportsInterface(type(IProxy).interfaceId) returns (bool isSupported) {
-        require(isSupported, "Invalid IProxy Contract");
+        require(isSupported, "Invalid IProxy");
       } catch {
-        revert("Illegal IProxy Contract");
+        revert("Illegal IProxy");
       }
       return _upgradeToAndCall(newImplementation, data, forceCall);
     }

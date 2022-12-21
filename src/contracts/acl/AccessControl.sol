@@ -154,14 +154,14 @@ contract AccessControl is AclStorage, IAccessControl {
   }
 
   // scope master type
-  // function getScopeMasterType() external pure returns (bytes32) {
-  //   return LIVELY_VERSE_SCOPE_MASTER_TYPE_ID;
-  // }
+  function getScopeMasterType() external pure returns (bytes32) {
+    return LIVELY_VERSE_SCOPE_MASTER_TYPE_ID;
+  }
 
-  // // agent master type
-  // function getAgentMasterType() external pure returns (bytes32) {
-  //   return LIVELY_VERSE_AGENT_MASTER_TYPE_ID;
-  // }
+  // agent master type
+  function getAgentMasterType() external pure returns (bytes32) {
+    return LIVELY_VERSE_AGENT_MASTER_TYPE_ID;
+  }
 
   // system admin type
   function getSystemAdminType() external pure returns (bytes32) {
@@ -173,10 +173,10 @@ contract AccessControl is AclStorage, IAccessControl {
     return LIVELY_VERSE_ADMIN_TYPE_ID;
   }
 
-  // // Policy Master
-  // function getPolicyMasterType() external pure returns (bytes32) {
-  //   return LIVELY_VERSE_POLICY_MASTER_TYPE_ID;
-  // }
+  // Policy Master
+  function getPolicyMasterType() external pure returns (bytes32) {
+    return LIVELY_VERSE_POLICY_MASTER_TYPE_ID;
+  }
 
   // general
   function isAgentExist(bytes32 agentId) external view returns (bool) {

@@ -29,7 +29,7 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "Upgraded",
+    name: "ProxyUpgraded",
     type: "event",
   },
 ];

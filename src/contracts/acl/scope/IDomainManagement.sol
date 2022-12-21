@@ -43,16 +43,10 @@ interface IDomainManagement is IAclCommons {
   event DomainRegistered(
     address indexed sender, 
     bytes32 indexed domainId,
-    bytes32 indexed adminId,
-    uint16 realmLimit,
-    uint16 agentLimit,
-    AgentType adminType,
-    ActivityStatus acstat,
-    AlterabilityStatus alstate,
-    string name
+    bytes32 indexed adminId
   );
   
-  event DomainAdminUpdated(address indexed sender, bytes32 indexed domainId, bytes32 indexed adminId, AgentType adminType);
+  event DomainAdminUpdated(address indexed sender, bytes32 indexed domainId, bytes32 indexed adminId);
 
   event DomainRealmLimitUpdated(address indexed sender, bytes32 indexed domainId, uint16 realmLimit);
 

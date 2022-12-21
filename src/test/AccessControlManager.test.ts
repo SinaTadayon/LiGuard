@@ -319,14 +319,14 @@ describe("AccessControlManager Tests", function () {
     it("Should enable UpgradeState of proxy by admin failed when not initialized", async () => {
       // when and then
       await expect(accessControlManagerProxy.connect(admin).setUpgradeStatus(true)).to.revertedWith(
-        "SafeMode: Call Rejected"
+        "Rejected"
       );
     });
 
     it("Should setLocalAdmin of proxy by admin failed when not initialized", async () => {
       // when and then
       await expect(accessControlManagerProxy.connect(admin).setLocalAdmin(userAddress1)).to.revertedWith(
-        "SafeMode: Call Rejected"
+        "Rejected"
       );
     });
 
@@ -337,7 +337,7 @@ describe("AccessControlManager Tests", function () {
       // when and then
       await expect(
         accessControlManagerProxy.connect(admin).upgradeTo(accessControlManagerSubject.address, typedArray1, false)
-      ).to.revertedWith("SafeMode: Call Rejected");
+      ).to.revertedWith("Rejected");
     });
 
     it("Should deploy and initialize proxy success (etherjs)", async () => {
@@ -553,14 +553,14 @@ describe("AccessControlManager Tests", function () {
       await expect(accessControlManagerProxy.proxiableUUID()).to.be.revertedWith("Illegal Contract Delegatecall");
     });
 
-    it("Should upgrade proxy  raise 'Upgrade Call Rejected' exception", async () => {
+    it("Should upgrade proxy  raise 'Upgrade Rejected' exception", async () => {
       // given
       const typedArray1 = new Int8Array(0);
 
       // when and then
       await expect(
         accessControlManagerProxy.connect(admin).upgradeTo(accessControlManagerSubject.address, typedArray1, false)
-      ).to.be.revertedWith("Upgrade Call Rejected");
+      ).to.be.revertedWith("Upgrade Rejected");
     });
 
     it("Should enable Upgrade Status of proxy by user1 failed", async () => {
@@ -713,7 +713,7 @@ describe("AccessControlManager Tests", function () {
 
       // when and then
       await expect(accessControlManagerProxy.connect(admin).setLocalAdmin(address)).to.revertedWith(
-        "SafeMode: Call Rejected"
+        "Rejected"
       );
     });
 

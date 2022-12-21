@@ -24,31 +24,23 @@ contract TypeManager is AclStorage, ITypeManagement {
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
 
   function typeRegister(TypeRegisterRequest[] calldata requests) external returns (bool) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");    
-    
-
-    address functionFacetId = _data.interfaces[type(ITypeManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, ITypeManagement.typeRegister.selector);    
-    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
+    bytes32 functionId = _accessPermission(ITypeManagement.typeRegister.selector);
+    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
     
     // fetch scope type and scope id of sender
-    bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
-    TypeEntity storage agentAdminType = _data.typeReadSlot(LIVELY_VERSE_AGENT_MASTER_TYPE_ID);
-    bytes32 memberRoleId = agentAdminType.members[memberId];
-    RoleEntity storage memberAgentRole =  _data.roleReadSlot(memberRoleId);
-    ScopeType memberScopeType = _data.scopes[memberAgentRole.scopeId].stype;
-
+    (ScopeType memberScopeType, bytes32 memberScopeId) = _doGetMemberScopeInfoFromType(LIVELY_VERSE_AGENT_MASTER_TYPE_ID, senderId);    
+    
     for(uint i = 0; i < requests.length; i++) {
       bytes32 newTypeId = LAclUtils.generateId(requests[i].name);
-      require(_data.agents[newTypeId].atype == AgentType.NONE, "Type Already Exists");
-      require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity status");
-      require(requests[i].alstat > AlterabilityStatus.NONE, "Illegal Alterability status");
+      require(_data.agents[newTypeId].atype == AgentType.NONE, "Already Exists");
+      require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
+      require(requests[i].alstat > AlterabilityStatus.NONE, "Illegal Alterability");
 
       // checking requested type scope
       BaseScope storage requestedScope = _data.scopes[requests[i].scopeId];
-      require(requestedScope.stype != ScopeType.NONE , "Scope Not Found");
-      require(requestedScope.acstat > ActivityStatus.DELETED , "Scope Is Deleted");
-      require(requestedScope.agentLimit > requestedScope.referredByAgent, "Illegal Scope ReferredByAgent");
+      require(requestedScope.stype != ScopeType.NONE , "Not Found");
+      require(requestedScope.acstat > ActivityStatus.DELETED , "Scope Deleted");
+      require(requestedScope.agentLimit > requestedScope.referredByAgent, "Illegal Referred");
 
       // increase referred count to target scope
       requestedScope.referredByAgent += 1; 
@@ -56,102 +48,91 @@ contract TypeManager is AclStorage, ITypeManagement {
         msg.sender, 
         requests[i].scopeId, 
         newTypeId, 
-        requestedScope.referredByAgent, 
-        requestedScope.stype, 
         ActionType.ADD
       );
             
       // check sender scope with request scope
       require(memberScopeType >= requestedScope.stype, "Illegal Sender ScopeType");
       if(memberScopeType == requestedScope.stype) {
-        require(memberAgentRole.scopeId == requests[i].scopeId, "Illegal Sender Scope");
+        require(memberScopeId == requests[i].scopeId, "Illegal Sender Scope");
 
       } else {
-        require(IAccessControl(address(this)).isScopesCompatible(memberAgentRole.scopeId, requests[i].scopeId), "Illegal Admin Scope");
+        require(IAccessControl(address(this)).isScopesCompatible(memberScopeId, requests[i].scopeId), "Illegal Admin Scope");
       }       
 
       // check access
-      require(_doTypeCheckAdminAccess(requestedScope.adminId, memberId, functionId), "Operation Not Permitted");
+      require(_doCheckAdminAccess(requestedScope.adminId, senderId, functionId), "Forbidden");
      
       // create new type
       TypeEntity storage newType = _data.typeWriteSlot(newTypeId);
-
-      // checking requested type admin 
-      if(requests[i].adminId != bytes32(0)) {
-        BaseAgent storage adminBaseAgent = _data.agents[requests[i].adminId];
-        require(adminBaseAgent.atype > AgentType.MEMBER, "Illegal Admin AgentType");
-        (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(requests[i].adminId);
-        require(requestedScope.stype <= requestAdminScopeType, "Illegal Admin Scope Type");
-        if(requestedScope.stype == requestAdminScopeType) {
-          require(requestAdminScopeId == requests[i].scopeId, "Illegal Amind Scope");
-        } else {
-          require(IAccessControl(address(this)).isScopesCompatible(requestAdminScopeId, requests[i].scopeId), "Illegal Admin Scope");
-        }
-        newType.ba.adminId = requests[i].adminId;
-
-      } else {
-        newType.ba.adminId = requestedScope.adminId;
-      }
-                        
       newType.ba.atype = AgentType.TYPE;
       newType.ba.acstat = requests[i].acstat;
       newType.ba.alstat = requests[i].alstat;
       newType.ba.adminId = requests[i].adminId;
-      newType.ba.referredByPolicy = 0;
-      newType.ba.referredByScope = 0;
       newType.scopeId = requests[i].scopeId;
       newType.roleLimit = requests[i].roleLimit;
       newType.ba.scopeLimit = requests[i].scopeLimit;
       newType.name = requests[i].name;
+      newType.ba.adminId = _getTypeAdmin(requestedScope.stype, requestedScope.adminId, requests[i].scopeId, requests[i].adminId);
 
+      // // checking requested type admin 
+      // if(requests[i].adminId != bytes32(0)) {
+      //   BaseAgent storage adminBaseAgent = _data.agents[requests[i].adminId];
+      //   require(adminBaseAgent.atype > AgentType.MEMBER, "Illegal Admin AgentType");
+      //   (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(requests[i].adminId);
+      //   require(requestedScope.stype <= requestAdminScopeType, "Illegal Admin ScopeType");
+      //   if(requestedScope.stype == requestAdminScopeType) {
+      //     require(requestAdminScopeId == requests[i].scopeId, "Illegal Amind Scope");
+      //   } else {
+      //     require(IAccessControl(address(this)).isScopesCompatible(requestAdminScopeId, requests[i].scopeId), "Illegal Admin Scope");
+      //   }
+      //   newType.ba.adminId = requests[i].adminId;
+
+      // } else {
+      //   newType.ba.adminId = requestedScope.adminId;
+      // }
+                        
       emit TypeRegistered(
         msg.sender,
         newTypeId,
         requests[i].scopeId,
-        requests[i].adminId,
-        requests[i].name,                
-        requests[i].roleLimit,
-        requests[i].scopeLimit,
-        requests[i].acstat,
-        requests[i].alstat
+        requests[i].adminId
       );
     }
     return true;
   }
 
   function typeUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
+    bytes32 functionId = _accessPermission(ITypeManagement.typeUpdateAdmin.selector);
+    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
     
-    address functionFacetId = _data.interfaces[type(ITypeManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, ITypeManagement.typeUpdateAdmin.selector);
-    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
-
-    bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {
-      TypeEntity storage typeEntity = _data.typeReadSlot(requests[i].id);
-      require(typeEntity.ba.acstat > ActivityStatus.DELETED, "Type is Deleted");
-      require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Type Update");
+      TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
 
-      // check access admin role
-      require(_doTypeCheckAdminAccess(typeEntity.ba.adminId, memberId, functionId), "Operation Not Permitted");
+      // checking requested type admin   
+      typeEntity.ba.adminId = _getTypeAdmin(
+        _data.scopes[typeEntity.scopeId].stype, 
+        _data.scopes[typeEntity.scopeId].adminId, 
+        typeEntity.scopeId, 
+        requests[i].adminId
+      );
 
-      // checking requested type admin 
-      (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(requests[i].adminId);
-      if(requests[i].adminId != bytes32(0)) {
-        ScopeType typeScopeType = _data.scopes[typeEntity.scopeId].stype;
-        BaseAgent storage adminBaseAgent = _data.agents[requests[i].adminId];
-        require(adminBaseAgent.atype > AgentType.MEMBER, "Illegal Admin AgentType");
-        require(typeScopeType <= requestAdminScopeType, "Illegal Admin Scope Type");
-        if(typeScopeType == requestAdminScopeType) {
-          require(requestAdminScopeId == typeEntity.scopeId, "Illegal Amind Scope");
-        } else {
-          require(IAccessControl(address(this)).isScopesCompatible(requestAdminScopeId, typeEntity.scopeId), "Illegal Admin Scope");
-        }
-        typeEntity.ba.adminId = requests[i].adminId;
+      // (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(requests[i].adminId);
+      // if(requests[i].adminId != bytes32(0)) {
+      //   ScopeType typeScopeType = _data.scopes[typeEntity.scopeId].stype;
+      //   BaseAgent storage adminBaseAgent = _data.agents[requests[i].adminId];
+      //   require(adminBaseAgent.atype > AgentType.MEMBER, "Illegal Admin AgentType");
+      //   require(typeScopeType <= requestAdminScopeType, "Illegal Admin ScopeType");
+      //   if(typeScopeType == requestAdminScopeType) {
+      //     require(requestAdminScopeId == typeEntity.scopeId, "Illegal Amind Scope");
+      //   } else {
+      //     require(IAccessControl(address(this)).isScopesCompatible(requestAdminScopeId, typeEntity.scopeId), "Illegal Admin Scope");
+      //   }
+      //   typeEntity.ba.adminId = requests[i].adminId;
 
-      } else {
-        typeEntity.ba.adminId = _data.scopes[requestAdminScopeId].adminId;
-      }
+      // } else {
+      //   typeEntity.ba.adminId = _data.scopes[requestAdminScopeId].adminId;
+      // }
 
       emit TypeAdminUpdated(msg.sender, requests[i].id, requests[i].adminId);
     }
@@ -159,8 +140,7 @@ contract TypeManager is AclStorage, ITypeManagement {
   }
 
   function typeDeleteActivity(bytes32[]  calldata requests) external returns (bool) {
-    address functionFacetId = _data.interfaces[type(ITypeManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, ITypeManagement.typeDeleteActivity.selector);
+    bytes32 functionId = _accessPermission(ITypeManagement.typeDeleteActivity.selector);
     for(uint i = 0; i < requests.length; i++) {
       _doTypeUpdateActivityStatus(requests[i], ActivityStatus.DELETED, functionId);
     }
@@ -168,28 +148,19 @@ contract TypeManager is AclStorage, ITypeManagement {
   }
 
   function typeUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
-    address functionFacetId = _data.interfaces[type(ITypeManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, ITypeManagement.typeUpdateActivityStatus.selector);
+    bytes32 functionId = _accessPermission(ITypeManagement.typeUpdateActivityStatus.selector);
     for(uint i = 0; i < requests.length; i++) {
-      require(requests[i].acstat != ActivityStatus.DELETED, "Illegal Activity Status");
+      require(requests[i].acstat != ActivityStatus.DELETED, "Illegal Activity");
       _doTypeUpdateActivityStatus(requests[i].id, requests[i].acstat, functionId);
     }
     return true;
   }
 
   function typeUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
-    
-    address functionFacetId = _data.interfaces[type(ITypeManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, ITypeManagement.typeUpdateAlterabilityStatus.selector); 
-    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied"); 
-
-    bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
+    bytes32 functionId = _accessPermission(ITypeManagement.typeUpdateAlterabilityStatus.selector);
+    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {      
-      TypeEntity storage typeEntity = _data.typeReadSlot(requests[i].id);
-      require(typeEntity.ba.acstat > ActivityStatus.DELETED, "Type Is Deleted");
-      require(_doTypeCheckAdminAccess(typeEntity.ba.adminId, memberId, functionId), "Operation Not Permitted");
-
+      TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
     
       typeEntity.ba.alstat = requests[i].alstat;
       emit TypeAlterabilityUpdated(msg.sender, requests[i].id, requests[i].alstat);
@@ -198,18 +169,11 @@ contract TypeManager is AclStorage, ITypeManagement {
   }
 
   function typeUpdateRoleLimit(TypeUpdateRoleLimitRequest[] calldata requests) external returns (bool) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
+    bytes32 functionId = _accessPermission(ITypeManagement.typeUpdateRoleLimit.selector);
+    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
 
-    address functionFacetId = _data.interfaces[type(ITypeManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, ITypeManagement.typeUpdateRoleLimit.selector);
-    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
-    
-    bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);    
     for (uint256 i = 0; i < requests.length; i++) {
-      TypeEntity storage typeEntity = _data.typeReadSlot(requests[i].typeId);
-      require(typeEntity.ba.acstat > ActivityStatus.DELETED, "Type is Deleted");
-      require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Type Update");
-      require(_doTypeCheckAdminAccess(typeEntity.ba.adminId, memberId, functionId), "Operation Not Permitted");
+      TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].typeId, senderId, functionId);
 
       typeEntity.roleLimit = requests[i].roleLimit;
       emit TypeRoleLimitUpdated(msg.sender, requests[i].typeId, requests[i].roleLimit);
@@ -218,18 +182,11 @@ contract TypeManager is AclStorage, ITypeManagement {
   }
 
   function typeUpdateScopeLimit(AgentUpdateScopeLimitRequest[] calldata requests) external returns (bool) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
+    bytes32 functionId = _accessPermission(ITypeManagement.typeUpdateScopeLimit.selector);
+    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);
 
-    address functionFacetId = _data.interfaces[type(ITypeManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, ITypeManagement.typeUpdateScopeLimit.selector);
-    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
-    
-    bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);    
     for (uint256 i = 0; i < requests.length; i++) {
-      TypeEntity storage typeEntity = _data.typeReadSlot(requests[i].agentId);
-      require(typeEntity.ba.acstat > ActivityStatus.DELETED, "Type is Deleted");
-      require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Type Update");
-      require(_doTypeCheckAdminAccess(typeEntity.ba.adminId, memberId, functionId), "Operation Not Permitted");
+      TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].agentId, senderId, functionId);
 
       typeEntity.ba.scopeLimit = requests[i].scopeLimit;      
       emit TypeScopeLimitUpdated(msg.sender, requests[i].agentId, requests[i].scopeLimit);
@@ -340,19 +297,13 @@ contract TypeManager is AclStorage, ITypeManagement {
     return (ScopeType.NONE, bytes32(0));  
   }
 
-  function _doTypeUpdateActivityStatus(bytes32 typeId, ActivityStatus status, bytes32 functionId) internal returns (bool) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
-    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied"); 
-
-    bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
-    TypeEntity storage typeEntity = _data.typeReadSlot(typeId);
-    require(typeEntity.ba.acstat > ActivityStatus.DELETED, "Type Is Deleted");
-    require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Type Update");
-    require(_doTypeCheckAdminAccess(typeEntity.ba.adminId, memberId, functionId), "Operation Not Permitted");
+  function _doTypeUpdateActivityStatus(bytes32 typeId, ActivityStatus status, bytes32 functionId) internal returns (bool) {    
+    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
+    TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(typeId, senderId, functionId);
 
     if(status == ActivityStatus.DELETED) {
       BaseScope storage bs = _data.scopes[typeEntity.scopeId];
-      require(bs.referredByAgent > 0, "Illegal Scope ReferredByAgent");
+      require(bs.referredByAgent > 0, "Illegal Referred");
       unchecked {
         bs.referredByAgent -= 1;  
       }
@@ -360,8 +311,6 @@ contract TypeManager is AclStorage, ITypeManagement {
         msg.sender, 
         typeEntity.scopeId, 
         typeId, 
-        bs.referredByAgent, 
-        bs.stype, 
         ActionType.REMOVE
       );
     }
@@ -372,7 +321,7 @@ contract TypeManager is AclStorage, ITypeManagement {
   }
 
   // Note: Member could not assigned to any entities as admin
-  function _doTypeCheckAdminAccess(bytes32 adminId, bytes32 memberId, bytes32 functionId) internal view returns (bool) {
+  function _doCheckAdminAccess(bytes32 adminId, bytes32 memberId, bytes32 functionId) internal view returns (bool) {
     (FunctionEntity storage functionEntity, bool res) = _data.functionTryReadSlot(functionId);    
     if (!res) return false;
 
@@ -408,5 +357,49 @@ contract TypeManager is AclStorage, ITypeManagement {
     } 
 
     return false;   
+  }
+
+  function _accessPermission(bytes4 selector) internal returns (bytes32) {
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
+    
+    address functionFacetId = _data.interfaces[type(IMemberManagement).interfaceId];
+    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, selector);    
+    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
+    return functionId;
+  }
+
+  function _getTypeAdmin(ScopeType requestScopeType, bytes32 requestScopeAdmin, bytes32 scopeId, bytes32 adminId) internal view returns (bytes32 typeAdminId) {
+    // checking requested type admin 
+    if(adminId != bytes32(0)) {
+      require(_data.agents[adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
+      (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(adminId);
+      require(requestScopeType <= requestAdminScopeType, "Illegal Admin ScopeType");
+      if(requestScopeType == requestAdminScopeType) {
+        require(requestAdminScopeId == scopeId, "Illegal Amind Scope");
+      } else {
+        require(IAccessControl(address(this)).isScopesCompatible(requestAdminScopeId, scopeId), "Illegal Admin Scope");
+      }
+      typeAdminId = adminId;
+
+    } else {
+      typeAdminId = requestScopeAdmin;
+    }
+  }
+
+  function _doGetMemberScopeInfoFromType(bytes32 typeId, bytes32 senderId) internal view returns (ScopeType, bytes32) {
+    TypeEntity storage agentAdminType = _data.typeReadSlot(typeId);
+    bytes32 memberRoleId = agentAdminType.members[senderId];
+    RoleEntity storage memberAgentRole =  _data.roleReadSlot(memberRoleId);
+    return (_data.scopes[memberAgentRole.scopeId].stype, memberAgentRole.scopeId);
+  }
+
+  function _doGetEntityAndCheckAdminAccess(bytes32 typeId, bytes32 senderId, bytes32 functionId) internal view returns (TypeEntity storage) {
+    TypeEntity storage typeEntity = _data.typeReadSlot(typeId);
+    require(typeEntity.ba.acstat > ActivityStatus.DELETED, "Type Deleted");
+    require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
+
+    // check access admin role
+    require(_doCheckAdminAccess(typeEntity.ba.adminId, senderId, functionId), "Forbidden");
+    return typeEntity;
   }
 }

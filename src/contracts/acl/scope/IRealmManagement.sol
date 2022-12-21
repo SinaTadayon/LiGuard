@@ -46,16 +46,10 @@ interface IRealmManagement is IAclCommons {
     address indexed sender, 
     bytes32 indexed realmId, 
     bytes32 indexed domainId,
-    bytes32 adminId,
-    string name,
-    uint32 contextLimit,
-    uint16 agentLimit,
-    AgentType adminType,
-    ActivityStatus acstat,
-    AlterabilityStatus alstate    
+    bytes32 adminId 
   );
   
-  event RealmAdminUpdated(address indexed sender, bytes32 indexed realmId, bytes32 indexed adminId, AgentType adminType);
+  event RealmAdminUpdated(address indexed sender, bytes32 indexed realmId, bytes32 indexed adminId);
 
   event RealmContextLimitUpdated(address indexed sender, bytes32 indexed realmId, uint32 contextLimit);
 

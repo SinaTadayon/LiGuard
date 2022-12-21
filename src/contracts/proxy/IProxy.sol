@@ -12,14 +12,29 @@ import "./IBaseProxy.sol";
  *
  */
 interface IProxy is IBaseProxy {
+
+  struct ProxyInfo {
+    bytes32 contextId;
+    string name;
+    string version;
+    address acl;
+    address subject;
+    address localAdmin;
+    uint16 initVersion;
+    ProxySafeModeStatus sstat;
+    ProxyUpgradabilityStatus ustat;
+  }
+
   /**
    * @dev Emitted when the admin account has changed.
    */
   event ProxyLocalAdminUpdated(address indexed sender, address indexed proxy, address newAdmin);
 
-  event ProxySafeModeUpdated(address indexed sender, address indexed proxy, ProxySafeModeStatus smstat);
+  event ProxyAccessControlUpdated(address indexed sender, address indexed proxy, address acl);
 
-  event ProxyUpdatabilityUpdated(address indexed sender, address indexed proxy, ProxyUpdatabilityStatus ustat);
+  event ProxySafeModeUpdated(address indexed sender, address indexed proxy, ProxySafeModeStatus sstat);
+
+  event ProxyUpdatabilityUpdated(address indexed sender, address indexed proxy, ProxyUpgradabilityStatus ustat);
 
   /**
    * @dev Triggered when the contract has been initialized or reinitialized.
@@ -40,27 +55,30 @@ interface IProxy is IBaseProxy {
     bool forceCall
   ) external returns (bytes memory);
 
-  function setSafeModeStatus(ProxySafeModeStatus sfstat) external returns (bool);
+  function setSafeModeStatus(ProxySafeModeStatus sstat) external returns (bool);
 
-  function setUpdatabilityStatus(ProxyUpdatabilityStatus ustat) external returns (bool);
+  function setUpgradabilityStatus(ProxyUpgradabilityStatus ustat) external returns (bool);
 
   function setLocalAdmin(address newAdmin) external returns (bool);
+
+  function setAccessControlManager(address acl) external returns (bool);
 
   function contractName() external view returns (string memory);
 
   function contractVersion() external view returns (string memory);
 
-  function accessControlManager() external view returns (address);
+  // function accessControlManager() external view returns (address);
 
-  function subjectAddress() external view returns (address);
+  // function subjectAddress() external view returns (address);
 
   function safeModeStatus() external returns (ProxySafeModeStatus);
 
-  function UpdatabilityStatus() external returns (ProxyUpdatabilityStatus);
+  // function upgradabilityStatus() external returns (ProxyUpgradabilityStatus);
 
-  function localAdmin() external view returns (address);
+  // function localAdmin() external view returns (address);
+  function proxyInfo() external view returns (ProxyInfo memory);
 
   function domainSeparator() external view returns (bytes32);
 
-  function initVersion() external view returns (uint16);
+  // function initVersion() external view returns (uint16);
 }

@@ -4,13 +4,18 @@
 import type {
   BaseContract,
   BigNumber,
+  BigNumberish,
   BytesLike,
   CallOverrides,
   PopulatedTransaction,
   Signer,
   utils,
 } from "ethers";
-import type { FunctionFragment, Result } from "@ethersproject/abi";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
@@ -20,91 +25,230 @@ import type {
   PromiseOrValue,
 } from "../common";
 
+export declare namespace IAclCommons {
+  export type BaseAgentStruct = {
+    adminId: PromiseOrValue<BytesLike>;
+    atype: PromiseOrValue<BigNumberish>;
+    acstat: PromiseOrValue<BigNumberish>;
+    alstat: PromiseOrValue<BigNumberish>;
+    referredByScope: PromiseOrValue<BigNumberish>;
+    referredByPolicy: PromiseOrValue<BigNumberish>;
+    scopeLimit: PromiseOrValue<BigNumberish>;
+  };
+
+  export type BaseAgentStructOutput = [
+    string,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number
+  ] & {
+    adminId: string;
+    atype: number;
+    acstat: number;
+    alstat: number;
+    referredByScope: number;
+    referredByPolicy: number;
+    scopeLimit: number;
+  };
+
+  export type BaseScopeStruct = {
+    adminId: PromiseOrValue<BytesLike>;
+    stype: PromiseOrValue<BigNumberish>;
+    acstat: PromiseOrValue<BigNumberish>;
+    alstat: PromiseOrValue<BigNumberish>;
+    referredByAgent: PromiseOrValue<BigNumberish>;
+    referredByPolicy: PromiseOrValue<BigNumberish>;
+    agentLimit: PromiseOrValue<BigNumberish>;
+  };
+
+  export type BaseScopeStructOutput = [
+    string,
+    number,
+    number,
+    number,
+    number,
+    number,
+    number
+  ] & {
+    adminId: string;
+    stype: number;
+    acstat: number;
+    alstat: number;
+    referredByAgent: number;
+    referredByPolicy: number;
+    agentLimit: number;
+  };
+}
+
 export interface IAccessControlInterface extends utils.Interface {
   functions: {
-    "hasAccess(bytes32,address,bytes4)": FunctionFragment;
-    "isContextEnabled(bytes32)": FunctionFragment;
-    "isContextExists(bytes32)": FunctionFragment;
-    "isContextFunctionEnabled(bytes32,bytes4)": FunctionFragment;
-    "isContextFunctionExists(bytes32,bytes4)": FunctionFragment;
-    "isContextSafeMode(bytes32)": FunctionFragment;
-    "isContextUpgradable(bytes32)": FunctionFragment;
-    "isGroupEnabled(bytes32)": FunctionFragment;
-    "isGroupExists(bytes32)": FunctionFragment;
-    "isLivelyAdminRole(address)": FunctionFragment;
-    "isLivelyAssetAdminRole(address)": FunctionFragment;
-    "isLivelyAssetGroup(bytes32)": FunctionFragment;
-    "isLivelyAssetManagerRole(address)": FunctionFragment;
-    "isLivelyAssetRealm(bytes32)": FunctionFragment;
-    "isLivelyCommunityDaoExecutorRole(address)": FunctionFragment;
-    "isLivelyCommunityDaoRole(address)": FunctionFragment;
-    "isLivelyDaoGroup(bytes32)": FunctionFragment;
-    "isLivelyGeneralGroup(bytes32)": FunctionFragment;
-    "isLivelyGeneralRealm(bytes32)": FunctionFragment;
-    "isLivelySystemAdminRole(address)": FunctionFragment;
-    "isRealmEnabled(bytes32)": FunctionFragment;
-    "isRealmExists(bytes32)": FunctionFragment;
-    "isRealmUpgradable(bytes32)": FunctionFragment;
-    "isRoleEnabled(bytes32)": FunctionFragment;
-    "isRoleExists(bytes32)": FunctionFragment;
+    "getAdminType()": FunctionFragment;
+    "getAgentBaseInfo(bytes32)": FunctionFragment;
+    "getAgentMasterType()": FunctionFragment;
+    "getAnonymouseType()": FunctionFragment;
+    "getAnyType()": FunctionFragment;
+    "getPolicyMasterType()": FunctionFragment;
+    "getScopeBaseInfo(bytes32)": FunctionFragment;
+    "getScopeMasterType()": FunctionFragment;
+    "getSystemAdminType()": FunctionFragment;
+    "hasAccess(bytes32)": FunctionFragment;
+    "hasAccessToAgent(bytes32,bytes32)": FunctionFragment;
+    "hasCSAccess(address,bytes4)": FunctionFragment;
+    "hasCSAccessToAgent(bytes32,address,bytes4)": FunctionFragment;
+    "hasCSMAccess(address,bytes4,bytes32)": FunctionFragment;
+    "hasCSMAccessToAgent(bytes32,address,bytes4,bytes32)": FunctionFragment;
+    "hasMemberAccess(bytes32,bytes32)": FunctionFragment;
+    "hasMemberAccessToAgent(bytes32,bytes32,bytes32)": FunctionFragment;
+    "isAgentExist(bytes32)": FunctionFragment;
+    "isScopeExist(bytes32)": FunctionFragment;
+    "isScopesCompatible(bytes32,bytes32)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "getAdminType"
+      | "getAdminType()"
+      | "getAgentBaseInfo"
+      | "getAgentBaseInfo(bytes32)"
+      | "getAgentMasterType"
+      | "getAgentMasterType()"
+      | "getAnonymouseType"
+      | "getAnonymouseType()"
+      | "getAnyType"
+      | "getAnyType()"
+      | "getPolicyMasterType"
+      | "getPolicyMasterType()"
+      | "getScopeBaseInfo"
+      | "getScopeBaseInfo(bytes32)"
+      | "getScopeMasterType"
+      | "getScopeMasterType()"
+      | "getSystemAdminType"
+      | "getSystemAdminType()"
       | "hasAccess"
-      | "hasAccess(bytes32,address,bytes4)"
-      | "isContextEnabled"
-      | "isContextEnabled(bytes32)"
-      | "isContextExists"
-      | "isContextExists(bytes32)"
-      | "isContextFunctionEnabled"
-      | "isContextFunctionEnabled(bytes32,bytes4)"
-      | "isContextFunctionExists"
-      | "isContextFunctionExists(bytes32,bytes4)"
-      | "isContextSafeMode"
-      | "isContextSafeMode(bytes32)"
-      | "isContextUpgradable"
-      | "isContextUpgradable(bytes32)"
-      | "isGroupEnabled"
-      | "isGroupEnabled(bytes32)"
-      | "isGroupExists"
-      | "isGroupExists(bytes32)"
-      | "isLivelyAdminRole"
-      | "isLivelyAdminRole(address)"
-      | "isLivelyAssetAdminRole"
-      | "isLivelyAssetAdminRole(address)"
-      | "isLivelyAssetGroup"
-      | "isLivelyAssetGroup(bytes32)"
-      | "isLivelyAssetManagerRole"
-      | "isLivelyAssetManagerRole(address)"
-      | "isLivelyAssetRealm"
-      | "isLivelyAssetRealm(bytes32)"
-      | "isLivelyCommunityDaoExecutorRole"
-      | "isLivelyCommunityDaoExecutorRole(address)"
-      | "isLivelyCommunityDaoRole"
-      | "isLivelyCommunityDaoRole(address)"
-      | "isLivelyDaoGroup"
-      | "isLivelyDaoGroup(bytes32)"
-      | "isLivelyGeneralGroup"
-      | "isLivelyGeneralGroup(bytes32)"
-      | "isLivelyGeneralRealm"
-      | "isLivelyGeneralRealm(bytes32)"
-      | "isLivelySystemAdminRole"
-      | "isLivelySystemAdminRole(address)"
-      | "isRealmEnabled"
-      | "isRealmEnabled(bytes32)"
-      | "isRealmExists"
-      | "isRealmExists(bytes32)"
-      | "isRealmUpgradable"
-      | "isRealmUpgradable(bytes32)"
-      | "isRoleEnabled"
-      | "isRoleEnabled(bytes32)"
-      | "isRoleExists"
-      | "isRoleExists(bytes32)"
+      | "hasAccess(bytes32)"
+      | "hasAccessToAgent"
+      | "hasAccessToAgent(bytes32,bytes32)"
+      | "hasCSAccess"
+      | "hasCSAccess(address,bytes4)"
+      | "hasCSAccessToAgent"
+      | "hasCSAccessToAgent(bytes32,address,bytes4)"
+      | "hasCSMAccess"
+      | "hasCSMAccess(address,bytes4,bytes32)"
+      | "hasCSMAccessToAgent"
+      | "hasCSMAccessToAgent(bytes32,address,bytes4,bytes32)"
+      | "hasMemberAccess"
+      | "hasMemberAccess(bytes32,bytes32)"
+      | "hasMemberAccessToAgent"
+      | "hasMemberAccessToAgent(bytes32,bytes32,bytes32)"
+      | "isAgentExist"
+      | "isAgentExist(bytes32)"
+      | "isScopeExist"
+      | "isScopeExist(bytes32)"
+      | "isScopesCompatible"
+      | "isScopesCompatible(bytes32,bytes32)"
   ): FunctionFragment;
 
   encodeFunctionData(
+    functionFragment: "getAdminType",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getAdminType()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getAgentBaseInfo",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getAgentBaseInfo(bytes32)",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getAgentMasterType",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getAgentMasterType()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getAnonymouseType",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getAnonymouseType()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getAnyType",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getAnyType()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getPolicyMasterType",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getPolicyMasterType()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getScopeBaseInfo",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getScopeBaseInfo(bytes32)",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getScopeMasterType",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getScopeMasterType()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getSystemAdminType",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getSystemAdminType()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "hasAccess",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "hasAccess(bytes32)",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "hasAccessToAgent",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "hasAccessToAgent(bytes32,bytes32)",
+    values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "hasCSAccess",
+    values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "hasCSAccess(address,bytes4)",
+    values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "hasCSAccessToAgent",
     values: [
       PromiseOrValue<BytesLike>,
       PromiseOrValue<string>,
@@ -112,7 +256,7 @@ export interface IAccessControlInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "hasAccess(bytes32,address,bytes4)",
+    functionFragment: "hasCSAccessToAgent(bytes32,address,bytes4)",
     values: [
       PromiseOrValue<BytesLike>,
       PromiseOrValue<string>,
@@ -120,398 +264,331 @@ export interface IAccessControlInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "isContextEnabled",
-    values: [PromiseOrValue<BytesLike>]
+    functionFragment: "hasCSMAccess",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BytesLike>
+    ]
   ): string;
   encodeFunctionData(
-    functionFragment: "isContextEnabled(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
+    functionFragment: "hasCSMAccess(address,bytes4,bytes32)",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BytesLike>
+    ]
   ): string;
   encodeFunctionData(
-    functionFragment: "isContextExists",
-    values: [PromiseOrValue<BytesLike>]
+    functionFragment: "hasCSMAccessToAgent",
+    values: [
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BytesLike>
+    ]
   ): string;
   encodeFunctionData(
-    functionFragment: "isContextExists(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
+    functionFragment: "hasCSMAccessToAgent(bytes32,address,bytes4,bytes32)",
+    values: [
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BytesLike>
+    ]
   ): string;
   encodeFunctionData(
-    functionFragment: "isContextFunctionEnabled",
+    functionFragment: "hasMemberAccess",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "isContextFunctionEnabled(bytes32,bytes4)",
+    functionFragment: "hasMemberAccess(bytes32,bytes32)",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "isContextFunctionExists",
+    functionFragment: "hasMemberAccessToAgent",
+    values: [
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BytesLike>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "hasMemberAccessToAgent(bytes32,bytes32,bytes32)",
+    values: [
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BytesLike>,
+      PromiseOrValue<BytesLike>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isAgentExist",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isAgentExist(bytes32)",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isScopeExist",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isScopeExist(bytes32)",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isScopesCompatible",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "isContextFunctionExists(bytes32,bytes4)",
+    functionFragment: "isScopesCompatible(bytes32,bytes32)",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isContextSafeMode",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isContextSafeMode(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isContextUpgradable",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isContextUpgradable(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isGroupEnabled",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isGroupEnabled(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isGroupExists",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isGroupExists(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isLivelyAdminRole",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isLivelyAdminRole(address)",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isLivelyAssetAdminRole",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isLivelyAssetAdminRole(address)",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isLivelyAssetGroup",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isLivelyAssetGroup(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isLivelyAssetManagerRole",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isLivelyAssetManagerRole(address)",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isLivelyAssetRealm",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isLivelyAssetRealm(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isLivelyCommunityDaoExecutorRole",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isLivelyCommunityDaoExecutorRole(address)",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isLivelyCommunityDaoRole",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isLivelyCommunityDaoRole(address)",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isLivelyDaoGroup",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isLivelyDaoGroup(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isLivelyGeneralGroup",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isLivelyGeneralGroup(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isLivelyGeneralRealm",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isLivelyGeneralRealm(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isLivelySystemAdminRole",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isLivelySystemAdminRole(address)",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isRealmEnabled",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isRealmEnabled(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isRealmExists",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isRealmExists(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isRealmUpgradable",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isRealmUpgradable(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isRoleEnabled",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isRoleEnabled(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isRoleExists",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isRoleExists(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "getAdminType",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getAdminType()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getAgentBaseInfo",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getAgentBaseInfo(bytes32)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getAgentMasterType",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getAgentMasterType()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getAnonymouseType",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getAnonymouseType()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "getAnyType", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getAnyType()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getPolicyMasterType",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getPolicyMasterType()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getScopeBaseInfo",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getScopeBaseInfo(bytes32)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getScopeMasterType",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getScopeMasterType()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getSystemAdminType",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getSystemAdminType()",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "hasAccess", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "hasAccess(bytes32,address,bytes4)",
+    functionFragment: "hasAccess(bytes32)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "isContextEnabled",
+    functionFragment: "hasAccessToAgent",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "isContextEnabled(bytes32)",
+    functionFragment: "hasAccessToAgent(bytes32,bytes32)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "isContextExists",
+    functionFragment: "hasCSAccess",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "isContextExists(bytes32)",
+    functionFragment: "hasCSAccess(address,bytes4)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "isContextFunctionEnabled",
+    functionFragment: "hasCSAccessToAgent",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "isContextFunctionEnabled(bytes32,bytes4)",
+    functionFragment: "hasCSAccessToAgent(bytes32,address,bytes4)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "isContextFunctionExists",
+    functionFragment: "hasCSMAccess",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "isContextFunctionExists(bytes32,bytes4)",
+    functionFragment: "hasCSMAccess(address,bytes4,bytes32)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "isContextSafeMode",
+    functionFragment: "hasCSMAccessToAgent",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "isContextSafeMode(bytes32)",
+    functionFragment: "hasCSMAccessToAgent(bytes32,address,bytes4,bytes32)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "isContextUpgradable",
+    functionFragment: "hasMemberAccess",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "isContextUpgradable(bytes32)",
+    functionFragment: "hasMemberAccess(bytes32,bytes32)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "isGroupEnabled",
+    functionFragment: "hasMemberAccessToAgent",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "isGroupEnabled(bytes32)",
+    functionFragment: "hasMemberAccessToAgent(bytes32,bytes32,bytes32)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "isGroupExists",
+    functionFragment: "isAgentExist",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "isGroupExists(bytes32)",
+    functionFragment: "isAgentExist(bytes32)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "isLivelyAdminRole",
+    functionFragment: "isScopeExist",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "isLivelyAdminRole(address)",
+    functionFragment: "isScopeExist(bytes32)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "isLivelyAssetAdminRole",
+    functionFragment: "isScopesCompatible",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "isLivelyAssetAdminRole(address)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isLivelyAssetGroup",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isLivelyAssetGroup(bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isLivelyAssetManagerRole",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isLivelyAssetManagerRole(address)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isLivelyAssetRealm",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isLivelyAssetRealm(bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isLivelyCommunityDaoExecutorRole",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isLivelyCommunityDaoExecutorRole(address)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isLivelyCommunityDaoRole",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isLivelyCommunityDaoRole(address)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isLivelyDaoGroup",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isLivelyDaoGroup(bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isLivelyGeneralGroup",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isLivelyGeneralGroup(bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isLivelyGeneralRealm",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isLivelyGeneralRealm(bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isLivelySystemAdminRole",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isLivelySystemAdminRole(address)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isRealmEnabled",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isRealmEnabled(bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isRealmExists",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isRealmExists(bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isRealmUpgradable",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isRealmUpgradable(bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isRoleEnabled",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isRoleEnabled(bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isRoleExists",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isRoleExists(bytes32)",
+    functionFragment: "isScopesCompatible(bytes32,bytes32)",
     data: BytesLike
   ): Result;
 
-  events: {};
+  events: {
+    "AgentReferredByPolicyUpdated(address,bytes32,bytes32,uint8)": EventFragment;
+    "AgentReferredByScopeUpdated(address,bytes32,bytes32,uint8)": EventFragment;
+    "ScopeReferredByAgentUpdated(address,bytes32,bytes32,uint8)": EventFragment;
+    "ScopeReferredByPolicyUpdated(address,bytes32,bytes32,uint8)": EventFragment;
+  };
+
+  getEvent(
+    nameOrSignatureOrTopic: "AgentReferredByPolicyUpdated"
+  ): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "AgentReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"
+  ): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "AgentReferredByScopeUpdated"
+  ): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "AgentReferredByScopeUpdated(address,bytes32,bytes32,uint8)"
+  ): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "ScopeReferredByAgentUpdated"
+  ): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "ScopeReferredByAgentUpdated(address,bytes32,bytes32,uint8)"
+  ): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "ScopeReferredByPolicyUpdated"
+  ): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "ScopeReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"
+  ): EventFragment;
 }
+
+export interface AgentReferredByPolicyUpdatedEventObject {
+  sender: string;
+  agentId: string;
+  policyId: string;
+  action: number;
+}
+export type AgentReferredByPolicyUpdatedEvent = TypedEvent<
+  [string, string, string, number],
+  AgentReferredByPolicyUpdatedEventObject
+>;
+
+export type AgentReferredByPolicyUpdatedEventFilter =
+  TypedEventFilter<AgentReferredByPolicyUpdatedEvent>;
+
+export interface AgentReferredByScopeUpdatedEventObject {
+  sender: string;
+  agentId: string;
+  scopeId: string;
+  action: number;
+}
+export type AgentReferredByScopeUpdatedEvent = TypedEvent<
+  [string, string, string, number],
+  AgentReferredByScopeUpdatedEventObject
+>;
+
+export type AgentReferredByScopeUpdatedEventFilter =
+  TypedEventFilter<AgentReferredByScopeUpdatedEvent>;
+
+export interface ScopeReferredByAgentUpdatedEventObject {
+  sender: string;
+  scopeId: string;
+  agentId: string;
+  action: number;
+}
+export type ScopeReferredByAgentUpdatedEvent = TypedEvent<
+  [string, string, string, number],
+  ScopeReferredByAgentUpdatedEventObject
+>;
+
+export type ScopeReferredByAgentUpdatedEventFilter =
+  TypedEventFilter<ScopeReferredByAgentUpdatedEvent>;
+
+export interface ScopeReferredByPolicyUpdatedEventObject {
+  sender: string;
+  scopeId: string;
+  policyId: string;
+  action: number;
+}
+export type ScopeReferredByPolicyUpdatedEvent = TypedEvent<
+  [string, string, string, number],
+  ScopeReferredByPolicyUpdatedEventObject
+>;
+
+export type ScopeReferredByPolicyUpdatedEventFilter =
+  TypedEventFilter<ScopeReferredByPolicyUpdatedEvent>;
 
 export interface IAccessControl extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -540,1301 +617,1001 @@ export interface IAccessControl extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    getAdminType(overrides?: CallOverrides): Promise<[string]>;
+
+    "getAdminType()"(overrides?: CallOverrides): Promise<[string]>;
+
+    getAgentBaseInfo(
+      agentId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[IAclCommons.BaseAgentStructOutput]>;
+
+    "getAgentBaseInfo(bytes32)"(
+      agentId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[IAclCommons.BaseAgentStructOutput]>;
+
+    getAgentMasterType(overrides?: CallOverrides): Promise<[string]>;
+
+    "getAgentMasterType()"(overrides?: CallOverrides): Promise<[string]>;
+
+    getAnonymouseType(overrides?: CallOverrides): Promise<[string]>;
+
+    "getAnonymouseType()"(overrides?: CallOverrides): Promise<[string]>;
+
+    getAnyType(overrides?: CallOverrides): Promise<[string]>;
+
+    "getAnyType()"(overrides?: CallOverrides): Promise<[string]>;
+
+    getPolicyMasterType(overrides?: CallOverrides): Promise<[string]>;
+
+    "getPolicyMasterType()"(overrides?: CallOverrides): Promise<[string]>;
+
+    getScopeBaseInfo(
+      scopeId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[IAclCommons.BaseScopeStructOutput]>;
+
+    "getScopeBaseInfo(bytes32)"(
+      scopeId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[IAclCommons.BaseScopeStructOutput]>;
+
+    getScopeMasterType(overrides?: CallOverrides): Promise<[string]>;
+
+    "getScopeMasterType()"(overrides?: CallOverrides): Promise<[string]>;
+
+    getSystemAdminType(overrides?: CallOverrides): Promise<[string]>;
+
+    "getSystemAdminType()"(overrides?: CallOverrides): Promise<[string]>;
+
     hasAccess(
-      context: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      signature: PromiseOrValue<BytesLike>,
+      functionId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    "hasAccess(bytes32,address,bytes4)"(
-      context: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      signature: PromiseOrValue<BytesLike>,
+    "hasAccess(bytes32)"(
+      functionId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    isContextEnabled(
-      context: PromiseOrValue<BytesLike>,
+    hasAccessToAgent(
+      agentId: PromiseOrValue<BytesLike>,
+      functionId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    "isContextEnabled(bytes32)"(
-      context: PromiseOrValue<BytesLike>,
+    "hasAccessToAgent(bytes32,bytes32)"(
+      agentId: PromiseOrValue<BytesLike>,
+      functionId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    isContextExists(
-      context: PromiseOrValue<BytesLike>,
+    hasCSAccess(
+      contractId: PromiseOrValue<string>,
+      selector: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    "isContextExists(bytes32)"(
-      context: PromiseOrValue<BytesLike>,
+    "hasCSAccess(address,bytes4)"(
+      contractId: PromiseOrValue<string>,
+      selector: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    isContextFunctionEnabled(
-      context: PromiseOrValue<BytesLike>,
-      functionSelector: PromiseOrValue<BytesLike>,
+    hasCSAccessToAgent(
+      agentId: PromiseOrValue<BytesLike>,
+      contractId: PromiseOrValue<string>,
+      selector: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    "isContextFunctionEnabled(bytes32,bytes4)"(
-      context: PromiseOrValue<BytesLike>,
-      functionSelector: PromiseOrValue<BytesLike>,
+    "hasCSAccessToAgent(bytes32,address,bytes4)"(
+      agentId: PromiseOrValue<BytesLike>,
+      contractId: PromiseOrValue<string>,
+      selector: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    isContextFunctionExists(
-      context: PromiseOrValue<BytesLike>,
-      functionSelector: PromiseOrValue<BytesLike>,
+    hasCSMAccess(
+      contractId: PromiseOrValue<string>,
+      selector: PromiseOrValue<BytesLike>,
+      memberId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    "isContextFunctionExists(bytes32,bytes4)"(
-      context: PromiseOrValue<BytesLike>,
-      functionSelector: PromiseOrValue<BytesLike>,
+    "hasCSMAccess(address,bytes4,bytes32)"(
+      contractId: PromiseOrValue<string>,
+      selector: PromiseOrValue<BytesLike>,
+      memberId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    isContextSafeMode(
-      context: PromiseOrValue<BytesLike>,
+    hasCSMAccessToAgent(
+      agentId: PromiseOrValue<BytesLike>,
+      contractId: PromiseOrValue<string>,
+      selector: PromiseOrValue<BytesLike>,
+      memberId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    "isContextSafeMode(bytes32)"(
-      context: PromiseOrValue<BytesLike>,
+    "hasCSMAccessToAgent(bytes32,address,bytes4,bytes32)"(
+      agentId: PromiseOrValue<BytesLike>,
+      contractId: PromiseOrValue<string>,
+      selector: PromiseOrValue<BytesLike>,
+      memberId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    isContextUpgradable(
-      context: PromiseOrValue<BytesLike>,
+    hasMemberAccess(
+      functionId: PromiseOrValue<BytesLike>,
+      memberId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    "isContextUpgradable(bytes32)"(
-      context: PromiseOrValue<BytesLike>,
+    "hasMemberAccess(bytes32,bytes32)"(
+      functionId: PromiseOrValue<BytesLike>,
+      memberId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    isGroupEnabled(
-      group: PromiseOrValue<BytesLike>,
+    hasMemberAccessToAgent(
+      agentId: PromiseOrValue<BytesLike>,
+      functionId: PromiseOrValue<BytesLike>,
+      memberId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    "isGroupEnabled(bytes32)"(
-      group: PromiseOrValue<BytesLike>,
+    "hasMemberAccessToAgent(bytes32,bytes32,bytes32)"(
+      agentId: PromiseOrValue<BytesLike>,
+      functionId: PromiseOrValue<BytesLike>,
+      memberId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    isGroupExists(
-      group: PromiseOrValue<BytesLike>,
+    isAgentExist(
+      agentId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    "isGroupExists(bytes32)"(
-      group: PromiseOrValue<BytesLike>,
+    "isAgentExist(bytes32)"(
+      agentId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    isLivelyAdminRole(
-      account: PromiseOrValue<string>,
+    isScopeExist(
+      scopeId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    "isLivelyAdminRole(address)"(
-      account: PromiseOrValue<string>,
+    "isScopeExist(bytes32)"(
+      scopeId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    isLivelyAssetAdminRole(
-      account: PromiseOrValue<string>,
+    isScopesCompatible(
+      destScopeId: PromiseOrValue<BytesLike>,
+      srcScopeId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    "isLivelyAssetAdminRole(address)"(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    isLivelyAssetGroup(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    "isLivelyAssetGroup(bytes32)"(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    isLivelyAssetManagerRole(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    "isLivelyAssetManagerRole(address)"(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    isLivelyAssetRealm(
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    "isLivelyAssetRealm(bytes32)"(
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    isLivelyCommunityDaoExecutorRole(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    "isLivelyCommunityDaoExecutorRole(address)"(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    isLivelyCommunityDaoRole(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    "isLivelyCommunityDaoRole(address)"(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    isLivelyDaoGroup(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    "isLivelyDaoGroup(bytes32)"(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    isLivelyGeneralGroup(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    "isLivelyGeneralGroup(bytes32)"(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    isLivelyGeneralRealm(
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    "isLivelyGeneralRealm(bytes32)"(
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    isLivelySystemAdminRole(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    "isLivelySystemAdminRole(address)"(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    isRealmEnabled(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    "isRealmEnabled(bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    isRealmExists(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    "isRealmExists(bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    isRealmUpgradable(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    "isRealmUpgradable(bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    isRoleEnabled(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    "isRoleEnabled(bytes32)"(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    isRoleExists(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    "isRoleExists(bytes32)"(
-      role: PromiseOrValue<BytesLike>,
+    "isScopesCompatible(bytes32,bytes32)"(
+      destScopeId: PromiseOrValue<BytesLike>,
+      srcScopeId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
   };
 
+  getAdminType(overrides?: CallOverrides): Promise<string>;
+
+  "getAdminType()"(overrides?: CallOverrides): Promise<string>;
+
+  getAgentBaseInfo(
+    agentId: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<IAclCommons.BaseAgentStructOutput>;
+
+  "getAgentBaseInfo(bytes32)"(
+    agentId: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<IAclCommons.BaseAgentStructOutput>;
+
+  getAgentMasterType(overrides?: CallOverrides): Promise<string>;
+
+  "getAgentMasterType()"(overrides?: CallOverrides): Promise<string>;
+
+  getAnonymouseType(overrides?: CallOverrides): Promise<string>;
+
+  "getAnonymouseType()"(overrides?: CallOverrides): Promise<string>;
+
+  getAnyType(overrides?: CallOverrides): Promise<string>;
+
+  "getAnyType()"(overrides?: CallOverrides): Promise<string>;
+
+  getPolicyMasterType(overrides?: CallOverrides): Promise<string>;
+
+  "getPolicyMasterType()"(overrides?: CallOverrides): Promise<string>;
+
+  getScopeBaseInfo(
+    scopeId: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<IAclCommons.BaseScopeStructOutput>;
+
+  "getScopeBaseInfo(bytes32)"(
+    scopeId: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<IAclCommons.BaseScopeStructOutput>;
+
+  getScopeMasterType(overrides?: CallOverrides): Promise<string>;
+
+  "getScopeMasterType()"(overrides?: CallOverrides): Promise<string>;
+
+  getSystemAdminType(overrides?: CallOverrides): Promise<string>;
+
+  "getSystemAdminType()"(overrides?: CallOverrides): Promise<string>;
+
   hasAccess(
-    context: PromiseOrValue<BytesLike>,
-    account: PromiseOrValue<string>,
-    signature: PromiseOrValue<BytesLike>,
+    functionId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  "hasAccess(bytes32,address,bytes4)"(
-    context: PromiseOrValue<BytesLike>,
-    account: PromiseOrValue<string>,
-    signature: PromiseOrValue<BytesLike>,
+  "hasAccess(bytes32)"(
+    functionId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  isContextEnabled(
-    context: PromiseOrValue<BytesLike>,
+  hasAccessToAgent(
+    agentId: PromiseOrValue<BytesLike>,
+    functionId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  "isContextEnabled(bytes32)"(
-    context: PromiseOrValue<BytesLike>,
+  "hasAccessToAgent(bytes32,bytes32)"(
+    agentId: PromiseOrValue<BytesLike>,
+    functionId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  isContextExists(
-    context: PromiseOrValue<BytesLike>,
+  hasCSAccess(
+    contractId: PromiseOrValue<string>,
+    selector: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  "isContextExists(bytes32)"(
-    context: PromiseOrValue<BytesLike>,
+  "hasCSAccess(address,bytes4)"(
+    contractId: PromiseOrValue<string>,
+    selector: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  isContextFunctionEnabled(
-    context: PromiseOrValue<BytesLike>,
-    functionSelector: PromiseOrValue<BytesLike>,
+  hasCSAccessToAgent(
+    agentId: PromiseOrValue<BytesLike>,
+    contractId: PromiseOrValue<string>,
+    selector: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  "isContextFunctionEnabled(bytes32,bytes4)"(
-    context: PromiseOrValue<BytesLike>,
-    functionSelector: PromiseOrValue<BytesLike>,
+  "hasCSAccessToAgent(bytes32,address,bytes4)"(
+    agentId: PromiseOrValue<BytesLike>,
+    contractId: PromiseOrValue<string>,
+    selector: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  isContextFunctionExists(
-    context: PromiseOrValue<BytesLike>,
-    functionSelector: PromiseOrValue<BytesLike>,
+  hasCSMAccess(
+    contractId: PromiseOrValue<string>,
+    selector: PromiseOrValue<BytesLike>,
+    memberId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  "isContextFunctionExists(bytes32,bytes4)"(
-    context: PromiseOrValue<BytesLike>,
-    functionSelector: PromiseOrValue<BytesLike>,
+  "hasCSMAccess(address,bytes4,bytes32)"(
+    contractId: PromiseOrValue<string>,
+    selector: PromiseOrValue<BytesLike>,
+    memberId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  isContextSafeMode(
-    context: PromiseOrValue<BytesLike>,
+  hasCSMAccessToAgent(
+    agentId: PromiseOrValue<BytesLike>,
+    contractId: PromiseOrValue<string>,
+    selector: PromiseOrValue<BytesLike>,
+    memberId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  "isContextSafeMode(bytes32)"(
-    context: PromiseOrValue<BytesLike>,
+  "hasCSMAccessToAgent(bytes32,address,bytes4,bytes32)"(
+    agentId: PromiseOrValue<BytesLike>,
+    contractId: PromiseOrValue<string>,
+    selector: PromiseOrValue<BytesLike>,
+    memberId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  isContextUpgradable(
-    context: PromiseOrValue<BytesLike>,
+  hasMemberAccess(
+    functionId: PromiseOrValue<BytesLike>,
+    memberId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  "isContextUpgradable(bytes32)"(
-    context: PromiseOrValue<BytesLike>,
+  "hasMemberAccess(bytes32,bytes32)"(
+    functionId: PromiseOrValue<BytesLike>,
+    memberId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  isGroupEnabled(
-    group: PromiseOrValue<BytesLike>,
+  hasMemberAccessToAgent(
+    agentId: PromiseOrValue<BytesLike>,
+    functionId: PromiseOrValue<BytesLike>,
+    memberId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  "isGroupEnabled(bytes32)"(
-    group: PromiseOrValue<BytesLike>,
+  "hasMemberAccessToAgent(bytes32,bytes32,bytes32)"(
+    agentId: PromiseOrValue<BytesLike>,
+    functionId: PromiseOrValue<BytesLike>,
+    memberId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  isGroupExists(
-    group: PromiseOrValue<BytesLike>,
+  isAgentExist(
+    agentId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  "isGroupExists(bytes32)"(
-    group: PromiseOrValue<BytesLike>,
+  "isAgentExist(bytes32)"(
+    agentId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  isLivelyAdminRole(
-    account: PromiseOrValue<string>,
+  isScopeExist(
+    scopeId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  "isLivelyAdminRole(address)"(
-    account: PromiseOrValue<string>,
+  "isScopeExist(bytes32)"(
+    scopeId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  isLivelyAssetAdminRole(
-    account: PromiseOrValue<string>,
+  isScopesCompatible(
+    destScopeId: PromiseOrValue<BytesLike>,
+    srcScopeId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  "isLivelyAssetAdminRole(address)"(
-    account: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  isLivelyAssetGroup(
-    role: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  "isLivelyAssetGroup(bytes32)"(
-    role: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  isLivelyAssetManagerRole(
-    account: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  "isLivelyAssetManagerRole(address)"(
-    account: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  isLivelyAssetRealm(
-    context: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  "isLivelyAssetRealm(bytes32)"(
-    context: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  isLivelyCommunityDaoExecutorRole(
-    account: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  "isLivelyCommunityDaoExecutorRole(address)"(
-    account: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  isLivelyCommunityDaoRole(
-    account: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  "isLivelyCommunityDaoRole(address)"(
-    account: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  isLivelyDaoGroup(
-    role: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  "isLivelyDaoGroup(bytes32)"(
-    role: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  isLivelyGeneralGroup(
-    role: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  "isLivelyGeneralGroup(bytes32)"(
-    role: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  isLivelyGeneralRealm(
-    context: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  "isLivelyGeneralRealm(bytes32)"(
-    context: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  isLivelySystemAdminRole(
-    account: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  "isLivelySystemAdminRole(address)"(
-    account: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  isRealmEnabled(
-    realm: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  "isRealmEnabled(bytes32)"(
-    realm: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  isRealmExists(
-    realm: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  "isRealmExists(bytes32)"(
-    realm: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  isRealmUpgradable(
-    realm: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  "isRealmUpgradable(bytes32)"(
-    realm: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  isRoleEnabled(
-    role: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  "isRoleEnabled(bytes32)"(
-    role: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  isRoleExists(
-    role: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  "isRoleExists(bytes32)"(
-    role: PromiseOrValue<BytesLike>,
+  "isScopesCompatible(bytes32,bytes32)"(
+    destScopeId: PromiseOrValue<BytesLike>,
+    srcScopeId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
   callStatic: {
+    getAdminType(overrides?: CallOverrides): Promise<string>;
+
+    "getAdminType()"(overrides?: CallOverrides): Promise<string>;
+
+    getAgentBaseInfo(
+      agentId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<IAclCommons.BaseAgentStructOutput>;
+
+    "getAgentBaseInfo(bytes32)"(
+      agentId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<IAclCommons.BaseAgentStructOutput>;
+
+    getAgentMasterType(overrides?: CallOverrides): Promise<string>;
+
+    "getAgentMasterType()"(overrides?: CallOverrides): Promise<string>;
+
+    getAnonymouseType(overrides?: CallOverrides): Promise<string>;
+
+    "getAnonymouseType()"(overrides?: CallOverrides): Promise<string>;
+
+    getAnyType(overrides?: CallOverrides): Promise<string>;
+
+    "getAnyType()"(overrides?: CallOverrides): Promise<string>;
+
+    getPolicyMasterType(overrides?: CallOverrides): Promise<string>;
+
+    "getPolicyMasterType()"(overrides?: CallOverrides): Promise<string>;
+
+    getScopeBaseInfo(
+      scopeId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<IAclCommons.BaseScopeStructOutput>;
+
+    "getScopeBaseInfo(bytes32)"(
+      scopeId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<IAclCommons.BaseScopeStructOutput>;
+
+    getScopeMasterType(overrides?: CallOverrides): Promise<string>;
+
+    "getScopeMasterType()"(overrides?: CallOverrides): Promise<string>;
+
+    getSystemAdminType(overrides?: CallOverrides): Promise<string>;
+
+    "getSystemAdminType()"(overrides?: CallOverrides): Promise<string>;
+
     hasAccess(
-      context: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      signature: PromiseOrValue<BytesLike>,
+      functionId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "hasAccess(bytes32,address,bytes4)"(
-      context: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      signature: PromiseOrValue<BytesLike>,
+    "hasAccess(bytes32)"(
+      functionId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    isContextEnabled(
-      context: PromiseOrValue<BytesLike>,
+    hasAccessToAgent(
+      agentId: PromiseOrValue<BytesLike>,
+      functionId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "isContextEnabled(bytes32)"(
-      context: PromiseOrValue<BytesLike>,
+    "hasAccessToAgent(bytes32,bytes32)"(
+      agentId: PromiseOrValue<BytesLike>,
+      functionId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    isContextExists(
-      context: PromiseOrValue<BytesLike>,
+    hasCSAccess(
+      contractId: PromiseOrValue<string>,
+      selector: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "isContextExists(bytes32)"(
-      context: PromiseOrValue<BytesLike>,
+    "hasCSAccess(address,bytes4)"(
+      contractId: PromiseOrValue<string>,
+      selector: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    isContextFunctionEnabled(
-      context: PromiseOrValue<BytesLike>,
-      functionSelector: PromiseOrValue<BytesLike>,
+    hasCSAccessToAgent(
+      agentId: PromiseOrValue<BytesLike>,
+      contractId: PromiseOrValue<string>,
+      selector: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "isContextFunctionEnabled(bytes32,bytes4)"(
-      context: PromiseOrValue<BytesLike>,
-      functionSelector: PromiseOrValue<BytesLike>,
+    "hasCSAccessToAgent(bytes32,address,bytes4)"(
+      agentId: PromiseOrValue<BytesLike>,
+      contractId: PromiseOrValue<string>,
+      selector: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    isContextFunctionExists(
-      context: PromiseOrValue<BytesLike>,
-      functionSelector: PromiseOrValue<BytesLike>,
+    hasCSMAccess(
+      contractId: PromiseOrValue<string>,
+      selector: PromiseOrValue<BytesLike>,
+      memberId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "isContextFunctionExists(bytes32,bytes4)"(
-      context: PromiseOrValue<BytesLike>,
-      functionSelector: PromiseOrValue<BytesLike>,
+    "hasCSMAccess(address,bytes4,bytes32)"(
+      contractId: PromiseOrValue<string>,
+      selector: PromiseOrValue<BytesLike>,
+      memberId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    isContextSafeMode(
-      context: PromiseOrValue<BytesLike>,
+    hasCSMAccessToAgent(
+      agentId: PromiseOrValue<BytesLike>,
+      contractId: PromiseOrValue<string>,
+      selector: PromiseOrValue<BytesLike>,
+      memberId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "isContextSafeMode(bytes32)"(
-      context: PromiseOrValue<BytesLike>,
+    "hasCSMAccessToAgent(bytes32,address,bytes4,bytes32)"(
+      agentId: PromiseOrValue<BytesLike>,
+      contractId: PromiseOrValue<string>,
+      selector: PromiseOrValue<BytesLike>,
+      memberId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    isContextUpgradable(
-      context: PromiseOrValue<BytesLike>,
+    hasMemberAccess(
+      functionId: PromiseOrValue<BytesLike>,
+      memberId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "isContextUpgradable(bytes32)"(
-      context: PromiseOrValue<BytesLike>,
+    "hasMemberAccess(bytes32,bytes32)"(
+      functionId: PromiseOrValue<BytesLike>,
+      memberId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    isGroupEnabled(
-      group: PromiseOrValue<BytesLike>,
+    hasMemberAccessToAgent(
+      agentId: PromiseOrValue<BytesLike>,
+      functionId: PromiseOrValue<BytesLike>,
+      memberId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "isGroupEnabled(bytes32)"(
-      group: PromiseOrValue<BytesLike>,
+    "hasMemberAccessToAgent(bytes32,bytes32,bytes32)"(
+      agentId: PromiseOrValue<BytesLike>,
+      functionId: PromiseOrValue<BytesLike>,
+      memberId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    isGroupExists(
-      group: PromiseOrValue<BytesLike>,
+    isAgentExist(
+      agentId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "isGroupExists(bytes32)"(
-      group: PromiseOrValue<BytesLike>,
+    "isAgentExist(bytes32)"(
+      agentId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    isLivelyAdminRole(
-      account: PromiseOrValue<string>,
+    isScopeExist(
+      scopeId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "isLivelyAdminRole(address)"(
-      account: PromiseOrValue<string>,
+    "isScopeExist(bytes32)"(
+      scopeId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    isLivelyAssetAdminRole(
-      account: PromiseOrValue<string>,
+    isScopesCompatible(
+      destScopeId: PromiseOrValue<BytesLike>,
+      srcScopeId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "isLivelyAssetAdminRole(address)"(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    isLivelyAssetGroup(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "isLivelyAssetGroup(bytes32)"(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    isLivelyAssetManagerRole(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "isLivelyAssetManagerRole(address)"(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    isLivelyAssetRealm(
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "isLivelyAssetRealm(bytes32)"(
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    isLivelyCommunityDaoExecutorRole(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "isLivelyCommunityDaoExecutorRole(address)"(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    isLivelyCommunityDaoRole(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "isLivelyCommunityDaoRole(address)"(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    isLivelyDaoGroup(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "isLivelyDaoGroup(bytes32)"(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    isLivelyGeneralGroup(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "isLivelyGeneralGroup(bytes32)"(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    isLivelyGeneralRealm(
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "isLivelyGeneralRealm(bytes32)"(
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    isLivelySystemAdminRole(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "isLivelySystemAdminRole(address)"(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    isRealmEnabled(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "isRealmEnabled(bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    isRealmExists(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "isRealmExists(bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    isRealmUpgradable(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "isRealmUpgradable(bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    isRoleEnabled(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "isRoleEnabled(bytes32)"(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    isRoleExists(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "isRoleExists(bytes32)"(
-      role: PromiseOrValue<BytesLike>,
+    "isScopesCompatible(bytes32,bytes32)"(
+      destScopeId: PromiseOrValue<BytesLike>,
+      srcScopeId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
   };
 
-  filters: {};
+  filters: {
+    "AgentReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"(
+      sender?: PromiseOrValue<string> | null,
+      agentId?: PromiseOrValue<BytesLike> | null,
+      policyId?: PromiseOrValue<BytesLike> | null,
+      action?: null
+    ): AgentReferredByPolicyUpdatedEventFilter;
+    AgentReferredByPolicyUpdated(
+      sender?: PromiseOrValue<string> | null,
+      agentId?: PromiseOrValue<BytesLike> | null,
+      policyId?: PromiseOrValue<BytesLike> | null,
+      action?: null
+    ): AgentReferredByPolicyUpdatedEventFilter;
+
+    "AgentReferredByScopeUpdated(address,bytes32,bytes32,uint8)"(
+      sender?: PromiseOrValue<string> | null,
+      agentId?: PromiseOrValue<BytesLike> | null,
+      scopeId?: PromiseOrValue<BytesLike> | null,
+      action?: null
+    ): AgentReferredByScopeUpdatedEventFilter;
+    AgentReferredByScopeUpdated(
+      sender?: PromiseOrValue<string> | null,
+      agentId?: PromiseOrValue<BytesLike> | null,
+      scopeId?: PromiseOrValue<BytesLike> | null,
+      action?: null
+    ): AgentReferredByScopeUpdatedEventFilter;
+
+    "ScopeReferredByAgentUpdated(address,bytes32,bytes32,uint8)"(
+      sender?: PromiseOrValue<string> | null,
+      scopeId?: PromiseOrValue<BytesLike> | null,
+      agentId?: PromiseOrValue<BytesLike> | null,
+      action?: null
+    ): ScopeReferredByAgentUpdatedEventFilter;
+    ScopeReferredByAgentUpdated(
+      sender?: PromiseOrValue<string> | null,
+      scopeId?: PromiseOrValue<BytesLike> | null,
+      agentId?: PromiseOrValue<BytesLike> | null,
+      action?: null
+    ): ScopeReferredByAgentUpdatedEventFilter;
+
+    "ScopeReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"(
+      sender?: PromiseOrValue<string> | null,
+      scopeId?: PromiseOrValue<BytesLike> | null,
+      policyId?: PromiseOrValue<BytesLike> | null,
+      action?: null
+    ): ScopeReferredByPolicyUpdatedEventFilter;
+    ScopeReferredByPolicyUpdated(
+      sender?: PromiseOrValue<string> | null,
+      scopeId?: PromiseOrValue<BytesLike> | null,
+      policyId?: PromiseOrValue<BytesLike> | null,
+      action?: null
+    ): ScopeReferredByPolicyUpdatedEventFilter;
+  };
 
   estimateGas: {
+    getAdminType(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "getAdminType()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getAgentBaseInfo(
+      agentId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "getAgentBaseInfo(bytes32)"(
+      agentId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getAgentMasterType(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "getAgentMasterType()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getAnonymouseType(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "getAnonymouseType()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getAnyType(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "getAnyType()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getPolicyMasterType(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "getPolicyMasterType()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getScopeBaseInfo(
+      scopeId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "getScopeBaseInfo(bytes32)"(
+      scopeId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getScopeMasterType(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "getScopeMasterType()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getSystemAdminType(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "getSystemAdminType()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     hasAccess(
-      context: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      signature: PromiseOrValue<BytesLike>,
+      functionId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "hasAccess(bytes32,address,bytes4)"(
-      context: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      signature: PromiseOrValue<BytesLike>,
+    "hasAccess(bytes32)"(
+      functionId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    isContextEnabled(
-      context: PromiseOrValue<BytesLike>,
+    hasAccessToAgent(
+      agentId: PromiseOrValue<BytesLike>,
+      functionId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "isContextEnabled(bytes32)"(
-      context: PromiseOrValue<BytesLike>,
+    "hasAccessToAgent(bytes32,bytes32)"(
+      agentId: PromiseOrValue<BytesLike>,
+      functionId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    isContextExists(
-      context: PromiseOrValue<BytesLike>,
+    hasCSAccess(
+      contractId: PromiseOrValue<string>,
+      selector: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "isContextExists(bytes32)"(
-      context: PromiseOrValue<BytesLike>,
+    "hasCSAccess(address,bytes4)"(
+      contractId: PromiseOrValue<string>,
+      selector: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    isContextFunctionEnabled(
-      context: PromiseOrValue<BytesLike>,
-      functionSelector: PromiseOrValue<BytesLike>,
+    hasCSAccessToAgent(
+      agentId: PromiseOrValue<BytesLike>,
+      contractId: PromiseOrValue<string>,
+      selector: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "isContextFunctionEnabled(bytes32,bytes4)"(
-      context: PromiseOrValue<BytesLike>,
-      functionSelector: PromiseOrValue<BytesLike>,
+    "hasCSAccessToAgent(bytes32,address,bytes4)"(
+      agentId: PromiseOrValue<BytesLike>,
+      contractId: PromiseOrValue<string>,
+      selector: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    isContextFunctionExists(
-      context: PromiseOrValue<BytesLike>,
-      functionSelector: PromiseOrValue<BytesLike>,
+    hasCSMAccess(
+      contractId: PromiseOrValue<string>,
+      selector: PromiseOrValue<BytesLike>,
+      memberId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "isContextFunctionExists(bytes32,bytes4)"(
-      context: PromiseOrValue<BytesLike>,
-      functionSelector: PromiseOrValue<BytesLike>,
+    "hasCSMAccess(address,bytes4,bytes32)"(
+      contractId: PromiseOrValue<string>,
+      selector: PromiseOrValue<BytesLike>,
+      memberId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    isContextSafeMode(
-      context: PromiseOrValue<BytesLike>,
+    hasCSMAccessToAgent(
+      agentId: PromiseOrValue<BytesLike>,
+      contractId: PromiseOrValue<string>,
+      selector: PromiseOrValue<BytesLike>,
+      memberId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "isContextSafeMode(bytes32)"(
-      context: PromiseOrValue<BytesLike>,
+    "hasCSMAccessToAgent(bytes32,address,bytes4,bytes32)"(
+      agentId: PromiseOrValue<BytesLike>,
+      contractId: PromiseOrValue<string>,
+      selector: PromiseOrValue<BytesLike>,
+      memberId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    isContextUpgradable(
-      context: PromiseOrValue<BytesLike>,
+    hasMemberAccess(
+      functionId: PromiseOrValue<BytesLike>,
+      memberId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "isContextUpgradable(bytes32)"(
-      context: PromiseOrValue<BytesLike>,
+    "hasMemberAccess(bytes32,bytes32)"(
+      functionId: PromiseOrValue<BytesLike>,
+      memberId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    isGroupEnabled(
-      group: PromiseOrValue<BytesLike>,
+    hasMemberAccessToAgent(
+      agentId: PromiseOrValue<BytesLike>,
+      functionId: PromiseOrValue<BytesLike>,
+      memberId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "isGroupEnabled(bytes32)"(
-      group: PromiseOrValue<BytesLike>,
+    "hasMemberAccessToAgent(bytes32,bytes32,bytes32)"(
+      agentId: PromiseOrValue<BytesLike>,
+      functionId: PromiseOrValue<BytesLike>,
+      memberId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    isGroupExists(
-      group: PromiseOrValue<BytesLike>,
+    isAgentExist(
+      agentId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "isGroupExists(bytes32)"(
-      group: PromiseOrValue<BytesLike>,
+    "isAgentExist(bytes32)"(
+      agentId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    isLivelyAdminRole(
-      account: PromiseOrValue<string>,
+    isScopeExist(
+      scopeId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "isLivelyAdminRole(address)"(
-      account: PromiseOrValue<string>,
+    "isScopeExist(bytes32)"(
+      scopeId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    isLivelyAssetAdminRole(
-      account: PromiseOrValue<string>,
+    isScopesCompatible(
+      destScopeId: PromiseOrValue<BytesLike>,
+      srcScopeId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "isLivelyAssetAdminRole(address)"(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    isLivelyAssetGroup(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "isLivelyAssetGroup(bytes32)"(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    isLivelyAssetManagerRole(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "isLivelyAssetManagerRole(address)"(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    isLivelyAssetRealm(
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "isLivelyAssetRealm(bytes32)"(
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    isLivelyCommunityDaoExecutorRole(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "isLivelyCommunityDaoExecutorRole(address)"(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    isLivelyCommunityDaoRole(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "isLivelyCommunityDaoRole(address)"(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    isLivelyDaoGroup(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "isLivelyDaoGroup(bytes32)"(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    isLivelyGeneralGroup(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "isLivelyGeneralGroup(bytes32)"(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    isLivelyGeneralRealm(
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "isLivelyGeneralRealm(bytes32)"(
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    isLivelySystemAdminRole(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "isLivelySystemAdminRole(address)"(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    isRealmEnabled(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "isRealmEnabled(bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    isRealmExists(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "isRealmExists(bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    isRealmUpgradable(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "isRealmUpgradable(bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    isRoleEnabled(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "isRoleEnabled(bytes32)"(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    isRoleExists(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "isRoleExists(bytes32)"(
-      role: PromiseOrValue<BytesLike>,
+    "isScopesCompatible(bytes32,bytes32)"(
+      destScopeId: PromiseOrValue<BytesLike>,
+      srcScopeId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
+    getAdminType(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "getAdminType()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getAgentBaseInfo(
+      agentId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "getAgentBaseInfo(bytes32)"(
+      agentId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getAgentMasterType(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "getAgentMasterType()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getAnonymouseType(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "getAnonymouseType()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getAnyType(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "getAnyType()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getPolicyMasterType(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "getPolicyMasterType()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getScopeBaseInfo(
+      scopeId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "getScopeBaseInfo(bytes32)"(
+      scopeId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getScopeMasterType(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "getScopeMasterType()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getSystemAdminType(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "getSystemAdminType()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     hasAccess(
-      context: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      signature: PromiseOrValue<BytesLike>,
+      functionId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "hasAccess(bytes32,address,bytes4)"(
-      context: PromiseOrValue<BytesLike>,
-      account: PromiseOrValue<string>,
-      signature: PromiseOrValue<BytesLike>,
+    "hasAccess(bytes32)"(
+      functionId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    isContextEnabled(
-      context: PromiseOrValue<BytesLike>,
+    hasAccessToAgent(
+      agentId: PromiseOrValue<BytesLike>,
+      functionId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "isContextEnabled(bytes32)"(
-      context: PromiseOrValue<BytesLike>,
+    "hasAccessToAgent(bytes32,bytes32)"(
+      agentId: PromiseOrValue<BytesLike>,
+      functionId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    isContextExists(
-      context: PromiseOrValue<BytesLike>,
+    hasCSAccess(
+      contractId: PromiseOrValue<string>,
+      selector: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "isContextExists(bytes32)"(
-      context: PromiseOrValue<BytesLike>,
+    "hasCSAccess(address,bytes4)"(
+      contractId: PromiseOrValue<string>,
+      selector: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    isContextFunctionEnabled(
-      context: PromiseOrValue<BytesLike>,
-      functionSelector: PromiseOrValue<BytesLike>,
+    hasCSAccessToAgent(
+      agentId: PromiseOrValue<BytesLike>,
+      contractId: PromiseOrValue<string>,
+      selector: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "isContextFunctionEnabled(bytes32,bytes4)"(
-      context: PromiseOrValue<BytesLike>,
-      functionSelector: PromiseOrValue<BytesLike>,
+    "hasCSAccessToAgent(bytes32,address,bytes4)"(
+      agentId: PromiseOrValue<BytesLike>,
+      contractId: PromiseOrValue<string>,
+      selector: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    isContextFunctionExists(
-      context: PromiseOrValue<BytesLike>,
-      functionSelector: PromiseOrValue<BytesLike>,
+    hasCSMAccess(
+      contractId: PromiseOrValue<string>,
+      selector: PromiseOrValue<BytesLike>,
+      memberId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "isContextFunctionExists(bytes32,bytes4)"(
-      context: PromiseOrValue<BytesLike>,
-      functionSelector: PromiseOrValue<BytesLike>,
+    "hasCSMAccess(address,bytes4,bytes32)"(
+      contractId: PromiseOrValue<string>,
+      selector: PromiseOrValue<BytesLike>,
+      memberId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    isContextSafeMode(
-      context: PromiseOrValue<BytesLike>,
+    hasCSMAccessToAgent(
+      agentId: PromiseOrValue<BytesLike>,
+      contractId: PromiseOrValue<string>,
+      selector: PromiseOrValue<BytesLike>,
+      memberId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "isContextSafeMode(bytes32)"(
-      context: PromiseOrValue<BytesLike>,
+    "hasCSMAccessToAgent(bytes32,address,bytes4,bytes32)"(
+      agentId: PromiseOrValue<BytesLike>,
+      contractId: PromiseOrValue<string>,
+      selector: PromiseOrValue<BytesLike>,
+      memberId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    isContextUpgradable(
-      context: PromiseOrValue<BytesLike>,
+    hasMemberAccess(
+      functionId: PromiseOrValue<BytesLike>,
+      memberId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "isContextUpgradable(bytes32)"(
-      context: PromiseOrValue<BytesLike>,
+    "hasMemberAccess(bytes32,bytes32)"(
+      functionId: PromiseOrValue<BytesLike>,
+      memberId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    isGroupEnabled(
-      group: PromiseOrValue<BytesLike>,
+    hasMemberAccessToAgent(
+      agentId: PromiseOrValue<BytesLike>,
+      functionId: PromiseOrValue<BytesLike>,
+      memberId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "isGroupEnabled(bytes32)"(
-      group: PromiseOrValue<BytesLike>,
+    "hasMemberAccessToAgent(bytes32,bytes32,bytes32)"(
+      agentId: PromiseOrValue<BytesLike>,
+      functionId: PromiseOrValue<BytesLike>,
+      memberId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    isGroupExists(
-      group: PromiseOrValue<BytesLike>,
+    isAgentExist(
+      agentId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "isGroupExists(bytes32)"(
-      group: PromiseOrValue<BytesLike>,
+    "isAgentExist(bytes32)"(
+      agentId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    isLivelyAdminRole(
-      account: PromiseOrValue<string>,
+    isScopeExist(
+      scopeId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "isLivelyAdminRole(address)"(
-      account: PromiseOrValue<string>,
+    "isScopeExist(bytes32)"(
+      scopeId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    isLivelyAssetAdminRole(
-      account: PromiseOrValue<string>,
+    isScopesCompatible(
+      destScopeId: PromiseOrValue<BytesLike>,
+      srcScopeId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "isLivelyAssetAdminRole(address)"(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    isLivelyAssetGroup(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "isLivelyAssetGroup(bytes32)"(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    isLivelyAssetManagerRole(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "isLivelyAssetManagerRole(address)"(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    isLivelyAssetRealm(
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "isLivelyAssetRealm(bytes32)"(
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    isLivelyCommunityDaoExecutorRole(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "isLivelyCommunityDaoExecutorRole(address)"(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    isLivelyCommunityDaoRole(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "isLivelyCommunityDaoRole(address)"(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    isLivelyDaoGroup(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "isLivelyDaoGroup(bytes32)"(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    isLivelyGeneralGroup(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "isLivelyGeneralGroup(bytes32)"(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    isLivelyGeneralRealm(
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "isLivelyGeneralRealm(bytes32)"(
-      context: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    isLivelySystemAdminRole(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "isLivelySystemAdminRole(address)"(
-      account: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    isRealmEnabled(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "isRealmEnabled(bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    isRealmExists(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "isRealmExists(bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    isRealmUpgradable(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "isRealmUpgradable(bytes32)"(
-      realm: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    isRoleEnabled(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "isRoleEnabled(bytes32)"(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    isRoleExists(
-      role: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "isRoleExists(bytes32)"(
-      role: PromiseOrValue<BytesLike>,
+    "isScopesCompatible(bytes32,bytes32)"(
+      destScopeId: PromiseOrValue<BytesLike>,
+      srcScopeId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };

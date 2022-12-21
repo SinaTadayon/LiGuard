@@ -14,7 +14,7 @@ import "../acl/IAccessControl.sol";
 import "../acl/scope/IContextManagement.sol";
 import "../utils/Message.sol";
 import "../utils/ERC165.sol";
-import "../lib/LContextUtils.sol";
+import "../lib/acl/LAclUtils.sol";
 
 /**
  * @title Abstract Base UUPS Proxy Contract
@@ -39,8 +39,8 @@ abstract contract BaseUUPSProxy is
    * fail.
    */
   modifier onlyProxy() {
-    require(address(this) != __self, "Illegal Contract Call");
-    require(_implementation() == __self, "Proxy Called Invalid");
+    require(address(this) != __self, "Illegal");    // Illegal Contract Call
+    require(_implementation() == __self, "Invaid");   // Invalid Proxy Called 
     _;
   }
 
@@ -48,7 +48,7 @@ abstract contract BaseUUPSProxy is
    * @dev Throws if called by any account other than the owner.
    */
   modifier onlyLocalAdmin() {
-    require(_getLocalAdmin() == _msgSender(), "Caller Not Authorized");
+    require(_getLocalAdmin() == _msgSender(), "Not Authorized");
     _;
   }
 
@@ -57,17 +57,17 @@ abstract contract BaseUUPSProxy is
    * callable on the implementing contract but not through proxies.
    */
   modifier notDelegated() {
-    require(address(this) == __self, "Illegal Contract Delegatecall");
+    require(address(this) == __self, "Illegal");    // Illegal Contract Delegatecall
     _;
   }
 
   modifier safeModeCheck() {
-    require(_smstat == ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
+    require(_sstat == ProxySafeModeStatus.DISABLED, "Rejected");
     _;
   }
 
   modifier aclCheck(bytes4 selector) {
-    require(_hasPermission(selector), "Access Denied");
+    require(_hasPermission(selector), "Forbidden");
     _;
   }
 
@@ -79,7 +79,7 @@ abstract contract BaseUUPSProxy is
         // _msgSender(),
         selector
       );
-      bytes memory returndata = LAddress.functionDelegateCall(_implementation(), data, "Delegatecall hasAccess Failed");
+      bytes memory returndata = LAddress.functionDelegateCall(_implementation(), data, "Forbidden"); // Delegatecall hasAccess Failed
       return uint8(returndata[returndata.length - 1]) == 1;
     } else {
       return
@@ -88,21 +88,6 @@ abstract contract BaseUUPSProxy is
           // _msgSender(),
           selector
         );
-    }
-  }
-
-  function _isRealmUpgradable() internal returns (bool) {
-    bytes32 realm =  _accessControlManager.getContextRealm(this.contractContext());
-    if (address(this) == _accessControlManager) {
-      bytes memory data = abi.encodeWithSelector(IAccessControl.isRealmUpgradable.selector, realm);
-      bytes memory returndata = LAddress.functionDelegateCall(
-        _implementation(),
-        data,
-        "Delegatecall isRealmUpgradable Failed"
-      );
-      return uint8(returndata[returndata.length - 1]) == 1;
-    } else {
-      return IAccessControl(_accessControlManager).isRealmUpgradable(realm);
     }
   }
 
@@ -120,8 +105,8 @@ abstract contract BaseUUPSProxy is
     LStorageSlot.getAddressSlot(_ADMIN_SLOT).value = _msgSender();
 
     // set _isUpgradable and _isSafeMode of contact
-    _ustat = ProxyUpdatabilityStatus.DISABLE;
-    _smstat = ProxySafeModeStatus.ENABLE;
+    _ustat = ProxyUpgradabilityStatus.DISABLED;
+    _sstat = ProxySafeModeStatus.ENABLED;
   }
 
   function __BASE_UUPS_init(
@@ -142,15 +127,18 @@ abstract contract BaseUUPSProxy is
     if (accessControl == address(0)) {
       _accessControlManager = address(this);
     } else {
-      try IERC165(accessControl).supportsInterface(type(IAccessControl).interfaceId) returns (bool isSupported) {
-        require(isSupported, "Invalid AccessControlManager");
-      } catch {
-        revert("Illegal AccessControlManager");
+      if(!IERC165(accessControl).supportsInterface(type(IAccessControl).interfaceId)) {
+        revert("IllegalACL");
       }
+      // try IERC165(accessControl).supportsInterface(type(IAccessControl).interfaceId) returns (bool isSupported) {
+      //   require(isSupported, "Invalid AccessControlManager");
+      // } catch {
+      //   revert("Illegal AccessControlManager");
+      // }
       _accessControlManager = accessControl;
     }
-    _ustat = ProxyUpdatabilityStatus.DISABLE;
-    _smstat = ProxySafeModeStatus.DISABLE;
+    _ustat = ProxyUpgradabilityStatus.DISABLED;
+    _sstat = ProxySafeModeStatus.DISABLED;
     _setLocalAdmin(_msgSender());
   }
 
@@ -175,7 +163,7 @@ abstract contract BaseUUPSProxy is
    * @dev Stores a new address in the EIP1967 implementation slot.
    */
   function _setImplementation(address newImplementation) private {
-    require(LAddress.isContract(newImplementation), "Illegal Contract Address");
+    require(LAddress.isContract(newImplementation), "Illegal");
     LStorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value = newImplementation;
   }
 
@@ -201,7 +189,7 @@ abstract contract BaseUUPSProxy is
   ) internal returns (bytes memory) {
     _upgradeTo(newImplementation);
     if (data.length > 0 || forceCall) {
-      return LAddress.functionDelegateCall(newImplementation, data, "Delegatecall Failed");
+      return LAddress.functionDelegateCall(newImplementation, data, "DFAIL");  // delegatecall failed
     }
     return new bytes(0);
   }
@@ -223,17 +211,28 @@ abstract contract BaseUUPSProxy is
       _setImplementation(newImplementation);
       return new bytes(0);
     } else {
-      try IERC1822Proxiable(newImplementation).proxiableUUID() returns (bytes32 slot) {
-        require(slot == _IMPLEMENTATION_SLOT, "Invalid UUPS Contract");
-      } catch {
-        revert("Illegal UUPS Contract");
+      if(IERC1822Proxiable(newImplementation).proxiableUUID() == bytes32(0)) {
+        revert("IllegalU");
       }
 
-      try IERC165(newImplementation).supportsInterface(type(IProxy).interfaceId) returns (bool isSupported) {
-        require(isSupported, "Invalid IProxy Contract");
-      } catch {
-        revert("Illegal IProxy Contract");
+      if(!IERC165(newImplementation).supportsInterface(type(IProxy).interfaceId)) {
+        revert("IllegalP");
       }
+ 
+
+
+      // try IERC1822Proxiable(newImplementation).proxiableUUID() returns (bytes32 slot) {
+      //   require(slot == _IMPLEMENTATION_SLOT, "Invalid UUPS");
+      // } catch {
+      //   revert("Illegal UUPS");
+      // }
+
+
+      // try IERC165(newImplementation).supportsInterface(type(IProxy).interfaceId) returns (bool isSupported) {
+      //   require(isSupported, "Invalid IProxy");
+      // } catch {
+      //   revert("Illegal IProxy");
+      // }
 
       return _upgradeToAndCall(newImplementation, data, forceCall);
     }
@@ -256,8 +255,8 @@ abstract contract BaseUUPSProxy is
     bytes memory data,
     bool forceCall
   ) external virtual onlyProxy returns (bytes memory) {
-    require(_smstat == ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
-    require(_ustat == ProxyUpdatabilityStatus.ENABLE, "Upgrade Call Rejected");
+    require(_sstat == ProxySafeModeStatus.DISABLED, "CRejected");
+    require(_ustat == ProxyUpgradabilityStatus.ENABLED, "URejected");
     _authorizeUpgrade(newImplementation);
     return _upgradeToAndCallUUPS(newImplementation, data, forceCall);
   }
@@ -273,8 +272,8 @@ abstract contract BaseUUPSProxy is
    * ```
    */
   function _authorizeUpgrade(address newImplementation) internal virtual {
-    require(newImplementation != _implementation(), "Illegal New Implementation");
-    require(_hasPermission(this.upgradeTo.selector), "Upgrade Context Forbidden");
+    require(newImplementation != _implementation(), "Illegal");
+    require(_hasPermission(this.upgradeTo.selector), "Forbidden");
   }
 
   function localAdmin() external view returns (address) {
@@ -282,16 +281,16 @@ abstract contract BaseUUPSProxy is
   }
 
   function setLocalAdmin(address newLocalAdmin) external onlyProxy returns (bool) {
-    require(_smstat == ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
-    require(_ustat == ProxyUpdatabilityStatus.ENABLE, "Update Call Rejected");
-    require(_hasPermission(this.setLocalAdmin.selector), "SetLocalAdmin Forbidden");
-    require(newLocalAdmin != address(0), "Address Invalid");
+    require(_sstat == ProxySafeModeStatus.DISABLED, "CRejected");
+    require(_ustat == ProxyUpgradabilityStatus.ENABLED, "URejected");
+    require(_hasPermission(this.setLocalAdmin.selector), "Forbidden");
+    require(newLocalAdmin != address(0), "Invalid");
     _setLocalAdmin(newLocalAdmin);
     return true;
   }
 
   /**
-   * @dev Returns the current admin.require(!_isSafeMode, "SafeMode: Call Rejected");
+   * @dev Returns the current admin.require(!_isSafeMode, "Rejected");
    */
   function _getLocalAdmin() internal view returns (address) {
     return LStorageSlot.getAddressSlot(_ADMIN_SLOT).value;
@@ -302,29 +301,55 @@ abstract contract BaseUUPSProxy is
    */
   function _setLocalAdmin(address newAdmin) internal {
     LStorageSlot.getAddressSlot(_ADMIN_SLOT).value = newAdmin;
-    emit LocalAdminUpdated(_msgSender(), address(this), newAdmin);
+    emit ProxyLocalAdminUpdated(_msgSender(), address(this), newAdmin);
   }
 
   // In each upgrade the initialize requirement must be changed
-  function setSafeModeStatus(ProxySafeModeStatus smstat) external onlyProxy returns (bool) {
-    require(_getInitializedCount() > 0, "Contract Not Initialized");
-    require(_hasPermission(this.setSafeModeStatus.selector), "SetSafeMode Forbidden");
-    _smstat = smstat;
-    emit ProxySafeModeUpdated(_msgSender(), address(this), _accessControlManager.getContextRealm(this.contractContext()), smstat);
+  function setSafeModeStatus(ProxySafeModeStatus sstat) external onlyProxy returns (bool) {
+    require(_getInitializedCount() > 0, "NOT INIT");
+    require(_hasPermission(this.setSafeModeStatus.selector), "Forbidden");
+    _sstat = sstat;
+    emit ProxySafeModeUpdated(_msgSender(), address(this), sstat);
     return true;
   }
 
-  function setUpdatabilityStatus(ProxyUpdatabilityStatus ustat) external onlyProxy returns (bool) {
-    require(_smstat == ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
-    require(_hasPermission(this.setUpgradeStatus.selector), "SetUpgradeStatus Forbidden");
+  function setUpgradabilityStatus(ProxyUpgradabilityStatus ustat) external onlyProxy returns (bool) {
+    require(_sstat == ProxySafeModeStatus.DISABLED, "Rejected");
+    require(_hasPermission(this.setUpgradabilityStatus.selector), "Forbidden");
 
-    // TODO check it
-    require(_isRealmUpgradable(), "Realm Upgrade Forbidden");
     _ustat = ustat;
-    emit ProxyUpdatabilityUpdated(_msgSender(), address(this), _accessControlManager.getContextRealm(this.contractContext()), ustat);
+    emit ProxyUpdatabilityUpdated(_msgSender(), address(this), ustat);
     return true;
   }
 
+  function setAccessControlManager(address acl) external onlyProxy returns (bool) {
+
+    if(_accessControlManager == address(this)) {
+      revert("IllegalOpt");
+    } 
+
+    if(!IERC165(acl).supportsInterface(type(IAccessControl).interfaceId)) {
+        revert("IllegalACL");  
+    }
+
+    _accessControlManager = acl; 
+    emit ProxyAccessControlUpdated(_msgSender(), address(this), acl);
+    return true;   
+  }
+
+  function proxyInfo() external view returns (ProxyInfo memory) {
+    return ProxyInfo({
+      contextId: LAclUtils.accountGenerateId(address(this)),
+      name: _contractName,
+      version: _contractVersion,
+      acl: _accessControlManager,
+      subject: _implementation(),
+      localAdmin: _getLocalAdmin(),
+      initVersion: _getInitializedCount(),
+      sstat: _sstat,
+      ustat: _ustat
+    });
+  }
   function contractName() external view returns (string memory) {
     return _contractName;
   }
@@ -333,25 +358,25 @@ abstract contract BaseUUPSProxy is
     return _contractVersion;
   }
 
-  function contractContext() external view returns (bytes32) {
-    return LContextUtils.generateCtx(address(this));
-  }
+  // function contractContext() external view returns (bytes32) {
+  //   return LAclUtils.accountGenerateId(address(this));
+  // }
 
-  function accessControlManager() external view returns (address) {
-    return _accessControlManager;
-  }
+  // function accessControlManager() external view returns (address) {
+  //   return _accessControlManager;
+  // }
 
-  function subjectAddress() external view returns (address) {
-    return _implementation();
-  }
+  // function subjectAddress() external view returns (address) {
+  //   return _implementation();
+  // }
 
   function safeModeStatus() external view returns (ProxySafeModeStatus) {
-    return _smstat;
+    return _sstat;
   }
 
-  function UpdatabilityStatus() external view returns (ProxyUpdatabilityStatus) {
-    return _ustat;
-  }
+  // function UpdatabilityStatus() external view returns (ProxyUpdatabilityStatus) {
+  //   return _ustat;
+  // }
 
   // TODO check it
   function domainSeparator() external view returns (bytes32) {
@@ -362,13 +387,13 @@ abstract contract BaseUUPSProxy is
     return keccak256(abi.encode(_TYPE_HASH, _contractName, _contractVersion, block.chainid, address(this)));
   }
 
-  function initVersion() external view returns (uint16) {
-    return _getInitializedCount();
-  }
+  // function initVersion() external view returns (uint16) {
+  //   return _getInitializedCount();
+  // }
 
   function withdrawBalance(address recepient) public {
-    require(_smstat == ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
-    require(_hasPermission(this.withdrawBalance.selector), "Withdraw Balance Forbidden");
+    require(_sstat == ProxySafeModeStatus.DISABLED, "Rejected");
+    require(_hasPermission(this.withdrawBalance.selector), "Forbidden");
     payable(recepient).transfer(address(this).balance);
   }
 

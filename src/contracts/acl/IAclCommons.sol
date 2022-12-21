@@ -208,9 +208,9 @@ interface IAclCommons {
   }
 
 
-  event AgentReferredByScopeUpdated(address indexed sender, bytes32 indexed agentId, bytes32 indexed scopeId, uint16 total, AgentType atype, ActionType action);
-  event AgentReferredByPolicyUpdated(address indexed sender, bytes32 indexed agentId, bytes32 indexed policyId, uint16 total, AgentType atype, ActionType action);
+  event AgentReferredByScopeUpdated(address indexed sender, bytes32 indexed agentId, bytes32 indexed scopeId, ActionType action);
+  event AgentReferredByPolicyUpdated(address indexed sender, bytes32 indexed agentId, bytes32 indexed policyId, ActionType action);
 
-  event ScopeReferredByAgentUpdated(address indexed sender, bytes32 indexed scopeId, bytes32 indexed agentId, uint16 total, ScopeType stype, ActionType action);
-  event ScopeReferredByPolicyUpdated(address indexed sender, bytes32 indexed scopeId, bytes32 indexed policyId, uint16 total, ScopeType stype, ActionType action);
+  event ScopeReferredByAgentUpdated(address indexed sender, bytes32 indexed scopeId, bytes32 indexed agentId, ActionType action);
+  event ScopeReferredByPolicyUpdated(address indexed sender, bytes32 indexed scopeId, bytes32 indexed policyId, ActionType action);
 }

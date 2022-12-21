@@ -57,13 +57,8 @@ interface IRoleManagement is IAclCommons {
     address indexed sender,
     bytes32 indexed roleId,
     bytes32 indexed typeId,
-    string name,
     bytes32 adminId,
-    bytes32 scopeId,
-    uint32 memberLimit,
-    uint16 scopeLimit,
-    ActivityStatus acstat,
-    AlterabilityStatus alstat
+    bytes32 scopeId
   );
 
   event RoleMemberGranted(address indexed sender, bytes32 indexed roleId, bytes32 indexed memberId, bytes32 typeId);

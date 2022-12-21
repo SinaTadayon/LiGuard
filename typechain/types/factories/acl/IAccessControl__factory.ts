@@ -11,21 +11,338 @@ import type {
 
 const _abi = [
   {
+    anonymous: false,
     inputs: [
       {
-        internalType: "bytes32",
-        name: "context",
-        type: "bytes32",
-      },
-      {
+        indexed: true,
         internalType: "address",
-        name: "account",
+        name: "sender",
         type: "address",
       },
       {
-        internalType: "bytes4",
-        name: "signature",
-        type: "bytes4",
+        indexed: true,
+        internalType: "bytes32",
+        name: "agentId",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "policyId",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "enum IAclCommons.ActionType",
+        name: "action",
+        type: "uint8",
+      },
+    ],
+    name: "AgentReferredByPolicyUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "agentId",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "scopeId",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "enum IAclCommons.ActionType",
+        name: "action",
+        type: "uint8",
+      },
+    ],
+    name: "AgentReferredByScopeUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "scopeId",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "agentId",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "enum IAclCommons.ActionType",
+        name: "action",
+        type: "uint8",
+      },
+    ],
+    name: "ScopeReferredByAgentUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "scopeId",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "policyId",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "enum IAclCommons.ActionType",
+        name: "action",
+        type: "uint8",
+      },
+    ],
+    name: "ScopeReferredByPolicyUpdated",
+    type: "event",
+  },
+  {
+    inputs: [],
+    name: "getAdminType",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "pure",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "agentId",
+        type: "bytes32",
+      },
+    ],
+    name: "getAgentBaseInfo",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "bytes32",
+            name: "adminId",
+            type: "bytes32",
+          },
+          {
+            internalType: "enum IAclCommons.AgentType",
+            name: "atype",
+            type: "uint8",
+          },
+          {
+            internalType: "enum IAclCommons.ActivityStatus",
+            name: "acstat",
+            type: "uint8",
+          },
+          {
+            internalType: "enum IAclCommons.AlterabilityStatus",
+            name: "alstat",
+            type: "uint8",
+          },
+          {
+            internalType: "uint16",
+            name: "referredByScope",
+            type: "uint16",
+          },
+          {
+            internalType: "uint16",
+            name: "referredByPolicy",
+            type: "uint16",
+          },
+          {
+            internalType: "uint16",
+            name: "scopeLimit",
+            type: "uint16",
+          },
+        ],
+        internalType: "struct IAclCommons.BaseAgent",
+        name: "",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getAgentMasterType",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "pure",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getAnonymouseType",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "pure",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getAnyType",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "pure",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getPolicyMasterType",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "scopeId",
+        type: "bytes32",
+      },
+    ],
+    name: "getScopeBaseInfo",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "bytes32",
+            name: "adminId",
+            type: "bytes32",
+          },
+          {
+            internalType: "enum IAclCommons.ScopeType",
+            name: "stype",
+            type: "uint8",
+          },
+          {
+            internalType: "enum IAclCommons.ActivityStatus",
+            name: "acstat",
+            type: "uint8",
+          },
+          {
+            internalType: "enum IAclCommons.AlterabilityStatus",
+            name: "alstat",
+            type: "uint8",
+          },
+          {
+            internalType: "uint16",
+            name: "referredByAgent",
+            type: "uint16",
+          },
+          {
+            internalType: "uint16",
+            name: "referredByPolicy",
+            type: "uint16",
+          },
+          {
+            internalType: "uint16",
+            name: "agentLimit",
+            type: "uint16",
+          },
+        ],
+        internalType: "struct IAclCommons.BaseScope",
+        name: "",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getScopeMasterType",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "pure",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getSystemAdminType",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "pure",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "functionId",
+        type: "bytes32",
       },
     ],
     name: "hasAccess",
@@ -43,11 +360,16 @@ const _abi = [
     inputs: [
       {
         internalType: "bytes32",
-        name: "context",
+        name: "agentId",
+        type: "bytes32",
+      },
+      {
+        internalType: "bytes32",
+        name: "functionId",
         type: "bytes32",
       },
     ],
-    name: "isContextEnabled",
+    name: "hasAccessToAgent",
     outputs: [
       {
         internalType: "bool",
@@ -61,36 +383,17 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes32",
-        name: "context",
-        type: "bytes32",
-      },
-    ],
-    name: "isContextExists",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "context",
-        type: "bytes32",
+        internalType: "address",
+        name: "contractId",
+        type: "address",
       },
       {
         internalType: "bytes4",
-        name: "functionSelector",
+        name: "selector",
         type: "bytes4",
       },
     ],
-    name: "isContextFunctionEnabled",
+    name: "hasCSAccess",
     outputs: [
       {
         internalType: "bool",
@@ -105,92 +408,21 @@ const _abi = [
     inputs: [
       {
         internalType: "bytes32",
-        name: "context",
+        name: "agentId",
         type: "bytes32",
+      },
+      {
+        internalType: "address",
+        name: "contractId",
+        type: "address",
       },
       {
         internalType: "bytes4",
-        name: "functionSelector",
+        name: "selector",
         type: "bytes4",
       },
     ],
-    name: "isContextFunctionExists",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "context",
-        type: "bytes32",
-      },
-    ],
-    name: "isContextSafeMode",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "context",
-        type: "bytes32",
-      },
-    ],
-    name: "isContextUpgradable",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "group",
-        type: "bytes32",
-      },
-    ],
-    name: "isGroupEnabled",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "group",
-        type: "bytes32",
-      },
-    ],
-    name: "isGroupExists",
+    name: "hasCSAccessToAgent",
     outputs: [
       {
         internalType: "bool",
@@ -205,11 +437,21 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "account",
+        name: "contractId",
         type: "address",
       },
+      {
+        internalType: "bytes4",
+        name: "selector",
+        type: "bytes4",
+      },
+      {
+        internalType: "bytes32",
+        name: "memberId",
+        type: "bytes32",
+      },
     ],
-    name: "isLivelyAdminRole",
+    name: "hasCSMAccess",
     outputs: [
       {
         internalType: "bool",
@@ -222,13 +464,28 @@ const _abi = [
   },
   {
     inputs: [
+      {
+        internalType: "bytes32",
+        name: "agentId",
+        type: "bytes32",
+      },
       {
         internalType: "address",
-        name: "account",
+        name: "contractId",
         type: "address",
       },
+      {
+        internalType: "bytes4",
+        name: "selector",
+        type: "bytes4",
+      },
+      {
+        internalType: "bytes32",
+        name: "memberId",
+        type: "bytes32",
+      },
     ],
-    name: "isLivelyAssetAdminRole",
+    name: "hasCSMAccessToAgent",
     outputs: [
       {
         internalType: "bool",
@@ -243,30 +500,16 @@ const _abi = [
     inputs: [
       {
         internalType: "bytes32",
-        name: "role",
+        name: "functionId",
+        type: "bytes32",
+      },
+      {
+        internalType: "bytes32",
+        name: "memberId",
         type: "bytes32",
       },
     ],
-    name: "isLivelyAssetGroup",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
-    ],
-    name: "isLivelyAssetManagerRole",
+    name: "hasMemberAccess",
     outputs: [
       {
         internalType: "bool",
@@ -281,49 +524,21 @@ const _abi = [
     inputs: [
       {
         internalType: "bytes32",
-        name: "context",
+        name: "agentId",
+        type: "bytes32",
+      },
+      {
+        internalType: "bytes32",
+        name: "functionId",
+        type: "bytes32",
+      },
+      {
+        internalType: "bytes32",
+        name: "memberId",
         type: "bytes32",
       },
     ],
-    name: "isLivelyAssetRealm",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
-    ],
-    name: "isLivelyCommunityDaoExecutorRole",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
-    ],
-    name: "isLivelyCommunityDaoRole",
+    name: "hasMemberAccessToAgent",
     outputs: [
       {
         internalType: "bool",
@@ -338,11 +553,11 @@ const _abi = [
     inputs: [
       {
         internalType: "bytes32",
-        name: "role",
+        name: "agentId",
         type: "bytes32",
       },
     ],
-    name: "isLivelyDaoGroup",
+    name: "isAgentExist",
     outputs: [
       {
         internalType: "bool",
@@ -357,11 +572,11 @@ const _abi = [
     inputs: [
       {
         internalType: "bytes32",
-        name: "role",
+        name: "scopeId",
         type: "bytes32",
       },
     ],
-    name: "isLivelyGeneralGroup",
+    name: "isScopeExist",
     outputs: [
       {
         internalType: "bool",
@@ -376,125 +591,16 @@ const _abi = [
     inputs: [
       {
         internalType: "bytes32",
-        name: "context",
+        name: "destScopeId",
         type: "bytes32",
       },
-    ],
-    name: "isLivelyGeneralRealm",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
-    ],
-    name: "isLivelySystemAdminRole",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
       {
         internalType: "bytes32",
-        name: "realm",
+        name: "srcScopeId",
         type: "bytes32",
       },
     ],
-    name: "isRealmEnabled",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "realm",
-        type: "bytes32",
-      },
-    ],
-    name: "isRealmExists",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "realm",
-        type: "bytes32",
-      },
-    ],
-    name: "isRealmUpgradable",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "role",
-        type: "bytes32",
-      },
-    ],
-    name: "isRoleEnabled",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "role",
-        type: "bytes32",
-      },
-    ],
-    name: "isRoleExists",
+    name: "isScopesCompatible",
     outputs: [
       {
         internalType: "bool",

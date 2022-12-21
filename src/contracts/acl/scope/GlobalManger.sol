@@ -24,14 +24,9 @@ contract GlobalManager is AclStorage, IGlobalManagement {
 
   function globalUpdateActivityStatus(ActivityStatus acstat) external returns (ActivityStatus) {
 
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "Call Rejected");
-    address functionFacetId = _data.interfaces[type(IGlobalManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IGlobalManagement.globalUpdateActivityStatus.selector);
-    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
-
-    bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
-    require(_data.global.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Global Update");
-    require(_doCheckAdminAccess(_data.global.bs.adminId, memberId, functionId), "Operation Not Permitted");
+    bytes32 functionId = _accessPermission(IGlobalManagement.globalUpdateActivityStatus.selector);
+    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
+    _doCheckAdminAccess(senderId, functionId);
 
     require(acstat > ActivityStatus.DELETED, "Illegal Activity Status");
     _data.global.bs.acstat = acstat;
@@ -41,15 +36,9 @@ contract GlobalManager is AclStorage, IGlobalManagement {
   }
 
   function globalUpdateAlterabilityStatus(AlterabilityStatus alstat) external returns (AlterabilityStatus) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "Call Rejected");
-   
-    address functionFacetId = _data.interfaces[type(IGlobalManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IGlobalManagement.globalUpdateAlterabilityStatus.selector);
-    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
-    bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
-
-    // check admin function
-    require(_doCheckAdminAccess(_data.global.bs.adminId, memberId, functionId), "Operation Not Permitted");
+    bytes32 functionId = _accessPermission(IGlobalManagement.globalUpdateActivityStatus.selector);
+    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
+    _doCheckAdminAccess(senderId, functionId);
 
     _data.global.bs.alstat = alstat;
     emit GlobalAlterabilityUpdated(msg.sender, _data.global.bs.alstat);
@@ -58,19 +47,23 @@ contract GlobalManager is AclStorage, IGlobalManagement {
   }
 
   function globalUpdateAdmin(bytes32 newAdminId) external returns (bool) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "Call Rejected");
+    // require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");
    
-    address functionFacetId = _data.interfaces[type(IGlobalManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IGlobalManagement.globalUpdateAdmin.selector);
-    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
-    bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
+    // address functionFacetId = _data.interfaces[type(IGlobalManagement).interfaceId];
+    // bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IGlobalManagement.globalUpdateAdmin.selector);
+    // require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
+    // bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
 
-    require(_data.global.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Global Update");
+    // require(_data.global.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Global Update");
     
-    // check admin function
-    require(_doCheckAdminAccess(_data.global.bs.adminId, memberId, functionId), "Operation Not Permitted");
+    // // check admin function
+    // require(_doCheckAdminAccess(_data.global.bs.adminId, memberId, functionId), "Forbidden");
+    bytes32 functionId = _accessPermission(IGlobalManagement.globalUpdateAdmin.selector);
+    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
+    _doCheckAdminAccess(senderId, functionId);
 
-    require(newAdminId != _data.global.bs.adminId && newAdminId != bytes32(0), "Illegal Admin ID");
+
+    require(newAdminId != _data.global.bs.adminId && newAdminId != bytes32(0), "Illegal Admin id");
     
     BaseAgent storage adminBaseAgent = _data.agents[newAdminId];
     require(adminBaseAgent.atype > AgentType.MEMBER, "Illegal Admin AgentType");
@@ -87,17 +80,9 @@ contract GlobalManager is AclStorage, IGlobalManagement {
   }
 
   function globalUpdateDomainLimit(uint16 domainLimit) external returns (bool) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "Call Rejected");
-   
-    address functionFacetId = _data.interfaces[type(IGlobalManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IGlobalManagement.globalUpdateDomainLimit.selector);
-    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
-    bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
-
-    require(_data.global.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Global Update");
-
-    // check admin function
-    require(_doCheckAdminAccess(_data.global.bs.adminId, memberId, functionId), "Operation Not Permitted");
+    bytes32 functionId = _accessPermission(IGlobalManagement.globalUpdateDomainLimit.selector);
+    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
+    _doCheckAdminAccess(senderId, functionId);
 
     _data.global.domainLimit = domainLimit;
     emit GlobalDomainLimitUpdated(msg.sender, domainLimit);    
@@ -105,17 +90,21 @@ contract GlobalManager is AclStorage, IGlobalManagement {
   }
 
   function globalUpdateAgentLimit(uint16 agentLimit) external returns (bool) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "Call Rejected");
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");
    
-    address functionFacetId = _data.interfaces[type(IGlobalManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IGlobalManagement.globalUpdateDomainLimit.selector);
-    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
-    bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
+    // address functionFacetId = _data.interfaces[type(IGlobalManagement).interfaceId];
+    // bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IGlobalManagement.globalUpdateDomainLimit.selector);
+    // require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
+    // bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
 
-    require(_data.global.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Global Update");
+    // require(_data.global.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Global Update");
 
-    // check admin function
-    require(_doCheckAdminAccess(_data.global.bs.adminId, memberId, functionId), "Operation Not Permitted");
+    // // check admin function
+    // require(_doCheckAdminAccess(_data.global.bs.adminId, memberId, functionId), "Forbidden");
+
+    bytes32 functionId = _accessPermission(IGlobalManagement.globalUpdateDomainLimit.selector);
+    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
+    _doCheckAdminAccess(senderId, functionId);
 
     _data.global.bs.agentLimit = agentLimit;
     emit GlobalAgentLimitUpdated(msg.sender, agentLimit);
@@ -200,4 +189,19 @@ contract GlobalManager is AclStorage, IGlobalManagement {
 
     return (ScopeType.NONE, bytes32(0));  
   }
+
+  function _accessPermission(bytes4 selector) internal returns (bytes32) {
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
+    
+    address functionFacetId = _data.interfaces[type(IGlobalManagement).interfaceId];
+    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, selector);    
+    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
+    return functionId;
+  }
+
+  function _doCheckAdminAccess(bytes32 senderId, bytes32 functionId) internal view {
+    require(_data.global.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Global Update");
+    require(_doCheckAdminAccess(_data.global.bs.adminId, senderId, functionId), "Forbidden");
+  }
+
 }

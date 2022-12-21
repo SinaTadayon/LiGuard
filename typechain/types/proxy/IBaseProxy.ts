@@ -16,26 +16,26 @@ export interface IBaseProxyInterface extends utils.Interface {
   functions: {};
 
   events: {
-    "Upgraded(address,address,address)": EventFragment;
+    "ProxyUpgraded(address,address,address)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "Upgraded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ProxyUpgraded"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "Upgraded(address,address,address)"
+    nameOrSignatureOrTopic: "ProxyUpgraded(address,address,address)"
   ): EventFragment;
 }
 
-export interface UpgradedEventObject {
+export interface ProxyUpgradedEventObject {
   sender: string;
   proxy: string;
   newImplementation: string;
 }
-export type UpgradedEvent = TypedEvent<
+export type ProxyUpgradedEvent = TypedEvent<
   [string, string, string],
-  UpgradedEventObject
+  ProxyUpgradedEventObject
 >;
 
-export type UpgradedEventFilter = TypedEventFilter<UpgradedEvent>;
+export type ProxyUpgradedEventFilter = TypedEventFilter<ProxyUpgradedEvent>;
 
 export interface IBaseProxy extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -68,16 +68,16 @@ export interface IBaseProxy extends BaseContract {
   callStatic: {};
 
   filters: {
-    "Upgraded(address,address,address)"(
+    "ProxyUpgraded(address,address,address)"(
       sender?: PromiseOrValue<string> | null,
       proxy?: PromiseOrValue<string> | null,
       newImplementation?: PromiseOrValue<string> | null
-    ): UpgradedEventFilter;
-    Upgraded(
+    ): ProxyUpgradedEventFilter;
+    ProxyUpgraded(
       sender?: PromiseOrValue<string> | null,
       proxy?: PromiseOrValue<string> | null,
       newImplementation?: PromiseOrValue<string> | null
-    ): UpgradedEventFilter;
+    ): ProxyUpgradedEventFilter;
   };
 
   estimateGas: {};

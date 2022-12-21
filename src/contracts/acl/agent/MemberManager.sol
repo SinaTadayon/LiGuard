@@ -25,40 +25,36 @@ contract MemberManager is AclStorage, IMemberManagement {
 
   // Note: called by eveny admin of role
   function memberRegister(MemberRegister[] calldata requests) external returns (bool) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
 
-    address functionFacetId = _data.interfaces[type(IMemberManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IMemberManagement.memberRegister.selector);
-    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
-
-    bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
+    bytes32 functionId = _accessPermission(IMemberManagement.memberRegister.selector);
+    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
     for (uint256 i = 0; i < requests.length; i++) {
       bytes32 newMemberId = LAclUtils.accountGenerateId(requests[i].account);
-      require(_data.agents[newMemberId].acstat == ActivityStatus.NONE, "Account Already Exists");
+      require(_data.agents[newMemberId].acstat == ActivityStatus.NONE, "Already Exists");
       require(requests[i].typeLimit >= 1, "Illegal TypeLimit");
-      require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity status");
-      require(requests[i].alstat > AlterabilityStatus.NONE, "Illegal Alterability status");
+      require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
+      require(requests[i].alstat > AlterabilityStatus.NONE, "Illegal Alterability");
       
       // check role
       RoleEntity storage roleEntity = _data.roleReadSlot(requests[i].roleId);
-      require(roleEntity.ba.acstat > ActivityStatus.DELETED, "Role is Deleted");
+      require(roleEntity.ba.acstat > ActivityStatus.DELETED, "Role Deleted");
       require(roleEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Role Update");
-      require(roleEntity.memberLimit < roleEntity.memberTotal, "Illegal Member Register");
+      require(roleEntity.memberLimit < roleEntity.memberTotal, "Illegal Register");
       
 
       // check type 
       TypeEntity storage typeEntity = _data.typeReadSlot(roleEntity.typeId);
-      require(typeEntity.ba.acstat > ActivityStatus.DELETED, "Type is Deleted");
+      require(typeEntity.ba.acstat > ActivityStatus.DELETED, "Type Deleted");
       require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Type Update");
 
 
       // check access
-      require(_doAgentCheckAdminAccess(typeEntity.ba.adminId, memberId, functionId), "Operation Not Permitted");
+      require(_doAgentCheckAdminAccess(typeEntity.ba.adminId, senderId, functionId), "Forbidden");
 
       // add new member to type
       typeEntity.members[newMemberId] = requests[i].roleId;
 
-      // add new member to type
+      // add new member to role
       roleEntity.memberTotal +=1;
 
       // create new member
@@ -74,10 +70,7 @@ contract MemberManager is AclStorage, IMemberManagement {
         msg.sender,
         newMemberId,
         requests[i].account,
-        requests[i].roleId,
-        requests[i].typeLimit,
-        requests[i].acstat,
-        requests[i].alstat
+        requests[i].roleId     
       );
     }
 
@@ -85,19 +78,13 @@ contract MemberManager is AclStorage, IMemberManagement {
   }
 
   function memberUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
-     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
-
-    address functionFacetId = _data.interfaces[type(IMemberManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IMemberManagement.memberUpdateActivityStatus.selector);
-    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied"); 
-
-    bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
+    
+    bytes32 functionId = _accessPermission(IMemberManagement.memberUpdateActivityStatus.selector);
+    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {      
-      MemberEntity storage memberEntity = _data.memberReadSlot(requests[i].id);
-      require(memberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Agent Update");
-      require(_doAgentCheckAdminAccess(memberEntity.ba.adminId, memberId, functionId), "Operation Not Permitted");
+      MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
 
-      require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity Status");
+      require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
       memberEntity.ba.acstat = requests[i].acstat;
       emit MemberActivityUpdated(msg.sender, requests[i].id, requests[i].acstat);
     }
@@ -105,18 +92,11 @@ contract MemberManager is AclStorage, IMemberManagement {
   }
 
   function memberUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
-    
-    address functionFacetId = _data.interfaces[type(IMemberManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IMemberManagement.memberUpdateAlterabilityStatus.selector); 
-    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied"); 
-
-    bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
+    bytes32 functionId = _accessPermission(IMemberManagement.memberUpdateAlterabilityStatus.selector);
+    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {      
-      MemberEntity storage memberEntity = _data.memberReadSlot(requests[i].id);
-      require(memberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Agent Update");
-      require(_doAgentCheckAdminAccess(memberEntity.ba.adminId, memberId, functionId), "Operation Not Permitted");
-    
+      MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
+      
       memberEntity.ba.alstat = requests[i].alstat;
       emit MemberAlterabilityUpdated(msg.sender, requests[i].id, requests[i].alstat);
     }
@@ -125,26 +105,18 @@ contract MemberManager is AclStorage, IMemberManagement {
 
   // Note: member default admin is 
   function memberUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
-
-    address functionFacetId = _data.interfaces[type(IMemberManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IMemberManagement.memberUpdateAdmin.selector);
-    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
-
-    bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
+    bytes32 functionId = _accessPermission(IMemberManagement.memberUpdateAdmin.selector);
+    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
     for (uint256 i = 0; i < requests.length; i++) {
-      MemberEntity storage memberEntity = _data.memberReadSlot(requests[i].id);
-      // require(memberEntity.ba.acstat > ActivityStatus.DELETED, "Member is Deleted");
-      require(memberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Agent Update");
-      require(_doAgentCheckAdminAccess(memberEntity.ba.adminId, memberId, functionId), "Operation Not Permitted");
+      MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
 
       // checking requested admin of member
       if (requests[i].adminId == bytes32(0)) {
         BaseAgent storage requestedAdminAgent = _data.agents[requests[i].adminId];
-        require(requestedAdminAgent.atype > AgentType.MEMBER, "Illegal Member Admin Type");
+        require(requestedAdminAgent.atype > AgentType.MEMBER, "Illegal AdminType");
         if(requestedAdminAgent.atype == AgentType.ROLE) {
           TypeEntity storage typeEntity = _data.typeReadSlot(LIVELY_VERSE_ADMIN_TYPE_ID);
-          require(typeEntity.roles.contains(requests[i].adminId), "Illegal Member Admin ID");
+          require(typeEntity.roles.contains(requests[i].adminId), "Illegal AdminId");
         }          
         memberEntity.ba.adminId = requests[i].adminId;
       
@@ -157,20 +129,11 @@ contract MemberManager is AclStorage, IMemberManagement {
   }
 
   function memberUpdateTypeLimit(MemberUpdateTypeLimitRequest[] calldata requests) external returns (bool) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLE, "SafeMode: Call Rejected");
-
-    address functionFacetId = _data.interfaces[type(IMemberManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IMemberManagement.memberUpdateTypeLimit.selector);
-    bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);
-    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
-
+    bytes32 functionId = _accessPermission(IMemberManagement.memberUpdateTypeLimit.selector);
+    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
     for (uint256 i = 0; i < requests.length; i++) {
-      MemberEntity storage member = _data.memberReadSlot(requests[i].memberId);
-      require(member.ba.acstat > ActivityStatus.DELETED, "Member is Deleted");
-      require(member.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Update");
-      require(_doAgentCheckAdminAccess(member.ba.adminId, memberId, functionId), "Operation Not Permitted");
-
-      member.typeLimit = requests[i].typeLimit;
+      MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].memberId, senderId, functionId);
+      memberEntity.typeLimit = requests[i].typeLimit;
       emit MemberTypeLimitUpdated(msg.sender, requests[i].memberId, requests[i].typeLimit);
     }
     return true;
@@ -255,4 +218,21 @@ contract MemberManager is AclStorage, IMemberManagement {
 
     return false;   
   }
+
+  function _accessPermission(bytes4 selector) internal returns (bytes32) {
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
+    
+    address functionFacetId = _data.interfaces[type(IMemberManagement).interfaceId];
+    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, selector);    
+    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
+    return functionId;
+  }
+
+  function _doGetEntityAndCheckAdminAccess(bytes32 memberId, bytes32 senderId, bytes32 functionId) internal view returns (MemberEntity storage) {
+    MemberEntity storage memberEntity = _data.memberReadSlot(memberId);
+    require(memberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
+    require(_doAgentCheckAdminAccess(memberEntity.ba.adminId, senderId, functionId), "Forbidden");
+    return memberEntity;
+  }
+
 }

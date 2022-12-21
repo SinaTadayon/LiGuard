@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v2.0.2)
+// LivelyVerse Contracts (last updated v3.0.0)
 
 pragma solidity 0.8.17;
 
@@ -39,9 +39,9 @@ interface IFunctionManagement is IAclCommons {
     uint8 policyCode;
   }
 
-  event FunctionAdminUpdated(address indexed sender, bytes32 indexed functionId, bytes32 indexed adminId, AgentType atype);
+  event FunctionAdminUpdated(address indexed sender, bytes32 indexed functionId, bytes32 indexed adminId);
 
-  event FunctionAgentUpdated(address indexed sender, bytes32 indexed functionId, bytes32 indexed agentId, AgentType atype);
+  event FunctionAgentUpdated(address indexed sender, bytes32 indexed functionId, bytes32 indexed agentId);
 
   event FunctionActivityUpdated(address indexed sender, bytes32 indexed functionId, ActivityStatus acstat);
 

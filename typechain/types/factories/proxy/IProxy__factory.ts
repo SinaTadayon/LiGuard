@@ -74,11 +74,36 @@ const _abi = [
       {
         indexed: false,
         internalType: "address",
+        name: "acl",
+        type: "address",
+      },
+    ],
+    name: "ProxyAccessControlUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "proxy",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
         name: "newAdmin",
         type: "address",
       },
     ],
-    name: "LocalAdminChanged",
+    name: "ProxyLocalAdminUpdated",
     type: "event",
   },
   {
@@ -97,19 +122,13 @@ const _abi = [
         type: "address",
       },
       {
-        indexed: true,
-        internalType: "bytes32",
-        name: "realm",
-        type: "bytes32",
-      },
-      {
         indexed: false,
-        internalType: "bool",
-        name: "status",
-        type: "bool",
+        internalType: "enum IBaseProxy.ProxySafeModeStatus",
+        name: "sstat",
+        type: "uint8",
       },
     ],
-    name: "SafeModeChanged",
+    name: "ProxySafeModeUpdated",
     type: "event",
   },
   {
@@ -128,19 +147,13 @@ const _abi = [
         type: "address",
       },
       {
-        indexed: true,
-        internalType: "bytes32",
-        name: "realm",
-        type: "bytes32",
-      },
-      {
         indexed: false,
-        internalType: "bool",
-        name: "status",
-        type: "bool",
+        internalType: "enum IBaseProxy.ProxyUpgradabilityStatus",
+        name: "ustat",
+        type: "uint8",
       },
     ],
-    name: "UpgradeStatusChanged",
+    name: "ProxyUpdatabilityUpdated",
     type: "event",
   },
   {
@@ -165,56 +178,17 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "Upgraded",
+    name: "ProxyUpgraded",
     type: "event",
-  },
-  {
-    inputs: [],
-    name: "accessControlManager",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "contractContext",
-    outputs: [
-      {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
   },
   {
     inputs: [],
     name: "contractName",
     outputs: [
       {
-        internalType: "bytes32",
+        internalType: "string",
         name: "",
-        type: "bytes32",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "contractRealm",
-    outputs: [
-      {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
+        type: "string",
       },
     ],
     stateMutability: "view",
@@ -225,9 +199,9 @@ const _abi = [
     name: "contractVersion",
     outputs: [
       {
-        internalType: "bytes32",
+        internalType: "string",
         name: "",
-        type: "bytes32",
+        type: "string",
       },
     ],
     stateMutability: "view",
@@ -248,12 +222,59 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "initVersion",
+    name: "proxyInfo",
     outputs: [
       {
-        internalType: "uint16",
+        components: [
+          {
+            internalType: "bytes32",
+            name: "contextId",
+            type: "bytes32",
+          },
+          {
+            internalType: "string",
+            name: "name",
+            type: "string",
+          },
+          {
+            internalType: "string",
+            name: "version",
+            type: "string",
+          },
+          {
+            internalType: "address",
+            name: "acl",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "subject",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "localAdmin",
+            type: "address",
+          },
+          {
+            internalType: "uint16",
+            name: "initVersion",
+            type: "uint16",
+          },
+          {
+            internalType: "enum IBaseProxy.ProxySafeModeStatus",
+            name: "sstat",
+            type: "uint8",
+          },
+          {
+            internalType: "enum IBaseProxy.ProxyUpgradabilityStatus",
+            name: "ustat",
+            type: "uint8",
+          },
+        ],
+        internalType: "struct IProxy.ProxyInfo",
         name: "",
-        type: "uint16",
+        type: "tuple",
       },
     ],
     stateMutability: "view",
@@ -261,41 +282,34 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "isSafeMode",
+    name: "safeModeStatus",
     outputs: [
       {
-        internalType: "bool",
+        internalType: "enum IBaseProxy.ProxySafeModeStatus",
         name: "",
-        type: "bool",
+        type: "uint8",
       },
     ],
-    stateMutability: "view",
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
-    inputs: [],
-    name: "isUpgradable",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "localAdmin",
-    outputs: [
+    inputs: [
       {
         internalType: "address",
-        name: "",
+        name: "acl",
         type: "address",
       },
     ],
-    stateMutability: "view",
+    name: "setAccessControlManager",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -320,12 +334,12 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bool",
-        name: "status",
-        type: "bool",
+        internalType: "enum IBaseProxy.ProxySafeModeStatus",
+        name: "sstat",
+        type: "uint8",
       },
     ],
-    name: "setSafeMode",
+    name: "setSafeModeStatus",
     outputs: [
       {
         internalType: "bool",
@@ -339,12 +353,12 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bool",
-        name: "status",
-        type: "bool",
+        internalType: "enum IBaseProxy.ProxyUpgradabilityStatus",
+        name: "ustat",
+        type: "uint8",
       },
     ],
-    name: "setUpgradeStatus",
+    name: "setUpgradabilityStatus",
     outputs: [
       {
         internalType: "bool",
@@ -353,19 +367,6 @@ const _abi = [
       },
     ],
     stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "subjectAddress",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
     type: "function",
   },
   {

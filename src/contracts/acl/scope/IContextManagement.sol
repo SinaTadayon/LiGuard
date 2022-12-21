@@ -85,14 +85,8 @@ interface IContextManagement is IAclCommons {
     bytes32 indexed contextId,
     address indexed contractId,
     address signer,
-    string name,
-    string version,
     bytes32 realmId,
-    bytes32 adminId,
-    uint16 agentLimit,
-    AgentType adminType,
-    ActivityStatus acstat,
-    AlterabilityStatus alstat
+    bytes32 adminId
   );
 
   event PredictContextRegistered(
@@ -102,14 +96,8 @@ interface IContextManagement is IAclCommons {
     address signer,
     address deployer,
     address subject,
-    string name,
-    string version,
     bytes32 realmId,
-    bytes32 adminId,
-    uint16 agentLimit,
-    AgentType adminType,
-    ActivityStatus acstat,
-    AlterabilityStatus alstat
+    bytes32 adminId
   );
 
   event ContextUpgraded(
@@ -117,10 +105,7 @@ interface IContextManagement is IAclCommons {
     bytes32 indexed contextId, 
     address indexed contractId, 
     string name, 
-    string version,
-    uint16 agentLimit,
-    ActivityStatus acstat,
-    AlterabilityStatus alstat
+    string version
   );
 
   event ContextFunctionRegistered(
@@ -130,11 +115,6 @@ interface IContextManagement is IAclCommons {
     bytes32 adminId, 
     bytes32 agentId,
     bytes4 selector,
-    uint16 agentLimit,
-    AgentType adminType,
-    AgentType agentType,
-    ActivityStatus acstat,
-    AlterabilityStatus alstat,
     uint8 policyCode
   );
 
@@ -145,11 +125,6 @@ interface IContextManagement is IAclCommons {
     bytes32 adminId,
     bytes32 agentId,
     bytes4 selector,
-    uint16 agentLimit,
-    AgentType adminType,
-    AgentType agentType,
-    ActivityStatus acstat,
-    AlterabilityStatus alstat,
     uint8 policyCode
   );
 
@@ -159,7 +134,7 @@ interface IContextManagement is IAclCommons {
     bytes32 indexed functionId
   );
 
-  event ContextAdminUpdated(address indexed sender, bytes32 indexed contextId, bytes32 indexed adminId, AgentType adminType);
+  event ContextAdminUpdated(address indexed sender, bytes32 indexed contextId, bytes32 indexed adminId);
 
   event ContextActivityUpdated(address indexed sender, bytes32 indexed contextId, ActivityStatus acstat);
 

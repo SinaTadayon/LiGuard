@@ -45,12 +45,7 @@ interface ITypeManagement is IAclCommons {
     address indexed sender,
     bytes32 indexed typeId,
     bytes32 indexed scopeId,
-    bytes32 adminId,
-    string name,        
-    uint16 roleLimit,
-    uint16 scopeLimit,
-    ActivityStatus acstat,
-    AlterabilityStatus alstat
+    bytes32 adminId
   );
 
   event TypeActivityUpdated(address indexed sender, bytes32 indexed typeId, ActivityStatus acstat);
