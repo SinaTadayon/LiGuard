@@ -71,12 +71,17 @@ export declare namespace IContextManagement {
   export type ContextRegisterRequestStruct = {
     realmId: PromiseOrValue<BytesLike>;
     adminId: PromiseOrValue<BytesLike>;
+    salt: PromiseOrValue<BytesLike>;
     name: PromiseOrValue<string>;
     version: PromiseOrValue<string>;
     contractId: PromiseOrValue<string>;
+    subject: PromiseOrValue<string>;
+    deployer: PromiseOrValue<string>;
     agentLimit: PromiseOrValue<BigNumberish>;
     acstat: PromiseOrValue<BigNumberish>;
     alstat: PromiseOrValue<BigNumberish>;
+    signature: PromiseOrValue<BytesLike>;
+    selectors: PromiseOrValue<BytesLike>[];
   };
 
   export type ContextRegisterRequestStructOutput = [
@@ -85,83 +90,28 @@ export declare namespace IContextManagement {
     string,
     string,
     string,
-    number,
-    number,
-    number
-  ] & {
-    realmId: string;
-    adminId: string;
-    name: string;
-    version: string;
-    contractId: string;
-    agentLimit: number;
-    acstat: number;
-    alstat: number;
-  };
-
-  export type ContextRegisterFunctionRequestStruct = {
-    adminId: PromiseOrValue<BytesLike>;
-    agentId: PromiseOrValue<BytesLike>;
-    agentLimit: PromiseOrValue<BigNumberish>;
-    policyCode: PromiseOrValue<BigNumberish>;
-    acstat: PromiseOrValue<BigNumberish>;
-    alstat: PromiseOrValue<BigNumberish>;
-    selector: PromiseOrValue<BytesLike>;
-  };
-
-  export type ContextRegisterFunctionRequestStructOutput = [
-    string,
-    string,
-    number,
-    number,
-    number,
-    number,
-    string
-  ] & {
-    adminId: string;
-    agentId: string;
-    agentLimit: number;
-    policyCode: number;
-    acstat: number;
-    alstat: number;
-    selector: string;
-  };
-
-  export type ContextRegisterPredictRequestStruct = {
-    realmId: PromiseOrValue<BytesLike>;
-    adminId: PromiseOrValue<BytesLike>;
-    salt: PromiseOrValue<BytesLike>;
-    name: PromiseOrValue<string>;
-    version: PromiseOrValue<string>;
-    subject: PromiseOrValue<string>;
-    deployer: PromiseOrValue<string>;
-    agentLimit: PromiseOrValue<BigNumberish>;
-    acstat: PromiseOrValue<BigNumberish>;
-    alstat: PromiseOrValue<BigNumberish>;
-  };
-
-  export type ContextRegisterPredictRequestStructOutput = [
-    string,
-    string,
-    string,
-    string,
     string,
     string,
     string,
     number,
     number,
-    number
+    number,
+    string,
+    string[]
   ] & {
     realmId: string;
     adminId: string;
     salt: string;
     name: string;
     version: string;
+    contractId: string;
     subject: string;
     deployer: string;
     agentLimit: number;
     acstat: number;
     alstat: number;
+    signature: string;
+    selectors: string[];
   };
 
   export type ContextUpgradeRequestStruct = {
@@ -170,6 +120,8 @@ export declare namespace IContextManagement {
     version: PromiseOrValue<string>;
     acstat: PromiseOrValue<BigNumberish>;
     alstat: PromiseOrValue<BigNumberish>;
+    signature: PromiseOrValue<BytesLike>;
+    selectors: PromiseOrValue<BytesLike>[];
   };
 
   export type ContextUpgradeRequestStructOutput = [
@@ -177,44 +129,17 @@ export declare namespace IContextManagement {
     string,
     string,
     number,
-    number
+    number,
+    string,
+    string[]
   ] & {
     contractId: string;
     name: string;
     version: string;
     acstat: number;
     alstat: number;
-  };
-
-  export type ContextUpgradeFunctionRequestStruct = {
-    adminId: PromiseOrValue<BytesLike>;
-    agentId: PromiseOrValue<BytesLike>;
-    agentLimit: PromiseOrValue<BigNumberish>;
-    policyCode: PromiseOrValue<BigNumberish>;
-    acstat: PromiseOrValue<BigNumberish>;
-    alstat: PromiseOrValue<BigNumberish>;
-    action: PromiseOrValue<BigNumberish>;
-    selector: PromiseOrValue<BytesLike>;
-  };
-
-  export type ContextUpgradeFunctionRequestStructOutput = [
-    string,
-    string,
-    number,
-    number,
-    number,
-    number,
-    number,
-    string
-  ] & {
-    adminId: string;
-    agentId: string;
-    agentLimit: number;
-    policyCode: number;
-    acstat: number;
-    alstat: number;
-    action: number;
-    selector: string;
+    signature: string;
+    selectors: string[];
   };
 }
 
@@ -270,13 +195,12 @@ export interface IContextManagementInterface extends utils.Interface {
     "contextGetFunctions(bytes32)": FunctionFragment;
     "contextHasFunction(bytes32,bytes32)": FunctionFragment;
     "contextHasSelector(address,bytes4)": FunctionFragment;
-    "contextRegister(bytes,(bytes32,bytes32,string,string,address,uint16,uint8,uint8),(bytes32,bytes32,uint16,uint8,uint8,uint8,bytes4)[])": FunctionFragment;
-    "contextRegisterPredict(bytes,(bytes32,bytes32,bytes32,string,string,address,address,uint16,uint8,uint8),(bytes32,bytes32,uint16,uint8,uint8,uint8,bytes4)[])": FunctionFragment;
+    "contextRegister((bytes32,bytes32,bytes32,string,string,address,address,address,uint16,uint8,uint8,bytes,bytes4[])[])": FunctionFragment;
     "contextUpdateActivityStatus((bytes32,uint8)[])": FunctionFragment;
     "contextUpdateAdmin((bytes32,bytes32)[])": FunctionFragment;
     "contextUpdateAgentLimit((bytes32,uint16)[])": FunctionFragment;
     "contextUpdateAlterabilityStatus((bytes32,uint8)[])": FunctionFragment;
-    "contextUpgrade(bytes,(address,string,string,uint8,uint8),(bytes32,bytes32,uint16,uint8,uint8,uint8,uint8,bytes4)[])": FunctionFragment;
+    "contextUpgrade((address,string,string,uint8,uint8,bytes,bytes4[])[])": FunctionFragment;
   };
 
   getFunction(
@@ -298,9 +222,7 @@ export interface IContextManagementInterface extends utils.Interface {
       | "contextHasSelector"
       | "contextHasSelector(address,bytes4)"
       | "contextRegister"
-      | "contextRegister(bytes,(bytes32,bytes32,string,string,address,uint16,uint8,uint8),(bytes32,bytes32,uint16,uint8,uint8,uint8,bytes4)[])"
-      | "contextRegisterPredict"
-      | "contextRegisterPredict(bytes,(bytes32,bytes32,bytes32,string,string,address,address,uint16,uint8,uint8),(bytes32,bytes32,uint16,uint8,uint8,uint8,bytes4)[])"
+      | "contextRegister((bytes32,bytes32,bytes32,string,string,address,address,address,uint16,uint8,uint8,bytes,bytes4[])[])"
       | "contextUpdateActivityStatus"
       | "contextUpdateActivityStatus((bytes32,uint8)[])"
       | "contextUpdateAdmin"
@@ -310,7 +232,7 @@ export interface IContextManagementInterface extends utils.Interface {
       | "contextUpdateAlterabilityStatus"
       | "contextUpdateAlterabilityStatus((bytes32,uint8)[])"
       | "contextUpgrade"
-      | "contextUpgrade(bytes,(address,string,string,uint8,uint8),(bytes32,bytes32,uint16,uint8,uint8,uint8,uint8,bytes4)[])"
+      | "contextUpgrade((address,string,string,uint8,uint8,bytes,bytes4[])[])"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -379,35 +301,11 @@ export interface IContextManagementInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "contextRegister",
-    values: [
-      PromiseOrValue<BytesLike>,
-      IContextManagement.ContextRegisterRequestStruct,
-      IContextManagement.ContextRegisterFunctionRequestStruct[]
-    ]
+    values: [IContextManagement.ContextRegisterRequestStruct[]]
   ): string;
   encodeFunctionData(
-    functionFragment: "contextRegister(bytes,(bytes32,bytes32,string,string,address,uint16,uint8,uint8),(bytes32,bytes32,uint16,uint8,uint8,uint8,bytes4)[])",
-    values: [
-      PromiseOrValue<BytesLike>,
-      IContextManagement.ContextRegisterRequestStruct,
-      IContextManagement.ContextRegisterFunctionRequestStruct[]
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "contextRegisterPredict",
-    values: [
-      PromiseOrValue<BytesLike>,
-      IContextManagement.ContextRegisterPredictRequestStruct,
-      IContextManagement.ContextRegisterFunctionRequestStruct[]
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "contextRegisterPredict(bytes,(bytes32,bytes32,bytes32,string,string,address,address,uint16,uint8,uint8),(bytes32,bytes32,uint16,uint8,uint8,uint8,bytes4)[])",
-    values: [
-      PromiseOrValue<BytesLike>,
-      IContextManagement.ContextRegisterPredictRequestStruct,
-      IContextManagement.ContextRegisterFunctionRequestStruct[]
-    ]
+    functionFragment: "contextRegister((bytes32,bytes32,bytes32,string,string,address,address,address,uint16,uint8,uint8,bytes,bytes4[])[])",
+    values: [IContextManagement.ContextRegisterRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "contextUpdateActivityStatus",
@@ -443,19 +341,11 @@ export interface IContextManagementInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "contextUpgrade",
-    values: [
-      PromiseOrValue<BytesLike>,
-      IContextManagement.ContextUpgradeRequestStruct,
-      IContextManagement.ContextUpgradeFunctionRequestStruct[]
-    ]
+    values: [IContextManagement.ContextUpgradeRequestStruct[]]
   ): string;
   encodeFunctionData(
-    functionFragment: "contextUpgrade(bytes,(address,string,string,uint8,uint8),(bytes32,bytes32,uint16,uint8,uint8,uint8,uint8,bytes4)[])",
-    values: [
-      PromiseOrValue<BytesLike>,
-      IContextManagement.ContextUpgradeRequestStruct,
-      IContextManagement.ContextUpgradeFunctionRequestStruct[]
-    ]
+    functionFragment: "contextUpgrade((address,string,string,uint8,uint8,bytes,bytes4[])[])",
+    values: [IContextManagement.ContextUpgradeRequestStruct[]]
   ): string;
 
   decodeFunctionResult(
@@ -527,15 +417,7 @@ export interface IContextManagementInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "contextRegister(bytes,(bytes32,bytes32,string,string,address,uint16,uint8,uint8),(bytes32,bytes32,uint16,uint8,uint8,uint8,bytes4)[])",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "contextRegisterPredict",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "contextRegisterPredict(bytes,(bytes32,bytes32,bytes32,string,string,address,address,uint16,uint8,uint8),(bytes32,bytes32,uint16,uint8,uint8,uint8,bytes4)[])",
+    functionFragment: "contextRegister((bytes32,bytes32,bytes32,string,string,address,address,address,uint16,uint8,uint8,bytes,bytes4[])[])",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -575,7 +457,7 @@ export interface IContextManagementInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "contextUpgrade(bytes,(address,string,string,uint8,uint8),(bytes32,bytes32,uint16,uint8,uint8,uint8,uint8,bytes4)[])",
+    functionFragment: "contextUpgrade((address,string,string,uint8,uint8,bytes,bytes4[])[])",
     data: BytesLike
   ): Result;
 
@@ -586,12 +468,8 @@ export interface IContextManagementInterface extends utils.Interface {
     "ContextAdminUpdated(address,bytes32,bytes32)": EventFragment;
     "ContextAgentLimitUpdated(address,bytes32,uint16)": EventFragment;
     "ContextAlterabilityUpdated(address,bytes32,uint8)": EventFragment;
-    "ContextFunctionRegistered(address,bytes32,bytes32,bytes32,bytes32,bytes4,uint8)": EventFragment;
-    "ContextRegistered(address,bytes32,address,address,bytes32,bytes32)": EventFragment;
-    "ContextUpgradeFunctionAdded(address,bytes32,bytes32,bytes32,bytes32,bytes4,uint8)": EventFragment;
-    "ContextUpgradeFunctionRemoved(address,bytes32,bytes32)": EventFragment;
-    "ContextUpgraded(address,bytes32,address,string,string)": EventFragment;
-    "PredictContextRegistered(address,bytes32,address,address,address,address,bytes32,bytes32)": EventFragment;
+    "ContextRegistered(address,bytes32,address,address,address,address,bytes32,bytes32)": EventFragment;
+    "ContextUpgraded(address,bytes32,address,address)": EventFragment;
     "ScopeReferredByAgentUpdated(address,bytes32,bytes32,uint8)": EventFragment;
     "ScopeReferredByPolicyUpdated(address,bytes32,bytes32,uint8)": EventFragment;
   };
@@ -624,33 +502,13 @@ export interface IContextManagementInterface extends utils.Interface {
   getEvent(
     nameOrSignatureOrTopic: "ContextAlterabilityUpdated(address,bytes32,uint8)"
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ContextFunctionRegistered"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ContextFunctionRegistered(address,bytes32,bytes32,bytes32,bytes32,bytes4,uint8)"
-  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ContextRegistered"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "ContextRegistered(address,bytes32,address,address,bytes32,bytes32)"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ContextUpgradeFunctionAdded"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ContextUpgradeFunctionAdded(address,bytes32,bytes32,bytes32,bytes32,bytes4,uint8)"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ContextUpgradeFunctionRemoved"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ContextUpgradeFunctionRemoved(address,bytes32,bytes32)"
+    nameOrSignatureOrTopic: "ContextRegistered(address,bytes32,address,address,address,address,bytes32,bytes32)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ContextUpgraded"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "ContextUpgraded(address,bytes32,address,string,string)"
-  ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "PredictContextRegistered"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "PredictContextRegistered(address,bytes32,address,address,address,address,bytes32,bytes32)"
+    nameOrSignatureOrTopic: "ContextUpgraded(address,bytes32,address,address)"
   ): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "ScopeReferredByAgentUpdated"
@@ -746,84 +604,7 @@ export type ContextAlterabilityUpdatedEvent = TypedEvent<
 export type ContextAlterabilityUpdatedEventFilter =
   TypedEventFilter<ContextAlterabilityUpdatedEvent>;
 
-export interface ContextFunctionRegisteredEventObject {
-  sender: string;
-  contextId: string;
-  functionId: string;
-  adminId: string;
-  agentId: string;
-  selector: string;
-  policyCode: number;
-}
-export type ContextFunctionRegisteredEvent = TypedEvent<
-  [string, string, string, string, string, string, number],
-  ContextFunctionRegisteredEventObject
->;
-
-export type ContextFunctionRegisteredEventFilter =
-  TypedEventFilter<ContextFunctionRegisteredEvent>;
-
 export interface ContextRegisteredEventObject {
-  sender: string;
-  contextId: string;
-  contractId: string;
-  signer: string;
-  realmId: string;
-  adminId: string;
-}
-export type ContextRegisteredEvent = TypedEvent<
-  [string, string, string, string, string, string],
-  ContextRegisteredEventObject
->;
-
-export type ContextRegisteredEventFilter =
-  TypedEventFilter<ContextRegisteredEvent>;
-
-export interface ContextUpgradeFunctionAddedEventObject {
-  sender: string;
-  contextId: string;
-  functionId: string;
-  adminId: string;
-  agentId: string;
-  selector: string;
-  policyCode: number;
-}
-export type ContextUpgradeFunctionAddedEvent = TypedEvent<
-  [string, string, string, string, string, string, number],
-  ContextUpgradeFunctionAddedEventObject
->;
-
-export type ContextUpgradeFunctionAddedEventFilter =
-  TypedEventFilter<ContextUpgradeFunctionAddedEvent>;
-
-export interface ContextUpgradeFunctionRemovedEventObject {
-  sender: string;
-  contextId: string;
-  functionId: string;
-}
-export type ContextUpgradeFunctionRemovedEvent = TypedEvent<
-  [string, string, string],
-  ContextUpgradeFunctionRemovedEventObject
->;
-
-export type ContextUpgradeFunctionRemovedEventFilter =
-  TypedEventFilter<ContextUpgradeFunctionRemovedEvent>;
-
-export interface ContextUpgradedEventObject {
-  sender: string;
-  contextId: string;
-  contractId: string;
-  name: string;
-  version: string;
-}
-export type ContextUpgradedEvent = TypedEvent<
-  [string, string, string, string, string],
-  ContextUpgradedEventObject
->;
-
-export type ContextUpgradedEventFilter = TypedEventFilter<ContextUpgradedEvent>;
-
-export interface PredictContextRegisteredEventObject {
   sender: string;
   contextId: string;
   contractId: string;
@@ -833,13 +614,26 @@ export interface PredictContextRegisteredEventObject {
   realmId: string;
   adminId: string;
 }
-export type PredictContextRegisteredEvent = TypedEvent<
+export type ContextRegisteredEvent = TypedEvent<
   [string, string, string, string, string, string, string, string],
-  PredictContextRegisteredEventObject
+  ContextRegisteredEventObject
 >;
 
-export type PredictContextRegisteredEventFilter =
-  TypedEventFilter<PredictContextRegisteredEvent>;
+export type ContextRegisteredEventFilter =
+  TypedEventFilter<ContextRegisteredEvent>;
+
+export interface ContextUpgradedEventObject {
+  sender: string;
+  contextId: string;
+  contractId: string;
+  signer: string;
+}
+export type ContextUpgradedEvent = TypedEvent<
+  [string, string, string, string],
+  ContextUpgradedEventObject
+>;
+
+export type ContextUpgradedEventFilter = TypedEventFilter<ContextUpgradedEvent>;
 
 export interface ScopeReferredByAgentUpdatedEventObject {
   sender: string;
@@ -983,30 +777,12 @@ export interface IContextManagement extends BaseContract {
     ): Promise<[boolean]>;
 
     contextRegister(
-      signature: PromiseOrValue<BytesLike>,
-      request: IContextManagement.ContextRegisterRequestStruct,
-      functionRequests: IContextManagement.ContextRegisterFunctionRequestStruct[],
+      requests: IContextManagement.ContextRegisterRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "contextRegister(bytes,(bytes32,bytes32,string,string,address,uint16,uint8,uint8),(bytes32,bytes32,uint16,uint8,uint8,uint8,bytes4)[])"(
-      signature: PromiseOrValue<BytesLike>,
-      request: IContextManagement.ContextRegisterRequestStruct,
-      functionRequests: IContextManagement.ContextRegisterFunctionRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    contextRegisterPredict(
-      signature: PromiseOrValue<BytesLike>,
-      request: IContextManagement.ContextRegisterPredictRequestStruct,
-      functionRequests: IContextManagement.ContextRegisterFunctionRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "contextRegisterPredict(bytes,(bytes32,bytes32,bytes32,string,string,address,address,uint16,uint8,uint8),(bytes32,bytes32,uint16,uint8,uint8,uint8,bytes4)[])"(
-      signature: PromiseOrValue<BytesLike>,
-      request: IContextManagement.ContextRegisterPredictRequestStruct,
-      functionRequests: IContextManagement.ContextRegisterFunctionRequestStruct[],
+    "contextRegister((bytes32,bytes32,bytes32,string,string,address,address,address,uint16,uint8,uint8,bytes,bytes4[])[])"(
+      requests: IContextManagement.ContextRegisterRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -1051,16 +827,12 @@ export interface IContextManagement extends BaseContract {
     ): Promise<ContractTransaction>;
 
     contextUpgrade(
-      signature: PromiseOrValue<BytesLike>,
-      request: IContextManagement.ContextUpgradeRequestStruct,
-      functionRequests: IContextManagement.ContextUpgradeFunctionRequestStruct[],
+      requests: IContextManagement.ContextUpgradeRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "contextUpgrade(bytes,(address,string,string,uint8,uint8),(bytes32,bytes32,uint16,uint8,uint8,uint8,uint8,bytes4)[])"(
-      signature: PromiseOrValue<BytesLike>,
-      request: IContextManagement.ContextUpgradeRequestStruct,
-      functionRequests: IContextManagement.ContextUpgradeFunctionRequestStruct[],
+    "contextUpgrade((address,string,string,uint8,uint8,bytes,bytes4[])[])"(
+      requests: IContextManagement.ContextUpgradeRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
@@ -1152,30 +924,12 @@ export interface IContextManagement extends BaseContract {
   ): Promise<boolean>;
 
   contextRegister(
-    signature: PromiseOrValue<BytesLike>,
-    request: IContextManagement.ContextRegisterRequestStruct,
-    functionRequests: IContextManagement.ContextRegisterFunctionRequestStruct[],
+    requests: IContextManagement.ContextRegisterRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "contextRegister(bytes,(bytes32,bytes32,string,string,address,uint16,uint8,uint8),(bytes32,bytes32,uint16,uint8,uint8,uint8,bytes4)[])"(
-    signature: PromiseOrValue<BytesLike>,
-    request: IContextManagement.ContextRegisterRequestStruct,
-    functionRequests: IContextManagement.ContextRegisterFunctionRequestStruct[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  contextRegisterPredict(
-    signature: PromiseOrValue<BytesLike>,
-    request: IContextManagement.ContextRegisterPredictRequestStruct,
-    functionRequests: IContextManagement.ContextRegisterFunctionRequestStruct[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "contextRegisterPredict(bytes,(bytes32,bytes32,bytes32,string,string,address,address,uint16,uint8,uint8),(bytes32,bytes32,uint16,uint8,uint8,uint8,bytes4)[])"(
-    signature: PromiseOrValue<BytesLike>,
-    request: IContextManagement.ContextRegisterPredictRequestStruct,
-    functionRequests: IContextManagement.ContextRegisterFunctionRequestStruct[],
+  "contextRegister((bytes32,bytes32,bytes32,string,string,address,address,address,uint16,uint8,uint8,bytes,bytes4[])[])"(
+    requests: IContextManagement.ContextRegisterRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1220,16 +974,12 @@ export interface IContextManagement extends BaseContract {
   ): Promise<ContractTransaction>;
 
   contextUpgrade(
-    signature: PromiseOrValue<BytesLike>,
-    request: IContextManagement.ContextUpgradeRequestStruct,
-    functionRequests: IContextManagement.ContextUpgradeFunctionRequestStruct[],
+    requests: IContextManagement.ContextUpgradeRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "contextUpgrade(bytes,(address,string,string,uint8,uint8),(bytes32,bytes32,uint16,uint8,uint8,uint8,uint8,bytes4)[])"(
-    signature: PromiseOrValue<BytesLike>,
-    request: IContextManagement.ContextUpgradeRequestStruct,
-    functionRequests: IContextManagement.ContextUpgradeFunctionRequestStruct[],
+  "contextUpgrade((address,string,string,uint8,uint8,bytes,bytes4[])[])"(
+    requests: IContextManagement.ContextUpgradeRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1321,32 +1071,14 @@ export interface IContextManagement extends BaseContract {
     ): Promise<boolean>;
 
     contextRegister(
-      signature: PromiseOrValue<BytesLike>,
-      request: IContextManagement.ContextRegisterRequestStruct,
-      functionRequests: IContextManagement.ContextRegisterFunctionRequestStruct[],
+      requests: IContextManagement.ContextRegisterRequestStruct[],
       overrides?: CallOverrides
-    ): Promise<string>;
+    ): Promise<boolean>;
 
-    "contextRegister(bytes,(bytes32,bytes32,string,string,address,uint16,uint8,uint8),(bytes32,bytes32,uint16,uint8,uint8,uint8,bytes4)[])"(
-      signature: PromiseOrValue<BytesLike>,
-      request: IContextManagement.ContextRegisterRequestStruct,
-      functionRequests: IContextManagement.ContextRegisterFunctionRequestStruct[],
+    "contextRegister((bytes32,bytes32,bytes32,string,string,address,address,address,uint16,uint8,uint8,bytes,bytes4[])[])"(
+      requests: IContextManagement.ContextRegisterRequestStruct[],
       overrides?: CallOverrides
-    ): Promise<string>;
-
-    contextRegisterPredict(
-      signature: PromiseOrValue<BytesLike>,
-      request: IContextManagement.ContextRegisterPredictRequestStruct,
-      functionRequests: IContextManagement.ContextRegisterFunctionRequestStruct[],
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    "contextRegisterPredict(bytes,(bytes32,bytes32,bytes32,string,string,address,address,uint16,uint8,uint8),(bytes32,bytes32,uint16,uint8,uint8,uint8,bytes4)[])"(
-      signature: PromiseOrValue<BytesLike>,
-      request: IContextManagement.ContextRegisterPredictRequestStruct,
-      functionRequests: IContextManagement.ContextRegisterFunctionRequestStruct[],
-      overrides?: CallOverrides
-    ): Promise<string>;
+    ): Promise<boolean>;
 
     contextUpdateActivityStatus(
       requests: IAclCommons.UpdateActivityRequestStruct[],
@@ -1389,18 +1121,14 @@ export interface IContextManagement extends BaseContract {
     ): Promise<boolean>;
 
     contextUpgrade(
-      signature: PromiseOrValue<BytesLike>,
-      request: IContextManagement.ContextUpgradeRequestStruct,
-      functionRequests: IContextManagement.ContextUpgradeFunctionRequestStruct[],
+      requests: IContextManagement.ContextUpgradeRequestStruct[],
       overrides?: CallOverrides
-    ): Promise<string>;
+    ): Promise<boolean>;
 
-    "contextUpgrade(bytes,(address,string,string,uint8,uint8),(bytes32,bytes32,uint16,uint8,uint8,uint8,uint8,bytes4)[])"(
-      signature: PromiseOrValue<BytesLike>,
-      request: IContextManagement.ContextUpgradeRequestStruct,
-      functionRequests: IContextManagement.ContextUpgradeFunctionRequestStruct[],
+    "contextUpgrade((address,string,string,uint8,uint8,bytes,bytes4[])[])"(
+      requests: IContextManagement.ContextUpgradeRequestStruct[],
       overrides?: CallOverrides
-    ): Promise<string>;
+    ): Promise<boolean>;
   };
 
   filters: {
@@ -1474,30 +1202,13 @@ export interface IContextManagement extends BaseContract {
       alstat?: null
     ): ContextAlterabilityUpdatedEventFilter;
 
-    "ContextFunctionRegistered(address,bytes32,bytes32,bytes32,bytes32,bytes4,uint8)"(
-      sender?: PromiseOrValue<string> | null,
-      contextId?: PromiseOrValue<BytesLike> | null,
-      functionId?: PromiseOrValue<BytesLike> | null,
-      adminId?: null,
-      agentId?: null,
-      selector?: null,
-      policyCode?: null
-    ): ContextFunctionRegisteredEventFilter;
-    ContextFunctionRegistered(
-      sender?: PromiseOrValue<string> | null,
-      contextId?: PromiseOrValue<BytesLike> | null,
-      functionId?: PromiseOrValue<BytesLike> | null,
-      adminId?: null,
-      agentId?: null,
-      selector?: null,
-      policyCode?: null
-    ): ContextFunctionRegisteredEventFilter;
-
-    "ContextRegistered(address,bytes32,address,address,bytes32,bytes32)"(
+    "ContextRegistered(address,bytes32,address,address,address,address,bytes32,bytes32)"(
       sender?: PromiseOrValue<string> | null,
       contextId?: PromiseOrValue<BytesLike> | null,
       contractId?: PromiseOrValue<string> | null,
       signer?: null,
+      deployer?: null,
+      subject?: null,
       realmId?: null,
       adminId?: null
     ): ContextRegisteredEventFilter;
@@ -1506,75 +1217,24 @@ export interface IContextManagement extends BaseContract {
       contextId?: PromiseOrValue<BytesLike> | null,
       contractId?: PromiseOrValue<string> | null,
       signer?: null,
+      deployer?: null,
+      subject?: null,
       realmId?: null,
       adminId?: null
     ): ContextRegisteredEventFilter;
 
-    "ContextUpgradeFunctionAdded(address,bytes32,bytes32,bytes32,bytes32,bytes4,uint8)"(
-      sender?: PromiseOrValue<string> | null,
-      contextId?: PromiseOrValue<BytesLike> | null,
-      functionId?: PromiseOrValue<BytesLike> | null,
-      adminId?: null,
-      agentId?: null,
-      selector?: null,
-      policyCode?: null
-    ): ContextUpgradeFunctionAddedEventFilter;
-    ContextUpgradeFunctionAdded(
-      sender?: PromiseOrValue<string> | null,
-      contextId?: PromiseOrValue<BytesLike> | null,
-      functionId?: PromiseOrValue<BytesLike> | null,
-      adminId?: null,
-      agentId?: null,
-      selector?: null,
-      policyCode?: null
-    ): ContextUpgradeFunctionAddedEventFilter;
-
-    "ContextUpgradeFunctionRemoved(address,bytes32,bytes32)"(
-      sender?: PromiseOrValue<string> | null,
-      contextId?: PromiseOrValue<BytesLike> | null,
-      functionId?: PromiseOrValue<BytesLike> | null
-    ): ContextUpgradeFunctionRemovedEventFilter;
-    ContextUpgradeFunctionRemoved(
-      sender?: PromiseOrValue<string> | null,
-      contextId?: PromiseOrValue<BytesLike> | null,
-      functionId?: PromiseOrValue<BytesLike> | null
-    ): ContextUpgradeFunctionRemovedEventFilter;
-
-    "ContextUpgraded(address,bytes32,address,string,string)"(
+    "ContextUpgraded(address,bytes32,address,address)"(
       sender?: PromiseOrValue<string> | null,
       contextId?: PromiseOrValue<BytesLike> | null,
       contractId?: PromiseOrValue<string> | null,
-      name?: null,
-      version?: null
+      signer?: null
     ): ContextUpgradedEventFilter;
     ContextUpgraded(
       sender?: PromiseOrValue<string> | null,
       contextId?: PromiseOrValue<BytesLike> | null,
       contractId?: PromiseOrValue<string> | null,
-      name?: null,
-      version?: null
+      signer?: null
     ): ContextUpgradedEventFilter;
-
-    "PredictContextRegistered(address,bytes32,address,address,address,address,bytes32,bytes32)"(
-      sender?: PromiseOrValue<string> | null,
-      contextId?: PromiseOrValue<BytesLike> | null,
-      contractId?: PromiseOrValue<string> | null,
-      signer?: null,
-      deployer?: null,
-      subject?: null,
-      realmId?: null,
-      adminId?: null
-    ): PredictContextRegisteredEventFilter;
-    PredictContextRegistered(
-      sender?: PromiseOrValue<string> | null,
-      contextId?: PromiseOrValue<BytesLike> | null,
-      contractId?: PromiseOrValue<string> | null,
-      signer?: null,
-      deployer?: null,
-      subject?: null,
-      realmId?: null,
-      adminId?: null
-    ): PredictContextRegisteredEventFilter;
 
     "ScopeReferredByAgentUpdated(address,bytes32,bytes32,uint8)"(
       sender?: PromiseOrValue<string> | null,
@@ -1691,30 +1351,12 @@ export interface IContextManagement extends BaseContract {
     ): Promise<BigNumber>;
 
     contextRegister(
-      signature: PromiseOrValue<BytesLike>,
-      request: IContextManagement.ContextRegisterRequestStruct,
-      functionRequests: IContextManagement.ContextRegisterFunctionRequestStruct[],
+      requests: IContextManagement.ContextRegisterRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "contextRegister(bytes,(bytes32,bytes32,string,string,address,uint16,uint8,uint8),(bytes32,bytes32,uint16,uint8,uint8,uint8,bytes4)[])"(
-      signature: PromiseOrValue<BytesLike>,
-      request: IContextManagement.ContextRegisterRequestStruct,
-      functionRequests: IContextManagement.ContextRegisterFunctionRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    contextRegisterPredict(
-      signature: PromiseOrValue<BytesLike>,
-      request: IContextManagement.ContextRegisterPredictRequestStruct,
-      functionRequests: IContextManagement.ContextRegisterFunctionRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "contextRegisterPredict(bytes,(bytes32,bytes32,bytes32,string,string,address,address,uint16,uint8,uint8),(bytes32,bytes32,uint16,uint8,uint8,uint8,bytes4)[])"(
-      signature: PromiseOrValue<BytesLike>,
-      request: IContextManagement.ContextRegisterPredictRequestStruct,
-      functionRequests: IContextManagement.ContextRegisterFunctionRequestStruct[],
+    "contextRegister((bytes32,bytes32,bytes32,string,string,address,address,address,uint16,uint8,uint8,bytes,bytes4[])[])"(
+      requests: IContextManagement.ContextRegisterRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1759,16 +1401,12 @@ export interface IContextManagement extends BaseContract {
     ): Promise<BigNumber>;
 
     contextUpgrade(
-      signature: PromiseOrValue<BytesLike>,
-      request: IContextManagement.ContextUpgradeRequestStruct,
-      functionRequests: IContextManagement.ContextUpgradeFunctionRequestStruct[],
+      requests: IContextManagement.ContextUpgradeRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "contextUpgrade(bytes,(address,string,string,uint8,uint8),(bytes32,bytes32,uint16,uint8,uint8,uint8,uint8,bytes4)[])"(
-      signature: PromiseOrValue<BytesLike>,
-      request: IContextManagement.ContextUpgradeRequestStruct,
-      functionRequests: IContextManagement.ContextUpgradeFunctionRequestStruct[],
+    "contextUpgrade((address,string,string,uint8,uint8,bytes,bytes4[])[])"(
+      requests: IContextManagement.ContextUpgradeRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -1861,30 +1499,12 @@ export interface IContextManagement extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     contextRegister(
-      signature: PromiseOrValue<BytesLike>,
-      request: IContextManagement.ContextRegisterRequestStruct,
-      functionRequests: IContextManagement.ContextRegisterFunctionRequestStruct[],
+      requests: IContextManagement.ContextRegisterRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "contextRegister(bytes,(bytes32,bytes32,string,string,address,uint16,uint8,uint8),(bytes32,bytes32,uint16,uint8,uint8,uint8,bytes4)[])"(
-      signature: PromiseOrValue<BytesLike>,
-      request: IContextManagement.ContextRegisterRequestStruct,
-      functionRequests: IContextManagement.ContextRegisterFunctionRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    contextRegisterPredict(
-      signature: PromiseOrValue<BytesLike>,
-      request: IContextManagement.ContextRegisterPredictRequestStruct,
-      functionRequests: IContextManagement.ContextRegisterFunctionRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "contextRegisterPredict(bytes,(bytes32,bytes32,bytes32,string,string,address,address,uint16,uint8,uint8),(bytes32,bytes32,uint16,uint8,uint8,uint8,bytes4)[])"(
-      signature: PromiseOrValue<BytesLike>,
-      request: IContextManagement.ContextRegisterPredictRequestStruct,
-      functionRequests: IContextManagement.ContextRegisterFunctionRequestStruct[],
+    "contextRegister((bytes32,bytes32,bytes32,string,string,address,address,address,uint16,uint8,uint8,bytes,bytes4[])[])"(
+      requests: IContextManagement.ContextRegisterRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1929,16 +1549,12 @@ export interface IContextManagement extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     contextUpgrade(
-      signature: PromiseOrValue<BytesLike>,
-      request: IContextManagement.ContextUpgradeRequestStruct,
-      functionRequests: IContextManagement.ContextUpgradeFunctionRequestStruct[],
+      requests: IContextManagement.ContextUpgradeRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "contextUpgrade(bytes,(address,string,string,uint8,uint8),(bytes32,bytes32,uint16,uint8,uint8,uint8,uint8,bytes4)[])"(
-      signature: PromiseOrValue<BytesLike>,
-      request: IContextManagement.ContextUpgradeRequestStruct,
-      functionRequests: IContextManagement.ContextUpgradeFunctionRequestStruct[],
+    "contextUpgrade((address,string,string,uint8,uint8,bytes,bytes4[])[])"(
+      requests: IContextManagement.ContextUpgradeRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

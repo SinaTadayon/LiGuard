@@ -82,7 +82,7 @@ contract MemberManager is AclStorage, IMemberManagement {
     bytes32 functionId = _accessPermission(IMemberManagement.memberUpdateActivityStatus.selector);
     bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {      
-      MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
+      MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, false);
 
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
       memberEntity.ba.acstat = requests[i].acstat;
@@ -95,8 +95,9 @@ contract MemberManager is AclStorage, IMemberManagement {
     bytes32 functionId = _accessPermission(IMemberManagement.memberUpdateAlterabilityStatus.selector);
     bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {      
-      MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
+      MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, true);
       
+      require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       memberEntity.ba.alstat = requests[i].alstat;
       emit MemberAlterabilityUpdated(msg.sender, requests[i].id, requests[i].alstat);
     }
@@ -108,7 +109,7 @@ contract MemberManager is AclStorage, IMemberManagement {
     bytes32 functionId = _accessPermission(IMemberManagement.memberUpdateAdmin.selector);
     bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
     for (uint256 i = 0; i < requests.length; i++) {
-      MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
+      MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, false);
 
       // checking requested admin of member
       if (requests[i].adminId == bytes32(0)) {
@@ -132,7 +133,7 @@ contract MemberManager is AclStorage, IMemberManagement {
     bytes32 functionId = _accessPermission(IMemberManagement.memberUpdateTypeLimit.selector);
     bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
     for (uint256 i = 0; i < requests.length; i++) {
-      MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].memberId, senderId, functionId);
+      MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].memberId, senderId, functionId, false);
       memberEntity.typeLimit = requests[i].typeLimit;
       emit MemberTypeLimitUpdated(msg.sender, requests[i].memberId, requests[i].typeLimit);
     }
@@ -228,9 +229,12 @@ contract MemberManager is AclStorage, IMemberManagement {
     return functionId;
   }
 
-  function _doGetEntityAndCheckAdminAccess(bytes32 memberId, bytes32 senderId, bytes32 functionId) internal view returns (MemberEntity storage) {
+  function _doGetEntityAndCheckAdminAccess(bytes32 memberId, bytes32 senderId, bytes32 functionId, bool isAlterable) internal view returns (MemberEntity storage) {
     MemberEntity storage memberEntity = _data.memberReadSlot(memberId);
-    require(memberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
+
+    if(!isAlterable) {
+      require(memberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
+    }
     require(_doAgentCheckAdminAccess(memberEntity.ba.adminId, senderId, functionId), "Forbidden");
     return memberEntity;
   }

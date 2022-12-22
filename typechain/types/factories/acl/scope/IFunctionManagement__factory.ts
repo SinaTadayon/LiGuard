@@ -140,7 +140,7 @@ const _abi = [
       {
         indexed: false,
         internalType: "uint16",
-        name: "typeLimit",
+        name: "agentLimit",
         type: "uint16",
       },
     ],
@@ -220,6 +220,55 @@ const _abi = [
       },
     ],
     name: "FunctionPolicyUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "contextId",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "functionId",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "bytes32",
+        name: "adminId",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "bytes32",
+        name: "agentId",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "bytes4",
+        name: "selector",
+        type: "bytes4",
+      },
+      {
+        indexed: false,
+        internalType: "uint8",
+        name: "policyCode",
+        type: "uint8",
+      },
+    ],
+    name: "FunctionRegistered",
     type: "event",
   },
   {
@@ -473,6 +522,67 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "contractId",
+        type: "address",
+      },
+      {
+        components: [
+          {
+            internalType: "bytes32",
+            name: "adminId",
+            type: "bytes32",
+          },
+          {
+            internalType: "bytes32",
+            name: "agentId",
+            type: "bytes32",
+          },
+          {
+            internalType: "uint16",
+            name: "agentLimit",
+            type: "uint16",
+          },
+          {
+            internalType: "uint8",
+            name: "policyCode",
+            type: "uint8",
+          },
+          {
+            internalType: "enum IAclCommons.ActivityStatus",
+            name: "acstat",
+            type: "uint8",
+          },
+          {
+            internalType: "enum IAclCommons.AlterabilityStatus",
+            name: "alstat",
+            type: "uint8",
+          },
+          {
+            internalType: "bytes4",
+            name: "selector",
+            type: "bytes4",
+          },
+        ],
+        internalType: "struct IFunctionManagement.FunctionRegisterRequest[]",
+        name: "requests",
+        type: "tuple[]",
+      },
+    ],
+    name: "functionRegister",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {

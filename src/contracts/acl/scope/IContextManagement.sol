@@ -13,28 +13,33 @@ import "../IAclCommons.sol";
  */
 interface IContextManagement is IAclCommons {
   
-  struct ContextRegisterRequest {
-    bytes32 realmId;
-    bytes32 adminId;
-    string name;
-    string version;
-    address contractId;
-    uint16 agentLimit;
-    ActivityStatus acstat;
-    AlterabilityStatus alstat;
-  }
+  // struct ContextRegisterRequest {
+  //   bytes32 realmId;
+  //   bytes32 adminId;
+  //   string name;
+  //   string version;
+  //   address contractId;
+  //   uint16 agentLimit;
+  //   ActivityStatus acstat;
+  //   AlterabilityStatus alstat;
+  //   bytes signature;
+  //   bytes4[] selectors;
+  // }
 
-  struct ContextRegisterPredictRequest {
+  struct ContextRegisterRequest {
     bytes32 realmId;
     bytes32 adminId;
     bytes32 salt;
     string name;
     string version;
+    address contractId;
     address subject;
     address deployer;
     uint16 agentLimit;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
+    bytes signature;
+    bytes4[] selectors;
   }
 
   struct ContextUpgradeRequest {
@@ -43,27 +48,8 @@ interface IContextManagement is IAclCommons {
     string version;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
-  }
-
-  struct ContextRegisterFunctionRequest {
-    bytes32 adminId;
-    bytes32 agentId;
-    uint16 agentLimit;
-    uint8 policyCode;
-    ActivityStatus acstat;
-    AlterabilityStatus alstat;
-    bytes4 selector;    
-  }
-
-  struct ContextUpgradeFunctionRequest {
-    bytes32 adminId;
-    bytes32 agentId;
-    uint16 agentLimit;
-    uint8 policyCode;
-    ActivityStatus acstat;
-    AlterabilityStatus alstat;
-    ActionType action;
-    bytes4 selector;    
+    bytes signature;
+    bytes4[] selectors;
   }
 
   struct ContextInfo {
@@ -80,16 +66,16 @@ interface IContextManagement is IAclCommons {
     AlterabilityStatus alstate;
   }
 
-  event ContextRegistered (
-    address indexed sender,
-    bytes32 indexed contextId,
-    address indexed contractId,
-    address signer,
-    bytes32 realmId,
-    bytes32 adminId
-  );
+  // event ContextRegistered (
+  //   address indexed sender,
+  //   bytes32 indexed contextId,
+  //   address indexed contractId,
+  //   address signer,
+  //   bytes32 realmId,
+  //   bytes32 adminId
+  // );
 
-  event PredictContextRegistered(
+  event ContextRegistered(
     address indexed sender,
     bytes32 indexed contextId,
     address indexed contractId,    
@@ -103,35 +89,8 @@ interface IContextManagement is IAclCommons {
   event ContextUpgraded(
     address indexed sender, 
     bytes32 indexed contextId, 
-    address indexed contractId, 
-    string name, 
-    string version
-  );
-
-  event ContextFunctionRegistered(
-    address indexed sender, 
-    bytes32 indexed contextId,
-    bytes32 indexed functionId,
-    bytes32 adminId, 
-    bytes32 agentId,
-    bytes4 selector,
-    uint8 policyCode
-  );
-
-  event ContextUpgradeFunctionAdded(
-    address indexed sender, 
-    bytes32 indexed contextId,
-    bytes32 indexed functionId,
-    bytes32 adminId,
-    bytes32 agentId,
-    bytes4 selector,
-    uint8 policyCode
-  );
-
-  event ContextUpgradeFunctionRemoved(
-    address indexed sender, 
-    bytes32 indexed contextId,
-    bytes32 indexed functionId
+    address indexed contractId,
+    address signer
   );
 
   event ContextAdminUpdated(address indexed sender, bytes32 indexed contextId, bytes32 indexed adminId);
@@ -144,25 +103,13 @@ interface IContextManagement is IAclCommons {
 
 
   // called by contract that want to register itself
-  function contextRegister(
-    bytes memory signature,
-    ContextRegisterRequest calldata request,
-    ContextRegisterFunctionRequest[] calldata functionRequests
-  ) external returns (bytes32);
+  function contextRegister(ContextRegisterRequest[] calldata requests) external returns (bool);
 
   // called by factory contract that want to register new created contract
-  function contextRegisterPredict(
-    bytes memory signature,
-    ContextRegisterPredictRequest calldata request,
-    ContextRegisterFunctionRequest[] calldata functionRequests
-  ) external returns (bytes32);
+  // function contextRegisterPredict(ContextRegisterPredictRequest[] calldata requests) external returns (bool);
 
   // called by contract that want to upgrade itself
-  function contextUpgrade(
-    bytes memory signature,
-    ContextUpgradeRequest calldata request,
-    ContextUpgradeFunctionRequest[] calldata functionRequests
-  ) external returns (address);
+  function contextUpgrade(ContextUpgradeRequest[] calldata requests) external returns (bool);
 
   function contextDeleteActivity(bytes32[] calldata requests) external returns (bool);
 

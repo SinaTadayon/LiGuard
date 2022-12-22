@@ -13,6 +13,7 @@ import "../../lib/cryptography/LECDSA.sol";
 import "../../lib/acl/LAclUtils.sol";
 import "../../lib/struct/LEnumerableSet.sol";
 import "../../proxy/IProxy.sol";
+import "../../proxy/BaseUUPSProxy.sol";
 
 /**
  * @title Context Manager Contract
@@ -20,130 +21,96 @@ import "../../proxy/IProxy.sol";
  * @dev
  *
  */
-contract ContextManager is AclStorage, IContextManagement {
+contract ContextManager is AclStorage, BaseUUPSProxy, IContextManagement {
   using LAclStorage for DataCollection;    
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
-  using LClones for address;
+  using LClones for address;  
 
-
-  function contextRegisterAcl(
-    ContextRegisterRequest memory request,
-    ContextRegisterFunctionRequest[] calldata functionRequests
-  ) external returns (bytes32) {
-    address functionFacetId = _data.interfaces[type(IContextManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, this.contextRegisterAcl.selector);
-
-    bytes32 contextId = _registerContext(msg.sender, request, functionRequests, functionId);
-    emit ContextRegistered (
-      msg.sender,
-      contextId,
-      request.contractId,
-      msg.sender,
-      request.realmId,
-      request.adminId
-    );
-
-    return contextId;
-  }
-
-  // called by contract that want to register itself
-  function contextRegister(
-    bytes memory signature,
-    ContextRegisterRequest memory request,
-    ContextRegisterFunctionRequest[] calldata functionRequests
-  ) external returns (bytes32) {
-
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");    
-    bytes32 structHash = _getContextMessageHash(
-      request.contractId, 
-      LAclUtils.generateHash(request.name), 
-      LAclUtils.generateHash(request.version),
-      request.realmId
-    );
-
-    address msgSigner = _doGetSignerAddress(signature, structHash);
-    // bytes32 msgDigest = _hashTypedDataV4(structHash);
-    // (address msgSigner, LECDSA.RecoverError recoverErr) = LECDSA.tryRecover(msgDigest, signature);
-    // require(recoverErr == LECDSA.RecoverError.NoError, "Illegal Signature");
-
-    // bytes32 memberId = LAclUtils.accountGenerateId(msgSigner);
-    // address functionFacetId = _data.interfaces[type(IContextManagement).interfaceId];
-    // bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IContextManagement.contextRegister.selector);
-    // require(IAccessControl(address(this)).hasMemberAccess(functionId, memberId), "Access Denied");
-    bytes32 functionId = _accessPermission(IFunctionManagement.functionUpdateAdmin.selector);
-    // bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
-        
-    bytes32 contextId = _registerContext(msgSigner, request, functionRequests, functionId);
-
-    emit ContextRegistered (
-      msg.sender,
-      contextId,
-      request.contractId,
-      msgSigner,
-      request.realmId,
-      request.adminId
-    );
-
-    return contextId;
-  }
-
-  // called by factory contract that want to register new created contract
-  function contextRegisterPredict(
-    bytes memory signature,
-    ContextRegisterPredictRequest memory request,
-    ContextRegisterFunctionRequest[] calldata functionRequests
-  ) external returns (bytes32) {
+  // called by system admin
+  function contextRegister(ContextRegisterRequest[] memory requests) external returns (bool) {
     
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");   
-    
-    address msgSigner = _doGetSignerAddress(
-      signature, 
-      _getPredictContextMessageHash(request.deployer, request.subject, request.realmId)
-    );
-    // bytes32 msgDigest = _hashTypedDataV4(structHash);
-    // (address msgSigner, LECDSA.RecoverError recoverErr) = LECDSA.tryRecover(msgDigest, signature);
-    // require(recoverErr == LECDSA.RecoverError.NoError, "Illegal Signature");
-    
-    // bytes32 memberId = LAclUtils.accountGenerateId(msgSigner);
-    // address functionFacetId = _data.interfaces[type(IContextManagement).interfaceId];
-    // bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IContextManagement.contextRegisterPredict.selector);
-    // require(IAccessControl(address(this)).hasMemberAccess(functionId, memberId), "Access Denied");
+    for (uint256 i = 0; i < requests.length; i++) {
 
-    // bytes32 functionId = _accessPermission(IContextManagement.contextRegisterPredict.selector);
-    // bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
+      address signer;
+      address contractId;
+      if(requests[i].contractId == address(0)) {
+        signer = _doGetSignerAddress(
+          requests[i].signature, 
+          _getPredictContextMessageHash(requests[i].deployer, requests[i].subject, requests[i].realmId)
+        );
+        contractId = requests[i].contractId;
+      } else {
+        bytes32 structHash = _getContextMessageHash(
+          requests[i].contractId, 
+          LAclUtils.generateHash(requests[i].name), 
+          LAclUtils.generateHash(requests[i].version),
+          requests[i].realmId
+        );
 
-    address predictedContractId = request.subject.predictDeterministicAddress(request.salt, request.deployer);
+        signer = _doGetSignerAddress(requests[i].signature, structHash);
+        contractId = requests[i].subject.predictDeterministicAddress(requests[i].salt, requests[i].deployer);
+      }
 
-    ContextRegisterRequest memory newRequest = ContextRegisterRequest({
-      realmId: request.realmId,
-      adminId: request.adminId,
-      name: "",
-      version: "",
-      contractId: predictedContractId,
-      agentLimit: request.agentLimit,
-      acstat: request.acstat,      
-      alstat: request.alstat
-    });
+        // bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
+      bytes32 functionId = _accessPermission(IContextManagement.contextRegister.selector);
+      bytes32 signerId = LAclUtils.accountGenerateId(signer);  
+      bytes32 newContextId = LAclUtils.accountGenerateId(contractId);
+      require(_data.scopes[newContextId].stype == ScopeType.NONE, "Already Exist");
 
-    bytes32 ctx = _registerContext(
-      msgSigner, 
-      newRequest, 
-      functionRequests, 
-      _accessPermission(IContextManagement.contextRegisterPredict.selector)
-    );
+      {
+        // check realm 
+        RealmEntity storage realmEntity = _data.realmReadSlot(requests[i].realmId);
+        require(realmEntity.bs.acstat > ActivityStatus.DELETED, "Realm Deleted");
+        require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Realm Update");
+        require(realmEntity.contextLimit > realmEntity.contexts.length(), "Illegal Register");
 
-    emit PredictContextRegistered(
-      msg.sender,
-      ctx, 
-      predictedContractId,
-      msgSigner,
-      request.deployer,
-      request.subject,
-      request.realmId,
-      request.adminId
-    );
+        // check access admin realm
+        require(_doCheckAdminAccess(realmEntity.bs.adminId, signerId, functionId), "Forbidden");
 
-    return ctx;
+        _doCheckSignerScope(signerId, requests[i].realmId, realmEntity.domainId);
+
+        // add context to realm
+        realmEntity.contexts.add(newContextId);    
+
+        
+        // create new context
+        ContextEntity storage newContext = _data.contextWriteSlot(newContextId);
+        newContext.realmId = requests[i].realmId;
+        newContext.contractId = contractId;
+        newContext.bs.stype = ScopeType.CONTEXT;
+        newContext.bs.acstat = requests[i].acstat;
+        newContext.bs.alstat = requests[i].alstat;
+        newContext.bs.agentLimit = requests[i].agentLimit;
+        newContext.bs.adminId = _getContextAdmin(requests[i].realmId, newContextId, realmEntity.bs.adminId, requests[i].adminId);
+      
+        // update referred of admin agent of context
+        _doUpdateAgentReferred(
+          _data.agents[newContext.bs.adminId],
+          newContext.bs.adminId,
+          newContextId, 
+          signer,
+          ActionType.ADD
+        ); 
+              
+        for (uint256 j = 0; j < requests[i].selectors.length; j++) {
+          newContext.functions.add(requests[i].selectors[j]);
+        }
+      }
+
+      emit ContextRegistered(
+        msg.sender,
+        newContextId, 
+        contractId,
+        signer,
+        requests[i].deployer,
+        requests[i].subject,
+        requests[i].realmId,
+        requests[i].adminId
+      );
+    }
+
+    return true;
   }
 
   function _getContextMessageHash(
@@ -164,10 +131,10 @@ contract ContextManager is AclStorage, IContextManagement {
   }
 
   function _hashTypedDataV4(bytes32 structHash) internal view returns (bytes32) {
-    return LECDSA.toTypedDataHash(_domainSeparatorV4(), structHash);
+    return LECDSA.toTypedDataHash(_contractDomainSeparatorV4(), structHash);
   }
 
-  function _domainSeparatorV4() internal view returns (bytes32) {
+  function _contractDomainSeparatorV4() internal view returns (bytes32) {
     return
       keccak256(
         abi.encode(
@@ -180,176 +147,47 @@ contract ContextManager is AclStorage, IContextManagement {
       );
   }
 
-  function _registerContext(
-    address signer,
-    ContextRegisterRequest memory request,
-    ContextRegisterFunctionRequest[] calldata functionRequests,
-    bytes32 functionId
-  ) private returns (bytes32) {
 
-    bytes32 signerId = LAclUtils.accountGenerateId(signer);  
-    bytes32 newContextId = LAclUtils.accountGenerateId(request.contractId);
-    require(_data.scopes[newContextId].stype == ScopeType.NONE, "Already Exist");
-
-    // check realm 
-    RealmEntity storage realmEntity = _data.realmReadSlot(request.realmId);
-    require(realmEntity.bs.acstat > ActivityStatus.DELETED, "Realm Deleted");
-    require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Realm Update");
-    require(realmEntity.contextLimit > realmEntity.contexts.length(), "Illegal Register");
-
-    // check access admin realm
-    require(_doCheckAdminAccess(realmEntity.bs.adminId, signerId, functionId), "Forbidden");
-
-    // // fetch scope type and scope id of sender
-    // TypeEntity storage systemAdminType = _data.typeReadSlot(LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID);
-    // bytes32 signerRoleId = systemAdminType.members[signerId];
-    // RoleEntity storage signerSystemRole =  _data.roleReadSlot(signerRoleId);
-    // ScopeType signerSystemScopeType = _data.scopes[signerSystemRole.scopeId].stype;
-
-    // // check compatibility scopes
-    // require(signerSystemScopeType >= ScopeType.REALM, "Illegal Signer ScopeType");
-    // if(signerSystemScopeType == ScopeType.REALM) {
-    //   require(signerSystemRole.scopeId == request.realmId, "Illegal Realm Scope");
-
-    // } else if (signerSystemScopeType == ScopeType.DOMAIN) {
-    //   require(signerSystemRole.scopeId == realmEntity.domainId, "Illegal Domain Scope");
-    
-    // } else {
-    //   require(signerSystemRole.scopeId == _data.global.id, "Illegal Global Scope");
-    // } 
-
-    _doCheckSignerScope(signerId, request.realmId, realmEntity.domainId);
-
-    // add context to realm
-    realmEntity.contexts.add(newContextId);    
-
-    // create new context
-    ContextEntity storage newContext = _data.contextWriteSlot(newContextId);
-    newContext.realmId = request.realmId;
-    newContext.contractId = request.contractId;
-    newContext.bs.stype = ScopeType.CONTEXT;
-    newContext.bs.acstat = request.acstat;
-    newContext.bs.alstat = request.alstat;
-    newContext.bs.agentLimit = request.agentLimit;
-    newContext.bs.adminId = _getContextAdmin(request.realmId, newContextId, realmEntity.bs.adminId, request.adminId);
-   
-
-    // // checking requested context admin 
-    // if(request.adminId != bytes32(0)) {
-    //   require(_data.agents[request.adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
-      
-    //   (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(request.adminId);
-    //   require(ScopeType.REALM <= requestAdminScopeType, "Illegal Admin ScopeType");
-    //   if(ScopeType.REALM == requestAdminScopeType) {
-    //     require(requestAdminScopeId == request.realmId, "Illegal Admin Scope");
-    
-    //   } else if(ScopeType.DOMAIN == requestAdminScopeType){
-    //     require(requestAdminScopeId == realmEntity.domainId, "Illegal Admin Scope");
-
-    //   } else {
-    //     require(requestAdminScopeId == _data.global.id, "Illegal Admin Scope");
-    //   }
-    //   newContext.bs.adminId = request.adminId;
-
-    // } else {
-    //   newContext.bs.adminId = realmEntity.bs.adminId;
-    // }
-
-    // update referred of admin agent of context
-    _doUpdateAgentReferred(
-      _data.agents[newContext.bs.adminId],
-      newContext.bs.adminId,
-      newContextId, 
-      signer,
-      ActionType.ADD
-    ); 
-    // BaseAgent storage contextAdmin = _data.agents[newContext.bs.adminId];
-    // contextAdmin.referredByScope += 1; 
-    // emit AgentReferredByScopeUpdated(
-    //   msg.sender, 
-    //   newContext.bs.adminId,
-    //   newContextId, 
-    //   ActionType.ADD
-    // );
-     
-    for (uint256 i = 0; i < functionRequests.length; i++) {
-      _doFunctionRegistration(newContext, functionRequests[i], signer, newContextId);
-    }
-
-    return newContextId;
-  }
 
  // called by contract that want to upgrade itself
-  function contextUpgrade(
-    bytes memory signature,
-    ContextUpgradeRequest calldata request,
-    ContextUpgradeFunctionRequest[] calldata functionRequests
-  ) external returns (address) {
+  function contextUpgrade(ContextUpgradeRequest[] calldata requests) external returns (bool) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");
 
-    bytes32 contextId = LAclUtils.accountGenerateId(request.contractId);  
-    ContextEntity storage contextEntity = _data.contextReadSlot(contextId);
-    require(contextEntity.contractId == msg.sender, "Upgrade Forbidden");
-    require(contextEntity.bs.acstat > ActivityStatus.DELETED, "Context Deleted");
-    require(contextEntity.bs.alstat == AlterabilityStatus.UPGRADABLE, "Illegal Upgrade");
+    for (uint256 i = 0; i < requests.length; i++) {
+      bytes32 contextId = LAclUtils.accountGenerateId(requests[i].contractId);  
+      ContextEntity storage contextEntity = _data.contextReadSlot(contextId);
+      require(contextEntity.contractId == msg.sender, "Upgrade Forbidden");
+      require(contextEntity.bs.acstat > ActivityStatus.DELETED, "Context Deleted");
+      require(contextEntity.bs.alstat == AlterabilityStatus.UPGRADABLE, "Illegal Upgrade");
 
-    bytes32 structHash = _getContextMessageHash(
-      request.contractId, 
-      LAclUtils.generateHash(request.name), 
-      LAclUtils.generateHash(request.version),
-      contextEntity.realmId  
-    );
+      bytes32 structHash = _getContextMessageHash(
+        requests[i].contractId, 
+        LAclUtils.generateHash(requests[i].name), 
+        LAclUtils.generateHash(requests[i].version),
+        contextEntity.realmId  
+      );
 
-    address signer = _doGetSignerAddress(signature, structHash);
-    // bytes32 msgDigest = _hashTypedDataV4(structHash);
-    // (address signer, LECDSA.RecoverError recoverErr) = LECDSA.tryRecover(msgDigest, signature);
-    // require(recoverErr == LECDSA.RecoverError.NoError, "Illegal Signature");
-  
-    // bytes32 memberId = LAclUtils.accountGenerateId(signer);
-    // address functionFacetId = _data.interfaces[type(IContextManagement).interfaceId];
-    // bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IContextManagement.contextRegisterPredict.selector);
-    // require(IAccessControl(address(this)).hasMemberAccess(functionId, memberId), "Access Denied");
-    bytes32 functionId = _accessPermission(IContextManagement.contextUpgrade.selector);
-    bytes32 signerId = LAclUtils.accountGenerateId(signer);  
+      address signer = _doGetSignerAddress(requests[i].signature, structHash);     
+      bytes32 functionId = _accessPermission(IContextManagement.contextUpgrade.selector);
+      bytes32 signerId = LAclUtils.accountGenerateId(signer);  
 
-    // check access admin realm
-    require(_doCheckAdminAccess(contextEntity.bs.adminId, signerId, functionId), "Forbidden");
+      // check access admin realm
+      require(_doCheckAdminAccess(contextEntity.bs.adminId, signerId, functionId), "Forbidden");
+      _doCheckUpgradeSignerScope(contextEntity, contextId, signerId);
 
-    _doCheckUpgradeSignerScope(contextEntity, contextId, signerId);
-    // // get scope id of sender
-    // TypeEntity storage systemAdminType = _data.typeReadSlot(LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID);
-    // bytes32 signerRoleId = systemAdminType.members[signerId];
-    // RoleEntity storage signerSystemRole =  _data.roleReadSlot(signerRoleId);
-    // ScopeType signerSystemScopeType = _data.scopes[signerSystemRole.scopeId].stype;
-
-    // // check compatibility scopes
-    // require(signerSystemScopeType >= ScopeType.CONTEXT, "Illegal Signer ScopeType");
-    // if(signerSystemScopeType == ScopeType.CONTEXT) {
-    //   require(signerSystemRole.scopeId == contextId, "Illegal Context Scope");
-
-    // } else if(signerSystemScopeType == ScopeType.REALM) {      
-    //   require(signerSystemRole.scopeId == contextEntity.realmId, "Illegal Realm Scope");
-
-    // } else if (signerSystemScopeType == ScopeType.DOMAIN) {
-    //   RealmEntity storage realmEntity = _data.realmReadSlot(contextEntity.realmId);
-    //   require(signerSystemRole.scopeId == realmEntity.domainId, "Illegal Domain Scope");
-    
-    // } else {
-    //   require(signerSystemRole.scopeId == _data.global.id, "Illegal Global Scope");
-    // } 
-
-    for (uint256 i = 0; i < functionRequests.length; i++) {
-      if(functionRequests[i].action == ActionType.ADD) {
-        _doFunctionUpdrade(contextEntity, functionRequests[i], signer,contextId);
-
-      } else if(functionRequests[i].action == ActionType.REMOVE) {
-        _doFunctionDeleteUpdgrade(contextId, request.contractId, functionRequests[i].selector, signer);
-      } else {
-        revert("Illeagl Action");
+      for (uint256 j = 0; j < requests[i].selectors.length; i++) {
+        require(!contextEntity.functions.contains(requests[i].selectors[j]), "Already Exist");
+        contextEntity.functions.add(requests[i].selectors[j]);
       }
-    }
 
-    return request.contractId;
+      emit ContextUpgraded(
+        msg.sender, 
+        contextId, 
+        requests[i].contractId,
+        signer
+      );
+    }
+    return true;
   }
 
   function contextDeleteActivity(bytes32[] calldata requests) external returns (bool) {
@@ -363,7 +201,7 @@ contract ContextManager is AclStorage, IContextManagement {
   function contextUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IContextManagement.contextUpdateActivityStatus.selector);   
     for(uint i = 0; i < requests.length; i++) {
-      require(requests[i].acstat != ActivityStatus.DELETED, "Illegal Activity");
+      require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
       _doContextUpdateActivityStatus(requests[i].id, requests[i].acstat, functionId);
     }
     return true;
@@ -373,8 +211,9 @@ contract ContextManager is AclStorage, IContextManagement {
     bytes32 functionId = _accessPermission(IContextManagement.contextUpdateAlterabilityStatus.selector);
     bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);   
     for(uint i = 0; i < requests.length; i++) {      
-      ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
+      ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, true);
       
+      require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       contextEntity.bs.alstat = requests[i].alstat;
       emit ContextAlterabilityUpdated(msg.sender, requests[i].id, requests[i].alstat);
     }
@@ -385,7 +224,7 @@ contract ContextManager is AclStorage, IContextManagement {
     bytes32 functionId = _accessPermission(IContextManagement.contextUpdateAdmin.selector);
     bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);   
     for(uint i = 0; i < requests.length; i++) {
-      ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
+      ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, false);
 
       // update function admin Id
       _doUpdateAgentReferred(
@@ -454,7 +293,7 @@ contract ContextManager is AclStorage, IContextManagement {
     bytes32 functionId = _accessPermission(IContextManagement.contextUpdateAdmin.selector);
     bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);   
     for (uint256 i = 0; i < requests.length; i++) {
-      ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(requests[i].scopeId, senderId, functionId);
+      ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(requests[i].scopeId, senderId, functionId, false);
 
       contextEntity.bs.agentLimit = requests[i].agentLimit;
       emit ContextAgentLimitUpdated(msg.sender, requests[i].scopeId, requests[i].agentLimit);
@@ -574,13 +413,13 @@ contract ContextManager is AclStorage, IContextManagement {
   function _doContextUpdateActivityStatus(bytes32 contextId, ActivityStatus status, bytes32 functionId) internal returns (bool) {
 
     bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);       
-    ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(contextId, senderId, functionId);
+    ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(contextId, senderId, functionId, false);
 
     if(status == ActivityStatus.DELETED) {   
       _doUpdateAgentReferred(
         _data.agents[contextEntity.bs.adminId],
         contextEntity.bs.adminId,
-        functionId, 
+        contextId, 
         msg.sender, 
         ActionType.REMOVE
       ); 
@@ -639,246 +478,6 @@ contract ContextManager is AclStorage, IContextManagement {
     });
   }
 
-  function _doFunctionRegistration(
-      ContextEntity storage context, 
-      ContextRegisterFunctionRequest calldata functionRequest, 
-      address signerId,
-      bytes32 contextId
-  ) internal {
-    bytes32 newFunctionId = LAclUtils.functionGenerateId(context.contractId, functionRequest.selector);        
-    FunctionEntity storage functionEntity = _data.functionWriteSlot(newFunctionId);
-    functionEntity.bs.stype = ScopeType.FUNCTION;
-    functionEntity.contextId = contextId;
-    functionEntity.agentId = functionRequest.agentId;
-    functionEntity.policyCode = functionRequest.policyCode;      
-    functionEntity.selector = functionRequest.selector;
-    functionEntity.bs.acstat = functionRequest.acstat;
-    functionEntity.bs.alstat = functionRequest.alstat;
-    functionEntity.bs.agentLimit = functionRequest.agentLimit;   
-    functionEntity.bs.adminId = _doGetAndCheckFunctionAdmin(context, contextId, functionRequest.adminId);
-
-    // checking requested functionAdmin admin 
-    // if(functionRequest.adminId != bytes32(0)) {
-    //   BaseAgent storage adminBaseAgent = _data.agents[functionRequest.adminId];
-    //   require(adminBaseAgent.atype > AgentType.MEMBER, "Illegal Admin AgentType");
-
-    //   (ScopeType requestAdminFuncType, bytes32 requestAdminFuncId) = _doAgentGetScopeInfo(functionRequest.adminId);
-    //   require(ScopeType.CONTEXT <= requestAdminFuncType, "Illegal Admin ScopeType");
-    //   if(ScopeType.CONTEXT == requestAdminFuncType) {  
-    //     require(requestAdminFuncId == context.bs.adminId, "Illegal Amind Scope");
-      
-    //   } else if(ScopeType.REALM == requestAdminFuncType) {
-    //     require(requestAdminFuncId == context.realmId, "Illegal Amind Scope");
-    
-    //   } else if(ScopeType.DOMAIN == requestAdminFuncType){
-    //     require(requestAdminFuncId == domainId, "Illegal Amind Scope");
-
-    //   } else {
-    //     require(requestAdminFuncId == _data.global.id, "Illegal Amind Scope");
-    //   }
-    //   functionEntity.bs.adminId = functionRequest.adminId;
-
-    // } else {
-    //   functionEntity.bs.adminId = context.bs.adminId;
-    // }
-    
-    // add function to context
-    context.functions.add(newFunctionId);
-
-    // update referred agent Id
-    _doUpdateAgentReferred(
-      _data.agents[functionEntity.agentId],
-      functionEntity.agentId,
-      newFunctionId, 
-      signerId, 
-      ActionType.ADD
-    );
-
-    // BaseAgent storage functionAgent = _data.agents[functionEntity.agentId];
-    // // require(functionAgent.atype != AgentType.NONE, "Agent Not Found");
-    // require(functionAgent.atype > AgentType.MEMBER, "Illegal AgentType");
-    // require(functionAgent.acstat > ActivityStatus.DELETED, "Agent Deleted");
-    // require(functionAgent.scopeLimit > functionAgent.referredByScope, "Illegal Agent Referred");
-    // functionAgent.referredByScope += 1; 
-    // emit AgentReferredByScopeUpdated(
-    //   signerId, 
-    //   functionEntity.agentId, 
-    //   newFunctionId, 
-    //   ActionType.ADD
-    // );
-
-    // update referred admin Id
-    _doUpdateAgentReferred(
-      _data.agents[functionEntity.bs.adminId],
-      functionEntity.bs.adminId,
-      newFunctionId, 
-      signerId, 
-      ActionType.ADD
-    );
-    // BaseAgent storage functionAdmin = _data.agents[functionEntity.bs.adminId];
-    // require(functionAdmin.atype > AgentType.MEMBER, "Illegal AgentType");
-    // require(functionAdmin.acstat > ActivityStatus.DELETED, "Agent Deleted");
-    // require(functionAdmin.scopeLimit > functionAdmin.referredByScope, "Illegal Admin Referred");
-    // functionAdmin.referredByScope += 1; 
-    // emit AgentReferredByScopeUpdated(
-    //   signerId, 
-    //   functionEntity.bs.adminId,
-    //   newFunctionId, 
-    //   ActionType.ADD
-    // );
-
-    emit ContextFunctionRegistered(
-      msg.sender,
-      contextId, 
-      newFunctionId,
-      functionRequest.adminId,
-      functionRequest.agentId,
-      functionRequest.selector,  
-      functionRequest.policyCode
-    );
-  }
-
-  function _doFunctionUpdrade(
-    ContextEntity storage contextEntity, 
-    ContextUpgradeFunctionRequest calldata functionRequest, 
-    address signerId,
-    bytes32 contextId
-  ) internal {
-    bytes32 newFunctionId = LAclUtils.functionGenerateId(contextEntity.contractId, functionRequest.selector);
-    require(_data.scopes[newFunctionId].stype == ScopeType.NONE, "Function Exists");
-    // require(_data.agents[functionRequests[i].agentId].atype > AgentType.MEMBER, "Illegal Agent");
-
-    FunctionEntity storage functionEntity = _data.functionWriteSlot(newFunctionId);
-    functionEntity.bs.acstat = functionRequest.acstat;
-    functionEntity.bs.alstat = functionRequest.alstat;
-    functionEntity.bs.stype = ScopeType.FUNCTION;
-    functionEntity.contextId = contextId;
-    functionEntity.bs.agentLimit = functionRequest.agentLimit;
-    functionEntity.agentId = functionRequest.agentId;
-    functionEntity.policyCode = functionRequest.policyCode;
-    functionEntity.selector = functionRequest.selector;
-    functionEntity.bs.adminId = _doGetAndCheckFunctionAdmin(contextEntity, contextId, functionRequest.adminId);
-    
-    // // checking requested functionAdmin admin 
-    // if(functionRequest.adminId != bytes32(0)) {
-    //   // require(_data.agents[functionRequests[i].adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
-
-    //   (ScopeType requestAdminFuncType, bytes32 requestAdminFuncId) = _doAgentGetScopeInfo(contextEntity.bs.adminId);
-    //   require(ScopeType.CONTEXT <= requestAdminFuncType, "Illegal Admin ScopeType");
-    //   if(ScopeType.CONTEXT == requestAdminFuncType) {  
-    //     require(requestAdminFuncId == contextEntity.bs.adminId, "Illegal Amind Scope");          
-    //   } else {
-    //     require(IAccessControl(address(this)).isScopesCompatible(requestAdminFuncId, contextId), "Illegal Admin Scope");
-    //   }
-    //   functionEntity.bs.adminId = functionRequest.adminId;
-
-    // } else {
-    //   functionEntity.bs.adminId = contextEntity.bs.adminId;
-    // }
-
-    // add functionId to context
-    contextEntity.functions.add(newFunctionId);
-
-    // update function agent id 
-    _doUpdateAgentReferred(
-      _data.agents[functionEntity.agentId],
-      functionEntity.agentId,
-      newFunctionId, 
-      signerId, 
-      ActionType.ADD
-    ); 
-
-
-    // BaseAgent storage newFunctionAgent = _data.agents[functionEntity.agentId];
-    // require(newFunctionAgent.atype != AgentType.NONE, "Agent Not Found");
-    // require(newFunctionAgent.acstat > ActivityStatus.DELETED, "Agent Deleted");
-    // require(newFunctionAgent.scopeLimit > newFunctionAgent.referredByScope, "Illegal Agent ReferredByScope");
-    // newFunctionAgent.referredByScope += 1; 
-    // emit AgentReferredByScopeUpdated(
-    //   msg.sender, 
-    //   functionEntity.agentId, 
-    //   newFunctionId, 
-    //   ActionType.ADD
-    // );
-
-    // update function admin id
-    _doUpdateAgentReferred(
-      _data.agents[functionEntity.bs.adminId],
-      functionEntity.bs.adminId,
-      newFunctionId, 
-      signerId,
-      ActionType.ADD
-    ); 
-
-    // BaseAgent storage newFunctionAdmin = _data.agents[functionEntity.bs.adminId];
-    // require(newFunctionAdmin.atype != AgentType.NONE, "Agent Not Found");
-    // require(newFunctionAdmin.acstat > ActivityStatus.DELETED, "Agent Deleted");
-    // require(newFunctionAdmin.scopeLimit > newFunctionAdmin.referredByScope, "Illegal Agent ReferredByScope");
-    // newFunctionAdmin.referredByScope += 1; 
-    // emit AgentReferredByScopeUpdated(
-    //   msg.sender, 
-    //   functionEntity.bs.adminId,
-    //   newFunctionId, 
-    //   ActionType.ADD
-    // );
-
-    emit ContextFunctionRegistered(
-      msg.sender,
-      contextId, 
-      newFunctionId,
-      functionRequest.adminId,
-      functionRequest.agentId,
-      functionRequest.selector,        
-      functionRequest.policyCode
-    );
-  }
-
-  function _doFunctionDeleteUpdgrade(bytes32 contextId, address contractId, bytes4 selector, address signer) internal {
-      bytes32 reqFunctionId = LAclUtils.functionGenerateId(contractId, selector);
-      FunctionEntity storage functionEntity = _data.functionReadSlot(reqFunctionId);
-      functionEntity.bs.acstat = ActivityStatus.DELETED;
-      
-      // update function agent Id
-      _doUpdateAgentReferred(
-        _data.agents[functionEntity.agentId],
-        functionEntity.agentId,
-        reqFunctionId, 
-        signer, 
-        ActionType.REMOVE
-      ); 
-
-      // BaseAgent storage functionAgent = _data.agents[functionEntity.agentId];
-      // require(functionAgent.referredByScope > 0, "Illegal Agent ReferredByScope");
-      // unchecked { functionAgent.referredByScope -= 1; }
-      // emit AgentReferredByScopeUpdated(
-      //   msg.sender, 
-      //   functionEntity.agentId, 
-      //   reqFunctionId, 
-      //   ActionType.REMOVE
-      // );
-
-      // update function admin Id
-      _doUpdateAgentReferred(
-        _data.agents[functionEntity.bs.adminId],
-        functionEntity.bs.adminId,
-        reqFunctionId, 
-        signer, 
-        ActionType.REMOVE
-      ); 
-
-      // BaseAgent storage functionAdmin = _data.agents[functionEntity.bs.adminId];
-      // require(functionAdmin.referredByScope > 0, "Illegal Admin ReferredByScope");
-      // unchecked { functionAdmin.referredByScope -= 1; }
-      // emit AgentReferredByScopeUpdated(
-      //   msg.sender, 
-      //   functionEntity.bs.adminId,
-      //   reqFunctionId, 
-      //   ActionType.REMOVE
-      // );
-      
-      emit ContextUpgradeFunctionRemoved(msg.sender, contextId, reqFunctionId);    
-  }
-
   function _doUpdateAgentReferred(
       BaseAgent storage agent,
       bytes32 agentId, 
@@ -890,7 +489,7 @@ contract ContextManager is AclStorage, IContextManagement {
       require(agent.atype != AgentType.NONE, "Agent Not Found");
       require(agent.atype > AgentType.MEMBER, "Illegal AgentType");
       require(agent.acstat > ActivityStatus.DELETED, "Agent Deleted");
-      require(agent.scopeLimit > agent.referredByScope, "Illegal Admin Referred");
+      require(agent.scopeLimit > agent.referredByScope, "Illegal Referred");
       agent.referredByScope += 1; 
       emit AgentReferredByScopeUpdated(
         signerId, 
@@ -899,7 +498,7 @@ contract ContextManager is AclStorage, IContextManagement {
         ActionType.ADD
       );
     } else if (action == ActionType.REMOVE) {
-      require(agent.referredByScope > 0, "Illegal Admin Referred");
+      require(agent.referredByScope > 0, "Illegal Referred");
       unchecked { agent.referredByScope -= 1; }
       emit AgentReferredByScopeUpdated(
         signerId, 
@@ -920,10 +519,13 @@ contract ContextManager is AclStorage, IContextManagement {
     return functionId;
   }
 
-  function _doGetEntityAndCheckAdminAccess(bytes32 contextId, bytes32 senderId, bytes32 functionId) internal view returns (ContextEntity storage) {
+  function _doGetEntityAndCheckAdminAccess(bytes32 contextId, bytes32 senderId, bytes32 functionId, bool isAlterable) internal view returns (ContextEntity storage) {
     ContextEntity storage contextEntity = _data.contextReadSlot(contextId);
     require(contextEntity.bs.acstat > ActivityStatus.DELETED, "Context Deleted");
-    require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
+
+    if(!isAlterable) {
+      require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
+    }
 
     // check access admin role
     require(_doCheckAdminAccess(contextEntity.bs.adminId, senderId, functionId), "Forbidden");
@@ -1002,26 +604,6 @@ contract ContextManager is AclStorage, IContextManagement {
 
     } else {
       contextAdminId = requestScopeAdmin;
-    }
-  }
-
-  function _doGetAndCheckFunctionAdmin(ContextEntity storage contextEntity, bytes32 contextId, bytes32 adminId) internal view returns (bytes32 functionAdminId) {
-    // checking requested functionAdmin admin 
-    if(adminId != bytes32(0)) {
-      require(_data.agents[adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
-
-      (ScopeType requestAdminFuncType, bytes32 requestAdminFuncId) = _doAgentGetScopeInfo(adminId);
-      require(ScopeType.CONTEXT <= requestAdminFuncType, "Illegal Admin ScopeType");
-      if(ScopeType.CONTEXT == requestAdminFuncType) {  
-        require(requestAdminFuncId == contextEntity.bs.adminId, "Illegal Amind Scope");
-      
-      } else {
-        require(IAccessControl(address(this)).isScopesCompatible(requestAdminFuncId, contextId), "Illegal Admin Scope");
-      }
-      functionAdminId = adminId;
-
-    } else {
-      functionAdminId = contextEntity.bs.adminId;
     }
   }
 

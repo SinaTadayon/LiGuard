@@ -130,7 +130,7 @@ contract RealmManager is AclStorage, IRealmManagement {
     bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);
 
     for(uint i = 0; i < requests.length; i++) {
-      RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
+      RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, false);
       
        // update function admin Id
       _doUpdateAgentReferred(
@@ -213,8 +213,9 @@ contract RealmManager is AclStorage, IRealmManagement {
     bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);
 
     for(uint i = 0; i < requests.length; i++) {      
-      RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
+      RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, true);
 
+      require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       realmEntity.bs.alstat = requests[i].alstat;
       emit RealmAlterabilityUpdated(msg.sender, requests[i].id, requests[i].alstat);
     }
@@ -225,7 +226,7 @@ contract RealmManager is AclStorage, IRealmManagement {
     bytes32 functionId = _accessPermission(IRealmManagement.realmUpdateContextLimit.selector);
     bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);
     for (uint256 i = 0; i < requests.length; i++) {
-      RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].realmId, senderId, functionId);
+      RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].realmId, senderId, functionId, false);
       realmEntity.contextLimit = requests[i].contextLimit;      
       emit RealmContextLimitUpdated(msg.sender, requests[i].realmId, requests[i].contextLimit);
     }
@@ -236,7 +237,7 @@ contract RealmManager is AclStorage, IRealmManagement {
      bytes32 functionId = _accessPermission(IRealmManagement.realmUpdateAgentLimit.selector);
     bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);
     for (uint256 i = 0; i < requests.length; i++) {
-      RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].scopeId, senderId, functionId);
+      RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].scopeId, senderId, functionId, false);
       realmEntity.bs.agentLimit = requests[i].agentLimit;
       emit RealmAgentLimitUpdated(msg.sender, requests[i].scopeId, requests[i].agentLimit);
     }
@@ -391,7 +392,7 @@ contract RealmManager is AclStorage, IRealmManagement {
 
   function _doRealmUpdateActivityStatus(bytes32 realmId, ActivityStatus status, bytes32 functionId) internal returns (bool) {
     bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
-    RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(realmId, senderId, functionId);
+    RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(realmId, senderId, functionId, false);
     if(status == ActivityStatus.DELETED) {    
       // BaseAgent storage realmAdminAgent = _data.agents[realmEntity.bs.adminId];
       // require(realmAdminAgent.referredByScope > 0, "Illegal Admin ReferredByScope");
@@ -421,10 +422,13 @@ contract RealmManager is AclStorage, IRealmManagement {
     return functionId;
   }
 
-  function _doGetEntityAndCheckAdminAccess(bytes32 realmId, bytes32 senderId, bytes32 functionId) internal view returns (RealmEntity storage) {
+  function _doGetEntityAndCheckAdminAccess(bytes32 realmId, bytes32 senderId, bytes32 functionId, bool isAlterable) internal view returns (RealmEntity storage) {
     RealmEntity storage realmEntity = _data.realmReadSlot(realmId);
     require(realmEntity.bs.acstat > ActivityStatus.DELETED, "Realm Deleted");
-    require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
+
+    if(!isAlterable) {
+      require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
+    }
 
     // check access admin role
     require(_doCheckAdminAccess(realmEntity.bs.adminId, senderId, functionId), "Forbidden");

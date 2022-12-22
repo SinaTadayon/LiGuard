@@ -124,7 +124,7 @@ contract RoleManager is AclStorage, IRoleManagement {
     bytes32 functionId = _accessPermission(IRoleManagement.roleUpdateAdmin.selector);
     bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);   
     for(uint i = 0; i < requests.length; i++) {
-      RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
+      RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, false);
       
       roleEntity.ba.adminId = _getRoleAdmin(_data.scopes[roleEntity.scopeId].stype, _data.agents[roleEntity.typeId].adminId, roleEntity.scopeId, requests[i].adminId);
       // checking requested type admin 
@@ -161,7 +161,7 @@ contract RoleManager is AclStorage, IRoleManagement {
   function roleUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {    
     bytes32 functionId = _accessPermission(IRoleManagement.roleDeleteActivity.selector);
     for(uint i = 0; i < requests.length; i++) {
-      require(requests[i].acstat != ActivityStatus.DELETED, "Illegal Activity");
+      require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
       _doRoleUpdateActivityStatus(requests[i].id, requests[i].acstat, functionId);
     }
     return true;
@@ -171,8 +171,9 @@ contract RoleManager is AclStorage, IRoleManagement {
     bytes32 functionId = _accessPermission(IRoleManagement.roleUpdateAlterabilityStatus.selector);
     bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);   
     for(uint i = 0; i < requests.length; i++) {      
-      RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
+      RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, true);
     
+      require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       roleEntity.ba.alstat = requests[i].alstat;
       emit RoleAlterabilityUpdated(msg.sender, requests[i].id, requests[i].alstat);
     }
@@ -183,7 +184,7 @@ contract RoleManager is AclStorage, IRoleManagement {
     bytes32 functionId = _accessPermission(IRoleManagement.roleUpdateMemberLimit.selector);
     bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);   
     for (uint256 i = 0; i < requests.length; i++) {
-      RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(requests[i].roleId, senderId, functionId);
+      RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(requests[i].roleId, senderId, functionId, false);
 
       roleEntity.memberLimit = requests[i].memberLimit;      
       emit RoleMemberLimitUpdated(msg.sender, requests[i].roleId, requests[i].memberLimit);
@@ -195,7 +196,7 @@ contract RoleManager is AclStorage, IRoleManagement {
     bytes32 functionId = _accessPermission(IRoleManagement.roleUpdateScopeLimit.selector);
     bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);   
     for (uint256 i = 0; i < requests.length; i++) {
-      RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(requests[i].agentId, senderId, functionId);
+      RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(requests[i].agentId, senderId, functionId, false);
       roleEntity.ba.scopeLimit = requests[i].scopeLimit;      
       emit RoleScopeLimitUpdated(msg.sender, requests[i].agentId, requests[i].scopeLimit);
     }
@@ -206,7 +207,7 @@ contract RoleManager is AclStorage, IRoleManagement {
     bytes32 functionId = _accessPermission(IRoleManagement.roleGrantMembers.selector);
     bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);
     for(uint i = 0; i < requests.length; i++) {      
-      RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(requests[i].roleId, senderId, functionId);
+      RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(requests[i].roleId, senderId, functionId, false);
       TypeEntity storage typeEntity = _data.typeReadSlot(roleEntity.typeId);
       require(typeEntity.ba.acstat > ActivityStatus.DELETED, "Type Deleted");
       require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Type Update");  
@@ -227,7 +228,7 @@ contract RoleManager is AclStorage, IRoleManagement {
     bytes32 functionId = _accessPermission(IRoleManagement.roleRevokeMembers.selector);
     bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);
     for(uint i = 0; i < requests.length; i++) {      
-    RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(requests[i].roleId, senderId, functionId);
+    RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(requests[i].roleId, senderId, functionId, false);
 
       TypeEntity storage typeEntity = _data.typeReadSlot(roleEntity.typeId);
       require(typeEntity.ba.acstat > ActivityStatus.DELETED, "Type Deleted");
@@ -340,7 +341,7 @@ contract RoleManager is AclStorage, IRoleManagement {
 
   function _doRoleUpdateActivityStatus(bytes32 roleId, ActivityStatus status, bytes32 functionId) internal returns (bool) {
     bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);
-    RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(roleId, senderId, functionId);
+    RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(roleId, senderId, functionId, false);
 
     if(status == ActivityStatus.DELETED) {
       BaseScope storage bs = _data.scopes[roleEntity.scopeId];
@@ -455,10 +456,13 @@ contract RoleManager is AclStorage, IRoleManagement {
     return requestScope.stype;
   }
 
-  function _doGetEntityAndCheckAdminAccess(bytes32 roleId, bytes32 senderId, bytes32 functionId) internal view returns (RoleEntity storage) {
+  function _doGetEntityAndCheckAdminAccess(bytes32 roleId, bytes32 senderId, bytes32 functionId, bool isAlterable) internal view returns (RoleEntity storage) {
     RoleEntity storage roleEntity = _data.roleReadSlot(roleId);
     require(roleEntity.ba.acstat > ActivityStatus.DELETED, "Role Deleted");
-    require(roleEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Role Update");
+
+    if(!isAlterable) {
+      require(roleEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Role Update");
+    }
 
       // check access admin role
     require(_doCheckAdminAccess(roleEntity.ba.adminId, senderId, functionId), "Forbidden");

@@ -108,7 +108,7 @@ contract DomainManager is AclStorage, IDomainManagement {
   function domainUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
    bytes32 functionId = _accessPermission(IDomainManagement.domainUpdateActivityStatus.selector);
     for(uint i = 0; i < requests.length; i++) {
-      require(requests[i].acstat != ActivityStatus.DELETED, "Illegal Activity");
+      require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
       _doDomainUpdateActivityStatus(requests[i].id, requests[i].acstat, functionId);
     }
     return true;
@@ -119,7 +119,8 @@ contract DomainManager is AclStorage, IDomainManagement {
     bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
     
     for(uint i = 0; i < requests.length; i++) {      
-      DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);    
+      DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, true);
+      require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       domainEntity.bs.alstat = requests[i].alstat;
       emit DomainAlterabilityUpdated(msg.sender, requests[i].id, requests[i].alstat);
     }
@@ -131,7 +132,7 @@ contract DomainManager is AclStorage, IDomainManagement {
     bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
     
     for(uint i = 0; i < requests.length; i++) {
-     DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId); 
+     DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, false); 
 
        // update function admin Id
       // BaseAgent storage domainAdminAgent = _data.agents[domainEntity.bs.adminId];
@@ -192,7 +193,7 @@ contract DomainManager is AclStorage, IDomainManagement {
     bytes32 senderId = LAclUtils.accountGenerateId(msg.sender); 
 
     for (uint256 i = 0; i < requests.length; i++) {
-      DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(requests[i].domainId, senderId, functionId); 
+      DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(requests[i].domainId, senderId, functionId, false); 
       domainEntity.realmLimit = requests[i].realmLimit;      
       emit DomainRealmLimitUpdated(msg.sender, requests[i].domainId, requests[i].realmLimit);
     }
@@ -204,7 +205,7 @@ contract DomainManager is AclStorage, IDomainManagement {
     bytes32 senderId = LAclUtils.accountGenerateId(msg.sender); 
 
     for (uint256 i = 0; i < requests.length; i++) {
-      DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(requests[i].scopeId, senderId, functionId); 
+      DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(requests[i].scopeId, senderId, functionId, false); 
       domainEntity.bs.agentLimit = requests[i].agentLimit;
       emit DomainAgentLimitUpdated(msg.sender, requests[i].scopeId, requests[i].agentLimit);
     }
@@ -318,7 +319,7 @@ contract DomainManager is AclStorage, IDomainManagement {
   function _doDomainUpdateActivityStatus(bytes32 domainId, ActivityStatus status, bytes32 functionId) internal returns (bool) {
 
     bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
-    DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(domainId, senderId, functionId); 
+    DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(domainId, senderId, functionId, false); 
 
     if(status == ActivityStatus.DELETED) {    
       // BaseAgent storage domainAdminAgent = _data.agents[domainEntity.bs.adminId];
@@ -403,10 +404,13 @@ contract DomainManager is AclStorage, IDomainManagement {
     return functionId;
   }
 
-  function _doGetEntityAndCheckAdminAccess(bytes32 domainId, bytes32 senderId, bytes32 functionId) internal view returns (DomainEntity storage) {
+  function _doGetEntityAndCheckAdminAccess(bytes32 domainId, bytes32 senderId, bytes32 functionId, bool isAlterable) internal view returns (DomainEntity storage) {
     DomainEntity storage domainEntity = _data.domainReadSlot(domainId);
     require(domainEntity.bs.acstat > ActivityStatus.DELETED, "Domain Deleted");
-    require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Domain Update");
+
+    if(!isAlterable) {
+      require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Domain Update");
+    }
 
     // check access admin role
     require(_doCheckAdminAccess(domainEntity.bs.adminId, senderId, functionId), "Forbidden");

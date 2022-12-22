@@ -14,6 +14,16 @@ import "../IAclCommons.sol";
  */
 interface IFunctionManagement is IAclCommons {
 
+  struct FunctionRegisterRequest {
+    bytes32 adminId;
+    bytes32 agentId;
+    uint16 agentLimit;
+    uint8 policyCode;
+    ActivityStatus acstat;
+    AlterabilityStatus alstat;
+    bytes4 selector;    
+  }
+
   struct FunctionUpdatePolicyRequest {
     bytes32 functionId;
     uint8 policyCode;
@@ -39,6 +49,16 @@ interface IFunctionManagement is IAclCommons {
     uint8 policyCode;
   }
 
+  event FunctionRegistered(
+    address indexed sender, 
+    bytes32 indexed contextId,
+    bytes32 indexed functionId,
+    bytes32 adminId, 
+    bytes32 agentId,
+    bytes4 selector,
+    uint8 policyCode
+  );
+
   event FunctionAdminUpdated(address indexed sender, bytes32 indexed functionId, bytes32 indexed adminId);
 
   event FunctionAgentUpdated(address indexed sender, bytes32 indexed functionId, bytes32 indexed agentId);
@@ -49,7 +69,9 @@ interface IFunctionManagement is IAclCommons {
 
   event FunctionPolicyUpdated(address indexed sender, bytes32 indexed functionId, uint8 policyCode);
 
-  event FunctionAgentLimitUpdated(address indexed sender, bytes32 indexed functionId, uint16 typeLimit);
+  event FunctionAgentLimitUpdated(address indexed sender, bytes32 indexed functionId, uint16 agentLimit);
+
+  function functionRegister(address contractId, FunctionRegisterRequest[] calldata requests) external returns (bool);
 
   function functionUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);
 

@@ -107,7 +107,7 @@ contract TypeManager is AclStorage, ITypeManagement {
     bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
     
     for(uint i = 0; i < requests.length; i++) {
-      TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
+      TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, false);
 
       // checking requested type admin   
       typeEntity.ba.adminId = _getTypeAdmin(
@@ -150,7 +150,7 @@ contract TypeManager is AclStorage, ITypeManagement {
   function typeUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(ITypeManagement.typeUpdateActivityStatus.selector);
     for(uint i = 0; i < requests.length; i++) {
-      require(requests[i].acstat != ActivityStatus.DELETED, "Illegal Activity");
+      require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
       _doTypeUpdateActivityStatus(requests[i].id, requests[i].acstat, functionId);
     }
     return true;
@@ -160,8 +160,9 @@ contract TypeManager is AclStorage, ITypeManagement {
     bytes32 functionId = _accessPermission(ITypeManagement.typeUpdateAlterabilityStatus.selector);
     bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {      
-      TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
+      TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, true);
     
+      require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       typeEntity.ba.alstat = requests[i].alstat;
       emit TypeAlterabilityUpdated(msg.sender, requests[i].id, requests[i].alstat);
     }
@@ -173,7 +174,7 @@ contract TypeManager is AclStorage, ITypeManagement {
     bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
 
     for (uint256 i = 0; i < requests.length; i++) {
-      TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].typeId, senderId, functionId);
+      TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].typeId, senderId, functionId, false);
 
       typeEntity.roleLimit = requests[i].roleLimit;
       emit TypeRoleLimitUpdated(msg.sender, requests[i].typeId, requests[i].roleLimit);
@@ -186,7 +187,7 @@ contract TypeManager is AclStorage, ITypeManagement {
     bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);
 
     for (uint256 i = 0; i < requests.length; i++) {
-      TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].agentId, senderId, functionId);
+      TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].agentId, senderId, functionId, false);
 
       typeEntity.ba.scopeLimit = requests[i].scopeLimit;      
       emit TypeScopeLimitUpdated(msg.sender, requests[i].agentId, requests[i].scopeLimit);
@@ -299,7 +300,7 @@ contract TypeManager is AclStorage, ITypeManagement {
 
   function _doTypeUpdateActivityStatus(bytes32 typeId, ActivityStatus status, bytes32 functionId) internal returns (bool) {    
     bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
-    TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(typeId, senderId, functionId);
+    TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(typeId, senderId, functionId, false);
 
     if(status == ActivityStatus.DELETED) {
       BaseScope storage bs = _data.scopes[typeEntity.scopeId];
@@ -393,10 +394,13 @@ contract TypeManager is AclStorage, ITypeManagement {
     return (_data.scopes[memberAgentRole.scopeId].stype, memberAgentRole.scopeId);
   }
 
-  function _doGetEntityAndCheckAdminAccess(bytes32 typeId, bytes32 senderId, bytes32 functionId) internal view returns (TypeEntity storage) {
+  function _doGetEntityAndCheckAdminAccess(bytes32 typeId, bytes32 senderId, bytes32 functionId, bool isAlterable) internal view returns (TypeEntity storage) {
     TypeEntity storage typeEntity = _data.typeReadSlot(typeId);
     require(typeEntity.ba.acstat > ActivityStatus.DELETED, "Type Deleted");
-    require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
+
+    if(!isAlterable) {
+      require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
+    }
 
     // check access admin role
     require(_doCheckAdminAccess(typeEntity.ba.adminId, senderId, functionId), "Forbidden");

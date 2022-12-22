@@ -189,209 +189,6 @@ const _abi = [
       },
       {
         indexed: true,
-        internalType: "bytes32",
-        name: "functionId",
-        type: "bytes32",
-      },
-      {
-        indexed: false,
-        internalType: "bytes32",
-        name: "adminId",
-        type: "bytes32",
-      },
-      {
-        indexed: false,
-        internalType: "bytes32",
-        name: "agentId",
-        type: "bytes32",
-      },
-      {
-        indexed: false,
-        internalType: "bytes4",
-        name: "selector",
-        type: "bytes4",
-      },
-      {
-        indexed: false,
-        internalType: "uint8",
-        name: "policyCode",
-        type: "uint8",
-      },
-    ],
-    name: "ContextFunctionRegistered",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "sender",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "contextId",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "contractId",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "signer",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "bytes32",
-        name: "realmId",
-        type: "bytes32",
-      },
-      {
-        indexed: false,
-        internalType: "bytes32",
-        name: "adminId",
-        type: "bytes32",
-      },
-    ],
-    name: "ContextRegistered",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "sender",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "contextId",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "functionId",
-        type: "bytes32",
-      },
-      {
-        indexed: false,
-        internalType: "bytes32",
-        name: "adminId",
-        type: "bytes32",
-      },
-      {
-        indexed: false,
-        internalType: "bytes32",
-        name: "agentId",
-        type: "bytes32",
-      },
-      {
-        indexed: false,
-        internalType: "bytes4",
-        name: "selector",
-        type: "bytes4",
-      },
-      {
-        indexed: false,
-        internalType: "uint8",
-        name: "policyCode",
-        type: "uint8",
-      },
-    ],
-    name: "ContextUpgradeFunctionAdded",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "sender",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "contextId",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "functionId",
-        type: "bytes32",
-      },
-    ],
-    name: "ContextUpgradeFunctionRemoved",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "sender",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "contextId",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "contractId",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "string",
-        name: "name",
-        type: "string",
-      },
-      {
-        indexed: false,
-        internalType: "string",
-        name: "version",
-        type: "string",
-      },
-    ],
-    name: "ContextUpgraded",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "sender",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "contextId",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
         internalType: "address",
         name: "contractId",
         type: "address",
@@ -427,7 +224,38 @@ const _abi = [
         type: "bytes32",
       },
     ],
-    name: "PredictContextRegistered",
+    name: "ContextRegistered",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "contextId",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "contractId",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "signer",
+        type: "address",
+      },
+    ],
+    name: "ContextUpgraded",
     type: "event",
   },
   {
@@ -719,120 +547,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes",
-        name: "signature",
-        type: "bytes",
-      },
-      {
-        components: [
-          {
-            internalType: "bytes32",
-            name: "realmId",
-            type: "bytes32",
-          },
-          {
-            internalType: "bytes32",
-            name: "adminId",
-            type: "bytes32",
-          },
-          {
-            internalType: "string",
-            name: "name",
-            type: "string",
-          },
-          {
-            internalType: "string",
-            name: "version",
-            type: "string",
-          },
-          {
-            internalType: "address",
-            name: "contractId",
-            type: "address",
-          },
-          {
-            internalType: "uint16",
-            name: "agentLimit",
-            type: "uint16",
-          },
-          {
-            internalType: "enum IAclCommons.ActivityStatus",
-            name: "acstat",
-            type: "uint8",
-          },
-          {
-            internalType: "enum IAclCommons.AlterabilityStatus",
-            name: "alstat",
-            type: "uint8",
-          },
-        ],
-        internalType: "struct IContextManagement.ContextRegisterRequest",
-        name: "request",
-        type: "tuple",
-      },
-      {
-        components: [
-          {
-            internalType: "bytes32",
-            name: "adminId",
-            type: "bytes32",
-          },
-          {
-            internalType: "bytes32",
-            name: "agentId",
-            type: "bytes32",
-          },
-          {
-            internalType: "uint16",
-            name: "agentLimit",
-            type: "uint16",
-          },
-          {
-            internalType: "uint8",
-            name: "policyCode",
-            type: "uint8",
-          },
-          {
-            internalType: "enum IAclCommons.ActivityStatus",
-            name: "acstat",
-            type: "uint8",
-          },
-          {
-            internalType: "enum IAclCommons.AlterabilityStatus",
-            name: "alstat",
-            type: "uint8",
-          },
-          {
-            internalType: "bytes4",
-            name: "selector",
-            type: "bytes4",
-          },
-        ],
-        internalType:
-          "struct IContextManagement.ContextRegisterFunctionRequest[]",
-        name: "functionRequests",
-        type: "tuple[]",
-      },
-    ],
-    name: "contextRegister",
-    outputs: [
-      {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes",
-        name: "signature",
-        type: "bytes",
-      },
-      {
         components: [
           {
             internalType: "bytes32",
@@ -861,6 +575,11 @@ const _abi = [
           },
           {
             internalType: "address",
+            name: "contractId",
+            type: "address",
+          },
+          {
+            internalType: "address",
             name: "subject",
             type: "address",
           },
@@ -884,61 +603,28 @@ const _abi = [
             name: "alstat",
             type: "uint8",
           },
-        ],
-        internalType: "struct IContextManagement.ContextRegisterPredictRequest",
-        name: "request",
-        type: "tuple",
-      },
-      {
-        components: [
           {
-            internalType: "bytes32",
-            name: "adminId",
-            type: "bytes32",
+            internalType: "bytes",
+            name: "signature",
+            type: "bytes",
           },
           {
-            internalType: "bytes32",
-            name: "agentId",
-            type: "bytes32",
-          },
-          {
-            internalType: "uint16",
-            name: "agentLimit",
-            type: "uint16",
-          },
-          {
-            internalType: "uint8",
-            name: "policyCode",
-            type: "uint8",
-          },
-          {
-            internalType: "enum IAclCommons.ActivityStatus",
-            name: "acstat",
-            type: "uint8",
-          },
-          {
-            internalType: "enum IAclCommons.AlterabilityStatus",
-            name: "alstat",
-            type: "uint8",
-          },
-          {
-            internalType: "bytes4",
-            name: "selector",
-            type: "bytes4",
+            internalType: "bytes4[]",
+            name: "selectors",
+            type: "bytes4[]",
           },
         ],
-        internalType:
-          "struct IContextManagement.ContextRegisterFunctionRequest[]",
-        name: "functionRequests",
+        internalType: "struct IContextManagement.ContextRegisterRequest[]",
+        name: "requests",
         type: "tuple[]",
       },
     ],
-    name: "contextRegisterPredict",
+    name: "contextRegister",
     outputs: [
       {
-        internalType: "bytes32",
+        internalType: "bool",
         name: "",
-        type: "bytes32",
+        type: "bool",
       },
     ],
     stateMutability: "nonpayable",
@@ -1071,11 +757,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes",
-        name: "signature",
-        type: "bytes",
-      },
-      {
         components: [
           {
             internalType: "address",
@@ -1102,66 +783,28 @@ const _abi = [
             name: "alstat",
             type: "uint8",
           },
-        ],
-        internalType: "struct IContextManagement.ContextUpgradeRequest",
-        name: "request",
-        type: "tuple",
-      },
-      {
-        components: [
           {
-            internalType: "bytes32",
-            name: "adminId",
-            type: "bytes32",
+            internalType: "bytes",
+            name: "signature",
+            type: "bytes",
           },
           {
-            internalType: "bytes32",
-            name: "agentId",
-            type: "bytes32",
-          },
-          {
-            internalType: "uint16",
-            name: "agentLimit",
-            type: "uint16",
-          },
-          {
-            internalType: "uint8",
-            name: "policyCode",
-            type: "uint8",
-          },
-          {
-            internalType: "enum IAclCommons.ActivityStatus",
-            name: "acstat",
-            type: "uint8",
-          },
-          {
-            internalType: "enum IAclCommons.AlterabilityStatus",
-            name: "alstat",
-            type: "uint8",
-          },
-          {
-            internalType: "enum IAclCommons.ActionType",
-            name: "action",
-            type: "uint8",
-          },
-          {
-            internalType: "bytes4",
-            name: "selector",
-            type: "bytes4",
+            internalType: "bytes4[]",
+            name: "selectors",
+            type: "bytes4[]",
           },
         ],
-        internalType:
-          "struct IContextManagement.ContextUpgradeFunctionRequest[]",
-        name: "functionRequests",
+        internalType: "struct IContextManagement.ContextUpgradeRequest[]",
+        name: "requests",
         type: "tuple[]",
       },
     ],
     name: "contextUpgrade",
     outputs: [
       {
-        internalType: "address",
+        internalType: "bool",
         name: "",
-        type: "address",
+        type: "bool",
       },
     ],
     stateMutability: "nonpayable",

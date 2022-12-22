@@ -71,6 +71,34 @@ export declare namespace IFunctionManagement {
     policyCode: number;
   };
 
+  export type FunctionRegisterRequestStruct = {
+    adminId: PromiseOrValue<BytesLike>;
+    agentId: PromiseOrValue<BytesLike>;
+    agentLimit: PromiseOrValue<BigNumberish>;
+    policyCode: PromiseOrValue<BigNumberish>;
+    acstat: PromiseOrValue<BigNumberish>;
+    alstat: PromiseOrValue<BigNumberish>;
+    selector: PromiseOrValue<BytesLike>;
+  };
+
+  export type FunctionRegisterRequestStructOutput = [
+    string,
+    string,
+    number,
+    number,
+    number,
+    number,
+    string
+  ] & {
+    adminId: string;
+    agentId: string;
+    agentLimit: number;
+    policyCode: number;
+    acstat: number;
+    alstat: number;
+    selector: string;
+  };
+
   export type FunctionUpdateAgentRequestStruct = {
     functionId: PromiseOrValue<BytesLike>;
     agentId: PromiseOrValue<BytesLike>;
@@ -152,6 +180,7 @@ export interface FunctionManagerInterface extends utils.Interface {
     "functionCheckSelector(address,bytes4)": FunctionFragment;
     "functionDeleteActivity(bytes32[])": FunctionFragment;
     "functionGetInfo(bytes32)": FunctionFragment;
+    "functionRegister(address,(bytes32,bytes32,uint16,uint8,uint8,uint8,bytes4)[])": FunctionFragment;
     "functionUpdateActivityStatus((bytes32,uint8)[])": FunctionFragment;
     "functionUpdateAdmin((bytes32,bytes32)[])": FunctionFragment;
     "functionUpdateAgent((bytes32,bytes32)[])": FunctionFragment;
@@ -194,6 +223,8 @@ export interface FunctionManagerInterface extends utils.Interface {
       | "functionDeleteActivity(bytes32[])"
       | "functionGetInfo"
       | "functionGetInfo(bytes32)"
+      | "functionRegister"
+      | "functionRegister(address,(bytes32,bytes32,uint16,uint8,uint8,uint8,bytes4)[])"
       | "functionUpdateActivityStatus"
       | "functionUpdateActivityStatus((bytes32,uint8)[])"
       | "functionUpdateAdmin"
@@ -332,6 +363,20 @@ export interface FunctionManagerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "functionGetInfo(bytes32)",
     values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "functionRegister",
+    values: [
+      PromiseOrValue<string>,
+      IFunctionManagement.FunctionRegisterRequestStruct[]
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "functionRegister(address,(bytes32,bytes32,uint16,uint8,uint8,uint8,bytes4)[])",
+    values: [
+      PromiseOrValue<string>,
+      IFunctionManagement.FunctionRegisterRequestStruct[]
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "functionUpdateActivityStatus",
@@ -508,6 +553,14 @@ export interface FunctionManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "functionRegister",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "functionRegister(address,(bytes32,bytes32,uint16,uint8,uint8,uint8,bytes4)[])",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "functionUpdateActivityStatus",
     data: BytesLike
   ): Result;
@@ -565,6 +618,7 @@ export interface FunctionManagerInterface extends utils.Interface {
     "FunctionAgentUpdated(address,bytes32,bytes32)": EventFragment;
     "FunctionAlterabilityUpdated(address,bytes32,uint8)": EventFragment;
     "FunctionPolicyUpdated(address,bytes32,uint8)": EventFragment;
+    "FunctionRegistered(address,bytes32,bytes32,bytes32,bytes32,bytes4,uint8)": EventFragment;
     "ProxyUpgraded(address,address,address)": EventFragment;
     "ScopeReferredByAgentUpdated(address,bytes32,bytes32,uint8)": EventFragment;
     "ScopeReferredByPolicyUpdated(address,bytes32,bytes32,uint8)": EventFragment;
@@ -607,6 +661,10 @@ export interface FunctionManagerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "FunctionPolicyUpdated"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "FunctionPolicyUpdated(address,bytes32,uint8)"
+  ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "FunctionRegistered"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "FunctionRegistered(address,bytes32,bytes32,bytes32,bytes32,bytes4,uint8)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ProxyUpgraded"): EventFragment;
   getEvent(
@@ -683,7 +741,7 @@ export type FunctionAdminUpdatedEventFilter =
 export interface FunctionAgentLimitUpdatedEventObject {
   sender: string;
   functionId: string;
-  typeLimit: number;
+  agentLimit: number;
 }
 export type FunctionAgentLimitUpdatedEvent = TypedEvent<
   [string, string, number],
@@ -731,6 +789,23 @@ export type FunctionPolicyUpdatedEvent = TypedEvent<
 
 export type FunctionPolicyUpdatedEventFilter =
   TypedEventFilter<FunctionPolicyUpdatedEvent>;
+
+export interface FunctionRegisteredEventObject {
+  sender: string;
+  contextId: string;
+  functionId: string;
+  adminId: string;
+  agentId: string;
+  selector: string;
+  policyCode: number;
+}
+export type FunctionRegisteredEvent = TypedEvent<
+  [string, string, string, string, string, string, number],
+  FunctionRegisteredEventObject
+>;
+
+export type FunctionRegisteredEventFilter =
+  TypedEventFilter<FunctionRegisteredEvent>;
 
 export interface ProxyUpgradedEventObject {
   sender: string;
@@ -929,6 +1004,18 @@ export interface FunctionManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[IFunctionManagement.FunctionInfoStructOutput]>;
 
+    functionRegister(
+      contractId: PromiseOrValue<string>,
+      requests: IFunctionManagement.FunctionRegisterRequestStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "functionRegister(address,(bytes32,bytes32,uint16,uint8,uint8,uint8,bytes4)[])"(
+      contractId: PromiseOrValue<string>,
+      requests: IFunctionManagement.FunctionRegisterRequestStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     functionUpdateActivityStatus(
       requests: IAclCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1107,6 +1194,18 @@ export interface FunctionManager extends BaseContract {
     functionId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<IFunctionManagement.FunctionInfoStructOutput>;
+
+  functionRegister(
+    contractId: PromiseOrValue<string>,
+    requests: IFunctionManagement.FunctionRegisterRequestStruct[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "functionRegister(address,(bytes32,bytes32,uint16,uint8,uint8,uint8,bytes4)[])"(
+    contractId: PromiseOrValue<string>,
+    requests: IFunctionManagement.FunctionRegisterRequestStruct[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   functionUpdateActivityStatus(
     requests: IAclCommons.UpdateActivityRequestStruct[],
@@ -1295,6 +1394,18 @@ export interface FunctionManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<IFunctionManagement.FunctionInfoStructOutput>;
 
+    functionRegister(
+      contractId: PromiseOrValue<string>,
+      requests: IFunctionManagement.FunctionRegisterRequestStruct[],
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "functionRegister(address,(bytes32,bytes32,uint16,uint8,uint8,uint8,bytes4)[])"(
+      contractId: PromiseOrValue<string>,
+      requests: IFunctionManagement.FunctionRegisterRequestStruct[],
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
     functionUpdateActivityStatus(
       requests: IAclCommons.UpdateActivityRequestStruct[],
       overrides?: CallOverrides
@@ -1408,12 +1519,12 @@ export interface FunctionManager extends BaseContract {
     "FunctionAgentLimitUpdated(address,bytes32,uint16)"(
       sender?: PromiseOrValue<string> | null,
       functionId?: PromiseOrValue<BytesLike> | null,
-      typeLimit?: null
+      agentLimit?: null
     ): FunctionAgentLimitUpdatedEventFilter;
     FunctionAgentLimitUpdated(
       sender?: PromiseOrValue<string> | null,
       functionId?: PromiseOrValue<BytesLike> | null,
-      typeLimit?: null
+      agentLimit?: null
     ): FunctionAgentLimitUpdatedEventFilter;
 
     "FunctionAgentUpdated(address,bytes32,bytes32)"(
@@ -1448,6 +1559,25 @@ export interface FunctionManager extends BaseContract {
       functionId?: PromiseOrValue<BytesLike> | null,
       policyCode?: null
     ): FunctionPolicyUpdatedEventFilter;
+
+    "FunctionRegistered(address,bytes32,bytes32,bytes32,bytes32,bytes4,uint8)"(
+      sender?: PromiseOrValue<string> | null,
+      contextId?: PromiseOrValue<BytesLike> | null,
+      functionId?: PromiseOrValue<BytesLike> | null,
+      adminId?: null,
+      agentId?: null,
+      selector?: null,
+      policyCode?: null
+    ): FunctionRegisteredEventFilter;
+    FunctionRegistered(
+      sender?: PromiseOrValue<string> | null,
+      contextId?: PromiseOrValue<BytesLike> | null,
+      functionId?: PromiseOrValue<BytesLike> | null,
+      adminId?: null,
+      agentId?: null,
+      selector?: null,
+      policyCode?: null
+    ): FunctionRegisteredEventFilter;
 
     "ProxyUpgraded(address,address,address)"(
       sender?: PromiseOrValue<string> | null,
@@ -1616,6 +1746,18 @@ export interface FunctionManager extends BaseContract {
     "functionGetInfo(bytes32)"(
       functionId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    functionRegister(
+      contractId: PromiseOrValue<string>,
+      requests: IFunctionManagement.FunctionRegisterRequestStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "functionRegister(address,(bytes32,bytes32,uint16,uint8,uint8,uint8,bytes4)[])"(
+      contractId: PromiseOrValue<string>,
+      requests: IFunctionManagement.FunctionRegisterRequestStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     functionUpdateActivityStatus(
@@ -1820,6 +1962,18 @@ export interface FunctionManager extends BaseContract {
     "functionGetInfo(bytes32)"(
       functionId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    functionRegister(
+      contractId: PromiseOrValue<string>,
+      requests: IFunctionManagement.FunctionRegisterRequestStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "functionRegister(address,(bytes32,bytes32,uint16,uint8,uint8,uint8,bytes4)[])"(
+      contractId: PromiseOrValue<string>,
+      requests: IFunctionManagement.FunctionRegisterRequestStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     functionUpdateActivityStatus(
