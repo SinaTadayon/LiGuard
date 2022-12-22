@@ -355,25 +355,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes32[]",
-        name: "requests",
-        type: "bytes32[]",
-      },
-    ],
-    name: "realmDeleteActivity",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "bytes32",
         name: "realmId",
         type: "bytes32",

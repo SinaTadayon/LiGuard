@@ -4,6 +4,7 @@
 export * as agent from "./agent";
 export * as scope from "./scope";
 export { AccessControl__factory } from "./AccessControl__factory";
+export { AclManager__factory } from "./AclManager__factory";
 export { AclStorage__factory } from "./AclStorage__factory";
 export { IAccessControl__factory } from "./IAccessControl__factory";
 export { IAclCommons__factory } from "./IAclCommons__factory";

@@ -151,7 +151,6 @@ export interface IRealmManagementInterface extends utils.Interface {
     "realmCheckAdmin(bytes32,address)": FunctionFragment;
     "realmCheckId(bytes32)": FunctionFragment;
     "realmCheckName(string)": FunctionFragment;
-    "realmDeleteActivity(bytes32[])": FunctionFragment;
     "realmGetContexts(bytes32)": FunctionFragment;
     "realmGetInfo(bytes32)": FunctionFragment;
     "realmHasContext(bytes32,bytes32)": FunctionFragment;
@@ -172,8 +171,6 @@ export interface IRealmManagementInterface extends utils.Interface {
       | "realmCheckId(bytes32)"
       | "realmCheckName"
       | "realmCheckName(string)"
-      | "realmDeleteActivity"
-      | "realmDeleteActivity(bytes32[])"
       | "realmGetContexts"
       | "realmGetContexts(bytes32)"
       | "realmGetInfo"
@@ -219,14 +216,6 @@ export interface IRealmManagementInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "realmCheckName(string)",
     values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "realmDeleteActivity",
-    values: [PromiseOrValue<BytesLike>[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "realmDeleteActivity(bytes32[])",
-    values: [PromiseOrValue<BytesLike>[]]
   ): string;
   encodeFunctionData(
     functionFragment: "realmGetContexts",
@@ -331,14 +320,6 @@ export interface IRealmManagementInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "realmCheckName(string)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "realmDeleteActivity",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "realmDeleteActivity(bytes32[])",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -678,16 +659,6 @@ export interface IRealmManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    realmDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "realmDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     realmGetContexts(
       realmId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -825,16 +796,6 @@ export interface IRealmManagement extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  realmDeleteActivity(
-    requests: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "realmDeleteActivity(bytes32[])"(
-    requests: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   realmGetContexts(
     realmId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
@@ -969,16 +930,6 @@ export interface IRealmManagement extends BaseContract {
 
     "realmCheckName(string)"(
       realmName: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    realmDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "realmDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -1242,16 +1193,6 @@ export interface IRealmManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    realmDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "realmDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     realmGetContexts(
       realmId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1388,16 +1329,6 @@ export interface IRealmManagement extends BaseContract {
     "realmCheckName(string)"(
       realmName: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    realmDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "realmDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     realmGetContexts(

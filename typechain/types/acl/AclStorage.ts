@@ -27,6 +27,7 @@ import type {
 export interface AclStorageInterface extends utils.Interface {
   functions: {
     "CTX_MESSAGE_TYPEHASH()": FunctionFragment;
+    "FUNCTION_MESSAGE_TYPEHASH()": FunctionFragment;
     "LIVELY_VERSE_ADMIN_TYPE_ID()": FunctionFragment;
     "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()": FunctionFragment;
     "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()": FunctionFragment;
@@ -42,6 +43,8 @@ export interface AclStorageInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "CTX_MESSAGE_TYPEHASH"
       | "CTX_MESSAGE_TYPEHASH()"
+      | "FUNCTION_MESSAGE_TYPEHASH"
+      | "FUNCTION_MESSAGE_TYPEHASH()"
       | "LIVELY_VERSE_ADMIN_TYPE_ID"
       | "LIVELY_VERSE_ADMIN_TYPE_ID()"
       | "LIVELY_VERSE_AGENT_MASTER_TYPE_ID"
@@ -68,6 +71,14 @@ export interface AclStorageInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "CTX_MESSAGE_TYPEHASH()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "FUNCTION_MESSAGE_TYPEHASH",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "FUNCTION_MESSAGE_TYPEHASH()",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -146,6 +157,14 @@ export interface AclStorageInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "CTX_MESSAGE_TYPEHASH()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "FUNCTION_MESSAGE_TYPEHASH",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "FUNCTION_MESSAGE_TYPEHASH()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -355,6 +374,10 @@ export interface AclStorage extends BaseContract {
 
     "CTX_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<[string]>;
 
+    FUNCTION_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<[string]>;
+
+    "FUNCTION_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<[string]>;
+
     LIVELY_VERSE_ADMIN_TYPE_ID(overrides?: CallOverrides): Promise<[string]>;
 
     "LIVELY_VERSE_ADMIN_TYPE_ID()"(
@@ -420,6 +443,10 @@ export interface AclStorage extends BaseContract {
 
   "CTX_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
 
+  FUNCTION_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<string>;
+
+  "FUNCTION_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
+
   LIVELY_VERSE_ADMIN_TYPE_ID(overrides?: CallOverrides): Promise<string>;
 
   "LIVELY_VERSE_ADMIN_TYPE_ID()"(overrides?: CallOverrides): Promise<string>;
@@ -472,6 +499,10 @@ export interface AclStorage extends BaseContract {
     CTX_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
     "CTX_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
+
+    FUNCTION_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<string>;
+
+    "FUNCTION_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
 
     LIVELY_VERSE_ADMIN_TYPE_ID(overrides?: CallOverrides): Promise<string>;
 
@@ -600,6 +631,12 @@ export interface AclStorage extends BaseContract {
 
     "CTX_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<BigNumber>;
 
+    FUNCTION_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "FUNCTION_MESSAGE_TYPEHASH()"(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     LIVELY_VERSE_ADMIN_TYPE_ID(overrides?: CallOverrides): Promise<BigNumber>;
 
     "LIVELY_VERSE_ADMIN_TYPE_ID()"(
@@ -667,6 +704,14 @@ export interface AclStorage extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     "CTX_MESSAGE_TYPEHASH()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    FUNCTION_MESSAGE_TYPEHASH(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "FUNCTION_MESSAGE_TYPEHASH()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

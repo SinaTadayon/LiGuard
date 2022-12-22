@@ -6,6 +6,7 @@ export type { agent };
 import type * as scope from "./scope";
 export type { scope };
 export type { AccessControl } from "./AccessControl";
+export type { AclManager } from "./AclManager";
 export type { AclStorage } from "./AclStorage";
 export type { IAccessControl } from "./IAccessControl";
 export type { IAclCommons } from "./IAclCommons";

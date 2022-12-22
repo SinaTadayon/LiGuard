@@ -8,6 +8,7 @@ import "./IContextManagement.sol";
 import "../IAccessControl.sol";
 import "../AclStorage.sol";
 import "../../lib/acl/LAclStorage.sol";
+import "../../lib/cryptography/LECDSA.sol";
 import "../../lib/struct/LEnumerableSet.sol";
 import "../../lib/acl/LAclUtils.sol";
 import "../../proxy/IProxy.sol";
@@ -22,21 +23,30 @@ contract FunctionManager is AclStorage, IFunctionManagement {
   using LAclStorage for DataCollection;
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
 
-  function functionRegister(address contractId, FunctionRegisterRequest[] calldata requests) external returns (bool) {
+  function functionRegister(FunctionRegisterRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IFunctionManagement.functionRegister.selector);
     bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);
-
-    bytes32 contextId = LAclUtils.accountGenerateId(contractId);  
-    ContextEntity storage contextEntity = _data.contextReadSlot(contextId);
-    require(contextEntity.contractId == msg.sender, "Upgrade Forbidden");
-    require(contextEntity.bs.acstat > ActivityStatus.DELETED, "Context Deleted");
-    // require(contextEntity.bs.alstat == AlterabilityStatus.UPGRADABLE, "Illegal Upgrade");
-
-    // check access admin realm
-    require(_doCheckAdminAccess(contextEntity.bs.adminId, senderId, functionId), "Forbidden");
-
+    address signer;
     for (uint256 i = 0; i < requests.length; i++) {
-      _doFunctionRegistration(contextEntity, requests[i], msg.sender, contextId);
+          
+      bytes32 contextId = LAclUtils.accountGenerateId(requests[i].contractId);  
+      ContextEntity storage contextEntity = _data.contextReadSlot(contextId);    
+      require(contextEntity.bs.acstat > ActivityStatus.DELETED, "Context Deleted");
+      require(contextEntity.bs.alstat == AlterabilityStatus.UPGRADABLE, "Illegal Upgrade");
+
+      if(requests[i].signature.length > 0) {
+        bytes32 structHash = _getFunctionMessageHash(requests[i].contractId, requests[i].selector);
+        signer = _doGetSignerAddress(requests[i].signature, structHash);
+        bytes32 signerId = LAclUtils.accountGenerateId(msg.sender);
+        // check access admin context
+        require(_doCheckAdminAccess(contextEntity.bs.adminId, signerId, functionId), "Forbidden");
+        _doFunctionRegistration(contextEntity, requests[i], signer, contextId);
+
+      } else {
+        // check access admin realm
+        require(_doCheckAdminAccess(contextEntity.bs.adminId, senderId, functionId), "Forbidden");
+        _doFunctionRegistration(contextEntity, requests[i], msg.sender, contextId);
+      }
     }
 
     return true;
@@ -423,6 +433,7 @@ contract FunctionManager is AclStorage, IFunctionManagement {
       newFunctionId,
       functionRequest.adminId,
       functionRequest.agentId,
+      signerId,
       functionRequest.selector,  
       functionRequest.policyCode
     );
@@ -478,4 +489,36 @@ contract FunctionManager is AclStorage, IFunctionManagement {
       );
     }
   }
+
+  function _getFunctionMessageHash(
+    address contractId,
+    bytes4 selector
+  ) internal pure returns (bytes32) {
+    return keccak256(abi.encode(FUNCTION_MESSAGE_TYPEHASH, contractId, selector));
+  }
+
+  function _doGetSignerAddress(bytes memory signature, bytes32 structHash) internal view returns (address) {
+    bytes32 msgDigest = _hashTypedDataV4(structHash);
+    (address msgSigner, LECDSA.RecoverError recoverErr) = LECDSA.tryRecover(msgDigest, signature);
+    require(recoverErr == LECDSA.RecoverError.NoError, "Illegal Signature");
+    return msgSigner;
+  }
+
+  function _hashTypedDataV4(bytes32 structHash) internal view returns (bytes32) {
+    return LECDSA.toTypedDataHash(_contractDomainSeparatorV4(), structHash);
+  }
+
+  function _contractDomainSeparatorV4() internal view returns (bytes32) {
+    return
+      keccak256(
+        abi.encode(
+          TYPE_HASH,          
+          IProxy(address(this)).contractName(),
+          IProxy(address(this)).contractVersion(),
+          block.chainid,
+          address(this)
+        )
+      );
+  }
+
 }

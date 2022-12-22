@@ -239,37 +239,6 @@ const _abi = [
       {
         indexed: true,
         internalType: "bytes32",
-        name: "contextId",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "contractId",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "address",
-        name: "signer",
-        type: "address",
-      },
-    ],
-    name: "ContextUpgraded",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "sender",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
         name: "scopeId",
         type: "bytes32",
       },
@@ -380,25 +349,6 @@ const _abi = [
       },
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32[]",
-        name: "requests",
-        type: "bytes32[]",
-      },
-    ],
-    name: "contextDeleteActivity",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -744,62 +694,6 @@ const _abi = [
       },
     ],
     name: "contextUpdateAlterabilityStatus",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        components: [
-          {
-            internalType: "address",
-            name: "contractId",
-            type: "address",
-          },
-          {
-            internalType: "string",
-            name: "name",
-            type: "string",
-          },
-          {
-            internalType: "string",
-            name: "version",
-            type: "string",
-          },
-          {
-            internalType: "enum IAclCommons.ActivityStatus",
-            name: "acstat",
-            type: "uint8",
-          },
-          {
-            internalType: "enum IAclCommons.AlterabilityStatus",
-            name: "alstat",
-            type: "uint8",
-          },
-          {
-            internalType: "bytes",
-            name: "signature",
-            type: "bytes",
-          },
-          {
-            internalType: "bytes4[]",
-            name: "selectors",
-            type: "bytes4[]",
-          },
-        ],
-        internalType: "struct IContextManagement.ContextUpgradeRequest[]",
-        name: "requests",
-        type: "tuple[]",
-      },
-    ],
-    name: "contextUpgrade",
     outputs: [
       {
         internalType: "bool",

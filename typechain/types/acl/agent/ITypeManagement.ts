@@ -151,7 +151,6 @@ export interface ITypeManagementInterface extends utils.Interface {
     "typeCheckAdmin(bytes32,address)": FunctionFragment;
     "typeCheckId(bytes32)": FunctionFragment;
     "typeCheckName(string)": FunctionFragment;
-    "typeDeleteActivity(bytes32[])": FunctionFragment;
     "typeGetInfo(bytes32)": FunctionFragment;
     "typeGetRoles(bytes32)": FunctionFragment;
     "typeHasAccount(bytes32,address)": FunctionFragment;
@@ -172,8 +171,6 @@ export interface ITypeManagementInterface extends utils.Interface {
       | "typeCheckId(bytes32)"
       | "typeCheckName"
       | "typeCheckName(string)"
-      | "typeDeleteActivity"
-      | "typeDeleteActivity(bytes32[])"
       | "typeGetInfo"
       | "typeGetInfo(bytes32)"
       | "typeGetRoles"
@@ -219,14 +216,6 @@ export interface ITypeManagementInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "typeCheckName(string)",
     values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "typeDeleteActivity",
-    values: [PromiseOrValue<BytesLike>[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "typeDeleteActivity(bytes32[])",
-    values: [PromiseOrValue<BytesLike>[]]
   ): string;
   encodeFunctionData(
     functionFragment: "typeGetInfo",
@@ -331,14 +320,6 @@ export interface ITypeManagementInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "typeCheckName(string)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "typeDeleteActivity",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "typeDeleteActivity(bytes32[])",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -678,16 +659,6 @@ export interface ITypeManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    typeDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "typeDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     typeGetInfo(
       typeId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -825,16 +796,6 @@ export interface ITypeManagement extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  typeDeleteActivity(
-    requests: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "typeDeleteActivity(bytes32[])"(
-    requests: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   typeGetInfo(
     typeId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
@@ -969,16 +930,6 @@ export interface ITypeManagement extends BaseContract {
 
     "typeCheckName(string)"(
       typeName: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    typeDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "typeDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -1242,16 +1193,6 @@ export interface ITypeManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    typeDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "typeDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     typeGetInfo(
       typeId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1388,16 +1329,6 @@ export interface ITypeManagement extends BaseContract {
     "typeCheckName(string)"(
       typeName: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    typeDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "typeDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     typeGetInfo(

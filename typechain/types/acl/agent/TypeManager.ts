@@ -149,6 +149,7 @@ export declare namespace IAclCommons {
 export interface TypeManagerInterface extends utils.Interface {
   functions: {
     "CTX_MESSAGE_TYPEHASH()": FunctionFragment;
+    "FUNCTION_MESSAGE_TYPEHASH()": FunctionFragment;
     "LIVELY_VERSE_ADMIN_TYPE_ID()": FunctionFragment;
     "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()": FunctionFragment;
     "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()": FunctionFragment;
@@ -161,7 +162,6 @@ export interface TypeManagerInterface extends utils.Interface {
     "typeCheckAdmin(bytes32,address)": FunctionFragment;
     "typeCheckId(bytes32)": FunctionFragment;
     "typeCheckName(string)": FunctionFragment;
-    "typeDeleteActivity(bytes32[])": FunctionFragment;
     "typeGetInfo(bytes32)": FunctionFragment;
     "typeGetRoles(bytes32)": FunctionFragment;
     "typeHasAccount(bytes32,address)": FunctionFragment;
@@ -178,6 +178,8 @@ export interface TypeManagerInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "CTX_MESSAGE_TYPEHASH"
       | "CTX_MESSAGE_TYPEHASH()"
+      | "FUNCTION_MESSAGE_TYPEHASH"
+      | "FUNCTION_MESSAGE_TYPEHASH()"
       | "LIVELY_VERSE_ADMIN_TYPE_ID"
       | "LIVELY_VERSE_ADMIN_TYPE_ID()"
       | "LIVELY_VERSE_AGENT_MASTER_TYPE_ID"
@@ -202,8 +204,6 @@ export interface TypeManagerInterface extends utils.Interface {
       | "typeCheckId(bytes32)"
       | "typeCheckName"
       | "typeCheckName(string)"
-      | "typeDeleteActivity"
-      | "typeDeleteActivity(bytes32[])"
       | "typeGetInfo"
       | "typeGetInfo(bytes32)"
       | "typeGetRoles"
@@ -232,6 +232,14 @@ export interface TypeManagerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "CTX_MESSAGE_TYPEHASH()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "FUNCTION_MESSAGE_TYPEHASH",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "FUNCTION_MESSAGE_TYPEHASH()",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -328,14 +336,6 @@ export interface TypeManagerInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "typeDeleteActivity",
-    values: [PromiseOrValue<BytesLike>[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "typeDeleteActivity(bytes32[])",
-    values: [PromiseOrValue<BytesLike>[]]
-  ): string;
-  encodeFunctionData(
     functionFragment: "typeGetInfo",
     values: [PromiseOrValue<BytesLike>]
   ): string;
@@ -422,6 +422,14 @@ export interface TypeManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "CTX_MESSAGE_TYPEHASH()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "FUNCTION_MESSAGE_TYPEHASH",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "FUNCTION_MESSAGE_TYPEHASH()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -515,14 +523,6 @@ export interface TypeManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "typeCheckName(string)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "typeDeleteActivity",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "typeDeleteActivity(bytes32[])",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -851,6 +851,10 @@ export interface TypeManager extends BaseContract {
 
     "CTX_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<[string]>;
 
+    FUNCTION_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<[string]>;
+
+    "FUNCTION_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<[string]>;
+
     LIVELY_VERSE_ADMIN_TYPE_ID(overrides?: CallOverrides): Promise<[string]>;
 
     "LIVELY_VERSE_ADMIN_TYPE_ID()"(
@@ -942,16 +946,6 @@ export interface TypeManager extends BaseContract {
       typeName: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
-
-    typeDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "typeDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
 
     typeGetInfo(
       typeId: PromiseOrValue<BytesLike>,
@@ -1062,6 +1056,10 @@ export interface TypeManager extends BaseContract {
 
   "CTX_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
 
+  FUNCTION_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<string>;
+
+  "FUNCTION_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
+
   LIVELY_VERSE_ADMIN_TYPE_ID(overrides?: CallOverrides): Promise<string>;
 
   "LIVELY_VERSE_ADMIN_TYPE_ID()"(overrides?: CallOverrides): Promise<string>;
@@ -1141,16 +1139,6 @@ export interface TypeManager extends BaseContract {
     typeName: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<boolean>;
-
-  typeDeleteActivity(
-    requests: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "typeDeleteActivity(bytes32[])"(
-    requests: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   typeGetInfo(
     typeId: PromiseOrValue<BytesLike>,
@@ -1261,6 +1249,10 @@ export interface TypeManager extends BaseContract {
 
     "CTX_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
 
+    FUNCTION_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<string>;
+
+    "FUNCTION_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
+
     LIVELY_VERSE_ADMIN_TYPE_ID(overrides?: CallOverrides): Promise<string>;
 
     "LIVELY_VERSE_ADMIN_TYPE_ID()"(overrides?: CallOverrides): Promise<string>;
@@ -1346,16 +1338,6 @@ export interface TypeManager extends BaseContract {
 
     "typeCheckName(string)"(
       typeName: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    typeDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "typeDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -1602,6 +1584,12 @@ export interface TypeManager extends BaseContract {
 
     "CTX_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<BigNumber>;
 
+    FUNCTION_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "FUNCTION_MESSAGE_TYPEHASH()"(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     LIVELY_VERSE_ADMIN_TYPE_ID(overrides?: CallOverrides): Promise<BigNumber>;
 
     "LIVELY_VERSE_ADMIN_TYPE_ID()"(
@@ -1692,16 +1680,6 @@ export interface TypeManager extends BaseContract {
     "typeCheckName(string)"(
       typeName: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    typeDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "typeDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     typeGetInfo(
@@ -1818,6 +1796,14 @@ export interface TypeManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    FUNCTION_MESSAGE_TYPEHASH(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "FUNCTION_MESSAGE_TYPEHASH()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     LIVELY_VERSE_ADMIN_TYPE_ID(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -1916,16 +1902,6 @@ export interface TypeManager extends BaseContract {
     "typeCheckName(string)"(
       typeName: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    typeDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "typeDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     typeGetInfo(

@@ -58,7 +58,7 @@ interface IDomainManagement is IAclCommons {
 
   function domainRegister(DomainRegisterRequest[] calldata requests) external returns (bool);
  
-  function domainDeleteActivity(bytes32[] calldata requests) external returns (bool);
+  // function domainDeleteActivity(bytes32[] calldata requests) external returns (bool);
 
   function domainUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
 

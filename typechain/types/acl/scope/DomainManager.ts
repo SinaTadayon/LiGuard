@@ -143,6 +143,7 @@ export declare namespace IAclCommons {
 export interface DomainManagerInterface extends utils.Interface {
   functions: {
     "CTX_MESSAGE_TYPEHASH()": FunctionFragment;
+    "FUNCTION_MESSAGE_TYPEHASH()": FunctionFragment;
     "LIVELY_VERSE_ADMIN_TYPE_ID()": FunctionFragment;
     "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()": FunctionFragment;
     "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()": FunctionFragment;
@@ -155,7 +156,6 @@ export interface DomainManagerInterface extends utils.Interface {
     "domainCheckAdmin(bytes32,address)": FunctionFragment;
     "domainCheckId(bytes32)": FunctionFragment;
     "domainCheckName(string)": FunctionFragment;
-    "domainDeleteActivity(bytes32[])": FunctionFragment;
     "domainGetInfo(bytes32)": FunctionFragment;
     "domainGetRealms(bytes32)": FunctionFragment;
     "domainHasContext(bytes32,bytes32)": FunctionFragment;
@@ -173,6 +173,8 @@ export interface DomainManagerInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "CTX_MESSAGE_TYPEHASH"
       | "CTX_MESSAGE_TYPEHASH()"
+      | "FUNCTION_MESSAGE_TYPEHASH"
+      | "FUNCTION_MESSAGE_TYPEHASH()"
       | "LIVELY_VERSE_ADMIN_TYPE_ID"
       | "LIVELY_VERSE_ADMIN_TYPE_ID()"
       | "LIVELY_VERSE_AGENT_MASTER_TYPE_ID"
@@ -197,8 +199,6 @@ export interface DomainManagerInterface extends utils.Interface {
       | "domainCheckId(bytes32)"
       | "domainCheckName"
       | "domainCheckName(string)"
-      | "domainDeleteActivity"
-      | "domainDeleteActivity(bytes32[])"
       | "domainGetInfo"
       | "domainGetInfo(bytes32)"
       | "domainGetRealms"
@@ -229,6 +229,14 @@ export interface DomainManagerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "CTX_MESSAGE_TYPEHASH()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "FUNCTION_MESSAGE_TYPEHASH",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "FUNCTION_MESSAGE_TYPEHASH()",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -323,14 +331,6 @@ export interface DomainManagerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "domainCheckName(string)",
     values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "domainDeleteActivity",
-    values: [PromiseOrValue<BytesLike>[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "domainDeleteActivity(bytes32[])",
-    values: [PromiseOrValue<BytesLike>[]]
   ): string;
   encodeFunctionData(
     functionFragment: "domainGetInfo",
@@ -430,6 +430,14 @@ export interface DomainManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "FUNCTION_MESSAGE_TYPEHASH",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "FUNCTION_MESSAGE_TYPEHASH()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "LIVELY_VERSE_ADMIN_TYPE_ID",
     data: BytesLike
   ): Result;
@@ -520,14 +528,6 @@ export interface DomainManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "domainCheckName(string)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "domainDeleteActivity",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "domainDeleteActivity(bytes32[])",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -864,6 +864,10 @@ export interface DomainManager extends BaseContract {
 
     "CTX_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<[string]>;
 
+    FUNCTION_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<[string]>;
+
+    "FUNCTION_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<[string]>;
+
     LIVELY_VERSE_ADMIN_TYPE_ID(overrides?: CallOverrides): Promise<[string]>;
 
     "LIVELY_VERSE_ADMIN_TYPE_ID()"(
@@ -955,16 +959,6 @@ export interface DomainManager extends BaseContract {
       domainName: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
-
-    domainDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "domainDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
 
     domainGetInfo(
       domainId: PromiseOrValue<BytesLike>,
@@ -1087,6 +1081,10 @@ export interface DomainManager extends BaseContract {
 
   "CTX_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
 
+  FUNCTION_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<string>;
+
+  "FUNCTION_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
+
   LIVELY_VERSE_ADMIN_TYPE_ID(overrides?: CallOverrides): Promise<string>;
 
   "LIVELY_VERSE_ADMIN_TYPE_ID()"(overrides?: CallOverrides): Promise<string>;
@@ -1166,16 +1164,6 @@ export interface DomainManager extends BaseContract {
     domainName: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<boolean>;
-
-  domainDeleteActivity(
-    requests: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "domainDeleteActivity(bytes32[])"(
-    requests: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   domainGetInfo(
     domainId: PromiseOrValue<BytesLike>,
@@ -1298,6 +1286,10 @@ export interface DomainManager extends BaseContract {
 
     "CTX_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
 
+    FUNCTION_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<string>;
+
+    "FUNCTION_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
+
     LIVELY_VERSE_ADMIN_TYPE_ID(overrides?: CallOverrides): Promise<string>;
 
     "LIVELY_VERSE_ADMIN_TYPE_ID()"(overrides?: CallOverrides): Promise<string>;
@@ -1383,16 +1375,6 @@ export interface DomainManager extends BaseContract {
 
     "domainCheckName(string)"(
       domainName: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    domainDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "domainDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -1649,6 +1631,12 @@ export interface DomainManager extends BaseContract {
 
     "CTX_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<BigNumber>;
 
+    FUNCTION_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "FUNCTION_MESSAGE_TYPEHASH()"(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     LIVELY_VERSE_ADMIN_TYPE_ID(overrides?: CallOverrides): Promise<BigNumber>;
 
     "LIVELY_VERSE_ADMIN_TYPE_ID()"(
@@ -1739,16 +1727,6 @@ export interface DomainManager extends BaseContract {
     "domainCheckName(string)"(
       domainName: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    domainDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "domainDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     domainGetInfo(
@@ -1877,6 +1855,14 @@ export interface DomainManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    FUNCTION_MESSAGE_TYPEHASH(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "FUNCTION_MESSAGE_TYPEHASH()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     LIVELY_VERSE_ADMIN_TYPE_ID(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -1975,16 +1961,6 @@ export interface DomainManager extends BaseContract {
     "domainCheckName(string)"(
       domainName: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    domainDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "domainDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     domainGetInfo(

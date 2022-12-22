@@ -72,31 +72,37 @@ export declare namespace IFunctionManagement {
   };
 
   export type FunctionRegisterRequestStruct = {
+    signature: PromiseOrValue<BytesLike>;
     adminId: PromiseOrValue<BytesLike>;
     agentId: PromiseOrValue<BytesLike>;
+    contractId: PromiseOrValue<string>;
+    selector: PromiseOrValue<BytesLike>;
     agentLimit: PromiseOrValue<BigNumberish>;
     policyCode: PromiseOrValue<BigNumberish>;
     acstat: PromiseOrValue<BigNumberish>;
     alstat: PromiseOrValue<BigNumberish>;
-    selector: PromiseOrValue<BytesLike>;
   };
 
   export type FunctionRegisterRequestStructOutput = [
     string,
     string,
+    string,
+    string,
+    string,
     number,
     number,
     number,
-    number,
-    string
+    number
   ] & {
+    signature: string;
     adminId: string;
     agentId: string;
+    contractId: string;
+    selector: string;
     agentLimit: number;
     policyCode: number;
     acstat: number;
     alstat: number;
-    selector: string;
   };
 
   export type FunctionUpdateAgentRequestStruct = {
@@ -170,7 +176,7 @@ export interface IFunctionManagementInterface extends utils.Interface {
     "functionCheckSelector(address,bytes4)": FunctionFragment;
     "functionDeleteActivity(bytes32[])": FunctionFragment;
     "functionGetInfo(bytes32)": FunctionFragment;
-    "functionRegister(address,(bytes32,bytes32,uint16,uint8,uint8,uint8,bytes4)[])": FunctionFragment;
+    "functionRegister((bytes,bytes32,bytes32,address,bytes4,uint16,uint8,uint8,uint8)[])": FunctionFragment;
     "functionUpdateActivityStatus((bytes32,uint8)[])": FunctionFragment;
     "functionUpdateAdmin((bytes32,bytes32)[])": FunctionFragment;
     "functionUpdateAgent((bytes32,bytes32)[])": FunctionFragment;
@@ -194,7 +200,7 @@ export interface IFunctionManagementInterface extends utils.Interface {
       | "functionGetInfo"
       | "functionGetInfo(bytes32)"
       | "functionRegister"
-      | "functionRegister(address,(bytes32,bytes32,uint16,uint8,uint8,uint8,bytes4)[])"
+      | "functionRegister((bytes,bytes32,bytes32,address,bytes4,uint16,uint8,uint8,uint8)[])"
       | "functionUpdateActivityStatus"
       | "functionUpdateActivityStatus((bytes32,uint8)[])"
       | "functionUpdateAdmin"
@@ -259,17 +265,11 @@ export interface IFunctionManagementInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "functionRegister",
-    values: [
-      PromiseOrValue<string>,
-      IFunctionManagement.FunctionRegisterRequestStruct[]
-    ]
+    values: [IFunctionManagement.FunctionRegisterRequestStruct[]]
   ): string;
   encodeFunctionData(
-    functionFragment: "functionRegister(address,(bytes32,bytes32,uint16,uint8,uint8,uint8,bytes4)[])",
-    values: [
-      PromiseOrValue<string>,
-      IFunctionManagement.FunctionRegisterRequestStruct[]
-    ]
+    functionFragment: "functionRegister((bytes,bytes32,bytes32,address,bytes4,uint16,uint8,uint8,uint8)[])",
+    values: [IFunctionManagement.FunctionRegisterRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "functionUpdateActivityStatus",
@@ -373,7 +373,7 @@ export interface IFunctionManagementInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "functionRegister(address,(bytes32,bytes32,uint16,uint8,uint8,uint8,bytes4)[])",
+    functionFragment: "functionRegister((bytes,bytes32,bytes32,address,bytes4,uint16,uint8,uint8,uint8)[])",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -434,7 +434,7 @@ export interface IFunctionManagementInterface extends utils.Interface {
     "FunctionAgentUpdated(address,bytes32,bytes32)": EventFragment;
     "FunctionAlterabilityUpdated(address,bytes32,uint8)": EventFragment;
     "FunctionPolicyUpdated(address,bytes32,uint8)": EventFragment;
-    "FunctionRegistered(address,bytes32,bytes32,bytes32,bytes32,bytes4,uint8)": EventFragment;
+    "FunctionRegistered(address,bytes32,bytes32,bytes32,bytes32,address,bytes4,uint8)": EventFragment;
     "ScopeReferredByAgentUpdated(address,bytes32,bytes32,uint8)": EventFragment;
     "ScopeReferredByPolicyUpdated(address,bytes32,bytes32,uint8)": EventFragment;
   };
@@ -479,7 +479,7 @@ export interface IFunctionManagementInterface extends utils.Interface {
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FunctionRegistered"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "FunctionRegistered(address,bytes32,bytes32,bytes32,bytes32,bytes4,uint8)"
+    nameOrSignatureOrTopic: "FunctionRegistered(address,bytes32,bytes32,bytes32,bytes32,address,bytes4,uint8)"
   ): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "ScopeReferredByAgentUpdated"
@@ -607,11 +607,12 @@ export interface FunctionRegisteredEventObject {
   functionId: string;
   adminId: string;
   agentId: string;
+  signer: string;
   selector: string;
   policyCode: number;
 }
 export type FunctionRegisteredEvent = TypedEvent<
-  [string, string, string, string, string, string, number],
+  [string, string, string, string, string, string, string, number],
   FunctionRegisteredEventObject
 >;
 
@@ -740,13 +741,11 @@ export interface IFunctionManagement extends BaseContract {
     ): Promise<[IFunctionManagement.FunctionInfoStructOutput]>;
 
     functionRegister(
-      contractId: PromiseOrValue<string>,
       requests: IFunctionManagement.FunctionRegisterRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "functionRegister(address,(bytes32,bytes32,uint16,uint8,uint8,uint8,bytes4)[])"(
-      contractId: PromiseOrValue<string>,
+    "functionRegister((bytes,bytes32,bytes32,address,bytes4,uint16,uint8,uint8,uint8)[])"(
       requests: IFunctionManagement.FunctionRegisterRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -879,13 +878,11 @@ export interface IFunctionManagement extends BaseContract {
   ): Promise<IFunctionManagement.FunctionInfoStructOutput>;
 
   functionRegister(
-    contractId: PromiseOrValue<string>,
     requests: IFunctionManagement.FunctionRegisterRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "functionRegister(address,(bytes32,bytes32,uint16,uint8,uint8,uint8,bytes4)[])"(
-    contractId: PromiseOrValue<string>,
+  "functionRegister((bytes,bytes32,bytes32,address,bytes4,uint16,uint8,uint8,uint8)[])"(
     requests: IFunctionManagement.FunctionRegisterRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -1018,13 +1015,11 @@ export interface IFunctionManagement extends BaseContract {
     ): Promise<IFunctionManagement.FunctionInfoStructOutput>;
 
     functionRegister(
-      contractId: PromiseOrValue<string>,
       requests: IFunctionManagement.FunctionRegisterRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "functionRegister(address,(bytes32,bytes32,uint16,uint8,uint8,uint8,bytes4)[])"(
-      contractId: PromiseOrValue<string>,
+    "functionRegister((bytes,bytes32,bytes32,address,bytes4,uint16,uint8,uint8,uint8)[])"(
       requests: IFunctionManagement.FunctionRegisterRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
@@ -1183,12 +1178,13 @@ export interface IFunctionManagement extends BaseContract {
       policyCode?: null
     ): FunctionPolicyUpdatedEventFilter;
 
-    "FunctionRegistered(address,bytes32,bytes32,bytes32,bytes32,bytes4,uint8)"(
+    "FunctionRegistered(address,bytes32,bytes32,bytes32,bytes32,address,bytes4,uint8)"(
       sender?: PromiseOrValue<string> | null,
       contextId?: PromiseOrValue<BytesLike> | null,
       functionId?: PromiseOrValue<BytesLike> | null,
       adminId?: null,
       agentId?: null,
+      signer?: null,
       selector?: null,
       policyCode?: null
     ): FunctionRegisteredEventFilter;
@@ -1198,6 +1194,7 @@ export interface IFunctionManagement extends BaseContract {
       functionId?: PromiseOrValue<BytesLike> | null,
       adminId?: null,
       agentId?: null,
+      signer?: null,
       selector?: null,
       policyCode?: null
     ): FunctionRegisteredEventFilter;
@@ -1297,13 +1294,11 @@ export interface IFunctionManagement extends BaseContract {
     ): Promise<BigNumber>;
 
     functionRegister(
-      contractId: PromiseOrValue<string>,
       requests: IFunctionManagement.FunctionRegisterRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "functionRegister(address,(bytes32,bytes32,uint16,uint8,uint8,uint8,bytes4)[])"(
-      contractId: PromiseOrValue<string>,
+    "functionRegister((bytes,bytes32,bytes32,address,bytes4,uint16,uint8,uint8,uint8)[])"(
       requests: IFunctionManagement.FunctionRegisterRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -1437,13 +1432,11 @@ export interface IFunctionManagement extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     functionRegister(
-      contractId: PromiseOrValue<string>,
       requests: IFunctionManagement.FunctionRegisterRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "functionRegister(address,(bytes32,bytes32,uint16,uint8,uint8,uint8,bytes4)[])"(
-      contractId: PromiseOrValue<string>,
+    "functionRegister((bytes,bytes32,bytes32,address,bytes4,uint16,uint8,uint8,uint8)[])"(
       requests: IFunctionManagement.FunctionRegisterRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;

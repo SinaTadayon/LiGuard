@@ -97,13 +97,13 @@ contract DomainManager is AclStorage, IDomainManagement {
     return true;
   }
  
-   function domainDeleteActivity(bytes32[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IDomainManagement.domainDeleteActivity.selector);
-    for(uint i = 0; i < requests.length; i++) {
-      _doDomainUpdateActivityStatus(requests[i], ActivityStatus.DELETED, functionId);
-    }
-    return true;
-  }
+  //  function domainDeleteActivity(bytes32[] calldata requests) external returns (bool) {
+  //   bytes32 functionId = _accessPermission(IDomainManagement.domainDeleteActivity.selector);
+  //   for(uint i = 0; i < requests.length; i++) {
+  //     _doDomainUpdateActivityStatus(requests[i], ActivityStatus.DELETED, functionId);
+  //   }
+  //   return true;
+  // }
 
   function domainUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
    bytes32 functionId = _accessPermission(IDomainManagement.domainUpdateActivityStatus.selector);

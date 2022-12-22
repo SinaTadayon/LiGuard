@@ -257,6 +257,12 @@ const _abi = [
       },
       {
         indexed: false,
+        internalType: "address",
+        name: "signer",
+        type: "address",
+      },
+      {
+        indexed: false,
         internalType: "bytes4",
         name: "selector",
         type: "bytes4",
@@ -527,12 +533,12 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "contractId",
-        type: "address",
-      },
-      {
         components: [
+          {
+            internalType: "bytes",
+            name: "signature",
+            type: "bytes",
+          },
           {
             internalType: "bytes32",
             name: "adminId",
@@ -542,6 +548,16 @@ const _abi = [
             internalType: "bytes32",
             name: "agentId",
             type: "bytes32",
+          },
+          {
+            internalType: "address",
+            name: "contractId",
+            type: "address",
+          },
+          {
+            internalType: "bytes4",
+            name: "selector",
+            type: "bytes4",
           },
           {
             internalType: "uint16",
@@ -562,11 +578,6 @@ const _abi = [
             internalType: "enum IAclCommons.AlterabilityStatus",
             name: "alstat",
             type: "uint8",
-          },
-          {
-            internalType: "bytes4",
-            name: "selector",
-            type: "bytes4",
           },
         ],
         internalType: "struct IFunctionManagement.FunctionRegisterRequest[]",

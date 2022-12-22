@@ -113,34 +113,6 @@ export declare namespace IContextManagement {
     signature: string;
     selectors: string[];
   };
-
-  export type ContextUpgradeRequestStruct = {
-    contractId: PromiseOrValue<string>;
-    name: PromiseOrValue<string>;
-    version: PromiseOrValue<string>;
-    acstat: PromiseOrValue<BigNumberish>;
-    alstat: PromiseOrValue<BigNumberish>;
-    signature: PromiseOrValue<BytesLike>;
-    selectors: PromiseOrValue<BytesLike>[];
-  };
-
-  export type ContextUpgradeRequestStructOutput = [
-    string,
-    string,
-    string,
-    number,
-    number,
-    string,
-    string[]
-  ] & {
-    contractId: string;
-    name: string;
-    version: string;
-    acstat: number;
-    alstat: number;
-    signature: string;
-    selectors: string[];
-  };
 }
 
 export declare namespace IAclCommons {
@@ -224,6 +196,7 @@ export declare namespace IProxy {
 export interface ContextManagerInterface extends utils.Interface {
   functions: {
     "CTX_MESSAGE_TYPEHASH()": FunctionFragment;
+    "FUNCTION_MESSAGE_TYPEHASH()": FunctionFragment;
     "LIVELY_VERSE_ADMIN_TYPE_ID()": FunctionFragment;
     "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()": FunctionFragment;
     "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()": FunctionFragment;
@@ -233,10 +206,10 @@ export interface ContextManagerInterface extends utils.Interface {
     "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID()": FunctionFragment;
     "PREDICT_CTX_MESSAGE_TYPEHASH()": FunctionFragment;
     "TYPE_HASH()": FunctionFragment;
+    "accessControlManager()": FunctionFragment;
     "contextCheckAccount(address)": FunctionFragment;
     "contextCheckAdmin(bytes32,address)": FunctionFragment;
     "contextCheckId(bytes32)": FunctionFragment;
-    "contextDeleteActivity(bytes32[])": FunctionFragment;
     "contextGetContextInfo(bytes32)": FunctionFragment;
     "contextGetFunctions(bytes32)": FunctionFragment;
     "contextHasFunction(bytes32,bytes32)": FunctionFragment;
@@ -246,10 +219,10 @@ export interface ContextManagerInterface extends utils.Interface {
     "contextUpdateAdmin((bytes32,bytes32)[])": FunctionFragment;
     "contextUpdateAgentLimit((bytes32,uint16)[])": FunctionFragment;
     "contextUpdateAlterabilityStatus((bytes32,uint8)[])": FunctionFragment;
-    "contextUpgrade((address,string,string,uint8,uint8,bytes,bytes4[])[])": FunctionFragment;
     "contractName()": FunctionFragment;
     "contractVersion()": FunctionFragment;
     "domainSeparator()": FunctionFragment;
+    "initVersion()": FunctionFragment;
     "localAdmin()": FunctionFragment;
     "proxiableUUID()": FunctionFragment;
     "proxyInfo()": FunctionFragment;
@@ -258,7 +231,9 @@ export interface ContextManagerInterface extends utils.Interface {
     "setLocalAdmin(address)": FunctionFragment;
     "setSafeModeStatus(uint8)": FunctionFragment;
     "setUpgradabilityStatus(uint8)": FunctionFragment;
+    "subjectAddress()": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
+    "upgradabilityStatus()": FunctionFragment;
     "upgradeTo(address,bytes,bool)": FunctionFragment;
     "withdrawBalance(address)": FunctionFragment;
   };
@@ -267,6 +242,8 @@ export interface ContextManagerInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "CTX_MESSAGE_TYPEHASH"
       | "CTX_MESSAGE_TYPEHASH()"
+      | "FUNCTION_MESSAGE_TYPEHASH"
+      | "FUNCTION_MESSAGE_TYPEHASH()"
       | "LIVELY_VERSE_ADMIN_TYPE_ID"
       | "LIVELY_VERSE_ADMIN_TYPE_ID()"
       | "LIVELY_VERSE_AGENT_MASTER_TYPE_ID"
@@ -285,14 +262,14 @@ export interface ContextManagerInterface extends utils.Interface {
       | "PREDICT_CTX_MESSAGE_TYPEHASH()"
       | "TYPE_HASH"
       | "TYPE_HASH()"
+      | "accessControlManager"
+      | "accessControlManager()"
       | "contextCheckAccount"
       | "contextCheckAccount(address)"
       | "contextCheckAdmin"
       | "contextCheckAdmin(bytes32,address)"
       | "contextCheckId"
       | "contextCheckId(bytes32)"
-      | "contextDeleteActivity"
-      | "contextDeleteActivity(bytes32[])"
       | "contextGetContextInfo"
       | "contextGetContextInfo(bytes32)"
       | "contextGetFunctions"
@@ -311,14 +288,14 @@ export interface ContextManagerInterface extends utils.Interface {
       | "contextUpdateAgentLimit((bytes32,uint16)[])"
       | "contextUpdateAlterabilityStatus"
       | "contextUpdateAlterabilityStatus((bytes32,uint8)[])"
-      | "contextUpgrade"
-      | "contextUpgrade((address,string,string,uint8,uint8,bytes,bytes4[])[])"
       | "contractName"
       | "contractName()"
       | "contractVersion"
       | "contractVersion()"
       | "domainSeparator"
       | "domainSeparator()"
+      | "initVersion"
+      | "initVersion()"
       | "localAdmin"
       | "localAdmin()"
       | "proxiableUUID"
@@ -335,8 +312,12 @@ export interface ContextManagerInterface extends utils.Interface {
       | "setSafeModeStatus(uint8)"
       | "setUpgradabilityStatus"
       | "setUpgradabilityStatus(uint8)"
+      | "subjectAddress"
+      | "subjectAddress()"
       | "supportsInterface"
       | "supportsInterface(bytes4)"
+      | "upgradabilityStatus"
+      | "upgradabilityStatus()"
       | "upgradeTo"
       | "upgradeTo(address,bytes,bool)"
       | "withdrawBalance"
@@ -349,6 +330,14 @@ export interface ContextManagerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "CTX_MESSAGE_TYPEHASH()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "FUNCTION_MESSAGE_TYPEHASH",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "FUNCTION_MESSAGE_TYPEHASH()",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -421,6 +410,14 @@ export interface ContextManagerInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "accessControlManager",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "accessControlManager()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "contextCheckAccount",
     values: [PromiseOrValue<string>]
   ): string;
@@ -443,14 +440,6 @@ export interface ContextManagerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "contextCheckId(bytes32)",
     values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "contextDeleteActivity",
-    values: [PromiseOrValue<BytesLike>[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "contextDeleteActivity(bytes32[])",
-    values: [PromiseOrValue<BytesLike>[]]
   ): string;
   encodeFunctionData(
     functionFragment: "contextGetContextInfo",
@@ -525,14 +514,6 @@ export interface ContextManagerInterface extends utils.Interface {
     values: [IAclCommons.UpdateAlterabilityRequestStruct[]]
   ): string;
   encodeFunctionData(
-    functionFragment: "contextUpgrade",
-    values: [IContextManagement.ContextUpgradeRequestStruct[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "contextUpgrade((address,string,string,uint8,uint8,bytes,bytes4[])[])",
-    values: [IContextManagement.ContextUpgradeRequestStruct[]]
-  ): string;
-  encodeFunctionData(
     functionFragment: "contractName",
     values?: undefined
   ): string;
@@ -554,6 +535,14 @@ export interface ContextManagerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "domainSeparator()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initVersion",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initVersion()",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -618,12 +607,28 @@ export interface ContextManagerInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
+    functionFragment: "subjectAddress",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "subjectAddress()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "supportsInterface",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "supportsInterface(bytes4)",
     values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "upgradabilityStatus",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "upgradabilityStatus()",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "upgradeTo",
@@ -656,6 +661,14 @@ export interface ContextManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "CTX_MESSAGE_TYPEHASH()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "FUNCTION_MESSAGE_TYPEHASH",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "FUNCTION_MESSAGE_TYPEHASH()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -728,6 +741,14 @@ export interface ContextManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "accessControlManager",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "accessControlManager()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "contextCheckAccount",
     data: BytesLike
   ): Result;
@@ -749,14 +770,6 @@ export interface ContextManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "contextCheckId(bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "contextDeleteActivity",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "contextDeleteActivity(bytes32[])",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -832,14 +845,6 @@ export interface ContextManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "contextUpgrade",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "contextUpgrade((address,string,string,uint8,uint8,bytes,bytes4[])[])",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "contractName",
     data: BytesLike
   ): Result;
@@ -861,6 +866,14 @@ export interface ContextManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "domainSeparator()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "initVersion",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "initVersion()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "localAdmin", data: BytesLike): Result;
@@ -922,11 +935,27 @@ export interface ContextManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "subjectAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "subjectAddress()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "supportsInterface",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "supportsInterface(bytes4)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "upgradabilityStatus",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "upgradabilityStatus()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "upgradeTo", data: BytesLike): Result;
@@ -951,8 +980,7 @@ export interface ContextManagerInterface extends utils.Interface {
     "ContextAgentLimitUpdated(address,bytes32,uint16)": EventFragment;
     "ContextAlterabilityUpdated(address,bytes32,uint8)": EventFragment;
     "ContextRegistered(address,bytes32,address,address,address,address,bytes32,bytes32)": EventFragment;
-    "ContextUpgraded(address,bytes32,address,address)": EventFragment;
-    "Initialized(address,address,address,string,string,bytes32,uint16)": EventFragment;
+    "Initialized(address,address,address,string,string,uint16)": EventFragment;
     "ProxyAccessControlUpdated(address,address,address)": EventFragment;
     "ProxyLocalAdminUpdated(address,address,address)": EventFragment;
     "ProxySafeModeUpdated(address,address,uint8)": EventFragment;
@@ -994,13 +1022,9 @@ export interface ContextManagerInterface extends utils.Interface {
   getEvent(
     nameOrSignatureOrTopic: "ContextRegistered(address,bytes32,address,address,address,address,bytes32,bytes32)"
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ContextUpgraded"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ContextUpgraded(address,bytes32,address,address)"
-  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "Initialized(address,address,address,string,string,bytes32,uint16)"
+    nameOrSignatureOrTopic: "Initialized(address,address,address,string,string,uint16)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ProxyAccessControlUpdated"): EventFragment;
   getEvent(
@@ -1134,30 +1158,16 @@ export type ContextRegisteredEvent = TypedEvent<
 export type ContextRegisteredEventFilter =
   TypedEventFilter<ContextRegisteredEvent>;
 
-export interface ContextUpgradedEventObject {
-  sender: string;
-  contextId: string;
-  contractId: string;
-  signer: string;
-}
-export type ContextUpgradedEvent = TypedEvent<
-  [string, string, string, string],
-  ContextUpgradedEventObject
->;
-
-export type ContextUpgradedEventFilter = TypedEventFilter<ContextUpgradedEvent>;
-
 export interface InitializedEventObject {
   sender: string;
   proxy: string;
   subject: string;
   name: string;
   version: string;
-  realm: string;
   initCount: number;
 }
 export type InitializedEvent = TypedEvent<
-  [string, string, string, string, string, string, number],
+  [string, string, string, string, string, number],
   InitializedEventObject
 >;
 
@@ -1286,6 +1296,10 @@ export interface ContextManager extends BaseContract {
 
     "CTX_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<[string]>;
 
+    FUNCTION_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<[string]>;
+
+    "FUNCTION_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<[string]>;
+
     LIVELY_VERSE_ADMIN_TYPE_ID(overrides?: CallOverrides): Promise<[string]>;
 
     "LIVELY_VERSE_ADMIN_TYPE_ID()"(
@@ -1346,6 +1360,10 @@ export interface ContextManager extends BaseContract {
 
     "TYPE_HASH()"(overrides?: CallOverrides): Promise<[string]>;
 
+    accessControlManager(overrides?: CallOverrides): Promise<[string]>;
+
+    "accessControlManager()"(overrides?: CallOverrides): Promise<[string]>;
+
     contextCheckAccount(
       contractId: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -1377,16 +1395,6 @@ export interface ContextManager extends BaseContract {
       contextId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
-
-    contextDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "contextDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
 
     contextGetContextInfo(
       contextId: PromiseOrValue<BytesLike>,
@@ -1482,16 +1490,6 @@ export interface ContextManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    contextUpgrade(
-      requests: IContextManagement.ContextUpgradeRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "contextUpgrade((address,string,string,uint8,uint8,bytes,bytes4[])[])"(
-      requests: IContextManagement.ContextUpgradeRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     contractName(overrides?: CallOverrides): Promise<[string]>;
 
     "contractName()"(overrides?: CallOverrides): Promise<[string]>;
@@ -1503,6 +1501,10 @@ export interface ContextManager extends BaseContract {
     domainSeparator(overrides?: CallOverrides): Promise<[string]>;
 
     "domainSeparator()"(overrides?: CallOverrides): Promise<[string]>;
+
+    initVersion(overrides?: CallOverrides): Promise<[number]>;
+
+    "initVersion()"(overrides?: CallOverrides): Promise<[number]>;
 
     localAdmin(overrides?: CallOverrides): Promise<[string]>;
 
@@ -1564,6 +1566,10 @@ export interface ContextManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    subjectAddress(overrides?: CallOverrides): Promise<[string]>;
+
+    "subjectAddress()"(overrides?: CallOverrides): Promise<[string]>;
+
     supportsInterface(
       interfaceId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1573,6 +1579,10 @@ export interface ContextManager extends BaseContract {
       interfaceId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
+
+    upgradabilityStatus(overrides?: CallOverrides): Promise<[number]>;
+
+    "upgradabilityStatus()"(overrides?: CallOverrides): Promise<[number]>;
 
     upgradeTo(
       newImplementation: PromiseOrValue<string>,
@@ -1602,6 +1612,10 @@ export interface ContextManager extends BaseContract {
   CTX_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
   "CTX_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
+
+  FUNCTION_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<string>;
+
+  "FUNCTION_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
 
   LIVELY_VERSE_ADMIN_TYPE_ID(overrides?: CallOverrides): Promise<string>;
 
@@ -1651,6 +1665,10 @@ export interface ContextManager extends BaseContract {
 
   "TYPE_HASH()"(overrides?: CallOverrides): Promise<string>;
 
+  accessControlManager(overrides?: CallOverrides): Promise<string>;
+
+  "accessControlManager()"(overrides?: CallOverrides): Promise<string>;
+
   contextCheckAccount(
     contractId: PromiseOrValue<string>,
     overrides?: CallOverrides
@@ -1682,16 +1700,6 @@ export interface ContextManager extends BaseContract {
     contextId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
-
-  contextDeleteActivity(
-    requests: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "contextDeleteActivity(bytes32[])"(
-    requests: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   contextGetContextInfo(
     contextId: PromiseOrValue<BytesLike>,
@@ -1787,16 +1795,6 @@ export interface ContextManager extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  contextUpgrade(
-    requests: IContextManagement.ContextUpgradeRequestStruct[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "contextUpgrade((address,string,string,uint8,uint8,bytes,bytes4[])[])"(
-    requests: IContextManagement.ContextUpgradeRequestStruct[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   contractName(overrides?: CallOverrides): Promise<string>;
 
   "contractName()"(overrides?: CallOverrides): Promise<string>;
@@ -1808,6 +1806,10 @@ export interface ContextManager extends BaseContract {
   domainSeparator(overrides?: CallOverrides): Promise<string>;
 
   "domainSeparator()"(overrides?: CallOverrides): Promise<string>;
+
+  initVersion(overrides?: CallOverrides): Promise<number>;
+
+  "initVersion()"(overrides?: CallOverrides): Promise<number>;
 
   localAdmin(overrides?: CallOverrides): Promise<string>;
 
@@ -1867,6 +1869,10 @@ export interface ContextManager extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  subjectAddress(overrides?: CallOverrides): Promise<string>;
+
+  "subjectAddress()"(overrides?: CallOverrides): Promise<string>;
+
   supportsInterface(
     interfaceId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
@@ -1876,6 +1882,10 @@ export interface ContextManager extends BaseContract {
     interfaceId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
+
+  upgradabilityStatus(overrides?: CallOverrides): Promise<number>;
+
+  "upgradabilityStatus()"(overrides?: CallOverrides): Promise<number>;
 
   upgradeTo(
     newImplementation: PromiseOrValue<string>,
@@ -1905,6 +1915,10 @@ export interface ContextManager extends BaseContract {
     CTX_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
     "CTX_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
+
+    FUNCTION_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<string>;
+
+    "FUNCTION_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
 
     LIVELY_VERSE_ADMIN_TYPE_ID(overrides?: CallOverrides): Promise<string>;
 
@@ -1962,6 +1976,10 @@ export interface ContextManager extends BaseContract {
 
     "TYPE_HASH()"(overrides?: CallOverrides): Promise<string>;
 
+    accessControlManager(overrides?: CallOverrides): Promise<string>;
+
+    "accessControlManager()"(overrides?: CallOverrides): Promise<string>;
+
     contextCheckAccount(
       contractId: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -1991,16 +2009,6 @@ export interface ContextManager extends BaseContract {
 
     "contextCheckId(bytes32)"(
       contextId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    contextDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "contextDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -2098,16 +2106,6 @@ export interface ContextManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    contextUpgrade(
-      requests: IContextManagement.ContextUpgradeRequestStruct[],
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "contextUpgrade((address,string,string,uint8,uint8,bytes,bytes4[])[])"(
-      requests: IContextManagement.ContextUpgradeRequestStruct[],
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     contractName(overrides?: CallOverrides): Promise<string>;
 
     "contractName()"(overrides?: CallOverrides): Promise<string>;
@@ -2119,6 +2117,10 @@ export interface ContextManager extends BaseContract {
     domainSeparator(overrides?: CallOverrides): Promise<string>;
 
     "domainSeparator()"(overrides?: CallOverrides): Promise<string>;
+
+    initVersion(overrides?: CallOverrides): Promise<number>;
+
+    "initVersion()"(overrides?: CallOverrides): Promise<number>;
 
     localAdmin(overrides?: CallOverrides): Promise<string>;
 
@@ -2178,6 +2180,10 @@ export interface ContextManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
+    subjectAddress(overrides?: CallOverrides): Promise<string>;
+
+    "subjectAddress()"(overrides?: CallOverrides): Promise<string>;
+
     supportsInterface(
       interfaceId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -2187,6 +2193,10 @@ export interface ContextManager extends BaseContract {
       interfaceId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    upgradabilityStatus(overrides?: CallOverrides): Promise<number>;
+
+    "upgradabilityStatus()"(overrides?: CallOverrides): Promise<number>;
 
     upgradeTo(
       newImplementation: PromiseOrValue<string>,
@@ -2305,26 +2315,12 @@ export interface ContextManager extends BaseContract {
       adminId?: null
     ): ContextRegisteredEventFilter;
 
-    "ContextUpgraded(address,bytes32,address,address)"(
-      sender?: PromiseOrValue<string> | null,
-      contextId?: PromiseOrValue<BytesLike> | null,
-      contractId?: PromiseOrValue<string> | null,
-      signer?: null
-    ): ContextUpgradedEventFilter;
-    ContextUpgraded(
-      sender?: PromiseOrValue<string> | null,
-      contextId?: PromiseOrValue<BytesLike> | null,
-      contractId?: PromiseOrValue<string> | null,
-      signer?: null
-    ): ContextUpgradedEventFilter;
-
-    "Initialized(address,address,address,string,string,bytes32,uint16)"(
+    "Initialized(address,address,address,string,string,uint16)"(
       sender?: PromiseOrValue<string> | null,
       proxy?: PromiseOrValue<string> | null,
       subject?: PromiseOrValue<string> | null,
       name?: null,
       version?: null,
-      realm?: null,
       initCount?: null
     ): InitializedEventFilter;
     Initialized(
@@ -2333,7 +2329,6 @@ export interface ContextManager extends BaseContract {
       subject?: PromiseOrValue<string> | null,
       name?: null,
       version?: null,
-      realm?: null,
       initCount?: null
     ): InitializedEventFilter;
 
@@ -2424,6 +2419,12 @@ export interface ContextManager extends BaseContract {
 
     "CTX_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<BigNumber>;
 
+    FUNCTION_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "FUNCTION_MESSAGE_TYPEHASH()"(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     LIVELY_VERSE_ADMIN_TYPE_ID(overrides?: CallOverrides): Promise<BigNumber>;
 
     "LIVELY_VERSE_ADMIN_TYPE_ID()"(
@@ -2484,6 +2485,10 @@ export interface ContextManager extends BaseContract {
 
     "TYPE_HASH()"(overrides?: CallOverrides): Promise<BigNumber>;
 
+    accessControlManager(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "accessControlManager()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     contextCheckAccount(
       contractId: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -2514,16 +2519,6 @@ export interface ContextManager extends BaseContract {
     "contextCheckId(bytes32)"(
       contextId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    contextDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "contextDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     contextGetContextInfo(
@@ -2620,16 +2615,6 @@ export interface ContextManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    contextUpgrade(
-      requests: IContextManagement.ContextUpgradeRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "contextUpgrade((address,string,string,uint8,uint8,bytes,bytes4[])[])"(
-      requests: IContextManagement.ContextUpgradeRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     contractName(overrides?: CallOverrides): Promise<BigNumber>;
 
     "contractName()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -2641,6 +2626,10 @@ export interface ContextManager extends BaseContract {
     domainSeparator(overrides?: CallOverrides): Promise<BigNumber>;
 
     "domainSeparator()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    initVersion(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "initVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     localAdmin(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -2698,6 +2687,10 @@ export interface ContextManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    subjectAddress(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "subjectAddress()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     supportsInterface(
       interfaceId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -2707,6 +2700,10 @@ export interface ContextManager extends BaseContract {
       interfaceId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    upgradabilityStatus(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "upgradabilityStatus()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     upgradeTo(
       newImplementation: PromiseOrValue<string>,
@@ -2739,6 +2736,14 @@ export interface ContextManager extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     "CTX_MESSAGE_TYPEHASH()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    FUNCTION_MESSAGE_TYPEHASH(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "FUNCTION_MESSAGE_TYPEHASH()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -2810,6 +2815,14 @@ export interface ContextManager extends BaseContract {
 
     "TYPE_HASH()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    accessControlManager(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "accessControlManager()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     contextCheckAccount(
       contractId: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -2840,16 +2853,6 @@ export interface ContextManager extends BaseContract {
     "contextCheckId(bytes32)"(
       contextId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    contextDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "contextDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     contextGetContextInfo(
@@ -2946,16 +2949,6 @@ export interface ContextManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    contextUpgrade(
-      requests: IContextManagement.ContextUpgradeRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "contextUpgrade((address,string,string,uint8,uint8,bytes,bytes4[])[])"(
-      requests: IContextManagement.ContextUpgradeRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     contractName(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "contractName()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -2971,6 +2964,10 @@ export interface ContextManager extends BaseContract {
     "domainSeparator()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    initVersion(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "initVersion()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     localAdmin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -3030,6 +3027,12 @@ export interface ContextManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    subjectAddress(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "subjectAddress()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     supportsInterface(
       interfaceId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -3037,6 +3040,14 @@ export interface ContextManager extends BaseContract {
 
     "supportsInterface(bytes4)"(
       interfaceId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    upgradabilityStatus(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "upgradabilityStatus()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

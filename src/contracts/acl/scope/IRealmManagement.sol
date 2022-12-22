@@ -63,7 +63,7 @@ interface IRealmManagement is IAclCommons {
 
   function realmUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);
  
-  function realmDeleteActivity(bytes32[] calldata requests) external returns (bool);
+  // function realmDeleteActivity(bytes32[] calldata requests) external returns (bool);
 
   function realmUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
 

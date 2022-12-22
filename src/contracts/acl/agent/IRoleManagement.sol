@@ -83,7 +83,7 @@ interface IRoleManagement is IAclCommons {
 
   function roleUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);
  
-  function roleDeleteActivity(bytes32[] calldata requests) external returns (bool);
+  // function roleDeleteActivity(bytes32[] calldata requests) external returns (bool);
 
   function roleUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
 

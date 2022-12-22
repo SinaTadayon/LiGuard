@@ -155,17 +155,16 @@ interface IAclCommons {
   }
 
   // Request Types
-  struct FacetSelectorMigrateRequest {
+  struct FacetSelectorUpgradeRequest {
     ActionType action;
     bytes4[] selectors;
   }
 
-  struct FacetMigrateRequest {
+  struct FacetUpgradeRequest {
     address facetId;
-    address newFacetId;
     bytes4 interfaceId;
     bytes4 newInterfaceId;
-    FacetSelectorMigrateRequest[] migrations;
+    FacetSelectorUpgradeRequest[] functions;
   }
 
   struct FacetRegisterRequest {

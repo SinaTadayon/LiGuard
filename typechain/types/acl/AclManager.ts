@@ -27,6 +27,49 @@ import type {
   PromiseOrValue,
 } from "../common";
 
+export declare namespace IAclCommons {
+  export type FacetRegisterRequestStruct = {
+    facetId: PromiseOrValue<string>;
+    interfaceId: PromiseOrValue<BytesLike>;
+    selectors: PromiseOrValue<BytesLike>[];
+  };
+
+  export type FacetRegisterRequestStructOutput = [string, string, string[]] & {
+    facetId: string;
+    interfaceId: string;
+    selectors: string[];
+  };
+
+  export type FacetSelectorUpgradeRequestStruct = {
+    action: PromiseOrValue<BigNumberish>;
+    selectors: PromiseOrValue<BytesLike>[];
+  };
+
+  export type FacetSelectorUpgradeRequestStructOutput = [number, string[]] & {
+    action: number;
+    selectors: string[];
+  };
+
+  export type FacetUpgradeRequestStruct = {
+    facetId: PromiseOrValue<string>;
+    interfaceId: PromiseOrValue<BytesLike>;
+    newInterfaceId: PromiseOrValue<BytesLike>;
+    functions: IAclCommons.FacetSelectorUpgradeRequestStruct[];
+  };
+
+  export type FacetUpgradeRequestStructOutput = [
+    string,
+    string,
+    string,
+    IAclCommons.FacetSelectorUpgradeRequestStructOutput[]
+  ] & {
+    facetId: string;
+    interfaceId: string;
+    newInterfaceId: string;
+    functions: IAclCommons.FacetSelectorUpgradeRequestStructOutput[];
+  };
+}
+
 export declare namespace IProxy {
   export type ProxyInfoStruct = {
     contextId: PromiseOrValue<BytesLike>;
@@ -63,13 +106,28 @@ export declare namespace IProxy {
   };
 }
 
-export interface BaseUUPSProxyInterface extends utils.Interface {
+export interface AclManagerInterface extends utils.Interface {
   functions: {
+    "CTX_MESSAGE_TYPEHASH()": FunctionFragment;
+    "FUNCTION_MESSAGE_TYPEHASH()": FunctionFragment;
+    "LIVELY_VERSE_ADMIN_TYPE_ID()": FunctionFragment;
+    "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()": FunctionFragment;
+    "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()": FunctionFragment;
+    "LIVELY_VERSE_ANY_TYPE_ID()": FunctionFragment;
+    "LIVELY_VERSE_POLICY_MASTER_TYPE_ID()": FunctionFragment;
+    "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID()": FunctionFragment;
+    "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID()": FunctionFragment;
+    "PREDICT_CTX_MESSAGE_TYPEHASH()": FunctionFragment;
+    "TYPE_HASH()": FunctionFragment;
     "accessControlManager()": FunctionFragment;
+    "aclGetFacets()": FunctionFragment;
+    "aclRegisterFacet((address,bytes4,bytes4[])[])": FunctionFragment;
+    "aclUpgradeFacet((address,bytes4,bytes4,(uint8,bytes4[])[])[])": FunctionFragment;
     "contractName()": FunctionFragment;
     "contractVersion()": FunctionFragment;
     "domainSeparator()": FunctionFragment;
     "initVersion()": FunctionFragment;
+    "initialize(string,string,string,address)": FunctionFragment;
     "localAdmin()": FunctionFragment;
     "proxiableUUID()": FunctionFragment;
     "proxyInfo()": FunctionFragment;
@@ -87,8 +145,36 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "CTX_MESSAGE_TYPEHASH"
+      | "CTX_MESSAGE_TYPEHASH()"
+      | "FUNCTION_MESSAGE_TYPEHASH"
+      | "FUNCTION_MESSAGE_TYPEHASH()"
+      | "LIVELY_VERSE_ADMIN_TYPE_ID"
+      | "LIVELY_VERSE_ADMIN_TYPE_ID()"
+      | "LIVELY_VERSE_AGENT_MASTER_TYPE_ID"
+      | "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()"
+      | "LIVELY_VERSE_ANONYMOUSE_TYPE_ID"
+      | "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()"
+      | "LIVELY_VERSE_ANY_TYPE_ID"
+      | "LIVELY_VERSE_ANY_TYPE_ID()"
+      | "LIVELY_VERSE_POLICY_MASTER_TYPE_ID"
+      | "LIVELY_VERSE_POLICY_MASTER_TYPE_ID()"
+      | "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID"
+      | "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID()"
+      | "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID"
+      | "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID()"
+      | "PREDICT_CTX_MESSAGE_TYPEHASH"
+      | "PREDICT_CTX_MESSAGE_TYPEHASH()"
+      | "TYPE_HASH"
+      | "TYPE_HASH()"
       | "accessControlManager"
       | "accessControlManager()"
+      | "aclGetFacets"
+      | "aclGetFacets()"
+      | "aclRegisterFacet"
+      | "aclRegisterFacet((address,bytes4,bytes4[])[])"
+      | "aclUpgradeFacet"
+      | "aclUpgradeFacet((address,bytes4,bytes4,(uint8,bytes4[])[])[])"
       | "contractName"
       | "contractName()"
       | "contractVersion"
@@ -97,6 +183,8 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
       | "domainSeparator()"
       | "initVersion"
       | "initVersion()"
+      | "initialize"
+      | "initialize(string,string,string,address)"
       | "localAdmin"
       | "localAdmin()"
       | "proxiableUUID"
@@ -126,12 +214,121 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
   ): FunctionFragment;
 
   encodeFunctionData(
+    functionFragment: "CTX_MESSAGE_TYPEHASH",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "CTX_MESSAGE_TYPEHASH()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "FUNCTION_MESSAGE_TYPEHASH",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "FUNCTION_MESSAGE_TYPEHASH()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_VERSE_ADMIN_TYPE_ID",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_VERSE_ADMIN_TYPE_ID()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_VERSE_AGENT_MASTER_TYPE_ID",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_VERSE_ANONYMOUSE_TYPE_ID",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_VERSE_ANY_TYPE_ID",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_VERSE_ANY_TYPE_ID()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_VERSE_POLICY_MASTER_TYPE_ID",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_VERSE_POLICY_MASTER_TYPE_ID()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "PREDICT_CTX_MESSAGE_TYPEHASH",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "PREDICT_CTX_MESSAGE_TYPEHASH()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "TYPE_HASH", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "TYPE_HASH()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "accessControlManager",
     values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "accessControlManager()",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "aclGetFacets",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "aclGetFacets()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "aclRegisterFacet",
+    values: [IAclCommons.FacetRegisterRequestStruct[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "aclRegisterFacet((address,bytes4,bytes4[])[])",
+    values: [IAclCommons.FacetRegisterRequestStruct[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "aclUpgradeFacet",
+    values: [IAclCommons.FacetUpgradeRequestStruct[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "aclUpgradeFacet((address,bytes4,bytes4,(uint8,bytes4[])[])[])",
+    values: [IAclCommons.FacetUpgradeRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "contractName",
@@ -164,6 +361,24 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "initVersion()",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initialize",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initialize(string,string,string,address)",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "localAdmin",
@@ -276,11 +491,120 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
   ): string;
 
   decodeFunctionResult(
+    functionFragment: "CTX_MESSAGE_TYPEHASH",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "CTX_MESSAGE_TYPEHASH()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "FUNCTION_MESSAGE_TYPEHASH",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "FUNCTION_MESSAGE_TYPEHASH()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_VERSE_ADMIN_TYPE_ID",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_VERSE_ADMIN_TYPE_ID()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_VERSE_AGENT_MASTER_TYPE_ID",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_VERSE_ANONYMOUSE_TYPE_ID",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_VERSE_ANY_TYPE_ID",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_VERSE_ANY_TYPE_ID()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_VERSE_POLICY_MASTER_TYPE_ID",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_VERSE_POLICY_MASTER_TYPE_ID()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "PREDICT_CTX_MESSAGE_TYPEHASH",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "PREDICT_CTX_MESSAGE_TYPEHASH()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "TYPE_HASH", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "TYPE_HASH()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "accessControlManager",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "accessControlManager()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "aclGetFacets",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "aclGetFacets()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "aclRegisterFacet",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "aclRegisterFacet((address,bytes4,bytes4[])[])",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "aclUpgradeFacet",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "aclUpgradeFacet((address,bytes4,bytes4,(uint8,bytes4[])[])[])",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -313,6 +637,11 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "initVersion()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "initialize(string,string,string,address)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "localAdmin", data: BytesLike): Result;
@@ -412,14 +741,35 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
   ): Result;
 
   events: {
+    "AclFacetRegistered(address,address,bytes4)": EventFragment;
+    "AgentReferredByPolicyUpdated(address,bytes32,bytes32,uint8)": EventFragment;
+    "AgentReferredByScopeUpdated(address,bytes32,bytes32,uint8)": EventFragment;
     "Initialized(address,address,address,string,string,uint16)": EventFragment;
     "ProxyAccessControlUpdated(address,address,address)": EventFragment;
     "ProxyLocalAdminUpdated(address,address,address)": EventFragment;
     "ProxySafeModeUpdated(address,address,uint8)": EventFragment;
     "ProxyUpdatabilityUpdated(address,address,uint8)": EventFragment;
     "ProxyUpgraded(address,address,address)": EventFragment;
+    "ScopeReferredByAgentUpdated(address,bytes32,bytes32,uint8)": EventFragment;
+    "ScopeReferredByPolicyUpdated(address,bytes32,bytes32,uint8)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "AclFacetRegistered"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "AclFacetRegistered(address,address,bytes4)"
+  ): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "AgentReferredByPolicyUpdated"
+  ): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "AgentReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"
+  ): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "AgentReferredByScopeUpdated"
+  ): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "AgentReferredByScopeUpdated(address,bytes32,bytes32,uint8)"
+  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "Initialized(address,address,address,string,string,uint16)"
@@ -444,7 +794,60 @@ export interface BaseUUPSProxyInterface extends utils.Interface {
   getEvent(
     nameOrSignatureOrTopic: "ProxyUpgraded(address,address,address)"
   ): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "ScopeReferredByAgentUpdated"
+  ): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "ScopeReferredByAgentUpdated(address,bytes32,bytes32,uint8)"
+  ): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "ScopeReferredByPolicyUpdated"
+  ): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "ScopeReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"
+  ): EventFragment;
 }
+
+export interface AclFacetRegisteredEventObject {
+  sender: string;
+  facetId: string;
+  interfaceId: string;
+}
+export type AclFacetRegisteredEvent = TypedEvent<
+  [string, string, string],
+  AclFacetRegisteredEventObject
+>;
+
+export type AclFacetRegisteredEventFilter =
+  TypedEventFilter<AclFacetRegisteredEvent>;
+
+export interface AgentReferredByPolicyUpdatedEventObject {
+  sender: string;
+  agentId: string;
+  policyId: string;
+  action: number;
+}
+export type AgentReferredByPolicyUpdatedEvent = TypedEvent<
+  [string, string, string, number],
+  AgentReferredByPolicyUpdatedEventObject
+>;
+
+export type AgentReferredByPolicyUpdatedEventFilter =
+  TypedEventFilter<AgentReferredByPolicyUpdatedEvent>;
+
+export interface AgentReferredByScopeUpdatedEventObject {
+  sender: string;
+  agentId: string;
+  scopeId: string;
+  action: number;
+}
+export type AgentReferredByScopeUpdatedEvent = TypedEvent<
+  [string, string, string, number],
+  AgentReferredByScopeUpdatedEventObject
+>;
+
+export type AgentReferredByScopeUpdatedEventFilter =
+  TypedEventFilter<AgentReferredByScopeUpdatedEvent>;
 
 export interface InitializedEventObject {
   sender: string;
@@ -525,12 +928,40 @@ export type ProxyUpgradedEvent = TypedEvent<
 
 export type ProxyUpgradedEventFilter = TypedEventFilter<ProxyUpgradedEvent>;
 
-export interface BaseUUPSProxy extends BaseContract {
+export interface ScopeReferredByAgentUpdatedEventObject {
+  sender: string;
+  scopeId: string;
+  agentId: string;
+  action: number;
+}
+export type ScopeReferredByAgentUpdatedEvent = TypedEvent<
+  [string, string, string, number],
+  ScopeReferredByAgentUpdatedEventObject
+>;
+
+export type ScopeReferredByAgentUpdatedEventFilter =
+  TypedEventFilter<ScopeReferredByAgentUpdatedEvent>;
+
+export interface ScopeReferredByPolicyUpdatedEventObject {
+  sender: string;
+  scopeId: string;
+  policyId: string;
+  action: number;
+}
+export type ScopeReferredByPolicyUpdatedEvent = TypedEvent<
+  [string, string, string, number],
+  ScopeReferredByPolicyUpdatedEventObject
+>;
+
+export type ScopeReferredByPolicyUpdatedEventFilter =
+  TypedEventFilter<ScopeReferredByPolicyUpdatedEvent>;
+
+export interface AclManager extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: BaseUUPSProxyInterface;
+  interface: AclManagerInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -552,9 +983,105 @@ export interface BaseUUPSProxy extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    CTX_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<[string]>;
+
+    "CTX_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<[string]>;
+
+    FUNCTION_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<[string]>;
+
+    "FUNCTION_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<[string]>;
+
+    LIVELY_VERSE_ADMIN_TYPE_ID(overrides?: CallOverrides): Promise<[string]>;
+
+    "LIVELY_VERSE_ADMIN_TYPE_ID()"(
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    LIVELY_VERSE_AGENT_MASTER_TYPE_ID(
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()"(
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    LIVELY_VERSE_ANONYMOUSE_TYPE_ID(
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()"(
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    LIVELY_VERSE_ANY_TYPE_ID(overrides?: CallOverrides): Promise<[string]>;
+
+    "LIVELY_VERSE_ANY_TYPE_ID()"(overrides?: CallOverrides): Promise<[string]>;
+
+    LIVELY_VERSE_POLICY_MASTER_TYPE_ID(
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    "LIVELY_VERSE_POLICY_MASTER_TYPE_ID()"(
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    LIVELY_VERSE_SCOPE_MASTER_TYPE_ID(
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID()"(
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID(
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID()"(
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    PREDICT_CTX_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<[string]>;
+
+    "PREDICT_CTX_MESSAGE_TYPEHASH()"(
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    TYPE_HASH(overrides?: CallOverrides): Promise<[string]>;
+
+    "TYPE_HASH()"(overrides?: CallOverrides): Promise<[string]>;
+
     accessControlManager(overrides?: CallOverrides): Promise<[string]>;
 
     "accessControlManager()"(overrides?: CallOverrides): Promise<[string]>;
+
+    aclGetFacets(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "aclGetFacets()"(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    aclRegisterFacet(
+      requests: IAclCommons.FacetRegisterRequestStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "aclRegisterFacet((address,bytes4,bytes4[])[])"(
+      requests: IAclCommons.FacetRegisterRequestStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    aclUpgradeFacet(
+      requests: IAclCommons.FacetUpgradeRequestStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "aclUpgradeFacet((address,bytes4,bytes4,(uint8,bytes4[])[])[])"(
+      requests: IAclCommons.FacetUpgradeRequestStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     contractName(overrides?: CallOverrides): Promise<[string]>;
 
@@ -571,6 +1098,22 @@ export interface BaseUUPSProxy extends BaseContract {
     initVersion(overrides?: CallOverrides): Promise<[number]>;
 
     "initVersion()"(overrides?: CallOverrides): Promise<[number]>;
+
+    initialize(
+      contractName: PromiseOrValue<string>,
+      contractVersion: PromiseOrValue<string>,
+      contractRealm: PromiseOrValue<string>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "initialize(string,string,string,address)"(
+      contractName: PromiseOrValue<string>,
+      contractVersion: PromiseOrValue<string>,
+      contractRealm: PromiseOrValue<string>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     localAdmin(overrides?: CallOverrides): Promise<[string]>;
 
@@ -675,9 +1218,93 @@ export interface BaseUUPSProxy extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
+  CTX_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<string>;
+
+  "CTX_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
+
+  FUNCTION_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<string>;
+
+  "FUNCTION_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
+
+  LIVELY_VERSE_ADMIN_TYPE_ID(overrides?: CallOverrides): Promise<string>;
+
+  "LIVELY_VERSE_ADMIN_TYPE_ID()"(overrides?: CallOverrides): Promise<string>;
+
+  LIVELY_VERSE_AGENT_MASTER_TYPE_ID(overrides?: CallOverrides): Promise<string>;
+
+  "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()"(
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  LIVELY_VERSE_ANONYMOUSE_TYPE_ID(overrides?: CallOverrides): Promise<string>;
+
+  "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()"(
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  LIVELY_VERSE_ANY_TYPE_ID(overrides?: CallOverrides): Promise<string>;
+
+  "LIVELY_VERSE_ANY_TYPE_ID()"(overrides?: CallOverrides): Promise<string>;
+
+  LIVELY_VERSE_POLICY_MASTER_TYPE_ID(
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  "LIVELY_VERSE_POLICY_MASTER_TYPE_ID()"(
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  LIVELY_VERSE_SCOPE_MASTER_TYPE_ID(overrides?: CallOverrides): Promise<string>;
+
+  "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID()"(
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID(overrides?: CallOverrides): Promise<string>;
+
+  "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID()"(
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  PREDICT_CTX_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<string>;
+
+  "PREDICT_CTX_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
+
+  TYPE_HASH(overrides?: CallOverrides): Promise<string>;
+
+  "TYPE_HASH()"(overrides?: CallOverrides): Promise<string>;
+
   accessControlManager(overrides?: CallOverrides): Promise<string>;
 
   "accessControlManager()"(overrides?: CallOverrides): Promise<string>;
+
+  aclGetFacets(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "aclGetFacets()"(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  aclRegisterFacet(
+    requests: IAclCommons.FacetRegisterRequestStruct[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "aclRegisterFacet((address,bytes4,bytes4[])[])"(
+    requests: IAclCommons.FacetRegisterRequestStruct[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  aclUpgradeFacet(
+    requests: IAclCommons.FacetUpgradeRequestStruct[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "aclUpgradeFacet((address,bytes4,bytes4,(uint8,bytes4[])[])[])"(
+    requests: IAclCommons.FacetUpgradeRequestStruct[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   contractName(overrides?: CallOverrides): Promise<string>;
 
@@ -694,6 +1321,22 @@ export interface BaseUUPSProxy extends BaseContract {
   initVersion(overrides?: CallOverrides): Promise<number>;
 
   "initVersion()"(overrides?: CallOverrides): Promise<number>;
+
+  initialize(
+    contractName: PromiseOrValue<string>,
+    contractVersion: PromiseOrValue<string>,
+    contractRealm: PromiseOrValue<string>,
+    accessControlManager: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "initialize(string,string,string,address)"(
+    contractName: PromiseOrValue<string>,
+    contractVersion: PromiseOrValue<string>,
+    contractRealm: PromiseOrValue<string>,
+    accessControlManager: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   localAdmin(overrides?: CallOverrides): Promise<string>;
 
@@ -796,9 +1439,97 @@ export interface BaseUUPSProxy extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    CTX_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<string>;
+
+    "CTX_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
+
+    FUNCTION_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<string>;
+
+    "FUNCTION_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
+
+    LIVELY_VERSE_ADMIN_TYPE_ID(overrides?: CallOverrides): Promise<string>;
+
+    "LIVELY_VERSE_ADMIN_TYPE_ID()"(overrides?: CallOverrides): Promise<string>;
+
+    LIVELY_VERSE_AGENT_MASTER_TYPE_ID(
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()"(
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    LIVELY_VERSE_ANONYMOUSE_TYPE_ID(overrides?: CallOverrides): Promise<string>;
+
+    "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()"(
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    LIVELY_VERSE_ANY_TYPE_ID(overrides?: CallOverrides): Promise<string>;
+
+    "LIVELY_VERSE_ANY_TYPE_ID()"(overrides?: CallOverrides): Promise<string>;
+
+    LIVELY_VERSE_POLICY_MASTER_TYPE_ID(
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    "LIVELY_VERSE_POLICY_MASTER_TYPE_ID()"(
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    LIVELY_VERSE_SCOPE_MASTER_TYPE_ID(
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID()"(
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID(
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID()"(
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    PREDICT_CTX_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<string>;
+
+    "PREDICT_CTX_MESSAGE_TYPEHASH()"(
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    TYPE_HASH(overrides?: CallOverrides): Promise<string>;
+
+    "TYPE_HASH()"(overrides?: CallOverrides): Promise<string>;
+
     accessControlManager(overrides?: CallOverrides): Promise<string>;
 
     "accessControlManager()"(overrides?: CallOverrides): Promise<string>;
+
+    aclGetFacets(overrides?: CallOverrides): Promise<string[]>;
+
+    "aclGetFacets()"(overrides?: CallOverrides): Promise<string[]>;
+
+    aclRegisterFacet(
+      requests: IAclCommons.FacetRegisterRequestStruct[],
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "aclRegisterFacet((address,bytes4,bytes4[])[])"(
+      requests: IAclCommons.FacetRegisterRequestStruct[],
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    aclUpgradeFacet(
+      requests: IAclCommons.FacetUpgradeRequestStruct[],
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "aclUpgradeFacet((address,bytes4,bytes4,(uint8,bytes4[])[])[])"(
+      requests: IAclCommons.FacetUpgradeRequestStruct[],
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     contractName(overrides?: CallOverrides): Promise<string>;
 
@@ -815,6 +1546,22 @@ export interface BaseUUPSProxy extends BaseContract {
     initVersion(overrides?: CallOverrides): Promise<number>;
 
     "initVersion()"(overrides?: CallOverrides): Promise<number>;
+
+    initialize(
+      contractName: PromiseOrValue<string>,
+      contractVersion: PromiseOrValue<string>,
+      contractRealm: PromiseOrValue<string>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "initialize(string,string,string,address)"(
+      contractName: PromiseOrValue<string>,
+      contractVersion: PromiseOrValue<string>,
+      contractRealm: PromiseOrValue<string>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     localAdmin(overrides?: CallOverrides): Promise<string>;
 
@@ -918,6 +1665,43 @@ export interface BaseUUPSProxy extends BaseContract {
   };
 
   filters: {
+    "AclFacetRegistered(address,address,bytes4)"(
+      sender?: PromiseOrValue<string> | null,
+      facetId?: PromiseOrValue<string> | null,
+      interfaceId?: null
+    ): AclFacetRegisteredEventFilter;
+    AclFacetRegistered(
+      sender?: PromiseOrValue<string> | null,
+      facetId?: PromiseOrValue<string> | null,
+      interfaceId?: null
+    ): AclFacetRegisteredEventFilter;
+
+    "AgentReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"(
+      sender?: PromiseOrValue<string> | null,
+      agentId?: PromiseOrValue<BytesLike> | null,
+      policyId?: PromiseOrValue<BytesLike> | null,
+      action?: null
+    ): AgentReferredByPolicyUpdatedEventFilter;
+    AgentReferredByPolicyUpdated(
+      sender?: PromiseOrValue<string> | null,
+      agentId?: PromiseOrValue<BytesLike> | null,
+      policyId?: PromiseOrValue<BytesLike> | null,
+      action?: null
+    ): AgentReferredByPolicyUpdatedEventFilter;
+
+    "AgentReferredByScopeUpdated(address,bytes32,bytes32,uint8)"(
+      sender?: PromiseOrValue<string> | null,
+      agentId?: PromiseOrValue<BytesLike> | null,
+      scopeId?: PromiseOrValue<BytesLike> | null,
+      action?: null
+    ): AgentReferredByScopeUpdatedEventFilter;
+    AgentReferredByScopeUpdated(
+      sender?: PromiseOrValue<string> | null,
+      agentId?: PromiseOrValue<BytesLike> | null,
+      scopeId?: PromiseOrValue<BytesLike> | null,
+      action?: null
+    ): AgentReferredByScopeUpdatedEventFilter;
+
     "Initialized(address,address,address,string,string,uint16)"(
       sender?: PromiseOrValue<string> | null,
       proxy?: PromiseOrValue<string> | null,
@@ -989,12 +1773,136 @@ export interface BaseUUPSProxy extends BaseContract {
       proxy?: PromiseOrValue<string> | null,
       newImplementation?: PromiseOrValue<string> | null
     ): ProxyUpgradedEventFilter;
+
+    "ScopeReferredByAgentUpdated(address,bytes32,bytes32,uint8)"(
+      sender?: PromiseOrValue<string> | null,
+      scopeId?: PromiseOrValue<BytesLike> | null,
+      agentId?: PromiseOrValue<BytesLike> | null,
+      action?: null
+    ): ScopeReferredByAgentUpdatedEventFilter;
+    ScopeReferredByAgentUpdated(
+      sender?: PromiseOrValue<string> | null,
+      scopeId?: PromiseOrValue<BytesLike> | null,
+      agentId?: PromiseOrValue<BytesLike> | null,
+      action?: null
+    ): ScopeReferredByAgentUpdatedEventFilter;
+
+    "ScopeReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"(
+      sender?: PromiseOrValue<string> | null,
+      scopeId?: PromiseOrValue<BytesLike> | null,
+      policyId?: PromiseOrValue<BytesLike> | null,
+      action?: null
+    ): ScopeReferredByPolicyUpdatedEventFilter;
+    ScopeReferredByPolicyUpdated(
+      sender?: PromiseOrValue<string> | null,
+      scopeId?: PromiseOrValue<BytesLike> | null,
+      policyId?: PromiseOrValue<BytesLike> | null,
+      action?: null
+    ): ScopeReferredByPolicyUpdatedEventFilter;
   };
 
   estimateGas: {
+    CTX_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "CTX_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    FUNCTION_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "FUNCTION_MESSAGE_TYPEHASH()"(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    LIVELY_VERSE_ADMIN_TYPE_ID(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "LIVELY_VERSE_ADMIN_TYPE_ID()"(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    LIVELY_VERSE_AGENT_MASTER_TYPE_ID(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()"(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    LIVELY_VERSE_ANONYMOUSE_TYPE_ID(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()"(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    LIVELY_VERSE_ANY_TYPE_ID(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "LIVELY_VERSE_ANY_TYPE_ID()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    LIVELY_VERSE_POLICY_MASTER_TYPE_ID(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "LIVELY_VERSE_POLICY_MASTER_TYPE_ID()"(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    LIVELY_VERSE_SCOPE_MASTER_TYPE_ID(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID()"(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID()"(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    PREDICT_CTX_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "PREDICT_CTX_MESSAGE_TYPEHASH()"(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    TYPE_HASH(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "TYPE_HASH()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     accessControlManager(overrides?: CallOverrides): Promise<BigNumber>;
 
     "accessControlManager()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    aclGetFacets(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "aclGetFacets()"(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    aclRegisterFacet(
+      requests: IAclCommons.FacetRegisterRequestStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "aclRegisterFacet((address,bytes4,bytes4[])[])"(
+      requests: IAclCommons.FacetRegisterRequestStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    aclUpgradeFacet(
+      requests: IAclCommons.FacetUpgradeRequestStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "aclUpgradeFacet((address,bytes4,bytes4,(uint8,bytes4[])[])[])"(
+      requests: IAclCommons.FacetUpgradeRequestStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     contractName(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1011,6 +1919,22 @@ export interface BaseUUPSProxy extends BaseContract {
     initVersion(overrides?: CallOverrides): Promise<BigNumber>;
 
     "initVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    initialize(
+      contractName: PromiseOrValue<string>,
+      contractVersion: PromiseOrValue<string>,
+      contractRealm: PromiseOrValue<string>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "initialize(string,string,string,address)"(
+      contractName: PromiseOrValue<string>,
+      contractVersion: PromiseOrValue<string>,
+      contractRealm: PromiseOrValue<string>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     localAdmin(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1112,12 +2036,124 @@ export interface BaseUUPSProxy extends BaseContract {
   };
 
   populateTransaction: {
+    CTX_MESSAGE_TYPEHASH(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "CTX_MESSAGE_TYPEHASH()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    FUNCTION_MESSAGE_TYPEHASH(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "FUNCTION_MESSAGE_TYPEHASH()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    LIVELY_VERSE_ADMIN_TYPE_ID(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "LIVELY_VERSE_ADMIN_TYPE_ID()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    LIVELY_VERSE_AGENT_MASTER_TYPE_ID(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    LIVELY_VERSE_ANONYMOUSE_TYPE_ID(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    LIVELY_VERSE_ANY_TYPE_ID(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "LIVELY_VERSE_ANY_TYPE_ID()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    LIVELY_VERSE_POLICY_MASTER_TYPE_ID(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "LIVELY_VERSE_POLICY_MASTER_TYPE_ID()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    LIVELY_VERSE_SCOPE_MASTER_TYPE_ID(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    PREDICT_CTX_MESSAGE_TYPEHASH(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "PREDICT_CTX_MESSAGE_TYPEHASH()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    TYPE_HASH(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "TYPE_HASH()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     accessControlManager(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     "accessControlManager()"(
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    aclGetFacets(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "aclGetFacets()"(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    aclRegisterFacet(
+      requests: IAclCommons.FacetRegisterRequestStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "aclRegisterFacet((address,bytes4,bytes4[])[])"(
+      requests: IAclCommons.FacetRegisterRequestStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    aclUpgradeFacet(
+      requests: IAclCommons.FacetUpgradeRequestStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "aclUpgradeFacet((address,bytes4,bytes4,(uint8,bytes4[])[])[])"(
+      requests: IAclCommons.FacetUpgradeRequestStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     contractName(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1139,6 +2175,22 @@ export interface BaseUUPSProxy extends BaseContract {
     initVersion(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "initVersion()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    initialize(
+      contractName: PromiseOrValue<string>,
+      contractVersion: PromiseOrValue<string>,
+      contractRealm: PromiseOrValue<string>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "initialize(string,string,string,address)"(
+      contractName: PromiseOrValue<string>,
+      contractVersion: PromiseOrValue<string>,
+      contractRealm: PromiseOrValue<string>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     localAdmin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

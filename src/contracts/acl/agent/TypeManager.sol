@@ -139,13 +139,13 @@ contract TypeManager is AclStorage, ITypeManagement {
     return true;
   }
 
-  function typeDeleteActivity(bytes32[]  calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(ITypeManagement.typeDeleteActivity.selector);
-    for(uint i = 0; i < requests.length; i++) {
-      _doTypeUpdateActivityStatus(requests[i], ActivityStatus.DELETED, functionId);
-    }
-    return true;
-  }
+  // function typeDeleteActivity(bytes32[]  calldata requests) external returns (bool) {
+  //   bytes32 functionId = _accessPermission(ITypeManagement.typeDeleteActivity.selector);
+  //   for(uint i = 0; i < requests.length; i++) {
+  //     _doTypeUpdateActivityStatus(requests[i], ActivityStatus.DELETED, functionId);
+  //   }
+  //   return true;
+  // }
 
   function typeUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(ITypeManagement.typeUpdateActivityStatus.selector);
@@ -302,19 +302,19 @@ contract TypeManager is AclStorage, ITypeManagement {
     bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
     TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(typeId, senderId, functionId, false);
 
-    if(status == ActivityStatus.DELETED) {
-      BaseScope storage bs = _data.scopes[typeEntity.scopeId];
-      require(bs.referredByAgent > 0, "Illegal Referred");
-      unchecked {
-        bs.referredByAgent -= 1;  
-      }
-      emit ScopeReferredByAgentUpdated(
-        msg.sender, 
-        typeEntity.scopeId, 
-        typeId, 
-        ActionType.REMOVE
-      );
-    }
+    // if(status == ActivityStatus.DELETED) {
+    //   BaseScope storage bs = _data.scopes[typeEntity.scopeId];
+    //   require(bs.referredByAgent > 0, "Illegal Referred");
+    //   unchecked {
+    //     bs.referredByAgent -= 1;  
+    //   }
+    //   emit ScopeReferredByAgentUpdated(
+    //     msg.sender, 
+    //     typeEntity.scopeId, 
+    //     typeId, 
+    //     ActionType.REMOVE
+    //   );
+    // }
 
     typeEntity.ba.acstat = status;
     emit TypeActivityUpdated(msg.sender, typeId, status);

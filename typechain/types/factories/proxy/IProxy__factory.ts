@@ -42,12 +42,6 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "bytes32",
-        name: "realm",
-        type: "bytes32",
-      },
-      {
-        indexed: false,
         internalType: "uint16",
         name: "initCount",
         type: "uint16",
@@ -183,6 +177,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "accessControlManager",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "contractName",
     outputs: [
       {
@@ -215,6 +222,32 @@ const _abi = [
         internalType: "bytes32",
         name: "",
         type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "initVersion",
+    outputs: [
+      {
+        internalType: "uint16",
+        name: "",
+        type: "uint16",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "localAdmin",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
       },
     ],
     stateMutability: "view",
@@ -290,7 +323,7 @@ const _abi = [
         type: "uint8",
       },
     ],
-    stateMutability: "nonpayable",
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -367,6 +400,32 @@ const _abi = [
       },
     ],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "subjectAddress",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "upgradabilityStatus",
+    outputs: [
+      {
+        internalType: "enum IBaseProxy.ProxyUpgradabilityStatus",
+        name: "",
+        type: "uint8",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {

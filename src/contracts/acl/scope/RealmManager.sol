@@ -191,13 +191,13 @@ contract RealmManager is AclStorage, IRealmManagement {
     return true;
   }
  
-  function realmDeleteActivity(bytes32[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IRealmManagement.realmDeleteActivity.selector);
-    for(uint i = 0; i < requests.length; i++) {
-      _doRealmUpdateActivityStatus(requests[i], ActivityStatus.DELETED, functionId);
-    }
-    return true;
-  }
+  // function realmDeleteActivity(bytes32[] calldata requests) external returns (bool) {
+  //   bytes32 functionId = _accessPermission(IRealmManagement.realmDeleteActivity.selector);
+  //   for(uint i = 0; i < requests.length; i++) {
+  //     _doRealmUpdateActivityStatus(requests[i], ActivityStatus.DELETED, functionId);
+  //   }
+  //   return true;
+  // }
 
   function realmUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IRealmManagement.realmUpdateActivityStatus.selector);

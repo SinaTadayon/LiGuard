@@ -171,6 +171,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "FUNCTION_MESSAGE_TYPEHASH",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "LIVELY_VERSE_ADMIN_TYPE_ID",
     outputs: [
       {

@@ -150,16 +150,16 @@ contract RoleManager is AclStorage, IRoleManagement {
     return true;
   }
  
-  function roleDeleteActivity(bytes32[] calldata requests) external returns (bool) {   
-    bytes32 functionId = _accessPermission(IRoleManagement.roleDeleteActivity.selector);
-    for(uint i = 0; i < requests.length; i++) {
-      _doRoleUpdateActivityStatus(requests[i], ActivityStatus.DELETED, functionId);
-    }
-    return true;
-  }
+  // function roleDeleteActivity(bytes32[] calldata requests) external returns (bool) {   
+  //   bytes32 functionId = _accessPermission(IRoleManagement.roleDeleteActivity.selector);
+  //   for(uint i = 0; i < requests.length; i++) {
+  //     _doRoleUpdateActivityStatus(requests[i], ActivityStatus.DELETED, functionId);
+  //   }
+  //   return true;
+  // }
 
   function roleUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {    
-    bytes32 functionId = _accessPermission(IRoleManagement.roleDeleteActivity.selector);
+    bytes32 functionId = _accessPermission(IRoleManagement.roleUpdateActivityStatus.selector);
     for(uint i = 0; i < requests.length; i++) {
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
       _doRoleUpdateActivityStatus(requests[i].id, requests[i].acstat, functionId);
@@ -343,19 +343,19 @@ contract RoleManager is AclStorage, IRoleManagement {
     bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);
     RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(roleId, senderId, functionId, false);
 
-    if(status == ActivityStatus.DELETED) {
-      BaseScope storage bs = _data.scopes[roleEntity.scopeId];
-      require(bs.referredByAgent > 0, "Illegal Scope ReferredByAgent");
-      unchecked {
-        bs.referredByAgent -= 1;  
-      }
-      emit ScopeReferredByAgentUpdated(
-        msg.sender, 
-        roleEntity.scopeId, 
-        roleId, 
-        ActionType.REMOVE
-      );
-    }
+    // if(status == ActivityStatus.DELETED) {
+    //   BaseScope storage bs = _data.scopes[roleEntity.scopeId];
+    //   require(bs.referredByAgent > 0, "Illegal Scope ReferredByAgent");
+    //   unchecked {
+    //     bs.referredByAgent -= 1;  
+    //   }
+    //   emit ScopeReferredByAgentUpdated(
+    //     msg.sender, 
+    //     roleEntity.scopeId, 
+    //     roleId, 
+    //     ActionType.REMOVE
+    //   );
+    // }
 
     roleEntity.ba.acstat = status;
     emit RoleActivityUpdated(msg.sender, roleId, status);

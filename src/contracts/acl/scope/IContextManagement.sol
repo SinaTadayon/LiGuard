@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v2.0.2)
+// LivelyVerse Contracts (last updated v3.0.0)
 
 pragma solidity 0.8.17;
 
@@ -13,19 +13,6 @@ import "../IAclCommons.sol";
  */
 interface IContextManagement is IAclCommons {
   
-  // struct ContextRegisterRequest {
-  //   bytes32 realmId;
-  //   bytes32 adminId;
-  //   string name;
-  //   string version;
-  //   address contractId;
-  //   uint16 agentLimit;
-  //   ActivityStatus acstat;
-  //   AlterabilityStatus alstat;
-  //   bytes signature;
-  //   bytes4[] selectors;
-  // }
-
   struct ContextRegisterRequest {
     bytes32 realmId;
     bytes32 adminId;
@@ -36,16 +23,6 @@ interface IContextManagement is IAclCommons {
     address subject;
     address deployer;
     uint16 agentLimit;
-    ActivityStatus acstat;
-    AlterabilityStatus alstat;
-    bytes signature;
-    bytes4[] selectors;
-  }
-
-  struct ContextUpgradeRequest {
-    address contractId;
-    string name;
-    string version;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
     bytes signature;
@@ -66,15 +43,6 @@ interface IContextManagement is IAclCommons {
     AlterabilityStatus alstate;
   }
 
-  // event ContextRegistered (
-  //   address indexed sender,
-  //   bytes32 indexed contextId,
-  //   address indexed contractId,
-  //   address signer,
-  //   bytes32 realmId,
-  //   bytes32 adminId
-  // );
-
   event ContextRegistered(
     address indexed sender,
     bytes32 indexed contextId,
@@ -86,13 +54,6 @@ interface IContextManagement is IAclCommons {
     bytes32 adminId
   );
 
-  event ContextUpgraded(
-    address indexed sender, 
-    bytes32 indexed contextId, 
-    address indexed contractId,
-    address signer
-  );
-
   event ContextAdminUpdated(address indexed sender, bytes32 indexed contextId, bytes32 indexed adminId);
 
   event ContextActivityUpdated(address indexed sender, bytes32 indexed contextId, ActivityStatus acstat);
@@ -102,16 +63,9 @@ interface IContextManagement is IAclCommons {
   event ContextAgentLimitUpdated(address indexed sender, bytes32 indexed contextId, uint16 agentLimit);
 
 
-  // called by contract that want to register itself
   function contextRegister(ContextRegisterRequest[] calldata requests) external returns (bool);
 
-  // called by factory contract that want to register new created contract
-  // function contextRegisterPredict(ContextRegisterPredictRequest[] calldata requests) external returns (bool);
-
-  // called by contract that want to upgrade itself
-  function contextUpgrade(ContextUpgradeRequest[] calldata requests) external returns (bool);
-
-  function contextDeleteActivity(bytes32[] calldata requests) external returns (bool);
+  // function contextDeleteActivity(bytes32[] calldata requests) external returns (bool);
 
   function contextUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
 

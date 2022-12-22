@@ -62,7 +62,7 @@ interface ITypeManagement is IAclCommons {
 
   function typeUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);
  
-  function typeDeleteActivity(bytes32[] calldata requests) external returns (bool);
+  // function typeDeleteActivity(bytes32[] calldata requests) external returns (bool);
 
   function typeUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
 

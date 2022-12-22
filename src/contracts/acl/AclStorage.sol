@@ -25,6 +25,9 @@ abstract contract AclStorage is BaseUUPSStorage, IAclCommons {
   bytes32 public constant PREDICT_CTX_MESSAGE_TYPEHASH =
     keccak256("PredictContext(address deployer,address subject,string realm)");
 
+  bytes32 public constant FUNCTION_MESSAGE_TYPEHASH = keccak256("Function(address contractId,bytes4 selector)");
+
+
   bytes32 public constant LIVELY_VERSE_ADMIN_TYPE_ID         = keccak256("LIVELY_VERSE_ADMIN_TYPE");
   bytes32 public constant LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID  = keccak256("LIVELY_VERSE_SYSTEM_ADMIN_TYPE");
   bytes32 public constant LIVELY_VERSE_ANONYMOUSE_TYPE_ID    = keccak256("LIVELY_VERSE_ANONYMOUSE_TYPE");
@@ -39,7 +42,7 @@ abstract contract AclStorage is BaseUUPSStorage, IAclCommons {
     mapping(bytes32 => PolicyEntity) policies;
     mapping(bytes32 => bytes32) rolePolicyMap;
     mapping(bytes4 => address) selectors;           // function selector to facet address
-    mapping(bytes4 => address) interfaces;           // function interface to facet address
+    mapping(bytes4 => address) interfaces;          // function facet address to interface
     LEnumerableSet.AddressSet facets;
     GlobalEntity global;
     // GeneralLimitation defaultLimitations;

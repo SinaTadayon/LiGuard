@@ -113,34 +113,6 @@ export declare namespace IContextManagement {
     signature: string;
     selectors: string[];
   };
-
-  export type ContextUpgradeRequestStruct = {
-    contractId: PromiseOrValue<string>;
-    name: PromiseOrValue<string>;
-    version: PromiseOrValue<string>;
-    acstat: PromiseOrValue<BigNumberish>;
-    alstat: PromiseOrValue<BigNumberish>;
-    signature: PromiseOrValue<BytesLike>;
-    selectors: PromiseOrValue<BytesLike>[];
-  };
-
-  export type ContextUpgradeRequestStructOutput = [
-    string,
-    string,
-    string,
-    number,
-    number,
-    string,
-    string[]
-  ] & {
-    contractId: string;
-    name: string;
-    version: string;
-    acstat: number;
-    alstat: number;
-    signature: string;
-    selectors: string[];
-  };
 }
 
 export declare namespace IAclCommons {
@@ -190,7 +162,6 @@ export interface IContextManagementInterface extends utils.Interface {
     "contextCheckAccount(address)": FunctionFragment;
     "contextCheckAdmin(bytes32,address)": FunctionFragment;
     "contextCheckId(bytes32)": FunctionFragment;
-    "contextDeleteActivity(bytes32[])": FunctionFragment;
     "contextGetContextInfo(bytes32)": FunctionFragment;
     "contextGetFunctions(bytes32)": FunctionFragment;
     "contextHasFunction(bytes32,bytes32)": FunctionFragment;
@@ -200,7 +171,6 @@ export interface IContextManagementInterface extends utils.Interface {
     "contextUpdateAdmin((bytes32,bytes32)[])": FunctionFragment;
     "contextUpdateAgentLimit((bytes32,uint16)[])": FunctionFragment;
     "contextUpdateAlterabilityStatus((bytes32,uint8)[])": FunctionFragment;
-    "contextUpgrade((address,string,string,uint8,uint8,bytes,bytes4[])[])": FunctionFragment;
   };
 
   getFunction(
@@ -211,8 +181,6 @@ export interface IContextManagementInterface extends utils.Interface {
       | "contextCheckAdmin(bytes32,address)"
       | "contextCheckId"
       | "contextCheckId(bytes32)"
-      | "contextDeleteActivity"
-      | "contextDeleteActivity(bytes32[])"
       | "contextGetContextInfo"
       | "contextGetContextInfo(bytes32)"
       | "contextGetFunctions"
@@ -231,8 +199,6 @@ export interface IContextManagementInterface extends utils.Interface {
       | "contextUpdateAgentLimit((bytes32,uint16)[])"
       | "contextUpdateAlterabilityStatus"
       | "contextUpdateAlterabilityStatus((bytes32,uint8)[])"
-      | "contextUpgrade"
-      | "contextUpgrade((address,string,string,uint8,uint8,bytes,bytes4[])[])"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -260,14 +226,6 @@ export interface IContextManagementInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "contextDeleteActivity",
-    values: [PromiseOrValue<BytesLike>[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "contextDeleteActivity(bytes32[])",
-    values: [PromiseOrValue<BytesLike>[]]
-  ): string;
-  encodeFunctionData(
     functionFragment: "contextGetContextInfo",
     values: [PromiseOrValue<BytesLike>]
   ): string;
@@ -338,14 +296,6 @@ export interface IContextManagementInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "contextUpdateAlterabilityStatus((bytes32,uint8)[])",
     values: [IAclCommons.UpdateAlterabilityRequestStruct[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "contextUpgrade",
-    values: [IContextManagement.ContextUpgradeRequestStruct[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "contextUpgrade((address,string,string,uint8,uint8,bytes,bytes4[])[])",
-    values: [IContextManagement.ContextUpgradeRequestStruct[]]
   ): string;
 
   decodeFunctionResult(
@@ -373,14 +323,6 @@ export interface IContextManagementInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "contextDeleteActivity",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "contextDeleteActivity(bytes32[])",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "contextGetContextInfo",
     data: BytesLike
   ): Result;
@@ -452,14 +394,6 @@ export interface IContextManagementInterface extends utils.Interface {
     functionFragment: "contextUpdateAlterabilityStatus((bytes32,uint8)[])",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "contextUpgrade",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "contextUpgrade((address,string,string,uint8,uint8,bytes,bytes4[])[])",
-    data: BytesLike
-  ): Result;
 
   events: {
     "AgentReferredByPolicyUpdated(address,bytes32,bytes32,uint8)": EventFragment;
@@ -469,7 +403,6 @@ export interface IContextManagementInterface extends utils.Interface {
     "ContextAgentLimitUpdated(address,bytes32,uint16)": EventFragment;
     "ContextAlterabilityUpdated(address,bytes32,uint8)": EventFragment;
     "ContextRegistered(address,bytes32,address,address,address,address,bytes32,bytes32)": EventFragment;
-    "ContextUpgraded(address,bytes32,address,address)": EventFragment;
     "ScopeReferredByAgentUpdated(address,bytes32,bytes32,uint8)": EventFragment;
     "ScopeReferredByPolicyUpdated(address,bytes32,bytes32,uint8)": EventFragment;
   };
@@ -505,10 +438,6 @@ export interface IContextManagementInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "ContextRegistered"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "ContextRegistered(address,bytes32,address,address,address,address,bytes32,bytes32)"
-  ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ContextUpgraded"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ContextUpgraded(address,bytes32,address,address)"
   ): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "ScopeReferredByAgentUpdated"
@@ -622,19 +551,6 @@ export type ContextRegisteredEvent = TypedEvent<
 export type ContextRegisteredEventFilter =
   TypedEventFilter<ContextRegisteredEvent>;
 
-export interface ContextUpgradedEventObject {
-  sender: string;
-  contextId: string;
-  contractId: string;
-  signer: string;
-}
-export type ContextUpgradedEvent = TypedEvent<
-  [string, string, string, string],
-  ContextUpgradedEventObject
->;
-
-export type ContextUpgradedEventFilter = TypedEventFilter<ContextUpgradedEvent>;
-
 export interface ScopeReferredByAgentUpdatedEventObject {
   sender: string;
   scopeId: string;
@@ -721,16 +637,6 @@ export interface IContextManagement extends BaseContract {
       contextId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
-
-    contextDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "contextDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
 
     contextGetContextInfo(
       contextId: PromiseOrValue<BytesLike>,
@@ -825,16 +731,6 @@ export interface IContextManagement extends BaseContract {
       requests: IAclCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
-
-    contextUpgrade(
-      requests: IContextManagement.ContextUpgradeRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "contextUpgrade((address,string,string,uint8,uint8,bytes,bytes4[])[])"(
-      requests: IContextManagement.ContextUpgradeRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
   };
 
   contextCheckAccount(
@@ -868,16 +764,6 @@ export interface IContextManagement extends BaseContract {
     contextId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
-
-  contextDeleteActivity(
-    requests: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "contextDeleteActivity(bytes32[])"(
-    requests: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   contextGetContextInfo(
     contextId: PromiseOrValue<BytesLike>,
@@ -973,16 +859,6 @@ export interface IContextManagement extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  contextUpgrade(
-    requests: IContextManagement.ContextUpgradeRequestStruct[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "contextUpgrade((address,string,string,uint8,uint8,bytes,bytes4[])[])"(
-    requests: IContextManagement.ContextUpgradeRequestStruct[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   callStatic: {
     contextCheckAccount(
       contactId: PromiseOrValue<string>,
@@ -1013,16 +889,6 @@ export interface IContextManagement extends BaseContract {
 
     "contextCheckId(bytes32)"(
       contextId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    contextDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "contextDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -1117,16 +983,6 @@ export interface IContextManagement extends BaseContract {
 
     "contextUpdateAlterabilityStatus((bytes32,uint8)[])"(
       requests: IAclCommons.UpdateAlterabilityRequestStruct[],
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    contextUpgrade(
-      requests: IContextManagement.ContextUpgradeRequestStruct[],
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "contextUpgrade((address,string,string,uint8,uint8,bytes,bytes4[])[])"(
-      requests: IContextManagement.ContextUpgradeRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
   };
@@ -1223,19 +1079,6 @@ export interface IContextManagement extends BaseContract {
       adminId?: null
     ): ContextRegisteredEventFilter;
 
-    "ContextUpgraded(address,bytes32,address,address)"(
-      sender?: PromiseOrValue<string> | null,
-      contextId?: PromiseOrValue<BytesLike> | null,
-      contractId?: PromiseOrValue<string> | null,
-      signer?: null
-    ): ContextUpgradedEventFilter;
-    ContextUpgraded(
-      sender?: PromiseOrValue<string> | null,
-      contextId?: PromiseOrValue<BytesLike> | null,
-      contractId?: PromiseOrValue<string> | null,
-      signer?: null
-    ): ContextUpgradedEventFilter;
-
     "ScopeReferredByAgentUpdated(address,bytes32,bytes32,uint8)"(
       sender?: PromiseOrValue<string> | null,
       scopeId?: PromiseOrValue<BytesLike> | null,
@@ -1296,16 +1139,6 @@ export interface IContextManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    contextDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "contextDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     contextGetContextInfo(
       contextId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1397,16 +1230,6 @@ export interface IContextManagement extends BaseContract {
 
     "contextUpdateAlterabilityStatus((bytes32,uint8)[])"(
       requests: IAclCommons.UpdateAlterabilityRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    contextUpgrade(
-      requests: IContextManagement.ContextUpgradeRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "contextUpgrade((address,string,string,uint8,uint8,bytes,bytes4[])[])"(
-      requests: IContextManagement.ContextUpgradeRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -1444,16 +1267,6 @@ export interface IContextManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    contextDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "contextDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     contextGetContextInfo(
       contextId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1545,16 +1358,6 @@ export interface IContextManagement extends BaseContract {
 
     "contextUpdateAlterabilityStatus((bytes32,uint8)[])"(
       requests: IAclCommons.UpdateAlterabilityRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    contextUpgrade(
-      requests: IContextManagement.ContextUpgradeRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "contextUpgrade((address,string,string,uint8,uint8,bytes,bytes4[])[])"(
-      requests: IContextManagement.ContextUpgradeRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

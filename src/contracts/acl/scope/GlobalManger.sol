@@ -40,6 +40,7 @@ contract GlobalManager is AclStorage, IGlobalManagement {
     bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
     _doCheckAdminAccess(senderId, functionId);
 
+    require(alstat != AlterabilityStatus.NONE, "Illegal Alterability");
     _data.global.bs.alstat = alstat;
     emit GlobalAlterabilityUpdated(msg.sender, _data.global.bs.alstat);
     

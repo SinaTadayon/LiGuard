@@ -177,7 +177,6 @@ export interface IRoleManagementInterface extends utils.Interface {
     "roleCheckAdmin(bytes32,address)": FunctionFragment;
     "roleCheckId(bytes32)": FunctionFragment;
     "roleCheckName(string)": FunctionFragment;
-    "roleDeleteActivity(bytes32[])": FunctionFragment;
     "roleGetInfo(bytes32)": FunctionFragment;
     "roleGrantMembers((bytes32,bytes32[])[])": FunctionFragment;
     "roleHasAccount(bytes32,address)": FunctionFragment;
@@ -198,8 +197,6 @@ export interface IRoleManagementInterface extends utils.Interface {
       | "roleCheckId(bytes32)"
       | "roleCheckName"
       | "roleCheckName(string)"
-      | "roleDeleteActivity"
-      | "roleDeleteActivity(bytes32[])"
       | "roleGetInfo"
       | "roleGetInfo(bytes32)"
       | "roleGrantMembers"
@@ -245,14 +242,6 @@ export interface IRoleManagementInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "roleCheckName(string)",
     values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "roleDeleteActivity",
-    values: [PromiseOrValue<BytesLike>[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "roleDeleteActivity(bytes32[])",
-    values: [PromiseOrValue<BytesLike>[]]
   ): string;
   encodeFunctionData(
     functionFragment: "roleGetInfo",
@@ -357,14 +346,6 @@ export interface IRoleManagementInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "roleCheckName(string)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "roleDeleteActivity",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "roleDeleteActivity(bytes32[])",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -743,16 +724,6 @@ export interface IRoleManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    roleDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "roleDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     roleGetInfo(
       roleId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -888,16 +859,6 @@ export interface IRoleManagement extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  roleDeleteActivity(
-    requests: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "roleDeleteActivity(bytes32[])"(
-    requests: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   roleGetInfo(
     roleId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
@@ -1030,16 +991,6 @@ export interface IRoleManagement extends BaseContract {
 
     "roleCheckName(string)"(
       roleName: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    roleDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "roleDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -1329,16 +1280,6 @@ export interface IRoleManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    roleDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "roleDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     roleGetInfo(
       roleId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1473,16 +1414,6 @@ export interface IRoleManagement extends BaseContract {
     "roleCheckName(string)"(
       roleName: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    roleDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "roleDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     roleGetInfo(

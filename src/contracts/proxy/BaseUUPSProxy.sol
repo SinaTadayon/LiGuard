@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v2.0.1)
+// LivelyVerse Contracts (last updated v3.0.0)
 
 pragma solidity 0.8.17;
 
@@ -358,25 +358,21 @@ abstract contract BaseUUPSProxy is
     return _contractVersion;
   }
 
-  // function contractContext() external view returns (bytes32) {
-  //   return LAclUtils.accountGenerateId(address(this));
-  // }
+  function accessControlManager() external view returns (address) {
+    return _accessControlManager;
+  }
 
-  // function accessControlManager() external view returns (address) {
-  //   return _accessControlManager;
-  // }
-
-  // function subjectAddress() external view returns (address) {
-  //   return _implementation();
-  // }
+  function subjectAddress() external view returns (address) {
+    return _implementation();
+  }
 
   function safeModeStatus() external view returns (ProxySafeModeStatus) {
     return _sstat;
   }
 
-  // function UpdatabilityStatus() external view returns (ProxyUpdatabilityStatus) {
-  //   return _ustat;
-  // }
+  function upgradabilityStatus() external view returns (ProxyUpgradabilityStatus) {
+    return _ustat;
+  }
 
   // TODO check it
   function domainSeparator() external view returns (bytes32) {
@@ -387,9 +383,9 @@ abstract contract BaseUUPSProxy is
     return keccak256(abi.encode(_TYPE_HASH, _contractName, _contractVersion, block.chainid, address(this)));
   }
 
-  // function initVersion() external view returns (uint16) {
-  //   return _getInitializedCount();
-  // }
+  function initVersion() external view returns (uint16) {
+    return _getInitializedCount();
+  }
 
   function withdrawBalance(address recepient) public {
     require(_sstat == ProxySafeModeStatus.DISABLED, "Rejected");

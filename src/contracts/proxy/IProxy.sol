@@ -45,7 +45,6 @@ interface IProxy is IBaseProxy {
     address indexed subject,
     string name,
     string version,
-    bytes32 realm,
     uint16 initCount
   );
 
@@ -67,18 +66,19 @@ interface IProxy is IBaseProxy {
 
   function contractVersion() external view returns (string memory);
 
-  // function accessControlManager() external view returns (address);
+  function accessControlManager() external view returns (address);
 
-  // function subjectAddress() external view returns (address);
+  function subjectAddress() external view returns (address);
 
-  function safeModeStatus() external returns (ProxySafeModeStatus);
+  function safeModeStatus() external view returns (ProxySafeModeStatus);
 
-  // function upgradabilityStatus() external returns (ProxyUpgradabilityStatus);
+  function upgradabilityStatus() external view returns (ProxyUpgradabilityStatus);
 
-  // function localAdmin() external view returns (address);
+  function localAdmin() external view returns (address);
+
   function proxyInfo() external view returns (ProxyInfo memory);
 
   function domainSeparator() external view returns (bytes32);
 
-  // function initVersion() external view returns (uint16);
+  function initVersion() external view returns (uint16);
 }

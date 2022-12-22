@@ -145,7 +145,6 @@ export interface IDomainManagementInterface extends utils.Interface {
     "domainCheckAdmin(bytes32,address)": FunctionFragment;
     "domainCheckId(bytes32)": FunctionFragment;
     "domainCheckName(string)": FunctionFragment;
-    "domainDeleteActivity(bytes32[])": FunctionFragment;
     "domainGetInfo(bytes32)": FunctionFragment;
     "domainGetRealms(bytes32)": FunctionFragment;
     "domainHasContext(bytes32,bytes32)": FunctionFragment;
@@ -167,8 +166,6 @@ export interface IDomainManagementInterface extends utils.Interface {
       | "domainCheckId(bytes32)"
       | "domainCheckName"
       | "domainCheckName(string)"
-      | "domainDeleteActivity"
-      | "domainDeleteActivity(bytes32[])"
       | "domainGetInfo"
       | "domainGetInfo(bytes32)"
       | "domainGetRealms"
@@ -216,14 +213,6 @@ export interface IDomainManagementInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "domainCheckName(string)",
     values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "domainDeleteActivity",
-    values: [PromiseOrValue<BytesLike>[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "domainDeleteActivity(bytes32[])",
-    values: [PromiseOrValue<BytesLike>[]]
   ): string;
   encodeFunctionData(
     functionFragment: "domainGetInfo",
@@ -336,14 +325,6 @@ export interface IDomainManagementInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "domainCheckName(string)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "domainDeleteActivity",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "domainDeleteActivity(bytes32[])",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -691,16 +672,6 @@ export interface IDomainManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    domainDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "domainDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     domainGetInfo(
       domainId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -850,16 +821,6 @@ export interface IDomainManagement extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  domainDeleteActivity(
-    requests: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "domainDeleteActivity(bytes32[])"(
-    requests: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   domainGetInfo(
     domainId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
@@ -1006,16 +967,6 @@ export interface IDomainManagement extends BaseContract {
 
     "domainCheckName(string)"(
       domainName: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    domainDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "domainDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -1289,16 +1240,6 @@ export interface IDomainManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    domainDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "domainDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     domainGetInfo(
       domainId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1447,16 +1388,6 @@ export interface IDomainManagement extends BaseContract {
     "domainCheckName(string)"(
       domainName: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    domainDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "domainDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     domainGetInfo(
