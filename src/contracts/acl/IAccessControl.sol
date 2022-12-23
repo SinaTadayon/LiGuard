@@ -3,7 +3,7 @@
 
 pragma solidity 0.8.17;
 
-import "./IAclCommons.sol";
+import "./IACLCommons.sol";
 
 /**
  * @title Access Control Interface
@@ -11,7 +11,7 @@ import "./IAclCommons.sol";
  * @dev
  *
  */
-interface IAccessControl is IAclCommons {
+interface IAccessControl is IACLCommons {
   /**
    * @dev Function called by apps to check ACL
    * @return boolean indicating whether the ACL allows
@@ -39,20 +39,39 @@ interface IAccessControl is IAclCommons {
   // Any type
   function getAnyType() external pure returns (bytes32);
 
-  // scope admin type
+  // scope master type
   function getScopeMasterType() external pure returns (bytes32);
 
-  // role admin type
+  // agent master type
   function getAgentMasterType() external pure returns (bytes32);
   
-  // super admin type
-  function getSystemAdminType() external pure returns (bytes32);
+  // system master type
+  function getSystemMasterType() external pure returns (bytes32);
 
-  // system admin type
-  function getAdminType() external pure returns (bytes32);
+  // lively master type
+  function getLivelyMasterType() external pure returns (bytes32);
 
-  // Policy Master
-  function getPolicyMasterType() external view returns (bytes32);
+  // Policy Master type
+  function getPolicyMasterType() external pure returns (bytes32);
+
+  // Global Scope
+  function getGlobalScope() external pure returns (bytes32);
+
+
+  // lively master admin role
+  function getLivelyMasterAdminRole() external pure returns (bytes32);
+
+  // scope master admin role
+  function getScopeMasterAdminRole() external pure returns (bytes32);
+
+  // agent master admin role
+  function getAgentMasterAdminRole() external pure returns (bytes32);
+  
+  // system master admin role
+  function getSystemMasterAdminRole() external pure returns (bytes32);
+
+  // Policy Master admin role
+  function getPolicyMasterAdminRole() external pure returns (bytes32);
 
 
   // general

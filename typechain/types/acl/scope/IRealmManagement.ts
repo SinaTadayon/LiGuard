@@ -104,7 +104,7 @@ export declare namespace IRealmManagement {
   };
 }
 
-export declare namespace IAclCommons {
+export declare namespace IACLCommons {
   export type UpdateActivityRequestStruct = {
     id: PromiseOrValue<BytesLike>;
     acstat: PromiseOrValue<BigNumberish>;
@@ -151,6 +151,7 @@ export interface IRealmManagementInterface extends utils.Interface {
     "realmCheckAdmin(bytes32,address)": FunctionFragment;
     "realmCheckId(bytes32)": FunctionFragment;
     "realmCheckName(string)": FunctionFragment;
+    "realmDeleteActivity(bytes32[])": FunctionFragment;
     "realmGetContexts(bytes32)": FunctionFragment;
     "realmGetInfo(bytes32)": FunctionFragment;
     "realmHasContext(bytes32,bytes32)": FunctionFragment;
@@ -171,6 +172,8 @@ export interface IRealmManagementInterface extends utils.Interface {
       | "realmCheckId(bytes32)"
       | "realmCheckName"
       | "realmCheckName(string)"
+      | "realmDeleteActivity"
+      | "realmDeleteActivity(bytes32[])"
       | "realmGetContexts"
       | "realmGetContexts(bytes32)"
       | "realmGetInfo"
@@ -218,6 +221,14 @@ export interface IRealmManagementInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
+    functionFragment: "realmDeleteActivity",
+    values: [PromiseOrValue<BytesLike>[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "realmDeleteActivity(bytes32[])",
+    values: [PromiseOrValue<BytesLike>[]]
+  ): string;
+  encodeFunctionData(
     functionFragment: "realmGetContexts",
     values: [PromiseOrValue<BytesLike>]
   ): string;
@@ -259,35 +270,35 @@ export interface IRealmManagementInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "realmUpdateActivityStatus",
-    values: [IAclCommons.UpdateActivityRequestStruct[]]
+    values: [IACLCommons.UpdateActivityRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "realmUpdateActivityStatus((bytes32,uint8)[])",
-    values: [IAclCommons.UpdateActivityRequestStruct[]]
+    values: [IACLCommons.UpdateActivityRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "realmUpdateAdmin",
-    values: [IAclCommons.UpdateAdminRequestStruct[]]
+    values: [IACLCommons.UpdateAdminRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "realmUpdateAdmin((bytes32,bytes32)[])",
-    values: [IAclCommons.UpdateAdminRequestStruct[]]
+    values: [IACLCommons.UpdateAdminRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "realmUpdateAgentLimit",
-    values: [IAclCommons.ScopeUpdateAgentLimitRequestStruct[]]
+    values: [IACLCommons.ScopeUpdateAgentLimitRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "realmUpdateAgentLimit((bytes32,uint16)[])",
-    values: [IAclCommons.ScopeUpdateAgentLimitRequestStruct[]]
+    values: [IACLCommons.ScopeUpdateAgentLimitRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "realmUpdateAlterabilityStatus",
-    values: [IAclCommons.UpdateAlterabilityRequestStruct[]]
+    values: [IACLCommons.UpdateAlterabilityRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "realmUpdateAlterabilityStatus((bytes32,uint8)[])",
-    values: [IAclCommons.UpdateAlterabilityRequestStruct[]]
+    values: [IACLCommons.UpdateAlterabilityRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "realmUpdateContextLimit",
@@ -320,6 +331,14 @@ export interface IRealmManagementInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "realmCheckName(string)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "realmDeleteActivity",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "realmDeleteActivity(bytes32[])",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -659,6 +678,16 @@ export interface IRealmManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    realmDeleteActivity(
+      requests: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "realmDeleteActivity(bytes32[])"(
+      requests: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     realmGetContexts(
       realmId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -714,42 +743,42 @@ export interface IRealmManagement extends BaseContract {
     ): Promise<ContractTransaction>;
 
     realmUpdateActivityStatus(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "realmUpdateActivityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     realmUpdateAdmin(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "realmUpdateAdmin((bytes32,bytes32)[])"(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     realmUpdateAgentLimit(
-      requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+      requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "realmUpdateAgentLimit((bytes32,uint16)[])"(
-      requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+      requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     realmUpdateAlterabilityStatus(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "realmUpdateAlterabilityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -795,6 +824,16 @@ export interface IRealmManagement extends BaseContract {
     realmName: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<boolean>;
+
+  realmDeleteActivity(
+    requests: PromiseOrValue<BytesLike>[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "realmDeleteActivity(bytes32[])"(
+    requests: PromiseOrValue<BytesLike>[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   realmGetContexts(
     realmId: PromiseOrValue<BytesLike>,
@@ -851,42 +890,42 @@ export interface IRealmManagement extends BaseContract {
   ): Promise<ContractTransaction>;
 
   realmUpdateActivityStatus(
-    requests: IAclCommons.UpdateActivityRequestStruct[],
+    requests: IACLCommons.UpdateActivityRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "realmUpdateActivityStatus((bytes32,uint8)[])"(
-    requests: IAclCommons.UpdateActivityRequestStruct[],
+    requests: IACLCommons.UpdateActivityRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   realmUpdateAdmin(
-    requests: IAclCommons.UpdateAdminRequestStruct[],
+    requests: IACLCommons.UpdateAdminRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "realmUpdateAdmin((bytes32,bytes32)[])"(
-    requests: IAclCommons.UpdateAdminRequestStruct[],
+    requests: IACLCommons.UpdateAdminRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   realmUpdateAgentLimit(
-    requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+    requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "realmUpdateAgentLimit((bytes32,uint16)[])"(
-    requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+    requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   realmUpdateAlterabilityStatus(
-    requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+    requests: IACLCommons.UpdateAlterabilityRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "realmUpdateAlterabilityStatus((bytes32,uint8)[])"(
-    requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+    requests: IACLCommons.UpdateAlterabilityRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -930,6 +969,16 @@ export interface IRealmManagement extends BaseContract {
 
     "realmCheckName(string)"(
       realmName: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    realmDeleteActivity(
+      requests: PromiseOrValue<BytesLike>[],
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "realmDeleteActivity(bytes32[])"(
+      requests: PromiseOrValue<BytesLike>[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -988,42 +1037,42 @@ export interface IRealmManagement extends BaseContract {
     ): Promise<boolean>;
 
     realmUpdateActivityStatus(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     "realmUpdateActivityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     realmUpdateAdmin(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     "realmUpdateAdmin((bytes32,bytes32)[])"(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     realmUpdateAgentLimit(
-      requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+      requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     "realmUpdateAgentLimit((bytes32,uint16)[])"(
-      requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+      requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     realmUpdateAlterabilityStatus(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     "realmUpdateAlterabilityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -1193,6 +1242,16 @@ export interface IRealmManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    realmDeleteActivity(
+      requests: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "realmDeleteActivity(bytes32[])"(
+      requests: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     realmGetContexts(
       realmId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1248,42 +1307,42 @@ export interface IRealmManagement extends BaseContract {
     ): Promise<BigNumber>;
 
     realmUpdateActivityStatus(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "realmUpdateActivityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     realmUpdateAdmin(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "realmUpdateAdmin((bytes32,bytes32)[])"(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     realmUpdateAgentLimit(
-      requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+      requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "realmUpdateAgentLimit((bytes32,uint16)[])"(
-      requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+      requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     realmUpdateAlterabilityStatus(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "realmUpdateAlterabilityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1331,6 +1390,16 @@ export interface IRealmManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    realmDeleteActivity(
+      requests: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "realmDeleteActivity(bytes32[])"(
+      requests: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     realmGetContexts(
       realmId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1386,42 +1455,42 @@ export interface IRealmManagement extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     realmUpdateActivityStatus(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "realmUpdateActivityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     realmUpdateAdmin(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "realmUpdateAdmin((bytes32,bytes32)[])"(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     realmUpdateAgentLimit(
-      requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+      requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "realmUpdateAgentLimit((bytes32,uint16)[])"(
-      requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+      requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     realmUpdateAlterabilityStatus(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "realmUpdateAlterabilityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

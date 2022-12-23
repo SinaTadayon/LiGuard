@@ -60,6 +60,7 @@ export declare namespace IMemberManagement {
     roleId: PromiseOrValue<BytesLike>;
     account: PromiseOrValue<string>;
     typeLimit: PromiseOrValue<BigNumberish>;
+    factoryLimit: PromiseOrValue<BigNumberish>;
     acstat: PromiseOrValue<BigNumberish>;
     alstat: PromiseOrValue<BigNumberish>;
   };
@@ -69,13 +70,25 @@ export declare namespace IMemberManagement {
     string,
     number,
     number,
+    number,
     number
   ] & {
     roleId: string;
     account: string;
     typeLimit: number;
+    factoryLimit: number;
     acstat: number;
     alstat: number;
+  };
+
+  export type MemberUpdateFactoryLimitRequestStruct = {
+    memberId: PromiseOrValue<BytesLike>;
+    factoryLimit: PromiseOrValue<BigNumberish>;
+  };
+
+  export type MemberUpdateFactoryLimitRequestStructOutput = [string, number] & {
+    memberId: string;
+    factoryLimit: number;
   };
 
   export type MemberUpdateTypeLimitRequestStruct = {
@@ -89,7 +102,7 @@ export declare namespace IMemberManagement {
   };
 }
 
-export declare namespace IAclCommons {
+export declare namespace IACLCommons {
   export type UpdateActivityRequestStruct = {
     id: PromiseOrValue<BytesLike>;
     acstat: PromiseOrValue<BigNumberish>;
@@ -127,10 +140,11 @@ export interface IMemberManagementInterface extends utils.Interface {
     "memberGetInfo(bytes32)": FunctionFragment;
     "memberGetTypes(bytes32)": FunctionFragment;
     "memberHasType(bytes32,bytes32)": FunctionFragment;
-    "memberRegister((bytes32,address,uint16,uint8,uint8)[])": FunctionFragment;
+    "memberRegister((bytes32,address,uint16,uint16,uint8,uint8)[])": FunctionFragment;
     "memberUpdateActivityStatus((bytes32,uint8)[])": FunctionFragment;
     "memberUpdateAdmin((bytes32,bytes32)[])": FunctionFragment;
     "memberUpdateAlterabilityStatus((bytes32,uint8)[])": FunctionFragment;
+    "memberUpdateFactoryLimit((bytes32,uint16)[])": FunctionFragment;
     "memberUpdateTypeLimit((bytes32,uint16)[])": FunctionFragment;
   };
 
@@ -145,13 +159,15 @@ export interface IMemberManagementInterface extends utils.Interface {
       | "memberHasType"
       | "memberHasType(bytes32,bytes32)"
       | "memberRegister"
-      | "memberRegister((bytes32,address,uint16,uint8,uint8)[])"
+      | "memberRegister((bytes32,address,uint16,uint16,uint8,uint8)[])"
       | "memberUpdateActivityStatus"
       | "memberUpdateActivityStatus((bytes32,uint8)[])"
       | "memberUpdateAdmin"
       | "memberUpdateAdmin((bytes32,bytes32)[])"
       | "memberUpdateAlterabilityStatus"
       | "memberUpdateAlterabilityStatus((bytes32,uint8)[])"
+      | "memberUpdateFactoryLimit"
+      | "memberUpdateFactoryLimit((bytes32,uint16)[])"
       | "memberUpdateTypeLimit"
       | "memberUpdateTypeLimit((bytes32,uint16)[])"
   ): FunctionFragment;
@@ -193,32 +209,40 @@ export interface IMemberManagementInterface extends utils.Interface {
     values: [IMemberManagement.MemberRegisterStruct[]]
   ): string;
   encodeFunctionData(
-    functionFragment: "memberRegister((bytes32,address,uint16,uint8,uint8)[])",
+    functionFragment: "memberRegister((bytes32,address,uint16,uint16,uint8,uint8)[])",
     values: [IMemberManagement.MemberRegisterStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "memberUpdateActivityStatus",
-    values: [IAclCommons.UpdateActivityRequestStruct[]]
+    values: [IACLCommons.UpdateActivityRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "memberUpdateActivityStatus((bytes32,uint8)[])",
-    values: [IAclCommons.UpdateActivityRequestStruct[]]
+    values: [IACLCommons.UpdateActivityRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "memberUpdateAdmin",
-    values: [IAclCommons.UpdateAdminRequestStruct[]]
+    values: [IACLCommons.UpdateAdminRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "memberUpdateAdmin((bytes32,bytes32)[])",
-    values: [IAclCommons.UpdateAdminRequestStruct[]]
+    values: [IACLCommons.UpdateAdminRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "memberUpdateAlterabilityStatus",
-    values: [IAclCommons.UpdateAlterabilityRequestStruct[]]
+    values: [IACLCommons.UpdateAlterabilityRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "memberUpdateAlterabilityStatus((bytes32,uint8)[])",
-    values: [IAclCommons.UpdateAlterabilityRequestStruct[]]
+    values: [IACLCommons.UpdateAlterabilityRequestStruct[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "memberUpdateFactoryLimit",
+    values: [IMemberManagement.MemberUpdateFactoryLimitRequestStruct[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "memberUpdateFactoryLimit((bytes32,uint16)[])",
+    values: [IMemberManagement.MemberUpdateFactoryLimitRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "memberUpdateTypeLimit",
@@ -266,7 +290,7 @@ export interface IMemberManagementInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "memberRegister((bytes32,address,uint16,uint8,uint8)[])",
+    functionFragment: "memberRegister((bytes32,address,uint16,uint16,uint8,uint8)[])",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -294,6 +318,14 @@ export interface IMemberManagementInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "memberUpdateFactoryLimit",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "memberUpdateFactoryLimit((bytes32,uint16)[])",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "memberUpdateTypeLimit",
     data: BytesLike
   ): Result;
@@ -308,6 +340,7 @@ export interface IMemberManagementInterface extends utils.Interface {
     "MemberActivityUpdated(address,bytes32,uint8)": EventFragment;
     "MemberAdminUpdated(address,bytes32,bytes32)": EventFragment;
     "MemberAlterabilityUpdated(address,bytes32,uint8)": EventFragment;
+    "MemberFactoryLimitUpdated(address,bytes32,uint16)": EventFragment;
     "MemberRegistered(address,bytes32,address,bytes32)": EventFragment;
     "MemberTypeLimitUpdated(address,bytes32,uint16)": EventFragment;
     "ScopeReferredByAgentUpdated(address,bytes32,bytes32,uint8)": EventFragment;
@@ -337,6 +370,10 @@ export interface IMemberManagementInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "MemberAlterabilityUpdated"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "MemberAlterabilityUpdated(address,bytes32,uint8)"
+  ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "MemberFactoryLimitUpdated"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "MemberFactoryLimitUpdated(address,bytes32,uint16)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MemberRegistered"): EventFragment;
   getEvent(
@@ -426,6 +463,19 @@ export type MemberAlterabilityUpdatedEvent = TypedEvent<
 
 export type MemberAlterabilityUpdatedEventFilter =
   TypedEventFilter<MemberAlterabilityUpdatedEvent>;
+
+export interface MemberFactoryLimitUpdatedEventObject {
+  sender: string;
+  memberId: string;
+  factoryLimit: number;
+}
+export type MemberFactoryLimitUpdatedEvent = TypedEvent<
+  [string, string, number],
+  MemberFactoryLimitUpdatedEventObject
+>;
+
+export type MemberFactoryLimitUpdatedEventFilter =
+  TypedEventFilter<MemberFactoryLimitUpdatedEvent>;
 
 export interface MemberRegisteredEventObject {
   sender: string;
@@ -556,38 +606,48 @@ export interface IMemberManagement extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "memberRegister((bytes32,address,uint16,uint8,uint8)[])"(
+    "memberRegister((bytes32,address,uint16,uint16,uint8,uint8)[])"(
       requests: IMemberManagement.MemberRegisterStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     memberUpdateActivityStatus(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "memberUpdateActivityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     memberUpdateAdmin(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "memberUpdateAdmin((bytes32,bytes32)[])"(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     memberUpdateAlterabilityStatus(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "memberUpdateAlterabilityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    memberUpdateFactoryLimit(
+      requests: IMemberManagement.MemberUpdateFactoryLimitRequestStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "memberUpdateFactoryLimit((bytes32,uint16)[])"(
+      requests: IMemberManagement.MemberUpdateFactoryLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -649,38 +709,48 @@ export interface IMemberManagement extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "memberRegister((bytes32,address,uint16,uint8,uint8)[])"(
+  "memberRegister((bytes32,address,uint16,uint16,uint8,uint8)[])"(
     requests: IMemberManagement.MemberRegisterStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   memberUpdateActivityStatus(
-    requests: IAclCommons.UpdateActivityRequestStruct[],
+    requests: IACLCommons.UpdateActivityRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "memberUpdateActivityStatus((bytes32,uint8)[])"(
-    requests: IAclCommons.UpdateActivityRequestStruct[],
+    requests: IACLCommons.UpdateActivityRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   memberUpdateAdmin(
-    requests: IAclCommons.UpdateAdminRequestStruct[],
+    requests: IACLCommons.UpdateAdminRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "memberUpdateAdmin((bytes32,bytes32)[])"(
-    requests: IAclCommons.UpdateAdminRequestStruct[],
+    requests: IACLCommons.UpdateAdminRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   memberUpdateAlterabilityStatus(
-    requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+    requests: IACLCommons.UpdateAlterabilityRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "memberUpdateAlterabilityStatus((bytes32,uint8)[])"(
-    requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+    requests: IACLCommons.UpdateAlterabilityRequestStruct[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  memberUpdateFactoryLimit(
+    requests: IMemberManagement.MemberUpdateFactoryLimitRequestStruct[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "memberUpdateFactoryLimit((bytes32,uint16)[])"(
+    requests: IMemberManagement.MemberUpdateFactoryLimitRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -742,38 +812,48 @@ export interface IMemberManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "memberRegister((bytes32,address,uint16,uint8,uint8)[])"(
+    "memberRegister((bytes32,address,uint16,uint16,uint8,uint8)[])"(
       requests: IMemberManagement.MemberRegisterStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     memberUpdateActivityStatus(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     "memberUpdateActivityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     memberUpdateAdmin(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     "memberUpdateAdmin((bytes32,bytes32)[])"(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     memberUpdateAlterabilityStatus(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     "memberUpdateAlterabilityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    memberUpdateFactoryLimit(
+      requests: IMemberManagement.MemberUpdateFactoryLimitRequestStruct[],
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "memberUpdateFactoryLimit((bytes32,uint16)[])"(
+      requests: IMemberManagement.MemberUpdateFactoryLimitRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -847,6 +927,17 @@ export interface IMemberManagement extends BaseContract {
       memberId?: PromiseOrValue<BytesLike> | null,
       alstat?: null
     ): MemberAlterabilityUpdatedEventFilter;
+
+    "MemberFactoryLimitUpdated(address,bytes32,uint16)"(
+      sender?: PromiseOrValue<string> | null,
+      memberId?: PromiseOrValue<BytesLike> | null,
+      factoryLimit?: null
+    ): MemberFactoryLimitUpdatedEventFilter;
+    MemberFactoryLimitUpdated(
+      sender?: PromiseOrValue<string> | null,
+      memberId?: PromiseOrValue<BytesLike> | null,
+      factoryLimit?: null
+    ): MemberFactoryLimitUpdatedEventFilter;
 
     "MemberRegistered(address,bytes32,address,bytes32)"(
       sender?: PromiseOrValue<string> | null,
@@ -947,38 +1038,48 @@ export interface IMemberManagement extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "memberRegister((bytes32,address,uint16,uint8,uint8)[])"(
+    "memberRegister((bytes32,address,uint16,uint16,uint8,uint8)[])"(
       requests: IMemberManagement.MemberRegisterStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     memberUpdateActivityStatus(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "memberUpdateActivityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     memberUpdateAdmin(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "memberUpdateAdmin((bytes32,bytes32)[])"(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     memberUpdateAlterabilityStatus(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "memberUpdateAlterabilityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    memberUpdateFactoryLimit(
+      requests: IMemberManagement.MemberUpdateFactoryLimitRequestStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "memberUpdateFactoryLimit((bytes32,uint16)[])"(
+      requests: IMemberManagement.MemberUpdateFactoryLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1041,38 +1142,48 @@ export interface IMemberManagement extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "memberRegister((bytes32,address,uint16,uint8,uint8)[])"(
+    "memberRegister((bytes32,address,uint16,uint16,uint8,uint8)[])"(
       requests: IMemberManagement.MemberRegisterStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     memberUpdateActivityStatus(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "memberUpdateActivityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     memberUpdateAdmin(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "memberUpdateAdmin((bytes32,bytes32)[])"(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     memberUpdateAlterabilityStatus(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "memberUpdateAlterabilityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    memberUpdateFactoryLimit(
+      requests: IMemberManagement.MemberUpdateFactoryLimitRequestStruct[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "memberUpdateFactoryLimit((bytes32,uint16)[])"(
+      requests: IMemberManagement.MemberUpdateFactoryLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

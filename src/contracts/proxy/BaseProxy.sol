@@ -78,5 +78,5 @@ abstract contract BaseProxy {
    *
    * If overridden should call `super._beforeFallback()`.
    */
-  function _beforeFallback() internal virtual {}
+  function _beforeFallback() internal virtual returns (address){}
 }

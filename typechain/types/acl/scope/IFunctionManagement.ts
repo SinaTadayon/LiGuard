@@ -126,7 +126,7 @@ export declare namespace IFunctionManagement {
   };
 }
 
-export declare namespace IAclCommons {
+export declare namespace IACLCommons {
   export type UpdateActivityRequestStruct = {
     id: PromiseOrValue<BytesLike>;
     acstat: PromiseOrValue<BigNumberish>;
@@ -273,19 +273,19 @@ export interface IFunctionManagementInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "functionUpdateActivityStatus",
-    values: [IAclCommons.UpdateActivityRequestStruct[]]
+    values: [IACLCommons.UpdateActivityRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "functionUpdateActivityStatus((bytes32,uint8)[])",
-    values: [IAclCommons.UpdateActivityRequestStruct[]]
+    values: [IACLCommons.UpdateActivityRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "functionUpdateAdmin",
-    values: [IAclCommons.UpdateAdminRequestStruct[]]
+    values: [IACLCommons.UpdateAdminRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "functionUpdateAdmin((bytes32,bytes32)[])",
-    values: [IAclCommons.UpdateAdminRequestStruct[]]
+    values: [IACLCommons.UpdateAdminRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "functionUpdateAgent",
@@ -297,19 +297,19 @@ export interface IFunctionManagementInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "functionUpdateAgentLimit",
-    values: [IAclCommons.ScopeUpdateAgentLimitRequestStruct[]]
+    values: [IACLCommons.ScopeUpdateAgentLimitRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "functionUpdateAgentLimit((bytes32,uint16)[])",
-    values: [IAclCommons.ScopeUpdateAgentLimitRequestStruct[]]
+    values: [IACLCommons.ScopeUpdateAgentLimitRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "functionUpdateAlterabilityStatus",
-    values: [IAclCommons.UpdateAlterabilityRequestStruct[]]
+    values: [IACLCommons.UpdateAlterabilityRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "functionUpdateAlterabilityStatus((bytes32,uint8)[])",
-    values: [IAclCommons.UpdateAlterabilityRequestStruct[]]
+    values: [IACLCommons.UpdateAlterabilityRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "functionUpdatePolicy",
@@ -751,22 +751,22 @@ export interface IFunctionManagement extends BaseContract {
     ): Promise<ContractTransaction>;
 
     functionUpdateActivityStatus(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "functionUpdateActivityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     functionUpdateAdmin(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "functionUpdateAdmin((bytes32,bytes32)[])"(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -781,22 +781,22 @@ export interface IFunctionManagement extends BaseContract {
     ): Promise<ContractTransaction>;
 
     functionUpdateAgentLimit(
-      requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+      requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "functionUpdateAgentLimit((bytes32,uint16)[])"(
-      requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+      requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     functionUpdateAlterabilityStatus(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "functionUpdateAlterabilityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -888,22 +888,22 @@ export interface IFunctionManagement extends BaseContract {
   ): Promise<ContractTransaction>;
 
   functionUpdateActivityStatus(
-    requests: IAclCommons.UpdateActivityRequestStruct[],
+    requests: IACLCommons.UpdateActivityRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "functionUpdateActivityStatus((bytes32,uint8)[])"(
-    requests: IAclCommons.UpdateActivityRequestStruct[],
+    requests: IACLCommons.UpdateActivityRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   functionUpdateAdmin(
-    requests: IAclCommons.UpdateAdminRequestStruct[],
+    requests: IACLCommons.UpdateAdminRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "functionUpdateAdmin((bytes32,bytes32)[])"(
-    requests: IAclCommons.UpdateAdminRequestStruct[],
+    requests: IACLCommons.UpdateAdminRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -918,22 +918,22 @@ export interface IFunctionManagement extends BaseContract {
   ): Promise<ContractTransaction>;
 
   functionUpdateAgentLimit(
-    requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+    requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "functionUpdateAgentLimit((bytes32,uint16)[])"(
-    requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+    requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   functionUpdateAlterabilityStatus(
-    requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+    requests: IACLCommons.UpdateAlterabilityRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "functionUpdateAlterabilityStatus((bytes32,uint8)[])"(
-    requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+    requests: IACLCommons.UpdateAlterabilityRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1025,22 +1025,22 @@ export interface IFunctionManagement extends BaseContract {
     ): Promise<boolean>;
 
     functionUpdateActivityStatus(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     "functionUpdateActivityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     functionUpdateAdmin(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     "functionUpdateAdmin((bytes32,bytes32)[])"(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -1055,22 +1055,22 @@ export interface IFunctionManagement extends BaseContract {
     ): Promise<boolean>;
 
     functionUpdateAgentLimit(
-      requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+      requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     "functionUpdateAgentLimit((bytes32,uint16)[])"(
-      requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+      requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     functionUpdateAlterabilityStatus(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     "functionUpdateAlterabilityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -1304,22 +1304,22 @@ export interface IFunctionManagement extends BaseContract {
     ): Promise<BigNumber>;
 
     functionUpdateActivityStatus(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "functionUpdateActivityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     functionUpdateAdmin(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "functionUpdateAdmin((bytes32,bytes32)[])"(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1334,22 +1334,22 @@ export interface IFunctionManagement extends BaseContract {
     ): Promise<BigNumber>;
 
     functionUpdateAgentLimit(
-      requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+      requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "functionUpdateAgentLimit((bytes32,uint16)[])"(
-      requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+      requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     functionUpdateAlterabilityStatus(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "functionUpdateAlterabilityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1442,22 +1442,22 @@ export interface IFunctionManagement extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     functionUpdateActivityStatus(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "functionUpdateActivityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     functionUpdateAdmin(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "functionUpdateAdmin((bytes32,bytes32)[])"(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1472,22 +1472,22 @@ export interface IFunctionManagement extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     functionUpdateAgentLimit(
-      requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+      requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "functionUpdateAgentLimit((bytes32,uint16)[])"(
-      requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+      requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     functionUpdateAlterabilityStatus(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "functionUpdateAlterabilityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

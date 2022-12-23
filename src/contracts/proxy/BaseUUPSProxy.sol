@@ -14,7 +14,7 @@ import "../acl/IAccessControl.sol";
 import "../acl/scope/IContextManagement.sol";
 import "../utils/Message.sol";
 import "../utils/ERC165.sol";
-import "../lib/acl/LAclUtils.sol";
+import "../lib/acl/LACLUtils.sol";
 
 /**
  * @title Abstract Base UUPS Proxy Contract
@@ -124,19 +124,22 @@ abstract contract BaseUUPSProxy is
   ) internal onlyInitializing {
     _contractName = cname;
     _contractVersion = cverion;
-    if (accessControl == address(0)) {
-      _accessControlManager = address(this);
-    } else {
-      if(!IERC165(accessControl).supportsInterface(type(IAccessControl).interfaceId)) {
-        revert("IllegalACL");
-      }
+
+      // _accessControlManager = address(this);
+    // } else {
       // try IERC165(accessControl).supportsInterface(type(IAccessControl).interfaceId) returns (bool isSupported) {
       //   require(isSupported, "Invalid AccessControlManager");
       // } catch {
       //   revert("Illegal AccessControlManager");
       // }
+    if (accessControl != address(0)) {
+      if(!IERC165(accessControl).supportsInterface(type(IAccessControl).interfaceId)) {
+        revert("IllegalACL");
+      }
       _accessControlManager = accessControl;
     }
+
+
     _ustat = ProxyUpgradabilityStatus.DISABLED;
     _sstat = ProxySafeModeStatus.DISABLED;
     _setLocalAdmin(_msgSender());
@@ -322,9 +325,9 @@ abstract contract BaseUUPSProxy is
     return true;
   }
 
-  function setAccessControlManager(address acl) external onlyProxy returns (bool) {
+  function setAccessControlManager(address acl) external onlyProxy onlyLocalAdmin returns (bool) {
 
-    if(_accessControlManager == address(this)) {
+    if(_accessControlManager == address(0)) {
       revert("IllegalOpt");
     } 
 
@@ -333,13 +336,13 @@ abstract contract BaseUUPSProxy is
     }
 
     _accessControlManager = acl; 
-    emit ProxyAccessControlUpdated(_msgSender(), address(this), acl);
+    emit ProxyAccessControlUpdated(_msgSender(), address(this), _accessControlManager);
     return true;   
   }
 
   function proxyInfo() external view returns (ProxyInfo memory) {
     return ProxyInfo({
-      contextId: LAclUtils.accountGenerateId(address(this)),
+      contextId: LACLUtils.accountGenerateId(address(this)),
       name: _contractName,
       version: _contractVersion,
       acl: _accessControlManager,

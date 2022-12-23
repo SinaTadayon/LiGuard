@@ -25,7 +25,7 @@ import type {
   PromiseOrValue,
 } from "../common";
 
-export declare namespace IAclCommons {
+export declare namespace IACLCommons {
   export type BaseAgentStruct = {
     adminId: PromiseOrValue<BytesLike>;
     atype: PromiseOrValue<BigNumberish>;
@@ -85,15 +85,21 @@ export declare namespace IAclCommons {
 
 export interface IAccessControlInterface extends utils.Interface {
   functions: {
-    "getAdminType()": FunctionFragment;
     "getAgentBaseInfo(bytes32)": FunctionFragment;
+    "getAgentMasterAdminRole()": FunctionFragment;
     "getAgentMasterType()": FunctionFragment;
     "getAnonymouseType()": FunctionFragment;
     "getAnyType()": FunctionFragment;
+    "getGlobalScope()": FunctionFragment;
+    "getLivelyMasterAdminRole()": FunctionFragment;
+    "getLivelyMasterType()": FunctionFragment;
+    "getPolicyMasterAdminRole()": FunctionFragment;
     "getPolicyMasterType()": FunctionFragment;
     "getScopeBaseInfo(bytes32)": FunctionFragment;
+    "getScopeMasterAdminRole()": FunctionFragment;
     "getScopeMasterType()": FunctionFragment;
-    "getSystemAdminType()": FunctionFragment;
+    "getSystemMasterAdminRole()": FunctionFragment;
+    "getSystemMasterType()": FunctionFragment;
     "hasAccess(bytes32)": FunctionFragment;
     "hasAccessToAgent(bytes32,bytes32)": FunctionFragment;
     "hasCSAccess(address,bytes4)": FunctionFragment;
@@ -109,24 +115,36 @@ export interface IAccessControlInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "getAdminType"
-      | "getAdminType()"
       | "getAgentBaseInfo"
       | "getAgentBaseInfo(bytes32)"
+      | "getAgentMasterAdminRole"
+      | "getAgentMasterAdminRole()"
       | "getAgentMasterType"
       | "getAgentMasterType()"
       | "getAnonymouseType"
       | "getAnonymouseType()"
       | "getAnyType"
       | "getAnyType()"
+      | "getGlobalScope"
+      | "getGlobalScope()"
+      | "getLivelyMasterAdminRole"
+      | "getLivelyMasterAdminRole()"
+      | "getLivelyMasterType"
+      | "getLivelyMasterType()"
+      | "getPolicyMasterAdminRole"
+      | "getPolicyMasterAdminRole()"
       | "getPolicyMasterType"
       | "getPolicyMasterType()"
       | "getScopeBaseInfo"
       | "getScopeBaseInfo(bytes32)"
+      | "getScopeMasterAdminRole"
+      | "getScopeMasterAdminRole()"
       | "getScopeMasterType"
       | "getScopeMasterType()"
-      | "getSystemAdminType"
-      | "getSystemAdminType()"
+      | "getSystemMasterAdminRole"
+      | "getSystemMasterAdminRole()"
+      | "getSystemMasterType"
+      | "getSystemMasterType()"
       | "hasAccess"
       | "hasAccess(bytes32)"
       | "hasAccessToAgent"
@@ -152,20 +170,20 @@ export interface IAccessControlInterface extends utils.Interface {
   ): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "getAdminType",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getAdminType()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "getAgentBaseInfo",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "getAgentBaseInfo(bytes32)",
     values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getAgentMasterAdminRole",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getAgentMasterAdminRole()",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "getAgentMasterType",
@@ -192,6 +210,38 @@ export interface IAccessControlInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "getGlobalScope",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getGlobalScope()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getLivelyMasterAdminRole",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getLivelyMasterAdminRole()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getLivelyMasterType",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getLivelyMasterType()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getPolicyMasterAdminRole",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getPolicyMasterAdminRole()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "getPolicyMasterType",
     values?: undefined
   ): string;
@@ -208,6 +258,14 @@ export interface IAccessControlInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
+    functionFragment: "getScopeMasterAdminRole",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getScopeMasterAdminRole()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "getScopeMasterType",
     values?: undefined
   ): string;
@@ -216,11 +274,19 @@ export interface IAccessControlInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getSystemAdminType",
+    functionFragment: "getSystemMasterAdminRole",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getSystemAdminType()",
+    functionFragment: "getSystemMasterAdminRole()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getSystemMasterType",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getSystemMasterType()",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -347,19 +413,19 @@ export interface IAccessControlInterface extends utils.Interface {
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "getAdminType",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getAdminType()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "getAgentBaseInfo",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "getAgentBaseInfo(bytes32)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getAgentMasterAdminRole",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getAgentMasterAdminRole()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -384,6 +450,38 @@ export interface IAccessControlInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getGlobalScope",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getGlobalScope()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getLivelyMasterAdminRole",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getLivelyMasterAdminRole()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getLivelyMasterType",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getLivelyMasterType()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getPolicyMasterAdminRole",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getPolicyMasterAdminRole()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getPolicyMasterType",
     data: BytesLike
   ): Result;
@@ -400,6 +498,14 @@ export interface IAccessControlInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getScopeMasterAdminRole",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getScopeMasterAdminRole()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getScopeMasterType",
     data: BytesLike
   ): Result;
@@ -408,11 +514,19 @@ export interface IAccessControlInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getSystemAdminType",
+    functionFragment: "getSystemMasterAdminRole",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getSystemAdminType()",
+    functionFragment: "getSystemMasterAdminRole()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getSystemMasterType",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getSystemMasterType()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "hasAccess", data: BytesLike): Result;
@@ -617,19 +731,19 @@ export interface IAccessControl extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    getAdminType(overrides?: CallOverrides): Promise<[string]>;
-
-    "getAdminType()"(overrides?: CallOverrides): Promise<[string]>;
-
     getAgentBaseInfo(
       agentId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<[IAclCommons.BaseAgentStructOutput]>;
+    ): Promise<[IACLCommons.BaseAgentStructOutput]>;
 
     "getAgentBaseInfo(bytes32)"(
       agentId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<[IAclCommons.BaseAgentStructOutput]>;
+    ): Promise<[IACLCommons.BaseAgentStructOutput]>;
+
+    getAgentMasterAdminRole(overrides?: CallOverrides): Promise<[string]>;
+
+    "getAgentMasterAdminRole()"(overrides?: CallOverrides): Promise<[string]>;
 
     getAgentMasterType(overrides?: CallOverrides): Promise<[string]>;
 
@@ -643,6 +757,22 @@ export interface IAccessControl extends BaseContract {
 
     "getAnyType()"(overrides?: CallOverrides): Promise<[string]>;
 
+    getGlobalScope(overrides?: CallOverrides): Promise<[string]>;
+
+    "getGlobalScope()"(overrides?: CallOverrides): Promise<[string]>;
+
+    getLivelyMasterAdminRole(overrides?: CallOverrides): Promise<[string]>;
+
+    "getLivelyMasterAdminRole()"(overrides?: CallOverrides): Promise<[string]>;
+
+    getLivelyMasterType(overrides?: CallOverrides): Promise<[string]>;
+
+    "getLivelyMasterType()"(overrides?: CallOverrides): Promise<[string]>;
+
+    getPolicyMasterAdminRole(overrides?: CallOverrides): Promise<[string]>;
+
+    "getPolicyMasterAdminRole()"(overrides?: CallOverrides): Promise<[string]>;
+
     getPolicyMasterType(overrides?: CallOverrides): Promise<[string]>;
 
     "getPolicyMasterType()"(overrides?: CallOverrides): Promise<[string]>;
@@ -650,20 +780,28 @@ export interface IAccessControl extends BaseContract {
     getScopeBaseInfo(
       scopeId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<[IAclCommons.BaseScopeStructOutput]>;
+    ): Promise<[IACLCommons.BaseScopeStructOutput]>;
 
     "getScopeBaseInfo(bytes32)"(
       scopeId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<[IAclCommons.BaseScopeStructOutput]>;
+    ): Promise<[IACLCommons.BaseScopeStructOutput]>;
+
+    getScopeMasterAdminRole(overrides?: CallOverrides): Promise<[string]>;
+
+    "getScopeMasterAdminRole()"(overrides?: CallOverrides): Promise<[string]>;
 
     getScopeMasterType(overrides?: CallOverrides): Promise<[string]>;
 
     "getScopeMasterType()"(overrides?: CallOverrides): Promise<[string]>;
 
-    getSystemAdminType(overrides?: CallOverrides): Promise<[string]>;
+    getSystemMasterAdminRole(overrides?: CallOverrides): Promise<[string]>;
 
-    "getSystemAdminType()"(overrides?: CallOverrides): Promise<[string]>;
+    "getSystemMasterAdminRole()"(overrides?: CallOverrides): Promise<[string]>;
+
+    getSystemMasterType(overrides?: CallOverrides): Promise<[string]>;
+
+    "getSystemMasterType()"(overrides?: CallOverrides): Promise<[string]>;
 
     hasAccess(
       functionId: PromiseOrValue<BytesLike>,
@@ -802,19 +940,19 @@ export interface IAccessControl extends BaseContract {
     ): Promise<[boolean]>;
   };
 
-  getAdminType(overrides?: CallOverrides): Promise<string>;
-
-  "getAdminType()"(overrides?: CallOverrides): Promise<string>;
-
   getAgentBaseInfo(
     agentId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
-  ): Promise<IAclCommons.BaseAgentStructOutput>;
+  ): Promise<IACLCommons.BaseAgentStructOutput>;
 
   "getAgentBaseInfo(bytes32)"(
     agentId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
-  ): Promise<IAclCommons.BaseAgentStructOutput>;
+  ): Promise<IACLCommons.BaseAgentStructOutput>;
+
+  getAgentMasterAdminRole(overrides?: CallOverrides): Promise<string>;
+
+  "getAgentMasterAdminRole()"(overrides?: CallOverrides): Promise<string>;
 
   getAgentMasterType(overrides?: CallOverrides): Promise<string>;
 
@@ -828,6 +966,22 @@ export interface IAccessControl extends BaseContract {
 
   "getAnyType()"(overrides?: CallOverrides): Promise<string>;
 
+  getGlobalScope(overrides?: CallOverrides): Promise<string>;
+
+  "getGlobalScope()"(overrides?: CallOverrides): Promise<string>;
+
+  getLivelyMasterAdminRole(overrides?: CallOverrides): Promise<string>;
+
+  "getLivelyMasterAdminRole()"(overrides?: CallOverrides): Promise<string>;
+
+  getLivelyMasterType(overrides?: CallOverrides): Promise<string>;
+
+  "getLivelyMasterType()"(overrides?: CallOverrides): Promise<string>;
+
+  getPolicyMasterAdminRole(overrides?: CallOverrides): Promise<string>;
+
+  "getPolicyMasterAdminRole()"(overrides?: CallOverrides): Promise<string>;
+
   getPolicyMasterType(overrides?: CallOverrides): Promise<string>;
 
   "getPolicyMasterType()"(overrides?: CallOverrides): Promise<string>;
@@ -835,20 +989,28 @@ export interface IAccessControl extends BaseContract {
   getScopeBaseInfo(
     scopeId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
-  ): Promise<IAclCommons.BaseScopeStructOutput>;
+  ): Promise<IACLCommons.BaseScopeStructOutput>;
 
   "getScopeBaseInfo(bytes32)"(
     scopeId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
-  ): Promise<IAclCommons.BaseScopeStructOutput>;
+  ): Promise<IACLCommons.BaseScopeStructOutput>;
+
+  getScopeMasterAdminRole(overrides?: CallOverrides): Promise<string>;
+
+  "getScopeMasterAdminRole()"(overrides?: CallOverrides): Promise<string>;
 
   getScopeMasterType(overrides?: CallOverrides): Promise<string>;
 
   "getScopeMasterType()"(overrides?: CallOverrides): Promise<string>;
 
-  getSystemAdminType(overrides?: CallOverrides): Promise<string>;
+  getSystemMasterAdminRole(overrides?: CallOverrides): Promise<string>;
 
-  "getSystemAdminType()"(overrides?: CallOverrides): Promise<string>;
+  "getSystemMasterAdminRole()"(overrides?: CallOverrides): Promise<string>;
+
+  getSystemMasterType(overrides?: CallOverrides): Promise<string>;
+
+  "getSystemMasterType()"(overrides?: CallOverrides): Promise<string>;
 
   hasAccess(
     functionId: PromiseOrValue<BytesLike>,
@@ -987,19 +1149,19 @@ export interface IAccessControl extends BaseContract {
   ): Promise<boolean>;
 
   callStatic: {
-    getAdminType(overrides?: CallOverrides): Promise<string>;
-
-    "getAdminType()"(overrides?: CallOverrides): Promise<string>;
-
     getAgentBaseInfo(
       agentId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<IAclCommons.BaseAgentStructOutput>;
+    ): Promise<IACLCommons.BaseAgentStructOutput>;
 
     "getAgentBaseInfo(bytes32)"(
       agentId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<IAclCommons.BaseAgentStructOutput>;
+    ): Promise<IACLCommons.BaseAgentStructOutput>;
+
+    getAgentMasterAdminRole(overrides?: CallOverrides): Promise<string>;
+
+    "getAgentMasterAdminRole()"(overrides?: CallOverrides): Promise<string>;
 
     getAgentMasterType(overrides?: CallOverrides): Promise<string>;
 
@@ -1013,6 +1175,22 @@ export interface IAccessControl extends BaseContract {
 
     "getAnyType()"(overrides?: CallOverrides): Promise<string>;
 
+    getGlobalScope(overrides?: CallOverrides): Promise<string>;
+
+    "getGlobalScope()"(overrides?: CallOverrides): Promise<string>;
+
+    getLivelyMasterAdminRole(overrides?: CallOverrides): Promise<string>;
+
+    "getLivelyMasterAdminRole()"(overrides?: CallOverrides): Promise<string>;
+
+    getLivelyMasterType(overrides?: CallOverrides): Promise<string>;
+
+    "getLivelyMasterType()"(overrides?: CallOverrides): Promise<string>;
+
+    getPolicyMasterAdminRole(overrides?: CallOverrides): Promise<string>;
+
+    "getPolicyMasterAdminRole()"(overrides?: CallOverrides): Promise<string>;
+
     getPolicyMasterType(overrides?: CallOverrides): Promise<string>;
 
     "getPolicyMasterType()"(overrides?: CallOverrides): Promise<string>;
@@ -1020,20 +1198,28 @@ export interface IAccessControl extends BaseContract {
     getScopeBaseInfo(
       scopeId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<IAclCommons.BaseScopeStructOutput>;
+    ): Promise<IACLCommons.BaseScopeStructOutput>;
 
     "getScopeBaseInfo(bytes32)"(
       scopeId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<IAclCommons.BaseScopeStructOutput>;
+    ): Promise<IACLCommons.BaseScopeStructOutput>;
+
+    getScopeMasterAdminRole(overrides?: CallOverrides): Promise<string>;
+
+    "getScopeMasterAdminRole()"(overrides?: CallOverrides): Promise<string>;
 
     getScopeMasterType(overrides?: CallOverrides): Promise<string>;
 
     "getScopeMasterType()"(overrides?: CallOverrides): Promise<string>;
 
-    getSystemAdminType(overrides?: CallOverrides): Promise<string>;
+    getSystemMasterAdminRole(overrides?: CallOverrides): Promise<string>;
 
-    "getSystemAdminType()"(overrides?: CallOverrides): Promise<string>;
+    "getSystemMasterAdminRole()"(overrides?: CallOverrides): Promise<string>;
+
+    getSystemMasterType(overrides?: CallOverrides): Promise<string>;
+
+    "getSystemMasterType()"(overrides?: CallOverrides): Promise<string>;
 
     hasAccess(
       functionId: PromiseOrValue<BytesLike>,
@@ -1227,10 +1413,6 @@ export interface IAccessControl extends BaseContract {
   };
 
   estimateGas: {
-    getAdminType(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "getAdminType()"(overrides?: CallOverrides): Promise<BigNumber>;
-
     getAgentBaseInfo(
       agentId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1240,6 +1422,10 @@ export interface IAccessControl extends BaseContract {
       agentId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    getAgentMasterAdminRole(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "getAgentMasterAdminRole()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     getAgentMasterType(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1252,6 +1438,22 @@ export interface IAccessControl extends BaseContract {
     getAnyType(overrides?: CallOverrides): Promise<BigNumber>;
 
     "getAnyType()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getGlobalScope(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "getGlobalScope()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getLivelyMasterAdminRole(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "getLivelyMasterAdminRole()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getLivelyMasterType(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "getLivelyMasterType()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getPolicyMasterAdminRole(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "getPolicyMasterAdminRole()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     getPolicyMasterType(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1267,13 +1469,21 @@ export interface IAccessControl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    getScopeMasterAdminRole(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "getScopeMasterAdminRole()"(overrides?: CallOverrides): Promise<BigNumber>;
+
     getScopeMasterType(overrides?: CallOverrides): Promise<BigNumber>;
 
     "getScopeMasterType()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getSystemAdminType(overrides?: CallOverrides): Promise<BigNumber>;
+    getSystemMasterAdminRole(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "getSystemAdminType()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "getSystemMasterAdminRole()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getSystemMasterType(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "getSystemMasterType()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     hasAccess(
       functionId: PromiseOrValue<BytesLike>,
@@ -1413,10 +1623,6 @@ export interface IAccessControl extends BaseContract {
   };
 
   populateTransaction: {
-    getAdminType(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    "getAdminType()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     getAgentBaseInfo(
       agentId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1424,6 +1630,14 @@ export interface IAccessControl extends BaseContract {
 
     "getAgentBaseInfo(bytes32)"(
       agentId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getAgentMasterAdminRole(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "getAgentMasterAdminRole()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -1445,6 +1659,36 @@ export interface IAccessControl extends BaseContract {
 
     "getAnyType()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    getGlobalScope(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "getGlobalScope()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getLivelyMasterAdminRole(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "getLivelyMasterAdminRole()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getLivelyMasterType(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "getLivelyMasterType()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getPolicyMasterAdminRole(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "getPolicyMasterAdminRole()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     getPolicyMasterType(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -1463,6 +1707,14 @@ export interface IAccessControl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    getScopeMasterAdminRole(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "getScopeMasterAdminRole()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     getScopeMasterType(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -1471,11 +1723,19 @@ export interface IAccessControl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    getSystemAdminType(
+    getSystemMasterAdminRole(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "getSystemAdminType()"(
+    "getSystemMasterAdminRole()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getSystemMasterType(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "getSystemMasterType()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

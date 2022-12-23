@@ -9,7 +9,7 @@ pragma solidity 0.8.17;
  * @dev
  *
  */
-library LAclUtils {
+library LACLUtils {
 
   function functionGenerateId(address contractId, bytes4 selector) internal pure returns (bytes32) {
     return keccak256(abi.encodePacked(contractId, selector));

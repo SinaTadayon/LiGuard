@@ -33,7 +33,7 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "enum IAclCommons.ActionType",
+        internalType: "enum IACLCommons.ActionType",
         name: "action",
         type: "uint8",
       },
@@ -64,7 +64,7 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "enum IAclCommons.ActionType",
+        internalType: "enum IACLCommons.ActionType",
         name: "action",
         type: "uint8",
       },
@@ -95,7 +95,7 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "enum IAclCommons.ActionType",
+        internalType: "enum IACLCommons.ActionType",
         name: "action",
         type: "uint8",
       },
@@ -126,26 +126,13 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "enum IAclCommons.ActionType",
+        internalType: "enum IACLCommons.ActionType",
         name: "action",
         type: "uint8",
       },
     ],
     name: "ScopeReferredByPolicyUpdated",
     type: "event",
-  },
-  {
-    inputs: [],
-    name: "getAdminType",
-    outputs: [
-      {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
-    ],
-    stateMutability: "pure",
-    type: "function",
   },
   {
     inputs: [
@@ -165,17 +152,17 @@ const _abi = [
             type: "bytes32",
           },
           {
-            internalType: "enum IAclCommons.AgentType",
+            internalType: "enum IACLCommons.AgentType",
             name: "atype",
             type: "uint8",
           },
           {
-            internalType: "enum IAclCommons.ActivityStatus",
+            internalType: "enum IACLCommons.ActivityStatus",
             name: "acstat",
             type: "uint8",
           },
           {
-            internalType: "enum IAclCommons.AlterabilityStatus",
+            internalType: "enum IACLCommons.AlterabilityStatus",
             name: "alstat",
             type: "uint8",
           },
@@ -195,12 +182,25 @@ const _abi = [
             type: "uint16",
           },
         ],
-        internalType: "struct IAclCommons.BaseAgent",
+        internalType: "struct IACLCommons.BaseAgent",
         name: "",
         type: "tuple",
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getAgentMasterAdminRole",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "pure",
     type: "function",
   },
   {
@@ -244,6 +244,58 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "getGlobalScope",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "pure",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getLivelyMasterAdminRole",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "pure",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getLivelyMasterType",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "pure",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getPolicyMasterAdminRole",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "pure",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "getPolicyMasterType",
     outputs: [
       {
@@ -252,7 +304,7 @@ const _abi = [
         type: "bytes32",
       },
     ],
-    stateMutability: "view",
+    stateMutability: "pure",
     type: "function",
   },
   {
@@ -273,17 +325,17 @@ const _abi = [
             type: "bytes32",
           },
           {
-            internalType: "enum IAclCommons.ScopeType",
+            internalType: "enum IACLCommons.ScopeType",
             name: "stype",
             type: "uint8",
           },
           {
-            internalType: "enum IAclCommons.ActivityStatus",
+            internalType: "enum IACLCommons.ActivityStatus",
             name: "acstat",
             type: "uint8",
           },
           {
-            internalType: "enum IAclCommons.AlterabilityStatus",
+            internalType: "enum IACLCommons.AlterabilityStatus",
             name: "alstat",
             type: "uint8",
           },
@@ -303,12 +355,25 @@ const _abi = [
             type: "uint16",
           },
         ],
-        internalType: "struct IAclCommons.BaseScope",
+        internalType: "struct IACLCommons.BaseScope",
         name: "",
         type: "tuple",
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getScopeMasterAdminRole",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "pure",
     type: "function",
   },
   {
@@ -326,7 +391,20 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "getSystemAdminType",
+    name: "getSystemMasterAdminRole",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "pure",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getSystemMasterType",
     outputs: [
       {
         internalType: "bytes32",

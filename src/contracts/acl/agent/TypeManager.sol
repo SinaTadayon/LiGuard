@@ -3,35 +3,36 @@
 
 pragma solidity 0.8.17;
 
-import "../AclStorage.sol";
+import "../ACLStorage.sol";
 import "./IMemberManagement.sol";
 import "./ITypeManagement.sol";
 import "../IAccessControl.sol";
 import "../scope/IFunctionManagement.sol";
-import "../../lib/acl/LAclStorage.sol";
-import "../../lib/acl/LAclUtils.sol";
+import "../../lib/acl/LACLStorage.sol";
+import "../../lib/acl/LACLUtils.sol";
 import "../../lib/struct/LEnumerableSet.sol";
 import "../../proxy/IProxy.sol";
+import "../../proxy/BaseUUPSProxy.sol";
 
 /**
- * @title ACL Memeber Manager Contract
+ * @title ACL Type Manager Contract
  * @author Sina Tadayon, https://github.com/SinaTadayon
  * @dev
  *
  */
-contract TypeManager is AclStorage, ITypeManagement {
-  using LAclStorage for DataCollection;
+contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
+  using LACLStorage for DataCollection;
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
 
   function typeRegister(TypeRegisterRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(ITypeManagement.typeRegister.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     
     // fetch scope type and scope id of sender
-    (ScopeType memberScopeType, bytes32 memberScopeId) = _doGetMemberScopeInfoFromType(LIVELY_VERSE_AGENT_MASTER_TYPE_ID, senderId);    
+    (ScopeType memberScopeType, bytes32 memberScopeId) = _doGetMemberScopeInfoFromType(_LIVELY_VERSE_AGENT_MASTER_TYPE_ID, senderId);    
     
     for(uint i = 0; i < requests.length; i++) {
-      bytes32 newTypeId = LAclUtils.generateId(requests[i].name);
+      bytes32 newTypeId = LACLUtils.generateId(requests[i].name);
       require(_data.agents[newTypeId].atype == AgentType.NONE, "Already Exists");
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
       require(requests[i].alstat > AlterabilityStatus.NONE, "Illegal Alterability");
@@ -104,7 +105,7 @@ contract TypeManager is AclStorage, ITypeManagement {
 
   function typeUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(ITypeManagement.typeUpdateAdmin.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     
     for(uint i = 0; i < requests.length; i++) {
       TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, false);
@@ -139,13 +140,14 @@ contract TypeManager is AclStorage, ITypeManagement {
     return true;
   }
 
-  // function typeDeleteActivity(bytes32[]  calldata requests) external returns (bool) {
-  //   bytes32 functionId = _accessPermission(ITypeManagement.typeDeleteActivity.selector);
-  //   for(uint i = 0; i < requests.length; i++) {
-  //     _doTypeUpdateActivityStatus(requests[i], ActivityStatus.DELETED, functionId);
-  //   }
-  //   return true;
-  // }
+  function typeDeleteActivity(bytes32[]  calldata requests) external returns (bool) {
+    revert("Not Supported");
+    // bytes32 functionId = _accessPermission(ITypeManagement.typeDeleteActivity.selector);
+    // for(uint i = 0; i < requests.length; i++) {
+    //   _doTypeUpdateActivityStatus(requests[i], ActivityStatus.DELETED, functionId);
+    // }
+    // return true;
+  }
 
   function typeUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(ITypeManagement.typeUpdateActivityStatus.selector);
@@ -158,7 +160,7 @@ contract TypeManager is AclStorage, ITypeManagement {
 
   function typeUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(ITypeManagement.typeUpdateAlterabilityStatus.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {      
       TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, true);
     
@@ -171,7 +173,7 @@ contract TypeManager is AclStorage, ITypeManagement {
 
   function typeUpdateRoleLimit(TypeUpdateRoleLimitRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(ITypeManagement.typeUpdateRoleLimit.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
 
     for (uint256 i = 0; i < requests.length; i++) {
       TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].typeId, senderId, functionId, false);
@@ -184,7 +186,7 @@ contract TypeManager is AclStorage, ITypeManagement {
 
   function typeUpdateScopeLimit(AgentUpdateScopeLimitRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(ITypeManagement.typeUpdateScopeLimit.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
 
     for (uint256 i = 0; i < requests.length; i++) {
       TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].agentId, senderId, functionId, false);
@@ -208,7 +210,7 @@ contract TypeManager is AclStorage, ITypeManagement {
     
     bytes32 typeAdminId = _data.agents[typeId].adminId;
     AgentType adminAgentType = _data.agents[typeAdminId].atype;
-    bytes32 memberId = LAclUtils.accountGenerateId(account);
+    bytes32 memberId = LACLUtils.accountGenerateId(account);
 
     if(adminAgentType == AgentType.ROLE) {
       return _doRoleHasMember(typeAdminId, memberId);
@@ -226,7 +228,7 @@ contract TypeManager is AclStorage, ITypeManagement {
   function typeHasAccount(bytes32 typeId, address account) external view returns (bool) {
     (TypeEntity storage te, bool result) = _data.typeTryReadSlot(typeId);
     if(!result) return false;
-    return te.members[LAclUtils.accountGenerateId(account)] != bytes32(0);
+    return te.members[LACLUtils.accountGenerateId(account)] != bytes32(0);
   }
 
   function typeHasRole(bytes32 typeId, bytes32 roleId) external view returns (bool) {
@@ -299,7 +301,7 @@ contract TypeManager is AclStorage, ITypeManagement {
   }
 
   function _doTypeUpdateActivityStatus(bytes32 typeId, ActivityStatus status, bytes32 functionId) internal returns (bool) {    
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(typeId, senderId, functionId, false);
 
     // if(status == ActivityStatus.DELETED) {
@@ -364,7 +366,7 @@ contract TypeManager is AclStorage, ITypeManagement {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
     address functionFacetId = _data.interfaces[type(IMemberManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, selector);    
+    bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector);    
     require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
     return functionId;
   }

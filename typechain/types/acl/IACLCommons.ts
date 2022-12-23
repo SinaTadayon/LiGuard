@@ -12,7 +12,7 @@ import type {
   PromiseOrValue,
 } from "../common";
 
-export interface IAclCommonsInterface extends utils.Interface {
+export interface IACLCommonsInterface extends utils.Interface {
   functions: {};
 
   events: {
@@ -104,12 +104,12 @@ export type ScopeReferredByPolicyUpdatedEvent = TypedEvent<
 export type ScopeReferredByPolicyUpdatedEventFilter =
   TypedEventFilter<ScopeReferredByPolicyUpdatedEvent>;
 
-export interface IAclCommons extends BaseContract {
+export interface IACLCommons extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: IAclCommonsInterface;
+  interface: IACLCommonsInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,

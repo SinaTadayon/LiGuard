@@ -104,7 +104,7 @@ export declare namespace ITypeManagement {
   };
 }
 
-export declare namespace IAclCommons {
+export declare namespace IACLCommons {
   export type UpdateActivityRequestStruct = {
     id: PromiseOrValue<BytesLike>;
     acstat: PromiseOrValue<BigNumberish>;
@@ -151,6 +151,7 @@ export interface ITypeManagementInterface extends utils.Interface {
     "typeCheckAdmin(bytes32,address)": FunctionFragment;
     "typeCheckId(bytes32)": FunctionFragment;
     "typeCheckName(string)": FunctionFragment;
+    "typeDeleteActivity(bytes32[])": FunctionFragment;
     "typeGetInfo(bytes32)": FunctionFragment;
     "typeGetRoles(bytes32)": FunctionFragment;
     "typeHasAccount(bytes32,address)": FunctionFragment;
@@ -171,6 +172,8 @@ export interface ITypeManagementInterface extends utils.Interface {
       | "typeCheckId(bytes32)"
       | "typeCheckName"
       | "typeCheckName(string)"
+      | "typeDeleteActivity"
+      | "typeDeleteActivity(bytes32[])"
       | "typeGetInfo"
       | "typeGetInfo(bytes32)"
       | "typeGetRoles"
@@ -218,6 +221,14 @@ export interface ITypeManagementInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
+    functionFragment: "typeDeleteActivity",
+    values: [PromiseOrValue<BytesLike>[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "typeDeleteActivity(bytes32[])",
+    values: [PromiseOrValue<BytesLike>[]]
+  ): string;
+  encodeFunctionData(
     functionFragment: "typeGetInfo",
     values: [PromiseOrValue<BytesLike>]
   ): string;
@@ -259,27 +270,27 @@ export interface ITypeManagementInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "typeUpdateActivityStatus",
-    values: [IAclCommons.UpdateActivityRequestStruct[]]
+    values: [IACLCommons.UpdateActivityRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "typeUpdateActivityStatus((bytes32,uint8)[])",
-    values: [IAclCommons.UpdateActivityRequestStruct[]]
+    values: [IACLCommons.UpdateActivityRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "typeUpdateAdmin",
-    values: [IAclCommons.UpdateAdminRequestStruct[]]
+    values: [IACLCommons.UpdateAdminRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "typeUpdateAdmin((bytes32,bytes32)[])",
-    values: [IAclCommons.UpdateAdminRequestStruct[]]
+    values: [IACLCommons.UpdateAdminRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "typeUpdateAlterabilityStatus",
-    values: [IAclCommons.UpdateAlterabilityRequestStruct[]]
+    values: [IACLCommons.UpdateAlterabilityRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "typeUpdateAlterabilityStatus((bytes32,uint8)[])",
-    values: [IAclCommons.UpdateAlterabilityRequestStruct[]]
+    values: [IACLCommons.UpdateAlterabilityRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "typeUpdateRoleLimit",
@@ -291,11 +302,11 @@ export interface ITypeManagementInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "typeUpdateScopeLimit",
-    values: [IAclCommons.AgentUpdateScopeLimitRequestStruct[]]
+    values: [IACLCommons.AgentUpdateScopeLimitRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "typeUpdateScopeLimit((bytes32,uint16)[])",
-    values: [IAclCommons.AgentUpdateScopeLimitRequestStruct[]]
+    values: [IACLCommons.AgentUpdateScopeLimitRequestStruct[]]
   ): string;
 
   decodeFunctionResult(
@@ -320,6 +331,14 @@ export interface ITypeManagementInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "typeCheckName(string)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "typeDeleteActivity",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "typeDeleteActivity(bytes32[])",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -659,6 +678,16 @@ export interface ITypeManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    typeDeleteActivity(
+      requests: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "typeDeleteActivity(bytes32[])"(
+      requests: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     typeGetInfo(
       typeId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -714,32 +743,32 @@ export interface ITypeManagement extends BaseContract {
     ): Promise<ContractTransaction>;
 
     typeUpdateActivityStatus(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "typeUpdateActivityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     typeUpdateAdmin(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "typeUpdateAdmin((bytes32,bytes32)[])"(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     typeUpdateAlterabilityStatus(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "typeUpdateAlterabilityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -754,12 +783,12 @@ export interface ITypeManagement extends BaseContract {
     ): Promise<ContractTransaction>;
 
     typeUpdateScopeLimit(
-      requests: IAclCommons.AgentUpdateScopeLimitRequestStruct[],
+      requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "typeUpdateScopeLimit((bytes32,uint16)[])"(
-      requests: IAclCommons.AgentUpdateScopeLimitRequestStruct[],
+      requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
@@ -795,6 +824,16 @@ export interface ITypeManagement extends BaseContract {
     typeName: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<boolean>;
+
+  typeDeleteActivity(
+    requests: PromiseOrValue<BytesLike>[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "typeDeleteActivity(bytes32[])"(
+    requests: PromiseOrValue<BytesLike>[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   typeGetInfo(
     typeId: PromiseOrValue<BytesLike>,
@@ -851,32 +890,32 @@ export interface ITypeManagement extends BaseContract {
   ): Promise<ContractTransaction>;
 
   typeUpdateActivityStatus(
-    requests: IAclCommons.UpdateActivityRequestStruct[],
+    requests: IACLCommons.UpdateActivityRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "typeUpdateActivityStatus((bytes32,uint8)[])"(
-    requests: IAclCommons.UpdateActivityRequestStruct[],
+    requests: IACLCommons.UpdateActivityRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   typeUpdateAdmin(
-    requests: IAclCommons.UpdateAdminRequestStruct[],
+    requests: IACLCommons.UpdateAdminRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "typeUpdateAdmin((bytes32,bytes32)[])"(
-    requests: IAclCommons.UpdateAdminRequestStruct[],
+    requests: IACLCommons.UpdateAdminRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   typeUpdateAlterabilityStatus(
-    requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+    requests: IACLCommons.UpdateAlterabilityRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "typeUpdateAlterabilityStatus((bytes32,uint8)[])"(
-    requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+    requests: IACLCommons.UpdateAlterabilityRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -891,12 +930,12 @@ export interface ITypeManagement extends BaseContract {
   ): Promise<ContractTransaction>;
 
   typeUpdateScopeLimit(
-    requests: IAclCommons.AgentUpdateScopeLimitRequestStruct[],
+    requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "typeUpdateScopeLimit((bytes32,uint16)[])"(
-    requests: IAclCommons.AgentUpdateScopeLimitRequestStruct[],
+    requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -930,6 +969,16 @@ export interface ITypeManagement extends BaseContract {
 
     "typeCheckName(string)"(
       typeName: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    typeDeleteActivity(
+      requests: PromiseOrValue<BytesLike>[],
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "typeDeleteActivity(bytes32[])"(
+      requests: PromiseOrValue<BytesLike>[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -988,32 +1037,32 @@ export interface ITypeManagement extends BaseContract {
     ): Promise<boolean>;
 
     typeUpdateActivityStatus(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     "typeUpdateActivityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     typeUpdateAdmin(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     "typeUpdateAdmin((bytes32,bytes32)[])"(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     typeUpdateAlterabilityStatus(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     "typeUpdateAlterabilityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -1028,12 +1077,12 @@ export interface ITypeManagement extends BaseContract {
     ): Promise<boolean>;
 
     typeUpdateScopeLimit(
-      requests: IAclCommons.AgentUpdateScopeLimitRequestStruct[],
+      requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     "typeUpdateScopeLimit((bytes32,uint16)[])"(
-      requests: IAclCommons.AgentUpdateScopeLimitRequestStruct[],
+      requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
   };
@@ -1193,6 +1242,16 @@ export interface ITypeManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    typeDeleteActivity(
+      requests: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "typeDeleteActivity(bytes32[])"(
+      requests: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     typeGetInfo(
       typeId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1248,32 +1307,32 @@ export interface ITypeManagement extends BaseContract {
     ): Promise<BigNumber>;
 
     typeUpdateActivityStatus(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "typeUpdateActivityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     typeUpdateAdmin(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "typeUpdateAdmin((bytes32,bytes32)[])"(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     typeUpdateAlterabilityStatus(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "typeUpdateAlterabilityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1288,12 +1347,12 @@ export interface ITypeManagement extends BaseContract {
     ): Promise<BigNumber>;
 
     typeUpdateScopeLimit(
-      requests: IAclCommons.AgentUpdateScopeLimitRequestStruct[],
+      requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "typeUpdateScopeLimit((bytes32,uint16)[])"(
-      requests: IAclCommons.AgentUpdateScopeLimitRequestStruct[],
+      requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -1331,6 +1390,16 @@ export interface ITypeManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    typeDeleteActivity(
+      requests: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "typeDeleteActivity(bytes32[])"(
+      requests: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     typeGetInfo(
       typeId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1386,32 +1455,32 @@ export interface ITypeManagement extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     typeUpdateActivityStatus(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "typeUpdateActivityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     typeUpdateAdmin(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "typeUpdateAdmin((bytes32,bytes32)[])"(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     typeUpdateAlterabilityStatus(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "typeUpdateAlterabilityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1426,12 +1495,12 @@ export interface ITypeManagement extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     typeUpdateScopeLimit(
-      requests: IAclCommons.AgentUpdateScopeLimitRequestStruct[],
+      requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "typeUpdateScopeLimit((bytes32,uint16)[])"(
-      requests: IAclCommons.AgentUpdateScopeLimitRequestStruct[],
+      requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

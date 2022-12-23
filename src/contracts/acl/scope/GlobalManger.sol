@@ -3,14 +3,14 @@
 
 pragma solidity 0.8.17;
 
-import "./IRealmManagement.sol";
 import "./IGlobalManagement.sol";
 import "../IAccessControl.sol";
-import "../AclStorage.sol";
-import "../../lib/acl/LAclStorage.sol";
-import "../../lib/acl/LAclUtils.sol";
+import "../ACLStorage.sol";
+import "../../lib/acl/LACLStorage.sol";
+import "../../lib/acl/LACLUtils.sol";
 import "../../lib/struct/LEnumerableSet.sol";
 import "../../proxy/IProxy.sol";
+import "../../proxy/BaseUUPSProxy.sol";
 
 /**
  * @title Global Manager Contract
@@ -18,14 +18,14 @@ import "../../proxy/IProxy.sol";
  * @dev
  *
  */
-contract GlobalManager is AclStorage, IGlobalManagement {
-  using LAclStorage for DataCollection;
+contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
+  using LACLStorage for DataCollection;
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
 
   function globalUpdateActivityStatus(ActivityStatus acstat) external returns (ActivityStatus) {
 
     bytes32 functionId = _accessPermission(IGlobalManagement.globalUpdateActivityStatus.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     _doCheckAdminAccess(senderId, functionId);
 
     require(acstat > ActivityStatus.DELETED, "Illegal Activity Status");
@@ -37,7 +37,7 @@ contract GlobalManager is AclStorage, IGlobalManagement {
 
   function globalUpdateAlterabilityStatus(AlterabilityStatus alstat) external returns (AlterabilityStatus) {
     bytes32 functionId = _accessPermission(IGlobalManagement.globalUpdateActivityStatus.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     _doCheckAdminAccess(senderId, functionId);
 
     require(alstat != AlterabilityStatus.NONE, "Illegal Alterability");
@@ -51,16 +51,16 @@ contract GlobalManager is AclStorage, IGlobalManagement {
     // require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");
    
     // address functionFacetId = _data.interfaces[type(IGlobalManagement).interfaceId];
-    // bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IGlobalManagement.globalUpdateAdmin.selector);
+    // bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, IGlobalManagement.globalUpdateAdmin.selector);
     // require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
-    // bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
+    // bytes32 memberId = LACLUtils.accountGenerateId(msg.sender);  
 
     // require(_data.global.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Global Update");
     
     // // check admin function
     // require(_doCheckAdminAccess(_data.global.bs.adminId, memberId, functionId), "Forbidden");
     bytes32 functionId = _accessPermission(IGlobalManagement.globalUpdateAdmin.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     _doCheckAdminAccess(senderId, functionId);
 
 
@@ -69,10 +69,10 @@ contract GlobalManager is AclStorage, IGlobalManagement {
     BaseAgent storage adminBaseAgent = _data.agents[newAdminId];
     require(adminBaseAgent.atype > AgentType.MEMBER, "Illegal Admin AgentType");
     if (adminBaseAgent.atype == AgentType.ROLE) {
-      TypeEntity storage livelyAdminType = _data.typeReadSlot(LIVELY_VERSE_ADMIN_TYPE_ID);
+      TypeEntity storage livelyAdminType = _data.typeReadSlot(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID);
       require(livelyAdminType.roles.contains(newAdminId), "Admin Not Found");
     } else {
-      require(LIVELY_VERSE_ADMIN_TYPE_ID == newAdminId, "Illegal New Admin");
+      require(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID == newAdminId, "Illegal New Admin");
     }
     
     _data.global.bs.adminId = newAdminId;
@@ -82,7 +82,7 @@ contract GlobalManager is AclStorage, IGlobalManagement {
 
   function globalUpdateDomainLimit(uint16 domainLimit) external returns (bool) {
     bytes32 functionId = _accessPermission(IGlobalManagement.globalUpdateDomainLimit.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     _doCheckAdminAccess(senderId, functionId);
 
     _data.global.domainLimit = domainLimit;
@@ -94,9 +94,9 @@ contract GlobalManager is AclStorage, IGlobalManagement {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");
    
     // address functionFacetId = _data.interfaces[type(IGlobalManagement).interfaceId];
-    // bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, IGlobalManagement.globalUpdateDomainLimit.selector);
+    // bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, IGlobalManagement.globalUpdateDomainLimit.selector);
     // require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
-    // bytes32 memberId = LAclUtils.accountGenerateId(msg.sender);  
+    // bytes32 memberId = LACLUtils.accountGenerateId(msg.sender);  
 
     // require(_data.global.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Global Update");
 
@@ -104,7 +104,7 @@ contract GlobalManager is AclStorage, IGlobalManagement {
     // require(_doCheckAdminAccess(_data.global.bs.adminId, memberId, functionId), "Forbidden");
 
     bytes32 functionId = _accessPermission(IGlobalManagement.globalUpdateDomainLimit.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     _doCheckAdminAccess(senderId, functionId);
 
     _data.global.bs.agentLimit = agentLimit;
@@ -113,8 +113,8 @@ contract GlobalManager is AclStorage, IGlobalManagement {
   }
 
   function globalCheckAdmin(address account) external view returns (bool) {
-    bytes32 memberId = LAclUtils.accountGenerateId(account);
-    TypeEntity storage livelyAdminType = _data.typeReadSlot(LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID);
+    bytes32 memberId = LACLUtils.accountGenerateId(account);
+    TypeEntity storage livelyAdminType = _data.typeReadSlot(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID);
     return livelyAdminType.members[memberId] != bytes32(0);  
   }
 
@@ -162,7 +162,7 @@ contract GlobalManager is AclStorage, IGlobalManagement {
   }
 
   function globalGetInfo() external view returns (GlobalInfo memory) {
-    return GlobalInfo ({      
+    return GlobalInfo ({            
       id: _data.global.id,
       adminId: _data.global.bs.adminId,
       domainLimit: _data.global.domainLimit,
@@ -195,7 +195,7 @@ contract GlobalManager is AclStorage, IGlobalManagement {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
     address functionFacetId = _data.interfaces[type(IGlobalManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, selector);    
+    bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector);    
     require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
     return functionId;
   }

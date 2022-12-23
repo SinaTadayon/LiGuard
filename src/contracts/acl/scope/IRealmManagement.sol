@@ -3,7 +3,7 @@
 
 pragma solidity 0.8.17;
 
-import "../IAclCommons.sol";
+import "../IACLCommons.sol";
 
 /**
  * @title Realm Management Interface
@@ -12,7 +12,7 @@ import "../IAclCommons.sol";
  *
  */
 
-interface IRealmManagement is IAclCommons {
+interface IRealmManagement is IACLCommons {
 
   struct RealmRegisterRequest {
     bytes32 domainId;
@@ -63,7 +63,7 @@ interface IRealmManagement is IAclCommons {
 
   function realmUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);
  
-  // function realmDeleteActivity(bytes32[] calldata requests) external returns (bool);
+  function realmDeleteActivity(bytes32[] calldata requests) external returns (bool);
 
   function realmUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
 

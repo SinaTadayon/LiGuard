@@ -25,9 +25,9 @@ import type {
   TypedListener,
   OnEvent,
   PromiseOrValue,
-} from "../common";
+} from "../../common";
 
-export declare namespace IAclCommons {
+export declare namespace IACLCommons {
   export type FacetRegisterRequestStruct = {
     facetId: PromiseOrValue<string>;
     interfaceId: PromiseOrValue<BytesLike>;
@@ -54,19 +54,19 @@ export declare namespace IAclCommons {
     facetId: PromiseOrValue<string>;
     interfaceId: PromiseOrValue<BytesLike>;
     newInterfaceId: PromiseOrValue<BytesLike>;
-    functions: IAclCommons.FacetSelectorUpgradeRequestStruct[];
+    functions: IACLCommons.FacetSelectorUpgradeRequestStruct[];
   };
 
   export type FacetUpgradeRequestStructOutput = [
     string,
     string,
     string,
-    IAclCommons.FacetSelectorUpgradeRequestStructOutput[]
+    IACLCommons.FacetSelectorUpgradeRequestStructOutput[]
   ] & {
     facetId: string;
     interfaceId: string;
     newInterfaceId: string;
-    functions: IAclCommons.FacetSelectorUpgradeRequestStructOutput[];
+    functions: IACLCommons.FacetSelectorUpgradeRequestStructOutput[];
   };
 }
 
@@ -110,15 +110,9 @@ export interface AclManagerInterface extends utils.Interface {
   functions: {
     "CTX_MESSAGE_TYPEHASH()": FunctionFragment;
     "FUNCTION_MESSAGE_TYPEHASH()": FunctionFragment;
-    "LIVELY_VERSE_ADMIN_TYPE_ID()": FunctionFragment;
-    "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()": FunctionFragment;
-    "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()": FunctionFragment;
-    "LIVELY_VERSE_ANY_TYPE_ID()": FunctionFragment;
-    "LIVELY_VERSE_POLICY_MASTER_TYPE_ID()": FunctionFragment;
-    "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID()": FunctionFragment;
-    "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID()": FunctionFragment;
     "PREDICT_CTX_MESSAGE_TYPEHASH()": FunctionFragment;
     "TYPE_HASH()": FunctionFragment;
+    "_initACLScope(address,address)": FunctionFragment;
     "accessControlManager()": FunctionFragment;
     "aclGetFacets()": FunctionFragment;
     "aclRegisterFacet((address,bytes4,bytes4[])[])": FunctionFragment;
@@ -126,6 +120,7 @@ export interface AclManagerInterface extends utils.Interface {
     "contractName()": FunctionFragment;
     "contractVersion()": FunctionFragment;
     "domainSeparator()": FunctionFragment;
+    "initACLAgents()": FunctionFragment;
     "initVersion()": FunctionFragment;
     "initialize(string,string,string,address)": FunctionFragment;
     "localAdmin()": FunctionFragment;
@@ -149,24 +144,12 @@ export interface AclManagerInterface extends utils.Interface {
       | "CTX_MESSAGE_TYPEHASH()"
       | "FUNCTION_MESSAGE_TYPEHASH"
       | "FUNCTION_MESSAGE_TYPEHASH()"
-      | "LIVELY_VERSE_ADMIN_TYPE_ID"
-      | "LIVELY_VERSE_ADMIN_TYPE_ID()"
-      | "LIVELY_VERSE_AGENT_MASTER_TYPE_ID"
-      | "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()"
-      | "LIVELY_VERSE_ANONYMOUSE_TYPE_ID"
-      | "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()"
-      | "LIVELY_VERSE_ANY_TYPE_ID"
-      | "LIVELY_VERSE_ANY_TYPE_ID()"
-      | "LIVELY_VERSE_POLICY_MASTER_TYPE_ID"
-      | "LIVELY_VERSE_POLICY_MASTER_TYPE_ID()"
-      | "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID"
-      | "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID()"
-      | "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID"
-      | "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID()"
       | "PREDICT_CTX_MESSAGE_TYPEHASH"
       | "PREDICT_CTX_MESSAGE_TYPEHASH()"
       | "TYPE_HASH"
       | "TYPE_HASH()"
+      | "_initACLScope"
+      | "_initACLScope(address,address)"
       | "accessControlManager"
       | "accessControlManager()"
       | "aclGetFacets"
@@ -181,6 +164,8 @@ export interface AclManagerInterface extends utils.Interface {
       | "contractVersion()"
       | "domainSeparator"
       | "domainSeparator()"
+      | "initACLAgents"
+      | "initACLAgents()"
       | "initVersion"
       | "initVersion()"
       | "initialize"
@@ -230,62 +215,6 @@ export interface AclManagerInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_ADMIN_TYPE_ID",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_ADMIN_TYPE_ID()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_AGENT_MASTER_TYPE_ID",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_ANONYMOUSE_TYPE_ID",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_ANY_TYPE_ID",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_ANY_TYPE_ID()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_POLICY_MASTER_TYPE_ID",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_POLICY_MASTER_TYPE_ID()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "PREDICT_CTX_MESSAGE_TYPEHASH",
     values?: undefined
   ): string;
@@ -297,6 +226,14 @@ export interface AclManagerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "TYPE_HASH()",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "_initACLScope",
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "_initACLScope(address,address)",
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "accessControlManager",
@@ -316,19 +253,19 @@ export interface AclManagerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "aclRegisterFacet",
-    values: [IAclCommons.FacetRegisterRequestStruct[]]
+    values: [IACLCommons.FacetRegisterRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "aclRegisterFacet((address,bytes4,bytes4[])[])",
-    values: [IAclCommons.FacetRegisterRequestStruct[]]
+    values: [IACLCommons.FacetRegisterRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "aclUpgradeFacet",
-    values: [IAclCommons.FacetUpgradeRequestStruct[]]
+    values: [IACLCommons.FacetUpgradeRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "aclUpgradeFacet((address,bytes4,bytes4,(uint8,bytes4[])[])[])",
-    values: [IAclCommons.FacetUpgradeRequestStruct[]]
+    values: [IACLCommons.FacetUpgradeRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "contractName",
@@ -352,6 +289,14 @@ export interface AclManagerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "domainSeparator()",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initACLAgents",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initACLAgents()",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -507,62 +452,6 @@ export interface AclManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_ADMIN_TYPE_ID",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_ADMIN_TYPE_ID()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_AGENT_MASTER_TYPE_ID",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_ANONYMOUSE_TYPE_ID",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_ANY_TYPE_ID",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_ANY_TYPE_ID()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_POLICY_MASTER_TYPE_ID",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_POLICY_MASTER_TYPE_ID()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "PREDICT_CTX_MESSAGE_TYPEHASH",
     data: BytesLike
   ): Result;
@@ -573,6 +462,14 @@ export interface AclManagerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "TYPE_HASH", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "TYPE_HASH()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "_initACLScope",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "_initACLScope(address,address)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -629,6 +526,14 @@ export interface AclManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "domainSeparator()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "initACLAgents",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "initACLAgents()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -741,7 +646,9 @@ export interface AclManagerInterface extends utils.Interface {
   ): Result;
 
   events: {
+    "AclFacetFunctionUpgraded(address,address,bytes4,uint8)": EventFragment;
     "AclFacetRegistered(address,address,bytes4)": EventFragment;
+    "AclFacetUpgraded(address,address,bytes4,bytes4)": EventFragment;
     "AgentReferredByPolicyUpdated(address,bytes32,bytes32,uint8)": EventFragment;
     "AgentReferredByScopeUpdated(address,bytes32,bytes32,uint8)": EventFragment;
     "Initialized(address,address,address,string,string,uint16)": EventFragment;
@@ -754,9 +661,17 @@ export interface AclManagerInterface extends utils.Interface {
     "ScopeReferredByPolicyUpdated(address,bytes32,bytes32,uint8)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "AclFacetFunctionUpgraded"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "AclFacetFunctionUpgraded(address,address,bytes4,uint8)"
+  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AclFacetRegistered"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "AclFacetRegistered(address,address,bytes4)"
+  ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "AclFacetUpgraded"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "AclFacetUpgraded(address,address,bytes4,bytes4)"
   ): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "AgentReferredByPolicyUpdated"
@@ -808,6 +723,20 @@ export interface AclManagerInterface extends utils.Interface {
   ): EventFragment;
 }
 
+export interface AclFacetFunctionUpgradedEventObject {
+  sender: string;
+  facetId: string;
+  selector: string;
+  action: number;
+}
+export type AclFacetFunctionUpgradedEvent = TypedEvent<
+  [string, string, string, number],
+  AclFacetFunctionUpgradedEventObject
+>;
+
+export type AclFacetFunctionUpgradedEventFilter =
+  TypedEventFilter<AclFacetFunctionUpgradedEvent>;
+
 export interface AclFacetRegisteredEventObject {
   sender: string;
   facetId: string;
@@ -820,6 +749,20 @@ export type AclFacetRegisteredEvent = TypedEvent<
 
 export type AclFacetRegisteredEventFilter =
   TypedEventFilter<AclFacetRegisteredEvent>;
+
+export interface AclFacetUpgradedEventObject {
+  sender: string;
+  facetId: string;
+  interfaceId: string;
+  newInterfaceId: string;
+}
+export type AclFacetUpgradedEvent = TypedEvent<
+  [string, string, string, string],
+  AclFacetUpgradedEventObject
+>;
+
+export type AclFacetUpgradedEventFilter =
+  TypedEventFilter<AclFacetUpgradedEvent>;
 
 export interface AgentReferredByPolicyUpdatedEventObject {
   sender: string;
@@ -991,56 +934,6 @@ export interface AclManager extends BaseContract {
 
     "FUNCTION_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<[string]>;
 
-    LIVELY_VERSE_ADMIN_TYPE_ID(overrides?: CallOverrides): Promise<[string]>;
-
-    "LIVELY_VERSE_ADMIN_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    LIVELY_VERSE_AGENT_MASTER_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    LIVELY_VERSE_ANONYMOUSE_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    LIVELY_VERSE_ANY_TYPE_ID(overrides?: CallOverrides): Promise<[string]>;
-
-    "LIVELY_VERSE_ANY_TYPE_ID()"(overrides?: CallOverrides): Promise<[string]>;
-
-    LIVELY_VERSE_POLICY_MASTER_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    "LIVELY_VERSE_POLICY_MASTER_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    LIVELY_VERSE_SCOPE_MASTER_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
     PREDICT_CTX_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<[string]>;
 
     "PREDICT_CTX_MESSAGE_TYPEHASH()"(
@@ -1051,35 +944,43 @@ export interface AclManager extends BaseContract {
 
     "TYPE_HASH()"(overrides?: CallOverrides): Promise<[string]>;
 
+    _initACLScope(
+      contextManagerAddress: PromiseOrValue<string>,
+      functionManagerAddress: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "_initACLScope(address,address)"(
+      contextManagerAddress: PromiseOrValue<string>,
+      functionManagerAddress: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     accessControlManager(overrides?: CallOverrides): Promise<[string]>;
 
     "accessControlManager()"(overrides?: CallOverrides): Promise<[string]>;
 
-    aclGetFacets(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+    aclGetFacets(overrides?: CallOverrides): Promise<[string[]]>;
 
-    "aclGetFacets()"(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+    "aclGetFacets()"(overrides?: CallOverrides): Promise<[string[]]>;
 
     aclRegisterFacet(
-      requests: IAclCommons.FacetRegisterRequestStruct[],
+      requests: IACLCommons.FacetRegisterRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "aclRegisterFacet((address,bytes4,bytes4[])[])"(
-      requests: IAclCommons.FacetRegisterRequestStruct[],
+      requests: IACLCommons.FacetRegisterRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     aclUpgradeFacet(
-      requests: IAclCommons.FacetUpgradeRequestStruct[],
+      requests: IACLCommons.FacetUpgradeRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "aclUpgradeFacet((address,bytes4,bytes4,(uint8,bytes4[])[])[])"(
-      requests: IAclCommons.FacetUpgradeRequestStruct[],
+      requests: IACLCommons.FacetUpgradeRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -1094,6 +995,14 @@ export interface AclManager extends BaseContract {
     domainSeparator(overrides?: CallOverrides): Promise<[string]>;
 
     "domainSeparator()"(overrides?: CallOverrides): Promise<[string]>;
+
+    initACLAgents(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "initACLAgents()"(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     initVersion(overrides?: CallOverrides): Promise<[number]>;
 
@@ -1226,46 +1135,6 @@ export interface AclManager extends BaseContract {
 
   "FUNCTION_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
 
-  LIVELY_VERSE_ADMIN_TYPE_ID(overrides?: CallOverrides): Promise<string>;
-
-  "LIVELY_VERSE_ADMIN_TYPE_ID()"(overrides?: CallOverrides): Promise<string>;
-
-  LIVELY_VERSE_AGENT_MASTER_TYPE_ID(overrides?: CallOverrides): Promise<string>;
-
-  "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()"(
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  LIVELY_VERSE_ANONYMOUSE_TYPE_ID(overrides?: CallOverrides): Promise<string>;
-
-  "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()"(
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  LIVELY_VERSE_ANY_TYPE_ID(overrides?: CallOverrides): Promise<string>;
-
-  "LIVELY_VERSE_ANY_TYPE_ID()"(overrides?: CallOverrides): Promise<string>;
-
-  LIVELY_VERSE_POLICY_MASTER_TYPE_ID(
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  "LIVELY_VERSE_POLICY_MASTER_TYPE_ID()"(
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  LIVELY_VERSE_SCOPE_MASTER_TYPE_ID(overrides?: CallOverrides): Promise<string>;
-
-  "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID()"(
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID(overrides?: CallOverrides): Promise<string>;
-
-  "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID()"(
-    overrides?: CallOverrides
-  ): Promise<string>;
-
   PREDICT_CTX_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
   "PREDICT_CTX_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
@@ -1274,35 +1143,43 @@ export interface AclManager extends BaseContract {
 
   "TYPE_HASH()"(overrides?: CallOverrides): Promise<string>;
 
+  _initACLScope(
+    contextManagerAddress: PromiseOrValue<string>,
+    functionManagerAddress: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "_initACLScope(address,address)"(
+    contextManagerAddress: PromiseOrValue<string>,
+    functionManagerAddress: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   accessControlManager(overrides?: CallOverrides): Promise<string>;
 
   "accessControlManager()"(overrides?: CallOverrides): Promise<string>;
 
-  aclGetFacets(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  aclGetFacets(overrides?: CallOverrides): Promise<string[]>;
 
-  "aclGetFacets()"(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+  "aclGetFacets()"(overrides?: CallOverrides): Promise<string[]>;
 
   aclRegisterFacet(
-    requests: IAclCommons.FacetRegisterRequestStruct[],
+    requests: IACLCommons.FacetRegisterRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "aclRegisterFacet((address,bytes4,bytes4[])[])"(
-    requests: IAclCommons.FacetRegisterRequestStruct[],
+    requests: IACLCommons.FacetRegisterRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   aclUpgradeFacet(
-    requests: IAclCommons.FacetUpgradeRequestStruct[],
+    requests: IACLCommons.FacetUpgradeRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "aclUpgradeFacet((address,bytes4,bytes4,(uint8,bytes4[])[])[])"(
-    requests: IAclCommons.FacetUpgradeRequestStruct[],
+    requests: IACLCommons.FacetUpgradeRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1317,6 +1194,14 @@ export interface AclManager extends BaseContract {
   domainSeparator(overrides?: CallOverrides): Promise<string>;
 
   "domainSeparator()"(overrides?: CallOverrides): Promise<string>;
+
+  initACLAgents(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "initACLAgents()"(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   initVersion(overrides?: CallOverrides): Promise<number>;
 
@@ -1447,52 +1332,6 @@ export interface AclManager extends BaseContract {
 
     "FUNCTION_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
 
-    LIVELY_VERSE_ADMIN_TYPE_ID(overrides?: CallOverrides): Promise<string>;
-
-    "LIVELY_VERSE_ADMIN_TYPE_ID()"(overrides?: CallOverrides): Promise<string>;
-
-    LIVELY_VERSE_AGENT_MASTER_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    LIVELY_VERSE_ANONYMOUSE_TYPE_ID(overrides?: CallOverrides): Promise<string>;
-
-    "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    LIVELY_VERSE_ANY_TYPE_ID(overrides?: CallOverrides): Promise<string>;
-
-    "LIVELY_VERSE_ANY_TYPE_ID()"(overrides?: CallOverrides): Promise<string>;
-
-    LIVELY_VERSE_POLICY_MASTER_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    "LIVELY_VERSE_POLICY_MASTER_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    LIVELY_VERSE_SCOPE_MASTER_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<string>;
-
     PREDICT_CTX_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
     "PREDICT_CTX_MESSAGE_TYPEHASH()"(
@@ -1503,6 +1342,18 @@ export interface AclManager extends BaseContract {
 
     "TYPE_HASH()"(overrides?: CallOverrides): Promise<string>;
 
+    _initACLScope(
+      contextManagerAddress: PromiseOrValue<string>,
+      functionManagerAddress: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "_initACLScope(address,address)"(
+      contextManagerAddress: PromiseOrValue<string>,
+      functionManagerAddress: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     accessControlManager(overrides?: CallOverrides): Promise<string>;
 
     "accessControlManager()"(overrides?: CallOverrides): Promise<string>;
@@ -1512,22 +1363,22 @@ export interface AclManager extends BaseContract {
     "aclGetFacets()"(overrides?: CallOverrides): Promise<string[]>;
 
     aclRegisterFacet(
-      requests: IAclCommons.FacetRegisterRequestStruct[],
+      requests: IACLCommons.FacetRegisterRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     "aclRegisterFacet((address,bytes4,bytes4[])[])"(
-      requests: IAclCommons.FacetRegisterRequestStruct[],
+      requests: IACLCommons.FacetRegisterRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     aclUpgradeFacet(
-      requests: IAclCommons.FacetUpgradeRequestStruct[],
+      requests: IACLCommons.FacetUpgradeRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     "aclUpgradeFacet((address,bytes4,bytes4,(uint8,bytes4[])[])[])"(
-      requests: IAclCommons.FacetUpgradeRequestStruct[],
+      requests: IACLCommons.FacetUpgradeRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -1542,6 +1393,10 @@ export interface AclManager extends BaseContract {
     domainSeparator(overrides?: CallOverrides): Promise<string>;
 
     "domainSeparator()"(overrides?: CallOverrides): Promise<string>;
+
+    initACLAgents(overrides?: CallOverrides): Promise<void>;
+
+    "initACLAgents()"(overrides?: CallOverrides): Promise<void>;
 
     initVersion(overrides?: CallOverrides): Promise<number>;
 
@@ -1665,6 +1520,19 @@ export interface AclManager extends BaseContract {
   };
 
   filters: {
+    "AclFacetFunctionUpgraded(address,address,bytes4,uint8)"(
+      sender?: PromiseOrValue<string> | null,
+      facetId?: PromiseOrValue<string> | null,
+      selector?: null,
+      action?: null
+    ): AclFacetFunctionUpgradedEventFilter;
+    AclFacetFunctionUpgraded(
+      sender?: PromiseOrValue<string> | null,
+      facetId?: PromiseOrValue<string> | null,
+      selector?: null,
+      action?: null
+    ): AclFacetFunctionUpgradedEventFilter;
+
     "AclFacetRegistered(address,address,bytes4)"(
       sender?: PromiseOrValue<string> | null,
       facetId?: PromiseOrValue<string> | null,
@@ -1675,6 +1543,19 @@ export interface AclManager extends BaseContract {
       facetId?: PromiseOrValue<string> | null,
       interfaceId?: null
     ): AclFacetRegisteredEventFilter;
+
+    "AclFacetUpgraded(address,address,bytes4,bytes4)"(
+      sender?: PromiseOrValue<string> | null,
+      facetId?: PromiseOrValue<string> | null,
+      interfaceId?: null,
+      newInterfaceId?: null
+    ): AclFacetUpgradedEventFilter;
+    AclFacetUpgraded(
+      sender?: PromiseOrValue<string> | null,
+      facetId?: PromiseOrValue<string> | null,
+      interfaceId?: null,
+      newInterfaceId?: null
+    ): AclFacetUpgradedEventFilter;
 
     "AgentReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"(
       sender?: PromiseOrValue<string> | null,
@@ -1812,56 +1693,6 @@ export interface AclManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    LIVELY_VERSE_ADMIN_TYPE_ID(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "LIVELY_VERSE_ADMIN_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    LIVELY_VERSE_AGENT_MASTER_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    LIVELY_VERSE_ANONYMOUSE_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    LIVELY_VERSE_ANY_TYPE_ID(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "LIVELY_VERSE_ANY_TYPE_ID()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    LIVELY_VERSE_POLICY_MASTER_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "LIVELY_VERSE_POLICY_MASTER_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    LIVELY_VERSE_SCOPE_MASTER_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     PREDICT_CTX_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<BigNumber>;
 
     "PREDICT_CTX_MESSAGE_TYPEHASH()"(
@@ -1872,35 +1703,43 @@ export interface AclManager extends BaseContract {
 
     "TYPE_HASH()"(overrides?: CallOverrides): Promise<BigNumber>;
 
+    _initACLScope(
+      contextManagerAddress: PromiseOrValue<string>,
+      functionManagerAddress: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "_initACLScope(address,address)"(
+      contextManagerAddress: PromiseOrValue<string>,
+      functionManagerAddress: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     accessControlManager(overrides?: CallOverrides): Promise<BigNumber>;
 
     "accessControlManager()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    aclGetFacets(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+    aclGetFacets(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "aclGetFacets()"(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+    "aclGetFacets()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     aclRegisterFacet(
-      requests: IAclCommons.FacetRegisterRequestStruct[],
+      requests: IACLCommons.FacetRegisterRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "aclRegisterFacet((address,bytes4,bytes4[])[])"(
-      requests: IAclCommons.FacetRegisterRequestStruct[],
+      requests: IACLCommons.FacetRegisterRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     aclUpgradeFacet(
-      requests: IAclCommons.FacetUpgradeRequestStruct[],
+      requests: IACLCommons.FacetUpgradeRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "aclUpgradeFacet((address,bytes4,bytes4,(uint8,bytes4[])[])[])"(
-      requests: IAclCommons.FacetUpgradeRequestStruct[],
+      requests: IACLCommons.FacetUpgradeRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1915,6 +1754,14 @@ export interface AclManager extends BaseContract {
     domainSeparator(overrides?: CallOverrides): Promise<BigNumber>;
 
     "domainSeparator()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    initACLAgents(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "initACLAgents()"(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     initVersion(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -2052,62 +1899,6 @@ export interface AclManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    LIVELY_VERSE_ADMIN_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "LIVELY_VERSE_ADMIN_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    LIVELY_VERSE_AGENT_MASTER_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    LIVELY_VERSE_ANONYMOUSE_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    LIVELY_VERSE_ANY_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "LIVELY_VERSE_ANY_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    LIVELY_VERSE_POLICY_MASTER_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "LIVELY_VERSE_POLICY_MASTER_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    LIVELY_VERSE_SCOPE_MASTER_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     PREDICT_CTX_MESSAGE_TYPEHASH(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -2120,6 +1911,18 @@ export interface AclManager extends BaseContract {
 
     "TYPE_HASH()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    _initACLScope(
+      contextManagerAddress: PromiseOrValue<string>,
+      functionManagerAddress: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "_initACLScope(address,address)"(
+      contextManagerAddress: PromiseOrValue<string>,
+      functionManagerAddress: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     accessControlManager(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -2128,31 +1931,27 @@ export interface AclManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    aclGetFacets(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+    aclGetFacets(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "aclGetFacets()"(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+    "aclGetFacets()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     aclRegisterFacet(
-      requests: IAclCommons.FacetRegisterRequestStruct[],
+      requests: IACLCommons.FacetRegisterRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "aclRegisterFacet((address,bytes4,bytes4[])[])"(
-      requests: IAclCommons.FacetRegisterRequestStruct[],
+      requests: IACLCommons.FacetRegisterRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     aclUpgradeFacet(
-      requests: IAclCommons.FacetUpgradeRequestStruct[],
+      requests: IACLCommons.FacetUpgradeRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "aclUpgradeFacet((address,bytes4,bytes4,(uint8,bytes4[])[])[])"(
-      requests: IAclCommons.FacetUpgradeRequestStruct[],
+      requests: IACLCommons.FacetUpgradeRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -2170,6 +1969,14 @@ export interface AclManager extends BaseContract {
 
     "domainSeparator()"(
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    initACLAgents(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "initACLAgents()"(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     initVersion(overrides?: CallOverrides): Promise<PopulatedTransaction>;

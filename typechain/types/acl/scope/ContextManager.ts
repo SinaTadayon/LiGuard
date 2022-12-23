@@ -81,7 +81,6 @@ export declare namespace IContextManagement {
     acstat: PromiseOrValue<BigNumberish>;
     alstat: PromiseOrValue<BigNumberish>;
     signature: PromiseOrValue<BytesLike>;
-    selectors: PromiseOrValue<BytesLike>[];
   };
 
   export type ContextRegisterRequestStructOutput = [
@@ -96,8 +95,7 @@ export declare namespace IContextManagement {
     number,
     number,
     number,
-    string,
-    string[]
+    string
   ] & {
     realmId: string;
     adminId: string;
@@ -111,11 +109,10 @@ export declare namespace IContextManagement {
     acstat: number;
     alstat: number;
     signature: string;
-    selectors: string[];
   };
 }
 
-export declare namespace IAclCommons {
+export declare namespace IACLCommons {
   export type UpdateActivityRequestStruct = {
     id: PromiseOrValue<BytesLike>;
     acstat: PromiseOrValue<BigNumberish>;
@@ -197,24 +194,18 @@ export interface ContextManagerInterface extends utils.Interface {
   functions: {
     "CTX_MESSAGE_TYPEHASH()": FunctionFragment;
     "FUNCTION_MESSAGE_TYPEHASH()": FunctionFragment;
-    "LIVELY_VERSE_ADMIN_TYPE_ID()": FunctionFragment;
-    "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()": FunctionFragment;
-    "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()": FunctionFragment;
-    "LIVELY_VERSE_ANY_TYPE_ID()": FunctionFragment;
-    "LIVELY_VERSE_POLICY_MASTER_TYPE_ID()": FunctionFragment;
-    "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID()": FunctionFragment;
-    "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID()": FunctionFragment;
     "PREDICT_CTX_MESSAGE_TYPEHASH()": FunctionFragment;
     "TYPE_HASH()": FunctionFragment;
     "accessControlManager()": FunctionFragment;
     "contextCheckAccount(address)": FunctionFragment;
     "contextCheckAdmin(bytes32,address)": FunctionFragment;
     "contextCheckId(bytes32)": FunctionFragment;
+    "contextDeleteActivity(bytes32[])": FunctionFragment;
     "contextGetContextInfo(bytes32)": FunctionFragment;
     "contextGetFunctions(bytes32)": FunctionFragment;
     "contextHasFunction(bytes32,bytes32)": FunctionFragment;
     "contextHasSelector(address,bytes4)": FunctionFragment;
-    "contextRegister((bytes32,bytes32,bytes32,string,string,address,address,address,uint16,uint8,uint8,bytes,bytes4[])[])": FunctionFragment;
+    "contextRegister((bytes32,bytes32,bytes32,string,string,address,address,address,uint16,uint8,uint8,bytes)[])": FunctionFragment;
     "contextUpdateActivityStatus((bytes32,uint8)[])": FunctionFragment;
     "contextUpdateAdmin((bytes32,bytes32)[])": FunctionFragment;
     "contextUpdateAgentLimit((bytes32,uint16)[])": FunctionFragment;
@@ -244,20 +235,6 @@ export interface ContextManagerInterface extends utils.Interface {
       | "CTX_MESSAGE_TYPEHASH()"
       | "FUNCTION_MESSAGE_TYPEHASH"
       | "FUNCTION_MESSAGE_TYPEHASH()"
-      | "LIVELY_VERSE_ADMIN_TYPE_ID"
-      | "LIVELY_VERSE_ADMIN_TYPE_ID()"
-      | "LIVELY_VERSE_AGENT_MASTER_TYPE_ID"
-      | "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()"
-      | "LIVELY_VERSE_ANONYMOUSE_TYPE_ID"
-      | "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()"
-      | "LIVELY_VERSE_ANY_TYPE_ID"
-      | "LIVELY_VERSE_ANY_TYPE_ID()"
-      | "LIVELY_VERSE_POLICY_MASTER_TYPE_ID"
-      | "LIVELY_VERSE_POLICY_MASTER_TYPE_ID()"
-      | "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID"
-      | "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID()"
-      | "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID"
-      | "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID()"
       | "PREDICT_CTX_MESSAGE_TYPEHASH"
       | "PREDICT_CTX_MESSAGE_TYPEHASH()"
       | "TYPE_HASH"
@@ -270,6 +247,8 @@ export interface ContextManagerInterface extends utils.Interface {
       | "contextCheckAdmin(bytes32,address)"
       | "contextCheckId"
       | "contextCheckId(bytes32)"
+      | "contextDeleteActivity"
+      | "contextDeleteActivity(bytes32[])"
       | "contextGetContextInfo"
       | "contextGetContextInfo(bytes32)"
       | "contextGetFunctions"
@@ -279,7 +258,7 @@ export interface ContextManagerInterface extends utils.Interface {
       | "contextHasSelector"
       | "contextHasSelector(address,bytes4)"
       | "contextRegister"
-      | "contextRegister((bytes32,bytes32,bytes32,string,string,address,address,address,uint16,uint8,uint8,bytes,bytes4[])[])"
+      | "contextRegister((bytes32,bytes32,bytes32,string,string,address,address,address,uint16,uint8,uint8,bytes)[])"
       | "contextUpdateActivityStatus"
       | "contextUpdateActivityStatus((bytes32,uint8)[])"
       | "contextUpdateAdmin"
@@ -341,62 +320,6 @@ export interface ContextManagerInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_ADMIN_TYPE_ID",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_ADMIN_TYPE_ID()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_AGENT_MASTER_TYPE_ID",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_ANONYMOUSE_TYPE_ID",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_ANY_TYPE_ID",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_ANY_TYPE_ID()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_POLICY_MASTER_TYPE_ID",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_POLICY_MASTER_TYPE_ID()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "PREDICT_CTX_MESSAGE_TYPEHASH",
     values?: undefined
   ): string;
@@ -442,6 +365,14 @@ export interface ContextManagerInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
+    functionFragment: "contextDeleteActivity",
+    values: [PromiseOrValue<BytesLike>[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "contextDeleteActivity(bytes32[])",
+    values: [PromiseOrValue<BytesLike>[]]
+  ): string;
+  encodeFunctionData(
     functionFragment: "contextGetContextInfo",
     values: [PromiseOrValue<BytesLike>]
   ): string;
@@ -478,40 +409,40 @@ export interface ContextManagerInterface extends utils.Interface {
     values: [IContextManagement.ContextRegisterRequestStruct[]]
   ): string;
   encodeFunctionData(
-    functionFragment: "contextRegister((bytes32,bytes32,bytes32,string,string,address,address,address,uint16,uint8,uint8,bytes,bytes4[])[])",
+    functionFragment: "contextRegister((bytes32,bytes32,bytes32,string,string,address,address,address,uint16,uint8,uint8,bytes)[])",
     values: [IContextManagement.ContextRegisterRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "contextUpdateActivityStatus",
-    values: [IAclCommons.UpdateActivityRequestStruct[]]
+    values: [IACLCommons.UpdateActivityRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "contextUpdateActivityStatus((bytes32,uint8)[])",
-    values: [IAclCommons.UpdateActivityRequestStruct[]]
+    values: [IACLCommons.UpdateActivityRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "contextUpdateAdmin",
-    values: [IAclCommons.UpdateAdminRequestStruct[]]
+    values: [IACLCommons.UpdateAdminRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "contextUpdateAdmin((bytes32,bytes32)[])",
-    values: [IAclCommons.UpdateAdminRequestStruct[]]
+    values: [IACLCommons.UpdateAdminRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "contextUpdateAgentLimit",
-    values: [IAclCommons.ScopeUpdateAgentLimitRequestStruct[]]
+    values: [IACLCommons.ScopeUpdateAgentLimitRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "contextUpdateAgentLimit((bytes32,uint16)[])",
-    values: [IAclCommons.ScopeUpdateAgentLimitRequestStruct[]]
+    values: [IACLCommons.ScopeUpdateAgentLimitRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "contextUpdateAlterabilityStatus",
-    values: [IAclCommons.UpdateAlterabilityRequestStruct[]]
+    values: [IACLCommons.UpdateAlterabilityRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "contextUpdateAlterabilityStatus((bytes32,uint8)[])",
-    values: [IAclCommons.UpdateAlterabilityRequestStruct[]]
+    values: [IACLCommons.UpdateAlterabilityRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "contractName",
@@ -672,62 +603,6 @@ export interface ContextManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_ADMIN_TYPE_ID",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_ADMIN_TYPE_ID()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_AGENT_MASTER_TYPE_ID",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_ANONYMOUSE_TYPE_ID",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_ANY_TYPE_ID",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_ANY_TYPE_ID()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_POLICY_MASTER_TYPE_ID",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_POLICY_MASTER_TYPE_ID()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "PREDICT_CTX_MESSAGE_TYPEHASH",
     data: BytesLike
   ): Result;
@@ -773,6 +648,14 @@ export interface ContextManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "contextDeleteActivity",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "contextDeleteActivity(bytes32[])",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "contextGetContextInfo",
     data: BytesLike
   ): Result;
@@ -809,7 +692,7 @@ export interface ContextManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "contextRegister((bytes32,bytes32,bytes32,string,string,address,address,address,uint16,uint8,uint8,bytes,bytes4[])[])",
+    functionFragment: "contextRegister((bytes32,bytes32,bytes32,string,string,address,address,address,uint16,uint8,uint8,bytes)[])",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1300,56 +1183,6 @@ export interface ContextManager extends BaseContract {
 
     "FUNCTION_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<[string]>;
 
-    LIVELY_VERSE_ADMIN_TYPE_ID(overrides?: CallOverrides): Promise<[string]>;
-
-    "LIVELY_VERSE_ADMIN_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    LIVELY_VERSE_AGENT_MASTER_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    LIVELY_VERSE_ANONYMOUSE_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    LIVELY_VERSE_ANY_TYPE_ID(overrides?: CallOverrides): Promise<[string]>;
-
-    "LIVELY_VERSE_ANY_TYPE_ID()"(overrides?: CallOverrides): Promise<[string]>;
-
-    LIVELY_VERSE_POLICY_MASTER_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    "LIVELY_VERSE_POLICY_MASTER_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    LIVELY_VERSE_SCOPE_MASTER_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
     PREDICT_CTX_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<[string]>;
 
     "PREDICT_CTX_MESSAGE_TYPEHASH()"(
@@ -1395,6 +1228,16 @@ export interface ContextManager extends BaseContract {
       contextId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
+
+    contextDeleteActivity(
+      requests: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "contextDeleteActivity(bytes32[])"(
+      requests: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     contextGetContextInfo(
       contextId: PromiseOrValue<BytesLike>,
@@ -1445,48 +1288,48 @@ export interface ContextManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "contextRegister((bytes32,bytes32,bytes32,string,string,address,address,address,uint16,uint8,uint8,bytes,bytes4[])[])"(
+    "contextRegister((bytes32,bytes32,bytes32,string,string,address,address,address,uint16,uint8,uint8,bytes)[])"(
       requests: IContextManagement.ContextRegisterRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     contextUpdateActivityStatus(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "contextUpdateActivityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     contextUpdateAdmin(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "contextUpdateAdmin((bytes32,bytes32)[])"(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     contextUpdateAgentLimit(
-      requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+      requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "contextUpdateAgentLimit((bytes32,uint16)[])"(
-      requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+      requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     contextUpdateAlterabilityStatus(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "contextUpdateAlterabilityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -1617,46 +1460,6 @@ export interface ContextManager extends BaseContract {
 
   "FUNCTION_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
 
-  LIVELY_VERSE_ADMIN_TYPE_ID(overrides?: CallOverrides): Promise<string>;
-
-  "LIVELY_VERSE_ADMIN_TYPE_ID()"(overrides?: CallOverrides): Promise<string>;
-
-  LIVELY_VERSE_AGENT_MASTER_TYPE_ID(overrides?: CallOverrides): Promise<string>;
-
-  "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()"(
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  LIVELY_VERSE_ANONYMOUSE_TYPE_ID(overrides?: CallOverrides): Promise<string>;
-
-  "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()"(
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  LIVELY_VERSE_ANY_TYPE_ID(overrides?: CallOverrides): Promise<string>;
-
-  "LIVELY_VERSE_ANY_TYPE_ID()"(overrides?: CallOverrides): Promise<string>;
-
-  LIVELY_VERSE_POLICY_MASTER_TYPE_ID(
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  "LIVELY_VERSE_POLICY_MASTER_TYPE_ID()"(
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  LIVELY_VERSE_SCOPE_MASTER_TYPE_ID(overrides?: CallOverrides): Promise<string>;
-
-  "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID()"(
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID(overrides?: CallOverrides): Promise<string>;
-
-  "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID()"(
-    overrides?: CallOverrides
-  ): Promise<string>;
-
   PREDICT_CTX_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
   "PREDICT_CTX_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
@@ -1700,6 +1503,16 @@ export interface ContextManager extends BaseContract {
     contextId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<boolean>;
+
+  contextDeleteActivity(
+    requests: PromiseOrValue<BytesLike>[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "contextDeleteActivity(bytes32[])"(
+    requests: PromiseOrValue<BytesLike>[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   contextGetContextInfo(
     contextId: PromiseOrValue<BytesLike>,
@@ -1750,48 +1563,48 @@ export interface ContextManager extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "contextRegister((bytes32,bytes32,bytes32,string,string,address,address,address,uint16,uint8,uint8,bytes,bytes4[])[])"(
+  "contextRegister((bytes32,bytes32,bytes32,string,string,address,address,address,uint16,uint8,uint8,bytes)[])"(
     requests: IContextManagement.ContextRegisterRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   contextUpdateActivityStatus(
-    requests: IAclCommons.UpdateActivityRequestStruct[],
+    requests: IACLCommons.UpdateActivityRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "contextUpdateActivityStatus((bytes32,uint8)[])"(
-    requests: IAclCommons.UpdateActivityRequestStruct[],
+    requests: IACLCommons.UpdateActivityRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   contextUpdateAdmin(
-    requests: IAclCommons.UpdateAdminRequestStruct[],
+    requests: IACLCommons.UpdateAdminRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "contextUpdateAdmin((bytes32,bytes32)[])"(
-    requests: IAclCommons.UpdateAdminRequestStruct[],
+    requests: IACLCommons.UpdateAdminRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   contextUpdateAgentLimit(
-    requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+    requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "contextUpdateAgentLimit((bytes32,uint16)[])"(
-    requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+    requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   contextUpdateAlterabilityStatus(
-    requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+    requests: IACLCommons.UpdateAlterabilityRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "contextUpdateAlterabilityStatus((bytes32,uint8)[])"(
-    requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+    requests: IACLCommons.UpdateAlterabilityRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1920,52 +1733,6 @@ export interface ContextManager extends BaseContract {
 
     "FUNCTION_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
 
-    LIVELY_VERSE_ADMIN_TYPE_ID(overrides?: CallOverrides): Promise<string>;
-
-    "LIVELY_VERSE_ADMIN_TYPE_ID()"(overrides?: CallOverrides): Promise<string>;
-
-    LIVELY_VERSE_AGENT_MASTER_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    LIVELY_VERSE_ANONYMOUSE_TYPE_ID(overrides?: CallOverrides): Promise<string>;
-
-    "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    LIVELY_VERSE_ANY_TYPE_ID(overrides?: CallOverrides): Promise<string>;
-
-    "LIVELY_VERSE_ANY_TYPE_ID()"(overrides?: CallOverrides): Promise<string>;
-
-    LIVELY_VERSE_POLICY_MASTER_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    "LIVELY_VERSE_POLICY_MASTER_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    LIVELY_VERSE_SCOPE_MASTER_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<string>;
-
     PREDICT_CTX_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
     "PREDICT_CTX_MESSAGE_TYPEHASH()"(
@@ -2009,6 +1776,16 @@ export interface ContextManager extends BaseContract {
 
     "contextCheckId(bytes32)"(
       contextId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    contextDeleteActivity(
+      requests: PromiseOrValue<BytesLike>[],
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "contextDeleteActivity(bytes32[])"(
+      requests: PromiseOrValue<BytesLike>[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -2061,48 +1838,48 @@ export interface ContextManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "contextRegister((bytes32,bytes32,bytes32,string,string,address,address,address,uint16,uint8,uint8,bytes,bytes4[])[])"(
+    "contextRegister((bytes32,bytes32,bytes32,string,string,address,address,address,uint16,uint8,uint8,bytes)[])"(
       requests: IContextManagement.ContextRegisterRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     contextUpdateActivityStatus(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     "contextUpdateActivityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     contextUpdateAdmin(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     "contextUpdateAdmin((bytes32,bytes32)[])"(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     contextUpdateAgentLimit(
-      requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+      requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     "contextUpdateAgentLimit((bytes32,uint16)[])"(
-      requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+      requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     contextUpdateAlterabilityStatus(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     "contextUpdateAlterabilityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -2425,56 +2202,6 @@ export interface ContextManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    LIVELY_VERSE_ADMIN_TYPE_ID(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "LIVELY_VERSE_ADMIN_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    LIVELY_VERSE_AGENT_MASTER_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    LIVELY_VERSE_ANONYMOUSE_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    LIVELY_VERSE_ANY_TYPE_ID(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "LIVELY_VERSE_ANY_TYPE_ID()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    LIVELY_VERSE_POLICY_MASTER_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "LIVELY_VERSE_POLICY_MASTER_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    LIVELY_VERSE_SCOPE_MASTER_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     PREDICT_CTX_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<BigNumber>;
 
     "PREDICT_CTX_MESSAGE_TYPEHASH()"(
@@ -2519,6 +2246,16 @@ export interface ContextManager extends BaseContract {
     "contextCheckId(bytes32)"(
       contextId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    contextDeleteActivity(
+      requests: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "contextDeleteActivity(bytes32[])"(
+      requests: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     contextGetContextInfo(
@@ -2570,48 +2307,48 @@ export interface ContextManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "contextRegister((bytes32,bytes32,bytes32,string,string,address,address,address,uint16,uint8,uint8,bytes,bytes4[])[])"(
+    "contextRegister((bytes32,bytes32,bytes32,string,string,address,address,address,uint16,uint8,uint8,bytes)[])"(
       requests: IContextManagement.ContextRegisterRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     contextUpdateActivityStatus(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "contextUpdateActivityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     contextUpdateAdmin(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "contextUpdateAdmin((bytes32,bytes32)[])"(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     contextUpdateAgentLimit(
-      requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+      requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "contextUpdateAgentLimit((bytes32,uint16)[])"(
-      requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+      requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     contextUpdateAlterabilityStatus(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "contextUpdateAlterabilityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -2747,62 +2484,6 @@ export interface ContextManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    LIVELY_VERSE_ADMIN_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "LIVELY_VERSE_ADMIN_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    LIVELY_VERSE_AGENT_MASTER_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    LIVELY_VERSE_ANONYMOUSE_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    LIVELY_VERSE_ANY_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "LIVELY_VERSE_ANY_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    LIVELY_VERSE_POLICY_MASTER_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "LIVELY_VERSE_POLICY_MASTER_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    LIVELY_VERSE_SCOPE_MASTER_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     PREDICT_CTX_MESSAGE_TYPEHASH(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -2855,6 +2536,16 @@ export interface ContextManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    contextDeleteActivity(
+      requests: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "contextDeleteActivity(bytes32[])"(
+      requests: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     contextGetContextInfo(
       contextId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -2904,48 +2595,48 @@ export interface ContextManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "contextRegister((bytes32,bytes32,bytes32,string,string,address,address,address,uint16,uint8,uint8,bytes,bytes4[])[])"(
+    "contextRegister((bytes32,bytes32,bytes32,string,string,address,address,address,uint16,uint8,uint8,bytes)[])"(
       requests: IContextManagement.ContextRegisterRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     contextUpdateActivityStatus(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "contextUpdateActivityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     contextUpdateAdmin(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "contextUpdateAdmin((bytes32,bytes32)[])"(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     contextUpdateAgentLimit(
-      requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+      requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "contextUpdateAgentLimit((bytes32,uint16)[])"(
-      requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+      requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     contextUpdateAlterabilityStatus(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "contextUpdateAlterabilityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

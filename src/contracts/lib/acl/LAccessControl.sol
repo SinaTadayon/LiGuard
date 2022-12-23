@@ -3,12 +3,12 @@
 
 pragma solidity 0.8.17;
 
-import "../../acl/IAclCommons.sol";
+import "../../acl/IACLCommons.sol";
 // import "../../acl/IContextManagement.sol";
 // import "../../acl/IRoleManagement.sol";
 // import "../../acl/IGroupManagement.sol";
 // import "../../acl/IRealmManagement.sol";
-import "../../acl/AclStorage.sol";
+import "../../acl/ACLStorage.sol";
 import "../../proxy/IProxy.sol";
 import "../struct/LEnumerableSet.sol";
 // import "../LContextUtils.sol";
@@ -26,85 +26,206 @@ library LAccessControl {
   string public constant LIB_NAME = "LAccessControl";
   string public constant LIB_VERSION = "3.0.0";
 
-  bytes32 public constant LIVELY_GENERAL_REALM = keccak256(abi.encodePacked("LIVELY_GENERAL_REALM"));
-  bytes32 public constant LIVELY_ASSET_REALM = keccak256(abi.encodePacked("LIVELY_ASSET_REALM"));
 
-  bytes32 public constant LIVELY_GENERAL_GROUP = keccak256(abi.encodePacked("LIVELY_GENERAL_GROUP"));
-  bytes32 public constant LIVELY_DAO_GROUP = keccak256(abi.encodePacked("LIVELY_DAO_GROUP"));
-  bytes32 public constant LIVELY_ASSET_GROUP = keccak256(abi.encodePacked("LIVELY_ASSET_GROUP"));
+   function initACLAgents() external  {
 
-  bytes32 public constant LIVELY_ADMIN_ROLE = keccak256(abi.encodePacked("LIVELY_ADMIN_ROLE"));
-  bytes32 public constant LIVELY_SYSTEM_ADMIN_ROLE = keccak256(abi.encodePacked("LIVELY_SYSTEM_ADMIN_ROLE"));
+    // init Global Scope
+    _data.global.id = _LIVELY_VERSE_GLOBAL_SCOPE_ID;
+    _data.global.domainLimit = type(uint16).max;
+    _data.global.bs.acstat = ActivityStatus.ENABLED;
+    _data.global.bs.alstat = AlterabilityStatus.UPDATABLE;
+    _data.global.bs.stype = ScopeType.GLOBAL;
+    _data.global.bs.agentLimit = type(uint16).max;
+    _data.global.bs.adminId = _LIVELY_VERSE_LIVELY_MASTER_TYPE_ID;
 
-  bytes32 public constant LIVELY_ASSET_MANAGER_ROLE = keccak256(abi.encodePacked("LIVELY_ASSET_MANAGER_ROLE"));
-  bytes32 public constant LIVELY_ASSET_ADMIN_ROLE = keccak256(abi.encodePacked("LIVELY_ASSET_ADMIN_ROLE"));
+    // Create Lively Master Type       
+    TypeEntity storage livelyMasterType = _data.typeWriteSlot(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID);
+    livelyMasterType.name = "LIVELY_VERSE_LIVELY_MASTER_TYPE";
+    livelyMasterType.roleLimit = 3;
+    livelyMasterType.scopeId = _LIVELY_VERSE_GLOBAL_SCOPE_ID;
+    livelyMasterType.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
+    livelyMasterType.ba.atype = AgentType.TYPE;
+    livelyMasterType.ba.scopeLimit = type(uint16).max;
+    livelyMasterType.ba.acstat = ActivityStatus.ENABLED;
+    livelyMasterType.ba.alstat = AlterabilityStatus.UPDATABLE;
+    livelyMasterType.roles.add(_LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
+          
+    // Create Lively Master Admin Role
+    RoleEntity storage livelyMasterAdminRole = _data.roleWriteSlot(_LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
+    livelyMasterAdminRole.name = "LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE";
+    livelyMasterAdminRole.scopeId = _LIVELY_VERSE_GLOBAL_SCOPE_ID;
+    livelyMasterAdminRole.typeId = _LIVELY_VERSE_LIVELY_MASTER_TYPE_ID;
+    livelyMasterAdminRole.memberLimit = 7;
+    livelyMasterAdminRole.ba.scopeLimit = 7;
+    livelyMasterAdminRole.ba.atype = AgentType.ROLE;
+    livelyMasterAdminRole.ba.acstat = ActivityStatus.ENABLED;
+    livelyMasterAdminRole.ba.alstat = AlterabilityStatus.UPDATABLE;
+    livelyMasterAdminRole.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
 
-  bytes32 public constant LIVELY_COMMUNITY_DAO_ROLE = keccak256(abi.encodePacked("LIVELY_COMMUNITY_DAO_ROLE"));
-  bytes32 public constant LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE =
-    keccak256(abi.encodePacked("LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE"));
+    // Create Lively Master Admin Member
+    bytes32 livelyMasterAdminMemberId = keccak256(abi.encode(0xA77AFA407D4E78cAEC58bA7783AF98f828b9cf36));
+    MemberEntity storage livelyMasterAdminMember = _data.memberWriteSlot(livelyMasterAdminMemberId);
+    livelyMasterAdminMember.typeLimit = type(uint16).max;      
+    livelyMasterAdminMember.account = address(0xA77AFA407D4E78cAEC58bA7783AF98f828b9cf36);
+    livelyMasterAdminMember.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
+    livelyMasterAdminMember.ba.atype = AgentType.MEMBER;
+    livelyMasterAdminMember.ba.alstat = AlterabilityStatus.UPDATABLE;
+    livelyMasterAdminMember.ba.acstat = ActivityStatus.ENABLED;      
 
-  bytes32 public constant LIVELY_ANONYMOUS_ROLE = keccak256(abi.encodePacked("LIVELY_ANONYMOUS_ROLE"));
+    // bind Lively Master Admin Member to Admin role of Lively, Scope, Agent and Policy types
+    livelyMasterAdminMember.types.add(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID);
+    livelyMasterAdminMember.types.add(_LIVELY_VERSE_SCOPE_MASTER_TYPE_ID);
+    livelyMasterAdminMember.types.add(_LIVELY_VERSE_AGENT_MASTER_TYPE_ID);
+    livelyMasterAdminMember.types.add(_LIVELY_VERSE_POLICY_MASTER_TYPE_ID);
 
-  // function initializeContext(AclStorage.DataCollection storage data) external {
-  //   data.accountMap[msg.sender][LIVELY_ADMIN_ROLE] = AccessControlStorage.Status.ENABLED;
-  //   data.accountMap[msg.sender][LIVELY_SYSTEM_ADMIN_ROLE] = AccessControlStorage.Status.ENABLED;
+    // bind Lively Master Admin Member to Admin role
+    livelyMasterType.members[livelyMasterAdminMemberId] = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
 
-  //   data.roleMap[LIVELY_ADMIN_ROLE].name = "LIVELY_ADMIN_ROLE";
-  //   data.roleMap[LIVELY_ADMIN_ROLE].isEnabled = true;
-  //   data.roleMap[LIVELY_ADMIN_ROLE].group = LIVELY_GENERAL_GROUP;
-  //   data.roleMap[LIVELY_ADMIN_ROLE].accountSet.add(msg.sender);
 
-  //   data.roleMap[LIVELY_SYSTEM_ADMIN_ROLE].name = "LIVELY_SYSTEM_ADMIN_ROLE";
-  //   data.roleMap[LIVELY_SYSTEM_ADMIN_ROLE].isEnabled = true;
-  //   data.roleMap[LIVELY_SYSTEM_ADMIN_ROLE].group = LIVELY_GENERAL_GROUP;
-  //   data.roleMap[LIVELY_SYSTEM_ADMIN_ROLE].accountSet.add(msg.sender);
+    // Create System Master Type       
+    TypeEntity storage systemMasterType = _data.typeWriteSlot(_LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID);
+    systemMasterType.name = "LIVELY_VERSE_SYSTEM_MASTER_TYPE";
+    systemMasterType.roleLimit = type(uint16).max;
+    systemMasterType.scopeId = _LIVELY_VERSE_GLOBAL_SCOPE_ID;
+    systemMasterType.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
+    systemMasterType.ba.atype = AgentType.TYPE;
+    systemMasterType.ba.scopeLimit = type(uint16).max;
+    systemMasterType.ba.acstat = ActivityStatus.ENABLED;
+    systemMasterType.ba.alstat = AlterabilityStatus.UPDATABLE;
+    systemMasterType.roles.add(_LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID);
 
-  //   data.roleMap[LIVELY_ASSET_MANAGER_ROLE].name = "LIVELY_ASSET_MANAGER_ROLE";
-  //   data.roleMap[LIVELY_ASSET_MANAGER_ROLE].isEnabled = true;
-  //   data.roleMap[LIVELY_ASSET_MANAGER_ROLE].group = LIVELY_ASSET_GROUP;
+    // Create System Master Admin Role
+    RoleEntity storage systemMasterAdminRole = _data.roleWriteSlot(_LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID);
+    systemMasterAdminRole.name = "LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE";
+    systemMasterAdminRole.scopeId = _LIVELY_VERSE_GLOBAL_SCOPE_ID;
+    systemMasterAdminRole.typeId = _LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID;
+    systemMasterAdminRole.memberLimit = 7;
+    systemMasterAdminRole.ba.scopeLimit = 7;
+    systemMasterAdminRole.ba.atype = AgentType.ROLE;
+    systemMasterAdminRole.ba.acstat = ActivityStatus.ENABLED;
+    systemMasterAdminRole.ba.alstat = AlterabilityStatus.UPDATABLE;
+    systemMasterAdminRole.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
 
-  //   data.roleMap[LIVELY_ASSET_ADMIN_ROLE].name = "LIVELY_ASSET_ADMIN_ROLE";
-  //   data.roleMap[LIVELY_ASSET_ADMIN_ROLE].isEnabled = true;
-  //   data.roleMap[LIVELY_ASSET_ADMIN_ROLE].group = LIVELY_ASSET_GROUP;
+    // Create System Master Admin Member
+    bytes32 systemMasterAdminMemberId = keccak256(abi.encode(0xCB93d383638cc7B174FE2139Dec8570521Bb8118));
+    MemberEntity storage systemMasterAdminMember = _data.memberWriteSlot(systemMasterAdminMemberId);
+    systemMasterAdminMember.typeLimit = type(uint16).max;
+    systemMasterAdminMember.types.add(_LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID);
+    systemMasterAdminMember.account = address(0xCB93d383638cc7B174FE2139Dec8570521Bb8118);
+    systemMasterAdminMember.factoryLimit = 64;
+    systemMasterAdminMember.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
+    systemMasterAdminMember.ba.atype = AgentType.MEMBER;
+    systemMasterAdminMember.ba.alstat = AlterabilityStatus.UPDATABLE;
+    systemMasterAdminMember.ba.acstat = ActivityStatus.ENABLED;
+    
+    // bind Lively Master Admin Member to Admin role
+    systemMasterType.members[systemMasterAdminMemberId] = _LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID;
 
-  //   data.roleMap[LIVELY_COMMUNITY_DAO_ROLE].name = "LIVELY_COMMUNITY_DAO_ROLE";
-  //   data.roleMap[LIVELY_COMMUNITY_DAO_ROLE].isEnabled = true;
-  //   data.roleMap[LIVELY_COMMUNITY_DAO_ROLE].group = LIVELY_DAO_GROUP;
 
-  //   data.roleMap[LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE].name = "LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE";
-  //   data.roleMap[LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE].isEnabled = true;
-  //   data.roleMap[LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE].group = LIVELY_DAO_GROUP;
+    // Create Scope Master Type       
+    TypeEntity storage scopeMasterType = _data.typeWriteSlot(_LIVELY_VERSE_SCOPE_MASTER_TYPE_ID);
+    scopeMasterType.name = "LIVELY_VERSE_SCOPE_MASTER_TYPE";
+    scopeMasterType.roleLimit = 3;
+    scopeMasterType.scopeId = _LIVELY_VERSE_GLOBAL_SCOPE_ID;
+    scopeMasterType.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
+    scopeMasterType.ba.atype = AgentType.TYPE;
+    scopeMasterType.ba.scopeLimit = type(uint16).max;
+    scopeMasterType.ba.acstat = ActivityStatus.ENABLED;
+    scopeMasterType.ba.alstat = AlterabilityStatus.UPDATABLE;
+    scopeMasterType.roles.add(_LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID);
+    scopeMasterType.members[livelyMasterAdminMemberId] = _LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID;
+    
 
-  //   data.roleMap[LIVELY_ANONYMOUS_ROLE].name = "LIVELY_ANONYMOUS_ROLE";
-  //   data.roleMap[LIVELY_ANONYMOUS_ROLE].isEnabled = true;
-  //   data.roleMap[LIVELY_ANONYMOUS_ROLE].group = LIVELY_GENERAL_GROUP;
+      // Create Scope Master Admin Role
+    RoleEntity storage scopeMasterAdminRole = _data.roleWriteSlot(_LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID);
+    scopeMasterAdminRole.name = "LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE";
+    scopeMasterAdminRole.scopeId = _LIVELY_VERSE_GLOBAL_SCOPE_ID;
+    scopeMasterAdminRole.typeId = _LIVELY_VERSE_SCOPE_MASTER_TYPE_ID;
+    scopeMasterAdminRole.memberLimit = 7;
+    scopeMasterAdminRole.ba.scopeLimit = 7;
+    scopeMasterAdminRole.ba.atype = AgentType.ROLE;
+    scopeMasterAdminRole.ba.acstat = ActivityStatus.ENABLED;
+    scopeMasterAdminRole.ba.alstat = AlterabilityStatus.UPDATABLE;
+    scopeMasterAdminRole.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;          
+    
 
-  //   data.groupMap[LIVELY_GENERAL_GROUP].name = "LIVELY_GENERAL_GROUP";
-  //   data.groupMap[LIVELY_GENERAL_GROUP].isEnabled = true;
-  //   data.groupMap[LIVELY_GENERAL_GROUP].roleSet.add(LIVELY_ADMIN_ROLE);
-  //   data.groupMap[LIVELY_GENERAL_GROUP].roleSet.add(LIVELY_SYSTEM_ADMIN_ROLE);
+    // Create Scope Master Type       
+    TypeEntity storage agentMasterType = _data.typeWriteSlot(_LIVELY_VERSE_AGENT_MASTER_TYPE_ID);
+    agentMasterType.name = "LIVELY_VERSE_AGENT_MASTER_TYPE";
+    agentMasterType.roleLimit = 3;
+    agentMasterType.scopeId = _LIVELY_VERSE_GLOBAL_SCOPE_ID;
+    agentMasterType.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
+    agentMasterType.ba.atype = AgentType.TYPE;
+    agentMasterType.ba.scopeLimit = type(uint16).max;
+    agentMasterType.ba.acstat = ActivityStatus.ENABLED;
+    agentMasterType.ba.alstat = AlterabilityStatus.UPDATABLE;
+    agentMasterType.roles.add(_LIVELY_VERSE_AGENT_MASTER_ADMIN_ROLE_ID);
+    agentMasterType.members[livelyMasterAdminMemberId] = _LIVELY_VERSE_AGENT_MASTER_ADMIN_ROLE_ID;
 
-  //   data.groupMap[LIVELY_DAO_GROUP].name = "LIVELY_DAO_GROUP";
-  //   data.groupMap[LIVELY_DAO_GROUP].isEnabled = true;
-  //   data.groupMap[LIVELY_DAO_GROUP].roleSet.add(LIVELY_COMMUNITY_DAO_ROLE);
-  //   data.groupMap[LIVELY_DAO_GROUP].roleSet.add(LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE);
+    // Create Agent Master Admin Role
+    RoleEntity storage agentMasterAdminRole = _data.roleWriteSlot(_LIVELY_VERSE_AGENT_MASTER_ADMIN_ROLE_ID);
+    agentMasterAdminRole.name = "LIVELY_VERSE_AGNET_MASTER_ADMIN_ROLE";
+    agentMasterAdminRole.scopeId = _LIVELY_VERSE_GLOBAL_SCOPE_ID;
+    agentMasterAdminRole.typeId = _LIVELY_VERSE_AGENT_MASTER_TYPE_ID;
+    agentMasterAdminRole.memberLimit = 7;
+    agentMasterAdminRole.ba.scopeLimit = 7;
+    agentMasterAdminRole.ba.atype = AgentType.ROLE;
+    agentMasterAdminRole.ba.acstat = ActivityStatus.ENABLED;
+    agentMasterAdminRole.ba.alstat = AlterabilityStatus.UPDATABLE;
+    agentMasterAdminRole.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
+    
+    // Create Policy Master Type
+    TypeEntity storage policyMasterType = _data.typeWriteSlot(_LIVELY_VERSE_POLICY_MASTER_TYPE_ID);
+    policyMasterType.name = "LIVELY_VERSE_POLICY_MASTER_TYPE";
+    policyMasterType.roleLimit = 3;
+    policyMasterType.scopeId = _LIVELY_VERSE_GLOBAL_SCOPE_ID;
+    policyMasterType.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
+    policyMasterType.ba.atype = AgentType.TYPE;
+    policyMasterType.ba.scopeLimit = type(uint16).max;
+    policyMasterType.ba.acstat = ActivityStatus.ENABLED;
+    policyMasterType.ba.alstat = AlterabilityStatus.UPDATABLE;
+    policyMasterType.roles.add(_LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE_ID);
+    policyMasterType.members[livelyMasterAdminMemberId] = _LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE_ID;
 
-  //   data.groupMap[LIVELY_ASSET_GROUP].name = "LIVELY_ASSET_GROUP";
-  //   data.groupMap[LIVELY_ASSET_GROUP].isEnabled = true;
-  //   data.groupMap[LIVELY_ASSET_GROUP].roleSet.add(LIVELY_ASSET_MANAGER_ROLE);
-  //   data.groupMap[LIVELY_ASSET_GROUP].roleSet.add(LIVELY_ASSET_ADMIN_ROLE);
+    // Create Policy Master Admin Role
+    RoleEntity storage policyMasterAdminRole = _data.roleWriteSlot(_LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE_ID);
+    policyMasterAdminRole.name = "LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE";
+    policyMasterAdminRole.scopeId = _LIVELY_VERSE_GLOBAL_SCOPE_ID;
+    policyMasterAdminRole.typeId = _LIVELY_VERSE_POLICY_MASTER_TYPE_ID;
+    policyMasterAdminRole.memberLimit = 7;
+    policyMasterAdminRole.ba.scopeLimit = 7;
+    policyMasterAdminRole.ba.atype = AgentType.ROLE;
+    policyMasterAdminRole.ba.acstat = ActivityStatus.ENABLED;
+    policyMasterAdminRole.ba.alstat = AlterabilityStatus.UPDATABLE;
+    policyMasterAdminRole.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
+    
 
-  //   data.realmMap[LIVELY_GENERAL_REALM].name = "LIVELY_GENERAL_REALM";
-  //   data.realmMap[LIVELY_GENERAL_REALM].isEnabled = true;
-  //   data.realmMap[LIVELY_GENERAL_REALM].isUpgradable = true;
-  //   data.realmMap[LIVELY_GENERAL_REALM].ctxSet.add(LContextUtils.generateCtx(address(this)));
+    // Create Anonymouse  Type
+    TypeEntity storage anonymouseType = _data.typeWriteSlot(_LIVELY_VERSE_ANONYMOUSE_TYPE_ID);
+    anonymouseType.name = "LIVELY_VERSE_POLICY_MASTER_TYPE";
+    anonymouseType.roleLimit = 0;
+    anonymouseType.scopeId = _LIVELY_VERSE_GLOBAL_SCOPE_ID;
+    anonymouseType.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
+    anonymouseType.ba.atype = AgentType.TYPE;
+    anonymouseType.ba.scopeLimit = type(uint16).max;
+    anonymouseType.ba.acstat = ActivityStatus.ENABLED;
+    anonymouseType.ba.alstat = AlterabilityStatus.UPDATABLE;
 
-  //   data.realmMap[LIVELY_ASSET_REALM].name = "LIVELY_ASSET_REALM";
-  //   data.realmMap[LIVELY_ASSET_REALM].isEnabled = true;
-  //   data.realmMap[LIVELY_ASSET_REALM].isUpgradable = true;
-  // }
+    // Create Any Type
+    TypeEntity storage anyType = _data.typeWriteSlot(_LIVELY_VERSE_ANY_TYPE_ID);
+    anyType.name = "LIVELY_VERSE_POLICY_MASTER_TYPE";
+    anyType.roleLimit = 0;
+    anyType.scopeId = _LIVELY_VERSE_GLOBAL_SCOPE_ID;
+    anyType.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
+    anyType.ba.atype = AgentType.TYPE;
+    anyType.ba.scopeLimit = type(uint16).max;
+    anyType.ba.acstat = ActivityStatus.ENABLED;
+    anyType.ba.alstat = AlterabilityStatus.UPDATABLE;
 
-  function registerProxyFacet(AclStorage.DataCollection storage data) external {
+    // _firstInit = true;
+  }
+
+  function registerProxyFacet(ACLStorage.DataCollection storage data) external {
     data.facets.add(address(this));
     data.selectors[IProxy.upgradeTo.selector] = address(this);
     data.selectors[IProxy.setSafeModeStatus.selector] = address(this);
@@ -123,43 +244,4 @@ library LAccessControl {
     data.selectors[IProxy.proxyInfo.selector] = address(this);
   }
 
-  // function createRequestContext() external pure returns (IContextManagement.RequestRegisterContext[] memory) {
-  //   IContextManagement.RequestRegisterContext[] memory rrc = new IContextManagement.RequestRegisterContext[](2);
-  //   rrc[0].role = LIVELY_ADMIN_ROLE;
-  //   rrc[0].isEnabled = true;
-  //   rrc[0].funcSelectors = new bytes4[](23);
-  //   rrc[0].funcSelectors[0] = IProxy.setUpgradeStatus.selector;
-  //   rrc[0].funcSelectors[1] = IProxy.setSafeMode.selector;
-  //   rrc[0].funcSelectors[2] = IContextManagement.addContextFuncRole.selector;
-  //   rrc[0].funcSelectors[3] = IContextManagement.removeContextFunc.selector;
-  //   rrc[0].funcSelectors[4] = IContextManagement.grantContextRole.selector;
-  //   rrc[0].funcSelectors[5] = IContextManagement.revokeContextRole.selector;
-  //   rrc[0].funcSelectors[6] = IContextManagement.setContextRealm.selector;
-  //   rrc[0].funcSelectors[7] = IContextManagement.setContextStatus.selector;
-  //   rrc[0].funcSelectors[8] = IContextManagement.setPermitRegisterContext.selector;
-  //   rrc[0].funcSelectors[9] = IRoleManagement.registerRole.selector;
-  //   rrc[0].funcSelectors[10] = IRoleManagement.batchRegisterRole.selector;
-  //   rrc[0].funcSelectors[11] = IRoleManagement.grantRoleAccount.selector;
-  //   rrc[0].funcSelectors[12] = IRoleManagement.batchGrantRoleAccount.selector;
-  //   rrc[0].funcSelectors[13] = IRoleManagement.revokeRoleAccount.selector;
-  //   rrc[0].funcSelectors[14] = IRoleManagement.batchRevokeRoleAccount.selector;
-  //   rrc[0].funcSelectors[15] = IRoleManagement.setRoleStatus.selector;
-  //   rrc[0].funcSelectors[16] = IRoleManagement.setRoleGroup.selector;
-  //   rrc[0].funcSelectors[17] = IGroupManagement.registerGroup.selector;
-  //   rrc[0].funcSelectors[18] = IGroupManagement.setGroupStatus.selector;
-  //   rrc[0].funcSelectors[19] = IRealmManagement.registerRealm.selector;
-  //   rrc[0].funcSelectors[20] = IRealmManagement.setRealmStatus.selector;
-  //   rrc[0].funcSelectors[21] = IRealmManagement.setRealmUpgradeStatus.selector;
-  //   rrc[0].funcSelectors[22] = bytes4(keccak256("withdrawBalance(address)"));
-
-  //   rrc[1].role = LIVELY_SYSTEM_ADMIN_ROLE;
-  //   rrc[1].isEnabled = true;
-  //   rrc[1].funcSelectors = new bytes4[](4);
-  //   rrc[1].funcSelectors[0] = IProxy.setLocalAdmin.selector;
-  //   rrc[1].funcSelectors[1] = IProxy.upgradeTo.selector;
-  //   rrc[1].funcSelectors[2] = IContextManagement.registerContext.selector;
-  //   rrc[1].funcSelectors[3] = IContextManagement.updateContext.selector;
-
-  //   return rrc;
-  // }
 }

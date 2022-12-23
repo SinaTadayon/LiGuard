@@ -130,7 +130,7 @@ export declare namespace IRoleManagement {
   };
 }
 
-export declare namespace IAclCommons {
+export declare namespace IACLCommons {
   export type UpdateActivityRequestStruct = {
     id: PromiseOrValue<BytesLike>;
     acstat: PromiseOrValue<BigNumberish>;
@@ -177,6 +177,7 @@ export interface IRoleManagementInterface extends utils.Interface {
     "roleCheckAdmin(bytes32,address)": FunctionFragment;
     "roleCheckId(bytes32)": FunctionFragment;
     "roleCheckName(string)": FunctionFragment;
+    "roleDeleteActivity(bytes32[])": FunctionFragment;
     "roleGetInfo(bytes32)": FunctionFragment;
     "roleGrantMembers((bytes32,bytes32[])[])": FunctionFragment;
     "roleHasAccount(bytes32,address)": FunctionFragment;
@@ -197,6 +198,8 @@ export interface IRoleManagementInterface extends utils.Interface {
       | "roleCheckId(bytes32)"
       | "roleCheckName"
       | "roleCheckName(string)"
+      | "roleDeleteActivity"
+      | "roleDeleteActivity(bytes32[])"
       | "roleGetInfo"
       | "roleGetInfo(bytes32)"
       | "roleGrantMembers"
@@ -244,6 +247,14 @@ export interface IRoleManagementInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
+    functionFragment: "roleDeleteActivity",
+    values: [PromiseOrValue<BytesLike>[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "roleDeleteActivity(bytes32[])",
+    values: [PromiseOrValue<BytesLike>[]]
+  ): string;
+  encodeFunctionData(
     functionFragment: "roleGetInfo",
     values: [PromiseOrValue<BytesLike>]
   ): string;
@@ -285,27 +296,27 @@ export interface IRoleManagementInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "roleUpdateActivityStatus",
-    values: [IAclCommons.UpdateActivityRequestStruct[]]
+    values: [IACLCommons.UpdateActivityRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "roleUpdateActivityStatus((bytes32,uint8)[])",
-    values: [IAclCommons.UpdateActivityRequestStruct[]]
+    values: [IACLCommons.UpdateActivityRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "roleUpdateAdmin",
-    values: [IAclCommons.UpdateAdminRequestStruct[]]
+    values: [IACLCommons.UpdateAdminRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "roleUpdateAdmin((bytes32,bytes32)[])",
-    values: [IAclCommons.UpdateAdminRequestStruct[]]
+    values: [IACLCommons.UpdateAdminRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "roleUpdateAlterabilityStatus",
-    values: [IAclCommons.UpdateAlterabilityRequestStruct[]]
+    values: [IACLCommons.UpdateAlterabilityRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "roleUpdateAlterabilityStatus((bytes32,uint8)[])",
-    values: [IAclCommons.UpdateAlterabilityRequestStruct[]]
+    values: [IACLCommons.UpdateAlterabilityRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "roleUpdateMemberLimit",
@@ -317,11 +328,11 @@ export interface IRoleManagementInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "roleUpdateScopeLimit",
-    values: [IAclCommons.AgentUpdateScopeLimitRequestStruct[]]
+    values: [IACLCommons.AgentUpdateScopeLimitRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "roleUpdateScopeLimit((bytes32,uint16)[])",
-    values: [IAclCommons.AgentUpdateScopeLimitRequestStruct[]]
+    values: [IACLCommons.AgentUpdateScopeLimitRequestStruct[]]
   ): string;
 
   decodeFunctionResult(
@@ -346,6 +357,14 @@ export interface IRoleManagementInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "roleCheckName(string)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "roleDeleteActivity",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "roleDeleteActivity(bytes32[])",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -724,6 +743,16 @@ export interface IRoleManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    roleDeleteActivity(
+      requests: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "roleDeleteActivity(bytes32[])"(
+      requests: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     roleGetInfo(
       roleId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -777,32 +806,32 @@ export interface IRoleManagement extends BaseContract {
     ): Promise<ContractTransaction>;
 
     roleUpdateActivityStatus(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "roleUpdateActivityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     roleUpdateAdmin(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "roleUpdateAdmin((bytes32,bytes32)[])"(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     roleUpdateAlterabilityStatus(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "roleUpdateAlterabilityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -817,12 +846,12 @@ export interface IRoleManagement extends BaseContract {
     ): Promise<ContractTransaction>;
 
     roleUpdateScopeLimit(
-      requests: IAclCommons.AgentUpdateScopeLimitRequestStruct[],
+      requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "roleUpdateScopeLimit((bytes32,uint16)[])"(
-      requests: IAclCommons.AgentUpdateScopeLimitRequestStruct[],
+      requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
@@ -858,6 +887,16 @@ export interface IRoleManagement extends BaseContract {
     roleName: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<boolean>;
+
+  roleDeleteActivity(
+    requests: PromiseOrValue<BytesLike>[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "roleDeleteActivity(bytes32[])"(
+    requests: PromiseOrValue<BytesLike>[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   roleGetInfo(
     roleId: PromiseOrValue<BytesLike>,
@@ -912,32 +951,32 @@ export interface IRoleManagement extends BaseContract {
   ): Promise<ContractTransaction>;
 
   roleUpdateActivityStatus(
-    requests: IAclCommons.UpdateActivityRequestStruct[],
+    requests: IACLCommons.UpdateActivityRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "roleUpdateActivityStatus((bytes32,uint8)[])"(
-    requests: IAclCommons.UpdateActivityRequestStruct[],
+    requests: IACLCommons.UpdateActivityRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   roleUpdateAdmin(
-    requests: IAclCommons.UpdateAdminRequestStruct[],
+    requests: IACLCommons.UpdateAdminRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "roleUpdateAdmin((bytes32,bytes32)[])"(
-    requests: IAclCommons.UpdateAdminRequestStruct[],
+    requests: IACLCommons.UpdateAdminRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   roleUpdateAlterabilityStatus(
-    requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+    requests: IACLCommons.UpdateAlterabilityRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "roleUpdateAlterabilityStatus((bytes32,uint8)[])"(
-    requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+    requests: IACLCommons.UpdateAlterabilityRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -952,12 +991,12 @@ export interface IRoleManagement extends BaseContract {
   ): Promise<ContractTransaction>;
 
   roleUpdateScopeLimit(
-    requests: IAclCommons.AgentUpdateScopeLimitRequestStruct[],
+    requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "roleUpdateScopeLimit((bytes32,uint16)[])"(
-    requests: IAclCommons.AgentUpdateScopeLimitRequestStruct[],
+    requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -991,6 +1030,16 @@ export interface IRoleManagement extends BaseContract {
 
     "roleCheckName(string)"(
       roleName: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    roleDeleteActivity(
+      requests: PromiseOrValue<BytesLike>[],
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "roleDeleteActivity(bytes32[])"(
+      requests: PromiseOrValue<BytesLike>[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -1047,32 +1096,32 @@ export interface IRoleManagement extends BaseContract {
     ): Promise<boolean>;
 
     roleUpdateActivityStatus(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     "roleUpdateActivityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     roleUpdateAdmin(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     "roleUpdateAdmin((bytes32,bytes32)[])"(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     roleUpdateAlterabilityStatus(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     "roleUpdateAlterabilityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -1087,12 +1136,12 @@ export interface IRoleManagement extends BaseContract {
     ): Promise<boolean>;
 
     roleUpdateScopeLimit(
-      requests: IAclCommons.AgentUpdateScopeLimitRequestStruct[],
+      requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     "roleUpdateScopeLimit((bytes32,uint16)[])"(
-      requests: IAclCommons.AgentUpdateScopeLimitRequestStruct[],
+      requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
   };
@@ -1280,6 +1329,16 @@ export interface IRoleManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    roleDeleteActivity(
+      requests: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "roleDeleteActivity(bytes32[])"(
+      requests: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     roleGetInfo(
       roleId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1333,32 +1392,32 @@ export interface IRoleManagement extends BaseContract {
     ): Promise<BigNumber>;
 
     roleUpdateActivityStatus(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "roleUpdateActivityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     roleUpdateAdmin(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "roleUpdateAdmin((bytes32,bytes32)[])"(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     roleUpdateAlterabilityStatus(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "roleUpdateAlterabilityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1373,12 +1432,12 @@ export interface IRoleManagement extends BaseContract {
     ): Promise<BigNumber>;
 
     roleUpdateScopeLimit(
-      requests: IAclCommons.AgentUpdateScopeLimitRequestStruct[],
+      requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "roleUpdateScopeLimit((bytes32,uint16)[])"(
-      requests: IAclCommons.AgentUpdateScopeLimitRequestStruct[],
+      requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -1416,6 +1475,16 @@ export interface IRoleManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    roleDeleteActivity(
+      requests: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "roleDeleteActivity(bytes32[])"(
+      requests: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     roleGetInfo(
       roleId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1469,32 +1538,32 @@ export interface IRoleManagement extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     roleUpdateActivityStatus(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "roleUpdateActivityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     roleUpdateAdmin(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "roleUpdateAdmin((bytes32,bytes32)[])"(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     roleUpdateAlterabilityStatus(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "roleUpdateAlterabilityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1509,12 +1578,12 @@ export interface IRoleManagement extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     roleUpdateScopeLimit(
-      requests: IAclCommons.AgentUpdateScopeLimitRequestStruct[],
+      requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "roleUpdateScopeLimit((bytes32,uint16)[])"(
-      requests: IAclCommons.AgentUpdateScopeLimitRequestStruct[],
+      requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

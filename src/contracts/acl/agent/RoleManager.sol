@@ -6,13 +6,14 @@ pragma solidity 0.8.17;
 import "./IRoleManagement.sol";
 import "./IMemberManagement.sol";
 import "./ITypeManagement.sol";
-import "../AclStorage.sol";
+import "../ACLStorage.sol";
 import "../IAccessControl.sol";
 import "../scope/IFunctionManagement.sol";
-import "../../lib/acl/LAclStorage.sol";
+import "../../lib/acl/LACLStorage.sol";
 import "../../lib/struct/LEnumerableSet.sol";
-import "../../lib/acl/LAclUtils.sol";
+import "../../lib/acl/LACLUtils.sol";
 import "../../proxy/IProxy.sol";
+import "../../proxy/BaseUUPSProxy.sol";
 
 
 /**
@@ -21,16 +22,16 @@ import "../../proxy/IProxy.sol";
  * @dev
  *
  */
-contract RoleManager is AclStorage, IRoleManagement {
-  using LAclStorage for DataCollection;
+contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
+  using LACLStorage for DataCollection;
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
 
   // type admins call roleRegister function
   function roleRegister(RoleRegisterRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IRoleManagement.roleRegister.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {
-      bytes32 newRoleId = LAclUtils.generateId(requests[i].name);
+      bytes32 newRoleId = LACLUtils.generateId(requests[i].name);
       require(_data.agents[newRoleId].atype == AgentType.NONE, "Role Already Exists");
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
       require(requests[i].alstat > AlterabilityStatus.NONE, "Illegal Alterability");
@@ -122,7 +123,7 @@ contract RoleManager is AclStorage, IRoleManagement {
   // Note: Admin must be Role or Type, and it can't be a member 
   function roleUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IRoleManagement.roleUpdateAdmin.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);   
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
     for(uint i = 0; i < requests.length; i++) {
       RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, false);
       
@@ -150,13 +151,14 @@ contract RoleManager is AclStorage, IRoleManagement {
     return true;
   }
  
-  // function roleDeleteActivity(bytes32[] calldata requests) external returns (bool) {   
-  //   bytes32 functionId = _accessPermission(IRoleManagement.roleDeleteActivity.selector);
-  //   for(uint i = 0; i < requests.length; i++) {
-  //     _doRoleUpdateActivityStatus(requests[i], ActivityStatus.DELETED, functionId);
-  //   }
-  //   return true;
-  // }
+  function roleDeleteActivity(bytes32[] calldata requests) external returns (bool) {   
+    revert("Not Supported");
+    // bytes32 functionId = _accessPermission(IRoleManagement.roleDeleteActivity.selector);
+    // for(uint i = 0; i < requests.length; i++) {
+    //   _doRoleUpdateActivityStatus(requests[i], ActivityStatus.DELETED, functionId);
+    // }
+    // return true;
+  }
 
   function roleUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {    
     bytes32 functionId = _accessPermission(IRoleManagement.roleUpdateActivityStatus.selector);
@@ -169,7 +171,7 @@ contract RoleManager is AclStorage, IRoleManagement {
 
   function roleUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IRoleManagement.roleUpdateAlterabilityStatus.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);   
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
     for(uint i = 0; i < requests.length; i++) {      
       RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, true);
     
@@ -182,7 +184,7 @@ contract RoleManager is AclStorage, IRoleManagement {
 
   function roleUpdateMemberLimit(RoleUpdateMemberLimitRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IRoleManagement.roleUpdateMemberLimit.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);   
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
     for (uint256 i = 0; i < requests.length; i++) {
       RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(requests[i].roleId, senderId, functionId, false);
 
@@ -194,7 +196,7 @@ contract RoleManager is AclStorage, IRoleManagement {
 
   function roleUpdateScopeLimit(AgentUpdateScopeLimitRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IRoleManagement.roleUpdateScopeLimit.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);   
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
     for (uint256 i = 0; i < requests.length; i++) {
       RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(requests[i].agentId, senderId, functionId, false);
       roleEntity.ba.scopeLimit = requests[i].scopeLimit;      
@@ -205,7 +207,7 @@ contract RoleManager is AclStorage, IRoleManagement {
 
   function roleGrantMembers(RoleGrantMembersRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IRoleManagement.roleGrantMembers.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
     for(uint i = 0; i < requests.length; i++) {      
       RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(requests[i].roleId, senderId, functionId, false);
       TypeEntity storage typeEntity = _data.typeReadSlot(roleEntity.typeId);
@@ -226,7 +228,7 @@ contract RoleManager is AclStorage, IRoleManagement {
 
   function roleRevokeMembers(RoleRevokeMembersRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IRoleManagement.roleRevokeMembers.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
     for(uint i = 0; i < requests.length; i++) {      
     RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(requests[i].roleId, senderId, functionId, false);
 
@@ -262,7 +264,7 @@ contract RoleManager is AclStorage, IRoleManagement {
     
     bytes32 roleAdminId = _data.agents[roleId].adminId;
     AgentType adminAgenType = _data.agents[roleAdminId].atype;
-    bytes32 memberId = LAclUtils.accountGenerateId(account);
+    bytes32 memberId = LACLUtils.accountGenerateId(account);
 
     if(adminAgenType == AgentType.ROLE) {
       return _doRoleHasMember(roleAdminId, memberId);
@@ -278,7 +280,7 @@ contract RoleManager is AclStorage, IRoleManagement {
   }
 
   function roleHasAccount(bytes32 roleId, address account) external view returns (bool) {
-    return _doRoleHasMember(roleId, LAclUtils.accountGenerateId(account));
+    return _doRoleHasMember(roleId, LACLUtils.accountGenerateId(account));
   }
 
   function _doRoleHasMember(bytes32 roleId, bytes32 memberId) internal view returns (bool) {
@@ -340,7 +342,7 @@ contract RoleManager is AclStorage, IRoleManagement {
   }
 
   function _doRoleUpdateActivityStatus(bytes32 roleId, ActivityStatus status, bytes32 functionId) internal returns (bool) {
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
     RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(roleId, senderId, functionId, false);
 
     // if(status == ActivityStatus.DELETED) {
@@ -405,7 +407,7 @@ contract RoleManager is AclStorage, IRoleManagement {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
     address functionFacetId = _data.interfaces[type(IMemberManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, selector);    
+    bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector);    
     require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
     return functionId;
   }

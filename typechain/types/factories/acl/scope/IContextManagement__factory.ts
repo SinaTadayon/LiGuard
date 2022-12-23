@@ -33,7 +33,7 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "enum IAclCommons.ActionType",
+        internalType: "enum IACLCommons.ActionType",
         name: "action",
         type: "uint8",
       },
@@ -64,7 +64,7 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "enum IAclCommons.ActionType",
+        internalType: "enum IACLCommons.ActionType",
         name: "action",
         type: "uint8",
       },
@@ -89,7 +89,7 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "enum IAclCommons.ActivityStatus",
+        internalType: "enum IACLCommons.ActivityStatus",
         name: "acstat",
         type: "uint8",
       },
@@ -164,7 +164,7 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "enum IAclCommons.AlterabilityStatus",
+        internalType: "enum IACLCommons.AlterabilityStatus",
         name: "alstat",
         type: "uint8",
       },
@@ -250,7 +250,7 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "enum IAclCommons.ActionType",
+        internalType: "enum IACLCommons.ActionType",
         name: "action",
         type: "uint8",
       },
@@ -281,7 +281,7 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "enum IAclCommons.ActionType",
+        internalType: "enum IACLCommons.ActionType",
         name: "action",
         type: "uint8",
       },
@@ -354,6 +354,25 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes32[]",
+        name: "requests",
+        type: "bytes32[]",
+      },
+    ],
+    name: "contextDeleteActivity",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes32",
         name: "contextId",
         type: "bytes32",
@@ -404,17 +423,17 @@ const _abi = [
             type: "uint16",
           },
           {
-            internalType: "enum IAclCommons.AgentType",
+            internalType: "enum IACLCommons.AgentType",
             name: "adminType",
             type: "uint8",
           },
           {
-            internalType: "enum IAclCommons.ActivityStatus",
+            internalType: "enum IACLCommons.ActivityStatus",
             name: "acstat",
             type: "uint8",
           },
           {
-            internalType: "enum IAclCommons.AlterabilityStatus",
+            internalType: "enum IACLCommons.AlterabilityStatus",
             name: "alstate",
             type: "uint8",
           },
@@ -544,12 +563,12 @@ const _abi = [
             type: "uint16",
           },
           {
-            internalType: "enum IAclCommons.ActivityStatus",
+            internalType: "enum IACLCommons.ActivityStatus",
             name: "acstat",
             type: "uint8",
           },
           {
-            internalType: "enum IAclCommons.AlterabilityStatus",
+            internalType: "enum IACLCommons.AlterabilityStatus",
             name: "alstat",
             type: "uint8",
           },
@@ -557,11 +576,6 @@ const _abi = [
             internalType: "bytes",
             name: "signature",
             type: "bytes",
-          },
-          {
-            internalType: "bytes4[]",
-            name: "selectors",
-            type: "bytes4[]",
           },
         ],
         internalType: "struct IContextManagement.ContextRegisterRequest[]",
@@ -590,12 +604,12 @@ const _abi = [
             type: "bytes32",
           },
           {
-            internalType: "enum IAclCommons.ActivityStatus",
+            internalType: "enum IACLCommons.ActivityStatus",
             name: "acstat",
             type: "uint8",
           },
         ],
-        internalType: "struct IAclCommons.UpdateActivityRequest[]",
+        internalType: "struct IACLCommons.UpdateActivityRequest[]",
         name: "requests",
         type: "tuple[]",
       },
@@ -626,7 +640,7 @@ const _abi = [
             type: "bytes32",
           },
         ],
-        internalType: "struct IAclCommons.UpdateAdminRequest[]",
+        internalType: "struct IACLCommons.UpdateAdminRequest[]",
         name: "requests",
         type: "tuple[]",
       },
@@ -657,7 +671,7 @@ const _abi = [
             type: "uint16",
           },
         ],
-        internalType: "struct IAclCommons.ScopeUpdateAgentLimitRequest[]",
+        internalType: "struct IACLCommons.ScopeUpdateAgentLimitRequest[]",
         name: "requests",
         type: "tuple[]",
       },
@@ -683,12 +697,12 @@ const _abi = [
             type: "bytes32",
           },
           {
-            internalType: "enum IAclCommons.AlterabilityStatus",
+            internalType: "enum IACLCommons.AlterabilityStatus",
             name: "alstat",
             type: "uint8",
           },
         ],
-        internalType: "struct IAclCommons.UpdateAlterabilityRequest[]",
+        internalType: "struct IACLCommons.UpdateAlterabilityRequest[]",
         name: "requests",
         type: "tuple[]",
       },

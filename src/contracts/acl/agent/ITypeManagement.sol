@@ -3,7 +3,7 @@
 
 pragma solidity 0.8.17;
 
-import "../IAclCommons.sol";
+import "../IACLCommons.sol";
 
 /**
  * @title Type Management Interface
@@ -11,7 +11,7 @@ import "../IAclCommons.sol";
  * @dev
  *
  */
-interface ITypeManagement is IAclCommons {
+interface ITypeManagement is IACLCommons {
 
   struct TypeRegisterRequest {
     bytes32 adminId;          // should role or member in any scope 
@@ -62,7 +62,7 @@ interface ITypeManagement is IAclCommons {
 
   function typeUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);
  
-  // function typeDeleteActivity(bytes32[] calldata requests) external returns (bool);
+  function typeDeleteActivity(bytes32[] calldata requests) external returns (bool);
 
   function typeUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
 

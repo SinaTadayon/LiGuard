@@ -3,31 +3,30 @@
 
 pragma solidity 0.8.17;
 
-import "../AclStorage.sol";
+import "../ACLStorage.sol";
 import "./IRealmManagement.sol";
-import "./IContextManagement.sol";
 import "../IAccessControl.sol";
-import "../../lib/acl/LAclStorage.sol";
-import "../../lib/acl/LAclUtils.sol";
+import "../../lib/acl/LACLStorage.sol";
+import "../../lib/acl/LACLUtils.sol";
 import "../../lib/struct/LEnumerableSet.sol";
 import "../../proxy/IProxy.sol";
-
+import "../../proxy/BaseUUPSProxy.sol";
 
 /**
  * @title Realm Manager Contract
  * @author Sina Tadayon, https://github.com/SinaTadayon
  * @dev
  *
- */
-contract RealmManager is AclStorage, IRealmManagement {  
-  using LAclStorage for DataCollection;
+ */ 
+contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {  
+  using LACLStorage for DataCollection;
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
 
   // calld by scope master type
   // admin of realm can be any type or any role
   function realmRegister(RealmRegisterRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IRealmManagement.realmRegister.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
 
     // TypeEntity storage scopeMasterType = _data.typeReadSlot(LIVELY_VERSE_SCOPE_MASTER_TYPE_ID);
     // bytes32 memberRoleId = scopeMasterType.members[memberId];
@@ -35,10 +34,10 @@ contract RealmManager is AclStorage, IRealmManagement {
     // ScopeType memberScopeType = _data.scopes[memberScopeMasterRole.scopeId].stype;
 
     // fetch scope type and scope id of sender
-    (ScopeType memberScopeType, bytes32 memberScopeId) = _doGetMemberScopeInfoFromType(LIVELY_VERSE_SCOPE_MASTER_TYPE_ID, senderId);    
+    (ScopeType memberScopeType, bytes32 memberScopeId) = _doGetMemberScopeInfoFromType(_LIVELY_VERSE_SCOPE_MASTER_TYPE_ID, senderId);    
     
     for(uint i = 0; i < requests.length; i++) {
-      bytes32 newRealmId = LAclUtils.generateId(requests[i].name);
+      bytes32 newRealmId = LACLUtils.generateId(requests[i].name);
       require(_data.scopes[newRealmId].stype == ScopeType.NONE, "Already Exists");
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
       require(requests[i].alstat > AlterabilityStatus.NONE, "Illegal Alterability");
@@ -127,7 +126,7 @@ contract RealmManager is AclStorage, IRealmManagement {
 
   function realmUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IRealmManagement.realmUpdateAdmin.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
 
     for(uint i = 0; i < requests.length; i++) {
       RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, false);
@@ -191,13 +190,14 @@ contract RealmManager is AclStorage, IRealmManagement {
     return true;
   }
  
-  // function realmDeleteActivity(bytes32[] calldata requests) external returns (bool) {
-  //   bytes32 functionId = _accessPermission(IRealmManagement.realmDeleteActivity.selector);
-  //   for(uint i = 0; i < requests.length; i++) {
-  //     _doRealmUpdateActivityStatus(requests[i], ActivityStatus.DELETED, functionId);
-  //   }
-  //   return true;
-  // }
+  function realmDeleteActivity(bytes32[] calldata requests) external returns (bool) {
+    revert("Not Supported");
+    // bytes32 functionId = _accessPermission(IRealmManagement.realmDeleteActivity.selector);
+    // for(uint i = 0; i < requests.length; i++) {
+    //   _doRealmUpdateActivityStatus(requests[i], ActivityStatus.DELETED, functionId);
+    // }
+    // return true;
+  }
 
   function realmUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IRealmManagement.realmUpdateActivityStatus.selector);
@@ -210,7 +210,7 @@ contract RealmManager is AclStorage, IRealmManagement {
 
   function realmUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IRealmManagement.realmUpdateAlterabilityStatus.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
 
     for(uint i = 0; i < requests.length; i++) {      
       RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, true);
@@ -224,7 +224,7 @@ contract RealmManager is AclStorage, IRealmManagement {
 
   function realmUpdateContextLimit(RealmUpdateContextLimitRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IRealmManagement.realmUpdateContextLimit.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
     for (uint256 i = 0; i < requests.length; i++) {
       RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].realmId, senderId, functionId, false);
       realmEntity.contextLimit = requests[i].contextLimit;      
@@ -235,7 +235,7 @@ contract RealmManager is AclStorage, IRealmManagement {
 
   function realmUpdateAgentLimit(ScopeUpdateAgentLimitRequest[] calldata requests) external returns (bool) {
      bytes32 functionId = _accessPermission(IRealmManagement.realmUpdateAgentLimit.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
     for (uint256 i = 0; i < requests.length; i++) {
       RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].scopeId, senderId, functionId, false);
       realmEntity.bs.agentLimit = requests[i].agentLimit;
@@ -249,7 +249,7 @@ contract RealmManager is AclStorage, IRealmManagement {
   }
 
   function realmCheckName(string calldata realmName) external view returns (bool) {
-    return _data.scopes[LAclUtils.generateId(realmName)].stype == ScopeType.REALM;
+    return _data.scopes[LACLUtils.generateId(realmName)].stype == ScopeType.REALM;
   }
 
    function realmCheckAdmin(bytes32 realmId, address account) external view returns (bool) {
@@ -258,7 +258,7 @@ contract RealmManager is AclStorage, IRealmManagement {
 
     bytes32 realmAdminId = realmEntity.bs.adminId;
     AgentType agentType = _data.agents[realmAdminId].atype;
-    bytes32 memberId = LAclUtils.accountGenerateId(account);
+    bytes32 memberId = LACLUtils.accountGenerateId(account);
 
     if(agentType == AgentType.ROLE) {
       return _doRoleHasMember(realmAdminId, memberId);
@@ -391,7 +391,7 @@ contract RealmManager is AclStorage, IRealmManagement {
   } 
 
   function _doRealmUpdateActivityStatus(bytes32 realmId, ActivityStatus status, bytes32 functionId) internal returns (bool) {
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(realmId, senderId, functionId, false);
     if(status == ActivityStatus.DELETED) {    
       // BaseAgent storage realmAdminAgent = _data.agents[realmEntity.bs.adminId];
@@ -413,11 +413,11 @@ contract RealmManager is AclStorage, IRealmManagement {
     }
   }
 
-  function _accessPermission(bytes4 selector) internal returns (bytes32) {
+  function _accessPermission(bytes4 selector) internal view returns (bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
     address functionFacetId = _data.interfaces[type(IRealmManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, selector);    
+    bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector);    
     require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
     return functionId;
   }

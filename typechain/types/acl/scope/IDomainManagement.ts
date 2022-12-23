@@ -98,7 +98,7 @@ export declare namespace IDomainManagement {
   };
 }
 
-export declare namespace IAclCommons {
+export declare namespace IACLCommons {
   export type UpdateActivityRequestStruct = {
     id: PromiseOrValue<BytesLike>;
     acstat: PromiseOrValue<BigNumberish>;
@@ -145,6 +145,7 @@ export interface IDomainManagementInterface extends utils.Interface {
     "domainCheckAdmin(bytes32,address)": FunctionFragment;
     "domainCheckId(bytes32)": FunctionFragment;
     "domainCheckName(string)": FunctionFragment;
+    "domainDeleteActivity(bytes32[])": FunctionFragment;
     "domainGetInfo(bytes32)": FunctionFragment;
     "domainGetRealms(bytes32)": FunctionFragment;
     "domainHasContext(bytes32,bytes32)": FunctionFragment;
@@ -166,6 +167,8 @@ export interface IDomainManagementInterface extends utils.Interface {
       | "domainCheckId(bytes32)"
       | "domainCheckName"
       | "domainCheckName(string)"
+      | "domainDeleteActivity"
+      | "domainDeleteActivity(bytes32[])"
       | "domainGetInfo"
       | "domainGetInfo(bytes32)"
       | "domainGetRealms"
@@ -213,6 +216,14 @@ export interface IDomainManagementInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "domainCheckName(string)",
     values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "domainDeleteActivity",
+    values: [PromiseOrValue<BytesLike>[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "domainDeleteActivity(bytes32[])",
+    values: [PromiseOrValue<BytesLike>[]]
   ): string;
   encodeFunctionData(
     functionFragment: "domainGetInfo",
@@ -264,35 +275,35 @@ export interface IDomainManagementInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "domainUpdateActivityStatus",
-    values: [IAclCommons.UpdateActivityRequestStruct[]]
+    values: [IACLCommons.UpdateActivityRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "domainUpdateActivityStatus((bytes32,uint8)[])",
-    values: [IAclCommons.UpdateActivityRequestStruct[]]
+    values: [IACLCommons.UpdateActivityRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "domainUpdateAdmin",
-    values: [IAclCommons.UpdateAdminRequestStruct[]]
+    values: [IACLCommons.UpdateAdminRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "domainUpdateAdmin((bytes32,bytes32)[])",
-    values: [IAclCommons.UpdateAdminRequestStruct[]]
+    values: [IACLCommons.UpdateAdminRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "domainUpdateAgentLimit",
-    values: [IAclCommons.ScopeUpdateAgentLimitRequestStruct[]]
+    values: [IACLCommons.ScopeUpdateAgentLimitRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "domainUpdateAgentLimit((bytes32,uint16)[])",
-    values: [IAclCommons.ScopeUpdateAgentLimitRequestStruct[]]
+    values: [IACLCommons.ScopeUpdateAgentLimitRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "domainUpdateAlterabilityStatus",
-    values: [IAclCommons.UpdateAlterabilityRequestStruct[]]
+    values: [IACLCommons.UpdateAlterabilityRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "domainUpdateAlterabilityStatus((bytes32,uint8)[])",
-    values: [IAclCommons.UpdateAlterabilityRequestStruct[]]
+    values: [IACLCommons.UpdateAlterabilityRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "domainUpdateRealmLimit",
@@ -325,6 +336,14 @@ export interface IDomainManagementInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "domainCheckName(string)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "domainDeleteActivity",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "domainDeleteActivity(bytes32[])",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -672,6 +691,16 @@ export interface IDomainManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    domainDeleteActivity(
+      requests: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "domainDeleteActivity(bytes32[])"(
+      requests: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     domainGetInfo(
       domainId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -739,42 +768,42 @@ export interface IDomainManagement extends BaseContract {
     ): Promise<ContractTransaction>;
 
     domainUpdateActivityStatus(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "domainUpdateActivityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     domainUpdateAdmin(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "domainUpdateAdmin((bytes32,bytes32)[])"(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     domainUpdateAgentLimit(
-      requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+      requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "domainUpdateAgentLimit((bytes32,uint16)[])"(
-      requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+      requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     domainUpdateAlterabilityStatus(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "domainUpdateAlterabilityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -820,6 +849,16 @@ export interface IDomainManagement extends BaseContract {
     domainName: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<boolean>;
+
+  domainDeleteActivity(
+    requests: PromiseOrValue<BytesLike>[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "domainDeleteActivity(bytes32[])"(
+    requests: PromiseOrValue<BytesLike>[],
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   domainGetInfo(
     domainId: PromiseOrValue<BytesLike>,
@@ -888,42 +927,42 @@ export interface IDomainManagement extends BaseContract {
   ): Promise<ContractTransaction>;
 
   domainUpdateActivityStatus(
-    requests: IAclCommons.UpdateActivityRequestStruct[],
+    requests: IACLCommons.UpdateActivityRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "domainUpdateActivityStatus((bytes32,uint8)[])"(
-    requests: IAclCommons.UpdateActivityRequestStruct[],
+    requests: IACLCommons.UpdateActivityRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   domainUpdateAdmin(
-    requests: IAclCommons.UpdateAdminRequestStruct[],
+    requests: IACLCommons.UpdateAdminRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "domainUpdateAdmin((bytes32,bytes32)[])"(
-    requests: IAclCommons.UpdateAdminRequestStruct[],
+    requests: IACLCommons.UpdateAdminRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   domainUpdateAgentLimit(
-    requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+    requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "domainUpdateAgentLimit((bytes32,uint16)[])"(
-    requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+    requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   domainUpdateAlterabilityStatus(
-    requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+    requests: IACLCommons.UpdateAlterabilityRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "domainUpdateAlterabilityStatus((bytes32,uint8)[])"(
-    requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+    requests: IACLCommons.UpdateAlterabilityRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -967,6 +1006,16 @@ export interface IDomainManagement extends BaseContract {
 
     "domainCheckName(string)"(
       domainName: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    domainDeleteActivity(
+      requests: PromiseOrValue<BytesLike>[],
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "domainDeleteActivity(bytes32[])"(
+      requests: PromiseOrValue<BytesLike>[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -1037,42 +1086,42 @@ export interface IDomainManagement extends BaseContract {
     ): Promise<boolean>;
 
     domainUpdateActivityStatus(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     "domainUpdateActivityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     domainUpdateAdmin(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     "domainUpdateAdmin((bytes32,bytes32)[])"(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     domainUpdateAgentLimit(
-      requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+      requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     "domainUpdateAgentLimit((bytes32,uint16)[])"(
-      requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+      requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     domainUpdateAlterabilityStatus(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     "domainUpdateAlterabilityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -1240,6 +1289,16 @@ export interface IDomainManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    domainDeleteActivity(
+      requests: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "domainDeleteActivity(bytes32[])"(
+      requests: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     domainGetInfo(
       domainId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1307,42 +1366,42 @@ export interface IDomainManagement extends BaseContract {
     ): Promise<BigNumber>;
 
     domainUpdateActivityStatus(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "domainUpdateActivityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     domainUpdateAdmin(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "domainUpdateAdmin((bytes32,bytes32)[])"(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     domainUpdateAgentLimit(
-      requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+      requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "domainUpdateAgentLimit((bytes32,uint16)[])"(
-      requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+      requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     domainUpdateAlterabilityStatus(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "domainUpdateAlterabilityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1390,6 +1449,16 @@ export interface IDomainManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    domainDeleteActivity(
+      requests: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "domainDeleteActivity(bytes32[])"(
+      requests: PromiseOrValue<BytesLike>[],
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     domainGetInfo(
       domainId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1457,42 +1526,42 @@ export interface IDomainManagement extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     domainUpdateActivityStatus(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "domainUpdateActivityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateActivityRequestStruct[],
+      requests: IACLCommons.UpdateActivityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     domainUpdateAdmin(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "domainUpdateAdmin((bytes32,bytes32)[])"(
-      requests: IAclCommons.UpdateAdminRequestStruct[],
+      requests: IACLCommons.UpdateAdminRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     domainUpdateAgentLimit(
-      requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+      requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "domainUpdateAgentLimit((bytes32,uint16)[])"(
-      requests: IAclCommons.ScopeUpdateAgentLimitRequestStruct[],
+      requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     domainUpdateAlterabilityStatus(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "domainUpdateAlterabilityStatus((bytes32,uint8)[])"(
-      requests: IAclCommons.UpdateAlterabilityRequestStruct[],
+      requests: IACLCommons.UpdateAlterabilityRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

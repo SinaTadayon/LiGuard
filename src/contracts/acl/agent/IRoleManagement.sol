@@ -3,7 +3,7 @@
 
 pragma solidity 0.8.17;
 
-import "../IAclCommons.sol";
+import "../IACLCommons.sol";
 
 /**
  * @title Role Management Interface
@@ -11,7 +11,7 @@ import "../IAclCommons.sol";
  * @dev
  *
  */
-interface IRoleManagement is IAclCommons {
+interface IRoleManagement is IACLCommons {
 
   struct RoleRegisterRequest {
     bytes32 adminId;          // should role or member in any scope 
@@ -83,7 +83,7 @@ interface IRoleManagement is IAclCommons {
 
   function roleUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);
  
-  // function roleDeleteActivity(bytes32[] calldata requests) external returns (bool);
+  function roleDeleteActivity(bytes32[] calldata requests) external returns (bool);
 
   function roleUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
 

@@ -3,15 +3,14 @@
 
 pragma solidity 0.8.17;
 
-import "./IRealmManagement.sol";
-import "./IContextManagement.sol";
 import "./IDomainManagement.sol";
 import "../IAccessControl.sol";
-import "../AclStorage.sol";
-import "../../lib/acl/LAclStorage.sol";
-import "../../lib/acl/LAclUtils.sol";
+import "../ACLStorage.sol";
+import "../../lib/acl/LACLStorage.sol";
+import "../../lib/acl/LACLUtils.sol";
 import "../../lib/struct/LEnumerableSet.sol";
 import "../../proxy/IProxy.sol";
+import "../../proxy/BaseUUPSProxy.sol";
 
 /**
  * @title Domain Manager Contract
@@ -19,20 +18,20 @@ import "../../proxy/IProxy.sol";
  * @dev
  *
  */
-contract DomainManager is AclStorage, IDomainManagement {
-  using LAclStorage for DataCollection;
+contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
+  using LACLStorage for DataCollection;
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
 
   // called by account that member of VERSE SCOPE MASTER TYPE
   function domainRegister(DomainRegisterRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IDomainManagement.domainRegister.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     
     // fetch scope type and scope id of sender
-    (ScopeType senderScopeType, bytes32 senderScopeId) = _doGetMemberScopeInfoFromType(LIVELY_VERSE_SCOPE_MASTER_TYPE_ID, senderId);    
+    (ScopeType senderScopeType, bytes32 senderScopeId) = _doGetMemberScopeInfoFromType(_LIVELY_VERSE_SCOPE_MASTER_TYPE_ID, senderId);    
    
     for(uint i = 0; i < requests.length; i++) {
-      bytes32 newDomainId = LAclUtils.generateId(requests[i].name);
+      bytes32 newDomainId = LACLUtils.generateId(requests[i].name);
       require(_data.scopes[newDomainId].stype == ScopeType.NONE, "Already Exists");
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
       require(requests[i].alstat > AlterabilityStatus.NONE, "Illegal Alterability");
@@ -97,13 +96,14 @@ contract DomainManager is AclStorage, IDomainManagement {
     return true;
   }
  
-  //  function domainDeleteActivity(bytes32[] calldata requests) external returns (bool) {
-  //   bytes32 functionId = _accessPermission(IDomainManagement.domainDeleteActivity.selector);
-  //   for(uint i = 0; i < requests.length; i++) {
-  //     _doDomainUpdateActivityStatus(requests[i], ActivityStatus.DELETED, functionId);
-  //   }
-  //   return true;
-  // }
+   function domainDeleteActivity(bytes32[] calldata requests) external returns (bool) {
+     revert ("Not Supported");
+    // bytes32 functionId = _accessPermission(IDomainManagement.domainDeleteActivity.selector);
+    // for(uint i = 0; i < requests.length; i++) {
+    //   _doDomainUpdateActivityStatus(requests[i], ActivityStatus.DELETED, functionId);
+    // }
+    // return true;
+  }
 
   function domainUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
    bytes32 functionId = _accessPermission(IDomainManagement.domainUpdateActivityStatus.selector);
@@ -115,8 +115,8 @@ contract DomainManager is AclStorage, IDomainManagement {
   }
 
   function domainUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IDomainManagement.domainRegister.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
+    bytes32 functionId = _accessPermission(IDomainManagement.domainUpdateAlterabilityStatus.selector);
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     
     for(uint i = 0; i < requests.length; i++) {      
       DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, true);
@@ -129,7 +129,7 @@ contract DomainManager is AclStorage, IDomainManagement {
 
   function domainUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IDomainManagement.domainRegister.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     
     for(uint i = 0; i < requests.length; i++) {
      DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, false); 
@@ -190,7 +190,7 @@ contract DomainManager is AclStorage, IDomainManagement {
 
   function domainUpdateRealmLimit(DomainUpdateRealmLimitRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IDomainManagement.domainRegister.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender); 
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender); 
 
     for (uint256 i = 0; i < requests.length; i++) {
       DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(requests[i].domainId, senderId, functionId, false); 
@@ -202,7 +202,7 @@ contract DomainManager is AclStorage, IDomainManagement {
 
   function domainUpdateAgentLimit(ScopeUpdateAgentLimitRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IDomainManagement.domainRegister.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender); 
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender); 
 
     for (uint256 i = 0; i < requests.length; i++) {
       DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(requests[i].scopeId, senderId, functionId, false); 
@@ -217,7 +217,7 @@ contract DomainManager is AclStorage, IDomainManagement {
   }
 
   function domainCheckName(string calldata domainName) external view returns (bool) {
-    return _data.scopes[LAclUtils.generateId(domainName)].stype == ScopeType.DOMAIN;
+    return _data.scopes[LACLUtils.generateId(domainName)].stype == ScopeType.DOMAIN;
   }
 
   function domainCheckAdmin(bytes32 domainId, address account) external view returns (bool) {
@@ -226,7 +226,7 @@ contract DomainManager is AclStorage, IDomainManagement {
 
     bytes32 domainAdminId = domainEntity.bs.adminId;
     AgentType agentType = _data.agents[domainAdminId].atype;
-    bytes32 memberId = LAclUtils.accountGenerateId(account);
+    bytes32 memberId = LACLUtils.accountGenerateId(account);
 
     if(agentType == AgentType.ROLE) {
       return _doRoleHasMember(domainAdminId, memberId);
@@ -318,7 +318,7 @@ contract DomainManager is AclStorage, IDomainManagement {
 
   function _doDomainUpdateActivityStatus(bytes32 domainId, ActivityStatus status, bytes32 functionId) internal returns (bool) {
 
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(domainId, senderId, functionId, false); 
 
     if(status == ActivityStatus.DELETED) {    
@@ -395,11 +395,11 @@ contract DomainManager is AclStorage, IDomainManagement {
     return (ScopeType.NONE, bytes32(0));  
   }
   
-  function _accessPermission(bytes4 selector) internal returns (bytes32) {
+  function _accessPermission(bytes4 selector) internal view returns (bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
     address functionFacetId = _data.interfaces[type(IDomainManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, selector);    
+    bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector);    
     require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
     return functionId;
   }

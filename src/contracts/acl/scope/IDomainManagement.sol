@@ -10,9 +10,9 @@ pragma solidity 0.8.17;
  *
  */
 
-import "../IAclCommons.sol";
+import "../IACLCommons.sol";
 
-interface IDomainManagement is IAclCommons {
+interface IDomainManagement is IACLCommons {
 
   struct DomainRegisterRequest {
     bytes32 adminId;
@@ -58,7 +58,7 @@ interface IDomainManagement is IAclCommons {
 
   function domainRegister(DomainRegisterRequest[] calldata requests) external returns (bool);
  
-  // function domainDeleteActivity(bytes32[] calldata requests) external returns (bool);
+  function domainDeleteActivity(bytes32[] calldata requests) external returns (bool);
 
   function domainUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
 

@@ -4,7 +4,7 @@
 
 import { Contract, Signer, utils } from "ethers";
 import type { Provider } from "@ethersproject/providers";
-import type { IAclCommons, IAclCommonsInterface } from "../../acl/IAclCommons";
+import type { ACLStorage, ACLStorageInterface } from "../../acl/ACLStorage";
 
 const _abi = [
   {
@@ -30,7 +30,7 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "enum IAclCommons.ActionType",
+        internalType: "enum IACLCommons.ActionType",
         name: "action",
         type: "uint8",
       },
@@ -61,12 +61,37 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "enum IAclCommons.ActionType",
+        internalType: "enum IACLCommons.ActionType",
         name: "action",
         type: "uint8",
       },
     ],
     name: "AgentReferredByScopeUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "proxy",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "newImplementation",
+        type: "address",
+      },
+    ],
+    name: "ProxyUpgraded",
     type: "event",
   },
   {
@@ -92,7 +117,7 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "enum IAclCommons.ActionType",
+        internalType: "enum IACLCommons.ActionType",
         name: "action",
         type: "uint8",
       },
@@ -123,7 +148,7 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "enum IAclCommons.ActionType",
+        internalType: "enum IACLCommons.ActionType",
         name: "action",
         type: "uint8",
       },
@@ -131,17 +156,69 @@ const _abi = [
     name: "ScopeReferredByPolicyUpdated",
     type: "event",
   },
+  {
+    inputs: [],
+    name: "CTX_MESSAGE_TYPEHASH",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "FUNCTION_MESSAGE_TYPEHASH",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "PREDICT_CTX_MESSAGE_TYPEHASH",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "TYPE_HASH",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
 ];
 
-export class IAclCommons__factory {
+export class ACLStorage__factory {
   static readonly abi = _abi;
-  static createInterface(): IAclCommonsInterface {
-    return new utils.Interface(_abi) as IAclCommonsInterface;
+  static createInterface(): ACLStorageInterface {
+    return new utils.Interface(_abi) as ACLStorageInterface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): IAclCommons {
-    return new Contract(address, _abi, signerOrProvider) as IAclCommons;
+  ): ACLStorage {
+    return new Contract(address, _abi, signerOrProvider) as ACLStorage;
   }
 }

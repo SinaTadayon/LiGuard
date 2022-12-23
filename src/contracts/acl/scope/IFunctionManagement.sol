@@ -4,7 +4,7 @@
 pragma solidity 0.8.17;
 
 
-import "../IAclCommons.sol";
+import "../IACLCommons.sol";
 
 /**
  * @title Function Management Interface
@@ -12,7 +12,7 @@ import "../IAclCommons.sol";
  * @dev
  *
  */
-interface IFunctionManagement is IAclCommons {
+interface IFunctionManagement is IACLCommons {
 
   struct FunctionRegisterRequest {
     bytes signature;

@@ -3,7 +3,7 @@
 
 pragma solidity 0.8.17;
 
-import "../IAclCommons.sol";
+import "../IACLCommons.sol";
 
 /**
  * @title Context Management Interface
@@ -11,7 +11,7 @@ import "../IAclCommons.sol";
  * @dev
  *
  */
-interface IContextManagement is IAclCommons {
+interface IContextManagement is IACLCommons {
   
   struct ContextRegisterRequest {
     bytes32 realmId;
@@ -26,7 +26,6 @@ interface IContextManagement is IAclCommons {
     ActivityStatus acstat;
     AlterabilityStatus alstat;
     bytes signature;
-    bytes4[] selectors;
   }
 
   struct ContextInfo {
@@ -65,7 +64,7 @@ interface IContextManagement is IAclCommons {
 
   function contextRegister(ContextRegisterRequest[] calldata requests) external returns (bool);
 
-  // function contextDeleteActivity(bytes32[] calldata requests) external returns (bool);
+  function contextDeleteActivity(bytes32[] calldata requests) external returns (bool);
 
   function contextUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
 

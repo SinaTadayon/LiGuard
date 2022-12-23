@@ -33,7 +33,7 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "enum IAclCommons.ActionType",
+        internalType: "enum IACLCommons.ActionType",
         name: "action",
         type: "uint8",
       },
@@ -64,7 +64,7 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "enum IAclCommons.ActionType",
+        internalType: "enum IACLCommons.ActionType",
         name: "action",
         type: "uint8",
       },
@@ -89,7 +89,7 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "enum IAclCommons.ActivityStatus",
+        internalType: "enum IACLCommons.ActivityStatus",
         name: "acstat",
         type: "uint8",
       },
@@ -139,12 +139,37 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "enum IAclCommons.AlterabilityStatus",
+        internalType: "enum IACLCommons.AlterabilityStatus",
         name: "alstat",
         type: "uint8",
       },
     ],
     name: "MemberAlterabilityUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "memberId",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "uint16",
+        name: "factoryLimit",
+        type: "uint16",
+      },
+    ],
+    name: "MemberFactoryLimitUpdated",
     type: "event",
   },
   {
@@ -226,7 +251,7 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "enum IAclCommons.ActionType",
+        internalType: "enum IACLCommons.ActionType",
         name: "action",
         type: "uint8",
       },
@@ -257,7 +282,7 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "enum IAclCommons.ActionType",
+        internalType: "enum IACLCommons.ActionType",
         name: "action",
         type: "uint8",
       },
@@ -317,17 +342,17 @@ const _abi = [
             type: "uint16",
           },
           {
-            internalType: "enum IAclCommons.AgentType",
+            internalType: "enum IACLCommons.AgentType",
             name: "atype",
             type: "uint8",
           },
           {
-            internalType: "enum IAclCommons.ActivityStatus",
+            internalType: "enum IACLCommons.ActivityStatus",
             name: "acstat",
             type: "uint8",
           },
           {
-            internalType: "enum IAclCommons.AlterabilityStatus",
+            internalType: "enum IACLCommons.AlterabilityStatus",
             name: "alstat",
             type: "uint8",
           },
@@ -403,12 +428,17 @@ const _abi = [
             type: "uint16",
           },
           {
-            internalType: "enum IAclCommons.ActivityStatus",
+            internalType: "uint16",
+            name: "factoryLimit",
+            type: "uint16",
+          },
+          {
+            internalType: "enum IACLCommons.ActivityStatus",
             name: "acstat",
             type: "uint8",
           },
           {
-            internalType: "enum IAclCommons.AlterabilityStatus",
+            internalType: "enum IACLCommons.AlterabilityStatus",
             name: "alstat",
             type: "uint8",
           },
@@ -439,12 +469,12 @@ const _abi = [
             type: "bytes32",
           },
           {
-            internalType: "enum IAclCommons.ActivityStatus",
+            internalType: "enum IACLCommons.ActivityStatus",
             name: "acstat",
             type: "uint8",
           },
         ],
-        internalType: "struct IAclCommons.UpdateActivityRequest[]",
+        internalType: "struct IACLCommons.UpdateActivityRequest[]",
         name: "requests",
         type: "tuple[]",
       },
@@ -475,7 +505,7 @@ const _abi = [
             type: "bytes32",
           },
         ],
-        internalType: "struct IAclCommons.UpdateAdminRequest[]",
+        internalType: "struct IACLCommons.UpdateAdminRequest[]",
         name: "requests",
         type: "tuple[]",
       },
@@ -501,17 +531,49 @@ const _abi = [
             type: "bytes32",
           },
           {
-            internalType: "enum IAclCommons.AlterabilityStatus",
+            internalType: "enum IACLCommons.AlterabilityStatus",
             name: "alstat",
             type: "uint8",
           },
         ],
-        internalType: "struct IAclCommons.UpdateAlterabilityRequest[]",
+        internalType: "struct IACLCommons.UpdateAlterabilityRequest[]",
         name: "requests",
         type: "tuple[]",
       },
     ],
     name: "memberUpdateAlterabilityStatus",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "bytes32",
+            name: "memberId",
+            type: "bytes32",
+          },
+          {
+            internalType: "uint16",
+            name: "factoryLimit",
+            type: "uint16",
+          },
+        ],
+        internalType:
+          "struct IMemberManagement.MemberUpdateFactoryLimitRequest[]",
+        name: "requests",
+        type: "tuple[]",
+      },
+    ],
+    name: "memberUpdateFactoryLimit",
     outputs: [
       {
         internalType: "bool",

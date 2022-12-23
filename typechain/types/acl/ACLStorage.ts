@@ -24,17 +24,10 @@ import type {
   PromiseOrValue,
 } from "../common";
 
-export interface AclStorageInterface extends utils.Interface {
+export interface ACLStorageInterface extends utils.Interface {
   functions: {
     "CTX_MESSAGE_TYPEHASH()": FunctionFragment;
     "FUNCTION_MESSAGE_TYPEHASH()": FunctionFragment;
-    "LIVELY_VERSE_ADMIN_TYPE_ID()": FunctionFragment;
-    "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()": FunctionFragment;
-    "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()": FunctionFragment;
-    "LIVELY_VERSE_ANY_TYPE_ID()": FunctionFragment;
-    "LIVELY_VERSE_POLICY_MASTER_TYPE_ID()": FunctionFragment;
-    "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID()": FunctionFragment;
-    "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID()": FunctionFragment;
     "PREDICT_CTX_MESSAGE_TYPEHASH()": FunctionFragment;
     "TYPE_HASH()": FunctionFragment;
   };
@@ -45,20 +38,6 @@ export interface AclStorageInterface extends utils.Interface {
       | "CTX_MESSAGE_TYPEHASH()"
       | "FUNCTION_MESSAGE_TYPEHASH"
       | "FUNCTION_MESSAGE_TYPEHASH()"
-      | "LIVELY_VERSE_ADMIN_TYPE_ID"
-      | "LIVELY_VERSE_ADMIN_TYPE_ID()"
-      | "LIVELY_VERSE_AGENT_MASTER_TYPE_ID"
-      | "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()"
-      | "LIVELY_VERSE_ANONYMOUSE_TYPE_ID"
-      | "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()"
-      | "LIVELY_VERSE_ANY_TYPE_ID"
-      | "LIVELY_VERSE_ANY_TYPE_ID()"
-      | "LIVELY_VERSE_POLICY_MASTER_TYPE_ID"
-      | "LIVELY_VERSE_POLICY_MASTER_TYPE_ID()"
-      | "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID"
-      | "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID()"
-      | "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID"
-      | "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID()"
       | "PREDICT_CTX_MESSAGE_TYPEHASH"
       | "PREDICT_CTX_MESSAGE_TYPEHASH()"
       | "TYPE_HASH"
@@ -79,62 +58,6 @@ export interface AclStorageInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "FUNCTION_MESSAGE_TYPEHASH()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_ADMIN_TYPE_ID",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_ADMIN_TYPE_ID()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_AGENT_MASTER_TYPE_ID",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_ANONYMOUSE_TYPE_ID",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_ANY_TYPE_ID",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_ANY_TYPE_ID()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_POLICY_MASTER_TYPE_ID",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_POLICY_MASTER_TYPE_ID()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID()",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID()",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -165,62 +88,6 @@ export interface AclStorageInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "FUNCTION_MESSAGE_TYPEHASH()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_ADMIN_TYPE_ID",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_ADMIN_TYPE_ID()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_AGENT_MASTER_TYPE_ID",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_ANONYMOUSE_TYPE_ID",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_ANY_TYPE_ID",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_ANY_TYPE_ID()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_POLICY_MASTER_TYPE_ID",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_POLICY_MASTER_TYPE_ID()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID()",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -343,12 +210,12 @@ export type ScopeReferredByPolicyUpdatedEvent = TypedEvent<
 export type ScopeReferredByPolicyUpdatedEventFilter =
   TypedEventFilter<ScopeReferredByPolicyUpdatedEvent>;
 
-export interface AclStorage extends BaseContract {
+export interface ACLStorage extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: AclStorageInterface;
+  interface: ACLStorageInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
@@ -378,56 +245,6 @@ export interface AclStorage extends BaseContract {
 
     "FUNCTION_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<[string]>;
 
-    LIVELY_VERSE_ADMIN_TYPE_ID(overrides?: CallOverrides): Promise<[string]>;
-
-    "LIVELY_VERSE_ADMIN_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    LIVELY_VERSE_AGENT_MASTER_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    LIVELY_VERSE_ANONYMOUSE_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    LIVELY_VERSE_ANY_TYPE_ID(overrides?: CallOverrides): Promise<[string]>;
-
-    "LIVELY_VERSE_ANY_TYPE_ID()"(overrides?: CallOverrides): Promise<[string]>;
-
-    LIVELY_VERSE_POLICY_MASTER_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    "LIVELY_VERSE_POLICY_MASTER_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    LIVELY_VERSE_SCOPE_MASTER_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
     PREDICT_CTX_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<[string]>;
 
     "PREDICT_CTX_MESSAGE_TYPEHASH()"(
@@ -447,46 +264,6 @@ export interface AclStorage extends BaseContract {
 
   "FUNCTION_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
 
-  LIVELY_VERSE_ADMIN_TYPE_ID(overrides?: CallOverrides): Promise<string>;
-
-  "LIVELY_VERSE_ADMIN_TYPE_ID()"(overrides?: CallOverrides): Promise<string>;
-
-  LIVELY_VERSE_AGENT_MASTER_TYPE_ID(overrides?: CallOverrides): Promise<string>;
-
-  "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()"(
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  LIVELY_VERSE_ANONYMOUSE_TYPE_ID(overrides?: CallOverrides): Promise<string>;
-
-  "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()"(
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  LIVELY_VERSE_ANY_TYPE_ID(overrides?: CallOverrides): Promise<string>;
-
-  "LIVELY_VERSE_ANY_TYPE_ID()"(overrides?: CallOverrides): Promise<string>;
-
-  LIVELY_VERSE_POLICY_MASTER_TYPE_ID(
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  "LIVELY_VERSE_POLICY_MASTER_TYPE_ID()"(
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  LIVELY_VERSE_SCOPE_MASTER_TYPE_ID(overrides?: CallOverrides): Promise<string>;
-
-  "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID()"(
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID(overrides?: CallOverrides): Promise<string>;
-
-  "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID()"(
-    overrides?: CallOverrides
-  ): Promise<string>;
-
   PREDICT_CTX_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
   "PREDICT_CTX_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
@@ -503,52 +280,6 @@ export interface AclStorage extends BaseContract {
     FUNCTION_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
     "FUNCTION_MESSAGE_TYPEHASH()"(overrides?: CallOverrides): Promise<string>;
-
-    LIVELY_VERSE_ADMIN_TYPE_ID(overrides?: CallOverrides): Promise<string>;
-
-    "LIVELY_VERSE_ADMIN_TYPE_ID()"(overrides?: CallOverrides): Promise<string>;
-
-    LIVELY_VERSE_AGENT_MASTER_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    LIVELY_VERSE_ANONYMOUSE_TYPE_ID(overrides?: CallOverrides): Promise<string>;
-
-    "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    LIVELY_VERSE_ANY_TYPE_ID(overrides?: CallOverrides): Promise<string>;
-
-    "LIVELY_VERSE_ANY_TYPE_ID()"(overrides?: CallOverrides): Promise<string>;
-
-    LIVELY_VERSE_POLICY_MASTER_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    "LIVELY_VERSE_POLICY_MASTER_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    LIVELY_VERSE_SCOPE_MASTER_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<string>;
 
     PREDICT_CTX_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
@@ -637,56 +368,6 @@ export interface AclStorage extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    LIVELY_VERSE_ADMIN_TYPE_ID(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "LIVELY_VERSE_ADMIN_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    LIVELY_VERSE_AGENT_MASTER_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    LIVELY_VERSE_ANONYMOUSE_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    LIVELY_VERSE_ANY_TYPE_ID(overrides?: CallOverrides): Promise<BigNumber>;
-
-    "LIVELY_VERSE_ANY_TYPE_ID()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    LIVELY_VERSE_POLICY_MASTER_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "LIVELY_VERSE_POLICY_MASTER_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    LIVELY_VERSE_SCOPE_MASTER_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     PREDICT_CTX_MESSAGE_TYPEHASH(overrides?: CallOverrides): Promise<BigNumber>;
 
     "PREDICT_CTX_MESSAGE_TYPEHASH()"(
@@ -712,62 +393,6 @@ export interface AclStorage extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     "FUNCTION_MESSAGE_TYPEHASH()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    LIVELY_VERSE_ADMIN_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "LIVELY_VERSE_ADMIN_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    LIVELY_VERSE_AGENT_MASTER_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "LIVELY_VERSE_AGENT_MASTER_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    LIVELY_VERSE_ANONYMOUSE_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "LIVELY_VERSE_ANONYMOUSE_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    LIVELY_VERSE_ANY_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "LIVELY_VERSE_ANY_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    LIVELY_VERSE_POLICY_MASTER_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "LIVELY_VERSE_POLICY_MASTER_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    LIVELY_VERSE_SCOPE_MASTER_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "LIVELY_VERSE_SCOPE_MASTER_TYPE_ID()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

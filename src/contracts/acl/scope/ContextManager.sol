@@ -3,14 +3,13 @@
 
 pragma solidity 0.8.17;
 
-import "./IFunctionManagement.sol";
 import "./IContextManagement.sol";
-import "../AclStorage.sol";
+import "../ACLStorage.sol";
 import "../IAccessControl.sol";
-import "../../lib/acl/LAclStorage.sol";
+import "../../lib/acl/LACLStorage.sol";
 import "../../lib/proxy/LClones.sol";
 import "../../lib/cryptography/LECDSA.sol";
-import "../../lib/acl/LAclUtils.sol";
+import "../../lib/acl/LACLUtils.sol";
 import "../../lib/struct/LEnumerableSet.sol";
 import "../../proxy/IProxy.sol";
 import "../../proxy/BaseUUPSProxy.sol";
@@ -21,8 +20,8 @@ import "../../proxy/BaseUUPSProxy.sol";
  * @dev
  *
  */
-contract ContextManager is AclStorage, BaseUUPSProxy, IContextManagement {
-  using LAclStorage for DataCollection;    
+contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
+  using LACLStorage for DataCollection;    
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
   using LClones for address;  
 
@@ -44,8 +43,8 @@ contract ContextManager is AclStorage, BaseUUPSProxy, IContextManagement {
       } else {
         bytes32 structHash = _getContextMessageHash(
           requests[i].contractId, 
-          LAclUtils.generateHash(requests[i].name), 
-          LAclUtils.generateHash(requests[i].version),
+          LACLUtils.generateHash(requests[i].name), 
+          LACLUtils.generateHash(requests[i].version),
           requests[i].realmId
         );
 
@@ -93,6 +92,10 @@ contract ContextManager is AclStorage, BaseUUPSProxy, IContextManagement {
       );
   }
 
+  function contextDeleteActivity(bytes32[] calldata requests) external returns (bool) {
+    revert("Not Supported");
+  }
+
   function contextUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IContextManagement.contextUpdateActivityStatus.selector);   
     for(uint i = 0; i < requests.length; i++) {
@@ -104,7 +107,7 @@ contract ContextManager is AclStorage, BaseUUPSProxy, IContextManagement {
 
   function contextUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IContextManagement.contextUpdateAlterabilityStatus.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);   
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
     for(uint i = 0; i < requests.length; i++) {      
       ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, true);
       
@@ -117,7 +120,7 @@ contract ContextManager is AclStorage, BaseUUPSProxy, IContextManagement {
 
   function contextUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IContextManagement.contextUpdateAdmin.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);   
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
     for(uint i = 0; i < requests.length; i++) {
       ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, false);
 
@@ -186,7 +189,7 @@ contract ContextManager is AclStorage, BaseUUPSProxy, IContextManagement {
 
   function contextUpdateAgentLimit(ScopeUpdateAgentLimitRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IContextManagement.contextUpdateAdmin.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);   
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
     for (uint256 i = 0; i < requests.length; i++) {
       ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(requests[i].scopeId, senderId, functionId, false);
 
@@ -201,7 +204,7 @@ contract ContextManager is AclStorage, BaseUUPSProxy, IContextManagement {
   }
 
   function contextCheckAccount(address contractId) external view returns (bool) {
-    return _data.scopes[LAclUtils.accountGenerateId(contractId)].stype == ScopeType.CONTEXT;
+    return _data.scopes[LACLUtils.accountGenerateId(contractId)].stype == ScopeType.CONTEXT;
   }
 
   function contextCheckAdmin(bytes32 contextId, address account) external view returns (bool) {
@@ -210,7 +213,7 @@ contract ContextManager is AclStorage, BaseUUPSProxy, IContextManagement {
 
     bytes32 contextAdminId = ce.bs.adminId;
     AgentType agentType = _data.agents[contextAdminId].atype;
-    bytes32 memberId = LAclUtils.accountGenerateId(account);
+    bytes32 memberId = LACLUtils.accountGenerateId(account);
 
     if(agentType == AgentType.ROLE) {
       return _doRoleHasMember(contextAdminId, memberId);
@@ -230,8 +233,8 @@ contract ContextManager is AclStorage, BaseUUPSProxy, IContextManagement {
   }
 
   function contextHasSelector(address contractId, bytes4 selector) external view returns (bool) {
-    bytes32 contextId = LAclUtils.accountGenerateId(contractId);
-    bytes32 functionId = LAclUtils.functionGenerateId(contractId, selector);
+    bytes32 contextId = LACLUtils.accountGenerateId(contractId);
+    bytes32 functionId = LACLUtils.functionGenerateId(contractId, selector);
     return _doContextHasFunction(contextId, functionId);
   }
 
@@ -307,7 +310,7 @@ contract ContextManager is AclStorage, BaseUUPSProxy, IContextManagement {
 
   function _doContextUpdateActivityStatus(bytes32 contextId, ActivityStatus status, bytes32 functionId) internal returns (bool) {
 
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);       
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);       
     ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(contextId, senderId, functionId, false);
 
     // if(status == ActivityStatus.DELETED) {          
@@ -404,12 +407,11 @@ contract ContextManager is AclStorage, BaseUUPSProxy, IContextManagement {
     }
   }
 
-
   function _accessPermission(bytes4 selector) internal view returns (bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
-    address functionFacetId = _data.interfaces[type(IFunctionManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, selector);    
+    address functionFacetId = _data.interfaces[type(IContextManagement).interfaceId];
+    bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector);    
     require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
     return functionId;
   }
@@ -451,7 +453,7 @@ contract ContextManager is AclStorage, BaseUUPSProxy, IContextManagement {
 
   function _doGetScopeInfo(bytes32 signerId) internal view returns (ScopeType, bytes32) {
     // get scope id of sender
-    TypeEntity storage systemAdminType = _data.typeReadSlot(LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID);
+    TypeEntity storage systemAdminType = _data.typeReadSlot(_LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID);
     bytes32 signerRoleId = systemAdminType.members[signerId];
     RoleEntity storage signerSystemRole =  _data.roleReadSlot(signerRoleId);
     ScopeType signerSystemScopeType = _data.scopes[signerSystemRole.scopeId].stype;
@@ -485,50 +487,55 @@ contract ContextManager is AclStorage, BaseUUPSProxy, IContextManagement {
   }
 
   function _doRegisterContext(ContextRegisterRequest calldata request, address contractId, address signer) internal {
-
-    // bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
-    bytes32 functionId = _accessPermission(IContextManagement.contextRegister.selector);
-    bytes32 signerId = LAclUtils.accountGenerateId(signer);  
-    bytes32 newContextId = LAclUtils.accountGenerateId(contractId);
+    
+    bytes32 functionId = LACLUtils.functionGenerateId(_data.interfaces[type(IContextManagement).interfaceId], IContextManagement.contextRegister.selector);    
+    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
+    
+    bytes32 signerId = LACLUtils.accountGenerateId(signer);  
+    bytes32 newContextId = LACLUtils.accountGenerateId(contractId);
     require(_data.scopes[newContextId].stype == ScopeType.NONE, "Already Exist");
 
-    // check realm 
-    RealmEntity storage realmEntity = _data.realmReadSlot(request.realmId);
-    require(realmEntity.bs.acstat > ActivityStatus.DELETED, "Realm Deleted");
-    require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Realm Update");
-    require(realmEntity.contextLimit > realmEntity.contexts.length(), "Illegal Register");
+    {
+      // update member factory limit
+      MemberEntity storage memberEntity = _data.memberReadSlot(signerId);
+      require(memberEntity.factoryLimit > 0, "Illegal Factory");
+      memberEntity.factoryLimit -= 1;
 
-    // check access admin realm
-    require(_doCheckAdminAccess(realmEntity.bs.adminId, signerId, functionId), "Forbidden");
+      // check realm 
+      RealmEntity storage realmEntity = _data.realmReadSlot(request.realmId);
+      require(realmEntity.bs.acstat > ActivityStatus.DELETED, "Realm Deleted");
+      require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Realm Update");
+      require(realmEntity.contextLimit > realmEntity.contexts.length(), "Illegal Register");
 
-    _doCheckSignerScope(signerId, request.realmId, realmEntity.domainId);
+      // check access admin realm
+      require(_doCheckAdminAccess(realmEntity.bs.adminId, signerId, functionId), "Forbidden");
 
-    // add context to realm
-    realmEntity.contexts.add(newContextId);    
+      // check system admin scope
+      _doCheckSignerScope(signerId, request.realmId, realmEntity.domainId);
 
-    // create new context
-    ContextEntity storage newContext = _data.contextWriteSlot(newContextId);
-    newContext.realmId = request.realmId;
-    newContext.contractId = contractId;
-    newContext.bs.stype = ScopeType.CONTEXT;
-    newContext.bs.acstat = request.acstat;
-    newContext.bs.alstat = request.alstat;
-    newContext.bs.agentLimit = request.agentLimit;
-    newContext.bs.adminId = _getContextAdmin(request.realmId, newContextId, realmEntity.bs.adminId, request.adminId);
-  
-    // update referred of admin agent of context
-    _doUpdateAgentReferred(
-      _data.agents[newContext.bs.adminId],
-      newContext.bs.adminId,
-      newContextId, 
-      signer,
-      ActionType.ADD
-    ); 
-          
-    for (uint256 j = 0; j < request.selectors.length; j++) {
-      newContext.functions.add(request.selectors[j]);
+      // add context to realm
+      realmEntity.contexts.add(newContextId);    
+    
+      // create new context
+      ContextEntity storage newContext = _data.contextWriteSlot(newContextId);
+      newContext.realmId = request.realmId;
+      newContext.contractId = contractId;
+      newContext.bs.stype = ScopeType.CONTEXT;
+      newContext.bs.acstat = request.acstat;
+      newContext.bs.alstat = request.alstat;
+      newContext.bs.agentLimit = request.agentLimit;
+      newContext.bs.adminId = _getContextAdmin(request.realmId, newContextId, realmEntity.bs.adminId, request.adminId);
+    
+      // update referred of admin agent of context
+      _doUpdateAgentReferred(
+        _data.agents[newContext.bs.adminId],
+        newContext.bs.adminId,
+        newContextId, 
+        signer,
+        ActionType.ADD
+      ); 
     }
-
+    
     emit ContextRegistered(
       msg.sender,
       newContextId, 

@@ -5,13 +5,14 @@ pragma solidity 0.8.17;
 
 import "./IMemberManagement.sol";
 import "./ITypeManagement.sol";
-import "../AclStorage.sol";
+import "../ACLStorage.sol";
 import "../IAccessControl.sol";
 import "../scope/IFunctionManagement.sol";
-import "../../lib/acl/LAclStorage.sol";
+import "../../lib/acl/LACLStorage.sol";
 import "../../lib/struct/LEnumerableSet.sol";
-import "../../lib/acl/LAclUtils.sol";
+import "../../lib/acl/LACLUtils.sol";
 import "../../proxy/IProxy.sol";
+import "../../proxy/BaseUUPSProxy.sol";
 
 /**
  * @title ACL Memeber Manager Contract
@@ -19,17 +20,17 @@ import "../../proxy/IProxy.sol";
  * @dev
  *
  */
-contract MemberManager is AclStorage, IMemberManagement {
-  using LAclStorage for DataCollection;
+contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
+  using LACLStorage for DataCollection;
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
 
   // Note: called by eveny admin of role
   function memberRegister(MemberRegister[] calldata requests) external returns (bool) {
 
     bytes32 functionId = _accessPermission(IMemberManagement.memberRegister.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     for (uint256 i = 0; i < requests.length; i++) {
-      bytes32 newMemberId = LAclUtils.accountGenerateId(requests[i].account);
+      bytes32 newMemberId = LACLUtils.accountGenerateId(requests[i].account);
       require(_data.agents[newMemberId].acstat == ActivityStatus.NONE, "Already Exists");
       require(requests[i].typeLimit >= 1, "Illegal TypeLimit");
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
@@ -47,6 +48,8 @@ contract MemberManager is AclStorage, IMemberManagement {
       require(typeEntity.ba.acstat > ActivityStatus.DELETED, "Type Deleted");
       require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Type Update");
 
+      // check factory limit
+      require(requests[i].factoryLimit > 0 && roleEntity.typeId == _LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID, "Illegal Factory Limit" );
 
       // check access
       require(_doAgentCheckAdminAccess(typeEntity.ba.adminId, senderId, functionId), "Forbidden");
@@ -55,16 +58,18 @@ contract MemberManager is AclStorage, IMemberManagement {
       typeEntity.members[newMemberId] = requests[i].roleId;
 
       // add new member to role
-      roleEntity.memberTotal +=1;
+      roleEntity.memberTotal +=1;      
 
       // create new member
       MemberEntity storage newMember = _data.memberWriteSlot(newMemberId);
-      newMember.ba.adminId = LIVELY_VERSE_ADMIN_TYPE_ID;
+      newMember.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_TYPE_ID;
       newMember.ba.atype = AgentType.MEMBER;
       newMember.ba.acstat = requests[i].acstat;
       newMember.ba.alstat = requests[i].alstat;
       newMember.account = requests[i].account;
       newMember.types.add(roleEntity.typeId);
+      newMember.typeLimit = requests[i].typeLimit;
+      newMember.factoryLimit = requests[i].factoryLimit;
 
       emit MemberRegistered(
         msg.sender,
@@ -80,7 +85,7 @@ contract MemberManager is AclStorage, IMemberManagement {
   function memberUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
     
     bytes32 functionId = _accessPermission(IMemberManagement.memberUpdateActivityStatus.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {      
       MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, false);
 
@@ -93,7 +98,7 @@ contract MemberManager is AclStorage, IMemberManagement {
 
   function memberUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IMemberManagement.memberUpdateAlterabilityStatus.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {      
       MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, true);
       
@@ -107,7 +112,7 @@ contract MemberManager is AclStorage, IMemberManagement {
   // Note: member default admin is 
   function memberUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IMemberManagement.memberUpdateAdmin.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     for (uint256 i = 0; i < requests.length; i++) {
       MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, false);
 
@@ -116,13 +121,13 @@ contract MemberManager is AclStorage, IMemberManagement {
         BaseAgent storage requestedAdminAgent = _data.agents[requests[i].adminId];
         require(requestedAdminAgent.atype > AgentType.MEMBER, "Illegal AdminType");
         if(requestedAdminAgent.atype == AgentType.ROLE) {
-          TypeEntity storage typeEntity = _data.typeReadSlot(LIVELY_VERSE_ADMIN_TYPE_ID);
+          TypeEntity storage typeEntity = _data.typeReadSlot(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID);
           require(typeEntity.roles.contains(requests[i].adminId), "Illegal AdminId");
         }          
         memberEntity.ba.adminId = requests[i].adminId;
       
       } else {
-        memberEntity.ba.adminId = LIVELY_VERSE_ADMIN_TYPE_ID;
+        memberEntity.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_TYPE_ID;
       }
       emit MemberAdminUpdated(msg.sender, requests[i].id, requests[i].adminId);
     }
@@ -131,11 +136,22 @@ contract MemberManager is AclStorage, IMemberManagement {
 
   function memberUpdateTypeLimit(MemberUpdateTypeLimitRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IMemberManagement.memberUpdateTypeLimit.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     for (uint256 i = 0; i < requests.length; i++) {
       MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].memberId, senderId, functionId, false);
       memberEntity.typeLimit = requests[i].typeLimit;
       emit MemberTypeLimitUpdated(msg.sender, requests[i].memberId, requests[i].typeLimit);
+    }
+    return true;
+  }  
+
+  function memberUpdateFactoryLimit(MemberUpdateFactoryLimitRequest[] calldata requests) external returns (bool) {
+    bytes32 functionId = _accessPermission(IMemberManagement.memberUpdateTypeLimit.selector);
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
+    for (uint256 i = 0; i < requests.length; i++) {
+      MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].memberId, senderId, functionId, false);
+      memberEntity.factoryLimit = requests[i].factoryLimit;
+      emit MemberFactoryLimitUpdated(msg.sender, requests[i].memberId, requests[i].factoryLimit);
     }
     return true;
   }
@@ -224,7 +240,7 @@ contract MemberManager is AclStorage, IMemberManagement {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
     address functionFacetId = _data.interfaces[type(IMemberManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, selector);    
+    bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector);    
     require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
     return functionId;
   }

@@ -4,14 +4,14 @@
 pragma solidity 0.8.17;
 
 import "./IFunctionManagement.sol";
-import "./IContextManagement.sol";
 import "../IAccessControl.sol";
-import "../AclStorage.sol";
-import "../../lib/acl/LAclStorage.sol";
+import "../ACLStorage.sol";
+import "../../lib/acl/LACLStorage.sol";
 import "../../lib/cryptography/LECDSA.sol";
 import "../../lib/struct/LEnumerableSet.sol";
-import "../../lib/acl/LAclUtils.sol";
+import "../../lib/acl/LACLUtils.sol";
 import "../../proxy/IProxy.sol";
+import "../../proxy/BaseUUPSProxy.sol";
 
 /**
  * @title Function Manager Contract
@@ -19,17 +19,17 @@ import "../../proxy/IProxy.sol";
  * @dev
  *
  */
-contract FunctionManager is AclStorage, IFunctionManagement {
-  using LAclStorage for DataCollection;
+contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
+  using LACLStorage for DataCollection;
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
 
   function functionRegister(FunctionRegisterRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IFunctionManagement.functionRegister.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
     address signer;
     for (uint256 i = 0; i < requests.length; i++) {
           
-      bytes32 contextId = LAclUtils.accountGenerateId(requests[i].contractId);  
+      bytes32 contextId = LACLUtils.accountGenerateId(requests[i].contractId);  
       ContextEntity storage contextEntity = _data.contextReadSlot(contextId);    
       require(contextEntity.bs.acstat > ActivityStatus.DELETED, "Context Deleted");
       require(contextEntity.bs.alstat == AlterabilityStatus.UPGRADABLE, "Illegal Upgrade");
@@ -37,7 +37,7 @@ contract FunctionManager is AclStorage, IFunctionManagement {
       if(requests[i].signature.length > 0) {
         bytes32 structHash = _getFunctionMessageHash(requests[i].contractId, requests[i].selector);
         signer = _doGetSignerAddress(requests[i].signature, structHash);
-        bytes32 signerId = LAclUtils.accountGenerateId(msg.sender);
+        bytes32 signerId = LACLUtils.accountGenerateId(msg.sender);
         // check access admin context
         require(_doCheckAdminAccess(contextEntity.bs.adminId, signerId, functionId), "Forbidden");
         _doFunctionRegistration(contextEntity, requests[i], signer, contextId);
@@ -54,7 +54,7 @@ contract FunctionManager is AclStorage, IFunctionManagement {
 
   function functionUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool){
     bytes32 functionId = _accessPermission(IFunctionManagement.functionUpdateAdmin.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     
     for(uint i = 0; i < requests.length; i++) {
       FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, false);
@@ -110,7 +110,7 @@ contract FunctionManager is AclStorage, IFunctionManagement {
 
   function functionUpdateAgent(FunctionUpdateAgentRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IFunctionManagement.functionUpdateAgent.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
 
     for(uint i = 0; i < requests.length; i++) {
       FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(requests[i].agentId, senderId, functionId, false);
@@ -164,7 +164,7 @@ contract FunctionManager is AclStorage, IFunctionManagement {
 
   function functionUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IFunctionManagement.functionUpdateAlterabilityStatus.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     
     for(uint i = 0; i < requests.length; i++) {      
       FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, true);
@@ -178,7 +178,7 @@ contract FunctionManager is AclStorage, IFunctionManagement {
 
   function functionUpdatePolicy(FunctionUpdatePolicyRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IFunctionManagement.functionUpdatePolicy.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     
     for (uint256 i = 0; i < requests.length; i++) {
       FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(requests[i].functionId, senderId, functionId, false);
@@ -190,7 +190,7 @@ contract FunctionManager is AclStorage, IFunctionManagement {
 
   function functionUpdateAgentLimit(ScopeUpdateAgentLimitRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IFunctionManagement.functionUpdatePolicy.selector);
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
 
     for (uint256 i = 0; i < requests.length; i++) {
       FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(requests[i].scopeId, senderId, functionId, false);
@@ -205,7 +205,7 @@ contract FunctionManager is AclStorage, IFunctionManagement {
   }
 
   function functionCheckSelector(address contractId, bytes4 selector) external view returns (bool) {
-    return _data.scopes[LAclUtils.functionGenerateId(contractId, selector)].stype == ScopeType.FUNCTION;
+    return _data.scopes[LACLUtils.functionGenerateId(contractId, selector)].stype == ScopeType.FUNCTION;
   }
 
   function functionCheckAdmin(bytes32 functionId, address account) external view returns (bool) {
@@ -225,7 +225,7 @@ contract FunctionManager is AclStorage, IFunctionManagement {
   function _doFunctionCheckAccount(bytes32 agentId, address account) internal view returns (bool) {
     
     AgentType agentType = _data.agents[agentId].atype;
-    bytes32 memberId = LAclUtils.accountGenerateId(account);
+    bytes32 memberId = LACLUtils.accountGenerateId(account);
 
     if(agentType == AgentType.ROLE) {
       return _doRoleHasMember(agentId, memberId);
@@ -302,7 +302,7 @@ contract FunctionManager is AclStorage, IFunctionManagement {
   }
 
   function _doFunctionUpdateActivityStatus(bytes32 functionId, ActivityStatus status, bytes32 updateFunctionId) internal returns (bool) {
-    bytes32 senderId = LAclUtils.accountGenerateId(msg.sender);  
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(functionId, senderId, updateFunctionId, false);
     
     if(status == ActivityStatus.DELETED) {
@@ -370,11 +370,11 @@ contract FunctionManager is AclStorage, IFunctionManagement {
     return false;   
   }
 
-  function _accessPermission(bytes4 selector) internal returns (bytes32) {
+  function _accessPermission(bytes4 selector) internal view returns (bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
     address functionFacetId = _data.interfaces[type(IFunctionManagement).interfaceId];
-    bytes32 functionId = LAclUtils.functionGenerateId(functionFacetId, selector);    
+    bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector);    
     require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
     return functionId;
   }
@@ -395,8 +395,7 @@ contract FunctionManager is AclStorage, IFunctionManagement {
       address signerId,
       bytes32 contextId
   ) internal {
-    bytes32 newFunctionId = LAclUtils.functionGenerateId(context.contractId, functionRequest.selector); 
-    require(context.functions.contains(newFunctionId), "Illegal Function");
+    bytes32 newFunctionId = LACLUtils.functionGenerateId(context.contractId, functionRequest.selector); 
     require(_data.scopes[newFunctionId].stype == ScopeType.NONE, "Already Exist");
     FunctionEntity storage functionEntity = _data.functionWriteSlot(newFunctionId);
     functionEntity.bs.stype = ScopeType.FUNCTION;
@@ -408,6 +407,9 @@ contract FunctionManager is AclStorage, IFunctionManagement {
     functionEntity.bs.alstat = functionRequest.alstat;
     functionEntity.bs.agentLimit = functionRequest.agentLimit;   
     functionEntity.bs.adminId = _doGetAndCheckFunctionAdmin(context.bs.adminId, contextId, functionRequest.adminId);
+    
+    // add function to context
+    context.functions.add(newFunctionId);
 
     // update referred agent Id
     _doUpdateAgentReferred(
@@ -439,7 +441,7 @@ contract FunctionManager is AclStorage, IFunctionManagement {
     );
   }
 
-   function _doGetAndCheckFunctionAdmin(bytes32 contextAdminId, bytes32 contextId, bytes32 adminId) internal view returns (bytes32 functionAdminId) {
+  function _doGetAndCheckFunctionAdmin(bytes32 contextAdminId, bytes32 contextId, bytes32 adminId) internal view returns (bytes32 functionAdminId) {
     // checking requested functionAdmin admin 
     if(adminId != bytes32(0)) {
       require(_data.agents[adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");

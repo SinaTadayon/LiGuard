@@ -3,16 +3,17 @@
 
 pragma solidity 0.8.17;
 
-import "./IPolicyManagement.sol";
+import "./policy/IPolicyManagement.sol";
 import "./IAccessControl.sol";
-import "./AclStorage.sol";
+import "./ACLStorage.sol";
 import "./scope/IFunctionManagement.sol";
 import "./agent/IRoleManagement.sol";
 import "./agent/ITypeManagement.sol";
 import "../proxy/IProxy.sol";
-import "../lib/acl/LAclUtils.sol";
-import "../lib/acl/LAclStorage.sol";
+import "../lib/acl/LACLUtils.sol";
+import "../lib/acl/LACLStorage.sol";
 import "../lib/struct/LEnumerableSet.sol";
+import "../proxy/BaseUUPSProxy.sol";
 
 /**
  * @title AccessControl Contract
@@ -20,14 +21,14 @@ import "../lib/struct/LEnumerableSet.sol";
  * @dev
  *
  */
-contract AccessControl is AclStorage, IAccessControl {
-  using LAclStorage for DataCollection;
+contract AccessControl is ACLStorage, BaseUUPSProxy, IAccessControl {
+  using LACLStorage for DataCollection;
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
 
   function hasAccess(bytes32 functionId) external view returns (bool) {
     (FunctionEntity storage functionEntity, bool result) = _data.functionTryReadSlot(functionId);
     if (!result) return false;
-    return _doHashAccess(functionEntity.agentId, LAclUtils.accountGenerateId(msg.sender), functionEntity);
+    return _doHashAccess(functionEntity.agentId, LACLUtils.accountGenerateId(msg.sender), functionEntity);
   }
 
   function hasMemberAccess(bytes32 memberId, bytes32 functionId) external view returns (bool) {
@@ -37,14 +38,14 @@ contract AccessControl is AclStorage, IAccessControl {
   }
 
   function hasCSAccess(address contractId, bytes4 selector) external view returns (bool) {
-    bytes32 functionId = LAclUtils.functionGenerateId(contractId, selector);
+    bytes32 functionId = LACLUtils.functionGenerateId(contractId, selector);
     (FunctionEntity storage functionEntity, bool result) = _data.functionTryReadSlot(functionId);
     if (!result) return false;
-    return _doHashAccess(functionEntity.agentId, LAclUtils.accountGenerateId(msg.sender), functionEntity);
+    return _doHashAccess(functionEntity.agentId, LACLUtils.accountGenerateId(msg.sender), functionEntity);
   }
 
   function hasCSMAccess(address contractId, bytes4 selector, bytes32 memberId) external view returns (bool) {
-    bytes32 functionId = LAclUtils.functionGenerateId(contractId, selector);
+    bytes32 functionId = LACLUtils.functionGenerateId(contractId, selector);
     (FunctionEntity storage functionEntity, bool result) = _data.functionTryReadSlot(functionId);
     if (!result) return false;
     return _doHashAccess(functionEntity.agentId, memberId, functionEntity);
@@ -53,7 +54,7 @@ contract AccessControl is AclStorage, IAccessControl {
   function hasAccessToAgent(bytes32 agentId, bytes32 functionId) external view returns (bool) {
     (FunctionEntity storage functionEntity, bool result) = _data.functionTryReadSlot(functionId);
     if (!result) return false;
-    return _doHashAccess(agentId, LAclUtils.accountGenerateId(msg.sender), functionEntity);
+    return _doHashAccess(agentId, LACLUtils.accountGenerateId(msg.sender), functionEntity);
   }
 
   function hasMemberAccessToAgent(bytes32 agentId, bytes32 functionId, bytes32 memberId) external view returns (bool) {
@@ -63,14 +64,14 @@ contract AccessControl is AclStorage, IAccessControl {
   }
 
   function hasCSAccessToAgent(bytes32 agentId, address contractId, bytes4 selector) external view returns (bool) {
-    bytes32 functionId = LAclUtils.functionGenerateId(contractId, selector);
+    bytes32 functionId = LACLUtils.functionGenerateId(contractId, selector);
     (FunctionEntity storage functionEntity, bool result) = _data.functionTryReadSlot(functionId);
     if (!result) return false;
-    return _doHashAccess(agentId, LAclUtils.accountGenerateId(msg.sender), functionEntity);
+    return _doHashAccess(agentId, LACLUtils.accountGenerateId(msg.sender), functionEntity);
   }
   
   function hasCSMAccessToAgent(bytes32 agentId, address contractId, bytes4 selector, bytes32 memberId) external view returns (bool) {
-    bytes32 functionId = LAclUtils.functionGenerateId(contractId, selector);
+    bytes32 functionId = LACLUtils.functionGenerateId(contractId, selector);
     (FunctionEntity storage functionEntity, bool result) = _data.functionTryReadSlot(functionId);
     if (!result) return false;
     return _doHashAccess(agentId, memberId, functionEntity);
@@ -97,10 +98,10 @@ contract AccessControl is AclStorage, IAccessControl {
         return false;
 
     } else if(atype == AgentType.TYPE) {
-      if(agentId == LIVELY_VERSE_ANY_TYPE_ID && _data.agents[memberId].acstat != ActivityStatus.ENABLED) {
+      if(agentId == _LIVELY_VERSE_ANY_TYPE_ID && _data.agents[memberId].acstat != ActivityStatus.ENABLED) {
         return false; 
 
-      } else if(agentId != LIVELY_VERSE_ANONYMOUSE_TYPE_ID) {
+      } else if(agentId != _LIVELY_VERSE_ANONYMOUSE_TYPE_ID) {
         // check member activation
         if(_data.agents[memberId].acstat != ActivityStatus.ENABLED) return false;
         
@@ -145,38 +146,69 @@ contract AccessControl is AclStorage, IAccessControl {
 
   // Anonymouse type
   function getAnonymouseType() external pure returns (bytes32) {
-    return LIVELY_VERSE_ANONYMOUSE_TYPE_ID;
+    return _LIVELY_VERSE_ANONYMOUSE_TYPE_ID;
   }
 
   // Any type
   function getAnyType() external pure returns (bytes32) {
-    return LIVELY_VERSE_ANY_TYPE_ID;
+    return _LIVELY_VERSE_ANY_TYPE_ID;
   }
 
   // scope master type
   function getScopeMasterType() external pure returns (bytes32) {
-    return LIVELY_VERSE_SCOPE_MASTER_TYPE_ID;
+    return _LIVELY_VERSE_SCOPE_MASTER_TYPE_ID;
   }
 
   // agent master type
   function getAgentMasterType() external pure returns (bytes32) {
-    return LIVELY_VERSE_AGENT_MASTER_TYPE_ID;
+    return _LIVELY_VERSE_AGENT_MASTER_TYPE_ID;
   }
 
   // system admin type
-  function getSystemAdminType() external pure returns (bytes32) {
-    return LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID;
+  function getSystemMasterType() external pure returns (bytes32) {
+    return _LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID;
   }
 
   // admin type
-  function getAdminType() external pure returns (bytes32) {
-    return LIVELY_VERSE_ADMIN_TYPE_ID;
+  function getLivelyMasterType() external pure returns (bytes32) {
+    return _LIVELY_VERSE_LIVELY_MASTER_TYPE_ID;
   }
 
   // Policy Master
   function getPolicyMasterType() external pure returns (bytes32) {
-    return LIVELY_VERSE_POLICY_MASTER_TYPE_ID;
+    return _LIVELY_VERSE_POLICY_MASTER_TYPE_ID;
   }
+
+  function getGlobalScope() external pure returns (bytes32) {
+    return _LIVELY_VERSE_GLOBAL_SCOPE_ID;
+  }
+
+
+   // lively master admin role
+  function getLivelyMasterAdminRole() external pure returns (bytes32) {
+    return _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
+  }
+
+  // scope master admin role
+  function getScopeMasterAdminRole() external pure returns (bytes32) {
+    return _LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID;
+  }
+
+  // agent master admin role
+  function getAgentMasterAdminRole() external pure returns (bytes32) {
+    return _LIVELY_VERSE_AGENT_MASTER_ADMIN_ROLE_ID;
+  }
+  
+  // system master admin role
+  function getSystemMasterAdminRole() external pure returns (bytes32) {
+    return _LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID;
+  }
+
+  // Policy Master admin role
+  function getPolicyMasterAdminRole() external pure returns (bytes32) {
+    return _LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE_ID;
+  }
+
 
   // general
   function isAgentExist(bytes32 agentId) external view returns (bool) {

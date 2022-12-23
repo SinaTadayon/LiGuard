@@ -7,7 +7,7 @@ import type { Provider } from "@ethersproject/providers";
 import type {
   IPolicyManagement,
   IPolicyManagementInterface,
-} from "../../acl/IPolicyManagement";
+} from "../../../acl/policy/IPolicyManagement";
 
 const _abi = [
   {
@@ -33,7 +33,7 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "enum IAclCommons.ActionType",
+        internalType: "enum IACLCommons.ActionType",
         name: "action",
         type: "uint8",
       },
@@ -64,7 +64,7 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "enum IAclCommons.ActionType",
+        internalType: "enum IACLCommons.ActionType",
         name: "action",
         type: "uint8",
       },
@@ -89,7 +89,7 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "enum IAclCommons.ActivityStatus",
+        internalType: "enum IACLCommons.ActivityStatus",
         name: "acstat",
         type: "uint8",
       },
@@ -139,7 +139,7 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "enum IAclCommons.AlterabilityStatus",
+        internalType: "enum IACLCommons.AlterabilityStatus",
         name: "alstat",
         type: "uint8",
       },
@@ -170,7 +170,7 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "enum IAclCommons.PolicyType",
+        internalType: "enum IACLCommons.PolicyType",
         name: "ptype",
         type: "uint8",
       },
@@ -313,7 +313,7 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "enum IAclCommons.ActionType",
+        internalType: "enum IACLCommons.ActionType",
         name: "action",
         type: "uint8",
       },
@@ -344,7 +344,7 @@ const _abi = [
       },
       {
         indexed: false,
-        internalType: "enum IAclCommons.ActionType",
+        internalType: "enum IACLCommons.ActionType",
         name: "action",
         type: "uint8",
       },
@@ -555,22 +555,22 @@ const _abi = [
             type: "uint8",
           },
           {
-            internalType: "enum IAclCommons.AgentType",
+            internalType: "enum IACLCommons.AgentType",
             name: "adminType",
             type: "uint8",
           },
           {
-            internalType: "enum IAclCommons.PolicyType",
+            internalType: "enum IACLCommons.PolicyType",
             name: "ptype",
             type: "uint8",
           },
           {
-            internalType: "enum IAclCommons.ActivityStatus",
+            internalType: "enum IACLCommons.ActivityStatus",
             name: "acstat",
             type: "uint8",
           },
           {
-            internalType: "enum IAclCommons.AlterabilityStatus",
+            internalType: "enum IACLCommons.AlterabilityStatus",
             name: "alstat",
             type: "uint8",
           },
@@ -626,22 +626,22 @@ const _abi = [
             type: "uint8",
           },
           {
-            internalType: "enum IAclCommons.AgentType",
+            internalType: "enum IACLCommons.AgentType",
             name: "adminType",
             type: "uint8",
           },
           {
-            internalType: "enum IAclCommons.PolicyType",
+            internalType: "enum IACLCommons.PolicyType",
             name: "ptype",
             type: "uint8",
           },
           {
-            internalType: "enum IAclCommons.ActivityStatus",
+            internalType: "enum IACLCommons.ActivityStatus",
             name: "acstat",
             type: "uint8",
           },
           {
-            internalType: "enum IAclCommons.AlterabilityStatus",
+            internalType: "enum IACLCommons.AlterabilityStatus",
             name: "alstat",
             type: "uint8",
           },
@@ -717,12 +717,12 @@ const _abi = [
             type: "uint8",
           },
           {
-            internalType: "enum IAclCommons.ActivityStatus",
+            internalType: "enum IACLCommons.ActivityStatus",
             name: "acstat",
             type: "uint8",
           },
           {
-            internalType: "enum IAclCommons.AlterabilityStatus",
+            internalType: "enum IACLCommons.AlterabilityStatus",
             name: "alstat",
             type: "uint8",
           },
@@ -789,12 +789,12 @@ const _abi = [
             type: "bytes32",
           },
           {
-            internalType: "enum IAclCommons.ActivityStatus",
+            internalType: "enum IACLCommons.ActivityStatus",
             name: "acstat",
             type: "uint8",
           },
         ],
-        internalType: "struct IAclCommons.UpdateActivityRequest[]",
+        internalType: "struct IACLCommons.UpdateActivityRequest[]",
         name: "requests",
         type: "tuple[]",
       },
@@ -825,7 +825,7 @@ const _abi = [
             type: "bytes32",
           },
         ],
-        internalType: "struct IAclCommons.UpdateAdminRequest[]",
+        internalType: "struct IACLCommons.UpdateAdminRequest[]",
         name: "requests",
         type: "tuple[]",
       },
@@ -851,12 +851,12 @@ const _abi = [
             type: "bytes32",
           },
           {
-            internalType: "enum IAclCommons.AlterabilityStatus",
+            internalType: "enum IACLCommons.AlterabilityStatus",
             name: "alstat",
             type: "uint8",
           },
         ],
-        internalType: "struct IAclCommons.UpdateAlterabilityRequest[]",
+        internalType: "struct IACLCommons.UpdateAlterabilityRequest[]",
         name: "requests",
         type: "tuple[]",
       },

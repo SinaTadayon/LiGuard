@@ -3,7 +3,7 @@
 
 pragma solidity 0.8.17;
 
-import "./IAclCommons.sol";
+import "../IACLCommons.sol";
 
 /**
  * @title Policy Management Interface
@@ -12,7 +12,7 @@ import "./IAclCommons.sol";
  *
  */
 
-interface IPolicyManagement is IAclCommons {
+interface IPolicyManagement is IACLCommons {
   struct PolicyRegisterRequest {
     bytes32 adminId;
     bytes32 scopeId;
