@@ -36,16 +36,10 @@ contract AclManager is ACLStorage, BaseUUPSProxy, IACLManager {
 
   function initialize(
     string calldata contractName,
-    string calldata contractVersion,
-    string calldata contractRealm,
-    address accessControlManager
-  ) public onlyProxy onlyLocalAdmin initializer {
-    bytes32 realm = keccak256(abi.encodePacked(contractRealm));
-
-    // LAccessControl.initializeContext(_data);    
-    _registerProxyFacet();
-    __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
-    
+    string calldata contractVersion
+  ) public onlyProxy onlyLocalAdmin initializer {    
+    LAccessControl.registerProxyFacet(_data, _implementation());
+    __BASE_UUPS_init(contractName, contractVersion, address(0));
   }
 
   /**
@@ -154,7 +148,13 @@ contract AclManager is ACLStorage, BaseUUPSProxy, IACLManager {
     _delegate(facetId);
   }
 
-  function initACLAgents() public onlyLocalAdmin {
+  function initACL(address contextManagerAddress, address functionManagerAddress) public onlyProxy onlyLocalAdmin {
+    _initACLAgents();
+    _initACLScopes(contextManagerAddress, functionManagerAddress);
+    _firstInit = true;
+  }
+
+  function _initACLAgents() internal {
 
     // init Global Scope
     _data.global.id = _LIVELY_VERSE_GLOBAL_SCOPE_ID;
@@ -262,8 +262,7 @@ contract AclManager is ACLStorage, BaseUUPSProxy, IACLManager {
     scopeMasterType.roles.add(_LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID);
     scopeMasterType.members[livelyMasterAdminMemberId] = _LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID;
     
-
-      // Create Scope Master Admin Role
+    // Create Scope Master Admin Role
     RoleEntity storage scopeMasterAdminRole = _data.roleWriteSlot(_LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID);
     scopeMasterAdminRole.name = "LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE";
     scopeMasterAdminRole.scopeId = _LIVELY_VERSE_GLOBAL_SCOPE_ID;
@@ -348,11 +347,9 @@ contract AclManager is ACLStorage, BaseUUPSProxy, IACLManager {
     anyType.ba.scopeLimit = type(uint16).max;
     anyType.ba.acstat = ActivityStatus.ENABLED;
     anyType.ba.alstat = AlterabilityStatus.UPDATABLE;
-
-    _firstInit = true;
   }
 
-  function _initACLScope(address contextManagerAddress, address functionManagerAddress) public {
+  function _initACLScopes(address contextManagerAddress, address functionManagerAddress) internal {
     // Create ACL Domain
     bytes32 aclTypeId = keccak256("LIVELY_VERSE_ACL_TYPE");
     bytes32 aclDomainId = keccak256("LIVELY_VERSE_ACL_DOMAIN");
@@ -460,45 +457,10 @@ contract AclManager is ACLStorage, BaseUUPSProxy, IACLManager {
 
     // acl 
     aclType.roles.add(aclAdminRoleId);
-    // aclType.members[livelyMasterAdminMemberId] = aclAdminRoleId;
-    aclType.members[keccak256(abi.encode(0xA77AFA407D4E78cAEC58bA7783AF98f828b9cf36))] = aclAdminRoleId;
-    
+    aclType.members[keccak256(abi.encode(0xA77AFA407D4E78cAEC58bA7783AF98f828b9cf36))] = aclAdminRoleId;    
   }
 
-  function _registerProxyFacet() internal {
-    _data.facets.add(_implementation());
-    _data.selectors[IProxy.upgradeTo.selector] = _implementation();
-    _data.selectors[IProxy.setSafeModeStatus.selector] = _implementation();
-    _data.selectors[IProxy.setUpgradabilityStatus.selector] = _implementation();
-    _data.selectors[IProxy.setLocalAdmin.selector] = _implementation();
-    _data.selectors[IProxy.setAccessControlManager.selector] = _implementation();
-    _data.selectors[IProxy.contractName.selector] = _implementation();
-    _data.selectors[IProxy.contractVersion.selector] = _implementation();
-    _data.selectors[IProxy.accessControlManager.selector] = _implementation();
-    _data.selectors[IProxy.subjectAddress.selector] = _implementation();
-    _data.selectors[IProxy.safeModeStatus.selector] = _implementation();
-    _data.selectors[IProxy.upgradabilityStatus.selector] = _implementation();
-    _data.selectors[IProxy.localAdmin.selector] = _implementation();
-    _data.selectors[IProxy.domainSeparator.selector] = _implementation();
-    _data.selectors[IProxy.initVersion.selector] = _implementation();
-    _data.selectors[IProxy.proxyInfo.selector] = _implementation();
-    _data.selectors[this.initialize.selector] = address(this);
-    _data.selectors[IERC165.supportsInterface.selector] = address(this);
-    _data.selectors[IACLManager.aclRegisterFacet.selector] = address(this);
-    _data.selectors[IACLManager.aclUpgradeFacet.selector] = address(this);
-    _data.selectors[IACLManager.aclGetFacets.selector] = address(this);
-    _data.selectors[IERC1822Proxiable.proxiableUUID.selector] = address(this);
-    _data.selectors[withdrawBalance.selector] = address(this);
+  function getLibrary() external pure returns (address) {
+    return address(LAccessControl);
   }
-
-
-  // function getLibraries() external pure returns (address[] memory) {
-  //   address[] memory libs = new address[](5);
-  //   libs[0] = address(LAccessControl);
-  //   libs[1] = address(LContextManagement);
-  //   libs[2] = address(LRealmManagement);
-  //   libs[3] = address(LRoleManagement);
-  //   libs[4] = address(LGroupManagement);
-  //   return libs;
-  // }
 }

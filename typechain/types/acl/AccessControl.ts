@@ -2319,12 +2319,12 @@ export interface AccessControl extends BaseContract {
     withdrawBalance(
       recepient: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<BigNumber>;
 
     "withdrawBalance(address)"(
       recepient: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<BigNumber>;
   };
 
   filters: {

@@ -390,10 +390,12 @@ abstract contract BaseUUPSProxy is
     return _getInitializedCount();
   }
 
-  function withdrawBalance(address recepient) public {
+  function withdrawBalance(address recepient) external returns(uint256) {
     require(_sstat == ProxySafeModeStatus.DISABLED, "Rejected");
     require(_hasPermission(this.withdrawBalance.selector), "Forbidden");
+    uint256 balance = address(this).balance;
     payable(recepient).transfer(address(this).balance);
+    return balance;
   }
 
   // solhint-disable-next-line

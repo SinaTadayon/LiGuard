@@ -62,6 +62,8 @@ interface IProxy is IBaseProxy {
 
   function setAccessControlManager(address acl) external returns (bool);
 
+  function withdrawBalance(address recepient) external returns (uint256);
+
   function contractName() external view returns (string memory);
 
   function contractVersion() external view returns (string memory);

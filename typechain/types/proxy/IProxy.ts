@@ -80,6 +80,7 @@ export interface IProxyInterface extends utils.Interface {
     "subjectAddress()": FunctionFragment;
     "upgradabilityStatus()": FunctionFragment;
     "upgradeTo(address,bytes,bool)": FunctionFragment;
+    "withdrawBalance(address)": FunctionFragment;
   };
 
   getFunction(
@@ -114,6 +115,8 @@ export interface IProxyInterface extends utils.Interface {
       | "upgradabilityStatus()"
       | "upgradeTo"
       | "upgradeTo(address,bytes,bool)"
+      | "withdrawBalance"
+      | "withdrawBalance(address)"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -241,6 +244,14 @@ export interface IProxyInterface extends utils.Interface {
       PromiseOrValue<boolean>
     ]
   ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawBalance",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawBalance(address)",
+    values: [PromiseOrValue<string>]
+  ): string;
 
   decodeFunctionResult(
     functionFragment: "accessControlManager",
@@ -351,6 +362,14 @@ export interface IProxyInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "upgradeTo", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "upgradeTo(address,bytes,bool)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawBalance",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawBalance(address)",
     data: BytesLike
   ): Result;
 
@@ -592,6 +611,16 @@ export interface IProxy extends BaseContract {
       forceCall: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    withdrawBalance(
+      recepient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "withdrawBalance(address)"(
+      recepient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
 
   accessControlManager(overrides?: CallOverrides): Promise<string>;
@@ -687,6 +716,16 @@ export interface IProxy extends BaseContract {
     newImplementation: PromiseOrValue<string>,
     data: PromiseOrValue<BytesLike>,
     forceCall: PromiseOrValue<boolean>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  withdrawBalance(
+    recepient: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "withdrawBalance(address)"(
+    recepient: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -786,6 +825,16 @@ export interface IProxy extends BaseContract {
       forceCall: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<string>;
+
+    withdrawBalance(
+      recepient: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "withdrawBalance(address)"(
+      recepient: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
   };
 
   filters: {
@@ -956,6 +1005,16 @@ export interface IProxy extends BaseContract {
       forceCall: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    withdrawBalance(
+      recepient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "withdrawBalance(address)"(
+      recepient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -1066,6 +1125,16 @@ export interface IProxy extends BaseContract {
       newImplementation: PromiseOrValue<string>,
       data: PromiseOrValue<BytesLike>,
       forceCall: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    withdrawBalance(
+      recepient: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "withdrawBalance(address)"(
+      recepient: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

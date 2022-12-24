@@ -1,6 +1,6 @@
 {
   "name": "@livelyverse/lively-core-onchain",
-  "version": "2.0.2",
+  "version": "3.0.0",
   "description": "Lively Core On-Chain Contracts and Utilities",
   "scripts": {
     "accounts": "yarn run hardhat accounts",

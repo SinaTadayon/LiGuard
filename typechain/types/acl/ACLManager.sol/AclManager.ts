@@ -112,7 +112,6 @@ export interface AclManagerInterface extends utils.Interface {
     "FUNCTION_MESSAGE_TYPEHASH()": FunctionFragment;
     "PREDICT_CTX_MESSAGE_TYPEHASH()": FunctionFragment;
     "TYPE_HASH()": FunctionFragment;
-    "_initACLScope(address,address)": FunctionFragment;
     "accessControlManager()": FunctionFragment;
     "aclGetFacets()": FunctionFragment;
     "aclRegisterFacet((address,bytes4,bytes4[])[])": FunctionFragment;
@@ -120,9 +119,10 @@ export interface AclManagerInterface extends utils.Interface {
     "contractName()": FunctionFragment;
     "contractVersion()": FunctionFragment;
     "domainSeparator()": FunctionFragment;
-    "initACLAgents()": FunctionFragment;
+    "getLibrary()": FunctionFragment;
+    "initACL(address,address)": FunctionFragment;
     "initVersion()": FunctionFragment;
-    "initialize(string,string,string,address)": FunctionFragment;
+    "initialize(string,string)": FunctionFragment;
     "localAdmin()": FunctionFragment;
     "proxiableUUID()": FunctionFragment;
     "proxyInfo()": FunctionFragment;
@@ -148,8 +148,6 @@ export interface AclManagerInterface extends utils.Interface {
       | "PREDICT_CTX_MESSAGE_TYPEHASH()"
       | "TYPE_HASH"
       | "TYPE_HASH()"
-      | "_initACLScope"
-      | "_initACLScope(address,address)"
       | "accessControlManager"
       | "accessControlManager()"
       | "aclGetFacets"
@@ -164,12 +162,14 @@ export interface AclManagerInterface extends utils.Interface {
       | "contractVersion()"
       | "domainSeparator"
       | "domainSeparator()"
-      | "initACLAgents"
-      | "initACLAgents()"
+      | "getLibrary"
+      | "getLibrary()"
+      | "initACL"
+      | "initACL(address,address)"
       | "initVersion"
       | "initVersion()"
       | "initialize"
-      | "initialize(string,string,string,address)"
+      | "initialize(string,string)"
       | "localAdmin"
       | "localAdmin()"
       | "proxiableUUID"
@@ -228,14 +228,6 @@ export interface AclManagerInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "_initACLScope",
-    values: [PromiseOrValue<string>, PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "_initACLScope(address,address)",
-    values: [PromiseOrValue<string>, PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "accessControlManager",
     values?: undefined
   ): string;
@@ -292,12 +284,20 @@ export interface AclManagerInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "initACLAgents",
+    functionFragment: "getLibrary",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "initACLAgents()",
+    functionFragment: "getLibrary()",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initACL",
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initACL(address,address)",
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "initVersion",
@@ -309,21 +309,11 @@ export interface AclManagerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "initialize",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>
-    ]
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "initialize(string,string,string,address)",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>
-    ]
+    functionFragment: "initialize(string,string)",
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "localAdmin",
@@ -465,14 +455,6 @@ export interface AclManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "_initACLScope",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "_initACLScope(address,address)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "accessControlManager",
     data: BytesLike
   ): Result;
@@ -528,12 +510,14 @@ export interface AclManagerInterface extends utils.Interface {
     functionFragment: "domainSeparator()",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "getLibrary", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "initACLAgents",
+    functionFragment: "getLibrary()",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "initACL", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "initACLAgents()",
+    functionFragment: "initACL(address,address)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -546,7 +530,7 @@ export interface AclManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "initialize(string,string,string,address)",
+    functionFragment: "initialize(string,string)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "localAdmin", data: BytesLike): Result;
@@ -944,18 +928,6 @@ export interface AclManager extends BaseContract {
 
     "TYPE_HASH()"(overrides?: CallOverrides): Promise<[string]>;
 
-    _initACLScope(
-      contextManagerAddress: PromiseOrValue<string>,
-      functionManagerAddress: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "_initACLScope(address,address)"(
-      contextManagerAddress: PromiseOrValue<string>,
-      functionManagerAddress: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     accessControlManager(overrides?: CallOverrides): Promise<[string]>;
 
     "accessControlManager()"(overrides?: CallOverrides): Promise<[string]>;
@@ -996,11 +968,19 @@ export interface AclManager extends BaseContract {
 
     "domainSeparator()"(overrides?: CallOverrides): Promise<[string]>;
 
-    initACLAgents(
+    getLibrary(overrides?: CallOverrides): Promise<[string]>;
+
+    "getLibrary()"(overrides?: CallOverrides): Promise<[string]>;
+
+    initACL(
+      contextManagerAddress: PromiseOrValue<string>,
+      functionManagerAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "initACLAgents()"(
+    "initACL(address,address)"(
+      contextManagerAddress: PromiseOrValue<string>,
+      functionManagerAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -1011,16 +991,12 @@ export interface AclManager extends BaseContract {
     initialize(
       contractName: PromiseOrValue<string>,
       contractVersion: PromiseOrValue<string>,
-      contractRealm: PromiseOrValue<string>,
-      accessControlManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "initialize(string,string,string,address)"(
+    "initialize(string,string)"(
       contractName: PromiseOrValue<string>,
       contractVersion: PromiseOrValue<string>,
-      contractRealm: PromiseOrValue<string>,
-      accessControlManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -1143,18 +1119,6 @@ export interface AclManager extends BaseContract {
 
   "TYPE_HASH()"(overrides?: CallOverrides): Promise<string>;
 
-  _initACLScope(
-    contextManagerAddress: PromiseOrValue<string>,
-    functionManagerAddress: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "_initACLScope(address,address)"(
-    contextManagerAddress: PromiseOrValue<string>,
-    functionManagerAddress: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   accessControlManager(overrides?: CallOverrides): Promise<string>;
 
   "accessControlManager()"(overrides?: CallOverrides): Promise<string>;
@@ -1195,11 +1159,19 @@ export interface AclManager extends BaseContract {
 
   "domainSeparator()"(overrides?: CallOverrides): Promise<string>;
 
-  initACLAgents(
+  getLibrary(overrides?: CallOverrides): Promise<string>;
+
+  "getLibrary()"(overrides?: CallOverrides): Promise<string>;
+
+  initACL(
+    contextManagerAddress: PromiseOrValue<string>,
+    functionManagerAddress: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "initACLAgents()"(
+  "initACL(address,address)"(
+    contextManagerAddress: PromiseOrValue<string>,
+    functionManagerAddress: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1210,16 +1182,12 @@ export interface AclManager extends BaseContract {
   initialize(
     contractName: PromiseOrValue<string>,
     contractVersion: PromiseOrValue<string>,
-    contractRealm: PromiseOrValue<string>,
-    accessControlManager: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "initialize(string,string,string,address)"(
+  "initialize(string,string)"(
     contractName: PromiseOrValue<string>,
     contractVersion: PromiseOrValue<string>,
-    contractRealm: PromiseOrValue<string>,
-    accessControlManager: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1342,18 +1310,6 @@ export interface AclManager extends BaseContract {
 
     "TYPE_HASH()"(overrides?: CallOverrides): Promise<string>;
 
-    _initACLScope(
-      contextManagerAddress: PromiseOrValue<string>,
-      functionManagerAddress: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "_initACLScope(address,address)"(
-      contextManagerAddress: PromiseOrValue<string>,
-      functionManagerAddress: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     accessControlManager(overrides?: CallOverrides): Promise<string>;
 
     "accessControlManager()"(overrides?: CallOverrides): Promise<string>;
@@ -1394,9 +1350,21 @@ export interface AclManager extends BaseContract {
 
     "domainSeparator()"(overrides?: CallOverrides): Promise<string>;
 
-    initACLAgents(overrides?: CallOverrides): Promise<void>;
+    getLibrary(overrides?: CallOverrides): Promise<string>;
 
-    "initACLAgents()"(overrides?: CallOverrides): Promise<void>;
+    "getLibrary()"(overrides?: CallOverrides): Promise<string>;
+
+    initACL(
+      contextManagerAddress: PromiseOrValue<string>,
+      functionManagerAddress: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "initACL(address,address)"(
+      contextManagerAddress: PromiseOrValue<string>,
+      functionManagerAddress: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     initVersion(overrides?: CallOverrides): Promise<number>;
 
@@ -1405,16 +1373,12 @@ export interface AclManager extends BaseContract {
     initialize(
       contractName: PromiseOrValue<string>,
       contractVersion: PromiseOrValue<string>,
-      contractRealm: PromiseOrValue<string>,
-      accessControlManager: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "initialize(string,string,string,address)"(
+    "initialize(string,string)"(
       contractName: PromiseOrValue<string>,
       contractVersion: PromiseOrValue<string>,
-      contractRealm: PromiseOrValue<string>,
-      accessControlManager: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1511,12 +1475,12 @@ export interface AclManager extends BaseContract {
     withdrawBalance(
       recepient: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<BigNumber>;
 
     "withdrawBalance(address)"(
       recepient: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<BigNumber>;
   };
 
   filters: {
@@ -1703,18 +1667,6 @@ export interface AclManager extends BaseContract {
 
     "TYPE_HASH()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    _initACLScope(
-      contextManagerAddress: PromiseOrValue<string>,
-      functionManagerAddress: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "_initACLScope(address,address)"(
-      contextManagerAddress: PromiseOrValue<string>,
-      functionManagerAddress: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     accessControlManager(overrides?: CallOverrides): Promise<BigNumber>;
 
     "accessControlManager()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1755,11 +1707,19 @@ export interface AclManager extends BaseContract {
 
     "domainSeparator()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    initACLAgents(
+    getLibrary(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "getLibrary()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    initACL(
+      contextManagerAddress: PromiseOrValue<string>,
+      functionManagerAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "initACLAgents()"(
+    "initACL(address,address)"(
+      contextManagerAddress: PromiseOrValue<string>,
+      functionManagerAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1770,16 +1730,12 @@ export interface AclManager extends BaseContract {
     initialize(
       contractName: PromiseOrValue<string>,
       contractVersion: PromiseOrValue<string>,
-      contractRealm: PromiseOrValue<string>,
-      accessControlManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "initialize(string,string,string,address)"(
+    "initialize(string,string)"(
       contractName: PromiseOrValue<string>,
       contractVersion: PromiseOrValue<string>,
-      contractRealm: PromiseOrValue<string>,
-      accessControlManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1911,18 +1867,6 @@ export interface AclManager extends BaseContract {
 
     "TYPE_HASH()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    _initACLScope(
-      contextManagerAddress: PromiseOrValue<string>,
-      functionManagerAddress: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "_initACLScope(address,address)"(
-      contextManagerAddress: PromiseOrValue<string>,
-      functionManagerAddress: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     accessControlManager(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -1971,11 +1915,19 @@ export interface AclManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    initACLAgents(
+    getLibrary(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "getLibrary()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    initACL(
+      contextManagerAddress: PromiseOrValue<string>,
+      functionManagerAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "initACLAgents()"(
+    "initACL(address,address)"(
+      contextManagerAddress: PromiseOrValue<string>,
+      functionManagerAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1986,16 +1938,12 @@ export interface AclManager extends BaseContract {
     initialize(
       contractName: PromiseOrValue<string>,
       contractVersion: PromiseOrValue<string>,
-      contractRealm: PromiseOrValue<string>,
-      accessControlManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "initialize(string,string,string,address)"(
+    "initialize(string,string)"(
       contractName: PromiseOrValue<string>,
       contractVersion: PromiseOrValue<string>,
-      contractRealm: PromiseOrValue<string>,
-      accessControlManager: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
