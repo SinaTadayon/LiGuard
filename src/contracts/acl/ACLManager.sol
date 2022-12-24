@@ -138,14 +138,16 @@ contract AclManager is ACLStorage, BaseUUPSProxy, IACLManager {
   }
 
   function _beforeFallback() internal override view returns (address) {
-    address facetId = _data.selectors[msg.sig];
-    require(facetId != address(0), "Selector Not Found");
-    return facetId;
+    return _data.selectors[msg.sig];
   }
 
   function _fallback() internal override {
     address facetId = _beforeFallback();
-    _delegate(facetId);
+    if(facetId == address(0)) {
+      _delegate(_implementation());  
+    } else {
+      _delegate(facetId);
+    }
   }
 
   function initACL(address contextManagerAddress, address functionManagerAddress) public onlyProxy onlyLocalAdmin {
