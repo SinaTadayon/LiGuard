@@ -26,6 +26,34 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
   using LACLStorage for DataCollection;
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
 
+  constructor() {}
+
+  function initialize(
+    string calldata contractName,
+    string calldata contractVersion,
+    address accessControlManager
+  ) public onlyProxy onlyLocalAdmin initializer {        
+    __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
+
+    emit Initialized(
+      _msgSender(),
+      address(this),
+      _implementation(),
+      contractName,
+      contractVersion,
+      _getInitializedCount()
+    );
+  }
+
+  /**
+   * @dev See {IERC165-supportsInterface}.
+   */
+  function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+    return
+      interfaceId == type(IRoleManagement).interfaceId ||
+      super.supportsInterface(interfaceId);
+  }
+
   // type admins call roleRegister function
   function roleRegister(RoleRegisterRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IRoleManagement.roleRegister.selector);
@@ -403,10 +431,10 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
     return false;   
   }
 
-  function _accessPermission(bytes4 selector) internal returns (bytes32) {
+  function _accessPermission(bytes4 selector) internal view returns (bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
-    address functionFacetId = _data.interfaces[type(IMemberManagement).interfaceId];
+    address functionFacetId = _data.selectors[selector];
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector);    
     require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
     return functionId;

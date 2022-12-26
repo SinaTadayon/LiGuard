@@ -13,16 +13,47 @@ import "./IACLCommons.sol";
  */
 interface IACLManager is IACLCommons {
 
-  event AclFacetRegistered(address indexed sender, address indexed facetId, bytes4 interfaceId);
+   // Request Types
+  struct FacetSelectorUpgradeRequest {
+    ActionType action;
+    bytes4[] selectors;
+  }
 
-  event AclFacetUpgraded(
+  struct FacetUpgradeRequest {
+    address facetId;
+    address subjectId;
+    bytes4 interfaceId;
+    FacetSelectorUpgradeRequest[] functions;
+  }
+
+  struct FacetRegisterRequest {
+    address facetId;
+    address subjectId;
+    bytes4 interfaceId;
+    bytes4[] selectors;
+  }
+
+  event ACLFacetRegistered(
     address indexed sender, 
     address indexed facetId, 
-    bytes4 interfaceId,
-    bytes4 newInterfaceId
+    address indexed subjectId, 
+    bytes4 interfaceId
   );
 
-  event AclFacetFunctionUpgraded(
+  // event ACLFacetFunctionRegistered (
+  //   address indexed sender, 
+  //   address indexed facetId, 
+  //   bytes4 selector
+  // );
+
+  event ACLFacetUpgraded(
+    address indexed sender, 
+    address indexed facetId, 
+    address indexed subjectId,
+    bytes4 interfaceId
+  );
+
+  event ACLFacetFunctionUpgraded(
     address indexed sender, 
     address indexed facetId, 
     bytes4 selector,

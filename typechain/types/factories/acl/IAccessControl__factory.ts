@@ -218,7 +218,7 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "getAnonymouseType",
+    name: "getAnonymousType",
     outputs: [
       {
         internalType: "bytes32",

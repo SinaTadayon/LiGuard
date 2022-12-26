@@ -27,15 +27,22 @@ import type {
   PromiseOrValue,
 } from "../common";
 
-export declare namespace IACLCommons {
+export declare namespace IACLManager {
   export type FacetRegisterRequestStruct = {
     facetId: PromiseOrValue<string>;
+    subjectId: PromiseOrValue<string>;
     interfaceId: PromiseOrValue<BytesLike>;
     selectors: PromiseOrValue<BytesLike>[];
   };
 
-  export type FacetRegisterRequestStructOutput = [string, string, string[]] & {
+  export type FacetRegisterRequestStructOutput = [
+    string,
+    string,
+    string,
+    string[]
+  ] & {
     facetId: string;
+    subjectId: string;
     interfaceId: string;
     selectors: string[];
   };
@@ -52,29 +59,29 @@ export declare namespace IACLCommons {
 
   export type FacetUpgradeRequestStruct = {
     facetId: PromiseOrValue<string>;
+    subjectId: PromiseOrValue<string>;
     interfaceId: PromiseOrValue<BytesLike>;
-    newInterfaceId: PromiseOrValue<BytesLike>;
-    functions: IACLCommons.FacetSelectorUpgradeRequestStruct[];
+    functions: IACLManager.FacetSelectorUpgradeRequestStruct[];
   };
 
   export type FacetUpgradeRequestStructOutput = [
     string,
     string,
     string,
-    IACLCommons.FacetSelectorUpgradeRequestStructOutput[]
+    IACLManager.FacetSelectorUpgradeRequestStructOutput[]
   ] & {
     facetId: string;
+    subjectId: string;
     interfaceId: string;
-    newInterfaceId: string;
-    functions: IACLCommons.FacetSelectorUpgradeRequestStructOutput[];
+    functions: IACLManager.FacetSelectorUpgradeRequestStructOutput[];
   };
 }
 
 export interface IACLManagerInterface extends utils.Interface {
   functions: {
     "aclGetFacets()": FunctionFragment;
-    "aclRegisterFacet((address,bytes4,bytes4[])[])": FunctionFragment;
-    "aclUpgradeFacet((address,bytes4,bytes4,(uint8,bytes4[])[])[])": FunctionFragment;
+    "aclRegisterFacet((address,address,bytes4,bytes4[])[])": FunctionFragment;
+    "aclUpgradeFacet((address,address,bytes4,(uint8,bytes4[])[])[])": FunctionFragment;
   };
 
   getFunction(
@@ -82,9 +89,9 @@ export interface IACLManagerInterface extends utils.Interface {
       | "aclGetFacets"
       | "aclGetFacets()"
       | "aclRegisterFacet"
-      | "aclRegisterFacet((address,bytes4,bytes4[])[])"
+      | "aclRegisterFacet((address,address,bytes4,bytes4[])[])"
       | "aclUpgradeFacet"
-      | "aclUpgradeFacet((address,bytes4,bytes4,(uint8,bytes4[])[])[])"
+      | "aclUpgradeFacet((address,address,bytes4,(uint8,bytes4[])[])[])"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -97,19 +104,19 @@ export interface IACLManagerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "aclRegisterFacet",
-    values: [IACLCommons.FacetRegisterRequestStruct[]]
+    values: [IACLManager.FacetRegisterRequestStruct[]]
   ): string;
   encodeFunctionData(
-    functionFragment: "aclRegisterFacet((address,bytes4,bytes4[])[])",
-    values: [IACLCommons.FacetRegisterRequestStruct[]]
+    functionFragment: "aclRegisterFacet((address,address,bytes4,bytes4[])[])",
+    values: [IACLManager.FacetRegisterRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "aclUpgradeFacet",
-    values: [IACLCommons.FacetUpgradeRequestStruct[]]
+    values: [IACLManager.FacetUpgradeRequestStruct[]]
   ): string;
   encodeFunctionData(
-    functionFragment: "aclUpgradeFacet((address,bytes4,bytes4,(uint8,bytes4[])[])[])",
-    values: [IACLCommons.FacetUpgradeRequestStruct[]]
+    functionFragment: "aclUpgradeFacet((address,address,bytes4,(uint8,bytes4[])[])[])",
+    values: [IACLManager.FacetUpgradeRequestStruct[]]
   ): string;
 
   decodeFunctionResult(
@@ -125,7 +132,7 @@ export interface IACLManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "aclRegisterFacet((address,bytes4,bytes4[])[])",
+    functionFragment: "aclRegisterFacet((address,address,bytes4,bytes4[])[])",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -133,31 +140,31 @@ export interface IACLManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "aclUpgradeFacet((address,bytes4,bytes4,(uint8,bytes4[])[])[])",
+    functionFragment: "aclUpgradeFacet((address,address,bytes4,(uint8,bytes4[])[])[])",
     data: BytesLike
   ): Result;
 
   events: {
-    "AclFacetFunctionUpgraded(address,address,bytes4,uint8)": EventFragment;
-    "AclFacetRegistered(address,address,bytes4)": EventFragment;
-    "AclFacetUpgraded(address,address,bytes4,bytes4)": EventFragment;
+    "ACLFacetFunctionUpgraded(address,address,bytes4,uint8)": EventFragment;
+    "ACLFacetRegistered(address,address,address,bytes4)": EventFragment;
+    "ACLFacetUpgraded(address,address,address,bytes4)": EventFragment;
     "AgentReferredByPolicyUpdated(address,bytes32,bytes32,uint8)": EventFragment;
     "AgentReferredByScopeUpdated(address,bytes32,bytes32,uint8)": EventFragment;
     "ScopeReferredByAgentUpdated(address,bytes32,bytes32,uint8)": EventFragment;
     "ScopeReferredByPolicyUpdated(address,bytes32,bytes32,uint8)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "AclFacetFunctionUpgraded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ACLFacetFunctionUpgraded"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "AclFacetFunctionUpgraded(address,address,bytes4,uint8)"
+    nameOrSignatureOrTopic: "ACLFacetFunctionUpgraded(address,address,bytes4,uint8)"
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "AclFacetRegistered"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ACLFacetRegistered"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "AclFacetRegistered(address,address,bytes4)"
+    nameOrSignatureOrTopic: "ACLFacetRegistered(address,address,address,bytes4)"
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "AclFacetUpgraded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "ACLFacetUpgraded"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "AclFacetUpgraded(address,address,bytes4,bytes4)"
+    nameOrSignatureOrTopic: "ACLFacetUpgraded(address,address,address,bytes4)"
   ): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "AgentReferredByPolicyUpdated"
@@ -185,46 +192,47 @@ export interface IACLManagerInterface extends utils.Interface {
   ): EventFragment;
 }
 
-export interface AclFacetFunctionUpgradedEventObject {
+export interface ACLFacetFunctionUpgradedEventObject {
   sender: string;
   facetId: string;
   selector: string;
   action: number;
 }
-export type AclFacetFunctionUpgradedEvent = TypedEvent<
+export type ACLFacetFunctionUpgradedEvent = TypedEvent<
   [string, string, string, number],
-  AclFacetFunctionUpgradedEventObject
+  ACLFacetFunctionUpgradedEventObject
 >;
 
-export type AclFacetFunctionUpgradedEventFilter =
-  TypedEventFilter<AclFacetFunctionUpgradedEvent>;
+export type ACLFacetFunctionUpgradedEventFilter =
+  TypedEventFilter<ACLFacetFunctionUpgradedEvent>;
 
-export interface AclFacetRegisteredEventObject {
+export interface ACLFacetRegisteredEventObject {
   sender: string;
   facetId: string;
+  subjectId: string;
   interfaceId: string;
 }
-export type AclFacetRegisteredEvent = TypedEvent<
-  [string, string, string],
-  AclFacetRegisteredEventObject
->;
-
-export type AclFacetRegisteredEventFilter =
-  TypedEventFilter<AclFacetRegisteredEvent>;
-
-export interface AclFacetUpgradedEventObject {
-  sender: string;
-  facetId: string;
-  interfaceId: string;
-  newInterfaceId: string;
-}
-export type AclFacetUpgradedEvent = TypedEvent<
+export type ACLFacetRegisteredEvent = TypedEvent<
   [string, string, string, string],
-  AclFacetUpgradedEventObject
+  ACLFacetRegisteredEventObject
 >;
 
-export type AclFacetUpgradedEventFilter =
-  TypedEventFilter<AclFacetUpgradedEvent>;
+export type ACLFacetRegisteredEventFilter =
+  TypedEventFilter<ACLFacetRegisteredEvent>;
+
+export interface ACLFacetUpgradedEventObject {
+  sender: string;
+  facetId: string;
+  subjectId: string;
+  interfaceId: string;
+}
+export type ACLFacetUpgradedEvent = TypedEvent<
+  [string, string, string, string],
+  ACLFacetUpgradedEventObject
+>;
+
+export type ACLFacetUpgradedEventFilter =
+  TypedEventFilter<ACLFacetUpgradedEvent>;
 
 export interface AgentReferredByPolicyUpdatedEventObject {
   sender: string;
@@ -314,22 +322,22 @@ export interface IACLManager extends BaseContract {
     "aclGetFacets()"(overrides?: CallOverrides): Promise<[string[]]>;
 
     aclRegisterFacet(
-      requests: IACLCommons.FacetRegisterRequestStruct[],
+      requests: IACLManager.FacetRegisterRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "aclRegisterFacet((address,bytes4,bytes4[])[])"(
-      requests: IACLCommons.FacetRegisterRequestStruct[],
+    "aclRegisterFacet((address,address,bytes4,bytes4[])[])"(
+      requests: IACLManager.FacetRegisterRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     aclUpgradeFacet(
-      requests: IACLCommons.FacetUpgradeRequestStruct[],
+      requests: IACLManager.FacetUpgradeRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "aclUpgradeFacet((address,bytes4,bytes4,(uint8,bytes4[])[])[])"(
-      requests: IACLCommons.FacetUpgradeRequestStruct[],
+    "aclUpgradeFacet((address,address,bytes4,(uint8,bytes4[])[])[])"(
+      requests: IACLManager.FacetUpgradeRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
@@ -339,22 +347,22 @@ export interface IACLManager extends BaseContract {
   "aclGetFacets()"(overrides?: CallOverrides): Promise<string[]>;
 
   aclRegisterFacet(
-    requests: IACLCommons.FacetRegisterRequestStruct[],
+    requests: IACLManager.FacetRegisterRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "aclRegisterFacet((address,bytes4,bytes4[])[])"(
-    requests: IACLCommons.FacetRegisterRequestStruct[],
+  "aclRegisterFacet((address,address,bytes4,bytes4[])[])"(
+    requests: IACLManager.FacetRegisterRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   aclUpgradeFacet(
-    requests: IACLCommons.FacetUpgradeRequestStruct[],
+    requests: IACLManager.FacetUpgradeRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "aclUpgradeFacet((address,bytes4,bytes4,(uint8,bytes4[])[])[])"(
-    requests: IACLCommons.FacetUpgradeRequestStruct[],
+  "aclUpgradeFacet((address,address,bytes4,(uint8,bytes4[])[])[])"(
+    requests: IACLManager.FacetUpgradeRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -364,63 +372,65 @@ export interface IACLManager extends BaseContract {
     "aclGetFacets()"(overrides?: CallOverrides): Promise<string[]>;
 
     aclRegisterFacet(
-      requests: IACLCommons.FacetRegisterRequestStruct[],
+      requests: IACLManager.FacetRegisterRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "aclRegisterFacet((address,bytes4,bytes4[])[])"(
-      requests: IACLCommons.FacetRegisterRequestStruct[],
+    "aclRegisterFacet((address,address,bytes4,bytes4[])[])"(
+      requests: IACLManager.FacetRegisterRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
     aclUpgradeFacet(
-      requests: IACLCommons.FacetUpgradeRequestStruct[],
+      requests: IACLManager.FacetUpgradeRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "aclUpgradeFacet((address,bytes4,bytes4,(uint8,bytes4[])[])[])"(
-      requests: IACLCommons.FacetUpgradeRequestStruct[],
+    "aclUpgradeFacet((address,address,bytes4,(uint8,bytes4[])[])[])"(
+      requests: IACLManager.FacetUpgradeRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
   };
 
   filters: {
-    "AclFacetFunctionUpgraded(address,address,bytes4,uint8)"(
+    "ACLFacetFunctionUpgraded(address,address,bytes4,uint8)"(
       sender?: PromiseOrValue<string> | null,
       facetId?: PromiseOrValue<string> | null,
       selector?: null,
       action?: null
-    ): AclFacetFunctionUpgradedEventFilter;
-    AclFacetFunctionUpgraded(
+    ): ACLFacetFunctionUpgradedEventFilter;
+    ACLFacetFunctionUpgraded(
       sender?: PromiseOrValue<string> | null,
       facetId?: PromiseOrValue<string> | null,
       selector?: null,
       action?: null
-    ): AclFacetFunctionUpgradedEventFilter;
+    ): ACLFacetFunctionUpgradedEventFilter;
 
-    "AclFacetRegistered(address,address,bytes4)"(
+    "ACLFacetRegistered(address,address,address,bytes4)"(
       sender?: PromiseOrValue<string> | null,
       facetId?: PromiseOrValue<string> | null,
+      subjectId?: PromiseOrValue<string> | null,
       interfaceId?: null
-    ): AclFacetRegisteredEventFilter;
-    AclFacetRegistered(
+    ): ACLFacetRegisteredEventFilter;
+    ACLFacetRegistered(
       sender?: PromiseOrValue<string> | null,
       facetId?: PromiseOrValue<string> | null,
+      subjectId?: PromiseOrValue<string> | null,
       interfaceId?: null
-    ): AclFacetRegisteredEventFilter;
+    ): ACLFacetRegisteredEventFilter;
 
-    "AclFacetUpgraded(address,address,bytes4,bytes4)"(
+    "ACLFacetUpgraded(address,address,address,bytes4)"(
       sender?: PromiseOrValue<string> | null,
       facetId?: PromiseOrValue<string> | null,
-      interfaceId?: null,
-      newInterfaceId?: null
-    ): AclFacetUpgradedEventFilter;
-    AclFacetUpgraded(
+      subjectId?: PromiseOrValue<string> | null,
+      interfaceId?: null
+    ): ACLFacetUpgradedEventFilter;
+    ACLFacetUpgraded(
       sender?: PromiseOrValue<string> | null,
       facetId?: PromiseOrValue<string> | null,
-      interfaceId?: null,
-      newInterfaceId?: null
-    ): AclFacetUpgradedEventFilter;
+      subjectId?: PromiseOrValue<string> | null,
+      interfaceId?: null
+    ): ACLFacetUpgradedEventFilter;
 
     "AgentReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"(
       sender?: PromiseOrValue<string> | null,
@@ -481,22 +491,22 @@ export interface IACLManager extends BaseContract {
     "aclGetFacets()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     aclRegisterFacet(
-      requests: IACLCommons.FacetRegisterRequestStruct[],
+      requests: IACLManager.FacetRegisterRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "aclRegisterFacet((address,bytes4,bytes4[])[])"(
-      requests: IACLCommons.FacetRegisterRequestStruct[],
+    "aclRegisterFacet((address,address,bytes4,bytes4[])[])"(
+      requests: IACLManager.FacetRegisterRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     aclUpgradeFacet(
-      requests: IACLCommons.FacetUpgradeRequestStruct[],
+      requests: IACLManager.FacetUpgradeRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "aclUpgradeFacet((address,bytes4,bytes4,(uint8,bytes4[])[])[])"(
-      requests: IACLCommons.FacetUpgradeRequestStruct[],
+    "aclUpgradeFacet((address,address,bytes4,(uint8,bytes4[])[])[])"(
+      requests: IACLManager.FacetUpgradeRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -507,22 +517,22 @@ export interface IACLManager extends BaseContract {
     "aclGetFacets()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     aclRegisterFacet(
-      requests: IACLCommons.FacetRegisterRequestStruct[],
+      requests: IACLManager.FacetRegisterRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "aclRegisterFacet((address,bytes4,bytes4[])[])"(
-      requests: IACLCommons.FacetRegisterRequestStruct[],
+    "aclRegisterFacet((address,address,bytes4,bytes4[])[])"(
+      requests: IACLManager.FacetRegisterRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     aclUpgradeFacet(
-      requests: IACLCommons.FacetUpgradeRequestStruct[],
+      requests: IACLManager.FacetUpgradeRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "aclUpgradeFacet((address,bytes4,bytes4,(uint8,bytes4[])[])[])"(
-      requests: IACLCommons.FacetUpgradeRequestStruct[],
+    "aclUpgradeFacet((address,address,bytes4,(uint8,bytes4[])[])[])"(
+      requests: IACLManager.FacetUpgradeRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

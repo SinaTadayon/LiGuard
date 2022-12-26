@@ -17,60 +17,118 @@ export const PERMIT_TYPE_HASH: string = ethers.utils.keccak256(
   ethers.utils.toUtf8Bytes("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)")
 );
 
-export const LIVELY_GENERAL_REALM = ethers.utils.keccak256(
-  ethers.utils.solidityPack(["string"], ["LIVELY_GENERAL_REALM"])
-);
-export const LIVELY_ASSET_REALM = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["LIVELY_ASSET_REALM"]));
-export const LIVELY_GENERAL_GROUP = ethers.utils.keccak256(
-  ethers.utils.solidityPack(["string"], ["LIVELY_GENERAL_GROUP"])
-);
-export const LIVELY_DAO_GROUP = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["LIVELY_DAO_GROUP"]));
-export const LIVELY_ASSET_GROUP = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["LIVELY_ASSET_GROUP"]));
-export const LIVELY_ADMIN_ROLE = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["LIVELY_ADMIN_ROLE"]));
-export const LIVELY_SYSTEM_ADMIN_ROLE = ethers.utils.keccak256(
-  ethers.utils.solidityPack(["string"], ["LIVELY_SYSTEM_ADMIN_ROLE"])
-);
-export const LIVELY_ASSET_MANAGER_ROLE = ethers.utils.keccak256(
-  ethers.utils.solidityPack(["string"], ["LIVELY_ASSET_MANAGER_ROLE"])
-);
-export const LIVELY_ASSET_ADMIN_ROLE = ethers.utils.keccak256(
-  ethers.utils.solidityPack(["string"], ["LIVELY_ASSET_ADMIN_ROLE"])
-);
-export const LIVELY_COMMUNITY_DAO_ROLE = ethers.utils.keccak256(
-  ethers.utils.solidityPack(["string"], ["LIVELY_COMMUNITY_DAO_ROLE"])
-);
-export const LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE = ethers.utils.keccak256(
-  ethers.utils.solidityPack(["string"], ["LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE"])
-);
-export const LIVELY_ANONYMOUS_ROLE = ethers.utils.keccak256(
-  ethers.utils.solidityPack(["string"], ["LIVELY_ANONYMOUS_ROLE"])
-);
+// export const LIVELY_GENERAL_REALM = ethers.utils.keccak256(
+//   ethers.utils.solidityPack(["string"], ["LIVELY_GENERAL_REALM"])
+// );
+// export const LIVELY_ASSET_REALM = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["LIVELY_ASSET_REALM"]));
+// export const LIVELY_GENERAL_GROUP = ethers.utils.keccak256(
+//   ethers.utils.solidityPack(["string"], ["LIVELY_GENERAL_GROUP"])
+// );
+// export const LIVELY_DAO_GROUP = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["LIVELY_DAO_GROUP"]));
+// export const LIVELY_ASSET_GROUP = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["LIVELY_ASSET_GROUP"]));
+// export const LIVELY_ADMIN_ROLE = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["LIVELY_ADMIN_ROLE"]));
+// export const LIVELY_SYSTEM_ADMIN_ROLE = ethers.utils.keccak256(
+//   ethers.utils.solidityPack(["string"], ["LIVELY_SYSTEM_ADMIN_ROLE"])
+// );
+// export const LIVELY_ASSET_MANAGER_ROLE = ethers.utils.keccak256(
+//   ethers.utils.solidityPack(["string"], ["LIVELY_ASSET_MANAGER_ROLE"])
+// );
+// export const LIVELY_ASSET_ADMIN_ROLE = ethers.utils.keccak256(
+//   ethers.utils.solidityPack(["string"], ["LIVELY_ASSET_ADMIN_ROLE"])
+// );
+// export const LIVELY_COMMUNITY_DAO_ROLE = ethers.utils.keccak256(
+//   ethers.utils.solidityPack(["string"], ["LIVELY_COMMUNITY_DAO_ROLE"])
+// );
+// export const LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE = ethers.utils.keccak256(
+//   ethers.utils.solidityPack(["string"], ["LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE"])
+// );
+// export const LIVELY_ANONYMOUS_ROLE = ethers.utils.keccak256(
+//   ethers.utils.solidityPack(["string"], ["LIVELY_ANONYMOUS_ROLE"])
+// );
+//
+// export const LIVELY_CROWD_FOUNDING_ASSET_ROLE = ethers.utils.keccak256(
+//   ethers.utils.solidityPack(["string"], ["LIVELY_CROWD_FOUNDING_ASSET_ROLE"])
+// );
+// export const LIVELY_VALIDATORS_REWARDS_ASSET_ROLE = ethers.utils.keccak256(
+//   ethers.utils.solidityPack(["string"], ["LIVELY_VALIDATORS_REWARDS_ASSET_ROLE"])
+// );
+// export const LIVELY_PUBLIC_SALE_ASSET_ROLE = ethers.utils.keccak256(
+//   ethers.utils.solidityPack(["string"], ["LIVELY_PUBLIC_SALE_ASSET_ROLE"])
+// );
+// export const LIVELY_TREASURY_ASSET_ROLE = ethers.utils.keccak256(
+//   ethers.utils.solidityPack(["string"], ["LIVELY_TREASURY_ASSET_ROLE"])
+// );
+// export const LIVELY_FOUNDING_TEAM_ASSET_ROLE = ethers.utils.keccak256(
+//   ethers.utils.solidityPack(["string"], ["LIVELY_FOUNDING_TEAM_ASSET_ROLE"])
+// );
+// export const LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_ROLE = ethers.utils.keccak256(
+//   ethers.utils.solidityPack(["string"], ["LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_ROLE"])
+// );
 
-export const LIVELY_CROWD_FOUNDING_ASSET_ROLE = ethers.utils.keccak256(
-  ethers.utils.solidityPack(["string"], ["LIVELY_CROWD_FOUNDING_ASSET_ROLE"])
-);
-export const LIVELY_VALIDATORS_REWARDS_ASSET_ROLE = ethers.utils.keccak256(
-  ethers.utils.solidityPack(["string"], ["LIVELY_VALIDATORS_REWARDS_ASSET_ROLE"])
-);
-export const LIVELY_PUBLIC_SALE_ASSET_ROLE = ethers.utils.keccak256(
-  ethers.utils.solidityPack(["string"], ["LIVELY_PUBLIC_SALE_ASSET_ROLE"])
-);
-export const LIVELY_TREASURY_ASSET_ROLE = ethers.utils.keccak256(
-  ethers.utils.solidityPack(["string"], ["LIVELY_TREASURY_ASSET_ROLE"])
-);
-export const LIVELY_FOUNDING_TEAM_ASSET_ROLE = ethers.utils.keccak256(
-  ethers.utils.solidityPack(["string"], ["LIVELY_FOUNDING_TEAM_ASSET_ROLE"])
-);
-export const LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_ROLE = ethers.utils.keccak256(
-  ethers.utils.solidityPack(["string"], ["LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_ROLE"])
-);
-
-export enum LockState {
+export enum ProxySafeModeStatus {
   NONE,
-  LOCKED,
-  CLAIMED,
-  UNLOCKED,
+  DISABLED,
+  ENABLED
 }
+
+export enum ProxyUpgradabilityStatus {
+  NONE,
+  DISABLED,
+  ENABLED
+}
+
+export enum AgentType {
+  NONE,
+  MEMBER,
+  ROLE,
+  TYPE
+}
+
+export enum ActivityStatus {
+  NONE,
+  DELETED,
+  DISABLED,
+  SAFE_MODE,
+  ENABLED
+}
+
+export enum AlterabilityStatus {
+  NONE,
+  DISABLED,
+  UPDATABLE,
+  UPGRADABLE
+}
+
+export enum ScopeType {
+  NONE,
+  FUNCTION,
+  CONTEXT,
+  REALM,
+  DOMAIN,
+  GLOBAL
+}
+
+export enum ActionType {
+  ADD,
+  UPDATE,
+  REMOVE
+}
+
+export enum PolicyType {
+  UNLOCK,         // 0
+  SLOCK,          // soft lock, 1 - 63
+  MLOCK,          // medium lock, 64 - 127
+  RLOCK,          // restrict lock, 128 - 191
+  HLOCK,          // hard lock, 192 - 254
+  LOCK            // 255
+}
+
+// export enum LockState {
+//   NONE,
+//   LOCKED,
+//   CLAIMED,
+//   UNLOCKED,
+// }
 
 export async function generateContextDomainSignatureByHardhat(
   contractAddress: Address,

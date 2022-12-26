@@ -168,7 +168,7 @@ export declare namespace IACLCommons {
 
 export declare namespace IProxy {
   export type ProxyInfoStruct = {
-    contextId: PromiseOrValue<BytesLike>;
+    domainSeparator: PromiseOrValue<BytesLike>;
     name: PromiseOrValue<string>;
     version: PromiseOrValue<string>;
     acl: PromiseOrValue<string>;
@@ -190,7 +190,7 @@ export declare namespace IProxy {
     number,
     number
   ] & {
-    contextId: string;
+    domainSeparator: string;
     name: string;
     version: string;
     acl: string;
@@ -213,6 +213,7 @@ export interface PolicyManagerInterface extends utils.Interface {
     "contractVersion()": FunctionFragment;
     "domainSeparator()": FunctionFragment;
     "initVersion()": FunctionFragment;
+    "initialize(string,string,address)": FunctionFragment;
     "localAdmin()": FunctionFragment;
     "policyAddRoles((bytes32,bytes32[])[])": FunctionFragment;
     "policyCheckAccess(bytes32,bytes32)": FunctionFragment;
@@ -266,6 +267,8 @@ export interface PolicyManagerInterface extends utils.Interface {
       | "domainSeparator()"
       | "initVersion"
       | "initVersion()"
+      | "initialize"
+      | "initialize(string,string,address)"
       | "localAdmin"
       | "localAdmin()"
       | "policyAddRoles"
@@ -398,6 +401,22 @@ export interface PolicyManagerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "initVersion()",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initialize",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initialize(string,string,address)",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "localAdmin",
@@ -720,6 +739,11 @@ export interface PolicyManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "initVersion()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "initialize(string,string,address)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "localAdmin", data: BytesLike): Result;
@@ -1371,6 +1395,20 @@ export interface PolicyManager extends BaseContract {
 
     "initVersion()"(overrides?: CallOverrides): Promise<[number]>;
 
+    initialize(
+      contractName: PromiseOrValue<string>,
+      contractVersion: PromiseOrValue<string>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "initialize(string,string,address)"(
+      contractName: PromiseOrValue<string>,
+      contractVersion: PromiseOrValue<string>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     localAdmin(overrides?: CallOverrides): Promise<[string]>;
 
     "localAdmin()"(overrides?: CallOverrides): Promise<[string]>;
@@ -1696,6 +1734,20 @@ export interface PolicyManager extends BaseContract {
 
   "initVersion()"(overrides?: CallOverrides): Promise<number>;
 
+  initialize(
+    contractName: PromiseOrValue<string>,
+    contractVersion: PromiseOrValue<string>,
+    accessControlManager: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "initialize(string,string,address)"(
+    contractName: PromiseOrValue<string>,
+    contractVersion: PromiseOrValue<string>,
+    accessControlManager: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   localAdmin(overrides?: CallOverrides): Promise<string>;
 
   "localAdmin()"(overrides?: CallOverrides): Promise<string>;
@@ -2020,6 +2072,20 @@ export interface PolicyManager extends BaseContract {
     initVersion(overrides?: CallOverrides): Promise<number>;
 
     "initVersion()"(overrides?: CallOverrides): Promise<number>;
+
+    initialize(
+      contractName: PromiseOrValue<string>,
+      contractVersion: PromiseOrValue<string>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "initialize(string,string,address)"(
+      contractName: PromiseOrValue<string>,
+      contractVersion: PromiseOrValue<string>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     localAdmin(overrides?: CallOverrides): Promise<string>;
 
@@ -2569,6 +2635,20 @@ export interface PolicyManager extends BaseContract {
 
     "initVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
 
+    initialize(
+      contractName: PromiseOrValue<string>,
+      contractVersion: PromiseOrValue<string>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "initialize(string,string,address)"(
+      contractName: PromiseOrValue<string>,
+      contractVersion: PromiseOrValue<string>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     localAdmin(overrides?: CallOverrides): Promise<BigNumber>;
 
     "localAdmin()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -2910,6 +2990,20 @@ export interface PolicyManager extends BaseContract {
     initVersion(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "initVersion()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    initialize(
+      contractName: PromiseOrValue<string>,
+      contractVersion: PromiseOrValue<string>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "initialize(string,string,address)"(
+      contractName: PromiseOrValue<string>,
+      contractVersion: PromiseOrValue<string>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     localAdmin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

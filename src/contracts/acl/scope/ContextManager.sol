@@ -14,6 +14,8 @@ import "../../lib/struct/LEnumerableSet.sol";
 import "../../proxy/IProxy.sol";
 import "../../proxy/BaseUUPSProxy.sol";
 
+import "hardhat/console.sol";
+
 /**
  * @title Context Manager Contract
  * @author Sina Tadayon, https://github.com/SinaTadayon
@@ -25,6 +27,34 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
   using LClones for address;  
 
+  constructor() {}
+
+  function initialize(
+    string calldata contractName,
+    string calldata contractVersion,
+    address accessControlManager
+  ) public onlyProxy onlyLocalAdmin initializer {        
+    __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
+
+    emit Initialized(
+      _msgSender(),
+      address(this),
+      _implementation(),
+      contractName,
+      contractVersion,
+      _getInitializedCount()
+    );
+  }
+
+  /**
+   * @dev See {IERC165-supportsInterface}.
+   */
+  function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+    return
+      interfaceId == type(IContextManagement).interfaceId ||
+      super.supportsInterface(interfaceId);
+  }
+
   // called by system admin
   function contextRegister(ContextRegisterRequest[] calldata requests) external returns (bool) {
     
@@ -34,21 +64,29 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
       address signer;
       address contractId;
       if(requests[i].contractId == address(0)) {
-        signer = _doGetSignerAddress(
-          requests[i].signature, 
-          _getPredictContextMessageHash(requests[i].deployer, requests[i].subject, requests[i].realmId)
-        );
+        if(requests[i].signature.length > 0) {
+          signer = _doGetSignerAddress(
+            requests[i].signature, 
+            _getPredictContextMessageHash(requests[i].deployer, requests[i].subject, requests[i].realmId)
+          );
+        } else {
+          signer = msg.sender;
+        }
+
         contractId = requests[i].subject.predictDeterministicAddress(requests[i].salt, requests[i].deployer);
         
       } else {
-        bytes32 structHash = _getContextMessageHash(
-          requests[i].contractId, 
-          LACLUtils.generateHash(requests[i].name), 
-          LACLUtils.generateHash(requests[i].version),
-          requests[i].realmId
-        );
-
-        signer = _doGetSignerAddress(requests[i].signature, structHash);
+        if(requests[i].signature.length > 0) {
+          bytes32 structHash = _getContextMessageHash(
+            requests[i].contractId, 
+            LACLUtils.generateHash(requests[i].name), 
+            LACLUtils.generateHash(requests[i].version),
+            requests[i].realmId
+          );
+          signer = _doGetSignerAddress(requests[i].signature, structHash);
+        } else {
+          signer = msg.sender;
+        }    
         contractId = requests[i].contractId;
       }
 
@@ -92,7 +130,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
       );
   }
 
-  function contextDeleteActivity(bytes32[] calldata requests) external returns (bool) {
+  function contextDeleteActivity(bytes32[] calldata requests) external pure returns (bool) {
     revert("Not Supported");
   }
 
@@ -410,7 +448,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
   function _accessPermission(bytes4 selector) internal view returns (bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
-    address functionFacetId = _data.interfaces[type(IContextManagement).interfaceId];
+    address functionFacetId = _data.selectors[selector];
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector);    
     require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
     return functionId;
@@ -435,8 +473,11 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     // bytes32 signerRoleId = systemAdminType.members[signerId];
     // RoleEntity storage signerSystemRole =  _data.roleReadSlot(signerRoleId);
     // ScopeType signerSystemScopeType = _data.scopes[signerSystemRole.scopeId].stype;
-     (ScopeType signerScopeType, bytes32 signerScopeId) = _doGetScopeInfo(signerId);
-
+    (ScopeType signerScopeType, bytes32 signerScopeId) = _doGetScopeInfo(signerId);
+    console.log("signer scope type: ");
+    console.logBytes1(bytes1(uint8(signerScopeType)));
+    console.log("signer scope Id: ");
+    console.logBytes32(signerScopeId);
 
     // check signer scope
     require(signerScopeType >= ScopeType.REALM, "Illegal Signer ScopeType");
@@ -447,7 +488,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
       require(signerScopeId == domainId, "Illegal Domain Scope");
     
     } else {
-      require(signerScopeId == _data.global.id, "Illegal Global Scope");
+      require(signerScopeId == _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Global Scope");
     } 
   } 
 
@@ -488,11 +529,10 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
 
   function _doRegisterContext(ContextRegisterRequest calldata request, address contractId, address signer) internal {
     
-    bytes32 functionId = LACLUtils.functionGenerateId(_data.interfaces[type(IContextManagement).interfaceId], IContextManagement.contextRegister.selector);    
-    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
-    
+    bytes32 functionId = LACLUtils.functionGenerateId(_data.selectors[IContextManagement.contextRegister.selector], IContextManagement.contextRegister.selector);
     bytes32 signerId = LACLUtils.accountGenerateId(signer);  
     bytes32 newContextId = LACLUtils.accountGenerateId(contractId);
+    require(IAccessControl(address(this)).hasMemberAccess(signerId, functionId), "Access Denied");
     require(_data.scopes[newContextId].stype == ScopeType.NONE, "Already Exist");
 
     {
@@ -508,7 +548,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
       require(realmEntity.contextLimit > realmEntity.contexts.length(), "Illegal Register");
 
       // check access admin realm
-      require(_doCheckAdminAccess(realmEntity.bs.adminId, signerId, functionId), "Forbidden");
+      // require(_doCheckAdminAccess(realmEntity.bs.adminId, signerId, functionId), "Forbidden");
 
       // check system admin scope
       _doCheckSignerScope(signerId, request.realmId, realmEntity.domainId);

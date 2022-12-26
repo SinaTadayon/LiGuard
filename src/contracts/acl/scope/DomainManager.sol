@@ -22,6 +22,34 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
   using LACLStorage for DataCollection;
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
 
+  constructor() {}
+
+  function initialize(
+    string calldata contractName,
+    string calldata contractVersion,
+    address accessControlManager
+  ) public onlyProxy onlyLocalAdmin initializer {        
+    __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
+
+    emit Initialized(
+      _msgSender(),
+      address(this),
+      _implementation(),
+      contractName,
+      contractVersion,
+      _getInitializedCount()
+    );
+  }
+
+  /**
+   * @dev See {IERC165-supportsInterface}.
+   */
+  function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+    return
+      interfaceId == type(IDomainManagement).interfaceId ||
+      super.supportsInterface(interfaceId);
+  }
+
   // called by account that member of VERSE SCOPE MASTER TYPE
   function domainRegister(DomainRegisterRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IDomainManagement.domainRegister.selector);
@@ -37,14 +65,15 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
       require(requests[i].alstat > AlterabilityStatus.NONE, "Illegal Alterability");
 
       // check sender scopes
-      require(senderScopeId == _data.global.id, "Illegal Global Scope");
-      require(_data.global.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Global Update");
-      require(_data.global.domainLimit > _data.global.domains.length(), "Illegal Domain Register");
+      GlobalEntity storage livelyGlobalEntity = _data.globalReadSlot(_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
+      require(senderScopeId == _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Global Scope");
+      require(livelyGlobalEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Global Update");
+      require(livelyGlobalEntity.domainLimit > livelyGlobalEntity.domains.length(), "Illegal Domain Register");
 
       // check access admin global
-      require(_doCheckAdminAccess(_data.global.bs.adminId, senderId, functionId), "Forbidden");
+      require(_doCheckAdminAccess(livelyGlobalEntity.bs.adminId, senderId, functionId), "Forbidden");
 
-      _data.global.domains.add(newDomainId);
+      livelyGlobalEntity.domains.add(newDomainId);
 
       // create new domain entity
       DomainEntity storage newDomain = _data.domainWriteSlot(newDomainId);
@@ -59,10 +88,10 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
       if(requests[i].adminId != bytes32(0)) {
         require(_data.agents[requests[i].adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
         (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(requests[i].adminId);
-        require(requestAdminScopeId == _data.global.id, "Illegal Amind Scope");
+        require(requestAdminScopeId == _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Amind Scope");
         newDomain.bs.adminId = requests[i].adminId;
       } else {
-        newDomain.bs.adminId = _data.global.bs.adminId;
+        newDomain.bs.adminId = livelyGlobalEntity.bs.adminId;
       }
             
       // // add reference of admin agent
@@ -157,10 +186,10 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
       if(requests[i].adminId != bytes32(0)) {
         require(_data.agents[requests[i].adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
         (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(requests[i].adminId);
-        require(requestAdminScopeId == _data.global.id, "Illegal Amind Scope");
+        require(requestAdminScopeId == _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Amind Scope");
         domainEntity.bs.adminId = requests[i].adminId;
       } else {
-        domainEntity.bs.adminId = _data.global.bs.adminId;
+        domainEntity.bs.adminId = _data.scopes[_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID].adminId;
       }
 
       // checking new admin Id 
@@ -398,11 +427,11 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
   function _accessPermission(bytes4 selector) internal view returns (bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
-    address functionFacetId = _data.interfaces[type(IDomainManagement).interfaceId];
+    address functionFacetId = _data.selectors[selector];
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector);    
     require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
     return functionId;
-  }
+  }  
 
   function _doGetEntityAndCheckAdminAccess(bytes32 domainId, bytes32 senderId, bytes32 functionId, bool isAlterable) internal view returns (DomainEntity storage) {
     DomainEntity storage domainEntity = _data.domainReadSlot(domainId);

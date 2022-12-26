@@ -29,7 +29,8 @@ contract Proxy is BaseUUPSStorage, BaseProxy {
     assert(_IMPLEMENTATION_SLOT == bytes32(uint256(keccak256("eip1967.proxy.implementation")) - 1));
     assert(_ADMIN_SLOT == bytes32(uint256(keccak256("eip1967.proxy.admin")) - 1));
     LStorageSlot.getAddressSlot(_ADMIN_SLOT).value = msg.sender;
-    _sstat = ProxySafeModeStatus.DISABLED;
+    _sstat = ProxySafeModeStatus.ENABLED;
+    _ustat = ProxyUpgradabilityStatus.DISABLED;
     _upgradeToAndCallUUPS(logic, data, false);
   }
 

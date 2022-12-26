@@ -14,6 +14,36 @@ import "../../acl/ACLStorage.sol";
  */
 library LACLStorage {
  
+  function globalReadSlot(ACLStorage.DataCollection storage data, bytes32 scopeId) internal view returns (IACLCommons.GlobalEntity storage ge) {
+    IACLCommons.BaseScope storage bs = data.scopes[scopeId];
+    if(bs.stype == IACLCommons.ScopeType.GLOBAL) {
+      assembly {
+        let ptr := mload(0x40)
+        mstore(add(ptr, 0x00), scopeId)
+        mstore(add(ptr, 0x20), add(data.slot, 1))
+        ge.slot := keccak256(ptr, 0x40)
+      }
+    }  else if(bs.stype == IACLCommons.ScopeType.NONE) {
+      revert("GID Not Found");
+    } else {
+      revert("Illeagl GID Slot");
+    } 
+  }
+
+  function globalWriteSlot(ACLStorage.DataCollection storage data, bytes32 scopeId) internal view returns (IACLCommons.GlobalEntity storage ge) {
+    IACLCommons.BaseScope storage bs = data.scopes[scopeId];
+    if(bs.stype == IACLCommons.ScopeType.NONE || bs.stype == IACLCommons.ScopeType.GLOBAL) {
+      assembly {
+        let ptr := mload(0x40)
+        mstore(add(ptr, 0x00), scopeId)
+        mstore(add(ptr, 0x20), add(data.slot, 1))
+        ge.slot := keccak256(ptr, 0x40)
+      }
+    } else {
+      revert("Illegal GID Slot");
+    }  
+  }
+
   function functionReadSlot(ACLStorage.DataCollection storage data, bytes32 scopeId) internal view returns (IACLCommons.FunctionEntity storage fc) {
     IACLCommons.BaseScope storage bs = data.scopes[scopeId];
     if(bs.stype == IACLCommons.ScopeType.FUNCTION) {
@@ -55,8 +85,7 @@ library LACLStorage {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), scopeId)
         mstore(add(ptr, 0x20), add(data.slot, 1))
-        let slot := keccak256(ptr, 0x40)      
-        fc.slot := slot
+        fc.slot := keccak256(ptr, 0x40)      
       }
     } else {
       revert("Illegal FID Slot");
@@ -70,8 +99,7 @@ library LACLStorage {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), scopeId)
         mstore(add(ptr, 0x20), add(data.slot, 1))
-        let slot := keccak256(ptr, 0x40)      
-        fe.slot := slot
+        fe.slot := keccak256(ptr, 0x40)      
       }
       result = true;
     }  else {
@@ -123,8 +151,7 @@ library LACLStorage {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), scopeId)
         mstore(add(ptr, 0x20), add(data.slot, 1))
-        let slot := keccak256(ptr, 0x40)      
-        ce.slot := slot
+        ce.slot := keccak256(ptr, 0x40)      
       }
     } else {
       revert("Illegal CID Slot");
@@ -138,8 +165,7 @@ library LACLStorage {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), scopeId)
         mstore(add(ptr, 0x20), add(data.slot, 1))
-        let slot := keccak256(ptr, 0x40)      
-        ce.slot := slot
+        ce.slot := keccak256(ptr, 0x40)      
       }
       result = true;
     }  else {
@@ -206,8 +232,7 @@ library LACLStorage {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), scopeId)
         mstore(add(ptr, 0x20), add(data.slot, 1))
-        let slot := keccak256(ptr, 0x40)      
-        re.slot := slot
+        re.slot := keccak256(ptr, 0x40)
       }
       result = true;
     }  else {
@@ -260,8 +285,7 @@ library LACLStorage {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), scopeId)
         mstore(add(ptr, 0x20), add(data.slot, 1))
-        let slot := keccak256(ptr, 0x40)      
-        de.slot := slot
+        de.slot := keccak256(ptr, 0x40)      
       }
     } else {
       revert("Illegal DID Slot");
@@ -275,8 +299,7 @@ library LACLStorage {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), scopeId)
         mstore(add(ptr, 0x20), add(data.slot, 1))
-        let slot := keccak256(ptr, 0x40)      
-        de.slot := slot
+        de.slot := keccak256(ptr, 0x40)      
       }
       result = true;
     } else {
@@ -294,7 +317,7 @@ library LACLStorage {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), agentId)
-        mstore(add(ptr, 0x20), add(data.slot, 1))
+        mstore(add(ptr, 0x20), add(data.slot, 0))
         me.slot := keccak256(ptr, 0x40)      
       }
     } else if(ba.atype == IACLCommons.AgentType.NONE) {
@@ -310,7 +333,7 @@ library LACLStorage {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), agentId)
-        mstore(add(ptr, 0x20), add(data.slot, 1))
+        mstore(add(ptr, 0x20), add(data.slot, 0))
         me.slot := keccak256(ptr, 0x40)      
       }
       result = true;
@@ -328,9 +351,8 @@ library LACLStorage {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), agentId)
-        mstore(add(ptr, 0x20), add(data.slot, 1))
-        let slot := keccak256(ptr, 0x40)      
-        me.slot := slot
+        mstore(add(ptr, 0x20), add(data.slot, 0))
+        me.slot := keccak256(ptr, 0x40)
       }
     } else {
       revert("Illegal MID Slot");
@@ -343,9 +365,8 @@ library LACLStorage {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), agentId)
-        mstore(add(ptr, 0x20), add(data.slot, 1))
-        let slot := keccak256(ptr, 0x40)      
-        me.slot := slot
+        mstore(add(ptr, 0x20), add(data.slot, 0))
+        me.slot := keccak256(ptr, 0x40)      
       }
       result = true;
     } else {
@@ -363,7 +384,7 @@ library LACLStorage {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), agentId)
-        mstore(add(ptr, 0x20), add(data.slot, 1))
+        mstore(add(ptr, 0x20), add(data.slot, 0))
         re.slot := keccak256(ptr, 0x40)      
       }
     }  else if(ba.atype == IACLCommons.AgentType.NONE) {
@@ -379,7 +400,7 @@ library LACLStorage {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), agentId)
-        mstore(add(ptr, 0x20), add(data.slot, 1))
+        mstore(add(ptr, 0x20), add(data.slot, 0))
         re.slot := keccak256(ptr, 0x40)      
       }
       result = true;
@@ -397,7 +418,7 @@ library LACLStorage {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), agentId)
-        mstore(add(ptr, 0x20), add(data.slot, 1))
+        mstore(add(ptr, 0x20), add(data.slot, 0))
         let slot := keccak256(ptr, 0x40)      
         re.slot := slot
       }
@@ -412,7 +433,7 @@ library LACLStorage {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), agentId)
-        mstore(add(ptr, 0x20), add(data.slot, 1))
+        mstore(add(ptr, 0x20), add(data.slot, 0))
         let slot := keccak256(ptr, 0x40)      
         re.slot := slot
       }
@@ -431,7 +452,7 @@ library LACLStorage {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), agentId)
-        mstore(add(ptr, 0x20), add(data.slot, 1))
+        mstore(add(ptr, 0x20), add(data.slot, 0))
         te.slot := keccak256(ptr, 0x40)      
       }
     }  else if(ba.atype == IACLCommons.AgentType.NONE) {
@@ -447,7 +468,7 @@ library LACLStorage {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), agentId)
-        mstore(add(ptr, 0x20), add(data.slot, 1))
+        mstore(add(ptr, 0x20), add(data.slot, 0))
         te.slot := keccak256(ptr, 0x40)      
       }
       result = true;
@@ -465,9 +486,8 @@ library LACLStorage {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), agentId)
-        mstore(add(ptr, 0x20), add(data.slot, 1))
-        let slot := keccak256(ptr, 0x40)      
-        te.slot := slot
+        mstore(add(ptr, 0x20), add(data.slot, 0))
+        te.slot := keccak256(ptr, 0x40)      
       }
     } else {
       revert("Illegal TID Slot");
@@ -480,9 +500,8 @@ library LACLStorage {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), agentId)
-        mstore(add(ptr, 0x20), add(data.slot, 1))
-        let slot := keccak256(ptr, 0x40)      
-        te.slot := slot
+        mstore(add(ptr, 0x20), add(data.slot, 0))
+        te.slot := keccak256(ptr, 0x40)      
       }
       result = true;
     }  else {

@@ -122,8 +122,8 @@ interface IACLCommons {
 
   struct GlobalEntity {
     BaseScope bs;
-    bytes32 id;
     uint16 domainLimit;
+    string name;    
     LEnumerableSet.Bytes32Set domains;
   }
 
@@ -153,23 +153,9 @@ interface IACLCommons {
     LEnumerableSet.Bytes32Set roles;
   }
 
-  // Request Types
-  struct FacetSelectorUpgradeRequest {
-    ActionType action;
-    bytes4[] selectors;
-  }
-
-  struct FacetUpgradeRequest {
-    address facetId;
+  struct FacetEntity {
+    address subjectId;
     bytes4 interfaceId;
-    bytes4 newInterfaceId;
-    FacetSelectorUpgradeRequest[] functions;
-  }
-
-  struct FacetRegisterRequest {
-    address facetId;
-    bytes4 interfaceId;
-    bytes4[] selectors;
   }
 
   struct UpdateActivityRequest {

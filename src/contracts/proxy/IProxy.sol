@@ -14,7 +14,7 @@ import "./IBaseProxy.sol";
 interface IProxy is IBaseProxy {
 
   struct ProxyInfo {
-    bytes32 contextId;
+    bytes32 domainSeparator;
     string name;
     string version;
     address acl;

@@ -1,7 +1,7 @@
 {
   "name": "@livelyverse/lively-core-onchain",
   "version": "3.0.0",
-  "description": "Lively Core On-Chain Contracts and Utilities",
+  "description": "Lively ACL On-Chain Contracts and Utilities",
   "scripts": {
     "accounts": "yarn run hardhat accounts",
     "compile": "yarn run hardhat compile && tsc",
@@ -64,7 +64,7 @@
   "main": "./export/types/index.js",
   "types": "./export/types/index.d.ts",
   "bugs": {
-    "url": "https://github.com/livelyverse/lively-core-onchain/issues"
+    "url": "https://github.com/livelyverse/acl-onchain/issues"
   },
   "engines": {
     "node": ">=16.15.0"

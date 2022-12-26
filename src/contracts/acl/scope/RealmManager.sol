@@ -22,6 +22,34 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
   using LACLStorage for DataCollection;
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
 
+  constructor() {}
+
+  function initialize(
+    string calldata contractName,
+    string calldata contractVersion,
+    address accessControlManager
+  ) public onlyProxy onlyLocalAdmin initializer {        
+    __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
+
+    emit Initialized(
+      _msgSender(),
+      address(this),
+      _implementation(),
+      contractName,
+      contractVersion,
+      _getInitializedCount()
+    );
+  }
+
+  /**
+   * @dev See {IERC165-supportsInterface}.
+   */
+  function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+    return
+      interfaceId == type(IRealmManagement).interfaceId ||
+      super.supportsInterface(interfaceId);
+  }
+
   // calld by scope master type
   // admin of realm can be any type or any role
   function realmRegister(RealmRegisterRequest[] calldata requests) external returns (bool) {
@@ -48,7 +76,7 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
         require(memberScopeId == requests[i].domainId, "Illegal Domain Scope");
 
       } else {
-        require(memberScopeId == _data.global.id, "Illegal Global Scope");
+        require(memberScopeId == _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Global Scope");
       }
 
       DomainEntity storage domainEntity = _data.domainReadSlot(requests[i].domainId);
@@ -416,7 +444,7 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
   function _accessPermission(bytes4 selector) internal view returns (bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
-    address functionFacetId = _data.interfaces[type(IRealmManagement).interfaceId];
+    address functionFacetId = _data.selectors[selector];
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector);    
     require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
     return functionId;
@@ -453,7 +481,7 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
         require(requestAdminScopeId == domainId, "Illegal Amind Scope");
 
       } else {
-        require(requestAdminScopeId == _data.global.id, "Illegal Amind Scope");
+        require(requestAdminScopeId == _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Amind Scope");
       }
       realmAdminId = adminId;
 

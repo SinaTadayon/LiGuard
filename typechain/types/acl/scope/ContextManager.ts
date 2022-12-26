@@ -156,7 +156,7 @@ export declare namespace IACLCommons {
 
 export declare namespace IProxy {
   export type ProxyInfoStruct = {
-    contextId: PromiseOrValue<BytesLike>;
+    domainSeparator: PromiseOrValue<BytesLike>;
     name: PromiseOrValue<string>;
     version: PromiseOrValue<string>;
     acl: PromiseOrValue<string>;
@@ -178,7 +178,7 @@ export declare namespace IProxy {
     number,
     number
   ] & {
-    contextId: string;
+    domainSeparator: string;
     name: string;
     version: string;
     acl: string;
@@ -214,6 +214,7 @@ export interface ContextManagerInterface extends utils.Interface {
     "contractVersion()": FunctionFragment;
     "domainSeparator()": FunctionFragment;
     "initVersion()": FunctionFragment;
+    "initialize(string,string,address)": FunctionFragment;
     "localAdmin()": FunctionFragment;
     "proxiableUUID()": FunctionFragment;
     "proxyInfo()": FunctionFragment;
@@ -275,6 +276,8 @@ export interface ContextManagerInterface extends utils.Interface {
       | "domainSeparator()"
       | "initVersion"
       | "initVersion()"
+      | "initialize"
+      | "initialize(string,string,address)"
       | "localAdmin"
       | "localAdmin()"
       | "proxiableUUID"
@@ -475,6 +478,22 @@ export interface ContextManagerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "initVersion()",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initialize",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initialize(string,string,address)",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "localAdmin",
@@ -757,6 +776,11 @@ export interface ContextManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "initVersion()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "initialize(string,string,address)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "localAdmin", data: BytesLike): Result;
@@ -1231,13 +1255,13 @@ export interface ContextManager extends BaseContract {
 
     contextDeleteActivity(
       requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     "contextDeleteActivity(bytes32[])"(
       requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     contextGetContextInfo(
       contextId: PromiseOrValue<BytesLike>,
@@ -1348,6 +1372,20 @@ export interface ContextManager extends BaseContract {
     initVersion(overrides?: CallOverrides): Promise<[number]>;
 
     "initVersion()"(overrides?: CallOverrides): Promise<[number]>;
+
+    initialize(
+      contractName: PromiseOrValue<string>,
+      contractVersion: PromiseOrValue<string>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "initialize(string,string,address)"(
+      contractName: PromiseOrValue<string>,
+      contractVersion: PromiseOrValue<string>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     localAdmin(overrides?: CallOverrides): Promise<[string]>;
 
@@ -1506,13 +1544,13 @@ export interface ContextManager extends BaseContract {
 
   contextDeleteActivity(
     requests: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   "contextDeleteActivity(bytes32[])"(
     requests: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   contextGetContextInfo(
     contextId: PromiseOrValue<BytesLike>,
@@ -1623,6 +1661,20 @@ export interface ContextManager extends BaseContract {
   initVersion(overrides?: CallOverrides): Promise<number>;
 
   "initVersion()"(overrides?: CallOverrides): Promise<number>;
+
+  initialize(
+    contractName: PromiseOrValue<string>,
+    contractVersion: PromiseOrValue<string>,
+    accessControlManager: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "initialize(string,string,address)"(
+    contractName: PromiseOrValue<string>,
+    contractVersion: PromiseOrValue<string>,
+    accessControlManager: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   localAdmin(overrides?: CallOverrides): Promise<string>;
 
@@ -1898,6 +1950,20 @@ export interface ContextManager extends BaseContract {
     initVersion(overrides?: CallOverrides): Promise<number>;
 
     "initVersion()"(overrides?: CallOverrides): Promise<number>;
+
+    initialize(
+      contractName: PromiseOrValue<string>,
+      contractVersion: PromiseOrValue<string>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "initialize(string,string,address)"(
+      contractName: PromiseOrValue<string>,
+      contractVersion: PromiseOrValue<string>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     localAdmin(overrides?: CallOverrides): Promise<string>;
 
@@ -2250,12 +2316,12 @@ export interface ContextManager extends BaseContract {
 
     contextDeleteActivity(
       requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     "contextDeleteActivity(bytes32[])"(
       requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     contextGetContextInfo(
@@ -2367,6 +2433,20 @@ export interface ContextManager extends BaseContract {
     initVersion(overrides?: CallOverrides): Promise<BigNumber>;
 
     "initVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    initialize(
+      contractName: PromiseOrValue<string>,
+      contractVersion: PromiseOrValue<string>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "initialize(string,string,address)"(
+      contractName: PromiseOrValue<string>,
+      contractVersion: PromiseOrValue<string>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     localAdmin(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -2538,12 +2618,12 @@ export interface ContextManager extends BaseContract {
 
     contextDeleteActivity(
       requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     "contextDeleteActivity(bytes32[])"(
       requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     contextGetContextInfo(
@@ -2659,6 +2739,20 @@ export interface ContextManager extends BaseContract {
     initVersion(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "initVersion()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    initialize(
+      contractName: PromiseOrValue<string>,
+      contractVersion: PromiseOrValue<string>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "initialize(string,string,address)"(
+      contractName: PromiseOrValue<string>,
+      contractVersion: PromiseOrValue<string>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     localAdmin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

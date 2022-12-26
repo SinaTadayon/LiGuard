@@ -23,6 +23,11 @@ library LACLUtils {
     return keccak256(abi.encodePacked(name));
   }
 
+  function generateId2(string memory name) internal pure returns (bytes32) {
+    return keccak256(abi.encodePacked(name));
+  }
+
+
   function generateHash(string memory name) internal pure returns (bytes32) {
     return keccak256(abi.encodePacked(name));
   }

@@ -16,6 +16,8 @@ import "../utils/Message.sol";
 import "../utils/ERC165.sol";
 import "../lib/acl/LACLUtils.sol";
 
+import "hardhat/console.sol";
+
 /**
  * @title Abstract Base UUPS Proxy Contract
  * @author OpenZeppelin, Sina Tadayon, https://github.com/SinaTadayon
@@ -39,8 +41,8 @@ abstract contract BaseUUPSProxy is
    * fail.
    */
   modifier onlyProxy() {
-    require(address(this) != __self, "Illegal");    // Illegal Contract Call
-    require(_implementation() == __self, "Invaid");   // Invalid Proxy Called 
+    require(address(this) != __self, "Illegal Call");    // Illegal Contract Call
+    require(_implementation() == __self, "Invalid Call");   // Invalid Proxy Called 
     _;
   }
 
@@ -57,7 +59,7 @@ abstract contract BaseUUPSProxy is
    * callable on the implementing contract but not through proxies.
    */
   modifier notDelegated() {
-    require(address(this) == __self, "Illegal");    // Illegal Contract Delegatecall
+    require(address(this) == __self, "Illegal Delegatecall");    // Illegal Contract Delegatecall
     _;
   }
 
@@ -73,20 +75,24 @@ abstract contract BaseUUPSProxy is
 
   function _hasPermission(bytes4 selector) internal returns (bool) {
     if (address(this) == _accessControlManager) {
-      bytes memory data = abi.encodeWithSelector(
-        IAccessControl.hasCSAccess.selector,
+      bytes memory data = abi.encodeWithSelector(bytes4(keccak256("getFirstInit()")));
+      bytes memory returndata = LAddress.functionDelegateCall(_implementation(), data, "DCall Failed"); // Delegatecall hasAccess Failed
+      if(uint8(returndata[returndata.length - 1]) == 1) return false;
+
+      data = abi.encodeWithSelector(
+        IAccessControl.hasCSMAccess.selector,
         address(this),
-        // _msgSender(),
-        selector
+        selector,
+        LACLUtils.accountGenerateId(_msgSender())
       );
-      bytes memory returndata = LAddress.functionDelegateCall(_implementation(), data, "Forbidden"); // Delegatecall hasAccess Failed
+      returndata = LAddress.functionDelegateCall(_implementation(), data, "Forbidden"); // Delegatecall hasAccess Failed
       return uint8(returndata[returndata.length - 1]) == 1;
     } else {
       return
-        IAccessControl(_accessControlManager).hasCSAccess(
+        IAccessControl(_accessControlManager).hasCSMAccess(
           address(this),
-          // _msgSender(),
-          selector
+          selector,
+          LACLUtils.accountGenerateId(_msgSender())
         );
     }
   }
@@ -132,14 +138,17 @@ abstract contract BaseUUPSProxy is
       // } catch {
       //   revert("Illegal AccessControlManager");
       // }
-    if (accessControl != address(0)) {
+    if (accessControl != address(this)) {
       if(!IERC165(accessControl).supportsInterface(type(IAccessControl).interfaceId)) {
-        revert("IllegalACL");
+        revert("Illegal ACL");
+      }     
+    } else {
+      if(!supportsInterface(type(IAccessControl).interfaceId)) {
+        revert("Not Supported");
       }
-      _accessControlManager = accessControl;
     }
 
-
+    _accessControlManager = accessControl;
     _ustat = ProxyUpgradabilityStatus.DISABLED;
     _sstat = ProxySafeModeStatus.DISABLED;
     _setLocalAdmin(_msgSender());
@@ -166,7 +175,7 @@ abstract contract BaseUUPSProxy is
    * @dev Stores a new address in the EIP1967 implementation slot.
    */
   function _setImplementation(address newImplementation) private {
-    require(LAddress.isContract(newImplementation), "Illegal");
+    require(LAddress.isContract(newImplementation), "Illegal Impl");
     LStorageSlot.getAddressSlot(_IMPLEMENTATION_SLOT).value = newImplementation;
   }
 
@@ -192,7 +201,7 @@ abstract contract BaseUUPSProxy is
   ) internal returns (bytes memory) {
     _upgradeTo(newImplementation);
     if (data.length > 0 || forceCall) {
-      return LAddress.functionDelegateCall(newImplementation, data, "DFAIL");  // delegatecall failed
+      return LAddress.functionDelegateCall(newImplementation, data, "Delegatecall Failed");  // delegatecall failed
     }
     return new bytes(0);
   }
@@ -214,12 +223,12 @@ abstract contract BaseUUPSProxy is
       _setImplementation(newImplementation);
       return new bytes(0);
     } else {
-      if(IERC1822Proxiable(newImplementation).proxiableUUID() == bytes32(0)) {
-        revert("IllegalU");
+      if(IERC1822Proxiable(newImplementation).proxiableUUID() != _IMPLEMENTATION_SLOT) {
+        revert("Illegal UUPS");
       }
 
       if(!IERC165(newImplementation).supportsInterface(type(IProxy).interfaceId)) {
-        revert("IllegalP");
+        revert("Illegal Proxy");
       }
  
 
@@ -258,8 +267,8 @@ abstract contract BaseUUPSProxy is
     bytes memory data,
     bool forceCall
   ) external virtual onlyProxy returns (bytes memory) {
-    require(_sstat == ProxySafeModeStatus.DISABLED, "CRejected");
-    require(_ustat == ProxyUpgradabilityStatus.ENABLED, "URejected");
+    require(_sstat == ProxySafeModeStatus.DISABLED, "Rejected");
+    require(_ustat == ProxyUpgradabilityStatus.ENABLED, "Illegal Upgrade");
     _authorizeUpgrade(newImplementation);
     return _upgradeToAndCallUUPS(newImplementation, data, forceCall);
   }
@@ -284,8 +293,8 @@ abstract contract BaseUUPSProxy is
   }
 
   function setLocalAdmin(address newLocalAdmin) external onlyProxy returns (bool) {
-    require(_sstat == ProxySafeModeStatus.DISABLED, "CRejected");
-    require(_ustat == ProxyUpgradabilityStatus.ENABLED, "URejected");
+    require(_sstat == ProxySafeModeStatus.DISABLED, "Rejected");
+    require(_ustat == ProxyUpgradabilityStatus.ENABLED, "Illegal Update");
     require(_hasPermission(this.setLocalAdmin.selector), "Forbidden");
     require(newLocalAdmin != address(0), "Invalid");
     _setLocalAdmin(newLocalAdmin);
@@ -326,13 +335,13 @@ abstract contract BaseUUPSProxy is
   }
 
   function setAccessControlManager(address acl) external onlyProxy onlyLocalAdmin returns (bool) {
-
+    require(_sstat == ProxySafeModeStatus.DISABLED, "Rejected");
     if(_accessControlManager == address(0)) {
-      revert("IllegalOpt");
+      revert("Illegal Address");
     } 
 
     if(!IERC165(acl).supportsInterface(type(IAccessControl).interfaceId)) {
-        revert("IllegalACL");  
+        revert("Illegal ACL");  
     }
 
     _accessControlManager = acl; 
@@ -342,7 +351,7 @@ abstract contract BaseUUPSProxy is
 
   function proxyInfo() external view returns (ProxyInfo memory) {
     return ProxyInfo({
-      contextId: LACLUtils.accountGenerateId(address(this)),
+      domainSeparator: _domainSeparatorV4(),
       name: _contractName,
       version: _contractVersion,
       acl: _accessControlManager,
@@ -377,13 +386,21 @@ abstract contract BaseUUPSProxy is
     return _ustat;
   }
 
-  // TODO check it
   function domainSeparator() external view returns (bytes32) {
     return _domainSeparatorV4();
   }
 
   function _domainSeparatorV4() internal view returns (bytes32) {
-    return keccak256(abi.encode(_TYPE_HASH, _contractName, _contractVersion, block.chainid, address(this)));
+
+    return keccak256(
+      abi.encode(
+        _TYPE_HASH, 
+        keccak256(abi.encodePacked(_contractName)), 
+        keccak256(abi.encodePacked(_contractVersion)), 
+        block.chainid, 
+        address(this)
+      )
+    );
   }
 
   function initVersion() external view returns (uint16) {

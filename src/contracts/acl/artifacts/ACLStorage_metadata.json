@@ -1,0 +1,281 @@
+{
+	"compiler": {
+		"version": "0.8.17+commit.8df45f5f"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "sender",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "bytes32",
+						"name": "agentId",
+						"type": "bytes32"
+					},
+					{
+						"indexed": true,
+						"internalType": "bytes32",
+						"name": "policyId",
+						"type": "bytes32"
+					},
+					{
+						"indexed": false,
+						"internalType": "enum IACLCommons.ActionType",
+						"name": "action",
+						"type": "uint8"
+					}
+				],
+				"name": "AgentReferredByPolicyUpdated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "sender",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "bytes32",
+						"name": "agentId",
+						"type": "bytes32"
+					},
+					{
+						"indexed": true,
+						"internalType": "bytes32",
+						"name": "scopeId",
+						"type": "bytes32"
+					},
+					{
+						"indexed": false,
+						"internalType": "enum IACLCommons.ActionType",
+						"name": "action",
+						"type": "uint8"
+					}
+				],
+				"name": "AgentReferredByScopeUpdated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "sender",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "proxy",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "newImplementation",
+						"type": "address"
+					}
+				],
+				"name": "ProxyUpgraded",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "sender",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "bytes32",
+						"name": "scopeId",
+						"type": "bytes32"
+					},
+					{
+						"indexed": true,
+						"internalType": "bytes32",
+						"name": "agentId",
+						"type": "bytes32"
+					},
+					{
+						"indexed": false,
+						"internalType": "enum IACLCommons.ActionType",
+						"name": "action",
+						"type": "uint8"
+					}
+				],
+				"name": "ScopeReferredByAgentUpdated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "sender",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "bytes32",
+						"name": "scopeId",
+						"type": "bytes32"
+					},
+					{
+						"indexed": true,
+						"internalType": "bytes32",
+						"name": "policyId",
+						"type": "bytes32"
+					},
+					{
+						"indexed": false,
+						"internalType": "enum IACLCommons.ActionType",
+						"name": "action",
+						"type": "uint8"
+					}
+				],
+				"name": "ScopeReferredByPolicyUpdated",
+				"type": "event"
+			},
+			{
+				"inputs": [],
+				"name": "CTX_MESSAGE_TYPEHASH",
+				"outputs": [
+					{
+						"internalType": "bytes32",
+						"name": "",
+						"type": "bytes32"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "FUNCTION_MESSAGE_TYPEHASH",
+				"outputs": [
+					{
+						"internalType": "bytes32",
+						"name": "",
+						"type": "bytes32"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "PREDICT_CTX_MESSAGE_TYPEHASH",
+				"outputs": [
+					{
+						"internalType": "bytes32",
+						"name": "",
+						"type": "bytes32"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "TYPE_HASH",
+				"outputs": [
+					{
+						"internalType": "bytes32",
+						"name": "",
+						"type": "bytes32"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"author": "Sina Tadayon, https://github.com/SinaTadayon",
+			"kind": "dev",
+			"methods": {},
+			"title": "Abstract Access Control List Storage Contract",
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"src/contracts/acl/ACLStorage.sol": "ACLStorage"
+		},
+		"evmVersion": "london",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"src/contracts/acl/ACLStorage.sol": {
+			"keccak256": "0xa5d8b8ddba99adbb683e063d22af78e3dbc07976fe9f39a4801ed2f412812114",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://54bc0aff5614642439c657404dcbb7f0a4fa2ce214b62c6804343b2a0dee2405",
+				"dweb:/ipfs/QmT8nhBSzcuhkbEpKUh1eGGLtaqbenxU8K48xtFEXJdKUv"
+			]
+		},
+		"src/contracts/acl/IACLCommons.sol": {
+			"keccak256": "0x28db24cfa6302651ea0dd8e943a7bdcf8c8e055cb3eac5eff828199f1e3faf37",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://9ec821d9c4c65fad141d253409a8db064ef8e6e02eb97a1dc6508dd6b7f6a065",
+				"dweb:/ipfs/QmVfr9ohXs6W7scxSZscxFh2Db4nUGdyxAWAgDEFevR1KA"
+			]
+		},
+		"src/contracts/lib/struct/LEnumerableSet.sol": {
+			"keccak256": "0xfff4307cba47977196bd7c868492b88b9e52168df13be81c86a82e124cc185b9",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://5592c7eb165f4a58b1d5b82500830ea92d3be7305d4cad62da0d37de1a08e959",
+				"dweb:/ipfs/QmV7U8LFydRBuL7M9DUntBhQoodAtNcfCubYUL1CRiJJMz"
+			]
+		},
+		"src/contracts/proxy/BaseUUPSStorage.sol": {
+			"keccak256": "0x58ffc9282c066bb54c4df8624ed4b6e5a10379c4945ac8454f6f7de555ffeb97",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://6f31210ebcbecc3fa5e46d5b8511a0fe02eed43efb15668efeb14ca4f0823699",
+				"dweb:/ipfs/QmRijybrhpAS2U2kJiezfLYYMBiAXkzJXB3HdP6g59gBWt"
+			]
+		},
+		"src/contracts/proxy/IBaseProxy.sol": {
+			"keccak256": "0x9d21cd88304bbddd0ec772fdb04aa6b962974c39a42f6a04798d5280bdceefcc",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://13e5809a4ffc2d93fb64e02b0f10c938cd9d8e026f3f32f3490ab0b7b8d8eabd",
+				"dweb:/ipfs/QmQhF4e7vTgcaedYZ5iPe8YpqYNDGqrnipkGuTWoDVmDQM"
+			]
+		}
+	},
+	"version": 1
+}

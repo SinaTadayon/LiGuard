@@ -34,7 +34,7 @@ interface IAccessControl is IACLCommons {
 
   
   // Anonymouse type
-  function getAnonymouseType() external pure returns (bytes32);
+  function getAnonymousType() external pure returns (bytes32);
 
   // Any type
   function getAnyType() external pure returns (bytes32);

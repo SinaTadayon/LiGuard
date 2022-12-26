@@ -88,7 +88,7 @@ export interface IAccessControlInterface extends utils.Interface {
     "getAgentBaseInfo(bytes32)": FunctionFragment;
     "getAgentMasterAdminRole()": FunctionFragment;
     "getAgentMasterType()": FunctionFragment;
-    "getAnonymouseType()": FunctionFragment;
+    "getAnonymousType()": FunctionFragment;
     "getAnyType()": FunctionFragment;
     "getGlobalScope()": FunctionFragment;
     "getLivelyMasterAdminRole()": FunctionFragment;
@@ -121,8 +121,8 @@ export interface IAccessControlInterface extends utils.Interface {
       | "getAgentMasterAdminRole()"
       | "getAgentMasterType"
       | "getAgentMasterType()"
-      | "getAnonymouseType"
-      | "getAnonymouseType()"
+      | "getAnonymousType"
+      | "getAnonymousType()"
       | "getAnyType"
       | "getAnyType()"
       | "getGlobalScope"
@@ -194,11 +194,11 @@ export interface IAccessControlInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getAnonymouseType",
+    functionFragment: "getAnonymousType",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getAnonymouseType()",
+    functionFragment: "getAnonymousType()",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -437,11 +437,11 @@ export interface IAccessControlInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getAnonymouseType",
+    functionFragment: "getAnonymousType",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getAnonymouseType()",
+    functionFragment: "getAnonymousType()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "getAnyType", data: BytesLike): Result;
@@ -749,9 +749,9 @@ export interface IAccessControl extends BaseContract {
 
     "getAgentMasterType()"(overrides?: CallOverrides): Promise<[string]>;
 
-    getAnonymouseType(overrides?: CallOverrides): Promise<[string]>;
+    getAnonymousType(overrides?: CallOverrides): Promise<[string]>;
 
-    "getAnonymouseType()"(overrides?: CallOverrides): Promise<[string]>;
+    "getAnonymousType()"(overrides?: CallOverrides): Promise<[string]>;
 
     getAnyType(overrides?: CallOverrides): Promise<[string]>;
 
@@ -958,9 +958,9 @@ export interface IAccessControl extends BaseContract {
 
   "getAgentMasterType()"(overrides?: CallOverrides): Promise<string>;
 
-  getAnonymouseType(overrides?: CallOverrides): Promise<string>;
+  getAnonymousType(overrides?: CallOverrides): Promise<string>;
 
-  "getAnonymouseType()"(overrides?: CallOverrides): Promise<string>;
+  "getAnonymousType()"(overrides?: CallOverrides): Promise<string>;
 
   getAnyType(overrides?: CallOverrides): Promise<string>;
 
@@ -1167,9 +1167,9 @@ export interface IAccessControl extends BaseContract {
 
     "getAgentMasterType()"(overrides?: CallOverrides): Promise<string>;
 
-    getAnonymouseType(overrides?: CallOverrides): Promise<string>;
+    getAnonymousType(overrides?: CallOverrides): Promise<string>;
 
-    "getAnonymouseType()"(overrides?: CallOverrides): Promise<string>;
+    "getAnonymousType()"(overrides?: CallOverrides): Promise<string>;
 
     getAnyType(overrides?: CallOverrides): Promise<string>;
 
@@ -1431,9 +1431,9 @@ export interface IAccessControl extends BaseContract {
 
     "getAgentMasterType()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getAnonymouseType(overrides?: CallOverrides): Promise<BigNumber>;
+    getAnonymousType(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "getAnonymouseType()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "getAnonymousType()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     getAnyType(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1649,9 +1649,9 @@ export interface IAccessControl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    getAnonymouseType(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    getAnonymousType(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "getAnonymouseType()"(
+    "getAnonymousType()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

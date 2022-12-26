@@ -24,6 +24,34 @@ import "../../proxy/BaseUUPSProxy.sol";
 contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
   using LACLStorage for DataCollection;
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
+
+  constructor() {}
+
+  function initialize(
+    string calldata contractName,
+    string calldata contractVersion,
+    address accessControlManager
+  ) public onlyProxy onlyLocalAdmin initializer {        
+    __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
+
+    emit Initialized(
+      _msgSender(),
+      address(this),
+      _implementation(),
+      contractName,
+      contractVersion,
+      _getInitializedCount()
+    );
+  }
+
+  /**
+   * @dev See {IERC165-supportsInterface}.
+   */
+  function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+    return
+      interfaceId == type(IPolicyManagement).interfaceId ||
+      super.supportsInterface(interfaceId);
+  }
  
   // called by members of Policy Master type
   function policyRegister(PolicyRegisterRequest[] calldata requests) external returns (bool) {    
@@ -31,7 +59,7 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
         
     for(uint i = 0; i < requests.length; i++) {
       bytes32 newPolicyId = LACLUtils.generateId(requests[i].name);
-      require(_data.policies[newPolicyId].acstat == ActivityStatus.NONE , "Policy Already Exist");
+      require(_data.policies[newPolicyId].acstat == ActivityStatus.NONE , "Already Exist");
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
       require(requests[i].alstat > AlterabilityStatus.NONE, "Illegal Alterability");
 
@@ -485,7 +513,7 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
   function _accessPermission(bytes4 selector) internal view returns (bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
-    address functionFacetId = _data.interfaces[type(IPolicyManagement).interfaceId];
+    address functionFacetId = _data.selectors[selector];
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector);    
     require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
     return functionId;
@@ -529,4 +557,35 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
       require(_doPolicyCheckAdminAccess(policyEntity.adminId, memberId, functionId), "Forbidden");
       return policyEntity;
   }
+
+  // function _doUpdateAgentReferred(
+  //     BaseAgent storage agent,
+  //     bytes32 agentId, 
+  //     bytes32 scopeId, 
+  //     address signerId, 
+  //     ActionType action
+  // ) internal {
+  //   if (action == ActionType.ADD) {
+  //     require(agent.atype != AgentType.NONE, "Agent Not Found");
+  //     require(agent.atype > AgentType.MEMBER, "Illegal AgentType");
+  //     require(agent.acstat > ActivityStatus.DELETED, "Agent Deleted");
+  //     require(agent.scopeLimit > agent.referredByScope, "Illegal Referred");
+  //     agent.referredByScope += 1; 
+  //     emit AgentReferredByScopeUpdated(
+  //       signerId, 
+  //       agentId,
+  //       scopeId, 
+  //       ActionType.ADD
+  //     );
+  //   } else if (action == ActionType.REMOVE) {
+  //     require(agent.referredByScope > 0, "Illegal Referred");
+  //     unchecked { agent.referredByScope -= 1; }
+  //     emit AgentReferredByScopeUpdated(
+  //       signerId, 
+  //       agentId,
+  //       scopeId, 
+  //       ActionType.REMOVE
+  //     );
+  //   }
+  // }
 }

@@ -87,7 +87,7 @@ export declare namespace IACLCommons {
 
 export declare namespace IProxy {
   export type ProxyInfoStruct = {
-    contextId: PromiseOrValue<BytesLike>;
+    domainSeparator: PromiseOrValue<BytesLike>;
     name: PromiseOrValue<string>;
     version: PromiseOrValue<string>;
     acl: PromiseOrValue<string>;
@@ -109,7 +109,7 @@ export declare namespace IProxy {
     number,
     number
   ] & {
-    contextId: string;
+    domainSeparator: string;
     name: string;
     version: string;
     acl: string;
@@ -134,7 +134,7 @@ export interface AccessControlInterface extends utils.Interface {
     "getAgentBaseInfo(bytes32)": FunctionFragment;
     "getAgentMasterAdminRole()": FunctionFragment;
     "getAgentMasterType()": FunctionFragment;
-    "getAnonymouseType()": FunctionFragment;
+    "getAnonymousType()": FunctionFragment;
     "getAnyType()": FunctionFragment;
     "getGlobalScope()": FunctionFragment;
     "getLivelyMasterAdminRole()": FunctionFragment;
@@ -155,6 +155,7 @@ export interface AccessControlInterface extends utils.Interface {
     "hasMemberAccess(bytes32,bytes32)": FunctionFragment;
     "hasMemberAccessToAgent(bytes32,bytes32,bytes32)": FunctionFragment;
     "initVersion()": FunctionFragment;
+    "initialize(string,string,address)": FunctionFragment;
     "isAgentExist(bytes32)": FunctionFragment;
     "isScopeExist(bytes32)": FunctionFragment;
     "isScopesCompatible(bytes32,bytes32)": FunctionFragment;
@@ -197,8 +198,8 @@ export interface AccessControlInterface extends utils.Interface {
       | "getAgentMasterAdminRole()"
       | "getAgentMasterType"
       | "getAgentMasterType()"
-      | "getAnonymouseType"
-      | "getAnonymouseType()"
+      | "getAnonymousType"
+      | "getAnonymousType()"
       | "getAnyType"
       | "getAnyType()"
       | "getGlobalScope"
@@ -239,6 +240,8 @@ export interface AccessControlInterface extends utils.Interface {
       | "hasMemberAccessToAgent(bytes32,bytes32,bytes32)"
       | "initVersion"
       | "initVersion()"
+      | "initialize"
+      | "initialize(string,string,address)"
       | "isAgentExist"
       | "isAgentExist(bytes32)"
       | "isScopeExist"
@@ -359,11 +362,11 @@ export interface AccessControlInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getAnonymouseType",
+    functionFragment: "getAnonymousType",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getAnonymouseType()",
+    functionFragment: "getAnonymousType()",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -559,6 +562,22 @@ export interface AccessControlInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "initVersion()",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initialize",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "initialize(string,string,address)",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "isAgentExist",
@@ -780,11 +799,11 @@ export interface AccessControlInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getAnonymouseType",
+    functionFragment: "getAnonymousType",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getAnonymouseType()",
+    functionFragment: "getAnonymousType()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "getAnyType", data: BytesLike): Result;
@@ -939,6 +958,11 @@ export interface AccessControlInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "initVersion()",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "initialize(string,string,address)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1338,9 +1362,9 @@ export interface AccessControl extends BaseContract {
 
     "getAgentMasterType()"(overrides?: CallOverrides): Promise<[string]>;
 
-    getAnonymouseType(overrides?: CallOverrides): Promise<[string]>;
+    getAnonymousType(overrides?: CallOverrides): Promise<[string]>;
 
-    "getAnonymouseType()"(overrides?: CallOverrides): Promise<[string]>;
+    "getAnonymousType()"(overrides?: CallOverrides): Promise<[string]>;
 
     getAnyType(overrides?: CallOverrides): Promise<[string]>;
 
@@ -1499,6 +1523,20 @@ export interface AccessControl extends BaseContract {
     initVersion(overrides?: CallOverrides): Promise<[number]>;
 
     "initVersion()"(overrides?: CallOverrides): Promise<[number]>;
+
+    initialize(
+      contractName: PromiseOrValue<string>,
+      contractVersion: PromiseOrValue<string>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "initialize(string,string,address)"(
+      contractName: PromiseOrValue<string>,
+      contractVersion: PromiseOrValue<string>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     isAgentExist(
       agentId: PromiseOrValue<BytesLike>,
@@ -1685,9 +1723,9 @@ export interface AccessControl extends BaseContract {
 
   "getAgentMasterType()"(overrides?: CallOverrides): Promise<string>;
 
-  getAnonymouseType(overrides?: CallOverrides): Promise<string>;
+  getAnonymousType(overrides?: CallOverrides): Promise<string>;
 
-  "getAnonymouseType()"(overrides?: CallOverrides): Promise<string>;
+  "getAnonymousType()"(overrides?: CallOverrides): Promise<string>;
 
   getAnyType(overrides?: CallOverrides): Promise<string>;
 
@@ -1846,6 +1884,20 @@ export interface AccessControl extends BaseContract {
   initVersion(overrides?: CallOverrides): Promise<number>;
 
   "initVersion()"(overrides?: CallOverrides): Promise<number>;
+
+  initialize(
+    contractName: PromiseOrValue<string>,
+    contractVersion: PromiseOrValue<string>,
+    accessControlManager: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "initialize(string,string,address)"(
+    contractName: PromiseOrValue<string>,
+    contractVersion: PromiseOrValue<string>,
+    accessControlManager: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   isAgentExist(
     agentId: PromiseOrValue<BytesLike>,
@@ -2032,9 +2084,9 @@ export interface AccessControl extends BaseContract {
 
     "getAgentMasterType()"(overrides?: CallOverrides): Promise<string>;
 
-    getAnonymouseType(overrides?: CallOverrides): Promise<string>;
+    getAnonymousType(overrides?: CallOverrides): Promise<string>;
 
-    "getAnonymouseType()"(overrides?: CallOverrides): Promise<string>;
+    "getAnonymousType()"(overrides?: CallOverrides): Promise<string>;
 
     getAnyType(overrides?: CallOverrides): Promise<string>;
 
@@ -2193,6 +2245,20 @@ export interface AccessControl extends BaseContract {
     initVersion(overrides?: CallOverrides): Promise<number>;
 
     "initVersion()"(overrides?: CallOverrides): Promise<number>;
+
+    initialize(
+      contractName: PromiseOrValue<string>,
+      contractVersion: PromiseOrValue<string>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "initialize(string,string,address)"(
+      contractName: PromiseOrValue<string>,
+      contractVersion: PromiseOrValue<string>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     isAgentExist(
       agentId: PromiseOrValue<BytesLike>,
@@ -2508,9 +2574,9 @@ export interface AccessControl extends BaseContract {
 
     "getAgentMasterType()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getAnonymouseType(overrides?: CallOverrides): Promise<BigNumber>;
+    getAnonymousType(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "getAnonymouseType()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "getAnonymousType()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     getAnyType(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -2669,6 +2735,20 @@ export interface AccessControl extends BaseContract {
     initVersion(overrides?: CallOverrides): Promise<BigNumber>;
 
     "initVersion()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    initialize(
+      contractName: PromiseOrValue<string>,
+      contractVersion: PromiseOrValue<string>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "initialize(string,string,address)"(
+      contractName: PromiseOrValue<string>,
+      contractVersion: PromiseOrValue<string>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     isAgentExist(
       agentId: PromiseOrValue<BytesLike>,
@@ -2880,9 +2960,9 @@ export interface AccessControl extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    getAnonymouseType(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    getAnonymousType(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "getAnonymouseType()"(
+    "getAnonymousType()"(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -3077,6 +3157,20 @@ export interface AccessControl extends BaseContract {
     initVersion(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "initVersion()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    initialize(
+      contractName: PromiseOrValue<string>,
+      contractVersion: PromiseOrValue<string>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "initialize(string,string,address)"(
+      contractName: PromiseOrValue<string>,
+      contractVersion: PromiseOrValue<string>,
+      accessControlManager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     isAgentExist(
       agentId: PromiseOrValue<BytesLike>,

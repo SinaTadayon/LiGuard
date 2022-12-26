@@ -29,7 +29,7 @@ import type {
 
 export declare namespace IProxy {
   export type ProxyInfoStruct = {
-    contextId: PromiseOrValue<BytesLike>;
+    domainSeparator: PromiseOrValue<BytesLike>;
     name: PromiseOrValue<string>;
     version: PromiseOrValue<string>;
     acl: PromiseOrValue<string>;
@@ -51,7 +51,7 @@ export declare namespace IProxy {
     number,
     number
   ] & {
-    contextId: string;
+    domainSeparator: string;
     name: string;
     version: string;
     acl: string;

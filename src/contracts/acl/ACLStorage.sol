@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v2.0.2)
+// LivelyVerse Contracts (last updated v3.0.0)
 
 pragma solidity 0.8.17;
 
-import "../proxy/BaseUUPSStorage.sol";
 import "./IACLCommons.sol";
+import "../proxy/BaseUUPSStorage.sol";
 import "../lib/struct/LEnumerableSet.sol";
 
 /**
@@ -28,23 +28,23 @@ abstract contract ACLStorage is BaseUUPSStorage, IACLCommons {
   bytes32 public constant FUNCTION_MESSAGE_TYPEHASH = keccak256("Function(address contractId,bytes4 selector)");
 
   // General Types ID
-  bytes32 internal constant _LIVELY_VERSE_LIVELY_MASTER_TYPE_ID = keccak256("LIVELY_VERSE_LIVELY_MASTER TYPE");
-  bytes32 internal constant _LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID = keccak256("LIVELY_VERSE_SYSTEM_MASTER_TYPE");
-  bytes32 internal constant _LIVELY_VERSE_ANONYMOUSE_TYPE_ID    = keccak256("LIVELY_VERSE_ANONYMOUSE_TYPE");
-  bytes32 internal constant _LIVELY_VERSE_ANY_TYPE_ID           = keccak256("LIVELY_VERSE_ANY_TYPE");
-  bytes32 internal constant _LIVELY_VERSE_SCOPE_MASTER_TYPE_ID  = keccak256("LIVELY_VERSE_SCOPE_MASTER_TYPE");
-  bytes32 internal constant _LIVELY_VERSE_AGENT_MASTER_TYPE_ID  = keccak256("LIVELY_VERSE_AGENT_MASTER_TYPE");
-  bytes32 internal constant _LIVELY_VERSE_POLICY_MASTER_TYPE_ID = keccak256("LIVELY_VERSE_POLICY_MASTER_TYPE");
+  bytes32 internal constant _LIVELY_VERSE_LIVELY_MASTER_TYPE_ID = keccak256(abi.encodePacked("LIVELY_VERSE_LIVELY_MASTER TYPE"));
+  bytes32 internal constant _LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID = keccak256(abi.encodePacked("LIVELY_VERSE_SYSTEM_MASTER_TYPE"));
+  bytes32 internal constant _LIVELY_VERSE_ANONYMOUS_TYPE_ID     = keccak256(abi.encodePacked("LIVELY_VERSE_ANONYMOUS_TYPE"));
+  bytes32 internal constant _LIVELY_VERSE_ANY_TYPE_ID           = keccak256(abi.encodePacked("LIVELY_VERSE_ANY_TYPE"));
+  bytes32 internal constant _LIVELY_VERSE_SCOPE_MASTER_TYPE_ID  = keccak256(abi.encodePacked("LIVELY_VERSE_SCOPE_MASTER_TYPE"));
+  bytes32 internal constant _LIVELY_VERSE_AGENT_MASTER_TYPE_ID  = keccak256(abi.encodePacked("LIVELY_VERSE_AGENT_MASTER_TYPE"));
+  bytes32 internal constant _LIVELY_VERSE_POLICY_MASTER_TYPE_ID = keccak256(abi.encodePacked("LIVELY_VERSE_POLICY_MASTER_TYPE"));
 
   // General Roles ID 
-  bytes32 internal constant _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID = keccak256("LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE");
-  bytes32 internal constant _LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID = keccak256("LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE");
-  bytes32 internal constant _LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID  = keccak256("LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE");
-  bytes32 internal constant _LIVELY_VERSE_AGENT_MASTER_ADMIN_ROLE_ID  = keccak256("LIVELY_VERSE_AGENT_MASTER_ADMIN_ROLE");
-  bytes32 internal constant _LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE_ID = keccak256("LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE");
+  bytes32 internal constant _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID = keccak256(abi.encodePacked("LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE"));
+  bytes32 internal constant _LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID = keccak256(abi.encodePacked("LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE"));
+  bytes32 internal constant _LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID  = keccak256(abi.encodePacked("LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE"));
+  bytes32 internal constant _LIVELY_VERSE_AGENT_MASTER_ADMIN_ROLE_ID  = keccak256(abi.encodePacked("LIVELY_VERSE_AGENT_MASTER_ADMIN_ROLE"));
+  bytes32 internal constant _LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE_ID = keccak256(abi.encodePacked("LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE"));
 
   // Global Scope ID
-  bytes32 internal constant _LIVELY_VERSE_GLOBAL_SCOPE_ID = keccak256("LIVELY_VERSE_GLOBAL_SCOPE_ID");
+  bytes32 internal constant _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID = keccak256(abi.encodePacked("LIVELY_VERSE_LIVELY_GLOBAL_SCOPE"));
 
   struct DataCollection {    
     mapping(bytes32 => BaseAgent) agents;
@@ -52,14 +52,12 @@ abstract contract ACLStorage is BaseUUPSStorage, IACLCommons {
     mapping(bytes32 => PolicyEntity) policies;
     mapping(bytes32 => bytes32) rolePolicyMap;
     mapping(bytes4 => address) selectors;           // function selector to facet address
-    mapping(bytes4 => address) interfaces;          // function facet address to interface
-    LEnumerableSet.AddressSet facets;
-    GlobalEntity global;
-    // GeneralLimitation defaultLimitations;
+    mapping(address => FacetEntity) facets;     // function facet address to interface
+    LEnumerableSet.AddressSet facetSet;
+    
   }
 
   bool internal _firstInit;
   DataCollection internal _data;
-
   // Note: for next upgrade add new variables after this line
 }

@@ -261,7 +261,7 @@ const _abi = [
         components: [
           {
             internalType: "bytes32",
-            name: "contextId",
+            name: "domainSeparator",
             type: "bytes32",
           },
           {
