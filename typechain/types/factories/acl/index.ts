@@ -9,6 +9,5 @@ export { ACLManagerProxy__factory } from "./ACLManagerProxy__factory";
 export { ACLProxy__factory } from "./ACLProxy__factory";
 export { ACLStorage__factory } from "./ACLStorage__factory";
 export { AccessControl__factory } from "./AccessControl__factory";
-export { IACLCommons__factory } from "./IACLCommons__factory";
 export { IACLManager__factory } from "./IACLManager__factory";
 export { IAccessControl__factory } from "./IAccessControl__factory";

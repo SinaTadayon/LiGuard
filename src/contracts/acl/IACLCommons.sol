@@ -21,7 +21,6 @@ interface IACLCommons {
 
   enum ActivityStatus {
     NONE,
-    DELETED,
     DISABLED,
     SAFE_MODE,
     ENABLED
@@ -63,9 +62,6 @@ interface IACLCommons {
     AgentType atype;
     ActivityStatus acstat;
     AlterabilityStatus alstat;      
-    uint16 referredByScope;
-    uint16 referredByPolicy;
-    uint16 scopeLimit;
   }
 
   struct BaseScope {
@@ -74,7 +70,6 @@ interface IACLCommons {
     ActivityStatus acstat;
     AlterabilityStatus alstat;
     uint16 referredByAgent;
-    uint16 referredByPolicy;    
     uint16 agentLimit;
   }
 
@@ -173,28 +168,9 @@ interface IACLCommons {
     bytes32 adminId;
   }
 
-  // struct UpdateReferredByRequest {
-  //   bytes32 id;
-  //   bytes32 entityId;
-  //   ActionType action;
-  // }
-
-  // Agent Requests
-  struct AgentUpdateScopeLimitRequest { 
-    bytes32 agentId;
-    uint16 scopeLimit;
-  }
-
   // Scope Requests
   struct ScopeUpdateAgentLimitRequest {
     bytes32 scopeId; 
     uint16 agentLimit;
   }
-
-
-  event AgentReferredByScopeUpdated(address indexed sender, bytes32 indexed agentId, bytes32 indexed scopeId, ActionType action);
-  event AgentReferredByPolicyUpdated(address indexed sender, bytes32 indexed agentId, bytes32 indexed policyId, ActionType action);
-
-  event ScopeReferredByAgentUpdated(address indexed sender, bytes32 indexed scopeId, bytes32 indexed agentId, ActionType action);
-  event ScopeReferredByPolicyUpdated(address indexed sender, bytes32 indexed scopeId, bytes32 indexed policyId, ActionType action);
 }

@@ -195,7 +195,6 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
     livelyMasterType.scopeId = _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
     livelyMasterType.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
     livelyMasterType.ba.atype = AgentType.TYPE;
-    livelyMasterType.ba.scopeLimit = type(uint16).max;
     livelyMasterType.ba.acstat = ActivityStatus.ENABLED;
     livelyMasterType.ba.alstat = AlterabilityStatus.UPDATABLE;
     livelyMasterType.roles.add(_LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
@@ -205,8 +204,7 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
     livelyMasterAdminRole.name = "LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE";
     livelyMasterAdminRole.scopeId = _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
     livelyMasterAdminRole.typeId = _LIVELY_VERSE_LIVELY_MASTER_TYPE_ID;
-    livelyMasterAdminRole.memberLimit = 7;
-    livelyMasterAdminRole.ba.scopeLimit = 7;
+    livelyMasterAdminRole.memberLimit = 7;    
     livelyMasterAdminRole.ba.atype = AgentType.ROLE;
     livelyMasterAdminRole.ba.acstat = ActivityStatus.ENABLED;
     livelyMasterAdminRole.ba.alstat = AlterabilityStatus.UPDATABLE;
@@ -245,7 +243,6 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
       systemMasterType.scopeId = _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
       systemMasterType.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
       systemMasterType.ba.atype = AgentType.TYPE;
-      systemMasterType.ba.scopeLimit = type(uint16).max;
       systemMasterType.ba.acstat = ActivityStatus.ENABLED;
       systemMasterType.ba.alstat = AlterabilityStatus.UPDATABLE;
       systemMasterType.roles.add(_LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID);
@@ -256,7 +253,6 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
       systemMasterAdminRole.scopeId = _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
       systemMasterAdminRole.typeId = _LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID;
       systemMasterAdminRole.memberLimit = 7;
-      systemMasterAdminRole.ba.scopeLimit = 7;
       systemMasterAdminRole.ba.atype = AgentType.ROLE;
       systemMasterAdminRole.ba.acstat = ActivityStatus.ENABLED;
       systemMasterAdminRole.ba.alstat = AlterabilityStatus.UPDATABLE;
@@ -289,7 +285,6 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
       scopeMasterType.scopeId = _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
       scopeMasterType.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
       scopeMasterType.ba.atype = AgentType.TYPE;
-      scopeMasterType.ba.scopeLimit = type(uint16).max;
       scopeMasterType.ba.acstat = ActivityStatus.ENABLED;
       scopeMasterType.ba.alstat = AlterabilityStatus.UPDATABLE;
       scopeMasterType.roles.add(_LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID);
@@ -301,7 +296,6 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
       scopeMasterAdminRole.scopeId = _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
       scopeMasterAdminRole.typeId = _LIVELY_VERSE_SCOPE_MASTER_TYPE_ID;
       scopeMasterAdminRole.memberLimit = 7;
-      scopeMasterAdminRole.ba.scopeLimit = 7;
       scopeMasterAdminRole.ba.atype = AgentType.ROLE;
       scopeMasterAdminRole.ba.acstat = ActivityStatus.ENABLED;
       scopeMasterAdminRole.ba.alstat = AlterabilityStatus.UPDATABLE;
@@ -315,7 +309,6 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
       agentMasterType.scopeId = _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
       agentMasterType.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
       agentMasterType.ba.atype = AgentType.TYPE;
-      agentMasterType.ba.scopeLimit = type(uint16).max;
       agentMasterType.ba.acstat = ActivityStatus.ENABLED;
       agentMasterType.ba.alstat = AlterabilityStatus.UPDATABLE;
       agentMasterType.roles.add(_LIVELY_VERSE_AGENT_MASTER_ADMIN_ROLE_ID);
@@ -327,7 +320,6 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
       agentMasterAdminRole.scopeId = _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
       agentMasterAdminRole.typeId = _LIVELY_VERSE_AGENT_MASTER_TYPE_ID;
       agentMasterAdminRole.memberLimit = 7;
-      agentMasterAdminRole.ba.scopeLimit = 7;
       agentMasterAdminRole.ba.atype = AgentType.ROLE;
       agentMasterAdminRole.ba.acstat = ActivityStatus.ENABLED;
       agentMasterAdminRole.ba.alstat = AlterabilityStatus.UPDATABLE;
@@ -340,7 +332,6 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
       policyMasterType.scopeId = _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
       policyMasterType.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
       policyMasterType.ba.atype = AgentType.TYPE;
-      policyMasterType.ba.scopeLimit = type(uint16).max;
       policyMasterType.ba.acstat = ActivityStatus.ENABLED;
       policyMasterType.ba.alstat = AlterabilityStatus.UPDATABLE;
       policyMasterType.roles.add(_LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE_ID);
@@ -352,7 +343,6 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
       policyMasterAdminRole.scopeId = _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
       policyMasterAdminRole.typeId = _LIVELY_VERSE_POLICY_MASTER_TYPE_ID;
       policyMasterAdminRole.memberLimit = 7;
-      policyMasterAdminRole.ba.scopeLimit = 7;
       policyMasterAdminRole.ba.atype = AgentType.ROLE;
       policyMasterAdminRole.ba.acstat = ActivityStatus.ENABLED;
       policyMasterAdminRole.ba.alstat = AlterabilityStatus.UPDATABLE;
@@ -366,7 +356,6 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
       anonymousType.scopeId = _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
       anonymousType.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
       anonymousType.ba.atype = AgentType.TYPE;
-      anonymousType.ba.scopeLimit = type(uint16).max;
       anonymousType.ba.acstat = ActivityStatus.ENABLED;
       anonymousType.ba.alstat = AlterabilityStatus.UPDATABLE;
 
@@ -377,7 +366,6 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
       anyType.scopeId = _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
       anyType.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
       anyType.ba.atype = AgentType.TYPE;
-      anyType.ba.scopeLimit = type(uint16).max;
       anyType.ba.acstat = ActivityStatus.ENABLED;
       anyType.ba.alstat = AlterabilityStatus.UPDATABLE;
     }
@@ -405,8 +393,8 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
 
     // Create Realm ACL
     bytes32 aclRealmId = LACLUtils.generateId2("LIVELY_VERSE_ACL_REALM");
-    console.log("acl Realm ID: ");
-    console.logBytes32(aclRealmId);
+    // console.log("acl Realm ID: ");
+    // console.logBytes32(aclRealmId);
     RealmEntity storage aclRealm = _data.realmWriteSlot(aclRealmId);
     aclRealm.name = "LIVELY_VERSE_ACL_REALM";
     aclRealm.contextLimit = 16;
@@ -484,10 +472,8 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
     aclType.scopeId = aclDomainId;
     aclType.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
     aclType.ba.atype = AgentType.TYPE;
-    aclType.ba.scopeLimit = type(uint16).max;
     aclType.ba.acstat = ActivityStatus.ENABLED;
     aclType.ba.alstat = AlterabilityStatus.UPDATABLE;
-    aclType.ba.referredByScope = 6;
   
     // Create Policy Master Admin Role
     bytes32 aclAdminRoleId = LACLUtils.generateId2("LIVELY_VERSE_ACL_ADMIN_ROLE");
@@ -496,7 +482,6 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
     aclAdminRole.scopeId = aclDomainId;
     aclAdminRole.typeId = aclTypeId;
     aclAdminRole.memberLimit = 7;
-    aclAdminRole.ba.scopeLimit = 7;
     aclAdminRole.ba.atype = AgentType.ROLE;
     aclAdminRole.ba.acstat = ActivityStatus.ENABLED;
     aclAdminRole.ba.alstat = AlterabilityStatus.UPDATABLE;

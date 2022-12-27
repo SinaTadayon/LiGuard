@@ -35,7 +35,6 @@ export declare namespace IFunctionManagement {
     selector: PromiseOrValue<BytesLike>;
     agentLimit: PromiseOrValue<BigNumberish>;
     referredByAgent: PromiseOrValue<BigNumberish>;
-    referredByPolicy: PromiseOrValue<BigNumberish>;
     acstat: PromiseOrValue<BigNumberish>;
     alstat: PromiseOrValue<BigNumberish>;
     adminType: PromiseOrValue<BigNumberish>;
@@ -54,7 +53,6 @@ export declare namespace IFunctionManagement {
     number,
     number,
     number,
-    number,
     number
   ] & {
     adminId: string;
@@ -63,7 +61,6 @@ export declare namespace IFunctionManagement {
     selector: string;
     agentLimit: number;
     referredByAgent: number;
-    referredByPolicy: number;
     acstat: number;
     alstat: number;
     adminType: number;
@@ -218,7 +215,6 @@ export interface FunctionManagerInterface extends utils.Interface {
     "functionCheckAgent(bytes32,address)": FunctionFragment;
     "functionCheckId(bytes32)": FunctionFragment;
     "functionCheckSelector(address,bytes4)": FunctionFragment;
-    "functionDeleteActivity(bytes32[])": FunctionFragment;
     "functionGetInfo(bytes32)": FunctionFragment;
     "functionRegister((bytes,bytes32,bytes32,address,bytes4,uint16,uint8,uint8,uint8)[])": FunctionFragment;
     "functionUpdateActivityStatus((bytes32,uint8)[])": FunctionFragment;
@@ -270,8 +266,6 @@ export interface FunctionManagerInterface extends utils.Interface {
       | "functionCheckId(bytes32)"
       | "functionCheckSelector"
       | "functionCheckSelector(address,bytes4)"
-      | "functionDeleteActivity"
-      | "functionDeleteActivity(bytes32[])"
       | "functionGetInfo"
       | "functionGetInfo(bytes32)"
       | "functionRegister"
@@ -412,14 +406,6 @@ export interface FunctionManagerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "functionCheckSelector(address,bytes4)",
     values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "functionDeleteActivity",
-    values: [PromiseOrValue<BytesLike>[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "functionDeleteActivity(bytes32[])",
-    values: [PromiseOrValue<BytesLike>[]]
   ): string;
   encodeFunctionData(
     functionFragment: "functionGetInfo",
@@ -713,14 +699,6 @@ export interface FunctionManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "functionDeleteActivity",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "functionDeleteActivity(bytes32[])",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "functionGetInfo",
     data: BytesLike
   ): Result;
@@ -894,8 +872,6 @@ export interface FunctionManagerInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "AgentReferredByPolicyUpdated(address,bytes32,bytes32,uint8)": EventFragment;
-    "AgentReferredByScopeUpdated(address,bytes32,bytes32,uint8)": EventFragment;
     "FunctionActivityUpdated(address,bytes32,uint8)": EventFragment;
     "FunctionAdminUpdated(address,bytes32,bytes32)": EventFragment;
     "FunctionAgentLimitUpdated(address,bytes32,uint16)": EventFragment;
@@ -909,22 +885,8 @@ export interface FunctionManagerInterface extends utils.Interface {
     "ProxySafeModeUpdated(address,address,uint8)": EventFragment;
     "ProxyUpdatabilityUpdated(address,address,uint8)": EventFragment;
     "ProxyUpgraded(address,address,address)": EventFragment;
-    "ScopeReferredByAgentUpdated(address,bytes32,bytes32,uint8)": EventFragment;
-    "ScopeReferredByPolicyUpdated(address,bytes32,bytes32,uint8)": EventFragment;
   };
 
-  getEvent(
-    nameOrSignatureOrTopic: "AgentReferredByPolicyUpdated"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "AgentReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "AgentReferredByScopeUpdated"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "AgentReferredByScopeUpdated(address,bytes32,bytes32,uint8)"
-  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FunctionActivityUpdated"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "FunctionActivityUpdated(address,bytes32,uint8)"
@@ -979,47 +941,7 @@ export interface FunctionManagerInterface extends utils.Interface {
   getEvent(
     nameOrSignatureOrTopic: "ProxyUpgraded(address,address,address)"
   ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ScopeReferredByAgentUpdated"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ScopeReferredByAgentUpdated(address,bytes32,bytes32,uint8)"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ScopeReferredByPolicyUpdated"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ScopeReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"
-  ): EventFragment;
 }
-
-export interface AgentReferredByPolicyUpdatedEventObject {
-  sender: string;
-  agentId: string;
-  policyId: string;
-  action: number;
-}
-export type AgentReferredByPolicyUpdatedEvent = TypedEvent<
-  [string, string, string, number],
-  AgentReferredByPolicyUpdatedEventObject
->;
-
-export type AgentReferredByPolicyUpdatedEventFilter =
-  TypedEventFilter<AgentReferredByPolicyUpdatedEvent>;
-
-export interface AgentReferredByScopeUpdatedEventObject {
-  sender: string;
-  agentId: string;
-  scopeId: string;
-  action: number;
-}
-export type AgentReferredByScopeUpdatedEvent = TypedEvent<
-  [string, string, string, number],
-  AgentReferredByScopeUpdatedEventObject
->;
-
-export type AgentReferredByScopeUpdatedEventFilter =
-  TypedEventFilter<AgentReferredByScopeUpdatedEvent>;
 
 export interface FunctionActivityUpdatedEventObject {
   sender: string;
@@ -1194,34 +1116,6 @@ export type ProxyUpgradedEvent = TypedEvent<
 
 export type ProxyUpgradedEventFilter = TypedEventFilter<ProxyUpgradedEvent>;
 
-export interface ScopeReferredByAgentUpdatedEventObject {
-  sender: string;
-  scopeId: string;
-  agentId: string;
-  action: number;
-}
-export type ScopeReferredByAgentUpdatedEvent = TypedEvent<
-  [string, string, string, number],
-  ScopeReferredByAgentUpdatedEventObject
->;
-
-export type ScopeReferredByAgentUpdatedEventFilter =
-  TypedEventFilter<ScopeReferredByAgentUpdatedEvent>;
-
-export interface ScopeReferredByPolicyUpdatedEventObject {
-  sender: string;
-  scopeId: string;
-  policyId: string;
-  action: number;
-}
-export type ScopeReferredByPolicyUpdatedEvent = TypedEvent<
-  [string, string, string, number],
-  ScopeReferredByPolicyUpdatedEventObject
->;
-
-export type ScopeReferredByPolicyUpdatedEventFilter =
-  TypedEventFilter<ScopeReferredByPolicyUpdatedEvent>;
-
 export interface FunctionManager extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
@@ -1328,16 +1222,6 @@ export interface FunctionManager extends BaseContract {
       selector: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
-
-    functionDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "functionDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
 
     functionGetInfo(
       functionId: PromiseOrValue<BytesLike>,
@@ -1618,16 +1502,6 @@ export interface FunctionManager extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  functionDeleteActivity(
-    requests: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "functionDeleteActivity(bytes32[])"(
-    requests: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   functionGetInfo(
     functionId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
@@ -1907,16 +1781,6 @@ export interface FunctionManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    functionDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "functionDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     functionGetInfo(
       functionId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -2117,32 +1981,6 @@ export interface FunctionManager extends BaseContract {
   };
 
   filters: {
-    "AgentReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"(
-      sender?: PromiseOrValue<string> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      policyId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): AgentReferredByPolicyUpdatedEventFilter;
-    AgentReferredByPolicyUpdated(
-      sender?: PromiseOrValue<string> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      policyId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): AgentReferredByPolicyUpdatedEventFilter;
-
-    "AgentReferredByScopeUpdated(address,bytes32,bytes32,uint8)"(
-      sender?: PromiseOrValue<string> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): AgentReferredByScopeUpdatedEventFilter;
-    AgentReferredByScopeUpdated(
-      sender?: PromiseOrValue<string> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): AgentReferredByScopeUpdatedEventFilter;
-
     "FunctionActivityUpdated(address,bytes32,uint8)"(
       sender?: PromiseOrValue<string> | null,
       functionId?: PromiseOrValue<BytesLike> | null,
@@ -2297,32 +2135,6 @@ export interface FunctionManager extends BaseContract {
       proxy?: PromiseOrValue<string> | null,
       newImplementation?: PromiseOrValue<string> | null
     ): ProxyUpgradedEventFilter;
-
-    "ScopeReferredByAgentUpdated(address,bytes32,bytes32,uint8)"(
-      sender?: PromiseOrValue<string> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): ScopeReferredByAgentUpdatedEventFilter;
-    ScopeReferredByAgentUpdated(
-      sender?: PromiseOrValue<string> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): ScopeReferredByAgentUpdatedEventFilter;
-
-    "ScopeReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"(
-      sender?: PromiseOrValue<string> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      policyId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): ScopeReferredByPolicyUpdatedEventFilter;
-    ScopeReferredByPolicyUpdated(
-      sender?: PromiseOrValue<string> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      policyId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): ScopeReferredByPolicyUpdatedEventFilter;
   };
 
   estimateGas: {
@@ -2406,16 +2218,6 @@ export interface FunctionManager extends BaseContract {
       contractId: PromiseOrValue<string>,
       selector: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    functionDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "functionDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     functionGetInfo(
@@ -2712,16 +2514,6 @@ export interface FunctionManager extends BaseContract {
       contractId: PromiseOrValue<string>,
       selector: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    functionDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "functionDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     functionGetInfo(

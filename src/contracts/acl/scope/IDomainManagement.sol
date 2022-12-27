@@ -33,7 +33,6 @@ interface IDomainManagement is IACLCommons {
     uint16 realmLimit;
     uint16 agentLimit;
     uint16 referredByAgent;
-    uint16 referredByPolicy;
     AgentType adminType;
     ActivityStatus acstat;
     AlterabilityStatus alstate;
@@ -57,8 +56,6 @@ interface IDomainManagement is IACLCommons {
   event DomainAgentLimitUpdated(address indexed sender, bytes32 indexed domainId, uint16 agentLimit);
 
   function domainRegister(DomainRegisterRequest[] calldata requests) external returns (bool);
- 
-  function domainDeleteActivity(bytes32[] calldata requests) external returns (bool);
 
   function domainUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
 

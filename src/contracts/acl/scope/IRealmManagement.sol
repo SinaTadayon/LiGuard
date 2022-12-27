@@ -35,7 +35,6 @@ interface IRealmManagement is IACLCommons {
     uint32 contextLimit;
     uint16 agentLimit;
     uint16 referredByAgent;
-    uint16 referredByPolicy;
     ActivityStatus acstat;
     AlterabilityStatus alstate;
     AgentType adminType;
@@ -62,8 +61,6 @@ interface IRealmManagement is IACLCommons {
   function realmRegister(RealmRegisterRequest[] calldata requests) external returns (bool);
 
   function realmUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);
- 
-  function realmDeleteActivity(bytes32[] calldata requests) external returns (bool);
 
   function realmUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
 

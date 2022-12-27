@@ -67,7 +67,7 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     for(uint i = 0; i < requests.length; i++) {
       bytes32 newRealmId = LACLUtils.generateId(requests[i].name);
       require(_data.scopes[newRealmId].stype == ScopeType.NONE, "Already Exists");
-      require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
+      require(requests[i].acstat > ActivityStatus.NONE, "Illegal Activity");
       require(requests[i].alstat > AlterabilityStatus.NONE, "Illegal Alterability");
 
       // check sender scopes
@@ -80,7 +80,7 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
       }
 
       DomainEntity storage domainEntity = _data.domainReadSlot(requests[i].domainId);
-      require(domainEntity.bs.acstat > ActivityStatus.DELETED, "Domain Deleted");
+      require(domainEntity.bs.acstat > ActivityStatus.DISABLED, "Domain Disabled");
       require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Domain Update");
       require(domainEntity.realmLimit > domainEntity.realms.length(), "Illegal Register");
 
@@ -120,26 +120,6 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
       // } else {
       //   newRealm.bs.adminId = domainEntity.bs.adminId;
       // }
-      
-      // add reference of admin agent
-      _doUpdateAgentReferred(
-        _data.agents[newRealm.bs.adminId],
-        newRealm.bs.adminId,
-        newRealmId, 
-        msg.sender, 
-        ActionType.ADD
-      ); 
-      // BaseAgent storage realmAdminAgent = _data.agents[newRealm.bs.adminId];
-      // require(realmAdminAgent.atype != AgentType.NONE, "Admin Not Found");
-      // require(realmAdminAgent.acstat > ActivityStatus.DELETED, "Admin Deleted");
-      // require(realmAdminAgent.scopeLimit > realmAdminAgent.referredByScope, "Illegal Agent Referred");
-      // realmAdminAgent.referredByScope += 1;
-      // emit AgentReferredByScopeUpdated(
-      //   msg.sender,
-      //   newRealm.bs.adminId,
-      //   newRealmId,
-      //   ActionType.ADD
-      // );
 
       emit RealmRegistered(
         msg.sender,
@@ -157,25 +137,7 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
 
     for(uint i = 0; i < requests.length; i++) {
-      RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, false);
-      
-       // update function admin Id
-      _doUpdateAgentReferred(
-        _data.agents[realmEntity.bs.adminId],
-        realmEntity.bs.adminId,
-        requests[i].id, 
-        msg.sender, 
-        ActionType.REMOVE
-      ); 
-      // BaseAgent storage realmAdminAgent = _data.agents[realmEntity.bs.adminId];
-      // require(realmAdminAgent.referredByScope > 0, "Illegal Admin ReferredByScope");
-      // unchecked { realmAdminAgent.referredByScope -= 1; }
-      // emit AgentReferredByScopeUpdated(
-      //   msg.sender, 
-      //   realmEntity.bs.adminId, 
-      //   requests[i].id, 
-      //   ActionType.REMOVE
-      // );
+      RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
 
       // checking requested type admin 
       if(requests[i].adminId != bytes32(0)) {        
@@ -193,45 +155,21 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
         realmEntity.bs.adminId = _data.scopes[realmEntity.domainId].adminId;
       }
 
-      // checking new admin Id 
-       _doUpdateAgentReferred(
-        _data.agents[requests[i].adminId],
-        requests[i].adminId,
-        requests[i].id, 
-        msg.sender, 
-        ActionType.ADD
-      ); 
-      // BaseAgent storage newBaseAgent = _data.agents[requests[i].adminId];
-      // require(newBaseAgent.atype != AgentType.NONE, "Admin Not Found");
-      // require(newBaseAgent.acstat > ActivityStatus.DELETED, "Admin Deleted");
-      // require(newBaseAgent.scopeLimit > newBaseAgent.referredByScope, "Illegal Agent ReferredByScope");
-      // newBaseAgent.referredByScope += 1;
-      // emit AgentReferredByScopeUpdated(
-      //   msg.sender, 
-      //   requests[i].adminId, 
-      //   requests[i].id, 
-      //   ActionType.ADD
-      // );    
-
       emit RealmAdminUpdated(msg.sender, requests[i].id, requests[i].adminId);
     }
     return true;
   }
- 
-  function realmDeleteActivity(bytes32[] calldata requests) external returns (bool) {
-    revert("Not Supported");
-    // bytes32 functionId = _accessPermission(IRealmManagement.realmDeleteActivity.selector);
-    // for(uint i = 0; i < requests.length; i++) {
-    //   _doRealmUpdateActivityStatus(requests[i], ActivityStatus.DELETED, functionId);
-    // }
-    // return true;
-  }
 
   function realmUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IRealmManagement.realmUpdateActivityStatus.selector);
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {
-      require(requests[i].acstat != ActivityStatus.DELETED, "Illegal Activity");
-      _doRealmUpdateActivityStatus(requests[i].id, requests[i].acstat, functionId);
+      RealmEntity storage realmEntity = _data.realmReadSlot(requests[i].id);      
+      require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");    
+      require(_doCheckAdminAccess(realmEntity.bs.adminId, senderId, functionId), "Forbidden");    
+      require(requests[i].acstat != ActivityStatus.NONE, "Illegal Activity");  
+      realmEntity.bs.acstat = requests[i].acstat;
+    emit RealmActivityUpdated(msg.sender, requests[i].id, requests[i].acstat);
     }
     return true;
   }
@@ -241,8 +179,9 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
 
     for(uint i = 0; i < requests.length; i++) {      
-      RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, true);
-
+      RealmEntity storage realmEntity = _data.realmReadSlot(requests[i].id);
+      require(realmEntity.bs.acstat > ActivityStatus.DISABLED, "Realm Disabled");
+      require(_doCheckAdminAccess(realmEntity.bs.adminId, senderId, functionId), "Forbidden");    
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       realmEntity.bs.alstat = requests[i].alstat;
       emit RealmAlterabilityUpdated(msg.sender, requests[i].id, requests[i].alstat);
@@ -254,7 +193,7 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     bytes32 functionId = _accessPermission(IRealmManagement.realmUpdateContextLimit.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
     for (uint256 i = 0; i < requests.length; i++) {
-      RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].realmId, senderId, functionId, false);
+      RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].realmId, senderId, functionId);
       realmEntity.contextLimit = requests[i].contextLimit;      
       emit RealmContextLimitUpdated(msg.sender, requests[i].realmId, requests[i].contextLimit);
     }
@@ -265,7 +204,7 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
      bytes32 functionId = _accessPermission(IRealmManagement.realmUpdateAgentLimit.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
     for (uint256 i = 0; i < requests.length; i++) {
-      RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].scopeId, senderId, functionId, false);
+      RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].scopeId, senderId, functionId);
       realmEntity.bs.agentLimit = requests[i].agentLimit;
       emit RealmAgentLimitUpdated(msg.sender, requests[i].scopeId, requests[i].agentLimit);
     }
@@ -342,7 +281,6 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
         contextLimit: 0, 
         agentLimit: 0,
         referredByAgent: 0,
-        referredByPolicy: 0,
         acstat: ActivityStatus.NONE, 
         alstate: AlterabilityStatus.NONE, 
         adminType: AgentType.NONE,
@@ -355,12 +293,11 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
       adminId: re.bs.adminId,
       contextLimit: re.contextLimit, 
       agentLimit: re.bs.agentLimit,
-      referredByAgent: re.bs.referredByAgent,
-      referredByPolicy: re.bs.referredByPolicy,
+      referredByAgent: re.bs.referredByAgent,   
       acstat: re.bs.acstat, 
       alstate: re.bs.alstat, 
       adminType: _data.agents[re.bs.adminId].atype,
-      name: ""
+      name: re.name
     });
   }
 
@@ -418,29 +355,6 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     return false;   
   } 
 
-  function _doRealmUpdateActivityStatus(bytes32 realmId, ActivityStatus status, bytes32 functionId) internal returns (bool) {
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
-    RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(realmId, senderId, functionId, false);
-    if(status == ActivityStatus.DELETED) {    
-      // BaseAgent storage realmAdminAgent = _data.agents[realmEntity.bs.adminId];
-      // require(realmAdminAgent.referredByScope > 0, "Illegal Admin ReferredByScope");
-      // unchecked { realmAdminAgent.referredByScope -= 1; }
-      // emit AgentReferredByScopeUpdated(
-      //   msg.sender, 
-      //   realmEntity.bs.adminId,
-      //   functionId, 
-      //   ActionType.REMOVE
-      // );
-      _doUpdateAgentReferred(
-        _data.agents[realmEntity.bs.adminId],
-        realmEntity.bs.adminId,
-        realmId, 
-        msg.sender, 
-        ActionType.REMOVE
-      );
-    }
-  }
-
   function _accessPermission(bytes4 selector) internal view returns (bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
@@ -450,18 +364,13 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     return functionId;
   }
 
-  function _doGetEntityAndCheckAdminAccess(bytes32 realmId, bytes32 senderId, bytes32 functionId, bool isAlterable) internal view returns (RealmEntity storage) {
+  function _doGetEntityAndCheckAdminAccess(bytes32 realmId, bytes32 senderId, bytes32 functionId) internal view returns (RealmEntity storage) {
     RealmEntity storage realmEntity = _data.realmReadSlot(realmId);
-    require(realmEntity.bs.acstat > ActivityStatus.DELETED, "Realm Deleted");
-
-    if(!isAlterable) {
-      require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
-    }
-
-    // check access admin role
-    require(_doCheckAdminAccess(realmEntity.bs.adminId, senderId, functionId), "Forbidden");
+    require(realmEntity.bs.acstat > ActivityStatus.DISABLED, "Realm Disabled");
+    require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");    
+    require(_doCheckAdminAccess(realmEntity.bs.adminId, senderId, functionId), "Forbidden");    
     return realmEntity;
-  }
+  }  
 
   function _doGetMemberScopeInfoFromType(bytes32 typeId, bytes32 senderId) internal view returns (ScopeType, bytes32) {
     TypeEntity storage agentAdminType = _data.typeReadSlot(typeId);
@@ -487,37 +396,6 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
 
     } else {
       realmAdminId = requestScopeAdmin;
-    }
-  }
-
-  function _doUpdateAgentReferred(
-      BaseAgent storage agent,
-      bytes32 agentId, 
-      bytes32 scopeId, 
-      address signerId, 
-      ActionType action
-  ) internal {
-    if (action == ActionType.ADD) {
-      require(agent.atype != AgentType.NONE, "Agent Not Found");
-      require(agent.atype > AgentType.MEMBER, "Illegal AgentType");
-      require(agent.acstat > ActivityStatus.DELETED, "Agent Deleted");
-      require(agent.scopeLimit > agent.referredByScope, "Illegal Referred");
-      agent.referredByScope += 1; 
-      emit AgentReferredByScopeUpdated(
-        signerId, 
-        agentId,
-        scopeId, 
-        ActionType.ADD
-      );
-    } else if (action == ActionType.REMOVE) {
-      require(agent.referredByScope > 0, "Illegal Referred");
-      unchecked { agent.referredByScope -= 1; }
-      emit AgentReferredByScopeUpdated(
-        signerId, 
-        agentId,
-        scopeId, 
-        ActionType.REMOVE
-      );
     }
   }
 }

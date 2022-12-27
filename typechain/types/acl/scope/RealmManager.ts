@@ -70,7 +70,6 @@ export declare namespace IRealmManagement {
     contextLimit: PromiseOrValue<BigNumberish>;
     agentLimit: PromiseOrValue<BigNumberish>;
     referredByAgent: PromiseOrValue<BigNumberish>;
-    referredByPolicy: PromiseOrValue<BigNumberish>;
     acstat: PromiseOrValue<BigNumberish>;
     alstate: PromiseOrValue<BigNumberish>;
     adminType: PromiseOrValue<BigNumberish>;
@@ -86,7 +85,6 @@ export declare namespace IRealmManagement {
     number,
     number,
     number,
-    number,
     string
   ] & {
     domainId: string;
@@ -94,7 +92,6 @@ export declare namespace IRealmManagement {
     contextLimit: number;
     agentLimit: number;
     referredByAgent: number;
-    referredByPolicy: number;
     acstat: number;
     alstate: number;
     adminType: number;
@@ -200,7 +197,6 @@ export interface RealmManagerInterface extends utils.Interface {
     "realmCheckAdmin(bytes32,address)": FunctionFragment;
     "realmCheckId(bytes32)": FunctionFragment;
     "realmCheckName(string)": FunctionFragment;
-    "realmDeleteActivity(bytes32[])": FunctionFragment;
     "realmGetContexts(bytes32)": FunctionFragment;
     "realmGetInfo(bytes32)": FunctionFragment;
     "realmHasContext(bytes32,bytes32)": FunctionFragment;
@@ -257,8 +253,6 @@ export interface RealmManagerInterface extends utils.Interface {
       | "realmCheckId(bytes32)"
       | "realmCheckName"
       | "realmCheckName(string)"
-      | "realmDeleteActivity"
-      | "realmDeleteActivity(bytes32[])"
       | "realmGetContexts"
       | "realmGetContexts(bytes32)"
       | "realmGetInfo"
@@ -430,14 +424,6 @@ export interface RealmManagerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "realmCheckName(string)",
     values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "realmDeleteActivity",
-    values: [PromiseOrValue<BytesLike>[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "realmDeleteActivity(bytes32[])",
-    values: [PromiseOrValue<BytesLike>[]]
   ): string;
   encodeFunctionData(
     functionFragment: "realmGetContexts",
@@ -725,14 +711,6 @@ export interface RealmManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "realmDeleteActivity",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "realmDeleteActivity(bytes32[])",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "realmGetContexts",
     data: BytesLike
   ): Result;
@@ -891,8 +869,6 @@ export interface RealmManagerInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "AgentReferredByPolicyUpdated(address,bytes32,bytes32,uint8)": EventFragment;
-    "AgentReferredByScopeUpdated(address,bytes32,bytes32,uint8)": EventFragment;
     "Initialized(address,address,address,string,string,uint16)": EventFragment;
     "ProxyAccessControlUpdated(address,address,address)": EventFragment;
     "ProxyLocalAdminUpdated(address,address,address)": EventFragment;
@@ -905,22 +881,8 @@ export interface RealmManagerInterface extends utils.Interface {
     "RealmAlterabilityUpdated(address,bytes32,uint8)": EventFragment;
     "RealmContextLimitUpdated(address,bytes32,uint32)": EventFragment;
     "RealmRegistered(address,bytes32,bytes32,bytes32)": EventFragment;
-    "ScopeReferredByAgentUpdated(address,bytes32,bytes32,uint8)": EventFragment;
-    "ScopeReferredByPolicyUpdated(address,bytes32,bytes32,uint8)": EventFragment;
   };
 
-  getEvent(
-    nameOrSignatureOrTopic: "AgentReferredByPolicyUpdated"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "AgentReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "AgentReferredByScopeUpdated"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "AgentReferredByScopeUpdated(address,bytes32,bytes32,uint8)"
-  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "Initialized(address,address,address,string,string,uint16)"
@@ -969,47 +931,7 @@ export interface RealmManagerInterface extends utils.Interface {
   getEvent(
     nameOrSignatureOrTopic: "RealmRegistered(address,bytes32,bytes32,bytes32)"
   ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ScopeReferredByAgentUpdated"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ScopeReferredByAgentUpdated(address,bytes32,bytes32,uint8)"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ScopeReferredByPolicyUpdated"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ScopeReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"
-  ): EventFragment;
 }
-
-export interface AgentReferredByPolicyUpdatedEventObject {
-  sender: string;
-  agentId: string;
-  policyId: string;
-  action: number;
-}
-export type AgentReferredByPolicyUpdatedEvent = TypedEvent<
-  [string, string, string, number],
-  AgentReferredByPolicyUpdatedEventObject
->;
-
-export type AgentReferredByPolicyUpdatedEventFilter =
-  TypedEventFilter<AgentReferredByPolicyUpdatedEvent>;
-
-export interface AgentReferredByScopeUpdatedEventObject {
-  sender: string;
-  agentId: string;
-  scopeId: string;
-  action: number;
-}
-export type AgentReferredByScopeUpdatedEvent = TypedEvent<
-  [string, string, string, number],
-  AgentReferredByScopeUpdatedEventObject
->;
-
-export type AgentReferredByScopeUpdatedEventFilter =
-  TypedEventFilter<AgentReferredByScopeUpdatedEvent>;
 
 export interface InitializedEventObject {
   sender: string;
@@ -1168,34 +1090,6 @@ export type RealmRegisteredEvent = TypedEvent<
 
 export type RealmRegisteredEventFilter = TypedEventFilter<RealmRegisteredEvent>;
 
-export interface ScopeReferredByAgentUpdatedEventObject {
-  sender: string;
-  scopeId: string;
-  agentId: string;
-  action: number;
-}
-export type ScopeReferredByAgentUpdatedEvent = TypedEvent<
-  [string, string, string, number],
-  ScopeReferredByAgentUpdatedEventObject
->;
-
-export type ScopeReferredByAgentUpdatedEventFilter =
-  TypedEventFilter<ScopeReferredByAgentUpdatedEvent>;
-
-export interface ScopeReferredByPolicyUpdatedEventObject {
-  sender: string;
-  scopeId: string;
-  policyId: string;
-  action: number;
-}
-export type ScopeReferredByPolicyUpdatedEvent = TypedEvent<
-  [string, string, string, number],
-  ScopeReferredByPolicyUpdatedEventObject
->;
-
-export type ScopeReferredByPolicyUpdatedEventFilter =
-  TypedEventFilter<ScopeReferredByPolicyUpdatedEvent>;
-
 export interface RealmManager extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
@@ -1322,16 +1216,6 @@ export interface RealmManager extends BaseContract {
       realmName: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
-
-    realmDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "realmDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
 
     realmGetContexts(
       realmId: PromiseOrValue<BytesLike>,
@@ -1619,16 +1503,6 @@ export interface RealmManager extends BaseContract {
     realmName: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<boolean>;
-
-  realmDeleteActivity(
-    requests: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "realmDeleteActivity(bytes32[])"(
-    requests: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   realmGetContexts(
     realmId: PromiseOrValue<BytesLike>,
@@ -1919,16 +1793,6 @@ export interface RealmManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    realmDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "realmDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     realmGetContexts(
       realmId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -2121,32 +1985,6 @@ export interface RealmManager extends BaseContract {
   };
 
   filters: {
-    "AgentReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"(
-      sender?: PromiseOrValue<string> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      policyId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): AgentReferredByPolicyUpdatedEventFilter;
-    AgentReferredByPolicyUpdated(
-      sender?: PromiseOrValue<string> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      policyId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): AgentReferredByPolicyUpdatedEventFilter;
-
-    "AgentReferredByScopeUpdated(address,bytes32,bytes32,uint8)"(
-      sender?: PromiseOrValue<string> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): AgentReferredByScopeUpdatedEventFilter;
-    AgentReferredByScopeUpdated(
-      sender?: PromiseOrValue<string> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): AgentReferredByScopeUpdatedEventFilter;
-
     "Initialized(address,address,address,string,string,uint16)"(
       sender?: PromiseOrValue<string> | null,
       proxy?: PromiseOrValue<string> | null,
@@ -2286,32 +2124,6 @@ export interface RealmManager extends BaseContract {
       domainId?: PromiseOrValue<BytesLike> | null,
       adminId?: null
     ): RealmRegisteredEventFilter;
-
-    "ScopeReferredByAgentUpdated(address,bytes32,bytes32,uint8)"(
-      sender?: PromiseOrValue<string> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): ScopeReferredByAgentUpdatedEventFilter;
-    ScopeReferredByAgentUpdated(
-      sender?: PromiseOrValue<string> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): ScopeReferredByAgentUpdatedEventFilter;
-
-    "ScopeReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"(
-      sender?: PromiseOrValue<string> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      policyId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): ScopeReferredByPolicyUpdatedEventFilter;
-    ScopeReferredByPolicyUpdated(
-      sender?: PromiseOrValue<string> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      policyId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): ScopeReferredByPolicyUpdatedEventFilter;
   };
 
   estimateGas: {
@@ -2411,16 +2223,6 @@ export interface RealmManager extends BaseContract {
     "realmCheckName(string)"(
       realmName: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    realmDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "realmDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     realmGetContexts(
@@ -2727,16 +2529,6 @@ export interface RealmManager extends BaseContract {
     "realmCheckName(string)"(
       realmName: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    realmDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "realmDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     realmGetContexts(

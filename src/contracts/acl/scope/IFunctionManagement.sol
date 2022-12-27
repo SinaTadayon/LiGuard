@@ -43,7 +43,6 @@ interface IFunctionManagement is IACLCommons {
     bytes4 selector;        
     uint16 agentLimit;
     uint16 referredByAgent;
-    uint16 referredByPolicy;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
     AgentType adminType;
@@ -77,8 +76,6 @@ interface IFunctionManagement is IACLCommons {
   function functionUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);
 
   function functionUpdateAgent(FunctionUpdateAgentRequest[] calldata requests) external returns (bool);
-
-  function functionDeleteActivity(bytes32[] calldata requests) external returns (bool);
 
   function functionUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
 

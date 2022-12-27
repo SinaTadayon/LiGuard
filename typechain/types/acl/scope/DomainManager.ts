@@ -33,7 +33,6 @@ export declare namespace IDomainManagement {
     realmLimit: PromiseOrValue<BigNumberish>;
     agentLimit: PromiseOrValue<BigNumberish>;
     referredByAgent: PromiseOrValue<BigNumberish>;
-    referredByPolicy: PromiseOrValue<BigNumberish>;
     adminType: PromiseOrValue<BigNumberish>;
     acstat: PromiseOrValue<BigNumberish>;
     alstate: PromiseOrValue<BigNumberish>;
@@ -48,14 +47,12 @@ export declare namespace IDomainManagement {
     number,
     number,
     number,
-    number,
     string
   ] & {
     adminId: string;
     realmLimit: number;
     agentLimit: number;
     referredByAgent: number;
-    referredByPolicy: number;
     adminType: number;
     acstat: number;
     alstate: number;
@@ -188,7 +185,6 @@ export interface DomainManagerInterface extends utils.Interface {
     "domainCheckAdmin(bytes32,address)": FunctionFragment;
     "domainCheckId(bytes32)": FunctionFragment;
     "domainCheckName(string)": FunctionFragment;
-    "domainDeleteActivity(bytes32[])": FunctionFragment;
     "domainGetInfo(bytes32)": FunctionFragment;
     "domainGetRealms(bytes32)": FunctionFragment;
     "domainHasContext(bytes32,bytes32)": FunctionFragment;
@@ -240,8 +236,6 @@ export interface DomainManagerInterface extends utils.Interface {
       | "domainCheckId(bytes32)"
       | "domainCheckName"
       | "domainCheckName(string)"
-      | "domainDeleteActivity"
-      | "domainDeleteActivity(bytes32[])"
       | "domainGetInfo"
       | "domainGetInfo(bytes32)"
       | "domainGetRealms"
@@ -374,14 +368,6 @@ export interface DomainManagerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "domainCheckName(string)",
     values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "domainDeleteActivity",
-    values: [PromiseOrValue<BytesLike>[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "domainDeleteActivity(bytes32[])",
-    values: [PromiseOrValue<BytesLike>[]]
   ): string;
   encodeFunctionData(
     functionFragment: "domainGetInfo",
@@ -691,14 +677,6 @@ export interface DomainManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "domainDeleteActivity",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "domainDeleteActivity(bytes32[])",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "domainGetInfo",
     data: BytesLike
   ): Result;
@@ -904,8 +882,6 @@ export interface DomainManagerInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "AgentReferredByPolicyUpdated(address,bytes32,bytes32,uint8)": EventFragment;
-    "AgentReferredByScopeUpdated(address,bytes32,bytes32,uint8)": EventFragment;
     "DomainActivityUpdated(address,bytes32,uint8)": EventFragment;
     "DomainAdminUpdated(address,bytes32,bytes32)": EventFragment;
     "DomainAgentLimitUpdated(address,bytes32,uint16)": EventFragment;
@@ -918,22 +894,8 @@ export interface DomainManagerInterface extends utils.Interface {
     "ProxySafeModeUpdated(address,address,uint8)": EventFragment;
     "ProxyUpdatabilityUpdated(address,address,uint8)": EventFragment;
     "ProxyUpgraded(address,address,address)": EventFragment;
-    "ScopeReferredByAgentUpdated(address,bytes32,bytes32,uint8)": EventFragment;
-    "ScopeReferredByPolicyUpdated(address,bytes32,bytes32,uint8)": EventFragment;
   };
 
-  getEvent(
-    nameOrSignatureOrTopic: "AgentReferredByPolicyUpdated"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "AgentReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "AgentReferredByScopeUpdated"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "AgentReferredByScopeUpdated(address,bytes32,bytes32,uint8)"
-  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DomainActivityUpdated"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "DomainActivityUpdated(address,bytes32,uint8)"
@@ -982,47 +944,7 @@ export interface DomainManagerInterface extends utils.Interface {
   getEvent(
     nameOrSignatureOrTopic: "ProxyUpgraded(address,address,address)"
   ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ScopeReferredByAgentUpdated"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ScopeReferredByAgentUpdated(address,bytes32,bytes32,uint8)"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ScopeReferredByPolicyUpdated"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ScopeReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"
-  ): EventFragment;
 }
-
-export interface AgentReferredByPolicyUpdatedEventObject {
-  sender: string;
-  agentId: string;
-  policyId: string;
-  action: number;
-}
-export type AgentReferredByPolicyUpdatedEvent = TypedEvent<
-  [string, string, string, number],
-  AgentReferredByPolicyUpdatedEventObject
->;
-
-export type AgentReferredByPolicyUpdatedEventFilter =
-  TypedEventFilter<AgentReferredByPolicyUpdatedEvent>;
-
-export interface AgentReferredByScopeUpdatedEventObject {
-  sender: string;
-  agentId: string;
-  scopeId: string;
-  action: number;
-}
-export type AgentReferredByScopeUpdatedEvent = TypedEvent<
-  [string, string, string, number],
-  AgentReferredByScopeUpdatedEventObject
->;
-
-export type AgentReferredByScopeUpdatedEventFilter =
-  TypedEventFilter<AgentReferredByScopeUpdatedEvent>;
 
 export interface DomainActivityUpdatedEventObject {
   sender: string;
@@ -1181,34 +1103,6 @@ export type ProxyUpgradedEvent = TypedEvent<
 
 export type ProxyUpgradedEventFilter = TypedEventFilter<ProxyUpgradedEvent>;
 
-export interface ScopeReferredByAgentUpdatedEventObject {
-  sender: string;
-  scopeId: string;
-  agentId: string;
-  action: number;
-}
-export type ScopeReferredByAgentUpdatedEvent = TypedEvent<
-  [string, string, string, number],
-  ScopeReferredByAgentUpdatedEventObject
->;
-
-export type ScopeReferredByAgentUpdatedEventFilter =
-  TypedEventFilter<ScopeReferredByAgentUpdatedEvent>;
-
-export interface ScopeReferredByPolicyUpdatedEventObject {
-  sender: string;
-  scopeId: string;
-  policyId: string;
-  action: number;
-}
-export type ScopeReferredByPolicyUpdatedEvent = TypedEvent<
-  [string, string, string, number],
-  ScopeReferredByPolicyUpdatedEventObject
->;
-
-export type ScopeReferredByPolicyUpdatedEventFilter =
-  TypedEventFilter<ScopeReferredByPolicyUpdatedEvent>;
-
 export interface DomainManager extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
@@ -1297,16 +1191,6 @@ export interface DomainManager extends BaseContract {
       domainName: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
-
-    domainDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "domainDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
 
     domainGetInfo(
       domainId: PromiseOrValue<BytesLike>,
@@ -1609,16 +1493,6 @@ export interface DomainManager extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  domainDeleteActivity(
-    requests: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "domainDeleteActivity(bytes32[])"(
-    requests: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   domainGetInfo(
     domainId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
@@ -1920,16 +1794,6 @@ export interface DomainManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    domainDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "domainDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     domainGetInfo(
       domainId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -2170,32 +2034,6 @@ export interface DomainManager extends BaseContract {
   };
 
   filters: {
-    "AgentReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"(
-      sender?: PromiseOrValue<string> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      policyId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): AgentReferredByPolicyUpdatedEventFilter;
-    AgentReferredByPolicyUpdated(
-      sender?: PromiseOrValue<string> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      policyId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): AgentReferredByPolicyUpdatedEventFilter;
-
-    "AgentReferredByScopeUpdated(address,bytes32,bytes32,uint8)"(
-      sender?: PromiseOrValue<string> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): AgentReferredByScopeUpdatedEventFilter;
-    AgentReferredByScopeUpdated(
-      sender?: PromiseOrValue<string> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): AgentReferredByScopeUpdatedEventFilter;
-
     "DomainActivityUpdated(address,bytes32,uint8)"(
       sender?: PromiseOrValue<string> | null,
       domainId?: PromiseOrValue<BytesLike> | null,
@@ -2333,32 +2171,6 @@ export interface DomainManager extends BaseContract {
       proxy?: PromiseOrValue<string> | null,
       newImplementation?: PromiseOrValue<string> | null
     ): ProxyUpgradedEventFilter;
-
-    "ScopeReferredByAgentUpdated(address,bytes32,bytes32,uint8)"(
-      sender?: PromiseOrValue<string> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): ScopeReferredByAgentUpdatedEventFilter;
-    ScopeReferredByAgentUpdated(
-      sender?: PromiseOrValue<string> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): ScopeReferredByAgentUpdatedEventFilter;
-
-    "ScopeReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"(
-      sender?: PromiseOrValue<string> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      policyId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): ScopeReferredByPolicyUpdatedEventFilter;
-    ScopeReferredByPolicyUpdated(
-      sender?: PromiseOrValue<string> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      policyId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): ScopeReferredByPolicyUpdatedEventFilter;
   };
 
   estimateGas: {
@@ -2424,16 +2236,6 @@ export interface DomainManager extends BaseContract {
     "domainCheckName(string)"(
       domainName: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    domainDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "domainDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     domainGetInfo(
@@ -2750,16 +2552,6 @@ export interface DomainManager extends BaseContract {
     "domainCheckName(string)"(
       domainName: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    domainDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "domainDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     domainGetInfo(

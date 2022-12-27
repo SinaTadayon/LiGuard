@@ -34,7 +34,6 @@ export declare namespace IGlobalManagement {
     domainLimit: PromiseOrValue<BigNumberish>;
     agentLimit: PromiseOrValue<BigNumberish>;
     referredByAgent: PromiseOrValue<BigNumberish>;
-    referredByPolicy: PromiseOrValue<BigNumberish>;
     adminType: PromiseOrValue<BigNumberish>;
     acstat: PromiseOrValue<BigNumberish>;
     alstate: PromiseOrValue<BigNumberish>;
@@ -48,7 +47,6 @@ export declare namespace IGlobalManagement {
     number,
     number,
     number,
-    number,
     number
   ] & {
     id: string;
@@ -56,7 +54,6 @@ export declare namespace IGlobalManagement {
     domainLimit: number;
     agentLimit: number;
     referredByAgent: number;
-    referredByPolicy: number;
     adminType: number;
     acstat: number;
     alstate: number;
@@ -226,97 +223,42 @@ export interface IGlobalManagementInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "AgentReferredByPolicyUpdated(address,bytes32,bytes32,uint8)": EventFragment;
-    "AgentReferredByScopeUpdated(address,bytes32,bytes32,uint8)": EventFragment;
-    "GlobalActivityUpdated(address,uint8)": EventFragment;
-    "GlobalAdminUpdated(address,bytes32,uint8)": EventFragment;
-    "GlobalAgentLimitUpdated(address,uint16)": EventFragment;
-    "GlobalAlterabilityUpdated(address,uint8)": EventFragment;
-    "GlobalDomainLimitUpdated(address,uint16)": EventFragment;
-    "ScopeReferredByAgentUpdated(address,bytes32,bytes32,uint8)": EventFragment;
-    "ScopeReferredByPolicyUpdated(address,bytes32,bytes32,uint8)": EventFragment;
+    "GlobalActivityUpdated(address,bytes32,uint8)": EventFragment;
+    "GlobalAdminUpdated(address,bytes32,bytes32,uint8)": EventFragment;
+    "GlobalAgentLimitUpdated(address,bytes32,uint16)": EventFragment;
+    "GlobalAlterabilityUpdated(address,bytes32,uint8)": EventFragment;
+    "GlobalDomainLimitUpdated(address,bytes32,uint16)": EventFragment;
   };
 
-  getEvent(
-    nameOrSignatureOrTopic: "AgentReferredByPolicyUpdated"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "AgentReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "AgentReferredByScopeUpdated"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "AgentReferredByScopeUpdated(address,bytes32,bytes32,uint8)"
-  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "GlobalActivityUpdated"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "GlobalActivityUpdated(address,uint8)"
+    nameOrSignatureOrTopic: "GlobalActivityUpdated(address,bytes32,uint8)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "GlobalAdminUpdated"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "GlobalAdminUpdated(address,bytes32,uint8)"
+    nameOrSignatureOrTopic: "GlobalAdminUpdated(address,bytes32,bytes32,uint8)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "GlobalAgentLimitUpdated"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "GlobalAgentLimitUpdated(address,uint16)"
+    nameOrSignatureOrTopic: "GlobalAgentLimitUpdated(address,bytes32,uint16)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "GlobalAlterabilityUpdated"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "GlobalAlterabilityUpdated(address,uint8)"
+    nameOrSignatureOrTopic: "GlobalAlterabilityUpdated(address,bytes32,uint8)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "GlobalDomainLimitUpdated"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "GlobalDomainLimitUpdated(address,uint16)"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ScopeReferredByAgentUpdated"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ScopeReferredByAgentUpdated(address,bytes32,bytes32,uint8)"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ScopeReferredByPolicyUpdated"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ScopeReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"
+    nameOrSignatureOrTopic: "GlobalDomainLimitUpdated(address,bytes32,uint16)"
   ): EventFragment;
 }
-
-export interface AgentReferredByPolicyUpdatedEventObject {
-  sender: string;
-  agentId: string;
-  policyId: string;
-  action: number;
-}
-export type AgentReferredByPolicyUpdatedEvent = TypedEvent<
-  [string, string, string, number],
-  AgentReferredByPolicyUpdatedEventObject
->;
-
-export type AgentReferredByPolicyUpdatedEventFilter =
-  TypedEventFilter<AgentReferredByPolicyUpdatedEvent>;
-
-export interface AgentReferredByScopeUpdatedEventObject {
-  sender: string;
-  agentId: string;
-  scopeId: string;
-  action: number;
-}
-export type AgentReferredByScopeUpdatedEvent = TypedEvent<
-  [string, string, string, number],
-  AgentReferredByScopeUpdatedEventObject
->;
-
-export type AgentReferredByScopeUpdatedEventFilter =
-  TypedEventFilter<AgentReferredByScopeUpdatedEvent>;
 
 export interface GlobalActivityUpdatedEventObject {
   sender: string;
+  globalId: string;
   acstat: number;
 }
 export type GlobalActivityUpdatedEvent = TypedEvent<
-  [string, number],
+  [string, string, number],
   GlobalActivityUpdatedEventObject
 >;
 
@@ -325,11 +267,12 @@ export type GlobalActivityUpdatedEventFilter =
 
 export interface GlobalAdminUpdatedEventObject {
   sender: string;
+  globalId: string;
   adminId: string;
   adminType: number;
 }
 export type GlobalAdminUpdatedEvent = TypedEvent<
-  [string, string, number],
+  [string, string, string, number],
   GlobalAdminUpdatedEventObject
 >;
 
@@ -338,10 +281,11 @@ export type GlobalAdminUpdatedEventFilter =
 
 export interface GlobalAgentLimitUpdatedEventObject {
   sender: string;
+  globalId: string;
   agentLimit: number;
 }
 export type GlobalAgentLimitUpdatedEvent = TypedEvent<
-  [string, number],
+  [string, string, number],
   GlobalAgentLimitUpdatedEventObject
 >;
 
@@ -350,10 +294,11 @@ export type GlobalAgentLimitUpdatedEventFilter =
 
 export interface GlobalAlterabilityUpdatedEventObject {
   sender: string;
+  globalId: string;
   alstat: number;
 }
 export type GlobalAlterabilityUpdatedEvent = TypedEvent<
-  [string, number],
+  [string, string, number],
   GlobalAlterabilityUpdatedEventObject
 >;
 
@@ -362,43 +307,16 @@ export type GlobalAlterabilityUpdatedEventFilter =
 
 export interface GlobalDomainLimitUpdatedEventObject {
   sender: string;
+  globalId: string;
   domainLimit: number;
 }
 export type GlobalDomainLimitUpdatedEvent = TypedEvent<
-  [string, number],
+  [string, string, number],
   GlobalDomainLimitUpdatedEventObject
 >;
 
 export type GlobalDomainLimitUpdatedEventFilter =
   TypedEventFilter<GlobalDomainLimitUpdatedEvent>;
-
-export interface ScopeReferredByAgentUpdatedEventObject {
-  sender: string;
-  scopeId: string;
-  agentId: string;
-  action: number;
-}
-export type ScopeReferredByAgentUpdatedEvent = TypedEvent<
-  [string, string, string, number],
-  ScopeReferredByAgentUpdatedEventObject
->;
-
-export type ScopeReferredByAgentUpdatedEventFilter =
-  TypedEventFilter<ScopeReferredByAgentUpdatedEvent>;
-
-export interface ScopeReferredByPolicyUpdatedEventObject {
-  sender: string;
-  scopeId: string;
-  policyId: string;
-  action: number;
-}
-export type ScopeReferredByPolicyUpdatedEvent = TypedEvent<
-  [string, string, string, number],
-  ScopeReferredByPolicyUpdatedEventObject
->;
-
-export type ScopeReferredByPolicyUpdatedEventFilter =
-  TypedEventFilter<ScopeReferredByPolicyUpdatedEvent>;
 
 export interface IGlobalManagement extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -647,104 +565,62 @@ export interface IGlobalManagement extends BaseContract {
   };
 
   filters: {
-    "AgentReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"(
+    "GlobalActivityUpdated(address,bytes32,uint8)"(
       sender?: PromiseOrValue<string> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      policyId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): AgentReferredByPolicyUpdatedEventFilter;
-    AgentReferredByPolicyUpdated(
-      sender?: PromiseOrValue<string> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      policyId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): AgentReferredByPolicyUpdatedEventFilter;
-
-    "AgentReferredByScopeUpdated(address,bytes32,bytes32,uint8)"(
-      sender?: PromiseOrValue<string> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): AgentReferredByScopeUpdatedEventFilter;
-    AgentReferredByScopeUpdated(
-      sender?: PromiseOrValue<string> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): AgentReferredByScopeUpdatedEventFilter;
-
-    "GlobalActivityUpdated(address,uint8)"(
-      sender?: PromiseOrValue<string> | null,
+      globalId?: null,
       acstat?: null
     ): GlobalActivityUpdatedEventFilter;
     GlobalActivityUpdated(
       sender?: PromiseOrValue<string> | null,
+      globalId?: null,
       acstat?: null
     ): GlobalActivityUpdatedEventFilter;
 
-    "GlobalAdminUpdated(address,bytes32,uint8)"(
+    "GlobalAdminUpdated(address,bytes32,bytes32,uint8)"(
       sender?: PromiseOrValue<string> | null,
+      globalId?: null,
       adminId?: PromiseOrValue<BytesLike> | null,
       adminType?: null
     ): GlobalAdminUpdatedEventFilter;
     GlobalAdminUpdated(
       sender?: PromiseOrValue<string> | null,
+      globalId?: null,
       adminId?: PromiseOrValue<BytesLike> | null,
       adminType?: null
     ): GlobalAdminUpdatedEventFilter;
 
-    "GlobalAgentLimitUpdated(address,uint16)"(
+    "GlobalAgentLimitUpdated(address,bytes32,uint16)"(
       sender?: PromiseOrValue<string> | null,
+      globalId?: null,
       agentLimit?: null
     ): GlobalAgentLimitUpdatedEventFilter;
     GlobalAgentLimitUpdated(
       sender?: PromiseOrValue<string> | null,
+      globalId?: null,
       agentLimit?: null
     ): GlobalAgentLimitUpdatedEventFilter;
 
-    "GlobalAlterabilityUpdated(address,uint8)"(
+    "GlobalAlterabilityUpdated(address,bytes32,uint8)"(
       sender?: PromiseOrValue<string> | null,
+      globalId?: null,
       alstat?: null
     ): GlobalAlterabilityUpdatedEventFilter;
     GlobalAlterabilityUpdated(
       sender?: PromiseOrValue<string> | null,
+      globalId?: null,
       alstat?: null
     ): GlobalAlterabilityUpdatedEventFilter;
 
-    "GlobalDomainLimitUpdated(address,uint16)"(
+    "GlobalDomainLimitUpdated(address,bytes32,uint16)"(
       sender?: PromiseOrValue<string> | null,
+      globalId?: null,
       domainLimit?: null
     ): GlobalDomainLimitUpdatedEventFilter;
     GlobalDomainLimitUpdated(
       sender?: PromiseOrValue<string> | null,
+      globalId?: null,
       domainLimit?: null
     ): GlobalDomainLimitUpdatedEventFilter;
-
-    "ScopeReferredByAgentUpdated(address,bytes32,bytes32,uint8)"(
-      sender?: PromiseOrValue<string> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): ScopeReferredByAgentUpdatedEventFilter;
-    ScopeReferredByAgentUpdated(
-      sender?: PromiseOrValue<string> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): ScopeReferredByAgentUpdatedEventFilter;
-
-    "ScopeReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"(
-      sender?: PromiseOrValue<string> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      policyId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): ScopeReferredByPolicyUpdatedEventFilter;
-    ScopeReferredByPolicyUpdated(
-      sender?: PromiseOrValue<string> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      policyId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): ScopeReferredByPolicyUpdatedEventFilter;
   };
 
   estimateGas: {

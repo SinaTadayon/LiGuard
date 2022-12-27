@@ -86,9 +86,7 @@ interface IPolicyManagement is IACLCommons {
 
   function policyUpdateCodes(PolicyUpdateCodeRequest[] calldata requests) external returns (bool);
 
-  function policyUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);
- 
-  function policyDeleteActivity(bytes32[] calldata requests) external returns (bool);
+  function policyUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool); 
 
   function policyUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
 

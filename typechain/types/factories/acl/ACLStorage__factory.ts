@@ -18,68 +18,6 @@ const _abi = [
       },
       {
         indexed: true,
-        internalType: "bytes32",
-        name: "agentId",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "policyId",
-        type: "bytes32",
-      },
-      {
-        indexed: false,
-        internalType: "enum IACLCommons.ActionType",
-        name: "action",
-        type: "uint8",
-      },
-    ],
-    name: "AgentReferredByPolicyUpdated",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "sender",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "agentId",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "scopeId",
-        type: "bytes32",
-      },
-      {
-        indexed: false,
-        internalType: "enum IACLCommons.ActionType",
-        name: "action",
-        type: "uint8",
-      },
-    ],
-    name: "AgentReferredByScopeUpdated",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "sender",
-        type: "address",
-      },
-      {
-        indexed: true,
         internalType: "address",
         name: "proxy",
         type: "address",
@@ -92,68 +30,6 @@ const _abi = [
       },
     ],
     name: "ProxyUpgraded",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "sender",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "scopeId",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "agentId",
-        type: "bytes32",
-      },
-      {
-        indexed: false,
-        internalType: "enum IACLCommons.ActionType",
-        name: "action",
-        type: "uint8",
-      },
-    ],
-    name: "ScopeReferredByAgentUpdated",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "sender",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "scopeId",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "policyId",
-        type: "bytes32",
-      },
-      {
-        indexed: false,
-        internalType: "enum IACLCommons.ActionType",
-        name: "action",
-        type: "uint8",
-      },
-    ],
-    name: "ScopeReferredByPolicyUpdated",
     type: "event",
   },
   {

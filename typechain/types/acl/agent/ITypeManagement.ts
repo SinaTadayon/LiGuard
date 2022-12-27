@@ -33,9 +33,6 @@ export declare namespace ITypeManagement {
     adminId: PromiseOrValue<BytesLike>;
     roleLimit: PromiseOrValue<BigNumberish>;
     roleTotal: PromiseOrValue<BigNumberish>;
-    scopeLimit: PromiseOrValue<BigNumberish>;
-    referredByScope: PromiseOrValue<BigNumberish>;
-    referredByPolicy: PromiseOrValue<BigNumberish>;
     acstat: PromiseOrValue<BigNumberish>;
     alstat: PromiseOrValue<BigNumberish>;
     name: PromiseOrValue<string>;
@@ -48,18 +45,12 @@ export declare namespace ITypeManagement {
     number,
     number,
     number,
-    number,
-    number,
-    number,
     string
   ] & {
     scopeId: string;
     adminId: string;
     roleLimit: number;
     roleTotal: number;
-    scopeLimit: number;
-    referredByScope: number;
-    referredByPolicy: number;
     acstat: number;
     alstat: number;
     name: string;
@@ -69,7 +60,6 @@ export declare namespace ITypeManagement {
     adminId: PromiseOrValue<BytesLike>;
     scopeId: PromiseOrValue<BytesLike>;
     roleLimit: PromiseOrValue<BigNumberish>;
-    scopeLimit: PromiseOrValue<BigNumberish>;
     acstat: PromiseOrValue<BigNumberish>;
     alstat: PromiseOrValue<BigNumberish>;
     name: PromiseOrValue<string>;
@@ -81,13 +71,11 @@ export declare namespace ITypeManagement {
     number,
     number,
     number,
-    number,
     string
   ] & {
     adminId: string;
     scopeId: string;
     roleLimit: number;
-    scopeLimit: number;
     acstat: number;
     alstat: number;
     name: string;
@@ -134,16 +122,6 @@ export declare namespace IACLCommons {
     id: string;
     alstat: number;
   };
-
-  export type AgentUpdateScopeLimitRequestStruct = {
-    agentId: PromiseOrValue<BytesLike>;
-    scopeLimit: PromiseOrValue<BigNumberish>;
-  };
-
-  export type AgentUpdateScopeLimitRequestStructOutput = [string, number] & {
-    agentId: string;
-    scopeLimit: number;
-  };
 }
 
 export interface ITypeManagementInterface extends utils.Interface {
@@ -151,17 +129,15 @@ export interface ITypeManagementInterface extends utils.Interface {
     "typeCheckAdmin(bytes32,address)": FunctionFragment;
     "typeCheckId(bytes32)": FunctionFragment;
     "typeCheckName(string)": FunctionFragment;
-    "typeDeleteActivity(bytes32[])": FunctionFragment;
     "typeGetInfo(bytes32)": FunctionFragment;
     "typeGetRoles(bytes32)": FunctionFragment;
     "typeHasAccount(bytes32,address)": FunctionFragment;
     "typeHasRole(bytes32,bytes32)": FunctionFragment;
-    "typeRegister((bytes32,bytes32,uint16,uint16,uint8,uint8,string)[])": FunctionFragment;
+    "typeRegister((bytes32,bytes32,uint16,uint8,uint8,string)[])": FunctionFragment;
     "typeUpdateActivityStatus((bytes32,uint8)[])": FunctionFragment;
     "typeUpdateAdmin((bytes32,bytes32)[])": FunctionFragment;
     "typeUpdateAlterabilityStatus((bytes32,uint8)[])": FunctionFragment;
     "typeUpdateRoleLimit((bytes32,uint16)[])": FunctionFragment;
-    "typeUpdateScopeLimit((bytes32,uint16)[])": FunctionFragment;
   };
 
   getFunction(
@@ -172,8 +148,6 @@ export interface ITypeManagementInterface extends utils.Interface {
       | "typeCheckId(bytes32)"
       | "typeCheckName"
       | "typeCheckName(string)"
-      | "typeDeleteActivity"
-      | "typeDeleteActivity(bytes32[])"
       | "typeGetInfo"
       | "typeGetInfo(bytes32)"
       | "typeGetRoles"
@@ -183,7 +157,7 @@ export interface ITypeManagementInterface extends utils.Interface {
       | "typeHasRole"
       | "typeHasRole(bytes32,bytes32)"
       | "typeRegister"
-      | "typeRegister((bytes32,bytes32,uint16,uint16,uint8,uint8,string)[])"
+      | "typeRegister((bytes32,bytes32,uint16,uint8,uint8,string)[])"
       | "typeUpdateActivityStatus"
       | "typeUpdateActivityStatus((bytes32,uint8)[])"
       | "typeUpdateAdmin"
@@ -192,8 +166,6 @@ export interface ITypeManagementInterface extends utils.Interface {
       | "typeUpdateAlterabilityStatus((bytes32,uint8)[])"
       | "typeUpdateRoleLimit"
       | "typeUpdateRoleLimit((bytes32,uint16)[])"
-      | "typeUpdateScopeLimit"
-      | "typeUpdateScopeLimit((bytes32,uint16)[])"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -221,14 +193,6 @@ export interface ITypeManagementInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "typeDeleteActivity",
-    values: [PromiseOrValue<BytesLike>[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "typeDeleteActivity(bytes32[])",
-    values: [PromiseOrValue<BytesLike>[]]
-  ): string;
-  encodeFunctionData(
     functionFragment: "typeGetInfo",
     values: [PromiseOrValue<BytesLike>]
   ): string;
@@ -265,7 +229,7 @@ export interface ITypeManagementInterface extends utils.Interface {
     values: [ITypeManagement.TypeRegisterRequestStruct[]]
   ): string;
   encodeFunctionData(
-    functionFragment: "typeRegister((bytes32,bytes32,uint16,uint16,uint8,uint8,string)[])",
+    functionFragment: "typeRegister((bytes32,bytes32,uint16,uint8,uint8,string)[])",
     values: [ITypeManagement.TypeRegisterRequestStruct[]]
   ): string;
   encodeFunctionData(
@@ -299,14 +263,6 @@ export interface ITypeManagementInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "typeUpdateRoleLimit((bytes32,uint16)[])",
     values: [ITypeManagement.TypeUpdateRoleLimitRequestStruct[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "typeUpdateScopeLimit",
-    values: [IACLCommons.AgentUpdateScopeLimitRequestStruct[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "typeUpdateScopeLimit((bytes32,uint16)[])",
-    values: [IACLCommons.AgentUpdateScopeLimitRequestStruct[]]
   ): string;
 
   decodeFunctionResult(
@@ -334,14 +290,6 @@ export interface ITypeManagementInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "typeDeleteActivity",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "typeDeleteActivity(bytes32[])",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "typeGetInfo",
     data: BytesLike
   ): Result;
@@ -378,7 +326,7 @@ export interface ITypeManagementInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "typeRegister((bytes32,bytes32,uint16,uint16,uint8,uint8,string)[])",
+    functionFragment: "typeRegister((bytes32,bytes32,uint16,uint8,uint8,string)[])",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -413,52 +361,15 @@ export interface ITypeManagementInterface extends utils.Interface {
     functionFragment: "typeUpdateRoleLimit((bytes32,uint16)[])",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "typeUpdateScopeLimit",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "typeUpdateScopeLimit((bytes32,uint16)[])",
-    data: BytesLike
-  ): Result;
 
   events: {
-    "AgentReferredByPolicyUpdated(address,bytes32,bytes32,uint8)": EventFragment;
-    "AgentReferredByScopeUpdated(address,bytes32,bytes32,uint8)": EventFragment;
-    "ScopeReferredByAgentUpdated(address,bytes32,bytes32,uint8)": EventFragment;
-    "ScopeReferredByPolicyUpdated(address,bytes32,bytes32,uint8)": EventFragment;
     "TypeActivityUpdated(address,bytes32,uint8)": EventFragment;
     "TypeAdminUpdated(address,bytes32,bytes32)": EventFragment;
     "TypeAlterabilityUpdated(address,bytes32,uint8)": EventFragment;
     "TypeRegistered(address,bytes32,bytes32,bytes32)": EventFragment;
     "TypeRoleLimitUpdated(address,bytes32,uint16)": EventFragment;
-    "TypeScopeLimitUpdated(address,bytes32,uint16)": EventFragment;
   };
 
-  getEvent(
-    nameOrSignatureOrTopic: "AgentReferredByPolicyUpdated"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "AgentReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "AgentReferredByScopeUpdated"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "AgentReferredByScopeUpdated(address,bytes32,bytes32,uint8)"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ScopeReferredByAgentUpdated"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ScopeReferredByAgentUpdated(address,bytes32,bytes32,uint8)"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ScopeReferredByPolicyUpdated"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ScopeReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"
-  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TypeActivityUpdated"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "TypeActivityUpdated(address,bytes32,uint8)"
@@ -479,67 +390,7 @@ export interface ITypeManagementInterface extends utils.Interface {
   getEvent(
     nameOrSignatureOrTopic: "TypeRoleLimitUpdated(address,bytes32,uint16)"
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "TypeScopeLimitUpdated"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "TypeScopeLimitUpdated(address,bytes32,uint16)"
-  ): EventFragment;
 }
-
-export interface AgentReferredByPolicyUpdatedEventObject {
-  sender: string;
-  agentId: string;
-  policyId: string;
-  action: number;
-}
-export type AgentReferredByPolicyUpdatedEvent = TypedEvent<
-  [string, string, string, number],
-  AgentReferredByPolicyUpdatedEventObject
->;
-
-export type AgentReferredByPolicyUpdatedEventFilter =
-  TypedEventFilter<AgentReferredByPolicyUpdatedEvent>;
-
-export interface AgentReferredByScopeUpdatedEventObject {
-  sender: string;
-  agentId: string;
-  scopeId: string;
-  action: number;
-}
-export type AgentReferredByScopeUpdatedEvent = TypedEvent<
-  [string, string, string, number],
-  AgentReferredByScopeUpdatedEventObject
->;
-
-export type AgentReferredByScopeUpdatedEventFilter =
-  TypedEventFilter<AgentReferredByScopeUpdatedEvent>;
-
-export interface ScopeReferredByAgentUpdatedEventObject {
-  sender: string;
-  scopeId: string;
-  agentId: string;
-  action: number;
-}
-export type ScopeReferredByAgentUpdatedEvent = TypedEvent<
-  [string, string, string, number],
-  ScopeReferredByAgentUpdatedEventObject
->;
-
-export type ScopeReferredByAgentUpdatedEventFilter =
-  TypedEventFilter<ScopeReferredByAgentUpdatedEvent>;
-
-export interface ScopeReferredByPolicyUpdatedEventObject {
-  sender: string;
-  scopeId: string;
-  policyId: string;
-  action: number;
-}
-export type ScopeReferredByPolicyUpdatedEvent = TypedEvent<
-  [string, string, string, number],
-  ScopeReferredByPolicyUpdatedEventObject
->;
-
-export type ScopeReferredByPolicyUpdatedEventFilter =
-  TypedEventFilter<ScopeReferredByPolicyUpdatedEvent>;
 
 export interface TypeActivityUpdatedEventObject {
   sender: string;
@@ -606,19 +457,6 @@ export type TypeRoleLimitUpdatedEvent = TypedEvent<
 export type TypeRoleLimitUpdatedEventFilter =
   TypedEventFilter<TypeRoleLimitUpdatedEvent>;
 
-export interface TypeScopeLimitUpdatedEventObject {
-  sender: string;
-  typeId: string;
-  scopeLimit: number;
-}
-export type TypeScopeLimitUpdatedEvent = TypedEvent<
-  [string, string, number],
-  TypeScopeLimitUpdatedEventObject
->;
-
-export type TypeScopeLimitUpdatedEventFilter =
-  TypedEventFilter<TypeScopeLimitUpdatedEvent>;
-
 export interface ITypeManagement extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
@@ -678,16 +516,6 @@ export interface ITypeManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    typeDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "typeDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     typeGetInfo(
       typeId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -737,7 +565,7 @@ export interface ITypeManagement extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "typeRegister((bytes32,bytes32,uint16,uint16,uint8,uint8,string)[])"(
+    "typeRegister((bytes32,bytes32,uint16,uint8,uint8,string)[])"(
       requests: ITypeManagement.TypeRegisterRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -781,16 +609,6 @@ export interface ITypeManagement extends BaseContract {
       requests: ITypeManagement.TypeUpdateRoleLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
-
-    typeUpdateScopeLimit(
-      requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "typeUpdateScopeLimit((bytes32,uint16)[])"(
-      requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
   };
 
   typeCheckAdmin(
@@ -824,16 +642,6 @@ export interface ITypeManagement extends BaseContract {
     typeName: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<boolean>;
-
-  typeDeleteActivity(
-    requests: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "typeDeleteActivity(bytes32[])"(
-    requests: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   typeGetInfo(
     typeId: PromiseOrValue<BytesLike>,
@@ -884,7 +692,7 @@ export interface ITypeManagement extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "typeRegister((bytes32,bytes32,uint16,uint16,uint8,uint8,string)[])"(
+  "typeRegister((bytes32,bytes32,uint16,uint8,uint8,string)[])"(
     requests: ITypeManagement.TypeRegisterRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -929,16 +737,6 @@ export interface ITypeManagement extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  typeUpdateScopeLimit(
-    requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "typeUpdateScopeLimit((bytes32,uint16)[])"(
-    requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   callStatic: {
     typeCheckAdmin(
       typeId: PromiseOrValue<BytesLike>,
@@ -969,16 +767,6 @@ export interface ITypeManagement extends BaseContract {
 
     "typeCheckName(string)"(
       typeName: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    typeDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "typeDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -1031,7 +819,7 @@ export interface ITypeManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "typeRegister((bytes32,bytes32,uint16,uint16,uint8,uint8,string)[])"(
+    "typeRegister((bytes32,bytes32,uint16,uint8,uint8,string)[])"(
       requests: ITypeManagement.TypeRegisterRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
@@ -1075,71 +863,9 @@ export interface ITypeManagement extends BaseContract {
       requests: ITypeManagement.TypeUpdateRoleLimitRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
-
-    typeUpdateScopeLimit(
-      requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "typeUpdateScopeLimit((bytes32,uint16)[])"(
-      requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
-      overrides?: CallOverrides
-    ): Promise<boolean>;
   };
 
   filters: {
-    "AgentReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"(
-      sender?: PromiseOrValue<string> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      policyId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): AgentReferredByPolicyUpdatedEventFilter;
-    AgentReferredByPolicyUpdated(
-      sender?: PromiseOrValue<string> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      policyId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): AgentReferredByPolicyUpdatedEventFilter;
-
-    "AgentReferredByScopeUpdated(address,bytes32,bytes32,uint8)"(
-      sender?: PromiseOrValue<string> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): AgentReferredByScopeUpdatedEventFilter;
-    AgentReferredByScopeUpdated(
-      sender?: PromiseOrValue<string> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): AgentReferredByScopeUpdatedEventFilter;
-
-    "ScopeReferredByAgentUpdated(address,bytes32,bytes32,uint8)"(
-      sender?: PromiseOrValue<string> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): ScopeReferredByAgentUpdatedEventFilter;
-    ScopeReferredByAgentUpdated(
-      sender?: PromiseOrValue<string> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): ScopeReferredByAgentUpdatedEventFilter;
-
-    "ScopeReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"(
-      sender?: PromiseOrValue<string> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      policyId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): ScopeReferredByPolicyUpdatedEventFilter;
-    ScopeReferredByPolicyUpdated(
-      sender?: PromiseOrValue<string> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      policyId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): ScopeReferredByPolicyUpdatedEventFilter;
-
     "TypeActivityUpdated(address,bytes32,uint8)"(
       sender?: PromiseOrValue<string> | null,
       typeId?: PromiseOrValue<BytesLike> | null,
@@ -1196,17 +922,6 @@ export interface ITypeManagement extends BaseContract {
       typeId?: PromiseOrValue<BytesLike> | null,
       roleLimit?: null
     ): TypeRoleLimitUpdatedEventFilter;
-
-    "TypeScopeLimitUpdated(address,bytes32,uint16)"(
-      sender?: PromiseOrValue<string> | null,
-      typeId?: PromiseOrValue<BytesLike> | null,
-      scopeLimit?: null
-    ): TypeScopeLimitUpdatedEventFilter;
-    TypeScopeLimitUpdated(
-      sender?: PromiseOrValue<string> | null,
-      typeId?: PromiseOrValue<BytesLike> | null,
-      scopeLimit?: null
-    ): TypeScopeLimitUpdatedEventFilter;
   };
 
   estimateGas: {
@@ -1240,16 +955,6 @@ export interface ITypeManagement extends BaseContract {
     "typeCheckName(string)"(
       typeName: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    typeDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "typeDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     typeGetInfo(
@@ -1301,7 +1006,7 @@ export interface ITypeManagement extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "typeRegister((bytes32,bytes32,uint16,uint16,uint8,uint8,string)[])"(
+    "typeRegister((bytes32,bytes32,uint16,uint8,uint8,string)[])"(
       requests: ITypeManagement.TypeRegisterRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -1343,16 +1048,6 @@ export interface ITypeManagement extends BaseContract {
 
     "typeUpdateRoleLimit((bytes32,uint16)[])"(
       requests: ITypeManagement.TypeUpdateRoleLimitRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    typeUpdateScopeLimit(
-      requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "typeUpdateScopeLimit((bytes32,uint16)[])"(
-      requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -1390,16 +1085,6 @@ export interface ITypeManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    typeDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "typeDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     typeGetInfo(
       typeId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1449,7 +1134,7 @@ export interface ITypeManagement extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "typeRegister((bytes32,bytes32,uint16,uint16,uint8,uint8,string)[])"(
+    "typeRegister((bytes32,bytes32,uint16,uint8,uint8,string)[])"(
       requests: ITypeManagement.TypeRegisterRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
@@ -1491,16 +1176,6 @@ export interface ITypeManagement extends BaseContract {
 
     "typeUpdateRoleLimit((bytes32,uint16)[])"(
       requests: ITypeManagement.TypeUpdateRoleLimitRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    typeUpdateScopeLimit(
-      requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "typeUpdateScopeLimit((bytes32,uint16)[])"(
-      requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

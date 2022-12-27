@@ -36,8 +36,6 @@ export type { TypeManager } from "./acl/agent/TypeManager";
 export { TypeManager__factory } from "./factories/acl/agent/TypeManager__factory";
 export type { IAccessControl } from "./acl/IAccessControl";
 export { IAccessControl__factory } from "./factories/acl/IAccessControl__factory";
-export type { IACLCommons } from "./acl/IACLCommons";
-export { IACLCommons__factory } from "./factories/acl/IACLCommons__factory";
 export type { IACLManager } from "./acl/IACLManager";
 export { IACLManager__factory } from "./factories/acl/IACLManager__factory";
 export type { IPolicyManagement } from "./acl/policy/IPolicyManagement";

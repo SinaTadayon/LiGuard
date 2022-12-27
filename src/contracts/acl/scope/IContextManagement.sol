@@ -36,7 +36,6 @@ interface IContextManagement is IACLCommons {
     address contractId;
     uint16 agentLimit;
     uint16 referredByAgent;
-    uint16 referredByPolicy;
     AgentType adminType;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
@@ -60,10 +59,7 @@ interface IContextManagement is IACLCommons {
 
   event ContextAgentLimitUpdated(address indexed sender, bytes32 indexed contextId, uint16 agentLimit);
 
-
   function contextRegister(ContextRegisterRequest[] calldata requests) external returns (bool);
-
-  function contextDeleteActivity(bytes32[] calldata requests) external returns (bool);
 
   function contextUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
 

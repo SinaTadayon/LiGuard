@@ -22,130 +22,6 @@ const _abi = [
       {
         indexed: true,
         internalType: "bytes32",
-        name: "agentId",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "policyId",
-        type: "bytes32",
-      },
-      {
-        indexed: false,
-        internalType: "enum IACLCommons.ActionType",
-        name: "action",
-        type: "uint8",
-      },
-    ],
-    name: "AgentReferredByPolicyUpdated",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "sender",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "agentId",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "scopeId",
-        type: "bytes32",
-      },
-      {
-        indexed: false,
-        internalType: "enum IACLCommons.ActionType",
-        name: "action",
-        type: "uint8",
-      },
-    ],
-    name: "AgentReferredByScopeUpdated",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "sender",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "scopeId",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "agentId",
-        type: "bytes32",
-      },
-      {
-        indexed: false,
-        internalType: "enum IACLCommons.ActionType",
-        name: "action",
-        type: "uint8",
-      },
-    ],
-    name: "ScopeReferredByAgentUpdated",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "sender",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "scopeId",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "policyId",
-        type: "bytes32",
-      },
-      {
-        indexed: false,
-        internalType: "enum IACLCommons.ActionType",
-        name: "action",
-        type: "uint8",
-      },
-    ],
-    name: "ScopeReferredByPolicyUpdated",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "sender",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
         name: "typeId",
         type: "bytes32",
       },
@@ -266,31 +142,6 @@ const _abi = [
     type: "event",
   },
   {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "sender",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "typeId",
-        type: "bytes32",
-      },
-      {
-        indexed: false,
-        internalType: "uint16",
-        name: "scopeLimit",
-        type: "uint16",
-      },
-    ],
-    name: "TypeScopeLimitUpdated",
-    type: "event",
-  },
-  {
     inputs: [
       {
         internalType: "bytes32",
@@ -355,25 +206,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bytes32[]",
-        name: "requests",
-        type: "bytes32[]",
-      },
-    ],
-    name: "typeDeleteActivity",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "bytes32",
         name: "typeId",
         type: "bytes32",
@@ -401,21 +233,6 @@ const _abi = [
           {
             internalType: "uint16",
             name: "roleTotal",
-            type: "uint16",
-          },
-          {
-            internalType: "uint16",
-            name: "scopeLimit",
-            type: "uint16",
-          },
-          {
-            internalType: "uint16",
-            name: "referredByScope",
-            type: "uint16",
-          },
-          {
-            internalType: "uint16",
-            name: "referredByPolicy",
             type: "uint16",
           },
           {
@@ -526,11 +343,6 @@ const _abi = [
           {
             internalType: "uint16",
             name: "roleLimit",
-            type: "uint16",
-          },
-          {
-            internalType: "uint16",
-            name: "scopeLimit",
             type: "uint16",
           },
           {
@@ -679,37 +491,6 @@ const _abi = [
       },
     ],
     name: "typeUpdateRoleLimit",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        components: [
-          {
-            internalType: "bytes32",
-            name: "agentId",
-            type: "bytes32",
-          },
-          {
-            internalType: "uint16",
-            name: "scopeLimit",
-            type: "uint16",
-          },
-        ],
-        internalType: "struct IACLCommons.AgentUpdateScopeLimitRequest[]",
-        name: "requests",
-        type: "tuple[]",
-      },
-    ],
-    name: "typeUpdateScopeLimit",
     outputs: [
       {
         internalType: "bool",

@@ -20,66 +20,10 @@ const _abi = [
         type: "address",
       },
       {
-        indexed: true,
-        internalType: "bytes32",
-        name: "agentId",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "policyId",
-        type: "bytes32",
-      },
-      {
         indexed: false,
-        internalType: "enum IACLCommons.ActionType",
-        name: "action",
-        type: "uint8",
-      },
-    ],
-    name: "AgentReferredByPolicyUpdated",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "sender",
-        type: "address",
-      },
-      {
-        indexed: true,
         internalType: "bytes32",
-        name: "agentId",
+        name: "globalId",
         type: "bytes32",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "scopeId",
-        type: "bytes32",
-      },
-      {
-        indexed: false,
-        internalType: "enum IACLCommons.ActionType",
-        name: "action",
-        type: "uint8",
-      },
-    ],
-    name: "AgentReferredByScopeUpdated",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "sender",
-        type: "address",
       },
       {
         indexed: false,
@@ -99,6 +43,12 @@ const _abi = [
         internalType: "address",
         name: "sender",
         type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "bytes32",
+        name: "globalId",
+        type: "bytes32",
       },
       {
         indexed: true,
@@ -127,6 +77,12 @@ const _abi = [
       },
       {
         indexed: false,
+        internalType: "bytes32",
+        name: "globalId",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
         internalType: "uint16",
         name: "agentLimit",
         type: "uint16",
@@ -143,6 +99,12 @@ const _abi = [
         internalType: "address",
         name: "sender",
         type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "bytes32",
+        name: "globalId",
+        type: "bytes32",
       },
       {
         indexed: false,
@@ -165,74 +127,18 @@ const _abi = [
       },
       {
         indexed: false,
+        internalType: "bytes32",
+        name: "globalId",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
         internalType: "uint16",
         name: "domainLimit",
         type: "uint16",
       },
     ],
     name: "GlobalDomainLimitUpdated",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "sender",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "scopeId",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "agentId",
-        type: "bytes32",
-      },
-      {
-        indexed: false,
-        internalType: "enum IACLCommons.ActionType",
-        name: "action",
-        type: "uint8",
-      },
-    ],
-    name: "ScopeReferredByAgentUpdated",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "sender",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "scopeId",
-        type: "bytes32",
-      },
-      {
-        indexed: true,
-        internalType: "bytes32",
-        name: "policyId",
-        type: "bytes32",
-      },
-      {
-        indexed: false,
-        internalType: "enum IACLCommons.ActionType",
-        name: "action",
-        type: "uint8",
-      },
-    ],
-    name: "ScopeReferredByPolicyUpdated",
     type: "event",
   },
   {
@@ -296,11 +202,6 @@ const _abi = [
           {
             internalType: "uint16",
             name: "referredByAgent",
-            type: "uint16",
-          },
-          {
-            internalType: "uint16",
-            name: "referredByPolicy",
             type: "uint16",
           },
           {

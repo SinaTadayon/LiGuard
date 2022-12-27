@@ -56,12 +56,12 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     
     // fetch scope type and scope id of sender
-    (ScopeType senderScopeType, bytes32 senderScopeId) = _doGetMemberScopeInfoFromType(_LIVELY_VERSE_SCOPE_MASTER_TYPE_ID, senderId);    
+    bytes32 senderScopeId = _doGetMemberScopeInfoFromType(_LIVELY_VERSE_SCOPE_MASTER_TYPE_ID, senderId);    
    
     for(uint i = 0; i < requests.length; i++) {
       bytes32 newDomainId = LACLUtils.generateId(requests[i].name);
       require(_data.scopes[newDomainId].stype == ScopeType.NONE, "Already Exists");
-      require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
+      require(requests[i].acstat > ActivityStatus.NONE, "Illegal Activity");
       require(requests[i].alstat > AlterabilityStatus.NONE, "Illegal Alterability");
 
       // check sender scopes
@@ -87,34 +87,13 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
       // checking requested domain admin 
       if(requests[i].adminId != bytes32(0)) {
         require(_data.agents[requests[i].adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
-        (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(requests[i].adminId);
+        bytes32 requestAdminScopeId = _doAgentGetScopeInfo(requests[i].adminId);
         require(requestAdminScopeId == _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Amind Scope");
         newDomain.bs.adminId = requests[i].adminId;
       } else {
         newDomain.bs.adminId = livelyGlobalEntity.bs.adminId;
       }
             
-      // // add reference of admin agent
-      // BaseAgent storage domainAdminAgent = _data.agents[newDomain.bs.adminId];
-      // require(domainAdminAgent.acstat > ActivityStatus.DELETED, "Admin Deleted");
-      // require(domainAdminAgent.scopeLimit > domainAdminAgent.referredByScope, "Illegal Agent ReferredByScope");
-      // domainAdminAgent.referredByScope += 1; 
-      // emit AgentReferredByScopeUpdated(
-      //   msg.sender, 
-      //   newDomain.bs.adminId,
-      //   newDomainId, 
-      //   ActionType.ADD
-      // );
-
-      // add reference of admin agent
-      _doUpdateAgentReferred(
-        _data.agents[newDomain.bs.adminId],
-        newDomain.bs.adminId,
-        newDomainId, 
-        msg.sender, 
-        ActionType.ADD
-      ); 
-
       emit DomainRegistered(
         msg.sender,
         newDomainId,
@@ -125,20 +104,15 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
     return true;
   }
  
-   function domainDeleteActivity(bytes32[] calldata requests) external returns (bool) {
-     revert ("Not Supported");
-    // bytes32 functionId = _accessPermission(IDomainManagement.domainDeleteActivity.selector);
-    // for(uint i = 0; i < requests.length; i++) {
-    //   _doDomainUpdateActivityStatus(requests[i], ActivityStatus.DELETED, functionId);
-    // }
-    // return true;
-  }
-
   function domainUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
    bytes32 functionId = _accessPermission(IDomainManagement.domainUpdateActivityStatus.selector);
+   bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {
-      require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
-      _doDomainUpdateActivityStatus(requests[i].id, requests[i].acstat, functionId);
+      DomainEntity storage domainEntity = _data.domainReadSlot(requests[i].id);
+      require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Domain Update");
+      require(_doCheckAdminAccess(domainEntity.bs.adminId, senderId, functionId), "Forbidden");
+      require(requests[i].acstat > ActivityStatus.NONE, "Illegal Activity");
+      emit DomainActivityUpdated(msg.sender, requests[i].id, requests[i].acstat);
     }
     return true;
   }
@@ -147,8 +121,10 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
     bytes32 functionId = _accessPermission(IDomainManagement.domainUpdateAlterabilityStatus.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     
-    for(uint i = 0; i < requests.length; i++) {      
-      DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, true);
+    for(uint i = 0; i < requests.length; i++) {
+      DomainEntity storage domainEntity = _data.domainReadSlot(requests[i].id);
+      require(domainEntity.bs.acstat > ActivityStatus.DISABLED, "Domain Disabled");
+      require(_doCheckAdminAccess(domainEntity.bs.adminId, senderId, functionId), "Forbidden");            
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       domainEntity.bs.alstat = requests[i].alstat;
       emit DomainAlterabilityUpdated(msg.sender, requests[i].id, requests[i].alstat);
@@ -161,56 +137,17 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     
     for(uint i = 0; i < requests.length; i++) {
-     DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, false); 
-
-       // update function admin Id
-      // BaseAgent storage domainAdminAgent = _data.agents[domainEntity.bs.adminId];
-      // require(domainAdminAgent.referredByScope > 0, "Illegal Admin ReferredByScope");
-      // unchecked { domainAdminAgent.referredByScope -= 1; }
-      // emit AgentReferredByScopeUpdated(
-      //   msg.sender, 
-      //   domainEntity.bs.adminId, 
-      //   requests[i].id,        
-      //   ActionType.REMOVE
-      // );
-      // add reference of admin agent
-      _doUpdateAgentReferred(
-        _data.agents[domainEntity.bs.adminId],
-        domainEntity.bs.adminId,
-        requests[i].id, 
-        msg.sender, 
-        ActionType.REMOVE
-      ); 
-
+     DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId); 
+   
      // checking requested domain admin 
       if(requests[i].adminId != bytes32(0)) {
         require(_data.agents[requests[i].adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
-        (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(requests[i].adminId);
+        bytes32 requestAdminScopeId = _doAgentGetScopeInfo(requests[i].adminId);
         require(requestAdminScopeId == _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Amind Scope");
         domainEntity.bs.adminId = requests[i].adminId;
       } else {
         domainEntity.bs.adminId = _data.scopes[_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID].adminId;
       }
-
-      // checking new admin Id 
-      // BaseAgent storage newBaseAgent = _data.agents[requests[i].adminId];
-      // require(newBaseAgent.acstat > ActivityStatus.DELETED, "Admin Deleted");
-      // require(newBaseAgent.scopeLimit > newBaseAgent.referredByScope, "Illegal Agent ReferredByScope");
-      // newBaseAgent.referredByScope += 1;
-      // emit AgentReferredByScopeUpdated(
-      //   msg.sender, 
-      //   requests[i].adminId, 
-      //   requests[i].id,  
-      //   ActionType.ADD
-      // );  
-      // add reference of admin agent
-      _doUpdateAgentReferred(
-        _data.agents[requests[i].adminId],
-        requests[i].adminId,
-        requests[i].id, 
-        msg.sender, 
-        ActionType.ADD
-      ); 
 
       emit DomainAdminUpdated(msg.sender, requests[i].id, requests[i].adminId);
     }
@@ -222,7 +159,7 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender); 
 
     for (uint256 i = 0; i < requests.length; i++) {
-      DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(requests[i].domainId, senderId, functionId, false); 
+      DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(requests[i].domainId, senderId, functionId); 
       domainEntity.realmLimit = requests[i].realmLimit;      
       emit DomainRealmLimitUpdated(msg.sender, requests[i].domainId, requests[i].realmLimit);
     }
@@ -234,7 +171,7 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender); 
 
     for (uint256 i = 0; i < requests.length; i++) {
-      DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(requests[i].scopeId, senderId, functionId, false); 
+      DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(requests[i].scopeId, senderId, functionId); 
       domainEntity.bs.agentLimit = requests[i].agentLimit;
       emit DomainAgentLimitUpdated(msg.sender, requests[i].scopeId, requests[i].agentLimit);
     }
@@ -324,7 +261,6 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
         realmLimit: 0,
         agentLimit: 0,
         referredByAgent: 0,
-        referredByPolicy: 0,
         adminType: AgentType.NONE,
         acstat: ActivityStatus.NONE, 
         alstate: AlterabilityStatus.NONE,
@@ -337,37 +273,11 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
       realmLimit: de.realmLimit,
       agentLimit: de.bs.agentLimit,
       referredByAgent: de.bs.referredByAgent,
-      referredByPolicy: de.bs.referredByPolicy,
       adminType: _data.agents[de.bs.adminId].atype,  
       acstat: de.bs.acstat,
       alstate: de.bs.alstat,
       name: de.name
     });
-  }
-
-  function _doDomainUpdateActivityStatus(bytes32 domainId, ActivityStatus status, bytes32 functionId) internal returns (bool) {
-
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
-    DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(domainId, senderId, functionId, false); 
-
-    if(status == ActivityStatus.DELETED) {    
-      // BaseAgent storage domainAdminAgent = _data.agents[domainEntity.bs.adminId];
-      // require(domainAdminAgent.referredByScope > 0, "Illegal Admin ReferredByScope");
-      // unchecked { domainAdminAgent.referredByScope -= 1; }
-      // emit AgentReferredByScopeUpdated(
-      //   msg.sender, 
-      //   domainEntity.bs.adminId,
-      //   functionId,      
-      //   ActionType.REMOVE
-      // );
-       _doUpdateAgentReferred(
-        _data.agents[domainEntity.bs.adminId],
-        domainEntity.bs.adminId,
-        domainId, 
-        msg.sender, 
-        ActionType.REMOVE
-      ); 
-    }
   }
 
   function _doCheckAdminAccess(bytes32 adminId, bytes32 memberId, bytes32 functionId) internal view returns (bool) {
@@ -408,20 +318,18 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
     return false;   
   } 
 
-  function _doAgentGetScopeInfo(bytes32 agentId) internal view returns (ScopeType, bytes32) {
+  function _doAgentGetScopeInfo(bytes32 agentId) internal view returns (bytes32) {
     AgentType atype = _data.agents[agentId].atype;
     if (atype == AgentType.ROLE) {
       RoleEntity storage roleEntity = _data.roleReadSlot(agentId);
-      BaseScope storage baseScope = _data.scopes[roleEntity.scopeId];
-      return (baseScope.stype, roleEntity.scopeId);
+      return  roleEntity.scopeId;
 
     } else if(atype == AgentType.TYPE) {
       TypeEntity storage typeEntity = _data.typeReadSlot(agentId);
-      BaseScope storage baseScope = _data.scopes[typeEntity.scopeId];
-      return (baseScope.stype, typeEntity.scopeId);
+      return typeEntity.scopeId;
     }
 
-    return (ScopeType.NONE, bytes32(0));  
+    return bytes32(0);  
   }
   
   function _accessPermission(bytes4 selector) internal view returns (bytes32) {
@@ -433,55 +341,18 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
     return functionId;
   }  
 
-  function _doGetEntityAndCheckAdminAccess(bytes32 domainId, bytes32 senderId, bytes32 functionId, bool isAlterable) internal view returns (DomainEntity storage) {
+  function _doGetEntityAndCheckAdminAccess(bytes32 domainId, bytes32 senderId, bytes32 functionId) internal view returns (DomainEntity storage) {
     DomainEntity storage domainEntity = _data.domainReadSlot(domainId);
-    require(domainEntity.bs.acstat > ActivityStatus.DELETED, "Domain Deleted");
-
-    if(!isAlterable) {
-      require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Domain Update");
-    }
-
-    // check access admin role
+    require(domainEntity.bs.acstat > ActivityStatus.DISABLED, "Domain Disabled");
+    require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Domain Update");
     require(_doCheckAdminAccess(domainEntity.bs.adminId, senderId, functionId), "Forbidden");
     return domainEntity;
   }
 
-  function _doGetMemberScopeInfoFromType(bytes32 typeId, bytes32 senderId) internal view returns (ScopeType, bytes32) {
+  function _doGetMemberScopeInfoFromType(bytes32 typeId, bytes32 senderId) internal view returns (bytes32) {
     TypeEntity storage agentAdminType = _data.typeReadSlot(typeId);
     bytes32 memberRoleId = agentAdminType.members[senderId];
     RoleEntity storage memberAgentRole =  _data.roleReadSlot(memberRoleId);
-    return (_data.scopes[memberAgentRole.scopeId].stype, memberAgentRole.scopeId);
+    return memberAgentRole.scopeId;
   } 
-
-  function _doUpdateAgentReferred(
-      BaseAgent storage agent,
-      bytes32 agentId, 
-      bytes32 scopeId, 
-      address signerId, 
-      ActionType action
-  ) internal {
-    if (action == ActionType.ADD) {
-      require(agent.atype != AgentType.NONE, "Agent Not Found");
-      require(agent.atype > AgentType.MEMBER, "Illegal AgentType");
-      require(agent.acstat > ActivityStatus.DELETED, "Agent Deleted");
-      require(agent.scopeLimit > agent.referredByScope, "Illegal Referred");
-      agent.referredByScope += 1; 
-      emit AgentReferredByScopeUpdated(
-        signerId, 
-        agentId,
-        scopeId, 
-        ActionType.ADD
-      );
-    } else if (action == ActionType.REMOVE) {
-      require(agent.referredByScope > 0, "Illegal Referred");
-      unchecked { agent.referredByScope -= 1; }
-      emit AgentReferredByScopeUpdated(
-        signerId, 
-        agentId,
-        scopeId, 
-        ActionType.REMOVE
-      );
-    }
-  }
-  
 }

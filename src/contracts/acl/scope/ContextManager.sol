@@ -135,10 +135,15 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
   }
 
   function contextUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IContextManagement.contextUpdateActivityStatus.selector);   
+    bytes32 functionId = _accessPermission(IContextManagement.contextUpdateActivityStatus.selector);
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
     for(uint i = 0; i < requests.length; i++) {
-      require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
-      _doContextUpdateActivityStatus(requests[i].id, requests[i].acstat, functionId);
+      ContextEntity storage contextEntity = _data.contextReadSlot(requests[i].id);      
+      require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
+      require(_doCheckAdminAccess(contextEntity.bs.adminId, senderId, functionId), "Forbidden");
+      require(requests[i].acstat > ActivityStatus.NONE, "Illegal Activity");    
+      contextEntity.bs.acstat = requests[i].acstat;
+      emit ContextActivityUpdated(msg.sender, requests[i].id, requests[i].acstat);
     }
     return true;
   }
@@ -147,8 +152,9 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     bytes32 functionId = _accessPermission(IContextManagement.contextUpdateAlterabilityStatus.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
     for(uint i = 0; i < requests.length; i++) {      
-      ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, true);
-      
+      ContextEntity storage contextEntity = _data.contextReadSlot(requests[i].id);
+      require(contextEntity.bs.acstat > ActivityStatus.DISABLED, "Context Disabled");
+      require(_doCheckAdminAccess(contextEntity.bs.adminId, senderId, functionId), "Forbidden");      
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       contextEntity.bs.alstat = requests[i].alstat;
       emit ContextAlterabilityUpdated(msg.sender, requests[i].id, requests[i].alstat);
@@ -160,27 +166,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     bytes32 functionId = _accessPermission(IContextManagement.contextUpdateAdmin.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
     for(uint i = 0; i < requests.length; i++) {
-      ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, false);
-
-      // update function admin Id
-      _doUpdateAgentReferred(
-        _data.agents[contextEntity.bs.adminId],
-        contextEntity.bs.adminId,
-        requests[i].id, 
-        msg.sender, 
-        ActionType.REMOVE
-      ); 
-
-      // BaseAgent storage contextBaseAgent = _data.agents[contextEntity.bs.adminId];
-      // require(contextBaseAgent.referredByScope > 0, "Illegal Admin ReferredByScope");
-      // unchecked { contextBaseAgent.referredByScope -= 1; }
-      // emit AgentReferredByScopeUpdated(
-      //   msg.sender, 
-      //   contextEntity.bs.adminId, 
-      //   requests[i].id, 
-      //   ActionType.REMOVE
-      // );
-
+      ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
       
       // checking requested type admin 
       // contextEntity.bs.adminId = _getContextAdmin(contextEntity.realmId, requests[i].id, _data.scopes[contextEntity.realmId].adminId, requests[i].adminId);
@@ -200,26 +186,6 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
         contextEntity.bs.adminId = _data.scopes[contextEntity.realmId].adminId;
       }
 
-      _doUpdateAgentReferred(
-        _data.agents[requests[i].adminId],
-        requests[i].adminId,
-        requests[i].id, 
-        msg.sender, 
-        ActionType.ADD
-      ); 
-
-      // BaseAgent storage newContextAdminAgent = _data.agents[requests[i].adminId];
-      // require(newContextAdminAgent.atype != AgentType.NONE, "Admin Not Found");
-      // require(newContextAdminAgent.acstat > ActivityStatus.DELETED, "Agent Deleted");
-      // require(newContextAdminAgent.scopeLimit > newContextAdminAgent.referredByScope, "Illegal Agent ReferredByScope");
-      // newContextAdminAgent.referredByScope += 1;
-      // emit AgentReferredByScopeUpdated(
-      //   msg.sender, 
-      //   requests[i].adminId, 
-      //   requests[i].id, 
-      //   ActionType.ADD
-      // );  
-
       emit ContextAdminUpdated(msg.sender, requests[i].id, requests[i].adminId);
     }
     return true;
@@ -229,7 +195,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     bytes32 functionId = _accessPermission(IContextManagement.contextUpdateAdmin.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
     for (uint256 i = 0; i < requests.length; i++) {
-      ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(requests[i].scopeId, senderId, functionId, false);
+      ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(requests[i].scopeId, senderId, functionId);
 
       contextEntity.bs.agentLimit = requests[i].agentLimit;
       emit ContextAgentLimitUpdated(msg.sender, requests[i].scopeId, requests[i].agentLimit);
@@ -347,31 +313,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
   }
 
   function _doContextUpdateActivityStatus(bytes32 contextId, ActivityStatus status, bytes32 functionId) internal returns (bool) {
-
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);       
-    ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(contextId, senderId, functionId, false);
-
-    // if(status == ActivityStatus.DELETED) {          
-    //   _doUpdateAgentReferred(
-    //     _data.agents[contextEntity.bs.adminId],
-    //     contextEntity.bs.adminId,
-    //     contextId, 
-    //     msg.sender, 
-    //     ActionType.REMOVE
-    //   ); 
-    //   // BaseAgent storage functionAdmin = _data.agents[contextEntity.bs.adminId];
-    //   // require(functionAdmin.referredByScope > 0, "Illegal Admin ReferredByScope");
-    //   // unchecked { functionAdmin.referredByScope -= 1; }
-    //   // emit AgentReferredByScopeUpdated(
-    //   //   msg.sender, 
-    //   //   contextEntity.bs.adminId,
-    //   //   functionId, 
-    //   //   ActionType.REMOVE
-    //   // );
-    // }
-
-    contextEntity.bs.acstat = status;
-    emit ContextActivityUpdated(msg.sender, functionId, status);
+    
     return true;
   }
 
@@ -392,7 +334,6 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
         contractId: address(0),
         agentLimit: 0,
         referredByAgent: 0,
-        referredByPolicy: 0,
         adminType: AgentType.NONE,
         acstat: ActivityStatus.NONE,
         alstat: AlterabilityStatus.NONE
@@ -407,42 +348,10 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
       contractId: ce.contractId,
       agentLimit: ce.bs.agentLimit,
       referredByAgent: ce.bs.referredByAgent,
-      referredByPolicy: ce.bs.referredByPolicy,
       adminType: _data.agents[ce.bs.adminId].atype,
       acstat: ce.bs.acstat,
       alstat: ce.bs.alstat
     });
-  }
-
-  function _doUpdateAgentReferred(
-      BaseAgent storage agent,
-      bytes32 agentId, 
-      bytes32 scopeId, 
-      address signerId, 
-      ActionType action
-  ) internal {
-    if (action == ActionType.ADD) {
-      require(agent.atype != AgentType.NONE, "Agent Not Found");
-      require(agent.atype > AgentType.MEMBER, "Illegal AgentType");
-      require(agent.acstat > ActivityStatus.DELETED, "Agent Deleted");
-      require(agent.scopeLimit > agent.referredByScope, "Illegal Referred");
-      agent.referredByScope += 1; 
-      emit AgentReferredByScopeUpdated(
-        signerId, 
-        agentId,
-        scopeId, 
-        ActionType.ADD
-      );
-    } else if (action == ActionType.REMOVE) {
-      require(agent.referredByScope > 0, "Illegal Referred");
-      unchecked { agent.referredByScope -= 1; }
-      emit AgentReferredByScopeUpdated(
-        signerId, 
-        agentId,
-        scopeId, 
-        ActionType.REMOVE
-      );
-    }
   }
 
   function _accessPermission(bytes4 selector) internal view returns (bytes32) {
@@ -454,15 +363,10 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     return functionId;
   }
 
-  function _doGetEntityAndCheckAdminAccess(bytes32 contextId, bytes32 senderId, bytes32 functionId, bool isAlterable) internal view returns (ContextEntity storage) {
+  function _doGetEntityAndCheckAdminAccess(bytes32 contextId, bytes32 senderId, bytes32 functionId) internal view returns (ContextEntity storage) {
     ContextEntity storage contextEntity = _data.contextReadSlot(contextId);
-    require(contextEntity.bs.acstat > ActivityStatus.DELETED, "Context Deleted");
-
-    if(!isAlterable) {
-      require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
-    }
-
-    // check access admin role
+    require(contextEntity.bs.acstat > ActivityStatus.DISABLED, "Context Disabled");
+    require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
     require(_doCheckAdminAccess(contextEntity.bs.adminId, senderId, functionId), "Forbidden");
     return contextEntity;
   }
@@ -556,7 +460,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
 
       // check realm 
       RealmEntity storage realmEntity = _data.realmReadSlot(request.realmId);
-      require(realmEntity.bs.acstat > ActivityStatus.DELETED, "Realm Deleted");
+      require(realmEntity.bs.acstat > ActivityStatus.DISABLED, "Realm Disabled");
       require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Realm Update");
       require(realmEntity.contextLimit > realmEntity.contexts.length(), "Illegal Register");
 
@@ -578,15 +482,6 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
       newContext.bs.alstat = request.alstat;
       newContext.bs.agentLimit = request.agentLimit;
       newContext.bs.adminId = _getContextAdmin(request.realmId, newContextId, realmEntity.bs.adminId, request.adminId);
-    
-      // update referred of admin agent of context
-      _doUpdateAgentReferred(
-        _data.agents[newContext.bs.adminId],
-        newContext.bs.adminId,
-        newContextId, 
-        signer,
-        ActionType.ADD
-      ); 
     }
     
     emit ContextRegistered(      

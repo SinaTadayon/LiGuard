@@ -20,21 +20,20 @@ interface IGlobalManagement is IACLCommons {
     uint16 domainLimit;
     uint16 agentLimit;
     uint16 referredByAgent;
-    uint16 referredByPolicy;
     AgentType adminType;
     ActivityStatus acstat;
     AlterabilityStatus alstate;
   }
     
-  event GlobalAdminUpdated(address indexed sender, bytes32 indexed adminId, AgentType adminType);
+  event GlobalAdminUpdated(address indexed sender, bytes32 globalId, bytes32 indexed adminId, AgentType adminType);
 
-  event GlobalDomainLimitUpdated(address indexed sender, uint16 domainLimit);
+  event GlobalDomainLimitUpdated(address indexed sender, bytes32 globalId, uint16 domainLimit);
 
-  event GlobalActivityUpdated(address indexed sender, ActivityStatus acstat);
+  event GlobalActivityUpdated(address indexed sender, bytes32 globalId, ActivityStatus acstat);
 
-  event GlobalAlterabilityUpdated(address indexed sender, AlterabilityStatus alstat);
+  event GlobalAlterabilityUpdated(address indexed sender, bytes32 globalId, AlterabilityStatus alstat);
 
-  event GlobalAgentLimitUpdated(address indexed sender, uint16 agentLimit);
+  event GlobalAgentLimitUpdated(address indexed sender, bytes32 globalId, uint16 agentLimit);
 
   /**
    * global funtions must call by members of ADMIN TYPE  

@@ -174,7 +174,6 @@ export interface IPolicyManagementInterface extends utils.Interface {
     "policyCheckId(bytes32)": FunctionFragment;
     "policyCheckName(string)": FunctionFragment;
     "policyCheckRoleAccess(bytes32,bytes32)": FunctionFragment;
-    "policyDeleteActivity(bytes32[])": FunctionFragment;
     "policyGetInfo(bytes32)": FunctionFragment;
     "policyGetInfoByRole(bytes32)": FunctionFragment;
     "policyGetRoles(bytes32)": FunctionFragment;
@@ -202,8 +201,6 @@ export interface IPolicyManagementInterface extends utils.Interface {
       | "policyCheckName(string)"
       | "policyCheckRoleAccess"
       | "policyCheckRoleAccess(bytes32,bytes32)"
-      | "policyDeleteActivity"
-      | "policyDeleteActivity(bytes32[])"
       | "policyGetInfo"
       | "policyGetInfo(bytes32)"
       | "policyGetInfoByRole"
@@ -275,14 +272,6 @@ export interface IPolicyManagementInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "policyCheckRoleAccess(bytes32,bytes32)",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "policyDeleteActivity",
-    values: [PromiseOrValue<BytesLike>[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "policyDeleteActivity(bytes32[])",
-    values: [PromiseOrValue<BytesLike>[]]
   ): string;
   encodeFunctionData(
     functionFragment: "policyGetInfo",
@@ -419,14 +408,6 @@ export interface IPolicyManagementInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "policyCheckRoleAccess(bytes32,bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "policyDeleteActivity",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "policyDeleteActivity(bytes32[])",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -519,8 +500,6 @@ export interface IPolicyManagementInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "AgentReferredByPolicyUpdated(address,bytes32,bytes32,uint8)": EventFragment;
-    "AgentReferredByScopeUpdated(address,bytes32,bytes32,uint8)": EventFragment;
     "PolicyActivityUpdated(address,bytes32,uint8)": EventFragment;
     "PolicyAdminUpdated(address,bytes32,bytes32)": EventFragment;
     "PolicyAlterabilityUpdated(address,bytes32,uint8)": EventFragment;
@@ -529,22 +508,8 @@ export interface IPolicyManagementInterface extends utils.Interface {
     "PolicyRoleAdded(address,bytes32,bytes32)": EventFragment;
     "PolicyRoleLimitUpdated(address,bytes32,uint32)": EventFragment;
     "PolicyRoleRemoved(address,bytes32,bytes32)": EventFragment;
-    "ScopeReferredByAgentUpdated(address,bytes32,bytes32,uint8)": EventFragment;
-    "ScopeReferredByPolicyUpdated(address,bytes32,bytes32,uint8)": EventFragment;
   };
 
-  getEvent(
-    nameOrSignatureOrTopic: "AgentReferredByPolicyUpdated"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "AgentReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "AgentReferredByScopeUpdated"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "AgentReferredByScopeUpdated(address,bytes32,bytes32,uint8)"
-  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PolicyActivityUpdated"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "PolicyActivityUpdated(address,bytes32,uint8)"
@@ -577,47 +542,7 @@ export interface IPolicyManagementInterface extends utils.Interface {
   getEvent(
     nameOrSignatureOrTopic: "PolicyRoleRemoved(address,bytes32,bytes32)"
   ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ScopeReferredByAgentUpdated"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ScopeReferredByAgentUpdated(address,bytes32,bytes32,uint8)"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ScopeReferredByPolicyUpdated"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ScopeReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"
-  ): EventFragment;
 }
-
-export interface AgentReferredByPolicyUpdatedEventObject {
-  sender: string;
-  agentId: string;
-  policyId: string;
-  action: number;
-}
-export type AgentReferredByPolicyUpdatedEvent = TypedEvent<
-  [string, string, string, number],
-  AgentReferredByPolicyUpdatedEventObject
->;
-
-export type AgentReferredByPolicyUpdatedEventFilter =
-  TypedEventFilter<AgentReferredByPolicyUpdatedEvent>;
-
-export interface AgentReferredByScopeUpdatedEventObject {
-  sender: string;
-  agentId: string;
-  scopeId: string;
-  action: number;
-}
-export type AgentReferredByScopeUpdatedEvent = TypedEvent<
-  [string, string, string, number],
-  AgentReferredByScopeUpdatedEventObject
->;
-
-export type AgentReferredByScopeUpdatedEventFilter =
-  TypedEventFilter<AgentReferredByScopeUpdatedEvent>;
 
 export interface PolicyActivityUpdatedEventObject {
   sender: string;
@@ -725,34 +650,6 @@ export type PolicyRoleRemovedEvent = TypedEvent<
 export type PolicyRoleRemovedEventFilter =
   TypedEventFilter<PolicyRoleRemovedEvent>;
 
-export interface ScopeReferredByAgentUpdatedEventObject {
-  sender: string;
-  scopeId: string;
-  agentId: string;
-  action: number;
-}
-export type ScopeReferredByAgentUpdatedEvent = TypedEvent<
-  [string, string, string, number],
-  ScopeReferredByAgentUpdatedEventObject
->;
-
-export type ScopeReferredByAgentUpdatedEventFilter =
-  TypedEventFilter<ScopeReferredByAgentUpdatedEvent>;
-
-export interface ScopeReferredByPolicyUpdatedEventObject {
-  sender: string;
-  scopeId: string;
-  policyId: string;
-  action: number;
-}
-export type ScopeReferredByPolicyUpdatedEvent = TypedEvent<
-  [string, string, string, number],
-  ScopeReferredByPolicyUpdatedEventObject
->;
-
-export type ScopeReferredByPolicyUpdatedEventFilter =
-  TypedEventFilter<ScopeReferredByPolicyUpdatedEvent>;
-
 export interface IPolicyManagement extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
@@ -845,16 +742,6 @@ export interface IPolicyManagement extends BaseContract {
       functionId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
-
-    policyDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "policyDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
 
     policyGetInfo(
       policyId: PromiseOrValue<BytesLike>,
@@ -1033,16 +920,6 @@ export interface IPolicyManagement extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  policyDeleteActivity(
-    requests: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "policyDeleteActivity(bytes32[])"(
-    requests: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   policyGetInfo(
     policyId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
@@ -1220,16 +1097,6 @@ export interface IPolicyManagement extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    policyDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "policyDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     policyGetInfo(
       policyId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1342,32 +1209,6 @@ export interface IPolicyManagement extends BaseContract {
   };
 
   filters: {
-    "AgentReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"(
-      sender?: PromiseOrValue<string> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      policyId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): AgentReferredByPolicyUpdatedEventFilter;
-    AgentReferredByPolicyUpdated(
-      sender?: PromiseOrValue<string> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      policyId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): AgentReferredByPolicyUpdatedEventFilter;
-
-    "AgentReferredByScopeUpdated(address,bytes32,bytes32,uint8)"(
-      sender?: PromiseOrValue<string> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): AgentReferredByScopeUpdatedEventFilter;
-    AgentReferredByScopeUpdated(
-      sender?: PromiseOrValue<string> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): AgentReferredByScopeUpdatedEventFilter;
-
     "PolicyActivityUpdated(address,bytes32,uint8)"(
       sender?: PromiseOrValue<string> | null,
       policyId?: PromiseOrValue<BytesLike> | null,
@@ -1461,32 +1302,6 @@ export interface IPolicyManagement extends BaseContract {
       policyId?: PromiseOrValue<BytesLike> | null,
       roleId?: PromiseOrValue<BytesLike> | null
     ): PolicyRoleRemovedEventFilter;
-
-    "ScopeReferredByAgentUpdated(address,bytes32,bytes32,uint8)"(
-      sender?: PromiseOrValue<string> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): ScopeReferredByAgentUpdatedEventFilter;
-    ScopeReferredByAgentUpdated(
-      sender?: PromiseOrValue<string> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): ScopeReferredByAgentUpdatedEventFilter;
-
-    "ScopeReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"(
-      sender?: PromiseOrValue<string> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      policyId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): ScopeReferredByPolicyUpdatedEventFilter;
-    ScopeReferredByPolicyUpdated(
-      sender?: PromiseOrValue<string> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      policyId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): ScopeReferredByPolicyUpdatedEventFilter;
   };
 
   estimateGas: {
@@ -1554,16 +1369,6 @@ export interface IPolicyManagement extends BaseContract {
       roleId: PromiseOrValue<BytesLike>,
       functionId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    policyDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "policyDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     policyGetInfo(
@@ -1742,16 +1547,6 @@ export interface IPolicyManagement extends BaseContract {
       roleId: PromiseOrValue<BytesLike>,
       functionId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    policyDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "policyDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     policyGetInfo(

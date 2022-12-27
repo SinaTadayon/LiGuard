@@ -12,6 +12,5 @@ export type { ACLManagerProxy } from "./ACLManagerProxy";
 export type { ACLProxy } from "./ACLProxy";
 export type { ACLStorage } from "./ACLStorage";
 export type { AccessControl } from "./AccessControl";
-export type { IACLCommons } from "./IACLCommons";
 export type { IACLManager } from "./IACLManager";
 export type { IAccessControl } from "./IAccessControl";

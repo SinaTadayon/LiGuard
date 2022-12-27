@@ -70,9 +70,6 @@ export declare namespace IRoleManagement {
     adminId: PromiseOrValue<BytesLike>;
     memberLimit: PromiseOrValue<BigNumberish>;
     memberTotal: PromiseOrValue<BigNumberish>;
-    scopeLimit: PromiseOrValue<BigNumberish>;
-    referredByScope: PromiseOrValue<BigNumberish>;
-    referredByPolicy: PromiseOrValue<BigNumberish>;
     acstat: PromiseOrValue<BigNumberish>;
     alstat: PromiseOrValue<BigNumberish>;
     name: PromiseOrValue<string>;
@@ -86,9 +83,6 @@ export declare namespace IRoleManagement {
     number,
     number,
     number,
-    number,
-    number,
-    number,
     string
   ] & {
     scopeId: string;
@@ -96,9 +90,6 @@ export declare namespace IRoleManagement {
     adminId: string;
     memberLimit: number;
     memberTotal: number;
-    scopeLimit: number;
-    referredByScope: number;
-    referredByPolicy: number;
     acstat: number;
     alstat: number;
     name: string;
@@ -119,7 +110,6 @@ export declare namespace IRoleManagement {
     scopeId: PromiseOrValue<BytesLike>;
     typeId: PromiseOrValue<BytesLike>;
     memberLimit: PromiseOrValue<BigNumberish>;
-    scopeLimit: PromiseOrValue<BigNumberish>;
     acstat: PromiseOrValue<BigNumberish>;
     alstat: PromiseOrValue<BigNumberish>;
     name: PromiseOrValue<string>;
@@ -132,14 +122,12 @@ export declare namespace IRoleManagement {
     number,
     number,
     number,
-    number,
     string
   ] & {
     adminId: string;
     scopeId: string;
     typeId: string;
     memberLimit: number;
-    scopeLimit: number;
     acstat: number;
     alstat: number;
     name: string;
@@ -196,16 +184,6 @@ export declare namespace IACLCommons {
     id: string;
     alstat: number;
   };
-
-  export type AgentUpdateScopeLimitRequestStruct = {
-    agentId: PromiseOrValue<BytesLike>;
-    scopeLimit: PromiseOrValue<BigNumberish>;
-  };
-
-  export type AgentUpdateScopeLimitRequestStructOutput = [string, number] & {
-    agentId: string;
-    scopeLimit: number;
-  };
 }
 
 export interface RoleManagerInterface extends utils.Interface {
@@ -226,17 +204,15 @@ export interface RoleManagerInterface extends utils.Interface {
     "roleCheckAdmin(bytes32,address)": FunctionFragment;
     "roleCheckId(bytes32)": FunctionFragment;
     "roleCheckName(string)": FunctionFragment;
-    "roleDeleteActivity(bytes32[])": FunctionFragment;
     "roleGetInfo(bytes32)": FunctionFragment;
     "roleGrantMembers((bytes32,bytes32[])[])": FunctionFragment;
     "roleHasAccount(bytes32,address)": FunctionFragment;
-    "roleRegister((bytes32,bytes32,bytes32,uint32,uint16,uint8,uint8,string)[])": FunctionFragment;
+    "roleRegister((bytes32,bytes32,bytes32,uint32,uint8,uint8,string)[])": FunctionFragment;
     "roleRevokeMembers((bytes32,bytes32[])[])": FunctionFragment;
     "roleUpdateActivityStatus((bytes32,uint8)[])": FunctionFragment;
     "roleUpdateAdmin((bytes32,bytes32)[])": FunctionFragment;
     "roleUpdateAlterabilityStatus((bytes32,uint8)[])": FunctionFragment;
     "roleUpdateMemberLimit((bytes32,uint32)[])": FunctionFragment;
-    "roleUpdateScopeLimit((bytes32,uint16)[])": FunctionFragment;
     "safeModeStatus()": FunctionFragment;
     "setAccessControlManager(address)": FunctionFragment;
     "setLocalAdmin(address)": FunctionFragment;
@@ -283,8 +259,6 @@ export interface RoleManagerInterface extends utils.Interface {
       | "roleCheckId(bytes32)"
       | "roleCheckName"
       | "roleCheckName(string)"
-      | "roleDeleteActivity"
-      | "roleDeleteActivity(bytes32[])"
       | "roleGetInfo"
       | "roleGetInfo(bytes32)"
       | "roleGrantMembers"
@@ -292,7 +266,7 @@ export interface RoleManagerInterface extends utils.Interface {
       | "roleHasAccount"
       | "roleHasAccount(bytes32,address)"
       | "roleRegister"
-      | "roleRegister((bytes32,bytes32,bytes32,uint32,uint16,uint8,uint8,string)[])"
+      | "roleRegister((bytes32,bytes32,bytes32,uint32,uint8,uint8,string)[])"
       | "roleRevokeMembers"
       | "roleRevokeMembers((bytes32,bytes32[])[])"
       | "roleUpdateActivityStatus"
@@ -303,8 +277,6 @@ export interface RoleManagerInterface extends utils.Interface {
       | "roleUpdateAlterabilityStatus((bytes32,uint8)[])"
       | "roleUpdateMemberLimit"
       | "roleUpdateMemberLimit((bytes32,uint32)[])"
-      | "roleUpdateScopeLimit"
-      | "roleUpdateScopeLimit((bytes32,uint16)[])"
       | "safeModeStatus"
       | "safeModeStatus()"
       | "setAccessControlManager"
@@ -458,14 +430,6 @@ export interface RoleManagerInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "roleDeleteActivity",
-    values: [PromiseOrValue<BytesLike>[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "roleDeleteActivity(bytes32[])",
-    values: [PromiseOrValue<BytesLike>[]]
-  ): string;
-  encodeFunctionData(
     functionFragment: "roleGetInfo",
     values: [PromiseOrValue<BytesLike>]
   ): string;
@@ -494,7 +458,7 @@ export interface RoleManagerInterface extends utils.Interface {
     values: [IRoleManagement.RoleRegisterRequestStruct[]]
   ): string;
   encodeFunctionData(
-    functionFragment: "roleRegister((bytes32,bytes32,bytes32,uint32,uint16,uint8,uint8,string)[])",
+    functionFragment: "roleRegister((bytes32,bytes32,bytes32,uint32,uint8,uint8,string)[])",
     values: [IRoleManagement.RoleRegisterRequestStruct[]]
   ): string;
   encodeFunctionData(
@@ -536,14 +500,6 @@ export interface RoleManagerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "roleUpdateMemberLimit((bytes32,uint32)[])",
     values: [IRoleManagement.RoleUpdateMemberLimitRequestStruct[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "roleUpdateScopeLimit",
-    values: [IACLCommons.AgentUpdateScopeLimitRequestStruct[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "roleUpdateScopeLimit((bytes32,uint16)[])",
-    values: [IACLCommons.AgentUpdateScopeLimitRequestStruct[]]
   ): string;
   encodeFunctionData(
     functionFragment: "safeModeStatus",
@@ -751,14 +707,6 @@ export interface RoleManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "roleDeleteActivity",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "roleDeleteActivity(bytes32[])",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "roleGetInfo",
     data: BytesLike
   ): Result;
@@ -787,7 +735,7 @@ export interface RoleManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "roleRegister((bytes32,bytes32,bytes32,uint32,uint16,uint8,uint8,string)[])",
+    functionFragment: "roleRegister((bytes32,bytes32,bytes32,uint32,uint8,uint8,string)[])",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -828,14 +776,6 @@ export interface RoleManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "roleUpdateMemberLimit((bytes32,uint32)[])",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "roleUpdateScopeLimit",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "roleUpdateScopeLimit((bytes32,uint16)[])",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -917,8 +857,6 @@ export interface RoleManagerInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "AgentReferredByPolicyUpdated(address,bytes32,bytes32,uint8)": EventFragment;
-    "AgentReferredByScopeUpdated(address,bytes32,bytes32,uint8)": EventFragment;
     "Initialized(address,address,address,string,string,uint16)": EventFragment;
     "ProxyAccessControlUpdated(address,address,address)": EventFragment;
     "ProxyLocalAdminUpdated(address,address,address)": EventFragment;
@@ -932,23 +870,8 @@ export interface RoleManagerInterface extends utils.Interface {
     "RoleMemberLimitUpdated(address,bytes32,uint32)": EventFragment;
     "RoleMemberRevoked(address,bytes32,bytes32,bytes32)": EventFragment;
     "RoleRegistered(address,bytes32,bytes32,bytes32,bytes32)": EventFragment;
-    "RoleScopeLimitUpdated(address,bytes32,uint16)": EventFragment;
-    "ScopeReferredByAgentUpdated(address,bytes32,bytes32,uint8)": EventFragment;
-    "ScopeReferredByPolicyUpdated(address,bytes32,bytes32,uint8)": EventFragment;
   };
 
-  getEvent(
-    nameOrSignatureOrTopic: "AgentReferredByPolicyUpdated"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "AgentReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "AgentReferredByScopeUpdated"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "AgentReferredByScopeUpdated(address,bytes32,bytes32,uint8)"
-  ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "Initialized(address,address,address,string,string,uint16)"
@@ -1001,51 +924,7 @@ export interface RoleManagerInterface extends utils.Interface {
   getEvent(
     nameOrSignatureOrTopic: "RoleRegistered(address,bytes32,bytes32,bytes32,bytes32)"
   ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "RoleScopeLimitUpdated"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "RoleScopeLimitUpdated(address,bytes32,uint16)"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ScopeReferredByAgentUpdated"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ScopeReferredByAgentUpdated(address,bytes32,bytes32,uint8)"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ScopeReferredByPolicyUpdated"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "ScopeReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"
-  ): EventFragment;
 }
-
-export interface AgentReferredByPolicyUpdatedEventObject {
-  sender: string;
-  agentId: string;
-  policyId: string;
-  action: number;
-}
-export type AgentReferredByPolicyUpdatedEvent = TypedEvent<
-  [string, string, string, number],
-  AgentReferredByPolicyUpdatedEventObject
->;
-
-export type AgentReferredByPolicyUpdatedEventFilter =
-  TypedEventFilter<AgentReferredByPolicyUpdatedEvent>;
-
-export interface AgentReferredByScopeUpdatedEventObject {
-  sender: string;
-  agentId: string;
-  scopeId: string;
-  action: number;
-}
-export type AgentReferredByScopeUpdatedEvent = TypedEvent<
-  [string, string, string, number],
-  AgentReferredByScopeUpdatedEventObject
->;
-
-export type AgentReferredByScopeUpdatedEventFilter =
-  TypedEventFilter<AgentReferredByScopeUpdatedEvent>;
 
 export interface InitializedEventObject {
   sender: string;
@@ -1220,47 +1099,6 @@ export type RoleRegisteredEvent = TypedEvent<
 
 export type RoleRegisteredEventFilter = TypedEventFilter<RoleRegisteredEvent>;
 
-export interface RoleScopeLimitUpdatedEventObject {
-  sender: string;
-  roleId: string;
-  scopeLimit: number;
-}
-export type RoleScopeLimitUpdatedEvent = TypedEvent<
-  [string, string, number],
-  RoleScopeLimitUpdatedEventObject
->;
-
-export type RoleScopeLimitUpdatedEventFilter =
-  TypedEventFilter<RoleScopeLimitUpdatedEvent>;
-
-export interface ScopeReferredByAgentUpdatedEventObject {
-  sender: string;
-  scopeId: string;
-  agentId: string;
-  action: number;
-}
-export type ScopeReferredByAgentUpdatedEvent = TypedEvent<
-  [string, string, string, number],
-  ScopeReferredByAgentUpdatedEventObject
->;
-
-export type ScopeReferredByAgentUpdatedEventFilter =
-  TypedEventFilter<ScopeReferredByAgentUpdatedEvent>;
-
-export interface ScopeReferredByPolicyUpdatedEventObject {
-  sender: string;
-  scopeId: string;
-  policyId: string;
-  action: number;
-}
-export type ScopeReferredByPolicyUpdatedEvent = TypedEvent<
-  [string, string, string, number],
-  ScopeReferredByPolicyUpdatedEventObject
->;
-
-export type ScopeReferredByPolicyUpdatedEventFilter =
-  TypedEventFilter<ScopeReferredByPolicyUpdatedEvent>;
-
 export interface RoleManager extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
@@ -1388,16 +1226,6 @@ export interface RoleManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    roleDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "roleDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     roleGetInfo(
       roleId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1435,7 +1263,7 @@ export interface RoleManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "roleRegister((bytes32,bytes32,bytes32,uint32,uint16,uint8,uint8,string)[])"(
+    "roleRegister((bytes32,bytes32,bytes32,uint32,uint8,uint8,string)[])"(
       requests: IRoleManagement.RoleRegisterRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -1487,16 +1315,6 @@ export interface RoleManager extends BaseContract {
 
     "roleUpdateMemberLimit((bytes32,uint32)[])"(
       requests: IRoleManagement.RoleUpdateMemberLimitRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    roleUpdateScopeLimit(
-      requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    "roleUpdateScopeLimit((bytes32,uint16)[])"(
-      requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -1683,16 +1501,6 @@ export interface RoleManager extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  roleDeleteActivity(
-    requests: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "roleDeleteActivity(bytes32[])"(
-    requests: PromiseOrValue<BytesLike>[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   roleGetInfo(
     roleId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
@@ -1730,7 +1538,7 @@ export interface RoleManager extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "roleRegister((bytes32,bytes32,bytes32,uint32,uint16,uint8,uint8,string)[])"(
+  "roleRegister((bytes32,bytes32,bytes32,uint32,uint8,uint8,string)[])"(
     requests: IRoleManagement.RoleRegisterRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -1782,16 +1590,6 @@ export interface RoleManager extends BaseContract {
 
   "roleUpdateMemberLimit((bytes32,uint32)[])"(
     requests: IRoleManagement.RoleUpdateMemberLimitRequestStruct[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  roleUpdateScopeLimit(
-    requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  "roleUpdateScopeLimit((bytes32,uint16)[])"(
-    requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1980,16 +1778,6 @@ export interface RoleManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    roleDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "roleDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
     roleGetInfo(
       roleId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -2027,7 +1815,7 @@ export interface RoleManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    "roleRegister((bytes32,bytes32,bytes32,uint32,uint16,uint8,uint8,string)[])"(
+    "roleRegister((bytes32,bytes32,bytes32,uint32,uint8,uint8,string)[])"(
       requests: IRoleManagement.RoleRegisterRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
@@ -2079,16 +1867,6 @@ export interface RoleManager extends BaseContract {
 
     "roleUpdateMemberLimit((bytes32,uint32)[])"(
       requests: IRoleManagement.RoleUpdateMemberLimitRequestStruct[],
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    roleUpdateScopeLimit(
-      requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "roleUpdateScopeLimit((bytes32,uint16)[])"(
-      requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -2180,32 +1958,6 @@ export interface RoleManager extends BaseContract {
   };
 
   filters: {
-    "AgentReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"(
-      sender?: PromiseOrValue<string> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      policyId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): AgentReferredByPolicyUpdatedEventFilter;
-    AgentReferredByPolicyUpdated(
-      sender?: PromiseOrValue<string> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      policyId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): AgentReferredByPolicyUpdatedEventFilter;
-
-    "AgentReferredByScopeUpdated(address,bytes32,bytes32,uint8)"(
-      sender?: PromiseOrValue<string> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): AgentReferredByScopeUpdatedEventFilter;
-    AgentReferredByScopeUpdated(
-      sender?: PromiseOrValue<string> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): AgentReferredByScopeUpdatedEventFilter;
-
     "Initialized(address,address,address,string,string,uint16)"(
       sender?: PromiseOrValue<string> | null,
       proxy?: PromiseOrValue<string> | null,
@@ -2362,43 +2114,6 @@ export interface RoleManager extends BaseContract {
       adminId?: null,
       scopeId?: null
     ): RoleRegisteredEventFilter;
-
-    "RoleScopeLimitUpdated(address,bytes32,uint16)"(
-      sender?: PromiseOrValue<string> | null,
-      roleId?: PromiseOrValue<BytesLike> | null,
-      scopeLimit?: null
-    ): RoleScopeLimitUpdatedEventFilter;
-    RoleScopeLimitUpdated(
-      sender?: PromiseOrValue<string> | null,
-      roleId?: PromiseOrValue<BytesLike> | null,
-      scopeLimit?: null
-    ): RoleScopeLimitUpdatedEventFilter;
-
-    "ScopeReferredByAgentUpdated(address,bytes32,bytes32,uint8)"(
-      sender?: PromiseOrValue<string> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): ScopeReferredByAgentUpdatedEventFilter;
-    ScopeReferredByAgentUpdated(
-      sender?: PromiseOrValue<string> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      agentId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): ScopeReferredByAgentUpdatedEventFilter;
-
-    "ScopeReferredByPolicyUpdated(address,bytes32,bytes32,uint8)"(
-      sender?: PromiseOrValue<string> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      policyId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): ScopeReferredByPolicyUpdatedEventFilter;
-    ScopeReferredByPolicyUpdated(
-      sender?: PromiseOrValue<string> | null,
-      scopeId?: PromiseOrValue<BytesLike> | null,
-      policyId?: PromiseOrValue<BytesLike> | null,
-      action?: null
-    ): ScopeReferredByPolicyUpdatedEventFilter;
   };
 
   estimateGas: {
@@ -2500,16 +2215,6 @@ export interface RoleManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    roleDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "roleDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     roleGetInfo(
       roleId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -2547,7 +2252,7 @@ export interface RoleManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "roleRegister((bytes32,bytes32,bytes32,uint32,uint16,uint8,uint8,string)[])"(
+    "roleRegister((bytes32,bytes32,bytes32,uint32,uint8,uint8,string)[])"(
       requests: IRoleManagement.RoleRegisterRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -2599,16 +2304,6 @@ export interface RoleManager extends BaseContract {
 
     "roleUpdateMemberLimit((bytes32,uint32)[])"(
       requests: IRoleManagement.RoleUpdateMemberLimitRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    roleUpdateScopeLimit(
-      requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    "roleUpdateScopeLimit((bytes32,uint16)[])"(
-      requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -2814,16 +2509,6 @@ export interface RoleManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    roleDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "roleDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     roleGetInfo(
       roleId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -2861,7 +2546,7 @@ export interface RoleManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "roleRegister((bytes32,bytes32,bytes32,uint32,uint16,uint8,uint8,string)[])"(
+    "roleRegister((bytes32,bytes32,bytes32,uint32,uint8,uint8,string)[])"(
       requests: IRoleManagement.RoleRegisterRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
@@ -2913,16 +2598,6 @@ export interface RoleManager extends BaseContract {
 
     "roleUpdateMemberLimit((bytes32,uint32)[])"(
       requests: IRoleManagement.RoleUpdateMemberLimitRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    roleUpdateScopeLimit(
-      requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    "roleUpdateScopeLimit((bytes32,uint16)[])"(
-      requests: IACLCommons.AgentUpdateScopeLimitRequestStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

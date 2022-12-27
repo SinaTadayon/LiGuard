@@ -17,7 +17,6 @@ interface ITypeManagement is IACLCommons {
     bytes32 adminId;          // should role or member in any scope 
     bytes32 scopeId;
     uint16 roleLimit;
-    uint16 scopeLimit;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
     string name;
@@ -33,9 +32,6 @@ interface ITypeManagement is IACLCommons {
     bytes32 adminId;
     uint16 roleLimit;
     uint16 roleTotal;
-    uint16 scopeLimit;
-    uint16 referredByScope;
-    uint16 referredByPolicy;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
     string name;
@@ -54,23 +50,17 @@ interface ITypeManagement is IACLCommons {
 
   event TypeRoleLimitUpdated(address indexed sender, bytes32 indexed typeId, uint16 roleLimit);
 
-  event TypeScopeLimitUpdated(address indexed sender, bytes32 indexed typeId, uint16 scopeLimit);
-
   event TypeAdminUpdated(address indexed sender, bytes32 indexed typeId, bytes32 indexed adminId);
 
   function typeRegister(TypeRegisterRequest[] calldata requests) external returns (bool);
 
   function typeUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);
- 
-  function typeDeleteActivity(bytes32[] calldata requests) external returns (bool);
 
   function typeUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
 
   function typeUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
   function typeUpdateRoleLimit(TypeUpdateRoleLimitRequest[] calldata requests) external returns (bool);
-
-  function typeUpdateScopeLimit(AgentUpdateScopeLimitRequest[] calldata requests) external returns (bool);
 
   function typeCheckId(bytes32 typeId) external view returns (bool);
 

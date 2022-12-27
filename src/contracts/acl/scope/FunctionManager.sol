@@ -52,14 +52,14 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
   }
 
   function functionRegister(FunctionRegisterRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IFunctionManagement.functionRegister.selector);
+    _accessPermission(IFunctionManagement.functionRegister.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
     address signer;
     for (uint256 i = 0; i < requests.length; i++) {
           
       bytes32 contextId = LACLUtils.accountGenerateId(requests[i].contractId);  
       ContextEntity storage contextEntity = _data.contextReadSlot(contextId);    
-      require(contextEntity.bs.acstat > ActivityStatus.DELETED, "Context Deleted");
+      require(contextEntity.bs.acstat > ActivityStatus.DISABLED, "Context Disabled");
       require(contextEntity.bs.alstat == AlterabilityStatus.UPGRADABLE, "Illegal Upgrade");
 
       if(requests[i].signature.length > 0) {
@@ -86,18 +86,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     
     for(uint i = 0; i < requests.length; i++) {
-      FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, false);
-
-      // update function admin Id
-      BaseAgent storage functionBaseAgent = _data.agents[functionEntity.bs.adminId];
-      require(functionBaseAgent.referredByScope > 0, "Illegal Admin Referred");
-      unchecked { functionBaseAgent.referredByScope -= 1; }
-      emit AgentReferredByScopeUpdated(
-        msg.sender, 
-        functionEntity.bs.adminId, 
-        requests[i].id, 
-        ActionType.REMOVE
-      );
+      FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
 
       // checking requested type admin       
       // if(requests[i].adminId != bytes32(0)) {
@@ -117,21 +106,6 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
       // }
 
       functionEntity.bs.adminId = _doGetAndCheckFunctionAdmin(_data.scopes[functionEntity.contextId].adminId, functionEntity.contextId, requests[i].adminId);
-
-
-      // checking new admin Id 
-      BaseAgent storage newBaseAgent = _data.agents[requests[i].adminId];
-      require(newBaseAgent.atype != AgentType.NONE, "Not Found");
-      require(newBaseAgent.acstat > ActivityStatus.DELETED, "Agent Deleted");
-      require(newBaseAgent.scopeLimit > newBaseAgent.referredByScope, "Illegal Agent Referred");
-      newBaseAgent.referredByScope += 1;
-      emit AgentReferredByScopeUpdated(
-        msg.sender, 
-        requests[i].adminId, 
-        requests[i].id, 
-        ActionType.ADD
-      );  
-
       emit FunctionAdminUpdated(msg.sender, requests[i].id, requests[i].adminId);
     }
     return true;  
@@ -142,51 +116,25 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
 
     for(uint i = 0; i < requests.length; i++) {
-      FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(requests[i].agentId, senderId, functionId, false);
-      
-      // update function agent Id
-      BaseAgent storage functionBaseAgent = _data.agents[functionEntity.agentId];
-      require(functionBaseAgent.referredByScope > 0, "Illegal Agent Referred");
-      unchecked { functionBaseAgent.referredByScope -= 1; }
-      emit AgentReferredByScopeUpdated(
-        msg.sender, 
-        functionEntity.agentId, 
-        requests[i].functionId,
-        ActionType.REMOVE
-      );
-
-      // checking new agent Id 
-      BaseAgent storage newBaseAgent = _data.agents[requests[i].agentId];
-      require(newBaseAgent.atype != AgentType.NONE, "Agent Not Found");
-      require(newBaseAgent.acstat > ActivityStatus.DELETED, "Agent Deleted");
-      require(newBaseAgent.scopeLimit > newBaseAgent.referredByScope, "Illegal Agent Referred");
-      newBaseAgent.referredByScope += 1;
-      emit AgentReferredByScopeUpdated(
-        msg.sender, 
-        requests[i].agentId, 
-        requests[i].functionId,
-        ActionType.ADD
-      );
-
+      FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(requests[i].functionId, senderId, functionId);  
+      _doCheckAgentId(requests[i].agentId);
       functionEntity.agentId = requests[i].agentId;
       emit FunctionAgentUpdated(msg.sender, requests[i].functionId, requests[i].agentId);
     }
     return true;  
   }
 
-  function functionDeleteActivity(bytes32[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IFunctionManagement.functionDeleteActivity.selector);
-    for(uint i = 0; i < requests.length; i++) {
-      _doFunctionUpdateActivityStatus(requests[i], ActivityStatus.DELETED, functionId);
-    }
-    return true;
-  }
-
   function functionUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IFunctionManagement.functionUpdateActivityStatus.selector);
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {
-      require(requests[i].acstat != ActivityStatus.DELETED, "Illegal Activity");
-      _doFunctionUpdateActivityStatus(requests[i].id, requests[i].acstat, functionId);
+      FunctionEntity storage functionEntity = _data.functionReadSlot(requests[i].id);
+      require(functionEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
+      require(_doCheckAdminAccess(functionEntity.bs.adminId, senderId, functionId), "Forbidden");
+      require(requests[i].acstat != ActivityStatus.NONE, "Illegal Activity");
+      functionEntity.bs.acstat = requests[i].acstat;
+      emit FunctionActivityUpdated(msg.sender, requests[i].id, requests[i].acstat);
+      
     }
     return true;
   }
@@ -196,8 +144,9 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     
     for(uint i = 0; i < requests.length; i++) {      
-      FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, true);
-
+      FunctionEntity storage functionEntity = _data.functionReadSlot(requests[i].id);
+      require(functionEntity.bs.acstat > ActivityStatus.DISABLED, "Function Disabled");
+      require(_doCheckAdminAccess(functionEntity.bs.adminId, senderId, functionId), "Forbidden");
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       functionEntity.bs.alstat = requests[i].alstat;
       emit FunctionAlterabilityUpdated(msg.sender, requests[i].id, requests[i].alstat);
@@ -210,7 +159,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     
     for (uint256 i = 0; i < requests.length; i++) {
-      FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(requests[i].functionId, senderId, functionId, false);
+      FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(requests[i].functionId, senderId, functionId);
       functionEntity.policyCode = requests[i].policyCode;
       emit FunctionPolicyUpdated(msg.sender, requests[i].functionId, requests[i].policyCode);      
     }
@@ -222,7 +171,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
 
     for (uint256 i = 0; i < requests.length; i++) {
-      FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(requests[i].scopeId, senderId, functionId, false);
+      FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(requests[i].scopeId, senderId, functionId);
       functionEntity.bs.agentLimit = requests[i].agentLimit;      
       emit FunctionAgentLimitUpdated(msg.sender, requests[i].scopeId, requests[i].agentLimit);
     }
@@ -289,7 +238,6 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
         selector: bytes4(0),
         agentLimit: 0,
         referredByAgent: 0,
-        referredByPolicy: 0,
         acstat: ActivityStatus.NONE,
         alstat: AlterabilityStatus.NONE,
         adminType: AgentType.NONE,
@@ -305,7 +253,6 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
       selector: fe.selector,
       agentLimit: fe.bs.agentLimit,
       referredByAgent: fe.bs.referredByAgent,
-      referredByPolicy: fe.bs.referredByPolicy,
       acstat: fe.bs.acstat,
       alstat: fe.bs.alstat,
       adminType: _data.agents[fe.bs.adminId].atype,
@@ -328,37 +275,6 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     }
 
     return (ScopeType.NONE, bytes32(0));  
-  }
-
-  function _doFunctionUpdateActivityStatus(bytes32 functionId, ActivityStatus status, bytes32 updateFunctionId) internal returns (bool) {
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
-    FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(functionId, senderId, updateFunctionId, false);
-    
-    if(status == ActivityStatus.DELETED) {
-      BaseAgent storage functionAgent = _data.agents[functionEntity.agentId];
-      require(functionAgent.referredByScope > 0, "Illegal Referred");
-      unchecked { functionAgent.referredByScope -= 1; }
-      emit AgentReferredByScopeUpdated(
-        msg.sender, 
-        functionEntity.agentId, 
-        functionId, 
-        ActionType.REMOVE
-      );
-
-      BaseAgent storage functionAdmin = _data.agents[functionEntity.bs.adminId];
-      require(functionAdmin.referredByScope > 0, "Illegal Referred");
-      unchecked { functionAdmin.referredByScope -= 1; }
-      emit AgentReferredByScopeUpdated(
-        msg.sender, 
-        functionEntity.bs.adminId,
-        functionId, 
-        ActionType.REMOVE
-      );
-    }
-
-    functionEntity.bs.acstat = status;
-    emit FunctionActivityUpdated(msg.sender, functionId, status);
-    return true;
   }
 
   function _doCheckSystemScope(bytes32 scopeId, bytes32 memberId) internal view returns (bool) {  
@@ -420,12 +336,10 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     return functionId;
   }
 
-  function _doGetEntityAndCheckAdminAccess(bytes32 fId, bytes32 senderId, bytes32 functionId, bool isAlterable) internal view returns (FunctionEntity storage) {
+  function _doGetEntityAndCheckAdminAccess(bytes32 fId, bytes32 senderId, bytes32 functionId) internal view returns (FunctionEntity storage) {
     FunctionEntity storage functionEntity = _data.functionReadSlot(fId);
-    require(functionEntity.bs.acstat > ActivityStatus.DELETED, "Function Deleted");
-    if(!isAlterable) {
-      require(functionEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
-    }
+    require(functionEntity.bs.acstat > ActivityStatus.DISABLED, "Function Disabled");
+    require(functionEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
     require(_doCheckAdminAccess(functionEntity.bs.adminId, senderId, functionId), "Forbidden");
     return functionEntity;
   } 
@@ -438,6 +352,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
   ) internal {
     bytes32 newFunctionId = LACLUtils.functionGenerateId(context.contractId, functionRequest.selector); 
     require(_data.scopes[newFunctionId].stype == ScopeType.NONE, "Already Exist");
+    _doCheckAgentId(functionRequest.agentId);
     FunctionEntity storage functionEntity = _data.functionWriteSlot(newFunctionId);
     functionEntity.bs.stype = ScopeType.FUNCTION;
     functionEntity.contextId = contextId;
@@ -451,24 +366,6 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     
     // add function to context
     context.functions.add(newFunctionId);
-
-    // update referred agent Id
-    _doUpdateAgentReferred(
-      _data.agents[functionEntity.agentId],
-      functionEntity.agentId,
-      newFunctionId, 
-      signerId, 
-      ActionType.ADD
-    );
-
-    // update referred admin Id
-    _doUpdateAgentReferred(
-      _data.agents[functionEntity.bs.adminId],
-      functionEntity.bs.adminId,
-      newFunctionId, 
-      signerId, 
-      ActionType.ADD
-    );
    
     emit FunctionRegistered(
       msg.sender,
@@ -500,42 +397,18 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     }
   }
 
-  function _doUpdateAgentReferred(
-      BaseAgent storage agent,
-      bytes32 agentId, 
-      bytes32 scopeId, 
-      address signerId, 
-      ActionType action
-  ) internal {
-    if (action == ActionType.ADD) {
-      require(agent.atype != AgentType.NONE, "Agent Not Found");
-      require(agent.atype > AgentType.MEMBER, "Illegal AgentType");
-      require(agent.acstat > ActivityStatus.DELETED, "Agent Deleted");
-      require(agent.scopeLimit > agent.referredByScope, "Illegal Referred");
-      agent.referredByScope += 1; 
-      emit AgentReferredByScopeUpdated(
-        signerId, 
-        agentId,
-        scopeId, 
-        ActionType.ADD
-      );
-    } else if (action == ActionType.REMOVE) {
-      require(agent.referredByScope > 0, "Illegal Referred");
-      unchecked { agent.referredByScope -= 1; }
-      emit AgentReferredByScopeUpdated(
-        signerId, 
-        agentId,
-        scopeId, 
-        ActionType.REMOVE
-      );
-    }
-  }
-
   function _getFunctionMessageHash(
     address contractId,
     bytes4 selector
   ) internal pure returns (bytes32) {
     return keccak256(abi.encode(FUNCTION_MESSAGE_TYPEHASH, contractId, selector));
+  }
+
+
+  function _doCheckAgentId(bytes32 agentId) internal view {
+    BaseAgent storage ba = _data.agents[agentId];
+    require(ba.atype > AgentType.MEMBER, "Illegal AgentId");
+    require(ba.acstat > ActivityStatus.DISABLED, "Agent Disabled");
   }
 
   function _doGetSignerAddress(bytes memory signature, bytes32 structHash) internal view returns (address) {
