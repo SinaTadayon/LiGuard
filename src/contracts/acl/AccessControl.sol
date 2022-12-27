@@ -134,6 +134,9 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IAccessControl {
       console.logBytes1(bytes1(uint8(typeEntity.ba.acstat)));
       if(!result2 || typeEntity.ba.acstat != ActivityStatus.ENABLED) return false;
 
+      // check memberId with agentId role
+      if (typeEntity.members[memberId] != agentId) return false;
+
       // check policy activation
       PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[agentId]];
       console.log("policyEntity: ");
@@ -310,9 +313,6 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IAccessControl {
       ContextEntity storage ce = _data.contextReadSlot(fe.contextId);
       DomainEntity storage de = _data.domainReadSlot(destScopeId);
       return de.realms.contains(ce.realmId);
-
-    } else if(destScopeType == ScopeType.GLOBAL && srcScopeType == ScopeType.FUNCTION) {
-      return _data.scopes[srcScopeId].stype == ScopeType.FUNCTION; 
     
     } else if(destScopeType == ScopeType.REALM && srcScopeType == ScopeType.CONTEXT) {
       RealmEntity storage re = _data.realmReadSlot(destScopeId);
@@ -322,16 +322,10 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IAccessControl {
       ContextEntity storage ce = _data.contextReadSlot(srcScopeId);
       DomainEntity storage de = _data.domainReadSlot(destScopeId);
       return de.realms.contains(ce.realmId);
-
-    } else if(destScopeType == ScopeType.GLOBAL && srcScopeType == ScopeType.CONTEXT) {
-      return _data.scopes[srcScopeId].stype == ScopeType.CONTEXT; 
       
     } else if(destScopeType == ScopeType.DOMAIN && srcScopeType == ScopeType.REALM) {
       DomainEntity storage de = _data.domainReadSlot(destScopeId);
-      return de.realms.contains(srcScopeId);
-    
-    } else if(destScopeType == ScopeType.GLOBAL && srcScopeType == ScopeType.REALM) {
-      return _data.scopes[srcScopeId].stype == ScopeType.REALM; 
+      return de.realms.contains(srcScopeId);    
     }
 
     return false;

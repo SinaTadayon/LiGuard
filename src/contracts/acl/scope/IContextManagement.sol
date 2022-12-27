@@ -39,7 +39,7 @@ interface IContextManagement is IACLCommons {
     uint16 referredByPolicy;
     AgentType adminType;
     ActivityStatus acstat;
-    AlterabilityStatus alstate;
+    AlterabilityStatus alstat;
   }
 
   event ContextRegistered(
@@ -49,7 +49,6 @@ interface IContextManagement is IACLCommons {
     address signer,
     address deployer,
     address subject,
-    bytes32 realmId,
     bytes32 adminId
   );
 
@@ -76,7 +75,7 @@ interface IContextManagement is IACLCommons {
 
   function contextCheckId(bytes32 contextId) external view returns (bool);
 
-  function contextCheckAccount(address contactId) external view returns (bool);
+  function contextCheckAccount(address contractId) external view returns (bool);
 
   function contextCheckAdmin(bytes32 contextId, address account) external view returns (bool);
 
@@ -86,6 +85,6 @@ interface IContextManagement is IACLCommons {
 
   function contextGetFunctions(bytes32 contextId) external view returns (bytes32[] memory);
 
-  function contextGetContextInfo(bytes32 contextId) external view returns (ContextInfo memory);
+  function contextGetInfo(bytes32 contextId) external view returns (ContextInfo memory);
 
 }

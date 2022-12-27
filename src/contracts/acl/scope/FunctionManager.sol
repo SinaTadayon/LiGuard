@@ -63,16 +63,17 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
       require(contextEntity.bs.alstat == AlterabilityStatus.UPGRADABLE, "Illegal Upgrade");
 
       if(requests[i].signature.length > 0) {
-        bytes32 structHash = _getFunctionMessageHash(requests[i].contractId, requests[i].selector);
+        // bytes32 structHash = _getFunctionMessageHash(requests[i].contractId, requests[i].selector);
+        bytes32 structHash = keccak256(abi.encode(FUNCTION_MESSAGE_TYPEHASH, requests[i].contractId, requests[i].selector));
         signer = _doGetSignerAddress(requests[i].signature, structHash);
         bytes32 signerId = LACLUtils.accountGenerateId(msg.sender);
-        // check access admin context
-        require(_doCheckAdminAccess(contextEntity.bs.adminId, signerId, functionId), "Forbidden");
+        // check access system scope
+        require(_doCheckSystemScope(contextId, signerId), "Forbidden");
         _doFunctionRegistration(contextEntity, requests[i], signer, contextId);
 
       } else {
-        // check access admin realm
-        require(_doCheckAdminAccess(contextEntity.bs.adminId, senderId, functionId), "Forbidden");
+        // check access system scope
+        require(_doCheckSystemScope(contextId, senderId), "Forbidden");
         _doFunctionRegistration(contextEntity, requests[i], msg.sender, contextId);
       }
     }
@@ -360,10 +361,21 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     return true;
   }
 
+  function _doCheckSystemScope(bytes32 scopeId, bytes32 memberId) internal view returns (bool) {  
+    TypeEntity storage systemType = _data.typeReadSlot(_LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID);
+    bytes32 memberRoleId = systemType.members[memberId];
+    RoleEntity storage memberSystemRole = _data.roleReadSlot(memberRoleId);
+    if(_data.scopes[memberSystemRole.scopeId].stype < ScopeType.CONTEXT) return false;
+    if(memberSystemRole.scopeId == scopeId) {
+      return true;
+    } 
+      
+    return IAccessControl(address(this)).isScopesCompatible(memberSystemRole.scopeId, scopeId);    
+  }
+
   function _doCheckAdminAccess(bytes32 adminId, bytes32 memberId, bytes32 functionId) internal view returns (bool) {
     (FunctionEntity storage functionEntity, bool res) = _data.functionTryReadSlot(functionId);    
     if (!res) return false;
-
     AgentType adminAgentType = _data.agents[adminId].atype;
     if(adminAgentType == AgentType.ROLE) {
       (RoleEntity storage roleEntity, bool result) = _data.roleTryReadSlot(adminId);
@@ -402,8 +414,9 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
     address functionFacetId = _data.selectors[selector];
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector);    
-    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
+    require(IAccessControl(address(this)).hasMemberAccess(senderId, functionId), "Access Denied");
     return functionId;
   }
 
@@ -463,9 +476,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
       newFunctionId,
       functionRequest.adminId,
       functionRequest.agentId,
-      signerId,
-      functionRequest.selector,  
-      functionRequest.policyCode
+      signerId
     );
   }
 

@@ -336,9 +336,12 @@ abstract contract BaseUUPSProxy is
 
   function setAccessControlManager(address acl) external onlyProxy onlyLocalAdmin returns (bool) {
     require(_sstat == ProxySafeModeStatus.DISABLED, "Rejected");
-    if(_accessControlManager == address(0)) {
-      revert("Illegal Address");
-    } 
+    require(_ustat == ProxyUpgradabilityStatus.ENABLED, "Illegal Update");
+    require(acl != address(0), "Illegal Address");
+
+    if(_accessControlManager != address(0)) {
+      require(_hasPermission(this.setLocalAdmin.selector), "Forbidden");
+    }
 
     if(!IERC165(acl).supportsInterface(type(IAccessControl).interfaceId)) {
         revert("Illegal ACL");  

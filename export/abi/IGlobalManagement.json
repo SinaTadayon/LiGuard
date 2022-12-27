@@ -1,0 +1,414 @@
+[
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "agentId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "policyId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum IACLCommons.ActionType",
+        "name": "action",
+        "type": "uint8"
+      }
+    ],
+    "name": "AgentReferredByPolicyUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "agentId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "scopeId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum IACLCommons.ActionType",
+        "name": "action",
+        "type": "uint8"
+      }
+    ],
+    "name": "AgentReferredByScopeUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum IACLCommons.ActivityStatus",
+        "name": "acstat",
+        "type": "uint8"
+      }
+    ],
+    "name": "GlobalActivityUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "adminId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum IACLCommons.AgentType",
+        "name": "adminType",
+        "type": "uint8"
+      }
+    ],
+    "name": "GlobalAdminUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "agentLimit",
+        "type": "uint16"
+      }
+    ],
+    "name": "GlobalAgentLimitUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum IACLCommons.AlterabilityStatus",
+        "name": "alstat",
+        "type": "uint8"
+      }
+    ],
+    "name": "GlobalAlterabilityUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "domainLimit",
+        "type": "uint16"
+      }
+    ],
+    "name": "GlobalDomainLimitUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "scopeId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "agentId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum IACLCommons.ActionType",
+        "name": "action",
+        "type": "uint8"
+      }
+    ],
+    "name": "ScopeReferredByAgentUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "scopeId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "policyId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum IACLCommons.ActionType",
+        "name": "action",
+        "type": "uint8"
+      }
+    ],
+    "name": "ScopeReferredByPolicyUpdated",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "globalCheckAdmin",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "globalGetDomains",
+    "outputs": [
+      {
+        "internalType": "bytes32[]",
+        "name": "",
+        "type": "bytes32[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "globalGetInfo",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "adminId",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint16",
+            "name": "domainLimit",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint16",
+            "name": "agentLimit",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint16",
+            "name": "referredByAgent",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint16",
+            "name": "referredByPolicy",
+            "type": "uint16"
+          },
+          {
+            "internalType": "enum IACLCommons.AgentType",
+            "name": "adminType",
+            "type": "uint8"
+          },
+          {
+            "internalType": "enum IACLCommons.ActivityStatus",
+            "name": "acstat",
+            "type": "uint8"
+          },
+          {
+            "internalType": "enum IACLCommons.AlterabilityStatus",
+            "name": "alstate",
+            "type": "uint8"
+          }
+        ],
+        "internalType": "struct IGlobalManagement.GlobalInfo",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "enum IACLCommons.ActivityStatus",
+        "name": "acstat",
+        "type": "uint8"
+      }
+    ],
+    "name": "globalUpdateActivityStatus",
+    "outputs": [
+      {
+        "internalType": "enum IACLCommons.ActivityStatus",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "newAdminId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "globalUpdateAdmin",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint16",
+        "name": "agentLimit",
+        "type": "uint16"
+      }
+    ],
+    "name": "globalUpdateAgentLimit",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "enum IACLCommons.AlterabilityStatus",
+        "name": "alstat",
+        "type": "uint8"
+      }
+    ],
+    "name": "globalUpdateAlterabilityStatus",
+    "outputs": [
+      {
+        "internalType": "enum IACLCommons.AlterabilityStatus",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint16",
+        "name": "domainLimit",
+        "type": "uint16"
+      }
+    ],
+    "name": "globalUpdateDomainLimit",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

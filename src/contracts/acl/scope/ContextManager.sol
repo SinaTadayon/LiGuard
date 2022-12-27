@@ -381,13 +381,13 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     return ce.functions.values();
   }
 
-  function contextGetContextInfo(bytes32 contextId) external view returns (ContextInfo memory) {
+  function contextGetInfo(bytes32 contextId) external view returns (ContextInfo memory) {
     (ContextEntity storage ce, bool result) = _data.contextTryReadSlot(contextId);
     if(!result) {
       return ContextInfo ({
         realmId: bytes32(0),
         adminId: bytes32(0),
-        name: "", 
+        name: "",
         version: "",
         contractId: address(0),
         agentLimit: 0,
@@ -395,14 +395,14 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
         referredByPolicy: 0,
         adminType: AgentType.NONE,
         acstat: ActivityStatus.NONE,
-        alstate: AlterabilityStatus.NONE
+        alstat: AlterabilityStatus.NONE
       });
     }
 
     return ContextInfo ({
       realmId: ce.realmId,
       adminId: ce.bs.adminId,
-      name: IProxy(ce.contractId).contractName(), 
+      name: IProxy(ce.contractId).contractName(),
       version: IProxy(ce.contractId).contractVersion(),
       contractId: ce.contractId,
       agentLimit: ce.bs.agentLimit,
@@ -410,7 +410,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
       referredByPolicy: ce.bs.referredByPolicy,
       adminType: _data.agents[ce.bs.adminId].atype,
       acstat: ce.bs.acstat,
-      alstate: ce.bs.alstat
+      alstat: ce.bs.alstat
     });
   }
 
@@ -467,30 +467,30 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     return contextEntity;
   }
 
-  function _doCheckSignerScope(bytes32 signerId, bytes32 realmId, bytes32 domainId) internal view {
-    // fetch scope type and scope id of sender
-    // TypeEntity storage systemAdminType = _data.typeReadSlot(LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID);
-    // bytes32 signerRoleId = systemAdminType.members[signerId];
-    // RoleEntity storage signerSystemRole =  _data.roleReadSlot(signerRoleId);
-    // ScopeType signerSystemScopeType = _data.scopes[signerSystemRole.scopeId].stype;
-    (ScopeType signerScopeType, bytes32 signerScopeId) = _doGetScopeInfo(signerId);
-    console.log("signer scope type: ");
-    console.logBytes1(bytes1(uint8(signerScopeType)));
-    console.log("signer scope Id: ");
-    console.logBytes32(signerScopeId);
+  // function _doCheckSignerScope(bytes32 signerId, bytes32 realmId, bytes32 domainId) internal view {
+  //   // fetch scope type and scope id of sender
+  //   // TypeEntity storage systemAdminType = _data.typeReadSlot(LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID);
+  //   // bytes32 signerRoleId = systemAdminType.members[signerId];
+  //   // RoleEntity storage signerSystemRole =  _data.roleReadSlot(signerRoleId);
+  //   // ScopeType signerSystemScopeType = _data.scopes[signerSystemRole.scopeId].stype;
+  //   (ScopeType signerScopeType, bytes32 signerScopeId) = _doGetScopeInfo(signerId);
+  //   // console.log("signer scope type: ");
+  //   // console.logBytes1(bytes1(uint8(signerScopeType)));
+  //   // console.log("signer scope Id: ");
+  //   // console.logBytes32(signerScopeId);
 
-    // check signer scope
-    require(signerScopeType >= ScopeType.REALM, "Illegal Signer ScopeType");
-    if(signerScopeType == ScopeType.REALM) {
-      require(signerScopeId == realmId, "Illegal Realm Scope");
+  //   // check signer scope
+  //   require(signerScopeType >= ScopeType.REALM, "Illegal Signer ScopeType");
+  //   if(signerScopeType == ScopeType.REALM) {
+  //     require(signerScopeId == realmId, "Illegal Realm Scope");
 
-    } else if (signerScopeType == ScopeType.DOMAIN) {
-      require(signerScopeId == domainId, "Illegal Domain Scope");
+  //   } else if (signerScopeType == ScopeType.DOMAIN) {
+  //     require(signerScopeId == domainId, "Illegal Domain Scope");
     
-    } else {
-      require(signerScopeId == _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Global Scope");
-    } 
-  } 
+  //   } else {
+  //     require(signerScopeId == _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Global Scope");
+  //   } 
+  // } 
 
   function _doGetScopeInfo(bytes32 signerId) internal view returns (ScopeType, bytes32) {
     // get scope id of sender
@@ -527,6 +527,19 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     return msgSigner;
   }
 
+  function _doCheckSystemScope(bytes32 scopeId, bytes32 memberId) internal view returns (bool) {  
+    TypeEntity storage systemType = _data.typeReadSlot(_LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID);
+    bytes32 memberRoleId = systemType.members[memberId];
+    RoleEntity storage memberSystemRole = _data.roleReadSlot(memberRoleId);
+    if(_data.scopes[memberSystemRole.scopeId].stype < ScopeType.REALM) return false;
+    if(memberSystemRole.scopeId == scopeId) {
+      return true;
+    } 
+      
+    return IAccessControl(address(this)).isScopesCompatible(memberSystemRole.scopeId, scopeId);    
+  }
+
+
   function _doRegisterContext(ContextRegisterRequest calldata request, address contractId, address signer) internal {
     
     bytes32 functionId = LACLUtils.functionGenerateId(_data.selectors[IContextManagement.contextRegister.selector], IContextManagement.contextRegister.selector);
@@ -547,11 +560,11 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
       require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Realm Update");
       require(realmEntity.contextLimit > realmEntity.contexts.length(), "Illegal Register");
 
-      // check access admin realm
-      // require(_doCheckAdminAccess(realmEntity.bs.adminId, signerId, functionId), "Forbidden");
+      // check system scope
+      require(_doCheckSystemScope(request.realmId, signerId), "Forbidden");
 
       // check system admin scope
-      _doCheckSignerScope(signerId, request.realmId, realmEntity.domainId);
+      // _doCheckSignerScope(signerId, request.realmId, realmEntity.domainId);
 
       // add context to realm
       realmEntity.contexts.add(newContextId);    
@@ -576,14 +589,13 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
       ); 
     }
     
-    emit ContextRegistered(
+    emit ContextRegistered(      
       msg.sender,
       newContextId, 
       contractId,
       signer,
       request.deployer,
       request.subject,
-      request.realmId,
       request.adminId
     );    
   }

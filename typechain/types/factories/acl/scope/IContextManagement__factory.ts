@@ -214,12 +214,6 @@ const _abi = [
       {
         indexed: false,
         internalType: "bytes32",
-        name: "realmId",
-        type: "bytes32",
-      },
-      {
-        indexed: false,
-        internalType: "bytes32",
         name: "adminId",
         type: "bytes32",
       },
@@ -293,7 +287,7 @@ const _abi = [
     inputs: [
       {
         internalType: "address",
-        name: "contactId",
+        name: "contractId",
         type: "address",
       },
     ],
@@ -378,7 +372,26 @@ const _abi = [
         type: "bytes32",
       },
     ],
-    name: "contextGetContextInfo",
+    name: "contextGetFunctions",
+    outputs: [
+      {
+        internalType: "bytes32[]",
+        name: "",
+        type: "bytes32[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "contextId",
+        type: "bytes32",
+      },
+    ],
+    name: "contextGetInfo",
     outputs: [
       {
         components: [
@@ -434,32 +447,13 @@ const _abi = [
           },
           {
             internalType: "enum IACLCommons.AlterabilityStatus",
-            name: "alstate",
+            name: "alstat",
             type: "uint8",
           },
         ],
         internalType: "struct IContextManagement.ContextInfo",
         name: "",
         type: "tuple",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "bytes32",
-        name: "contextId",
-        type: "bytes32",
-      },
-    ],
-    name: "contextGetFunctions",
-    outputs: [
-      {
-        internalType: "bytes32[]",
-        name: "",
-        type: "bytes32[]",
       },
     ],
     stateMutability: "view",

@@ -57,9 +57,7 @@ interface IFunctionManagement is IACLCommons {
     bytes32 indexed functionId,
     bytes32 adminId, 
     bytes32 agentId,
-    address signer,
-    bytes4 selector,
-    uint8 policyCode
+    address signer
   );
 
   event FunctionAdminUpdated(address indexed sender, bytes32 indexed functionId, bytes32 indexed adminId);

@@ -434,7 +434,7 @@ export interface IFunctionManagementInterface extends utils.Interface {
     "FunctionAgentUpdated(address,bytes32,bytes32)": EventFragment;
     "FunctionAlterabilityUpdated(address,bytes32,uint8)": EventFragment;
     "FunctionPolicyUpdated(address,bytes32,uint8)": EventFragment;
-    "FunctionRegistered(address,bytes32,bytes32,bytes32,bytes32,address,bytes4,uint8)": EventFragment;
+    "FunctionRegistered(address,bytes32,bytes32,bytes32,bytes32,address)": EventFragment;
     "ScopeReferredByAgentUpdated(address,bytes32,bytes32,uint8)": EventFragment;
     "ScopeReferredByPolicyUpdated(address,bytes32,bytes32,uint8)": EventFragment;
   };
@@ -479,7 +479,7 @@ export interface IFunctionManagementInterface extends utils.Interface {
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "FunctionRegistered"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "FunctionRegistered(address,bytes32,bytes32,bytes32,bytes32,address,bytes4,uint8)"
+    nameOrSignatureOrTopic: "FunctionRegistered(address,bytes32,bytes32,bytes32,bytes32,address)"
   ): EventFragment;
   getEvent(
     nameOrSignatureOrTopic: "ScopeReferredByAgentUpdated"
@@ -608,11 +608,9 @@ export interface FunctionRegisteredEventObject {
   adminId: string;
   agentId: string;
   signer: string;
-  selector: string;
-  policyCode: number;
 }
 export type FunctionRegisteredEvent = TypedEvent<
-  [string, string, string, string, string, string, string, number],
+  [string, string, string, string, string, string],
   FunctionRegisteredEventObject
 >;
 
@@ -1178,15 +1176,13 @@ export interface IFunctionManagement extends BaseContract {
       policyCode?: null
     ): FunctionPolicyUpdatedEventFilter;
 
-    "FunctionRegistered(address,bytes32,bytes32,bytes32,bytes32,address,bytes4,uint8)"(
+    "FunctionRegistered(address,bytes32,bytes32,bytes32,bytes32,address)"(
       sender?: PromiseOrValue<string> | null,
       contextId?: PromiseOrValue<BytesLike> | null,
       functionId?: PromiseOrValue<BytesLike> | null,
       adminId?: null,
       agentId?: null,
-      signer?: null,
-      selector?: null,
-      policyCode?: null
+      signer?: null
     ): FunctionRegisteredEventFilter;
     FunctionRegistered(
       sender?: PromiseOrValue<string> | null,
@@ -1194,9 +1190,7 @@ export interface IFunctionManagement extends BaseContract {
       functionId?: PromiseOrValue<BytesLike> | null,
       adminId?: null,
       agentId?: null,
-      signer?: null,
-      selector?: null,
-      policyCode?: null
+      signer?: null
     ): FunctionRegisteredEventFilter;
 
     "ScopeReferredByAgentUpdated(address,bytes32,bytes32,uint8)"(

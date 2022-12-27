@@ -21,6 +21,7 @@ import "../../acl/agent/IRoleManagement.sol";
 import "../../acl/agent/ITypeManagement.sol";
 import "../../acl/policy/IPolicyManagement.sol";
 
+import "hardhat/console.sol";
 
 
 
@@ -71,6 +72,8 @@ library LAccessControl {
   }
 
   function aclRegisterFacet(ACLStorage.DataCollection storage data, IACLManager.FacetRegisterRequest calldata request) external returns (bool) {
+    // console.log("IContextManagement interfaceId");
+    // console.logBytes4(type(IContextManagement).interfaceId);
     require(  
       request.interfaceId != type(IAccessControl).interfaceId ||
       request.interfaceId != type(IPolicyManagement).interfaceId ||

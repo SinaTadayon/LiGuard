@@ -28,7 +28,7 @@ abstract contract ACLStorage is BaseUUPSStorage, IACLCommons {
   bytes32 public constant FUNCTION_MESSAGE_TYPEHASH = keccak256("Function(address contractId,bytes4 selector)");
 
   // General Types ID
-  bytes32 internal constant _LIVELY_VERSE_LIVELY_MASTER_TYPE_ID = keccak256(abi.encodePacked("LIVELY_VERSE_LIVELY_MASTER TYPE"));
+  bytes32 internal constant _LIVELY_VERSE_LIVELY_MASTER_TYPE_ID = keccak256(abi.encodePacked("LIVELY_VERSE_LIVELY_MASTER_TYPE"));
   bytes32 internal constant _LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID = keccak256(abi.encodePacked("LIVELY_VERSE_SYSTEM_MASTER_TYPE"));
   bytes32 internal constant _LIVELY_VERSE_ANONYMOUS_TYPE_ID     = keccak256(abi.encodePacked("LIVELY_VERSE_ANONYMOUS_TYPE"));
   bytes32 internal constant _LIVELY_VERSE_ANY_TYPE_ID           = keccak256(abi.encodePacked("LIVELY_VERSE_ANY_TYPE"));

@@ -261,18 +261,6 @@ const _abi = [
         name: "signer",
         type: "address",
       },
-      {
-        indexed: false,
-        internalType: "bytes4",
-        name: "selector",
-        type: "bytes4",
-      },
-      {
-        indexed: false,
-        internalType: "uint8",
-        name: "policyCode",
-        type: "uint8",
-      },
     ],
     name: "FunctionRegistered",
     type: "event",

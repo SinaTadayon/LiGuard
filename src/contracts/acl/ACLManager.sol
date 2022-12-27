@@ -381,6 +381,9 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
       anyType.ba.acstat = ActivityStatus.ENABLED;
       anyType.ba.alstat = AlterabilityStatus.UPDATABLE;
     }
+
+    // update livelyGlobalEntity.bs.referredByAgent
+    livelyGlobalEntity.bs.referredByAgent = 12;
   }
 
   function _initACLScopes(
@@ -442,7 +445,7 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
       bytes32 aclContextRegisterId = LACLUtils.functionGenerateId(contextManagerAddress, IContextManagement.contextRegister.selector);
       FunctionEntity storage functionContextRegisterEntity = _data.functionWriteSlot(aclContextRegisterId);
       functionContextRegisterEntity.contextId = aclContextManagerId;
-      functionContextRegisterEntity.policyCode = 200;
+      functionContextRegisterEntity.policyCode = 0;
       functionContextRegisterEntity.selector = IContextManagement.contextRegister.selector;
       functionContextRegisterEntity.bs.stype = ScopeType.FUNCTION;
       functionContextRegisterEntity.bs.agentLimit = type(uint16).max;
@@ -456,7 +459,7 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
       bytes32 aclFunctionRegisterId = LACLUtils.functionGenerateId(functionManagerAddress, IFunctionManagement.functionRegister.selector);
       FunctionEntity storage aclFunctionRegister = _data.functionWriteSlot(aclFunctionRegisterId);
       aclFunctionRegister.contextId = aclContextManagerId;
-      aclFunctionRegister.policyCode = 200;
+      aclFunctionRegister.policyCode = 0;
       aclFunctionRegister.selector = IFunctionManagement.functionRegister.selector;
       aclFunctionRegister.bs.stype = ScopeType.FUNCTION;
       aclFunctionRegister.bs.agentLimit = type(uint16).max;
@@ -484,6 +487,7 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
     aclType.ba.scopeLimit = type(uint16).max;
     aclType.ba.acstat = ActivityStatus.ENABLED;
     aclType.ba.alstat = AlterabilityStatus.UPDATABLE;
+    aclType.ba.referredByScope = 6;
   
     // Create Policy Master Admin Role
     bytes32 aclAdminRoleId = LACLUtils.generateId2("LIVELY_VERSE_ACL_ADMIN_ROLE");

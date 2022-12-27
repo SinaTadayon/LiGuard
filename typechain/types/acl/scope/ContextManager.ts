@@ -39,7 +39,7 @@ export declare namespace IContextManagement {
     referredByPolicy: PromiseOrValue<BigNumberish>;
     adminType: PromiseOrValue<BigNumberish>;
     acstat: PromiseOrValue<BigNumberish>;
-    alstate: PromiseOrValue<BigNumberish>;
+    alstat: PromiseOrValue<BigNumberish>;
   };
 
   export type ContextInfoStructOutput = [
@@ -65,7 +65,7 @@ export declare namespace IContextManagement {
     referredByPolicy: number;
     adminType: number;
     acstat: number;
-    alstate: number;
+    alstat: number;
   };
 
   export type ContextRegisterRequestStruct = {
@@ -201,8 +201,8 @@ export interface ContextManagerInterface extends utils.Interface {
     "contextCheckAdmin(bytes32,address)": FunctionFragment;
     "contextCheckId(bytes32)": FunctionFragment;
     "contextDeleteActivity(bytes32[])": FunctionFragment;
-    "contextGetContextInfo(bytes32)": FunctionFragment;
     "contextGetFunctions(bytes32)": FunctionFragment;
+    "contextGetInfo(bytes32)": FunctionFragment;
     "contextHasFunction(bytes32,bytes32)": FunctionFragment;
     "contextHasSelector(address,bytes4)": FunctionFragment;
     "contextRegister((bytes32,bytes32,bytes32,string,string,address,address,address,uint16,uint8,uint8,bytes)[])": FunctionFragment;
@@ -250,10 +250,10 @@ export interface ContextManagerInterface extends utils.Interface {
       | "contextCheckId(bytes32)"
       | "contextDeleteActivity"
       | "contextDeleteActivity(bytes32[])"
-      | "contextGetContextInfo"
-      | "contextGetContextInfo(bytes32)"
       | "contextGetFunctions"
       | "contextGetFunctions(bytes32)"
+      | "contextGetInfo"
+      | "contextGetInfo(bytes32)"
       | "contextHasFunction"
       | "contextHasFunction(bytes32,bytes32)"
       | "contextHasSelector"
@@ -376,19 +376,19 @@ export interface ContextManagerInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>[]]
   ): string;
   encodeFunctionData(
-    functionFragment: "contextGetContextInfo",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "contextGetContextInfo(bytes32)",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "contextGetFunctions",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
     functionFragment: "contextGetFunctions(bytes32)",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "contextGetInfo",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "contextGetInfo(bytes32)",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
@@ -675,19 +675,19 @@ export interface ContextManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "contextGetContextInfo",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "contextGetContextInfo(bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "contextGetFunctions",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "contextGetFunctions(bytes32)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "contextGetInfo",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "contextGetInfo(bytes32)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -886,7 +886,7 @@ export interface ContextManagerInterface extends utils.Interface {
     "ContextAdminUpdated(address,bytes32,bytes32)": EventFragment;
     "ContextAgentLimitUpdated(address,bytes32,uint16)": EventFragment;
     "ContextAlterabilityUpdated(address,bytes32,uint8)": EventFragment;
-    "ContextRegistered(address,bytes32,address,address,address,address,bytes32,bytes32)": EventFragment;
+    "ContextRegistered(address,bytes32,address,address,address,address,bytes32)": EventFragment;
     "Initialized(address,address,address,string,string,uint16)": EventFragment;
     "ProxyAccessControlUpdated(address,address,address)": EventFragment;
     "ProxyLocalAdminUpdated(address,address,address)": EventFragment;
@@ -927,7 +927,7 @@ export interface ContextManagerInterface extends utils.Interface {
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ContextRegistered"): EventFragment;
   getEvent(
-    nameOrSignatureOrTopic: "ContextRegistered(address,bytes32,address,address,address,address,bytes32,bytes32)"
+    nameOrSignatureOrTopic: "ContextRegistered(address,bytes32,address,address,address,address,bytes32)"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(
@@ -1054,11 +1054,10 @@ export interface ContextRegisteredEventObject {
   signer: string;
   deployer: string;
   subject: string;
-  realmId: string;
   adminId: string;
 }
 export type ContextRegisteredEvent = TypedEvent<
-  [string, string, string, string, string, string, string, string],
+  [string, string, string, string, string, string, string],
   ContextRegisteredEventObject
 >;
 
@@ -1263,16 +1262,6 @@ export interface ContextManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    contextGetContextInfo(
-      contextId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[IContextManagement.ContextInfoStructOutput]>;
-
-    "contextGetContextInfo(bytes32)"(
-      contextId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[IContextManagement.ContextInfoStructOutput]>;
-
     contextGetFunctions(
       contextId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1282,6 +1271,16 @@ export interface ContextManager extends BaseContract {
       contextId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[string[]]>;
+
+    contextGetInfo(
+      contextId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[IContextManagement.ContextInfoStructOutput]>;
+
+    "contextGetInfo(bytes32)"(
+      contextId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[IContextManagement.ContextInfoStructOutput]>;
 
     contextHasFunction(
       contextId: PromiseOrValue<BytesLike>,
@@ -1552,16 +1551,6 @@ export interface ContextManager extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  contextGetContextInfo(
-    contextId: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<IContextManagement.ContextInfoStructOutput>;
-
-  "contextGetContextInfo(bytes32)"(
-    contextId: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<IContextManagement.ContextInfoStructOutput>;
-
   contextGetFunctions(
     contextId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
@@ -1571,6 +1560,16 @@ export interface ContextManager extends BaseContract {
     contextId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<string[]>;
+
+  contextGetInfo(
+    contextId: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<IContextManagement.ContextInfoStructOutput>;
+
+  "contextGetInfo(bytes32)"(
+    contextId: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<IContextManagement.ContextInfoStructOutput>;
 
   contextHasFunction(
     contextId: PromiseOrValue<BytesLike>,
@@ -1841,16 +1840,6 @@ export interface ContextManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    contextGetContextInfo(
-      contextId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<IContextManagement.ContextInfoStructOutput>;
-
-    "contextGetContextInfo(bytes32)"(
-      contextId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<IContextManagement.ContextInfoStructOutput>;
-
     contextGetFunctions(
       contextId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1860,6 +1849,16 @@ export interface ContextManager extends BaseContract {
       contextId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<string[]>;
+
+    contextGetInfo(
+      contextId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<IContextManagement.ContextInfoStructOutput>;
+
+    "contextGetInfo(bytes32)"(
+      contextId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<IContextManagement.ContextInfoStructOutput>;
 
     contextHasFunction(
       contextId: PromiseOrValue<BytesLike>,
@@ -2137,14 +2136,13 @@ export interface ContextManager extends BaseContract {
       alstat?: null
     ): ContextAlterabilityUpdatedEventFilter;
 
-    "ContextRegistered(address,bytes32,address,address,address,address,bytes32,bytes32)"(
+    "ContextRegistered(address,bytes32,address,address,address,address,bytes32)"(
       sender?: PromiseOrValue<string> | null,
       contextId?: PromiseOrValue<BytesLike> | null,
       contractId?: PromiseOrValue<string> | null,
       signer?: null,
       deployer?: null,
       subject?: null,
-      realmId?: null,
       adminId?: null
     ): ContextRegisteredEventFilter;
     ContextRegistered(
@@ -2154,7 +2152,6 @@ export interface ContextManager extends BaseContract {
       signer?: null,
       deployer?: null,
       subject?: null,
-      realmId?: null,
       adminId?: null
     ): ContextRegisteredEventFilter;
 
@@ -2324,22 +2321,22 @@ export interface ContextManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    contextGetContextInfo(
-      contextId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "contextGetContextInfo(bytes32)"(
-      contextId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     contextGetFunctions(
       contextId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     "contextGetFunctions(bytes32)"(
+      contextId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    contextGetInfo(
+      contextId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "contextGetInfo(bytes32)"(
       contextId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -2626,22 +2623,22 @@ export interface ContextManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    contextGetContextInfo(
-      contextId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "contextGetContextInfo(bytes32)"(
-      contextId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     contextGetFunctions(
       contextId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     "contextGetFunctions(bytes32)"(
+      contextId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    contextGetInfo(
+      contextId: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "contextGetInfo(bytes32)"(
       contextId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;

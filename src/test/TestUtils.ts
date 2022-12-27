@@ -17,6 +17,31 @@ export const PERMIT_TYPE_HASH: string = ethers.utils.keccak256(
   ethers.utils.toUtf8Bytes("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)")
 );
 
+// General Types ID
+export const LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes( "LIVELY_VERSE_SYSTEM_MASTER_TYPE"));
+export const LIVELY_VERSE_LIVELY_MASTER_TYPE_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes( "LIVELY_VERSE_LIVELY_MASTER TYPE"));
+export const LIVELY_VERSE_ANONYMOUS_TYPE_ID     = ethers.utils.keccak256(ethers.utils.toUtf8Bytes( "LIVELY_VERSE_ANONYMOUS_TYPE"));
+export const LIVELY_VERSE_ANY_TYPE_ID           = ethers.utils.keccak256(ethers.utils.toUtf8Bytes( "LIVELY_VERSE_ANY_TYPE"));
+export const LIVELY_VERSE_SCOPE_MASTER_TYPE_ID  = ethers.utils.keccak256(ethers.utils.toUtf8Bytes( "LIVELY_VERSE_SCOPE_MASTER_TYPE"));
+export const LIVELY_VERSE_AGENT_MASTER_TYPE_ID  = ethers.utils.keccak256(ethers.utils.toUtf8Bytes( "LIVELY_VERSE_AGENT_MASTER_TYPE"));
+export const LIVELY_VERSE_POLICY_MASTER_TYPE_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes( "LIVELY_VERSE_POLICY_MASTER_TYPE"));
+
+// General Roles ID
+export const LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE"));
+export const LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE"));
+export const LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE"));
+export const LIVELY_VERSE_AGENT_MASTER_ADMIN_ROLE_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_VERSE_AGENT_MASTER_ADMIN_ROLE"));
+export const LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE"));
+
+// Global Scope ID
+export const LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_VERSE_LIVELY_GLOBAL_SCOPE"));
+
+// ACL IDs
+export const LIVELY_VERSE_ACL_DOMAIN_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_VERSE_ACL_DOMAIN"));
+export const LIVELY_VERSE_ACL_REALM_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_VERSE_ACL_REALM"));
+export const LIVELY_VERSE_ACL_TYPE_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_VERSE_ACL_TYPE"));
+export const LIVELY_VERSE_ACL_ADMIN_ROLE_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("LIVELY_VERSE_ACL_ADMIN_ROLE"));
+
 // export const LIVELY_GENERAL_REALM = ethers.utils.keccak256(
 //   ethers.utils.solidityPack(["string"], ["LIVELY_GENERAL_REALM"])
 // );
