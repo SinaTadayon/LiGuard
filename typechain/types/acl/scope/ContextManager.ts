@@ -197,7 +197,6 @@ export interface ContextManagerInterface extends utils.Interface {
     "contextCheckAccount(address)": FunctionFragment;
     "contextCheckAdmin(bytes32,address)": FunctionFragment;
     "contextCheckId(bytes32)": FunctionFragment;
-    "contextDeleteActivity(bytes32[])": FunctionFragment;
     "contextGetFunctions(bytes32)": FunctionFragment;
     "contextGetInfo(bytes32)": FunctionFragment;
     "contextHasFunction(bytes32,bytes32)": FunctionFragment;
@@ -245,8 +244,6 @@ export interface ContextManagerInterface extends utils.Interface {
       | "contextCheckAdmin(bytes32,address)"
       | "contextCheckId"
       | "contextCheckId(bytes32)"
-      | "contextDeleteActivity"
-      | "contextDeleteActivity(bytes32[])"
       | "contextGetFunctions"
       | "contextGetFunctions(bytes32)"
       | "contextGetInfo"
@@ -363,14 +360,6 @@ export interface ContextManagerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "contextCheckId(bytes32)",
     values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "contextDeleteActivity",
-    values: [PromiseOrValue<BytesLike>[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "contextDeleteActivity(bytes32[])",
-    values: [PromiseOrValue<BytesLike>[]]
   ): string;
   encodeFunctionData(
     functionFragment: "contextGetFunctions",
@@ -661,14 +650,6 @@ export interface ContextManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "contextCheckId(bytes32)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "contextDeleteActivity",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "contextDeleteActivity(bytes32[])",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1165,16 +1146,6 @@ export interface ContextManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    contextDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    "contextDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
     contextGetFunctions(
       contextId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1454,16 +1425,6 @@ export interface ContextManager extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  contextDeleteActivity(
-    requests: PromiseOrValue<BytesLike>[],
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  "contextDeleteActivity(bytes32[])"(
-    requests: PromiseOrValue<BytesLike>[],
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
   contextGetFunctions(
     contextId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
@@ -1740,16 +1701,6 @@ export interface ContextManager extends BaseContract {
 
     "contextCheckId(bytes32)"(
       contextId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    contextDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    "contextDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -2172,16 +2123,6 @@ export interface ContextManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    contextDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    "contextDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     contextGetFunctions(
       contextId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -2471,16 +2412,6 @@ export interface ContextManager extends BaseContract {
 
     "contextCheckId(bytes32)"(
       contextId: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    contextDeleteActivity(
-      requests: PromiseOrValue<BytesLike>[],
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "contextDeleteActivity(bytes32[])"(
-      requests: PromiseOrValue<BytesLike>[],
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

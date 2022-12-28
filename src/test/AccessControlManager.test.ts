@@ -631,187 +631,6 @@ describe("AccessControlManager Tests",
         );
       });
 
-      // it("Should enable Upgrade Status of proxy by livelyAdmin success", async () => {
-      //   // when and then
-      //   await expect(aclManagerProxy.connect(systemAdmin).setUpgradabilityStatus(ProxyUpgradabilityStatus.ENABLED))
-      //     .to.emit(aclManagerProxy, "ProxyUpdatabilityUpdated")
-      //     .withArgs(
-      //       systemAdminWallet.address,
-      //       aclManagerProxy.address,
-      //       ProxyUpgradabilityStatus.ENABLED
-      //     );
-      // });
-      //
-      // it("Should upgrade proxy raise 'Illegal Impl' exception for same subjects ", async () => {
-      //   // given
-      //   const typedArray1 = new Int8Array(0);
-      //
-      //   // when and then
-      //   await expect(
-      //     aclManagerProxy.connect(systemAdmin).upgradeTo(aclManagerSubject.address, typedArray1, false)
-      //   ).to.be.revertedWith("Illegal Impl");
-      // });
-      //
-      // it("Should upgrade proxy by common user1 failed", async () => {
-      //   // given
-      //   const aclManagerSubjectFactory = new ACLManager__factory(linkLibraryAddresses, systemAdmin);
-      //   aclManagerSubject = await aclManagerSubjectFactory.deploy();
-      //   const typedArray1 = new Int8Array(0);
-      //
-      //   // when and then
-      //   await expect(
-      //     aclManagerProxy.connect(user1).upgradeTo(aclManagerSubject.address, typedArray1, false)
-      //   ).to.revertedWith("Forbidden");
-      // });
-      //
-      // it("Should upgrade proxy by systemAdmin with invalid uups subject failed", async () => {
-      //   // given
-      //   const baseUUPSProxy = await deployments.getArtifact("UUPSUpgradeableTest");
-      //   const invalidUUPS = await deployMockContract(systemAdmin, baseUUPSProxy.abi);
-      //   await invalidUUPS.mock.proxiableUUID.returns(
-      //     "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bb0"
-      //   );
-      //   const typedArray1 = new Int8Array(0);
-      //
-      //   // when and then
-      //   await expect(
-      //     aclManagerProxy.connect(systemAdmin).upgradeTo(invalidUUPS.address, typedArray1, false)
-      //   ).to.revertedWith("Invalid UUPS");
-      // });
-      //
-      // it("Should upgrade proxy by systemAdmin with invalid proxy subject failed", async () => {
-      //   // given
-      //   const baseUUPSProxy = await deployments.getArtifact("UUPSUpgradeableTest");
-      //   const invalidProxy = await deployMockContract(systemAdmin, baseUUPSProxy.abi);
-      //   await invalidProxy.mock.proxiableUUID.returns(
-      //     "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc"
-      //   );
-      //   await invalidProxy.mock.supportsInterface.returns(false);
-      //   const typedArray1 = new Int8Array(0);
-      //
-      //   // when and then
-      //   await expect(
-      //     aclManagerProxy.connect(systemAdmin).upgradeTo(invalidProxy.address, typedArray1, false)
-      //   ).to.revertedWith("Invalid Proxy");
-      // });
-      //
-      // it("Should upgrade proxy by systemAdmin with illegal subject failed", async () => {
-      //   // given
-      //   const iBaseProxy = await deployments.getArtifact("IBaseProxy");
-      //   const illegalUUPS = await deployMockContract(systemAdmin, iBaseProxy.abi);
-      //   const typedArray1 = new Int8Array(0);
-      //
-      //   // when and then
-      //   await expect(
-      //     aclManagerProxy.connect(livelyAdmin).upgradeTo(illegalUUPS.address, typedArray1, false)
-      //   ).to.revertedWith("Illegal UUPS");
-      // });
-      //
-      // it("Should upgrade proxy by systemAdmin with invalid proxy subject failed", async () => {
-      //   // given
-      //   const baseUUPSProxy = await deployments.getArtifact("UUPSUpgradeableTest");
-      //   const invalidProxy = await deployMockContract(livelyAdmin, baseUUPSProxy.abi);
-      //   await invalidProxy.mock.proxiableUUID.returns(
-      //     "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc"
-      //   );
-      //   const typedArray1 = new Int8Array(0);
-      //
-      //   // when and then
-      //   await expect(
-      //     aclManagerProxy.connect(systemAdmin).upgradeTo(invalidProxy.address, typedArray1, false)
-      //   ).to.revertedWith("Illegal Proxy");
-      // });
-      //
-      // it("Should upgrade proxy by systemAdmin success", async () => {
-      //   // given
-      //   const typedArray1 = new Int8Array(0);
-      //
-      //   // when and then
-      //   await expect(
-      //     aclManagerProxy.connect(livelyAdmin).upgradeTo(aclManagerSubject.address, typedArray1, false)
-      //   )
-      //     .to.emit(aclManagerProxy, "Upgraded")
-      //     .withArgs(systemAdminWallet.address, aclManagerProxy.address, aclManagerSubject.address);
-      // });
-      //
-      // it("Should setAdmin proxy to new account success", async () => {
-      //   // when and then
-      //   await expect(aclManagerProxy.connect(systemAdmin).setLocalAdmin(userWallet1.address))
-      //     .to.emit(aclManagerProxy, "ProxyLocalAdminUpdated")
-      //     .withArgs(systemAdminWallet.address, aclManagerProxy.address, userWallet1.address);
-      // });
-      //
-      // it("Should init proxy call by new systemAdmin failed", async () => {
-      //   // when and then
-      //   await expect(
-      //     aclManagerProxy
-      //       .connect(user1)
-      //       .initialize(ACL_MANAGER_CONTRACT_NAME, CONTRACTS_VERSION)
-      //   ).to.revertedWith("Contract Already Initialized");
-      // });
-      //
-      // it("Should enable SafeMode proxy by user1 failed", async () => {
-      //   // when and then
-      //   await expect(aclManagerProxy.connect(user1).setSafeModeStatus(ProxySafeModeStatus.ENABLED)).to.revertedWith("Forbidden");
-      // });
-      //
-      // it("Should enable SafeMode proxy by systemAdmin success", async () => {
-      //   // when and then
-      //   await expect(aclManagerProxy.connect(systemAdmin).setSafeModeStatus(ProxySafeModeStatus.ENABLED))
-      //     .to.emit(aclManagerProxy, "ProxySafeModeUpdated")
-      //     .withArgs(
-      //       systemAdminWallet.address,
-      //       aclManagerProxy.address,
-      //       ProxySafeModeStatus.ENABLED
-      //     );
-      // });
-      //
-      // it("Should setAdmin proxy failed (in safeMode)", async () => {
-      //   // when
-      //   const address = await user1.getAddress();
-      //
-      //   // when and then
-      //   await expect(aclManagerProxy.connect(systemAdmin).setLocalAdmin(address)).to.revertedWith(
-      //     "Rejected"
-      //   );
-      // });
-      //
-      // it("Should disable SafeMode of proxy by systemAdmin success", async () => {
-      //   // given
-      //   const adminAddress = await livelyAdmin.getAddress();
-      //
-      //   // when and then
-      //   await expect(aclManagerProxy.connect(systemAdmin).setSafeModeStatus(ProxySafeModeStatus.DISABLED))
-      //     .to.emit(aclManagerProxy, "ProxySafeModeUpdated")
-      //     .withArgs(
-      //       adminAddress,
-      //       aclManagerProxy.address,
-      //       ProxySafeModeStatus.DISABLED
-      //     );
-      // });
-      //
-      // it("Should setAccessControlManager with invalid acl failed", async () => {
-      //   // given
-      //   const address = await user1.getAddress();
-      //
-      //   // when and then
-      //   await expect(aclManagerProxy.connect(systemAdmin).setAccessControlManager(address)).to.be.revertedWith(
-      //     "Illegal ACL"
-      //   );
-      // });
-      //
-      // it("Should setAccessControlManager with invalid acl failed", async () => {
-      //   // given
-      //   const aclAddress = await aclManagerProxy.accessControlManager();
-      //
-      //   // when and then
-      //   await expect(aclManagerProxy.connect(systemAdmin).setAccessControlManager(aclManagerProxy.address))
-      //     .to.emit(aclManagerProxy, "ProxyAccessControlUpdated")
-      //     .withArgs(systemAdminWallet.address, aclManagerProxy.address, aclManagerProxy.address)
-      //
-      //   // and
-      //   expect(await aclManagerProxy.accessControlManager()).to.be.equal(aclAddress);
-      // });
     });
 
     describe("ACL Modules Proxies Tests", function() {
@@ -1290,18 +1109,16 @@ describe("AccessControlManager Tests",
           },
           {
             facetId: roleManagerProxy.address,
-            interfaceId: "0xfa07f5d7",
+            interfaceId: "0x0a0c4696",
             subjectId: roleManagerSubject.address,
             selectors: [
               roleIface.getSighash("roleRegister"),
               roleIface.getSighash("roleGrantMembers"),
               roleIface.getSighash("roleRevokeMembers"),
               roleIface.getSighash("roleUpdateAdmin"),
-              roleIface.getSighash("roleDeleteActivity"),
               roleIface.getSighash("roleUpdateActivityStatus"),
               roleIface.getSighash("roleUpdateAlterabilityStatus"),
               roleIface.getSighash("roleUpdateMemberLimit"),
-              roleIface.getSighash("roleUpdateScopeLimit"),
               roleIface.getSighash("roleCheckId"),
               roleIface.getSighash("roleCheckName"),
               roleIface.getSighash("roleCheckAdmin"),
@@ -1311,16 +1128,14 @@ describe("AccessControlManager Tests",
           },
           {
             facetId: typeManagerProxy.address,
-            interfaceId: "0x07a5204b",
+            interfaceId: "0x716ce960",
             subjectId: typeManagerSubject.address,
             selectors: [
               typeIface.getSighash("typeRegister"),
               typeIface.getSighash("typeUpdateAdmin"),
-              typeIface.getSighash("typeDeleteActivity"),
               typeIface.getSighash("typeUpdateActivityStatus"),
               typeIface.getSighash("typeUpdateAlterabilityStatus"),
               typeIface.getSighash("typeUpdateRoleLimit"),
-              typeIface.getSighash("typeUpdateScopeLimit"),
               typeIface.getSighash("typeCheckId"),
               typeIface.getSighash("typeCheckName"),
               typeIface.getSighash("typeCheckAdmin"),
@@ -1332,7 +1147,7 @@ describe("AccessControlManager Tests",
           },
           {
             facetId: policyManagerProxy.address,
-            interfaceId: "0xbdc9925e",
+            interfaceId: "0x68bd2e70",
             subjectId: policyManagerSubject.address,
             selectors: [
               policyIface.getSighash("policyRegister"),
@@ -1340,7 +1155,6 @@ describe("AccessControlManager Tests",
               policyIface.getSighash("policyRemoveRoles"),
               policyIface.getSighash("policyUpdateCodes"),
               policyIface.getSighash("policyUpdateAdmin"),
-              policyIface.getSighash("policyDeleteActivity"),
               policyIface.getSighash("policyUpdateActivityStatus"),
               policyIface.getSighash("policyUpdateAlterabilityStatus"),
               policyIface.getSighash("policyUpdatesRoleLimit"),
@@ -1357,13 +1171,12 @@ describe("AccessControlManager Tests",
           },
           {
             facetId: functionManagerProxy.address,
-            interfaceId: "0x5bc54564",
+            interfaceId: "0x817d2608",
             subjectId: functionManagerSubject.address,
             selectors: [
               functionIface.getSighash("functionRegister"),
               functionIface.getSighash("functionUpdateAdmin"),
               functionIface.getSighash("functionUpdateAgent"),
-              functionIface.getSighash("functionDeleteActivity"),
               functionIface.getSighash("functionUpdateActivityStatus"),
               functionIface.getSighash("functionUpdateAlterabilityStatus"),
               functionIface.getSighash("functionUpdatePolicy"),
@@ -1377,11 +1190,10 @@ describe("AccessControlManager Tests",
           },
           {
             facetId: contextManagerProxy.address,
-            interfaceId: "0xe9501716",
+            interfaceId: "0xfcd89410",
             subjectId: contextManagerSubject.address,
             selectors: [
               contextIface.getSighash("contextRegister"),
-              contextIface.getSighash("contextDeleteActivity"),
               contextIface.getSighash("contextUpdateActivityStatus"),
               contextIface.getSighash("contextUpdateAlterabilityStatus"),
               contextIface.getSighash("contextUpdateAdmin"),
@@ -1397,12 +1209,11 @@ describe("AccessControlManager Tests",
           },
           {
             facetId: realmManagerProxy.address,
-            interfaceId: "0xaf3c8dec",
+            interfaceId: "0x015c60c8",
             subjectId: realmManagerSubject.address,
             selectors: [
               realmIface.getSighash("realmRegister"),
               realmIface.getSighash("realmUpdateAdmin"),
-              realmIface.getSighash("realmDeleteActivity"),
               realmIface.getSighash("realmUpdateActivityStatus"),
               realmIface.getSighash("realmUpdateAlterabilityStatus"),
               realmIface.getSighash("realmUpdateContextLimit"),
@@ -1418,11 +1229,10 @@ describe("AccessControlManager Tests",
           },
           {
             facetId: domainManagerProxy.address,
-            interfaceId: "0xf7da3621",
+            interfaceId: "0x4227a2ac",
             subjectId: domainManagerSubject.address,
             selectors: [
               domainIface.getSighash("domainRegister"),
-              domainIface.getSighash("domainDeleteActivity"),
               domainIface.getSighash("domainUpdateActivityStatus"),
               domainIface.getSighash("domainUpdateAlterabilityStatus"),
               domainIface.getSighash("domainUpdateAdmin"),
@@ -1492,19 +1302,19 @@ describe("AccessControlManager Tests",
           .to.emit(aclManagerProxy, "ACLFacetRegistered")
           .withArgs(systemAdminWallet.address, memberManagerProxy.address, memberManagerSubject.address, "0x51eb353f")
           .to.emit(aclManagerProxy, "ACLFacetRegistered")
-          .withArgs(systemAdminWallet.address, roleManagerProxy.address, roleManagerSubject.address, "0xfa07f5d7")
+          .withArgs(systemAdminWallet.address, roleManagerProxy.address, roleManagerSubject.address, "0x0a0c4696")
           .to.emit(aclManagerProxy, "ACLFacetRegistered")
-          .withArgs(systemAdminWallet.address, typeManagerProxy.address, typeManagerSubject.address, "0x07a5204b")
+          .withArgs(systemAdminWallet.address, typeManagerProxy.address, typeManagerSubject.address, "0x716ce960")
           .to.emit(aclManagerProxy, "ACLFacetRegistered")
-          .withArgs(systemAdminWallet.address, policyManagerProxy.address, policyManagerSubject.address, "0xbdc9925e")
+          .withArgs(systemAdminWallet.address, policyManagerProxy.address, policyManagerSubject.address, "0x68bd2e70")
           .to.emit(aclManagerProxy, "ACLFacetRegistered")
-          .withArgs(systemAdminWallet.address, functionManagerProxy.address, functionManagerSubject.address, "0x5bc54564")
+          .withArgs(systemAdminWallet.address, functionManagerProxy.address, functionManagerSubject.address, "0x817d2608")
           .to.emit(aclManagerProxy, "ACLFacetRegistered")
-          .withArgs(systemAdminWallet.address, contextManagerProxy.address, contextManagerSubject.address, "0xe9501716")
+          .withArgs(systemAdminWallet.address, contextManagerProxy.address, contextManagerSubject.address, "0xfcd89410")
           .to.emit(aclManagerProxy, "ACLFacetRegistered")
-          .withArgs(systemAdminWallet.address, realmManagerProxy.address, realmManagerSubject.address, "0xaf3c8dec")
+          .withArgs(systemAdminWallet.address, realmManagerProxy.address, realmManagerSubject.address, "0x015c60c8")
           .to.emit(aclManagerProxy, "ACLFacetRegistered")
-          .withArgs(systemAdminWallet.address, domainManagerProxy.address, domainManagerSubject.address, "0xf7da3621")
+          .withArgs(systemAdminWallet.address, domainManagerProxy.address, domainManagerSubject.address, "0x4227a2ac")
           .to.emit(aclManagerProxy, "ACLFacetRegistered")
           .withArgs(systemAdminWallet.address, globalManagerProxy.address, globalManagerSubject.address, "0xa301c1f2")
           .to.emit(aclManagerProxy, "ACLFacetRegistered")
@@ -1528,15 +1338,15 @@ describe("AccessControlManager Tests",
 
         // 0x46414ba0   =>     IACLManager
         // 0x7a327937   =>     IAccessControl
-        // 0xbdc9925e   =>     IPolicyManagement
-        // 0x5bc54564   =>     IFunctionManagement
-        // 0xe9501716   =>     IContextManagement
-        // 0xaf3c8dec   =>     IRealmManagement
-        // 0xf7da3621   =>     IDomainManagement
+        // 0x68bd2e70   =>     IPolicyManagement
+        // 0x817d2608   =>     IFunctionManagement
+        // 0xfcd89410   =>     IContextManagement
+        // 0x015c60c8   =>     IRealmManagement
+        // 0x4227a2ac   =>     IDomainManagement
         // 0xa301c1f2   =>     IGlobalManagement
         // 0x51eb353f   =>     IMemberManagement
-        // 0xfa07f5d7   =>     IRoleManagement
-        // 0x07a5204b   =>     ITypeManagement
+        // 0x0a0c4696   =>     IRoleManagement
+        // 0x716ce960   =>     ITypeManagement
       })
 
       it("Should register ACL contexts by systemAdmin success", async() => {
@@ -1743,10 +1553,6 @@ describe("AccessControlManager Tests",
         expect(await contextManagerDelegateProxy.contextCheckId(accessControlContextId)).to.be.true;
 
         // and
-        const typeInfo: ITypeManagement.TypeInfoStruct = await typeManagerDelegateProxy.typeGetInfo(LIVELY_VERSE_ACL_TYPE_ID);
-        expect(typeInfo.referredByScope).to.be.equal(9)
-
-        // and
         const memberContextInfo: IContextManagement.ContextInfoStruct = await contextManagerDelegateProxy.contextGetInfo(memberContextId);
         expect(memberContextInfo.name).to.be.equal(MEMBER_MANAGER_CONTRACT_NAME);
         expect(memberContextInfo.version).to.be.equal(CONTRACTS_VERSION);
@@ -1758,7 +1564,6 @@ describe("AccessControlManager Tests",
         expect(memberContextInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
         expect(memberContextInfo.alstat).to.be.equal(AlterabilityStatus.UPGRADABLE);
         expect(memberContextInfo.referredByAgent).to.be.equal(0);
-        expect(memberContextInfo.referredByPolicy).to.be.equal(0);
       })
 
       it("Should register MemberManger functions by systemAdmin success", async() => {
@@ -1768,6 +1573,39 @@ describe("AccessControlManager Tests",
         const memberRegisterFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
           [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
+        const memberUpdateActivityStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [memberManagerProxy.address,  memberIface.getSighash("memberUpdateActivityStatus")]));
+        const memberUpdateAlterabilityStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [memberManagerProxy.address,  memberIface.getSighash("memberUpdateAlterabilityStatus")]))
+        const memberUpdateAdminFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [memberManagerProxy.address,  memberIface.getSighash("memberUpdateAdmin")]))
+        const memberUpdateTypeLimitFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [memberManagerProxy.address,  memberIface.getSighash("memberUpdateTypeLimit")]))
+        const memberUpdateFactoryLimitFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [memberManagerProxy.address,  memberIface.getSighash("memberUpdateFactoryLimit")]))
+        const upgradeToFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [memberManagerProxy.address,  memberIface.getSighash("upgradeTo")]))
+        const setSafeModeStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [memberManagerProxy.address,  memberIface.getSighash("setSafeModeStatus")]))
+        const setUpgradabilityStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [memberManagerProxy.address,  memberIface.getSighash("setUpgradabilityStatus")]))
+        const setLocalAdminFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [memberManagerProxy.address,  memberIface.getSighash("setLocalAdmin")]))
+        const setAccessControlManagerFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [memberManagerProxy.address,  memberIface.getSighash("setAccessControlManager")]))
+        const withdrawBalanceFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [memberManagerProxy.address,  memberIface.getSighash("withdrawBalance")]))
         const memberFunctionRequests: IFunctionManagement.FunctionRegisterRequestStruct[] = [
           {
             signature: new Int8Array(0),
@@ -1780,143 +1618,170 @@ describe("AccessControlManager Tests",
             acstat: ActivityStatus.ENABLED,
             alstat: AlterabilityStatus.UPDATABLE
           },
-          // {
-          //   signature: new Int8Array(0),
-          //   adminId: LIVELY_VERSE_ACL_TYPE_ID,
-          //   agentId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
-          //   contractId: memberManagerProxy.address,
-          //   selector:  memberIface.getSighash("memberUpdateActivityStatus"),
-          //   agentLimit: 65535,
-          //   policyCode: 0,
-          //   acstat: ActivityStatus.ENABLED,
-          //   alstat: AlterabilityStatus.UPDATABLE
-          // },
-          // {
-          //   signature: new Int8Array(0),
-          //   adminId: LIVELY_VERSE_ACL_TYPE_ID,
-          //   agentId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
-          //   contractId: memberManagerProxy.address,
-          //   selector:  memberIface.getSighash("memberUpdateAlterabilityStatus"),
-          //   agentLimit: 65535,
-          //   policyCode: 0,
-          //   acstat: ActivityStatus.ENABLED,
-          //   alstat: AlterabilityStatus.UPDATABLE
-          // },
-          // {
-          //   signature: new Int8Array(0),
-          //   adminId: LIVELY_VERSE_ACL_TYPE_ID,
-          //   agentId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
-          //   contractId: memberManagerProxy.address,
-          //   selector:  memberIface.getSighash("memberUpdateAdmin"),
-          //   agentLimit: 65535,
-          //   policyCode: 0,
-          //   acstat: ActivityStatus.ENABLED,
-          //   alstat: AlterabilityStatus.UPDATABLE
-          // },
-          // {
-          //   signature: new Int8Array(0),
-          //   adminId: LIVELY_VERSE_ACL_TYPE_ID,
-          //   agentId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
-          //   contractId: memberManagerProxy.address,
-          //   selector:  memberIface.getSighash("memberUpdateTypeLimit"),
-          //   agentLimit: 65535,
-          //   policyCode: 0,
-          //   acstat: ActivityStatus.ENABLED,
-          //   alstat: AlterabilityStatus.UPDATABLE
-          // },
-          // {
-          //   signature: new Int8Array(0),
-          //   adminId: LIVELY_VERSE_ACL_TYPE_ID,
-          //   agentId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
-          //   contractId: memberManagerProxy.address,
-          //   selector:  memberIface.getSighash("memberUpdateFactoryLimit"),
-          //   agentLimit: 65535,
-          //   policyCode: 0,
-          //   acstat: ActivityStatus.ENABLED,
-          //   alstat: AlterabilityStatus.UPDATABLE
-          // },
-          // {
-          //   signature: new Int8Array(0),
-          //   adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-          //   agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-          //   contractId: memberManagerProxy.address,
-          //   selector: memberIface.getSighash("upgradeTo"),
-          //   agentLimit: 65535,
-          //   policyCode: 0,
-          //   acstat: ActivityStatus.ENABLED,
-          //   alstat: AlterabilityStatus.UPDATABLE
-          // },
-          // {
-          //   signature: new Int8Array(0),
-          //   adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-          //   agentId: LIVELY_VERSE_ACL_TYPE_ID,
-          //   contractId: memberManagerProxy.address,
-          //   selector: memberIface.getSighash("setSafeModeStatus"),
-          //   agentLimit: 65535,
-          //   policyCode: 0,
-          //   acstat: ActivityStatus.ENABLED,
-          //   alstat: AlterabilityStatus.UPDATABLE
-          // },
-          // {
-          //   signature: new Int8Array(0),
-          //   adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-          //   agentId: LIVELY_VERSE_ACL_TYPE_ID,
-          //   contractId: memberManagerProxy.address,
-          //   selector: memberIface.getSighash("setUpgradabilityStatus"),
-          //   agentLimit: 65535,
-          //   policyCode: 0,
-          //   acstat: ActivityStatus.ENABLED,
-          //   alstat: AlterabilityStatus.UPDATABLE
-          // },
-          // {
-          //   signature: new Int8Array(0),
-          //   adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-          //   agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-          //   contractId: memberManagerProxy.address,
-          //   selector: memberIface.getSighash("setLocalAdmin"),
-          //   agentLimit: 65535,
-          //   policyCode: 0,
-          //   acstat: ActivityStatus.ENABLED,
-          //   alstat: AlterabilityStatus.UPDATABLE
-          // },
-          // {
-          //   signature: new Int8Array(0),
-          //   adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-          //   agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-          //   contractId: memberManagerProxy.address,
-          //   selector: memberIface.getSighash("setAccessControlManager"),
-          //   agentLimit: 65535,
-          //   policyCode: 0,
-          //   acstat: ActivityStatus.ENABLED,
-          //   alstat: AlterabilityStatus.UPDATABLE
-          // },
-          // {
-          //   signature: new Int8Array(0),
-          //   adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-          //   agentId: LIVELY_VERSE_ACL_TYPE_ID,
-          //   contractId: memberManagerProxy.address,
-          //   selector: memberIface.getSighash("withdrawBalance"),
-          //   agentLimit: 65535,
-          //   policyCode: 0,
-          //   acstat: ActivityStatus.ENABLED,
-          //   alstat: AlterabilityStatus.UPDATABLE
-          // },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
+            contractId: memberManagerProxy.address,
+            selector:  memberIface.getSighash("memberUpdateActivityStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
+            contractId: memberManagerProxy.address,
+            selector:  memberIface.getSighash("memberUpdateAlterabilityStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
+            contractId: memberManagerProxy.address,
+            selector:  memberIface.getSighash("memberUpdateAdmin"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
+            contractId: memberManagerProxy.address,
+            selector:  memberIface.getSighash("memberUpdateTypeLimit"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
+            contractId: memberManagerProxy.address,
+            selector:  memberIface.getSighash("memberUpdateFactoryLimit"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+            contractId: memberManagerProxy.address,
+            selector: memberIface.getSighash("upgradeTo"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_ACL_TYPE_ID,
+            contractId: memberManagerProxy.address,
+            selector: memberIface.getSighash("setSafeModeStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_ACL_TYPE_ID,
+            contractId: memberManagerProxy.address,
+            selector: memberIface.getSighash("setUpgradabilityStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+            contractId: memberManagerProxy.address,
+            selector: memberIface.getSighash("setLocalAdmin"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+            contractId: memberManagerProxy.address,
+            selector: memberIface.getSighash("setAccessControlManager"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_ACL_TYPE_ID,
+            contractId: memberManagerProxy.address,
+            selector: memberIface.getSighash("withdrawBalance"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
         ]
-
-        functionManagerDelegateProxy = functionManagerProxy.attach(aclManagerProxy.address);
 
         // when
         await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(memberFunctionRequests))
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, memberContextId, memberRegisterFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
             LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, memberContextId, memberUpdateActivityStatusFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, memberContextId, memberUpdateAlterabilityStatusFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, memberContextId, memberUpdateAdminFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, memberContextId, memberUpdateTypeLimitFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, memberContextId, memberUpdateFactoryLimitFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, memberContextId, upgradeToFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, memberContextId, setSafeModeStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_ACL_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, memberContextId, setUpgradabilityStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_ACL_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, memberContextId, setLocalAdminFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, memberContextId, setAccessControlManagerFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, memberContextId, withdrawBalanceFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_ACL_TYPE_ID, systemAdminWallet.address)
 
         // then
         expect(await contextManagerDelegateProxy.contextHasFunction(memberContextId, memberRegisterFunctionId)).to.be.true
-
-        // and
-        const typeInfo: ITypeManagement.TypeInfoStruct = await typeManagerDelegateProxy.typeGetInfo(LIVELY_VERSE_ACL_TYPE_ID);
-        expect(typeInfo.referredByScope).to.be.equal(10)
 
         // and
         const functionInfo: IFunctionManagement.FunctionInfoStruct = await functionManagerDelegateProxy.functionGetInfo(memberRegisterFunctionId);
@@ -1931,1356 +1796,2322 @@ describe("AccessControlManager Tests",
         expect(functionInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
         expect(functionInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
         expect(functionInfo.referredByAgent).to.be.equal(0);
-        expect(functionInfo.referredByPolicy).to.be.equal(0);
       })
-      // it("Should register RoleManager functions by systemAdmin success", async() => {
-      //   const roleIface = new ethers.utils.Interface(RoleManager__factory.abi);
-      //   const roleFunctionRequests: IFunctionManagement.FunctionRegisterRequestStruct[] = [
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: roleManagerProxy.address,
-      //       selector: roleIface.getSighash("roleRegister"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: roleManagerProxy.address,
-      //       selector: roleIface.getSighash("roleGrantMembers"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: roleManagerProxy.address,
-      //       selector: roleIface.getSighash("roleRevokeMembers"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: roleManagerProxy.address,
-      //       selector: roleIface.getSighash("roleUpdateAdmin"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: roleManagerProxy.address,
-      //       selector: roleIface.getSighash("roleDeleteActivity"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: roleManagerProxy.address,
-      //       selector: roleIface.getSighash("roleUpdateActivityStatus"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: roleManagerProxy.address,
-      //       selector: roleIface.getSighash("roleUpdateAlterabilityStatus"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: roleManagerProxy.address,
-      //       selector: roleIface.getSighash("roleUpdateMemberLimit"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: roleManagerProxy.address,
-      //       selector: roleIface.getSighash("roleUpdateScopeLimit"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-      //       contractId: roleManagerProxy.address,
-      //       selector: roleIface.getSighash("upgradeTo"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       contractId: roleManagerProxy.address,
-      //       selector: roleIface.getSighash("setSafeModeStatus"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       contractId: roleManagerProxy.address,
-      //       selector: roleIface.getSighash("setUpgradabilityStatus"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-      //       contractId: roleManagerProxy.address,
-      //       selector: roleIface.getSighash("setLocalAdmin"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-      //       contractId: roleManagerProxy.address,
-      //       selector: roleIface.getSighash("setAccessControlManager"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       contractId: roleManagerProxy.address,
-      //       selector: roleIface.getSighash("withdrawBalance"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //   ]
-      // })
-      // it("Should register TypeManager functions by systemAdmin success", async() => {
-      //   const typeIface = new ethers.utils.Interface(TypeManager__factory.abi);
-      //   const typeFunctionRequests: IFunctionManagement.FunctionRegisterRequestStruct[] = [
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_AGENT_MASTER_TYPE_ID,
-      //       contractId: typeManagerProxy.address,
-      //       selector: typeIface.getSighash("typeRegister"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: typeManagerProxy.address,
-      //       selector: typeIface.getSighash("typeUpdateAdmin"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: typeManagerProxy.address,
-      //       selector: typeIface.getSighash("typeDeleteActivity"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: typeManagerProxy.address,
-      //       selector: typeIface.getSighash("typeUpdateActivityStatus"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: typeManagerProxy.address,
-      //       selector: typeIface.getSighash("typeUpdateAlterabilityStatus"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: typeManagerProxy.address,
-      //       selector: typeIface.getSighash("typeUpdateRoleLimit"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: typeManagerProxy.address,
-      //       selector: typeIface.getSighash("typeUpdateScopeLimit"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-      //       contractId: typeManagerProxy.address,
-      //       selector: typeIface.getSighash("upgradeTo"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       contractId: typeManagerProxy.address,
-      //       selector: typeIface.getSighash("setSafeModeStatus"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       contractId: typeManagerProxy.address,
-      //       selector: typeIface.getSighash("setUpgradabilityStatus"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-      //       contractId: typeManagerProxy.address,
-      //       selector: typeIface.getSighash("setLocalAdmin"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-      //       contractId: typeManagerProxy.address,
-      //       selector: typeIface.getSighash("setAccessControlManager"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       contractId: typeManagerProxy.address,
-      //       selector: typeIface.getSighash("withdrawBalance"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //   ]
-      // })
-      // it("Should register FunctionManager functions by systemAdmin success", async() => {
-      //   const functionIface = new ethers.utils.Interface(FunctionManager__factory.abi);
-      //   const functionFunctionRequests: IFunctionManagement.FunctionRegisterRequestStruct[] = [
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: functionManagerProxy.address,
-      //       selector: functionIface.getSighash("functionUpdateAdmin"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: functionManagerProxy.address,
-      //       selector: functionIface.getSighash("functionUpdateAgent"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: functionManagerProxy.address,
-      //       selector: functionIface.getSighash("functionDeleteActivity"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: functionManagerProxy.address,
-      //       selector: functionIface.getSighash("functionUpdateActivityStatus"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: functionManagerProxy.address,
-      //       selector: functionIface.getSighash("functionUpdateAlterabilityStatus"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: functionManagerProxy.address,
-      //       selector: functionIface.getSighash("functionUpdatePolicy"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: functionManagerProxy.address,
-      //       selector: functionIface.getSighash("functionUpdateAgentLimit"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-      //       contractId: functionManagerProxy.address,
-      //       selector: functionIface.getSighash("upgradeTo"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       contractId: functionManagerProxy.address,
-      //       selector: functionIface.getSighash("setSafeModeStatus"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       contractId: functionManagerProxy.address,
-      //       selector: functionIface.getSighash("setUpgradabilityStatus"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-      //       contractId: functionManagerProxy.address,
-      //       selector: functionIface.getSighash("setLocalAdmin"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-      //       contractId: functionManagerProxy.address,
-      //       selector: functionIface.getSighash("setAccessControlManager"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       contractId: functionManagerProxy.address,
-      //       selector: functionIface.getSighash("withdrawBalance"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //   ]
-      // })
-      // it("Should register ContextManager functions by systemAdmin success", async() => {
-      //   const contextIface = new ethers.utils.Interface(ContextManager__factory.abi);
-      //   const contextFunctionRequests: IFunctionManagement.FunctionRegisterRequestStruct[] = [
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: contextManagerProxy.address,
-      //       selector: contextIface.getSighash("contextDeleteActivity"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: contextManagerProxy.address,
-      //       selector: contextIface.getSighash("contextUpdateActivityStatus"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: contextManagerProxy.address,
-      //       selector: contextIface.getSighash("contextUpdateAlterabilityStatus"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: contextManagerProxy.address,
-      //       selector: contextIface.getSighash("contextUpdateAdmin"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: contextManagerProxy.address,
-      //       selector: contextIface.getSighash("contextUpdateAgentLimit"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-      //       contractId: contextManagerProxy.address,
-      //       selector: contextIface.getSighash("upgradeTo"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       contractId: contextManagerProxy.address,
-      //       selector: contextIface.getSighash("setSafeModeStatus"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       contractId: contextManagerProxy.address,
-      //       selector: contextIface.getSighash("setUpgradabilityStatus"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-      //       contractId: contextManagerProxy.address,
-      //       selector: contextIface.getSighash("setLocalAdmin"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-      //       contractId: contextManagerProxy.address,
-      //       selector: contextIface.getSighash("setAccessControlManager"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       contractId: contextManagerProxy.address,
-      //       selector: contextIface.getSighash("withdrawBalance"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //   ]
-      // })
-      // it("Should register RealmManager functions by systemAdmin success", async() => {
-      //   const realmIface = new ethers.utils.Interface(RealmManager__factory.abi);
-      //   const realmFunctionRequests: IFunctionManagement.FunctionRegisterRequestStruct[] = [
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_SCOPE_MASTER_TYPE_ID,
-      //       contractId: realmManagerProxy.address,
-      //       selector: realmIface.getSighash("realmRegister"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: realmManagerProxy.address,
-      //       selector: realmIface.getSighash("realmUpdateAdmin"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: realmManagerProxy.address,
-      //       selector: realmIface.getSighash("realmDeleteActivity"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: realmManagerProxy.address,
-      //       selector: realmIface.getSighash("realmUpdateActivityStatus"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: realmManagerProxy.address,
-      //       selector: realmIface.getSighash("realmUpdateAlterabilityStatus"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: realmManagerProxy.address,
-      //       selector: realmIface.getSighash("realmUpdateContextLimit"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: realmManagerProxy.address,
-      //       selector: realmIface.getSighash("realmUpdateAgentLimit"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-      //       contractId: realmManagerProxy.address,
-      //       selector: realmIface.getSighash("upgradeTo"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       contractId: realmManagerProxy.address,
-      //       selector: realmIface.getSighash("setSafeModeStatus"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       contractId: realmManagerProxy.address,
-      //       selector: realmIface.getSighash("setUpgradabilityStatus"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-      //       contractId: realmManagerProxy.address,
-      //       selector: realmIface.getSighash("setLocalAdmin"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-      //       contractId: realmManagerProxy.address,
-      //       selector: realmIface.getSighash("setAccessControlManager"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       contractId: realmManagerProxy.address,
-      //       selector: realmIface.getSighash("withdrawBalance"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //   ]
-      // })
-      // it("Should register DomainManager functions by systemAdmin success", async() => {
-      //   const domainIface = new ethers.utils.Interface(DomainManager__factory.abi);
-      //   const domainFunctionRequests: IFunctionManagement.FunctionRegisterRequestStruct[] = [
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_SCOPE_MASTER_TYPE_ID,
-      //       contractId: domainManagerProxy.address,
-      //       selector: domainIface.getSighash("domainRegister"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: domainManagerProxy.address,
-      //       selector: domainIface.getSighash("domainDeleteActivity"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: domainManagerProxy.address,
-      //       selector: domainIface.getSighash("domainUpdateActivityStatus"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: domainManagerProxy.address,
-      //       selector: domainIface.getSighash("domainUpdateAlterabilityStatus"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: domainManagerProxy.address,
-      //       selector: domainIface.getSighash("domainUpdateAdmin"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: domainManagerProxy.address,
-      //       selector: domainIface.getSighash("domainUpdateRealmLimit"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: domainManagerProxy.address,
-      //       selector: domainIface.getSighash("domainUpdateAgentLimit"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-      //       contractId: domainManagerProxy.address,
-      //       selector: domainIface.getSighash("upgradeTo"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       contractId: domainManagerProxy.address,
-      //       selector: domainIface.getSighash("setSafeModeStatus"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       contractId: domainManagerProxy.address,
-      //       selector: domainIface.getSighash("setUpgradabilityStatus"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-      //       contractId: domainManagerProxy.address,
-      //       selector: domainIface.getSighash("setLocalAdmin"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-      //       contractId: domainManagerProxy.address,
-      //       selector: domainIface.getSighash("setAccessControlManager"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       contractId: domainManagerProxy.address,
-      //       selector: domainIface.getSighash("withdrawBalance"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //   ]
-      // })
-      // it("Should register GlobalManager functions by systemAdmin success", async() => {
-      //   const globalIface = new ethers.utils.Interface(GlobalManager__factory.abi);
-      //   const globalFunctionRequests: IFunctionManagement.FunctionRegisterRequestStruct[] = [
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
-      //       contractId: globalManagerProxy.address,
-      //       selector: globalIface.getSighash("globalUpdateActivityStatus"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
-      //       contractId: globalManagerProxy.address,
-      //       selector: globalIface.getSighash("globalUpdateAlterabilityStatus"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
-      //       contractId: globalManagerProxy.address,
-      //       selector: globalIface.getSighash("globalUpdateAdmin"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
-      //       contractId: globalManagerProxy.address,
-      //       selector: globalIface.getSighash("globalUpdateDomainLimit"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
-      //       contractId: globalManagerProxy.address,
-      //       selector: globalIface.getSighash("globalUpdateAgentLimit"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-      //       contractId: globalManagerProxy.address,
-      //       selector: globalIface.getSighash("upgradeTo"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
-      //       contractId: globalManagerProxy.address,
-      //       selector: globalIface.getSighash("setSafeModeStatus"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
-      //       contractId: globalManagerProxy.address,
-      //       selector: globalIface.getSighash("setUpgradabilityStatus"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-      //       contractId: globalManagerProxy.address,
-      //       selector: globalIface.getSighash("setLocalAdmin"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-      //       contractId: globalManagerProxy.address,
-      //       selector: globalIface.getSighash("setAccessControlManager"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
-      //       contractId: globalManagerProxy.address,
-      //       selector: globalIface.getSighash("withdrawBalance"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //   ]
-      // })
-      // it("Should register ACLManager functions by systemAdmin success", async() => {
-      //   const aclManagerIface = new ethers.utils.Interface(ACLManager__factory.abi);
-      //   const aclManagerFunctionRequests: IFunctionManagement.FunctionRegisterRequestStruct[] = [
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-      //       contractId: aclManagerProxy.address,
-      //       selector: aclManagerIface.getSighash("aclRegisterFacet"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-      //       contractId: aclManagerProxy.address,
-      //       selector: aclManagerIface.getSighash("aclUpgradeFacet"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-      //       contractId: aclManagerProxy.address,
-      //       selector: aclManagerIface.getSighash("upgradeTo"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       contractId: aclManagerProxy.address,
-      //       selector: aclManagerIface.getSighash("setSafeModeStatus"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       contractId: aclManagerProxy.address,
-      //       selector: aclManagerIface.getSighash("setUpgradabilityStatus"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-      //       contractId: aclManagerProxy.address,
-      //       selector: aclManagerIface.getSighash("setLocalAdmin"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-      //       contractId: aclManagerProxy.address,
-      //       selector: aclManagerIface.getSighash("setAccessControlManager"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       contractId: aclManagerProxy.address,
-      //       selector: aclManagerIface.getSighash("withdrawBalance"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //   ]
-      // })
-      // it("Should register AccessControl functions by systemAdmin success", async() => {
-      //   const accessControlIface = new ethers.utils.Interface(AccessControl__factory.abi);
-      //   const accessControlFunctionRequests: IFunctionManagement.FunctionRegisterRequestStruct[] = [
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-      //       contractId: accessControlProxy.address,
-      //       selector: accessControlIface.getSighash("upgradeTo"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       contractId: accessControlProxy.address,
-      //       selector: accessControlIface.getSighash("setSafeModeStatus"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       contractId: accessControlProxy.address,
-      //       selector: accessControlIface.getSighash("setUpgradabilityStatus"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-      //       contractId: accessControlProxy.address,
-      //       selector: accessControlIface.getSighash("setLocalAdmin"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-      //       contractId: accessControlProxy.address,
-      //       selector: accessControlIface.getSighash("setAccessControlManager"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       contractId: accessControlProxy.address,
-      //       selector: accessControlIface.getSighash("withdrawBalance"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //   ]
-      // })
-      // it("Should register PolicyManager functions by systemAdmin success", async() => {
-      //   const policyIface = new ethers.utils.Interface(PolicyManager__factory.abi);
-      //   const policyFunctionRequests: IFunctionManagement.FunctionRegisterRequestStruct[] = [
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_POLICY_MASTER_TYPE_ID,
-      //       contractId: policyManagerProxy.address,
-      //       selector: policyIface.getSighash("policyRegister"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: policyManagerProxy.address,
-      //       selector: policyIface.getSighash("policyAddRoles"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: policyManagerProxy.address,
-      //       selector: policyIface.getSighash("policyRemoveRoles"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: policyManagerProxy.address,
-      //       selector: policyIface.getSighash("policyUpdateCodes"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: policyManagerProxy.address,
-      //       selector: policyIface.getSighash("policyUpdateAdmin"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: policyManagerProxy.address,
-      //       selector: policyIface.getSighash("policyDeleteActivity"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: policyManagerProxy.address,
-      //       selector: policyIface.getSighash("policyUpdateActivityStatus"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: policyManagerProxy.address,
-      //       selector: policyIface.getSighash("policyUpdateAlterabilityStatus"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       agentId: LIVELY_VERSE_ANY_TYPE_ID,
-      //       contractId: policyManagerProxy.address,
-      //       selector: policyIface.getSighash("policyUpdatesRoleLimit"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-      //       contractId: policyManagerProxy.address,
-      //       selector: policyIface.getSighash("upgradeTo"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       contractId: policyManagerProxy.address,
-      //       selector: policyIface.getSighash("setSafeModeStatus"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       contractId: policyManagerProxy.address,
-      //       selector: policyIface.getSighash("setUpgradabilityStatus"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-      //       contractId: policyManagerProxy.address,
-      //       selector: policyIface.getSighash("setLocalAdmin"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-      //       contractId: policyManagerProxy.address,
-      //       selector: policyIface.getSighash("setAccessControlManager"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //     {
-      //       signature: new Int8Array(0),
-      //       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_VERSE_ACL_TYPE_ID,
-      //       contractId: policyManagerProxy.address,
-      //       selector: policyIface.getSighash("withdrawBalance"),
-      //       agentLimit: 65535,
-      //       policyCode: 0,
-      //       acstat: ActivityStatus.ENABLED,
-      //       alstat: AlterabilityStatus.UPDATABLE
-      //     },
-      //   ]
-      // })
+
+      it("Should register RoleManager functions by systemAdmin success", async() => {
+        const roleIface = new ethers.utils.Interface(RoleManager__factory.abi);
+        const roleContextId = ethers.utils.keccak256(roleManagerProxy.address);
+        const roleRegisterFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [roleManagerProxy.address,  roleIface.getSighash("roleRegister")]));
+        const roleGrantMembersFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [roleManagerProxy.address,  roleIface.getSighash("roleGrantMembers")]));
+        const roleRevokeMembersFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [roleManagerProxy.address,  roleIface.getSighash("roleRevokeMembers")]))
+        const roleUpdateAdminFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [roleManagerProxy.address,  roleIface.getSighash("roleUpdateAdmin")]))
+        const roleUpdateActivityStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [roleManagerProxy.address,  roleIface.getSighash("roleUpdateActivityStatus")]))
+        const roleUpdateAlterabilityStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [roleManagerProxy.address,  roleIface.getSighash("roleUpdateAlterabilityStatus")]))
+        const roleUpdateMemberLimitFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [roleManagerProxy.address,  roleIface.getSighash("roleUpdateMemberLimit")]))
+        const upgradeToFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [roleManagerProxy.address,  roleIface.getSighash("upgradeTo")]))
+        const setSafeModeStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [roleManagerProxy.address,  roleIface.getSighash("setSafeModeStatus")]))
+        const setUpgradabilityStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [roleManagerProxy.address,  roleIface.getSighash("setUpgradabilityStatus")]))
+        const setLocalAdminFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [roleManagerProxy.address,  roleIface.getSighash("setLocalAdmin")]))
+        const setAccessControlManagerFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [roleManagerProxy.address,  roleIface.getSighash("setAccessControlManager")]))
+        const withdrawBalanceFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [roleManagerProxy.address,  roleIface.getSighash("withdrawBalance")]))
+        const roleFunctionRequests: IFunctionManagement.FunctionRegisterRequestStruct[] = [
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: roleManagerProxy.address,
+            selector: roleIface.getSighash("roleRegister"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: roleManagerProxy.address,
+            selector: roleIface.getSighash("roleGrantMembers"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: roleManagerProxy.address,
+            selector: roleIface.getSighash("roleRevokeMembers"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: roleManagerProxy.address,
+            selector: roleIface.getSighash("roleUpdateAdmin"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: roleManagerProxy.address,
+            selector: roleIface.getSighash("roleUpdateActivityStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: roleManagerProxy.address,
+            selector: roleIface.getSighash("roleUpdateAlterabilityStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: roleManagerProxy.address,
+            selector: roleIface.getSighash("roleUpdateMemberLimit"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+            contractId: roleManagerProxy.address,
+            selector: roleIface.getSighash("upgradeTo"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_ACL_TYPE_ID,
+            contractId: roleManagerProxy.address,
+            selector: roleIface.getSighash("setSafeModeStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_ACL_TYPE_ID,
+            contractId: roleManagerProxy.address,
+            selector: roleIface.getSighash("setUpgradabilityStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+            contractId: roleManagerProxy.address,
+            selector: roleIface.getSighash("setLocalAdmin"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+            contractId: roleManagerProxy.address,
+            selector: roleIface.getSighash("setAccessControlManager"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_ACL_TYPE_ID,
+            contractId: roleManagerProxy.address,
+            selector: roleIface.getSighash("withdrawBalance"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+        ]
+
+        // when
+        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(roleFunctionRequests))
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, roleContextId, roleRegisterFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, roleContextId, roleUpdateActivityStatusFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, roleContextId, roleUpdateAlterabilityStatusFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, roleContextId, roleUpdateAdminFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, roleContextId, roleUpdateMemberLimitFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, roleContextId, roleGrantMembersFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, roleContextId, roleRevokeMembersFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, roleContextId, upgradeToFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, roleContextId, setSafeModeStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_ACL_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, roleContextId, setUpgradabilityStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_ACL_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, roleContextId, setLocalAdminFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, roleContextId, setAccessControlManagerFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, roleContextId, withdrawBalanceFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_ACL_TYPE_ID, systemAdminWallet.address)
+
+        // then
+        expect(await contextManagerDelegateProxy.contextHasFunction(roleContextId, roleRegisterFunctionId)).to.be.true
+
+        // and
+        const functionInfo: IFunctionManagement.FunctionInfoStruct = await functionManagerDelegateProxy.functionGetInfo(roleRegisterFunctionId);
+        expect(functionInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
+        expect(functionInfo.agentId).to.be.equal(LIVELY_VERSE_ANY_TYPE_ID);
+        expect(functionInfo.contextId).to.be.equal(roleContextId);
+        expect(functionInfo.adminType).to.be.equal(AgentType.TYPE);
+        expect(functionInfo.agentType).to.be.equal(AgentType.TYPE);
+        expect(functionInfo.agentLimit).to.be.equal(65535);
+        expect(functionInfo.policyCode).to.be.equal(0);
+        expect(functionInfo.selector).to.be.equal(roleIface.getSighash("roleRegister"));
+        expect(functionInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(functionInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+        expect(functionInfo.referredByAgent).to.be.equal(0);
+      })
+
+      it("Should register TypeManager functions by systemAdmin success", async() => {
+        const typeIface = new ethers.utils.Interface(TypeManager__factory.abi);
+        const typeContextId = ethers.utils.keccak256(typeManagerProxy.address);
+        const typeRegisterFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [typeManagerProxy.address,  typeIface.getSighash("typeRegister")]));
+        const typeUpdateAdminFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [typeManagerProxy.address,  typeIface.getSighash("typeUpdateAdmin")]));
+        const typeUpdateActivityStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [typeManagerProxy.address,  typeIface.getSighash("typeUpdateActivityStatus")]))
+        const typeUpdateAlterabilityStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [typeManagerProxy.address,  typeIface.getSighash("typeUpdateAlterabilityStatus")]))
+        const typeUpdateRoleLimitFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [typeManagerProxy.address,  typeIface.getSighash("typeUpdateRoleLimit")]))
+        const upgradeToFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [typeManagerProxy.address,  typeIface.getSighash("upgradeTo")]))
+        const setSafeModeStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [typeManagerProxy.address,  typeIface.getSighash("setSafeModeStatus")]))
+        const setUpgradabilityStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [typeManagerProxy.address,  typeIface.getSighash("setUpgradabilityStatus")]))
+        const setLocalAdminFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [typeManagerProxy.address,  typeIface.getSighash("setLocalAdmin")]))
+        const setAccessControlManagerFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [typeManagerProxy.address,  typeIface.getSighash("setAccessControlManager")]))
+        const withdrawBalanceFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [typeManagerProxy.address,  typeIface.getSighash("withdrawBalance")]))
+        const typeFunctionRequests: IFunctionManagement.FunctionRegisterRequestStruct[] = [
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_AGENT_MASTER_TYPE_ID,
+            contractId: typeManagerProxy.address,
+            selector: typeIface.getSighash("typeRegister"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: typeManagerProxy.address,
+            selector: typeIface.getSighash("typeUpdateAdmin"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: typeManagerProxy.address,
+            selector: typeIface.getSighash("typeUpdateActivityStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: typeManagerProxy.address,
+            selector: typeIface.getSighash("typeUpdateAlterabilityStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: typeManagerProxy.address,
+            selector: typeIface.getSighash("typeUpdateRoleLimit"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+            contractId: typeManagerProxy.address,
+            selector: typeIface.getSighash("upgradeTo"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_ACL_TYPE_ID,
+            contractId: typeManagerProxy.address,
+            selector: typeIface.getSighash("setSafeModeStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_ACL_TYPE_ID,
+            contractId: typeManagerProxy.address,
+            selector: typeIface.getSighash("setUpgradabilityStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+            contractId: typeManagerProxy.address,
+            selector: typeIface.getSighash("setLocalAdmin"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+            contractId: typeManagerProxy.address,
+            selector: typeIface.getSighash("setAccessControlManager"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_ACL_TYPE_ID,
+            contractId: typeManagerProxy.address,
+            selector: typeIface.getSighash("withdrawBalance"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+        ]
+
+        // when
+        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(typeFunctionRequests))
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, typeContextId, typeRegisterFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_AGENT_MASTER_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, typeContextId, typeUpdateActivityStatusFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, typeContextId, typeUpdateAlterabilityStatusFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, typeContextId, typeUpdateAdminFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, typeContextId, typeUpdateRoleLimitFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, typeContextId, upgradeToFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, typeContextId, setSafeModeStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_ACL_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, typeContextId, setUpgradabilityStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_ACL_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, typeContextId, setLocalAdminFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, typeContextId, setAccessControlManagerFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, typeContextId, withdrawBalanceFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_ACL_TYPE_ID, systemAdminWallet.address)
+
+        // then
+        expect(await contextManagerDelegateProxy.contextHasFunction(typeContextId, typeRegisterFunctionId)).to.be.true
+
+        // and
+        const functionInfo: IFunctionManagement.FunctionInfoStruct = await functionManagerDelegateProxy.functionGetInfo(typeRegisterFunctionId);
+        expect(functionInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
+        expect(functionInfo.agentId).to.be.equal(LIVELY_VERSE_AGENT_MASTER_TYPE_ID);
+        expect(functionInfo.contextId).to.be.equal(typeContextId);
+        expect(functionInfo.adminType).to.be.equal(AgentType.TYPE);
+        expect(functionInfo.agentType).to.be.equal(AgentType.TYPE);
+        expect(functionInfo.agentLimit).to.be.equal(65535);
+        expect(functionInfo.policyCode).to.be.equal(0);
+        expect(functionInfo.selector).to.be.equal(typeIface.getSighash("typeRegister"));
+        expect(functionInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(functionInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+        expect(functionInfo.referredByAgent).to.be.equal(0);
+      })
+
+      it("Should register FunctionManager functions by systemAdmin success", async() => {
+        const functionIface = new ethers.utils.Interface(FunctionManager__factory.abi);
+        const functionContextId = ethers.utils.keccak256(functionManagerProxy.address);
+        const functionUpdateAdminFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [functionManagerProxy.address,  functionIface.getSighash("functionUpdateAdmin")]));
+        const functionUpdateAgentFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [functionManagerProxy.address,  functionIface.getSighash("functionUpdateAgent")]));
+        const functionUpdateActivityStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [functionManagerProxy.address,  functionIface.getSighash("functionUpdateActivityStatus")]))
+        const functionUpdateAlterabilityStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [functionManagerProxy.address,  functionIface.getSighash("functionUpdateAlterabilityStatus")]))
+        const functionUpdatePolicyFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [functionManagerProxy.address,  functionIface.getSighash("functionUpdatePolicy")]))
+        const functionUpdateAgentLimitFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [functionManagerProxy.address,  functionIface.getSighash("functionUpdateAgentLimit")]))
+        const upgradeToFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [functionManagerProxy.address,  functionIface.getSighash("upgradeTo")]))
+        const setSafeModeStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [functionManagerProxy.address,  functionIface.getSighash("setSafeModeStatus")]))
+        const setUpgradabilityStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [functionManagerProxy.address,  functionIface.getSighash("setUpgradabilityStatus")]))
+        const setLocalAdminFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [functionManagerProxy.address,  functionIface.getSighash("setLocalAdmin")]))
+        const setAccessControlManagerFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [functionManagerProxy.address,  functionIface.getSighash("setAccessControlManager")]))
+        const withdrawBalanceFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [functionManagerProxy.address,  functionIface.getSighash("withdrawBalance")]))
+        const functionFunctionRequests: IFunctionManagement.FunctionRegisterRequestStruct[] = [
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: functionManagerProxy.address,
+            selector: functionIface.getSighash("functionUpdateAdmin"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: functionManagerProxy.address,
+            selector: functionIface.getSighash("functionUpdateAgent"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: functionManagerProxy.address,
+            selector: functionIface.getSighash("functionUpdateActivityStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: functionManagerProxy.address,
+            selector: functionIface.getSighash("functionUpdateAlterabilityStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: functionManagerProxy.address,
+            selector: functionIface.getSighash("functionUpdatePolicy"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: functionManagerProxy.address,
+            selector: functionIface.getSighash("functionUpdateAgentLimit"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+            contractId: functionManagerProxy.address,
+            selector: functionIface.getSighash("upgradeTo"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_ACL_TYPE_ID,
+            contractId: functionManagerProxy.address,
+            selector: functionIface.getSighash("setSafeModeStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_ACL_TYPE_ID,
+            contractId: functionManagerProxy.address,
+            selector: functionIface.getSighash("setUpgradabilityStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+            contractId: functionManagerProxy.address,
+            selector: functionIface.getSighash("setLocalAdmin"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+            contractId: functionManagerProxy.address,
+            selector: functionIface.getSighash("setAccessControlManager"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_ACL_TYPE_ID,
+            contractId: functionManagerProxy.address,
+            selector: functionIface.getSighash("withdrawBalance"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+        ]
+
+        // when
+        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(functionFunctionRequests))
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, functionContextId, functionUpdateAdminFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, functionContextId, functionUpdateAgentFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, functionContextId, functionUpdateActivityStatusFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, functionContextId, functionUpdateAlterabilityStatusFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, functionContextId, functionUpdatePolicyFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, functionContextId, functionUpdateAgentLimitFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, functionContextId, upgradeToFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, functionContextId, setSafeModeStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_ACL_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, functionContextId, setUpgradabilityStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_ACL_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, functionContextId, setLocalAdminFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, functionContextId, setAccessControlManagerFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, functionContextId, withdrawBalanceFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_ACL_TYPE_ID, systemAdminWallet.address)
+
+        // then
+        expect(await contextManagerDelegateProxy.contextHasFunction(functionContextId, functionUpdateAdminFunctionId)).to.be.true
+
+        // and
+        const functionInfo: IFunctionManagement.FunctionInfoStruct = await functionManagerDelegateProxy.functionGetInfo(functionUpdateAdminFunctionId);
+        expect(functionInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
+        expect(functionInfo.agentId).to.be.equal(LIVELY_VERSE_ANY_TYPE_ID);
+        expect(functionInfo.contextId).to.be.equal(functionContextId);
+        expect(functionInfo.adminType).to.be.equal(AgentType.TYPE);
+        expect(functionInfo.agentType).to.be.equal(AgentType.TYPE);
+        expect(functionInfo.agentLimit).to.be.equal(65535);
+        expect(functionInfo.policyCode).to.be.equal(0);
+        expect(functionInfo.selector).to.be.equal(functionIface.getSighash("functionUpdateAdmin"));
+        expect(functionInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(functionInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+        expect(functionInfo.referredByAgent).to.be.equal(0);
+      })
+
+      it("Should register ContextManager functions by systemAdmin success", async() => {
+        const contextIface = new ethers.utils.Interface(ContextManager__factory.abi);
+        const contextContextId = ethers.utils.keccak256(contextManagerProxy.address);
+        const contextUpdateActivityStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [contextManagerProxy.address,  contextIface.getSighash("contextUpdateActivityStatus")]));
+        const contextUpdateAlterabilityStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [contextManagerProxy.address,  contextIface.getSighash("contextUpdateAlterabilityStatus")]));
+        const contextUpdateAdminFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [contextManagerProxy.address,  contextIface.getSighash("contextUpdateAdmin")]))
+        const contextUpdateAgentLimitFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [contextManagerProxy.address,  contextIface.getSighash("contextUpdateAgentLimit")]))
+        const upgradeToFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [contextManagerProxy.address,  contextIface.getSighash("upgradeTo")]))
+        const setSafeModeStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [contextManagerProxy.address,  contextIface.getSighash("setSafeModeStatus")]))
+        const setUpgradabilityStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [contextManagerProxy.address,  contextIface.getSighash("setUpgradabilityStatus")]))
+        const setLocalAdminFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [contextManagerProxy.address,  contextIface.getSighash("setLocalAdmin")]))
+        const setAccessControlManagerFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [contextManagerProxy.address,  contextIface.getSighash("setAccessControlManager")]))
+        const withdrawBalanceFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [contextManagerProxy.address,  contextIface.getSighash("withdrawBalance")]))
+        const contextFunctionRequests: IFunctionManagement.FunctionRegisterRequestStruct[] = [
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: contextManagerProxy.address,
+            selector: contextIface.getSighash("contextUpdateActivityStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: contextManagerProxy.address,
+            selector: contextIface.getSighash("contextUpdateAlterabilityStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: contextManagerProxy.address,
+            selector: contextIface.getSighash("contextUpdateAdmin"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: contextManagerProxy.address,
+            selector: contextIface.getSighash("contextUpdateAgentLimit"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+            contractId: contextManagerProxy.address,
+            selector: contextIface.getSighash("upgradeTo"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_ACL_TYPE_ID,
+            contractId: contextManagerProxy.address,
+            selector: contextIface.getSighash("setSafeModeStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_ACL_TYPE_ID,
+            contractId: contextManagerProxy.address,
+            selector: contextIface.getSighash("setUpgradabilityStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+            contractId: contextManagerProxy.address,
+            selector: contextIface.getSighash("setLocalAdmin"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+            contractId: contextManagerProxy.address,
+            selector: contextIface.getSighash("setAccessControlManager"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_ACL_TYPE_ID,
+            contractId: contextManagerProxy.address,
+            selector: contextIface.getSighash("withdrawBalance"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+        ]
+
+        // when
+        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(contextFunctionRequests))
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, contextContextId, contextUpdateActivityStatusFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, contextContextId, contextUpdateAlterabilityStatusFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, contextContextId, contextUpdateAdminFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, contextContextId, contextUpdateAgentLimitFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, contextContextId, upgradeToFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, contextContextId, setSafeModeStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_ACL_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, contextContextId, setUpgradabilityStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_ACL_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, contextContextId, setLocalAdminFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, contextContextId, setAccessControlManagerFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, contextContextId, withdrawBalanceFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_ACL_TYPE_ID, systemAdminWallet.address)
+
+        // then
+        expect(await contextManagerDelegateProxy.contextHasFunction(contextContextId, contextUpdateActivityStatusFunctionId)).to.be.true
+
+        // and
+        const functionInfo: IFunctionManagement.FunctionInfoStruct = await functionManagerDelegateProxy.functionGetInfo(contextUpdateActivityStatusFunctionId);
+        expect(functionInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
+        expect(functionInfo.agentId).to.be.equal(LIVELY_VERSE_ANY_TYPE_ID);
+        expect(functionInfo.contextId).to.be.equal(contextContextId);
+        expect(functionInfo.adminType).to.be.equal(AgentType.TYPE);
+        expect(functionInfo.agentType).to.be.equal(AgentType.TYPE);
+        expect(functionInfo.agentLimit).to.be.equal(65535);
+        expect(functionInfo.policyCode).to.be.equal(0);
+        expect(functionInfo.selector).to.be.equal(contextIface.getSighash("contextUpdateActivityStatus"));
+        expect(functionInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(functionInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+        expect(functionInfo.referredByAgent).to.be.equal(0);
+      })
+
+      it("Should register RealmManager functions by systemAdmin success", async() => {
+        const realmIface = new ethers.utils.Interface(RealmManager__factory.abi);
+        const realmContextId = ethers.utils.keccak256(realmManagerProxy.address);
+        const realmRegisterFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [realmManagerProxy.address,  realmIface.getSighash("realmRegister")]));
+        const realmUpdateAdminFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [realmManagerProxy.address,  realmIface.getSighash("realmUpdateAdmin")]));
+        const realmUpdateActivityStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [realmManagerProxy.address,  realmIface.getSighash("realmUpdateActivityStatus")]))
+        const realmUpdateAlterabilityStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [realmManagerProxy.address,  realmIface.getSighash("realmUpdateAlterabilityStatus")]))
+        const realmUpdateContextLimitFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [realmManagerProxy.address,  realmIface.getSighash("realmUpdateContextLimit")]))
+        const realmUpdateAgentLimitFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [realmManagerProxy.address,  realmIface.getSighash("realmUpdateAgentLimit")]))
+        const upgradeToFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [realmManagerProxy.address,  realmIface.getSighash("upgradeTo")]))
+        const setSafeModeStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [realmManagerProxy.address,  realmIface.getSighash("setSafeModeStatus")]))
+        const setUpgradabilityStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [realmManagerProxy.address,  realmIface.getSighash("setUpgradabilityStatus")]))
+        const setLocalAdminFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [realmManagerProxy.address,  realmIface.getSighash("setLocalAdmin")]))
+        const setAccessControlManagerFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [realmManagerProxy.address,  realmIface.getSighash("setAccessControlManager")]))
+        const withdrawBalanceFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [realmManagerProxy.address,  realmIface.getSighash("withdrawBalance")]))
+        const realmFunctionRequests: IFunctionManagement.FunctionRegisterRequestStruct[] = [
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_SCOPE_MASTER_TYPE_ID,
+            contractId: realmManagerProxy.address,
+            selector: realmIface.getSighash("realmRegister"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: realmManagerProxy.address,
+            selector: realmIface.getSighash("realmUpdateAdmin"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: realmManagerProxy.address,
+            selector: realmIface.getSighash("realmUpdateActivityStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: realmManagerProxy.address,
+            selector: realmIface.getSighash("realmUpdateAlterabilityStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: realmManagerProxy.address,
+            selector: realmIface.getSighash("realmUpdateContextLimit"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: realmManagerProxy.address,
+            selector: realmIface.getSighash("realmUpdateAgentLimit"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+            contractId: realmManagerProxy.address,
+            selector: realmIface.getSighash("upgradeTo"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_ACL_TYPE_ID,
+            contractId: realmManagerProxy.address,
+            selector: realmIface.getSighash("setSafeModeStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_ACL_TYPE_ID,
+            contractId: realmManagerProxy.address,
+            selector: realmIface.getSighash("setUpgradabilityStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+            contractId: realmManagerProxy.address,
+            selector: realmIface.getSighash("setLocalAdmin"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+            contractId: realmManagerProxy.address,
+            selector: realmIface.getSighash("setAccessControlManager"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_ACL_TYPE_ID,
+            contractId: realmManagerProxy.address,
+            selector: realmIface.getSighash("withdrawBalance"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+        ]
+
+        // when
+        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(realmFunctionRequests))
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, realmContextId, realmRegisterFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_SCOPE_MASTER_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, realmContextId, realmUpdateAdminFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, realmContextId, realmUpdateActivityStatusFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, realmContextId, realmUpdateAlterabilityStatusFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, realmContextId, realmUpdateContextLimitFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, realmContextId, realmUpdateAgentLimitFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, realmContextId, upgradeToFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, realmContextId, setSafeModeStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_ACL_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, realmContextId, setUpgradabilityStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_ACL_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, realmContextId, setLocalAdminFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, realmContextId, setAccessControlManagerFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, realmContextId, withdrawBalanceFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_ACL_TYPE_ID, systemAdminWallet.address)
+
+        // then
+        expect(await contextManagerDelegateProxy.contextHasFunction(realmContextId, realmRegisterFunctionId)).to.be.true
+
+        // and
+        const functionInfo: IFunctionManagement.FunctionInfoStruct = await functionManagerDelegateProxy.functionGetInfo(realmRegisterFunctionId);
+        expect(functionInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
+        expect(functionInfo.agentId).to.be.equal(LIVELY_VERSE_SCOPE_MASTER_TYPE_ID);
+        expect(functionInfo.contextId).to.be.equal(realmContextId);
+        expect(functionInfo.adminType).to.be.equal(AgentType.TYPE);
+        expect(functionInfo.agentType).to.be.equal(AgentType.TYPE);
+        expect(functionInfo.agentLimit).to.be.equal(65535);
+        expect(functionInfo.policyCode).to.be.equal(0);
+        expect(functionInfo.selector).to.be.equal(realmIface.getSighash("realmRegister"));
+        expect(functionInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(functionInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+        expect(functionInfo.referredByAgent).to.be.equal(0);
+      })
+
+      it("Should register DomainManager functions by systemAdmin success", async() => {
+        const domainIface = new ethers.utils.Interface(DomainManager__factory.abi);
+        const domainContextId = ethers.utils.keccak256(domainManagerProxy.address);
+        const domainRegisterFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [domainManagerProxy.address,  domainIface.getSighash("domainRegister")]));
+        const domainUpdateActivityStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [domainManagerProxy.address,  domainIface.getSighash("domainUpdateActivityStatus")]));
+        const domainUpdateAlterabilityStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [domainManagerProxy.address,  domainIface.getSighash("domainUpdateAlterabilityStatus")]))
+        const domainUpdateAdminFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [domainManagerProxy.address,  domainIface.getSighash("domainUpdateAdmin")]))
+        const domainUpdateRealmLimitFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [domainManagerProxy.address,  domainIface.getSighash("domainUpdateRealmLimit")]))
+        const domainUpdateAgentLimitFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [domainManagerProxy.address,  domainIface.getSighash("domainUpdateAgentLimit")]))
+        const upgradeToFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [domainManagerProxy.address,  domainIface.getSighash("upgradeTo")]))
+        const setSafeModeStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [domainManagerProxy.address,  domainIface.getSighash("setSafeModeStatus")]))
+        const setUpgradabilityStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [domainManagerProxy.address,  domainIface.getSighash("setUpgradabilityStatus")]))
+        const setLocalAdminFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [domainManagerProxy.address,  domainIface.getSighash("setLocalAdmin")]))
+        const setAccessControlManagerFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [domainManagerProxy.address,  domainIface.getSighash("setAccessControlManager")]))
+        const withdrawBalanceFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [domainManagerProxy.address,  domainIface.getSighash("withdrawBalance")]))
+        const domainFunctionRequests: IFunctionManagement.FunctionRegisterRequestStruct[] = [
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_SCOPE_MASTER_TYPE_ID,
+            contractId: domainManagerProxy.address,
+            selector: domainIface.getSighash("domainRegister"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: domainManagerProxy.address,
+            selector: domainIface.getSighash("domainUpdateActivityStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: domainManagerProxy.address,
+            selector: domainIface.getSighash("domainUpdateAlterabilityStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: domainManagerProxy.address,
+            selector: domainIface.getSighash("domainUpdateAdmin"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: domainManagerProxy.address,
+            selector: domainIface.getSighash("domainUpdateRealmLimit"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: domainManagerProxy.address,
+            selector: domainIface.getSighash("domainUpdateAgentLimit"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+            contractId: domainManagerProxy.address,
+            selector: domainIface.getSighash("upgradeTo"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_ACL_TYPE_ID,
+            contractId: domainManagerProxy.address,
+            selector: domainIface.getSighash("setSafeModeStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_ACL_TYPE_ID,
+            contractId: domainManagerProxy.address,
+            selector: domainIface.getSighash("setUpgradabilityStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+            contractId: domainManagerProxy.address,
+            selector: domainIface.getSighash("setLocalAdmin"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+            contractId: domainManagerProxy.address,
+            selector: domainIface.getSighash("setAccessControlManager"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_ACL_TYPE_ID,
+            contractId: domainManagerProxy.address,
+            selector: domainIface.getSighash("withdrawBalance"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+        ]
+
+        // when
+        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(domainFunctionRequests))
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, domainContextId, domainRegisterFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_SCOPE_MASTER_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, domainContextId, domainUpdateActivityStatusFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, domainContextId, domainUpdateAlterabilityStatusFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, domainContextId, domainUpdateAdminFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, domainContextId, domainUpdateRealmLimitFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, domainContextId, domainUpdateAgentLimitFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, domainContextId, upgradeToFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, domainContextId, setSafeModeStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_ACL_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, domainContextId, setUpgradabilityStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_ACL_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, domainContextId, setLocalAdminFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, domainContextId, setAccessControlManagerFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, domainContextId, withdrawBalanceFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_ACL_TYPE_ID, systemAdminWallet.address)
+
+        // then
+        expect(await contextManagerDelegateProxy.contextHasFunction(domainContextId, domainRegisterFunctionId)).to.be.true
+
+        // and
+        const functionInfo: IFunctionManagement.FunctionInfoStruct = await functionManagerDelegateProxy.functionGetInfo(domainRegisterFunctionId);
+        expect(functionInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
+        expect(functionInfo.agentId).to.be.equal(LIVELY_VERSE_SCOPE_MASTER_TYPE_ID);
+        expect(functionInfo.contextId).to.be.equal(domainContextId);
+        expect(functionInfo.adminType).to.be.equal(AgentType.TYPE);
+        expect(functionInfo.agentType).to.be.equal(AgentType.TYPE);
+        expect(functionInfo.agentLimit).to.be.equal(65535);
+        expect(functionInfo.policyCode).to.be.equal(0);
+        expect(functionInfo.selector).to.be.equal(domainIface.getSighash("domainRegister"));
+        expect(functionInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(functionInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+        expect(functionInfo.referredByAgent).to.be.equal(0);
+      })
+
+      it("Should register GlobalManager functions by systemAdmin success", async() => {
+        const globalIface = new ethers.utils.Interface(GlobalManager__factory.abi);
+        const globalContextId = ethers.utils.keccak256(globalManagerProxy.address);
+        const globalUpdateActivityStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [globalManagerProxy.address,  globalIface.getSighash("globalUpdateActivityStatus")]));
+        const globalUpdateAlterabilityStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [globalManagerProxy.address,  globalIface.getSighash("globalUpdateAlterabilityStatus")]));
+        const globalUpdateAdminFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [globalManagerProxy.address,  globalIface.getSighash("globalUpdateAdmin")]))
+        const globalUpdateDomainLimitFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [globalManagerProxy.address,  globalIface.getSighash("globalUpdateDomainLimit")]))
+        const globalUpdateAgentLimitFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [globalManagerProxy.address,  globalIface.getSighash("globalUpdateAgentLimit")]))
+        const upgradeToFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [globalManagerProxy.address,  globalIface.getSighash("upgradeTo")]))
+        const setSafeModeStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [globalManagerProxy.address,  globalIface.getSighash("setSafeModeStatus")]))
+        const setUpgradabilityStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [globalManagerProxy.address,  globalIface.getSighash("setUpgradabilityStatus")]))
+        const setLocalAdminFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [globalManagerProxy.address,  globalIface.getSighash("setLocalAdmin")]))
+        const setAccessControlManagerFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [globalManagerProxy.address,  globalIface.getSighash("setAccessControlManager")]))
+        const withdrawBalanceFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [globalManagerProxy.address,  globalIface.getSighash("withdrawBalance")]))
+        const globalFunctionRequests: IFunctionManagement.FunctionRegisterRequestStruct[] = [
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
+            contractId: globalManagerProxy.address,
+            selector: globalIface.getSighash("globalUpdateActivityStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
+            contractId: globalManagerProxy.address,
+            selector: globalIface.getSighash("globalUpdateAlterabilityStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
+            contractId: globalManagerProxy.address,
+            selector: globalIface.getSighash("globalUpdateAdmin"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
+            contractId: globalManagerProxy.address,
+            selector: globalIface.getSighash("globalUpdateDomainLimit"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
+            contractId: globalManagerProxy.address,
+            selector: globalIface.getSighash("globalUpdateAgentLimit"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+            contractId: globalManagerProxy.address,
+            selector: globalIface.getSighash("upgradeTo"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
+            contractId: globalManagerProxy.address,
+            selector: globalIface.getSighash("setSafeModeStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
+            contractId: globalManagerProxy.address,
+            selector: globalIface.getSighash("setUpgradabilityStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+            contractId: globalManagerProxy.address,
+            selector: globalIface.getSighash("setLocalAdmin"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+            contractId: globalManagerProxy.address,
+            selector: globalIface.getSighash("setAccessControlManager"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
+            contractId: globalManagerProxy.address,
+            selector: globalIface.getSighash("withdrawBalance"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+        ]
+
+        // when
+        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(globalFunctionRequests))
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, globalContextId, globalUpdateActivityStatusFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            LIVELY_VERSE_LIVELY_MASTER_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, globalContextId, globalUpdateAlterabilityStatusFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            LIVELY_VERSE_LIVELY_MASTER_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, globalContextId, globalUpdateAdminFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            LIVELY_VERSE_LIVELY_MASTER_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, globalContextId, globalUpdateDomainLimitFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            LIVELY_VERSE_LIVELY_MASTER_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, globalContextId, globalUpdateAgentLimitFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            LIVELY_VERSE_LIVELY_MASTER_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, globalContextId, upgradeToFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, globalContextId, setSafeModeStatusFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            LIVELY_VERSE_LIVELY_MASTER_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, globalContextId, setUpgradabilityStatusFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            LIVELY_VERSE_LIVELY_MASTER_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, globalContextId, setLocalAdminFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, globalContextId, setAccessControlManagerFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, globalContextId, withdrawBalanceFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            LIVELY_VERSE_LIVELY_MASTER_TYPE_ID, systemAdminWallet.address)
+
+        // then
+        expect(await contextManagerDelegateProxy.contextHasFunction(globalContextId, globalUpdateActivityStatusFunctionId)).to.be.true
+
+        // and
+        const functionInfo: IFunctionManagement.FunctionInfoStruct = await functionManagerDelegateProxy.functionGetInfo(globalUpdateActivityStatusFunctionId);
+        expect(functionInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
+        expect(functionInfo.agentId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_TYPE_ID);
+        expect(functionInfo.contextId).to.be.equal(globalContextId);
+        expect(functionInfo.adminType).to.be.equal(AgentType.ROLE);
+        expect(functionInfo.agentType).to.be.equal(AgentType.TYPE);
+        expect(functionInfo.agentLimit).to.be.equal(65535);
+        expect(functionInfo.policyCode).to.be.equal(0);
+        expect(functionInfo.selector).to.be.equal(globalIface.getSighash("globalUpdateActivityStatus"));
+        expect(functionInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(functionInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+        expect(functionInfo.referredByAgent).to.be.equal(0);
+      })
+
+      it("Should register ACLManager functions by systemAdmin success", async() => {
+        const aclManagerIface = new ethers.utils.Interface(ACLManager__factory.abi);
+        const aclContextId = ethers.utils.keccak256(aclManagerProxy.address);
+        const aclRegisterFacetFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [aclManagerProxy.address,  aclManagerIface.getSighash("aclRegisterFacet")]));
+        const aclUpgradeFacetFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [aclManagerProxy.address,  aclManagerIface.getSighash("aclUpgradeFacet")]));
+        const upgradeToFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [aclManagerProxy.address,  aclManagerIface.getSighash("upgradeTo")]))
+        const setSafeModeStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [aclManagerProxy.address,  aclManagerIface.getSighash("setSafeModeStatus")]))
+        const setUpgradabilityStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [aclManagerProxy.address,  aclManagerIface.getSighash("setUpgradabilityStatus")]))
+        const setLocalAdminFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [aclManagerProxy.address,  aclManagerIface.getSighash("setLocalAdmin")]))
+        const setAccessControlManagerFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [aclManagerProxy.address,  aclManagerIface.getSighash("setAccessControlManager")]))
+        const withdrawBalanceFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [aclManagerProxy.address,  aclManagerIface.getSighash("withdrawBalance")]))
+        const aclManagerFunctionRequests: IFunctionManagement.FunctionRegisterRequestStruct[] = [
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+            contractId: aclManagerProxy.address,
+            selector: aclManagerIface.getSighash("aclRegisterFacet"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+            contractId: aclManagerProxy.address,
+            selector: aclManagerIface.getSighash("aclUpgradeFacet"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+            contractId: aclManagerProxy.address,
+            selector: aclManagerIface.getSighash("upgradeTo"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_ACL_TYPE_ID,
+            contractId: aclManagerProxy.address,
+            selector: aclManagerIface.getSighash("setSafeModeStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_ACL_TYPE_ID,
+            contractId: aclManagerProxy.address,
+            selector: aclManagerIface.getSighash("setUpgradabilityStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+            contractId: aclManagerProxy.address,
+            selector: aclManagerIface.getSighash("setLocalAdmin"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+            contractId: aclManagerProxy.address,
+            selector: aclManagerIface.getSighash("setAccessControlManager"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_ACL_TYPE_ID,
+            contractId: aclManagerProxy.address,
+            selector: aclManagerIface.getSighash("withdrawBalance"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+        ]
+         // when
+        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(aclManagerFunctionRequests))
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, aclContextId, aclRegisterFacetFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, aclContextId, aclUpgradeFacetFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, aclContextId, upgradeToFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, aclContextId, setSafeModeStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_ACL_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, aclContextId, setUpgradabilityStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_ACL_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, aclContextId, setLocalAdminFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, aclContextId, setAccessControlManagerFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, aclContextId, withdrawBalanceFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_ACL_TYPE_ID, systemAdminWallet.address)
+
+        // then
+        expect(await contextManagerDelegateProxy.contextHasFunction(aclContextId, aclRegisterFacetFunctionId)).to.be.true
+
+        // and
+        const functionInfo: IFunctionManagement.FunctionInfoStruct = await functionManagerDelegateProxy.functionGetInfo(aclRegisterFacetFunctionId);
+        expect(functionInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_ADMIN_ROLE_ID);
+        expect(functionInfo.agentId).to.be.equal(LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID);
+        expect(functionInfo.contextId).to.be.equal(aclContextId);
+        expect(functionInfo.adminType).to.be.equal(AgentType.ROLE);
+        expect(functionInfo.agentType).to.be.equal(AgentType.ROLE);
+        expect(functionInfo.agentLimit).to.be.equal(65535);
+        expect(functionInfo.policyCode).to.be.equal(0);
+        expect(functionInfo.selector).to.be.equal(aclManagerIface.getSighash("aclRegisterFacet"));
+        expect(functionInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(functionInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+        expect(functionInfo.referredByAgent).to.be.equal(0);
+      })
+
+      it("Should register AccessControl functions by systemAdmin success", async() => {
+        const accessControlIface = new ethers.utils.Interface(AccessControl__factory.abi);
+        const accessControlContextId = ethers.utils.keccak256(accessControlProxy.address);
+        const upgradeToFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [accessControlProxy.address,  accessControlIface.getSighash("upgradeTo")]))
+        const setSafeModeStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [accessControlProxy.address,  accessControlIface.getSighash("setSafeModeStatus")]))
+        const setUpgradabilityStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [accessControlProxy.address,  accessControlIface.getSighash("setUpgradabilityStatus")]))
+        const setLocalAdminFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [accessControlProxy.address,  accessControlIface.getSighash("setLocalAdmin")]))
+        const setAccessControlManagerFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [accessControlProxy.address,  accessControlIface.getSighash("setAccessControlManager")]))
+        const withdrawBalanceFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [accessControlProxy.address,  accessControlIface.getSighash("withdrawBalance")]))
+        const accessControlFunctionRequests: IFunctionManagement.FunctionRegisterRequestStruct[] = [
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+            contractId: accessControlProxy.address,
+            selector: accessControlIface.getSighash("upgradeTo"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_ACL_TYPE_ID,
+            contractId: accessControlProxy.address,
+            selector: accessControlIface.getSighash("setSafeModeStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_ACL_TYPE_ID,
+            contractId: accessControlProxy.address,
+            selector: accessControlIface.getSighash("setUpgradabilityStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+            contractId: accessControlProxy.address,
+            selector: accessControlIface.getSighash("setLocalAdmin"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+            contractId: accessControlProxy.address,
+            selector: accessControlIface.getSighash("setAccessControlManager"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_ACL_TYPE_ID,
+            contractId: accessControlProxy.address,
+            selector: accessControlIface.getSighash("withdrawBalance"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+        ]
+
+        // when
+        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(accessControlFunctionRequests))
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, accessControlContextId, upgradeToFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, accessControlContextId, setSafeModeStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_ACL_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, accessControlContextId, setUpgradabilityStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_ACL_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, accessControlContextId, setLocalAdminFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, accessControlContextId, setAccessControlManagerFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, accessControlContextId, withdrawBalanceFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_ACL_TYPE_ID, systemAdminWallet.address)
+
+        // then
+        expect(await contextManagerDelegateProxy.contextHasFunction(accessControlContextId, upgradeToFunctionId)).to.be.true
+
+        // and
+        const functionInfo: IFunctionManagement.FunctionInfoStruct = await functionManagerDelegateProxy.functionGetInfo(upgradeToFunctionId);
+        expect(functionInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_ADMIN_ROLE_ID);
+        expect(functionInfo.agentId).to.be.equal(LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID);
+        expect(functionInfo.contextId).to.be.equal(accessControlContextId);
+        expect(functionInfo.adminType).to.be.equal(AgentType.ROLE);
+        expect(functionInfo.agentType).to.be.equal(AgentType.ROLE);
+        expect(functionInfo.agentLimit).to.be.equal(65535);
+        expect(functionInfo.policyCode).to.be.equal(0);
+        expect(functionInfo.selector).to.be.equal(accessControlIface.getSighash("upgradeTo"));
+        expect(functionInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(functionInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+        expect(functionInfo.referredByAgent).to.be.equal(0);
+      })
+
+      it("Should register PolicyManager functions by systemAdmin success", async() => {
+        const policyIface = new ethers.utils.Interface(PolicyManager__factory.abi);
+        const policyContextId = ethers.utils.keccak256(policyManagerProxy.address);
+        const policyRegisterFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [policyManagerProxy.address,  policyIface.getSighash("policyRegister")]));
+        const policyAddRolesFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [policyManagerProxy.address,  policyIface.getSighash("policyAddRoles")]));
+        const policyRemoveRolesFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [policyManagerProxy.address,  policyIface.getSighash("policyRemoveRoles")]))
+        const policyUpdateCodesFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [policyManagerProxy.address,  policyIface.getSighash("policyUpdateCodes")]))
+        const policyUpdateAdminFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [policyManagerProxy.address,  policyIface.getSighash("policyUpdateAdmin")]))
+        const policyUpdateActivityStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [policyManagerProxy.address,  policyIface.getSighash("policyUpdateActivityStatus")]))
+        const policyUpdateAlterabilityStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [policyManagerProxy.address,  policyIface.getSighash("policyUpdateAlterabilityStatus")]))
+        const policyUpdatesRoleLimitFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [policyManagerProxy.address,  policyIface.getSighash("policyUpdatesRoleLimit")]))
+        const upgradeToFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [policyManagerProxy.address,  policyIface.getSighash("upgradeTo")]))
+        const setSafeModeStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [policyManagerProxy.address,  policyIface.getSighash("setSafeModeStatus")]))
+        const setUpgradabilityStatusFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [policyManagerProxy.address,  policyIface.getSighash("setUpgradabilityStatus")]))
+        const setLocalAdminFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [policyManagerProxy.address,  policyIface.getSighash("setLocalAdmin")]))
+        const setAccessControlManagerFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [policyManagerProxy.address,  policyIface.getSighash("setAccessControlManager")]))
+        const withdrawBalanceFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [policyManagerProxy.address,  policyIface.getSighash("withdrawBalance")]))
+        const policyFunctionRequests: IFunctionManagement.FunctionRegisterRequestStruct[] = [
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_POLICY_MASTER_TYPE_ID,
+            contractId: policyManagerProxy.address,
+            selector: policyIface.getSighash("policyRegister"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: policyManagerProxy.address,
+            selector: policyIface.getSighash("policyAddRoles"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: policyManagerProxy.address,
+            selector: policyIface.getSighash("policyRemoveRoles"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: policyManagerProxy.address,
+            selector: policyIface.getSighash("policyUpdateCodes"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: policyManagerProxy.address,
+            selector: policyIface.getSighash("policyUpdateAdmin"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: policyManagerProxy.address,
+            selector: policyIface.getSighash("policyUpdateActivityStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: policyManagerProxy.address,
+            selector: policyIface.getSighash("policyUpdateAlterabilityStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_ANY_TYPE_ID,
+            contractId: policyManagerProxy.address,
+            selector: policyIface.getSighash("policyUpdatesRoleLimit"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+            contractId: policyManagerProxy.address,
+            selector: policyIface.getSighash("upgradeTo"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_ACL_TYPE_ID,
+            contractId: policyManagerProxy.address,
+            selector: policyIface.getSighash("setSafeModeStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_ACL_TYPE_ID,
+            contractId: policyManagerProxy.address,
+            selector: policyIface.getSighash("setUpgradabilityStatus"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+            contractId: policyManagerProxy.address,
+            selector: policyIface.getSighash("setLocalAdmin"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+            contractId: policyManagerProxy.address,
+            selector: policyIface.getSighash("setAccessControlManager"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            agentId: LIVELY_VERSE_ACL_TYPE_ID,
+            contractId: policyManagerProxy.address,
+            selector: policyIface.getSighash("withdrawBalance"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+        ]
+
+        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(policyFunctionRequests))
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, policyContextId, policyRegisterFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_POLICY_MASTER_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, policyContextId, policyAddRolesFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, policyContextId, policyRemoveRolesFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, policyContextId, policyUpdateCodesFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, policyContextId, policyUpdateAdminFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, policyContextId, policyUpdateActivityStatusFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, policyContextId, policyUpdateAlterabilityStatusFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, policyContextId, policyUpdatesRoleLimitFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_ANY_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, policyContextId, upgradeToFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, policyContextId, setSafeModeStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_ACL_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, policyContextId, setUpgradabilityStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_ACL_TYPE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, policyContextId, setLocalAdminFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, policyContextId, setAccessControlManagerFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, systemAdminWallet.address)
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, policyContextId, withdrawBalanceFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            LIVELY_VERSE_ACL_TYPE_ID, systemAdminWallet.address)
+
+        // then
+        expect(await contextManagerDelegateProxy.contextHasFunction(policyContextId, policyRegisterFunctionId)).to.be.true
+
+        // and
+        const functionInfo: IFunctionManagement.FunctionInfoStruct = await functionManagerDelegateProxy.functionGetInfo(policyRegisterFunctionId);
+        expect(functionInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
+        expect(functionInfo.agentId).to.be.equal(LIVELY_VERSE_POLICY_MASTER_TYPE_ID);
+        expect(functionInfo.contextId).to.be.equal(policyContextId);
+        expect(functionInfo.adminType).to.be.equal(AgentType.TYPE);
+        expect(functionInfo.agentType).to.be.equal(AgentType.TYPE);
+        expect(functionInfo.agentLimit).to.be.equal(65535);
+        expect(functionInfo.policyCode).to.be.equal(0);
+        expect(functionInfo.selector).to.be.equal(policyIface.getSighash("policyRegister"));
+        expect(functionInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(functionInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+        expect(functionInfo.referredByAgent).to.be.equal(0);
+      })
+    })
+
+    describe("Acl proxy general function Tests", function() {
+      it("Should enable Upgrade Status of proxy by livelyAdmin success", async () => {
+        // when and then
+        await expect(aclManagerProxy.connect(systemAdmin).setUpgradabilityStatus(ProxyUpgradabilityStatus.ENABLED))
+          .to.emit(aclManagerProxy, "ProxyUpdatabilityUpdated")
+          .withArgs(
+            systemAdminWallet.address,
+            aclManagerProxy.address,
+            ProxyUpgradabilityStatus.ENABLED
+          );
+      });
+
+      it("Should upgrade proxy for same subjects failed", async () => {
+        // given
+        const typedArray1 = new Int8Array(0);
+
+        // when and then
+        await expect(
+          aclManagerProxy.connect(systemAdmin).upgradeTo(aclManagerSubject.address, typedArray1, false)
+        ).to.be.revertedWith("Illegal Impl");
+      });
+
+      it("Should upgrade proxy by common user1 failed", async () => {
+        // given
+        const aclManagerSubjectFactory = new ACLManager__factory(linkLibraryAddresses, systemAdmin);
+        aclManagerSubject = await aclManagerSubjectFactory.deploy();
+        const typedArray1 = new Int8Array(0);
+
+        // when and then
+        await expect(
+          aclManagerProxy.connect(user1).upgradeTo(aclManagerSubject.address, typedArray1, false)
+        ).to.revertedWith("Forbidden");
+      });
+
+      it("Should upgrade proxy by systemAdmin with invalid uups subject failed", async () => {
+        // given
+        const baseUUPSProxy = await deployments.getArtifact("UUPSUpgradeableTest");
+        const invalidUUPS = await deployMockContract(systemAdmin, baseUUPSProxy.abi);
+        await invalidUUPS.mock.proxiableUUID.returns(
+          "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bb0"
+        );
+        const typedArray1 = new Int8Array(0);
+
+        // when and then
+        await expect(
+          aclManagerProxy.connect(systemAdmin).upgradeTo(invalidUUPS.address, typedArray1, false)
+        ).to.revertedWith("Invalid UUPS");
+      });
+
+      it("Should upgrade proxy by systemAdmin with invalid proxy subject failed", async () => {
+        // given
+        const baseUUPSProxy = await deployments.getArtifact("UUPSUpgradeableTest");
+        const invalidProxy = await deployMockContract(systemAdmin, baseUUPSProxy.abi);
+        await invalidProxy.mock.proxiableUUID.returns(
+          "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc"
+        );
+        await invalidProxy.mock.supportsInterface.returns(false);
+        const typedArray1 = new Int8Array(0);
+
+        // when and then
+        await expect(
+          aclManagerProxy.connect(systemAdmin).upgradeTo(invalidProxy.address, typedArray1, false)
+        ).to.revertedWith("Invalid Proxy");
+      });
+
+      it("Should upgrade proxy by systemAdmin with illegal subject failed", async () => {
+        // given
+        const iBaseProxy = await deployments.getArtifact("IBaseProxy");
+        const illegalUUPS = await deployMockContract(systemAdmin, iBaseProxy.abi);
+        const typedArray1 = new Int8Array(0);
+
+        // when and then
+        await expect(
+          aclManagerProxy.connect(livelyAdmin).upgradeTo(illegalUUPS.address, typedArray1, false)
+        ).to.revertedWith("Illegal UUPS");
+      });
+
+      it("Should upgrade proxy by systemAdmin with illegal proxy subject failed", async () => {
+        // given
+        const baseUUPSProxy = await deployments.getArtifact("UUPSUpgradeableTest");
+        const invalidProxy = await deployMockContract(livelyAdmin, baseUUPSProxy.abi);
+        await invalidProxy.mock.proxiableUUID.returns(
+          "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc"
+        );
+        const typedArray1 = new Int8Array(0);
+
+        // when and then
+        await expect(
+          aclManagerProxy.connect(systemAdmin).upgradeTo(invalidProxy.address, typedArray1, false)
+        ).to.revertedWith("Illegal Proxy");
+      });
+
+      it("Should upgrade proxy by systemAdmin success", async () => {
+        // given
+        const typedArray1 = new Int8Array(0);
+
+        // when and then
+        await expect(
+          aclManagerProxy.connect(livelyAdmin).upgradeTo(aclManagerSubject.address, typedArray1, false)
+        )
+          .to.emit(aclManagerProxy, "Upgraded")
+          .withArgs(systemAdminWallet.address, aclManagerProxy.address, aclManagerSubject.address);
+      });
+
+      it("Should setAdmin proxy to new account success", async () => {
+        // when and then
+        await expect(aclManagerProxy.connect(systemAdmin).setLocalAdmin(userWallet1.address))
+          .to.emit(aclManagerProxy, "ProxyLocalAdminUpdated")
+          .withArgs(systemAdminWallet.address, aclManagerProxy.address, userWallet1.address);
+      });
+
+      it("Should init proxy call by new systemAdmin failed", async () => {
+        // when and then
+        await expect(
+          aclManagerProxy
+            .connect(user1)
+            .initialize(ACL_MANAGER_CONTRACT_NAME, CONTRACTS_VERSION)
+        ).to.revertedWith("Contract Already Initialized");
+      });
+
+      it("Should enable SafeMode proxy by user1 failed", async () => {
+        // when and then
+        await expect(aclManagerProxy.connect(user1).setSafeModeStatus(ProxySafeModeStatus.ENABLED)).to.revertedWith("Forbidden");
+      });
+
+      it("Should enable SafeMode proxy by systemAdmin success", async () => {
+        // when and then
+        await expect(aclManagerProxy.connect(systemAdmin).setSafeModeStatus(ProxySafeModeStatus.ENABLED))
+          .to.emit(aclManagerProxy, "ProxySafeModeUpdated")
+          .withArgs(
+            systemAdminWallet.address,
+            aclManagerProxy.address,
+            ProxySafeModeStatus.ENABLED
+          );
+      });
+
+      it("Should setAdmin proxy failed (in safeMode)", async () => {
+        // when
+        const address = await user1.getAddress();
+
+        // when and then
+        await expect(aclManagerProxy.connect(systemAdmin).setLocalAdmin(address)).to.revertedWith(
+          "Rejected"
+        );
+      });
+
+      it("Should setAdmin proxy failed (in safeMode)", async () => {
+        // when
+        const address = await user1.getAddress();
+
+        // when and then
+        await expect(aclManagerProxy.connect(systemAdmin).setLocalAdmin(address)).to.revertedWith(
+          "Rejected"
+        );
+      });
+
+      it("Should disable SafeMode of proxy by systemAdmin success", async () => {
+        // given
+        const adminAddress = await livelyAdmin.getAddress();
+
+        // when and then
+        await expect(aclManagerProxy.connect(systemAdmin).setSafeModeStatus(ProxySafeModeStatus.DISABLED))
+          .to.emit(aclManagerProxy, "ProxySafeModeUpdated")
+          .withArgs(
+            adminAddress,
+            aclManagerProxy.address,
+            ProxySafeModeStatus.DISABLED
+          );
+      });
+
+      it("Should setAccessControlManager with invalid acl failed", async () => {
+        // given
+        const address = await user1.getAddress();
+
+        // when and then
+        await expect(aclManagerProxy.connect(systemAdmin).setAccessControlManager(address)).to.be.revertedWith(
+          "Illegal ACL"
+        );
+      });
+
+      it("Should setAccessControlManager with invalid acl failed", async () => {
+        // given
+        const aclAddress = await aclManagerProxy.accessControlManager();
+
+        // when and then
+        await expect(aclManagerProxy.connect(systemAdmin).setAccessControlManager(aclManagerProxy.address))
+          .to.emit(aclManagerProxy, "ProxyAccessControlUpdated")
+          .withArgs(systemAdminWallet.address, aclManagerProxy.address, aclManagerProxy.address)
+
+        // and
+        expect(await aclManagerProxy.accessControlManager()).to.be.equal(aclAddress);
+      });
     })
 
     // describe("IGroupManagement Tests", function() {

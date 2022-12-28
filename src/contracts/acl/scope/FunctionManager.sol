@@ -407,6 +407,8 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
 
   function _doCheckAgentId(bytes32 agentId) internal view {
     BaseAgent storage ba = _data.agents[agentId];
+    // console.log("agent type: ");
+    // console.logBytes1(bytes1(uint8(ba.atype)));
     require(ba.atype > AgentType.MEMBER, "Illegal AgentId");
     require(ba.acstat > ActivityStatus.DISABLED, "Agent Disabled");
   }

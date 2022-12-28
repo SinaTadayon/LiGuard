@@ -19,7 +19,7 @@ export const PERMIT_TYPE_HASH: string = ethers.utils.keccak256(
 
 // General Types ID
 export const LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes( "LIVELY_VERSE_SYSTEM_MASTER_TYPE"));
-export const LIVELY_VERSE_LIVELY_MASTER_TYPE_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes( "LIVELY_VERSE_LIVELY_MASTER TYPE"));
+export const LIVELY_VERSE_LIVELY_MASTER_TYPE_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes( "LIVELY_VERSE_LIVELY_MASTER_TYPE"));
 export const LIVELY_VERSE_ANONYMOUS_TYPE_ID     = ethers.utils.keccak256(ethers.utils.toUtf8Bytes( "LIVELY_VERSE_ANONYMOUS_TYPE"));
 export const LIVELY_VERSE_ANY_TYPE_ID           = ethers.utils.keccak256(ethers.utils.toUtf8Bytes( "LIVELY_VERSE_ANY_TYPE"));
 export const LIVELY_VERSE_SCOPE_MASTER_TYPE_ID  = ethers.utils.keccak256(ethers.utils.toUtf8Bytes( "LIVELY_VERSE_SCOPE_MASTER_TYPE"));
@@ -111,7 +111,6 @@ export enum AgentType {
 
 export enum ActivityStatus {
   NONE,
-  DELETED,
   DISABLED,
   SAFE_MODE,
   ENABLED

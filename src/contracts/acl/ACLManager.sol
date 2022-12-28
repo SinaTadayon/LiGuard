@@ -401,7 +401,7 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
     aclRealm.domainId = aclDomainId;
     aclRealm.bs.stype = ScopeType.REALM;
     aclRealm.bs.agentLimit = type(uint16).max;
-    aclRealm.bs.alstat = AlterabilityStatus.UPDATABLE;
+    aclRealm.bs.alstat = AlterabilityStatus.UPGRADABLE;
     aclRealm.bs.acstat = ActivityStatus.ENABLED;
     aclRealm.bs.adminId = aclTypeId;
 
@@ -413,7 +413,7 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
       aclContextManagerEntity.contractId = contextManagerAddress;
       aclContextManagerEntity.bs.stype = ScopeType.CONTEXT;
       aclContextManagerEntity.bs.agentLimit = type(uint16).max;
-      aclContextManagerEntity.bs.alstat = AlterabilityStatus.UPDATABLE;
+      aclContextManagerEntity.bs.alstat = AlterabilityStatus.UPGRADABLE;
       aclContextManagerEntity.bs.acstat = ActivityStatus.ENABLED;
       aclContextManagerEntity.bs.adminId = aclTypeId;
 
@@ -424,7 +424,7 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
       aclFunctionManagerEntity.contractId = functionManagerAddress;
       aclFunctionManagerEntity.bs.stype = ScopeType.CONTEXT;
       aclFunctionManagerEntity.bs.agentLimit = type(uint16).max;
-      aclFunctionManagerEntity.bs.alstat = AlterabilityStatus.UPDATABLE;
+      aclFunctionManagerEntity.bs.alstat = AlterabilityStatus.UPGRADABLE;
       aclFunctionManagerEntity.bs.acstat = ActivityStatus.ENABLED;
       aclFunctionManagerEntity.bs.adminId = aclTypeId;
 

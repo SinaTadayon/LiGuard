@@ -130,10 +130,6 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
       );
   }
 
-  function contextDeleteActivity(bytes32[] calldata requests) external pure returns (bool) {
-    revert("Not Supported");
-  }
-
   function contextUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IContextManagement.contextUpdateActivityStatus.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
@@ -312,11 +308,6 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     return (ScopeType.NONE, bytes32(0));  
   }
 
-  function _doContextUpdateActivityStatus(bytes32 contextId, ActivityStatus status, bytes32 functionId) internal returns (bool) {
-    
-    return true;
-  }
-
   function contextGetFunctions(bytes32 contextId) external view returns (bytes32[] memory) {
     (ContextEntity storage ce, bool result) = _data.contextTryReadSlot(contextId);
     if (!result) return new bytes32[](0);
@@ -371,31 +362,6 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     return contextEntity;
   }
 
-  // function _doCheckSignerScope(bytes32 signerId, bytes32 realmId, bytes32 domainId) internal view {
-  //   // fetch scope type and scope id of sender
-  //   // TypeEntity storage systemAdminType = _data.typeReadSlot(LIVELY_VERSE_SYSTEM_ADMIN_TYPE_ID);
-  //   // bytes32 signerRoleId = systemAdminType.members[signerId];
-  //   // RoleEntity storage signerSystemRole =  _data.roleReadSlot(signerRoleId);
-  //   // ScopeType signerSystemScopeType = _data.scopes[signerSystemRole.scopeId].stype;
-  //   (ScopeType signerScopeType, bytes32 signerScopeId) = _doGetScopeInfo(signerId);
-  //   // console.log("signer scope type: ");
-  //   // console.logBytes1(bytes1(uint8(signerScopeType)));
-  //   // console.log("signer scope Id: ");
-  //   // console.logBytes32(signerScopeId);
-
-  //   // check signer scope
-  //   require(signerScopeType >= ScopeType.REALM, "Illegal Signer ScopeType");
-  //   if(signerScopeType == ScopeType.REALM) {
-  //     require(signerScopeId == realmId, "Illegal Realm Scope");
-
-  //   } else if (signerScopeType == ScopeType.DOMAIN) {
-  //     require(signerScopeId == domainId, "Illegal Domain Scope");
-    
-  //   } else {
-  //     require(signerScopeId == _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Global Scope");
-  //   } 
-  // } 
-
   function _doGetScopeInfo(bytes32 signerId) internal view returns (ScopeType, bytes32) {
     // get scope id of sender
     TypeEntity storage systemAdminType = _data.typeReadSlot(_LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID);
@@ -439,7 +405,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     if(memberSystemRole.scopeId == scopeId) {
       return true;
     } 
-      
+
     return IAccessControl(address(this)).isScopesCompatible(memberSystemRole.scopeId, scopeId);    
   }
 
@@ -451,7 +417,6 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     bytes32 newContextId = LACLUtils.accountGenerateId(contractId);
     require(IAccessControl(address(this)).hasMemberAccess(signerId, functionId), "Access Denied");
     require(_data.scopes[newContextId].stype == ScopeType.NONE, "Already Exist");
-
     {
       // update member factory limit
       MemberEntity storage memberEntity = _data.memberReadSlot(signerId);
@@ -467,23 +432,20 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
       // check system scope
       require(_doCheckSystemScope(request.realmId, signerId), "Forbidden");
 
-      // check system admin scope
-      // _doCheckSignerScope(signerId, request.realmId, realmEntity.domainId);
-
       // add context to realm
       realmEntity.contexts.add(newContextId);    
-    
+
       // create new context
       ContextEntity storage newContext = _data.contextWriteSlot(newContextId);
       newContext.realmId = request.realmId;
-      newContext.contractId = contractId;
+      newContext.contractId = contractId;      
       newContext.bs.stype = ScopeType.CONTEXT;
       newContext.bs.acstat = request.acstat;
       newContext.bs.alstat = request.alstat;
       newContext.bs.agentLimit = request.agentLimit;
-      newContext.bs.adminId = _getContextAdmin(request.realmId, newContextId, realmEntity.bs.adminId, request.adminId);
+      newContext.bs.adminId = _getContextAdmin(request.realmId, newContextId, realmEntity.bs.adminId, request.adminId);    
     }
-    
+
     emit ContextRegistered(      
       msg.sender,
       newContextId, 
