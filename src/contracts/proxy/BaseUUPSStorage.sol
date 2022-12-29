@@ -44,7 +44,7 @@ abstract contract BaseUUPSStorage is IBaseProxy {
   string internal _contractVersion;
   address internal _accessControlManager;
   ProxySafeModeStatus internal _sstat;
-  ProxyUpgradabilityStatus internal _ustat;
+  ProxyUpdatabilityStatus internal _ustat;
 
   /**
    * @dev This empty reserved space is put in place to allow future versions to add new

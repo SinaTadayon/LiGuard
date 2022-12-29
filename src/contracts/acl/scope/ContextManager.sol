@@ -135,7 +135,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
     for(uint i = 0; i < requests.length; i++) {
       ContextEntity storage contextEntity = _data.contextReadSlot(requests[i].id);      
-      require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
+      require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
       require(_doCheckAdminAccess(contextEntity.bs.adminId, senderId, functionId), "Forbidden");
       require(requests[i].acstat > ActivityStatus.NONE, "Illegal Activity");    
       contextEntity.bs.acstat = requests[i].acstat;
@@ -149,7 +149,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
     for(uint i = 0; i < requests.length; i++) {      
       ContextEntity storage contextEntity = _data.contextReadSlot(requests[i].id);
-      require(contextEntity.bs.acstat > ActivityStatus.DISABLED, "Context Disabled");
+      // require(contextEntity.bs.acstat > ActivityStatus.DISABLED, "Context Disabled");
       require(_doCheckAdminAccess(contextEntity.bs.adminId, senderId, functionId), "Forbidden");      
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       contextEntity.bs.alstat = requests[i].alstat;
@@ -323,9 +323,11 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
         name: "",
         version: "",
         contractId: address(0),
+        functionCount: 0,
         agentLimit: 0,
         referredByAgent: 0,
         adminType: AgentType.NONE,
+        stype: ScopeType.NONE,
         acstat: ActivityStatus.NONE,
         alstat: AlterabilityStatus.NONE
       });
@@ -337,9 +339,11 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
       name: IProxy(ce.contractId).contractName(),
       version: IProxy(ce.contractId).contractVersion(),
       contractId: ce.contractId,
+      functionCount: uint16(ce.functions.length()),
       agentLimit: ce.bs.agentLimit,
       referredByAgent: ce.bs.referredByAgent,
       adminType: _data.agents[ce.bs.adminId].atype,
+      stype: ce.bs.stype,
       acstat: ce.bs.acstat,
       alstat: ce.bs.alstat
     });
@@ -356,8 +360,8 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
 
   function _doGetEntityAndCheckAdminAccess(bytes32 contextId, bytes32 senderId, bytes32 functionId) internal view returns (ContextEntity storage) {
     ContextEntity storage contextEntity = _data.contextReadSlot(contextId);
-    require(contextEntity.bs.acstat > ActivityStatus.DISABLED, "Context Disabled");
-    require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
+    // require(contextEntity.bs.acstat > ActivityStatus.DISABLED, "Context Disabled");
+    require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
     require(_doCheckAdminAccess(contextEntity.bs.adminId, senderId, functionId), "Forbidden");
     return contextEntity;
   }
@@ -417,6 +421,12 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     bytes32 newContextId = LACLUtils.accountGenerateId(contractId);
     require(IAccessControl(address(this)).hasMemberAccess(signerId, functionId), "Access Denied");
     require(_data.scopes[newContextId].stype == ScopeType.NONE, "Already Exist");
+    require(
+      request.acstat > ActivityStatus.NONE && 
+      request.alstat > AlterabilityStatus.NONE,
+      "Illegal Activity/Alterability"
+    );
+
     {
       // update member factory limit
       MemberEntity storage memberEntity = _data.memberReadSlot(signerId);
@@ -425,8 +435,8 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
 
       // check realm 
       RealmEntity storage realmEntity = _data.realmReadSlot(request.realmId);
-      require(realmEntity.bs.acstat > ActivityStatus.DISABLED, "Realm Disabled");
-      require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Realm Update");
+      // require(realmEntity.bs.acstat > ActivityStatus.DISABLED, "Realm Disabled");
+      require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Realm Updatable");
       require(realmEntity.contextLimit > realmEntity.contexts.length(), "Illegal Register");
 
       // check system scope

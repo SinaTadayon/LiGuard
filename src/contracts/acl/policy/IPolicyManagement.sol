@@ -48,9 +48,10 @@ interface IPolicyManagement is IACLCommons {
     bytes32 scopeId;
     string name;
     uint32 roleLimit;
-    uint32 roleTotal;
+    uint32 roleCount;
     uint8 policyCode;
     AgentType adminType;
+    ScopeType scopeType;
     PolicyType ptype;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
@@ -72,7 +73,7 @@ interface IPolicyManagement is IACLCommons {
 
   event PolicyAlterabilityUpdated(address indexed sender, bytes32 indexed policyId, AlterabilityStatus alstat);
 
-  event PolicyCodeUpdated(address indexed sender, bytes32 indexed policyId, uint8 code, PolicyType ptype);
+  event PolicyCodeUpdated(address indexed sender, bytes32 indexed policyId, uint8 policyCode, PolicyType ptype);
 
   event PolicyRoleLimitUpdated(address indexed sender, bytes32 indexed policyId, uint32 roleLimit);
 
@@ -92,7 +93,7 @@ interface IPolicyManagement is IACLCommons {
 
   function policyUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
-  function policyUpdatesRoleLimit(PolicyUpdateRoleLimitRequest[] calldata requests) external returns (bool);
+  function policyUpdateRoleLimit(PolicyUpdateRoleLimitRequest[] calldata requests) external returns (bool);
 
   function policyCheckId(bytes32 policyId) external view returns (bool);
 
@@ -100,11 +101,13 @@ interface IPolicyManagement is IACLCommons {
 
   function policyCheckAdmin(bytes32 policyId, address account) external view returns (bool);
 
+  function policyCheckRole(bytes32 roleId) external view returns (bool);
+
   function policyCheckAccess(bytes32 policyId, bytes32 functionId) external view returns (bool);
 
   function policyCheckRoleAccess(bytes32 roleId, bytes32 functionId) external view returns (bool);
 
-  function policyHasRole(bytes32 roleId) external view returns (bool);
+  function policyHasRole(bytes32 policyId, bytes32 roleId) external view returns (bool);
 
   function policyGetInfoByRole(bytes32 roleId) external view returns (PolicyInfo memory);
 

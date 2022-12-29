@@ -89,31 +89,6 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
   function _doAclRegisterFacet(FacetRegisterRequest[] calldata requests) internal returns (bool) {
     for(uint i = 0; i < requests.length; i++) {
       LAccessControl.aclRegisterFacet(_data, requests[i]);
-      // require(  
-      //   requests[i].interfaceId != type(IAccessControl).interfaceId ||
-      //   requests[i].interfaceId != type(IPolicyManagement).interfaceId ||
-      //   requests[i].interfaceId != type(IFunctionManagement).interfaceId ||
-      //   requests[i].interfaceId != type(IContextManagement).interfaceId ||
-      //   requests[i].interfaceId != type(IRealmManagement).interfaceId ||
-      //   requests[i].interfaceId != type(IDomainManagement).interfaceId ||
-      //   requests[i].interfaceId != type(IGlobalManagement).interfaceId ||
-      //   requests[i].interfaceId != type(IMemberManagement).interfaceId ||
-      //   requests[i].interfaceId != type(IRoleManagement).interfaceId ||
-      //   requests[i].interfaceId != type(ITypeManagement).interfaceId, 
-      //   "Illegal InterfaceId"
-      // );
-
-      // require(!_data.facetSet.contains(requests[i].facetId), "Facet Already Exist");    
-      // require(IERC165(requests[i].facetId).supportsInterface(requests[i].interfaceId), "Illegal Interface");
-      // for(uint j = 0; j < requests[i].selectors.length; j++) {
-      //   require(_data.selectors[requests[i].selectors[j]] == address(0), "Illegal Selector");
-      //   _data.selectors[requests[i].selectors[j]] = requests[i].facetId;
-      //   // emit ACLFacetFunctionRegistered(_msgSender(), requests[i].subjectId, requests[i].selectors[j]);
-      // }
-      // _data.facetSet.add(requests[i].facetId);
-      // FacetEntity storage facetEntity = _data.facets[requests[i].facetId];
-      // facetEntity.subjectId = requests[i].subjectId;
-      // facetEntity.interfaceId = requests[i].interfaceId;      
       emit ACLFacetRegistered(
         _msgSender(), 
         requests[i].facetId, 

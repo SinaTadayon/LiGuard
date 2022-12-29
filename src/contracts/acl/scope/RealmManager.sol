@@ -66,9 +66,13 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     
     for(uint i = 0; i < requests.length; i++) {
       bytes32 newRealmId = LACLUtils.generateId(requests[i].name);
-      require(_data.scopes[newRealmId].stype == ScopeType.NONE, "Already Exists");
-      require(requests[i].acstat > ActivityStatus.NONE, "Illegal Activity");
-      require(requests[i].alstat > AlterabilityStatus.NONE, "Illegal Alterability");
+      require(_data.scopes[newRealmId].stype == ScopeType.NONE, "Already Exist");
+      require(
+        requests[i].acstat > ActivityStatus.NONE && 
+        requests[i].alstat > AlterabilityStatus.NONE,
+        "Illegal Activity/Alterability"
+      );
+
 
       // check sender scopes
       require(memberScopeType >= ScopeType.DOMAIN, "Illegal ScopeType");
@@ -80,8 +84,8 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
       }
 
       DomainEntity storage domainEntity = _data.domainReadSlot(requests[i].domainId);
-      require(domainEntity.bs.acstat > ActivityStatus.DISABLED, "Domain Disabled");
-      require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Domain Update");
+      // require(domainEntity.bs.acstat > ActivityStatus.DISABLED, "Domain Disabled");
+      require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Domain Updatable");
       require(domainEntity.realmLimit > domainEntity.realms.length(), "Illegal Register");
 
       // check access admin realm
@@ -165,7 +169,7 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {
       RealmEntity storage realmEntity = _data.realmReadSlot(requests[i].id);      
-      require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");    
+      require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");    
       require(_doCheckAdminAccess(realmEntity.bs.adminId, senderId, functionId), "Forbidden");    
       require(requests[i].acstat != ActivityStatus.NONE, "Illegal Activity");  
       realmEntity.bs.acstat = requests[i].acstat;
@@ -180,7 +184,7 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
 
     for(uint i = 0; i < requests.length; i++) {      
       RealmEntity storage realmEntity = _data.realmReadSlot(requests[i].id);
-      require(realmEntity.bs.acstat > ActivityStatus.DISABLED, "Realm Disabled");
+      // require(realmEntity.bs.acstat > ActivityStatus.DISABLED, "Realm Disabled");
       require(_doCheckAdminAccess(realmEntity.bs.adminId, senderId, functionId), "Forbidden");    
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       realmEntity.bs.alstat = requests[i].alstat;
@@ -279,8 +283,10 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
         domainId: bytes32(0),
         adminId: bytes32(0),
         contextLimit: 0, 
+        contextCount: 0,
         agentLimit: 0,
         referredByAgent: 0,
+        stype: ScopeType.NONE,
         acstat: ActivityStatus.NONE, 
         alstate: AlterabilityStatus.NONE, 
         adminType: AgentType.NONE,
@@ -292,8 +298,10 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
       domainId: re.domainId,
       adminId: re.bs.adminId,
       contextLimit: re.contextLimit, 
+      contextCount: uint32(re.contexts.length()),
       agentLimit: re.bs.agentLimit,
       referredByAgent: re.bs.referredByAgent,   
+      stype: re.bs.stype,
       acstat: re.bs.acstat, 
       alstate: re.bs.alstat, 
       adminType: _data.agents[re.bs.adminId].atype,
@@ -366,8 +374,8 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
 
   function _doGetEntityAndCheckAdminAccess(bytes32 realmId, bytes32 senderId, bytes32 functionId) internal view returns (RealmEntity storage) {
     RealmEntity storage realmEntity = _data.realmReadSlot(realmId);
-    require(realmEntity.bs.acstat > ActivityStatus.DISABLED, "Realm Disabled");
-    require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");    
+    // require(realmEntity.bs.acstat > ActivityStatus.DISABLED, "Realm Disabled");
+    require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");    
     require(_doCheckAdminAccess(realmEntity.bs.adminId, senderId, functionId), "Forbidden");    
     return realmEntity;
   }  

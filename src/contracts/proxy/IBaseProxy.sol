@@ -12,13 +12,11 @@ pragma solidity 0.8.17;
 interface IBaseProxy {
 
   enum ProxySafeModeStatus {
-    NONE,
     DISABLED,
     ENABLED
   }
 
-  enum ProxyUpgradabilityStatus {
-    NONE,
+  enum ProxyUpdatabilityStatus {
     DISABLED,
     ENABLED
   }

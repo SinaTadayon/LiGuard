@@ -60,14 +60,17 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
    
     for(uint i = 0; i < requests.length; i++) {
       bytes32 newDomainId = LACLUtils.generateId(requests[i].name);
-      require(_data.scopes[newDomainId].stype == ScopeType.NONE, "Already Exists");
-      require(requests[i].acstat > ActivityStatus.NONE, "Illegal Activity");
-      require(requests[i].alstat > AlterabilityStatus.NONE, "Illegal Alterability");
+      require(_data.scopes[newDomainId].stype == ScopeType.NONE, "Already Exist");
+      require(
+        requests[i].acstat > ActivityStatus.NONE && 
+        requests[i].alstat > AlterabilityStatus.NONE,
+        "Illegal Activity/Alterability"
+      );
 
       // check sender scopes
       GlobalEntity storage livelyGlobalEntity = _data.globalReadSlot(_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
       require(senderScopeId == _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Global Scope");
-      require(livelyGlobalEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Global Update");
+      require(livelyGlobalEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Global Updatable");
       require(livelyGlobalEntity.domainLimit > livelyGlobalEntity.domains.length(), "Illegal Domain Register");
 
       // check access admin global
@@ -109,7 +112,7 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {
       DomainEntity storage domainEntity = _data.domainReadSlot(requests[i].id);
-      require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Domain Update");
+      require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Domain Updatable");
       require(_doCheckAdminAccess(domainEntity.bs.adminId, senderId, functionId), "Forbidden");
       require(requests[i].acstat > ActivityStatus.NONE, "Illegal Activity");
       emit DomainActivityUpdated(msg.sender, requests[i].id, requests[i].acstat);
@@ -123,7 +126,7 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
     
     for(uint i = 0; i < requests.length; i++) {
       DomainEntity storage domainEntity = _data.domainReadSlot(requests[i].id);
-      require(domainEntity.bs.acstat > ActivityStatus.DISABLED, "Domain Disabled");
+      // require(domainEntity.bs.acstat > ActivityStatus.DISABLED, "Domain Disabled");
       require(_doCheckAdminAccess(domainEntity.bs.adminId, senderId, functionId), "Forbidden");            
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       domainEntity.bs.alstat = requests[i].alstat;
@@ -259,11 +262,13 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
       return DomainInfo ({
         adminId: bytes32(0),
         realmLimit: 0,
+        realmCount: 0,
         agentLimit: 0,
         referredByAgent: 0,
+        stype: ScopeType.NONE,
         adminType: AgentType.NONE,
         acstat: ActivityStatus.NONE, 
-        alstate: AlterabilityStatus.NONE,
+        alstat: AlterabilityStatus.NONE,
         name: ""
       });
     } 
@@ -271,11 +276,13 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
     return DomainInfo ({
       adminId: de.bs.adminId,
       realmLimit: de.realmLimit,
+      realmCount: uint16(de.realms.length()),
       agentLimit: de.bs.agentLimit,
       referredByAgent: de.bs.referredByAgent,
       adminType: _data.agents[de.bs.adminId].atype,  
+      stype: de.bs.stype,
       acstat: de.bs.acstat,
-      alstate: de.bs.alstat,
+      alstat: de.bs.alstat,
       name: de.name
     });
   }
@@ -343,8 +350,8 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
 
   function _doGetEntityAndCheckAdminAccess(bytes32 domainId, bytes32 senderId, bytes32 functionId) internal view returns (DomainEntity storage) {
     DomainEntity storage domainEntity = _data.domainReadSlot(domainId);
-    require(domainEntity.bs.acstat > ActivityStatus.DISABLED, "Domain Disabled");
-    require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Domain Update");
+    // require(domainEntity.bs.acstat > ActivityStatus.DISABLED, "Domain Disabled");
+    require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Domain Updatable");
     require(_doCheckAdminAccess(domainEntity.bs.adminId, senderId, functionId), "Forbidden");
     return domainEntity;
   }

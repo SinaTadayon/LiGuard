@@ -91,13 +91,11 @@ export const LIVELY_VERSE_ACL_ADMIN_ROLE_ID = ethers.utils.keccak256(ethers.util
 // );
 
 export enum ProxySafeModeStatus {
-  NONE,
   DISABLED,
   ENABLED
 }
 
-export enum ProxyUpgradabilityStatus {
-  NONE,
+export enum ProxyUpdatabilityStatus {
   DISABLED,
   ENABLED
 }

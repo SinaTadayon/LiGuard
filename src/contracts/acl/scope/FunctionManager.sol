@@ -59,7 +59,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
           
       bytes32 contextId = LACLUtils.accountGenerateId(requests[i].contractId);  
       ContextEntity storage contextEntity = _data.contextReadSlot(contextId);    
-      require(contextEntity.bs.acstat > ActivityStatus.DISABLED, "Context Disabled");
+      // require(contextEntity.bs.acstat > ActivityStatus.DISABLED, "Context Disabled");
       require(contextEntity.bs.alstat == AlterabilityStatus.UPGRADABLE, "Illegal Upgrade");
 
       if(requests[i].signature.length > 0) {
@@ -129,7 +129,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {
       FunctionEntity storage functionEntity = _data.functionReadSlot(requests[i].id);
-      require(functionEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
+      require(functionEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
       require(_doCheckAdminAccess(functionEntity.bs.adminId, senderId, functionId), "Forbidden");
       require(requests[i].acstat != ActivityStatus.NONE, "Illegal Activity");
       functionEntity.bs.acstat = requests[i].acstat;
@@ -145,7 +145,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     
     for(uint i = 0; i < requests.length; i++) {      
       FunctionEntity storage functionEntity = _data.functionReadSlot(requests[i].id);
-      require(functionEntity.bs.acstat > ActivityStatus.DISABLED, "Function Disabled");
+      // require(functionEntity.bs.acstat > ActivityStatus.DISABLED, "Function Disabled");
       require(_doCheckAdminAccess(functionEntity.bs.adminId, senderId, functionId), "Forbidden");
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       functionEntity.bs.alstat = requests[i].alstat;
@@ -154,8 +154,8 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     return true;
   }
 
-  function functionUpdatePolicy(FunctionUpdatePolicyRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IFunctionManagement.functionUpdatePolicy.selector);
+  function functionUpdatePolicyCode(FunctionUpdatePolicyRequest[] calldata requests) external returns (bool) {
+    bytes32 functionId = _accessPermission(IFunctionManagement.functionUpdatePolicyCode.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     
     for (uint256 i = 0; i < requests.length; i++) {
@@ -238,6 +238,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
         selector: bytes4(0),
         agentLimit: 0,
         referredByAgent: 0,
+        stype: ScopeType.NONE,
         acstat: ActivityStatus.NONE,
         alstat: AlterabilityStatus.NONE,
         adminType: AgentType.NONE,
@@ -253,6 +254,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
       selector: fe.selector,
       agentLimit: fe.bs.agentLimit,
       referredByAgent: fe.bs.referredByAgent,
+      stype: fe.bs.stype,
       acstat: fe.bs.acstat,
       alstat: fe.bs.alstat,
       adminType: _data.agents[fe.bs.adminId].atype,
@@ -338,8 +340,8 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
 
   function _doGetEntityAndCheckAdminAccess(bytes32 fId, bytes32 senderId, bytes32 functionId) internal view returns (FunctionEntity storage) {
     FunctionEntity storage functionEntity = _data.functionReadSlot(fId);
-    require(functionEntity.bs.acstat > ActivityStatus.DISABLED, "Function Disabled");
-    require(functionEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
+    // require(functionEntity.bs.acstat > ActivityStatus.DISABLED, "Function Disabled");
+    require(functionEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
     require(_doCheckAdminAccess(functionEntity.bs.adminId, senderId, functionId), "Forbidden");
     return functionEntity;
   } 
@@ -352,6 +354,12 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
   ) internal {
     bytes32 newFunctionId = LACLUtils.functionGenerateId(context.contractId, functionRequest.selector); 
     require(_data.scopes[newFunctionId].stype == ScopeType.NONE, "Already Exist");
+    require(
+      functionRequest.acstat > ActivityStatus.NONE &&
+      functionRequest.alstat > AlterabilityStatus.NONE,
+      "Illegal Activity/Alterability"
+    );
+
     _doCheckAgentId(functionRequest.agentId);
     FunctionEntity storage functionEntity = _data.functionWriteSlot(newFunctionId);
     functionEntity.bs.stype = ScopeType.FUNCTION;
@@ -410,7 +418,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     // console.log("agent type: ");
     // console.logBytes1(bytes1(uint8(ba.atype)));
     require(ba.atype > AgentType.MEMBER, "Illegal AgentId");
-    require(ba.acstat > ActivityStatus.DISABLED, "Agent Disabled");
+    // require(ba.acstat > ActivityStatus.DISABLED, "Agent Disabled");
   }
 
   function _doGetSignerAddress(bytes memory signature, bytes32 structHash) internal view returns (address) {

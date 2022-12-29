@@ -22,7 +22,7 @@ interface IProxy is IBaseProxy {
     address localAdmin;
     uint16 initVersion;
     ProxySafeModeStatus sstat;
-    ProxyUpgradabilityStatus ustat;
+    ProxyUpdatabilityStatus ustat;
   }
 
   /**
@@ -34,7 +34,7 @@ interface IProxy is IBaseProxy {
 
   event ProxySafeModeUpdated(address indexed sender, address indexed proxy, ProxySafeModeStatus sstat);
 
-  event ProxyUpdatabilityUpdated(address indexed sender, address indexed proxy, ProxyUpgradabilityStatus ustat);
+  event ProxyUpdatabilityUpdated(address indexed sender, address indexed proxy, ProxyUpdatabilityStatus ustat);
 
   /**
    * @dev Triggered when the contract has been initialized or reinitialized.
@@ -56,7 +56,7 @@ interface IProxy is IBaseProxy {
 
   function setSafeModeStatus(ProxySafeModeStatus sstat) external returns (bool);
 
-  function setUpgradabilityStatus(ProxyUpgradabilityStatus ustat) external returns (bool);
+  function setUpdatabilityStatus(ProxyUpdatabilityStatus ustat) external returns (bool);
 
   function setLocalAdmin(address newAdmin) external returns (bool);
 
@@ -74,7 +74,7 @@ interface IProxy is IBaseProxy {
 
   function safeModeStatus() external view returns (ProxySafeModeStatus);
 
-  function upgradabilityStatus() external view returns (ProxyUpgradabilityStatus);
+  function updatabilityStatus() external view returns (ProxyUpdatabilityStatus);
 
   function localAdmin() external view returns (address);
 

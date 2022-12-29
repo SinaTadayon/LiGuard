@@ -61,14 +61,17 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
     
     for(uint i = 0; i < requests.length; i++) {
       bytes32 newTypeId = LACLUtils.generateId(requests[i].name);
-      require(_data.agents[newTypeId].atype == AgentType.NONE, "Already Exists");
-      require(requests[i].acstat > ActivityStatus.NONE, "Illegal Activity");
-      require(requests[i].alstat > AlterabilityStatus.NONE, "Illegal Alterability");
+      require(_data.agents[newTypeId].atype == AgentType.NONE, "Already Exist");
+      require(
+        requests[i].acstat > ActivityStatus.NONE && 
+        requests[i].alstat > AlterabilityStatus.NONE,
+        "Illegal Activity/Alterability"
+      );
 
       // checking requested type scope
       BaseScope storage requestedScope = _data.scopes[requests[i].scopeId];
       require(requestedScope.stype != ScopeType.NONE , "Not Found");
-      require(requestedScope.acstat > ActivityStatus.DISABLED , "Scope Disabled");
+      // require(requestedScope.acstat > ActivityStatus.DISABLED , "Scope Disabled");
       require(requestedScope.agentLimit > requestedScope.referredByAgent, "Illegal Referred");
 
       // increase referred count to target scope
@@ -166,7 +169,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {
       TypeEntity storage typeEntity = _data.typeReadSlot(requests[i].id);
-      require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
+      require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
       require(_doCheckAdminAccess(typeEntity.ba.adminId, senderId, functionId), "Forbidden");    
       require(requests[i].acstat > ActivityStatus.NONE, "Illegal Activity");             
       typeEntity.ba.acstat = requests[i].acstat;
@@ -180,7 +183,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {      
       TypeEntity storage typeEntity = _data.typeReadSlot(requests[i].id);
-      require(typeEntity.ba.acstat > ActivityStatus.DISABLED, "Type Disabled");
+      // require(typeEntity.ba.acstat > ActivityStatus.DISABLED, "Type Disabled");
       require(_doCheckAdminAccess(typeEntity.ba.adminId, senderId, functionId), "Forbidden");  
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       typeEntity.ba.alstat = requests[i].alstat;
@@ -255,7 +258,8 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
         scopeId: bytes32(0),
         adminId: bytes32(0),
         roleLimit: 0,
-        roleTotal: 0,    
+        roleCount: 0,    
+        atype: AgentType.NONE,
         acstat: ActivityStatus.NONE,
         alstat: AlterabilityStatus.NONE,
         name: ""
@@ -266,7 +270,8 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
       scopeId: te.scopeId,
       adminId: te.ba.adminId,      
       roleLimit: te.roleLimit,
-      roleTotal: uint16(te.roles.length()),
+      roleCount: uint16(te.roles.length()),
+      atype: te.ba.atype,
       acstat: te.ba.acstat,
       alstat: te.ba.alstat,
       name: te.name
@@ -382,8 +387,8 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
 
   function _doGetEntityAndCheckAdminAccess(bytes32 typeId, bytes32 senderId, bytes32 functionId) internal view returns (TypeEntity storage) {
     TypeEntity storage typeEntity = _data.typeReadSlot(typeId);
-    require(typeEntity.ba.acstat > ActivityStatus.DISABLED, "Type Disabled");
-    require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Update");
+    // require(typeEntity.ba.acstat > ActivityStatus.DISABLED, "Type Disabled");
+    require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
     require(_doCheckAdminAccess(typeEntity.ba.adminId, senderId, functionId), "Forbidden");
     return typeEntity;
   }

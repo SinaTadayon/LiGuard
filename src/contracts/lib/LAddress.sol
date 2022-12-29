@@ -42,6 +42,19 @@ library LAddress {
     return account.code.length > 0;
   }
 
+  function isContract2(address account) internal view returns (bool) {
+    // This method relies on extcodesize/address.code.length, which returns 0
+    // for contracts in construction, since the code is only stored at the end
+    // of the constructor execution.
+
+    uint256 size;
+    assembly {
+        size := extcodesize(account)
+    }
+    return size > 0;
+  }
+
+
   /**
    * @dev Replacement for Solidity's `transfer`: sends `amount` wei to
    * `recipient`, forwarding all available gas and reverting on errors.

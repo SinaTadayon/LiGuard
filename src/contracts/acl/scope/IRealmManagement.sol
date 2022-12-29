@@ -33,8 +33,10 @@ interface IRealmManagement is IACLCommons {
     bytes32 domainId;
     bytes32 adminId;
     uint32 contextLimit;
+    uint32 contextCount;
     uint16 agentLimit;
     uint16 referredByAgent;
+    ScopeType stype;
     ActivityStatus acstat;
     AlterabilityStatus alstate;
     AgentType adminType;

@@ -18,11 +18,13 @@ interface IGlobalManagement is IACLCommons {
     bytes32 id;
     bytes32 adminId;
     uint16 domainLimit;
+    uint16 domainCount;
     uint16 agentLimit;
     uint16 referredByAgent;
+    ScopeType stype;
     AgentType adminType;
     ActivityStatus acstat;
-    AlterabilityStatus alstate;
+    AlterabilityStatus alstat;
   }
     
   event GlobalAdminUpdated(address indexed sender, bytes32 globalId, bytes32 indexed adminId, AgentType adminType);

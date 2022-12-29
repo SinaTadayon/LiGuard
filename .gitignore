@@ -39,7 +39,8 @@ bower_components
 build/Release
 build
 deployments
-exports
+export
+typechain
 
 # Dependency directories
 node_modules/

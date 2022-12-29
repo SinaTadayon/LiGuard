@@ -46,7 +46,7 @@ library LAccessControl {
     facetEntity.interfaceId = type(IACLManager).interfaceId;
     data.selectors[IProxy.upgradeTo.selector] = address(this);
     data.selectors[IProxy.setSafeModeStatus.selector] = address(this);
-    data.selectors[IProxy.setUpgradabilityStatus.selector] = address(this);
+    data.selectors[IProxy.setUpdatabilityStatus.selector] = address(this);
     data.selectors[IProxy.setLocalAdmin.selector] = address(this);
     data.selectors[IProxy.setAccessControlManager.selector] = address(this);
     data.selectors[IProxy.contractName.selector] = address(this);
@@ -54,7 +54,7 @@ library LAccessControl {
     data.selectors[IProxy.accessControlManager.selector] = address(this);
     data.selectors[IProxy.subjectAddress.selector] = address(this);
     data.selectors[IProxy.safeModeStatus.selector] = address(this);
-    data.selectors[IProxy.upgradabilityStatus.selector] = address(this);
+    data.selectors[IProxy.updatabilityStatus.selector] = address(this);
     data.selectors[IProxy.localAdmin.selector] = address(this);
     data.selectors[IProxy.domainSeparator.selector] = address(this);
     data.selectors[IProxy.initVersion.selector] = address(this);

@@ -73,6 +73,10 @@ interface IMemberManagement is IACLCommons {
 
   function memberCheckId(bytes32 memberId) external view returns (bool);
 
+  function memberCheckAccount(address account) external view returns (bool);
+
+  function memberCheckAdmin(bytes32 memberId, address account) external view returns (bool);
+
   function memberHasType(bytes32 memberId, bytes32 typeId) external view returns (bool);
 
   function memberGetTypes(bytes32 memberId) external view returns (bytes32[] memory);
