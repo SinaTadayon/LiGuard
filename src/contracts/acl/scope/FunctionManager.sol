@@ -145,7 +145,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     
     for(uint i = 0; i < requests.length; i++) {      
       FunctionEntity storage functionEntity = _data.functionReadSlot(requests[i].id);
-      // require(functionEntity.bs.acstat > ActivityStatus.DISABLED, "Function Disabled");
+      require(functionEntity.bs.acstat > ActivityStatus.DELETED, "Function Deleted");
       require(_doCheckAdminAccess(functionEntity.bs.adminId, senderId, functionId), "Forbidden");
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       functionEntity.bs.alstat = requests[i].alstat;
@@ -167,7 +167,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
   }
 
   function functionUpdateAgentLimit(ScopeUpdateAgentLimitRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IFunctionManagement.functionUpdatePolicy.selector);
+    bytes32 functionId = _accessPermission(IFunctionManagement.functionUpdateAgentLimit.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
 
     for (uint256 i = 0; i < requests.length; i++) {
@@ -294,6 +294,9 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
   function _doCheckAdminAccess(bytes32 adminId, bytes32 memberId, bytes32 functionId) internal view returns (bool) {
     (FunctionEntity storage functionEntity, bool res) = _data.functionTryReadSlot(functionId);    
     if (!res) return false;
+
+    if(_data.agents[memberId].acstat != ActivityStatus.ENABLED) return false;
+
     AgentType adminAgentType = _data.agents[adminId].atype;
     if(adminAgentType == AgentType.ROLE) {
       (RoleEntity storage roleEntity, bool result) = _data.roleTryReadSlot(adminId);
@@ -340,7 +343,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
 
   function _doGetEntityAndCheckAdminAccess(bytes32 fId, bytes32 senderId, bytes32 functionId) internal view returns (FunctionEntity storage) {
     FunctionEntity storage functionEntity = _data.functionReadSlot(fId);
-    // require(functionEntity.bs.acstat > ActivityStatus.DISABLED, "Function Disabled");
+    require(functionEntity.bs.acstat > ActivityStatus.DELETED, "Function Deleted");
     require(functionEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
     require(_doCheckAdminAccess(functionEntity.bs.adminId, senderId, functionId), "Forbidden");
     return functionEntity;
@@ -355,7 +358,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     bytes32 newFunctionId = LACLUtils.functionGenerateId(context.contractId, functionRequest.selector); 
     require(_data.scopes[newFunctionId].stype == ScopeType.NONE, "Already Exist");
     require(
-      functionRequest.acstat > ActivityStatus.NONE &&
+      functionRequest.acstat > ActivityStatus.DELETED &&
       functionRequest.alstat > AlterabilityStatus.NONE,
       "Illegal Activity/Alterability"
     );

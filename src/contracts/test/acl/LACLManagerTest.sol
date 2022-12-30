@@ -3,7 +3,8 @@
 
 pragma solidity 0.8.17;
 
-import "../struct/LEnumerableSet.sol";
+import "./IDomainManagementTest.sol";
+import "../../lib/struct/LEnumerableSet.sol";
 import "../../acl/IACLCommons.sol";
 import "../../acl/IACLManager.sol";
 import "../../acl/ACLStorage.sol";
@@ -14,7 +15,6 @@ import "../../acl/IAccessControl.sol";
 import "../../acl/scope/IContextManagement.sol";
 import "../../acl/scope/IFunctionManagement.sol";
 import "../../acl/scope/IRealmManagement.sol";
-import "../../acl/scope/IDomainManagement.sol";
 import "../../acl/scope/IGlobalManagement.sol";
 import "../../acl/agent/IMemberManagement.sol";
 import "../../acl/agent/IRoleManagement.sol";
@@ -26,17 +26,17 @@ import "hardhat/console.sol";
 
 
 /**
- * @title Access Control Library
+ * @title ACL Manager Library
  * @author Sina Tadayon, https://github.com/SinaTadayon
  * @dev
  *
  */
-library LAccessControl {
+library LACLManagerTest {
   // using LEnumerableSet for LEnumerableSet.Bytes32Set;
   using LEnumerableSet for LEnumerableSet.AddressSet;
 
-  string public constant LIB_NAME = "LAccessControl";
-  string public constant LIB_VERSION = "3.0.0";
+  string public constant LIB_NAME = "LACLManager";
+  string public constant LIB_VERSION = "3.0.1";
 
    
   function registerProxyFacet(ACLStorage.DataCollection storage data, address implementation) external {
@@ -89,7 +89,7 @@ library LAccessControl {
       request.interfaceId != type(IFunctionManagement).interfaceId ||
       request.interfaceId != type(IContextManagement).interfaceId ||
       request.interfaceId != type(IRealmManagement).interfaceId ||
-      request.interfaceId != type(IDomainManagement).interfaceId ||
+      request.interfaceId != type(IDomainManagementTest).interfaceId ||
       request.interfaceId != type(IGlobalManagement).interfaceId ||
       request.interfaceId != type(IMemberManagement).interfaceId ||
       request.interfaceId != type(IRoleManagement).interfaceId ||

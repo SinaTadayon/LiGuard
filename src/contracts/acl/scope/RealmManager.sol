@@ -68,7 +68,7 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
       bytes32 newRealmId = LACLUtils.generateId(requests[i].name);
       require(_data.scopes[newRealmId].stype == ScopeType.NONE, "Already Exist");
       require(
-        requests[i].acstat > ActivityStatus.NONE && 
+        requests[i].acstat > ActivityStatus.DELETED && 
         requests[i].alstat > AlterabilityStatus.NONE,
         "Illegal Activity/Alterability"
       );
@@ -171,7 +171,7 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
       RealmEntity storage realmEntity = _data.realmReadSlot(requests[i].id);      
       require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");    
       require(_doCheckAdminAccess(realmEntity.bs.adminId, senderId, functionId), "Forbidden");    
-      require(requests[i].acstat != ActivityStatus.NONE, "Illegal Activity");  
+      require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");  
       realmEntity.bs.acstat = requests[i].acstat;
     emit RealmActivityUpdated(msg.sender, requests[i].id, requests[i].acstat);
     }
@@ -328,6 +328,8 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
   function _doCheckAdminAccess(bytes32 adminId, bytes32 memberId, bytes32 functionId) internal view returns (bool) {
     (FunctionEntity storage functionEntity, bool res) = _data.functionTryReadSlot(functionId);    
     if (!res) return false;
+
+    if(_data.agents[memberId].acstat != ActivityStatus.ENABLED) return false;
 
     AgentType adminAgentType = _data.agents[adminId].atype;
     if(adminAgentType == AgentType.ROLE) {

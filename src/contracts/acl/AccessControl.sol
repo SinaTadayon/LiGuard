@@ -108,30 +108,30 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IAccessControl {
   function _doHasAccess(bytes32 agentId, bytes32 memberId, FunctionEntity storage functionEntity) internal view returns (bool) {
     
     AgentType atype = _data.agents[agentId].atype;
-    console.log("agentId: ");
-    console.logBytes32(agentId);
-    console.log("atype: ");
-    console.logBytes1(bytes1(uint8(atype)));
-    console.log("memberId: ");
-    console.logBytes32(memberId);
-    console.log("member acstat: ");
-    console.logBytes1(bytes1(uint8(_data.agents[memberId].acstat)));
-    console.log("address(this): %s", address(this));
+    // console.log("agentId: ");
+    // console.logBytes32(agentId);
+    // console.log("atype: ");
+    // console.logBytes1(bytes1(uint8(atype)));
+    // console.log("memberId: ");
+    // console.logBytes32(memberId);
+    // console.log("member acstat: ");
+    // console.logBytes1(bytes1(uint8(_data.agents[memberId].acstat)));
+    // console.log("address(this): %s", address(this));
     if(atype == AgentType.ROLE) {
       // check member activation
-      console.log("agentId type is role");
+      // console.log("agentId type is role");
       if(_data.agents[memberId].acstat != ActivityStatus.ENABLED) return false;
 
       // check role activation
       (RoleEntity storage roleEntity, bool result1) = _data.roleTryReadSlot(agentId);
-      console.log("roleEntity: ");
-      console.logBytes1(bytes1(uint8(roleEntity.ba.acstat)));
+      // console.log("roleEntity: ");
+      // console.logBytes1(bytes1(uint8(roleEntity.ba.acstat)));
       if(!result1 || roleEntity.ba.acstat != ActivityStatus.ENABLED) return false;
 
       // check type activation
       (TypeEntity storage typeEntity, bool result2) = _data.typeTryReadSlot(roleEntity.typeId);
-      console.log("typeEntity: ");
-      console.logBytes1(bytes1(uint8(typeEntity.ba.acstat)));
+      // console.log("typeEntity: ");
+      // console.logBytes1(bytes1(uint8(typeEntity.ba.acstat)));
       if(!result2 || typeEntity.ba.acstat != ActivityStatus.ENABLED) return false;
 
       // check memberId with agentId role
@@ -139,41 +139,41 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IAccessControl {
 
       // check policy activation
       PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[agentId]];
-      console.log("policyEntity: ");
-      console.logBytes1(bytes1(uint8(policyEntity.acstat)));
+      // console.log("policyEntity: ");
+      // console.logBytes1(bytes1(uint8(policyEntity.acstat)));
       if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
         return false;
 
     } else if(atype == AgentType.TYPE) {
-      console.log("agentId is type . . .");
+      // console.log("agentId is type . . .");
       if(agentId == _LIVELY_VERSE_ANY_TYPE_ID) {
-        console.log("agentId is ANY type . . .");
+        // console.log("agentId is ANY type . . .");
         if(_data.agents[memberId].acstat != ActivityStatus.ENABLED) {
           return false; 
         }
 
       } else if(agentId != _LIVELY_VERSE_ANONYMOUS_TYPE_ID) {
         // check member activation
-        console.log("agentId is Anonymous type . . .");
+        // console.log("agentId is Anonymous type . . .");
         if(_data.agents[memberId].acstat != ActivityStatus.ENABLED) return false;
         
         // check type activation
         (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(agentId);
-        console.log("typeEntity: ");
-        console.logBytes1(bytes1(uint8(typeEntity.ba.acstat)));
+        // console.log("typeEntity: ");
+        // console.logBytes1(bytes1(uint8(typeEntity.ba.acstat)));
         if(!result1 || typeEntity.ba.acstat != ActivityStatus.ENABLED) return false;
 
         // check role activation
         bytes32 roleId = typeEntity.members[memberId];
         (RoleEntity storage roleEntity, bool result2) = _data.roleTryReadSlot(roleId);
-        console.log("roleEntity: ");
-        console.logBytes1(bytes1(uint8(roleEntity.ba.acstat)));
+        // console.log("roleEntity: ");
+        // console.logBytes1(bytes1(uint8(roleEntity.ba.acstat)));
         if(!result2 || roleEntity.ba.acstat != ActivityStatus.ENABLED) return false;
         
         // check policy activation
         PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[roleId]];
-        console.log("policyEntity: ");
-        console.logBytes1(bytes1(uint8(policyEntity.acstat)));
+        // console.log("policyEntity: ");
+        // console.logBytes1(bytes1(uint8(policyEntity.acstat)));
         if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
           return false;
       } 
@@ -182,31 +182,31 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IAccessControl {
     }
 
     // check function activity
-    console.log("functionEntity: ");
-    console.logBytes1(bytes1(uint8(functionEntity.bs.acstat)));
+    // console.log("functionEntity: ");
+    // console.logBytes1(bytes1(uint8(functionEntity.bs.acstat)));
     if(functionEntity.bs.acstat != ActivityStatus.ENABLED) return false;
 
     // check context activity
     (ContextEntity storage contextEntity, bool res1) = _data.contextTryReadSlot(functionEntity.contextId);
-    console.log("contextEntity: ");
-    console.logBytes1(bytes1(uint8(contextEntity.bs.acstat)));
+    // console.log("contextEntity: ");
+    // console.logBytes1(bytes1(uint8(contextEntity.bs.acstat)));
     if(!res1 || contextEntity.bs.acstat != ActivityStatus.ENABLED) return false;
 
     // check realm activity
     (RealmEntity storage realmEntity, bool res2) = _data.realmTryReadSlot(contextEntity.realmId);
-    console.log("realmEntity: ");
-    console.logBytes1(bytes1(uint8(contextEntity.bs.acstat)));
+    // console.log("realmEntity: ");
+    // console.logBytes1(bytes1(uint8(contextEntity.bs.acstat)));
     if(!res2 || realmEntity.bs.acstat != ActivityStatus.ENABLED) return false;
 
     // check domain activity
     (DomainEntity storage domainEntity, bool res3) = _data.domainTryReadSlot(realmEntity.domainId);
-    console.log("domainEntity: ");
-    console.logBytes1(bytes1(uint8(domainEntity.bs.acstat)));
+    // console.log("domainEntity: ");
+    // console.logBytes1(bytes1(uint8(domainEntity.bs.acstat)));
     if(!res3 || domainEntity.bs.acstat != ActivityStatus.ENABLED) return false;
 
     // check global activity
-    console.log("global: ");
-    console.logBytes1(bytes1(uint8(_data.scopes[_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID].acstat)));
+    // console.log("global: ");
+    // console.logBytes1(bytes1(uint8(_data.scopes[_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID].acstat)));
     if(_data.scopes[_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID].acstat != ActivityStatus.ENABLED) return false;
     
     return true;

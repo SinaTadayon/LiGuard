@@ -109,8 +109,8 @@ export enum AgentType {
 
 export enum ActivityStatus {
   NONE,
+  DELETED,
   DISABLED,
-  SAFE_MODE,
   ENABLED
 }
 

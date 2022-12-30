@@ -3,9 +3,9 @@
 
 pragma solidity 0.8.17;
 
-import "./IDomainManagement.sol";
-import "../IAccessControl.sol";
-import "../ACLStorage.sol";
+import "./IDomainManagementTest.sol";
+import "../../acl/IAccessControl.sol";
+import "../../acl/ACLStorage.sol";
 import "../../lib/acl/LACLStorage.sol";
 import "../../lib/acl/LACLUtils.sol";
 import "../../lib/struct/LEnumerableSet.sol";
@@ -18,41 +18,45 @@ import "../../proxy/BaseUUPSProxy.sol";
  * @dev
  *
  */
-contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
+contract DomainManagerTest is ACLStorage, BaseUUPSProxy, IDomainManagementTest {
   using LACLStorage for DataCollection;
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
 
   constructor() {}
 
-  function initialize(
-    string calldata contractName,
-    string calldata contractVersion,
-    address accessControlManager
-  ) public onlyProxy onlyLocalAdmin initializer {        
-    __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
+  // function initialize(
+  //   string calldata contractName,
+  //   string calldata contractVersion,
+  //   address accessControlManager
+  // ) public onlyProxy onlyLocalAdmin initializer {        
+  //   __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
 
-    emit Initialized(
-      _msgSender(),
-      address(this),
-      _implementation(),
-      contractName,
-      contractVersion,
-      _getInitializedCount()
-    );
-  }
+  //   emit Initialized(
+  //     _msgSender(),
+  //     address(this),
+  //     _implementation(),
+  //     contractName,
+  //     contractVersion,
+  //     _getInitializedCount()
+  //   );
+  // }
+
+   function reInitialize(string calldata contractVersion) public onlyProxy onlyLocalAdmin reinitializer(2) {
+     _contractVersion = contractVersion;
+   }
 
   /**
    * @dev See {IERC165-supportsInterface}.
    */
   function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
     return
-      interfaceId == type(IDomainManagement).interfaceId ||
+      interfaceId == type(IDomainManagementTest).interfaceId ||
       super.supportsInterface(interfaceId);
   }
 
   // called by account that member of VERSE SCOPE MASTER TYPE
-  function domainRegister(DomainRegisterRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IDomainManagement.domainRegister.selector);
+  function domainRegister2(DomainRegisterRequest[] calldata requests) external returns (bool) {
+    bytes32 functionId = _accessPermission(IDomainManagementTest.domainRegister2.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     
     // fetch scope type and scope id of sender
@@ -62,7 +66,7 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
       bytes32 newDomainId = LACLUtils.generateId(requests[i].name);
       require(_data.scopes[newDomainId].stype == ScopeType.NONE, "Already Exist");
       require(
-        requests[i].acstat > ActivityStatus.DELETED && 
+        requests[i].acstat > ActivityStatus.NONE && 
         requests[i].alstat > AlterabilityStatus.NONE,
         "Illegal Activity/Alterability"
       );
@@ -108,20 +112,20 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
   }
  
   function domainUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
-   bytes32 functionId = _accessPermission(IDomainManagement.domainUpdateActivityStatus.selector);
+   bytes32 functionId = _accessPermission(IDomainManagementTest.domainUpdateActivityStatus.selector);
    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {
       DomainEntity storage domainEntity = _data.domainReadSlot(requests[i].id);
       require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Domain Updatable");
       require(_doCheckAdminAccess(domainEntity.bs.adminId, senderId, functionId), "Forbidden");
-      require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
+      require(requests[i].acstat > ActivityStatus.NONE, "Illegal Activity");
       emit DomainActivityUpdated(msg.sender, requests[i].id, requests[i].acstat);
     }
     return true;
   }
 
   function domainUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IDomainManagement.domainUpdateAlterabilityStatus.selector);
+    bytes32 functionId = _accessPermission(IDomainManagementTest.domainUpdateAlterabilityStatus.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     
     for(uint i = 0; i < requests.length; i++) {
@@ -136,7 +140,7 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
   }
 
   function domainUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IDomainManagement.domainUpdateAdmin.selector);
+    bytes32 functionId = _accessPermission(IDomainManagementTest.domainUpdateAdmin.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     
     for(uint i = 0; i < requests.length; i++) {
@@ -158,7 +162,7 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
   }
 
   function domainUpdateRealmLimit(DomainUpdateRealmLimitRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IDomainManagement.domainUpdateRealmLimit.selector);
+    bytes32 functionId = _accessPermission(IDomainManagementTest.domainUpdateRealmLimit.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender); 
 
     for (uint256 i = 0; i < requests.length; i++) {
@@ -170,7 +174,7 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
   }
 
   function domainUpdateAgentLimit(ScopeUpdateAgentLimitRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IDomainManagement.domainUpdateAgentLimit.selector);
+    bytes32 functionId = _accessPermission(IDomainManagementTest.domainUpdateAgentLimit.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender); 
 
     for (uint256 i = 0; i < requests.length; i++) {
@@ -290,8 +294,6 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
   function _doCheckAdminAccess(bytes32 adminId, bytes32 memberId, bytes32 functionId) internal view returns (bool) {
     (FunctionEntity storage functionEntity, bool res) = _data.functionTryReadSlot(functionId);    
     if (!res) return false;
-
-    if(_data.agents[memberId].acstat != ActivityStatus.ENABLED) return false;
 
     AgentType adminAgentType = _data.agents[adminId].atype;
     if(adminAgentType == AgentType.ROLE) {

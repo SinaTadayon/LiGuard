@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v2.0.2)
+// LivelyVerse Contracts (last updated v3.0.0)
 
 pragma solidity 0.8.17;
 
@@ -14,7 +14,7 @@ import "../IACLCommons.sol";
 interface ITypeManagement is IACLCommons {
 
   struct TypeRegisterRequest {
-    bytes32 adminId;          // should role or member in any scope 
+    bytes32 adminId;          
     bytes32 scopeId;
     uint16 roleLimit;
     ActivityStatus acstat;

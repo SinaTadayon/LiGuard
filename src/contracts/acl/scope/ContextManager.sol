@@ -137,7 +137,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
       ContextEntity storage contextEntity = _data.contextReadSlot(requests[i].id);      
       require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
       require(_doCheckAdminAccess(contextEntity.bs.adminId, senderId, functionId), "Forbidden");
-      require(requests[i].acstat > ActivityStatus.NONE, "Illegal Activity");    
+      require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");    
       contextEntity.bs.acstat = requests[i].acstat;
       emit ContextActivityUpdated(msg.sender, requests[i].id, requests[i].acstat);
     }
@@ -188,7 +188,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
   }
 
   function contextUpdateAgentLimit(ScopeUpdateAgentLimitRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IContextManagement.contextUpdateAdmin.selector);
+    bytes32 functionId = _accessPermission(IContextManagement.contextUpdateAgentLimit.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
     for (uint256 i = 0; i < requests.length; i++) {
       ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(requests[i].scopeId, senderId, functionId);
@@ -257,6 +257,8 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
   function _doCheckAdminAccess(bytes32 adminId, bytes32 memberId, bytes32 functionId) internal view returns (bool) {
     (FunctionEntity storage functionEntity, bool res) = _data.functionTryReadSlot(functionId);    
     if (!res) return false;
+
+    if(_data.agents[memberId].acstat != ActivityStatus.ENABLED) return false;
 
     AgentType adminAgentType = _data.agents[adminId].atype;
     if(adminAgentType == AgentType.ROLE) {
@@ -422,7 +424,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     require(IAccessControl(address(this)).hasMemberAccess(signerId, functionId), "Access Denied");
     require(_data.scopes[newContextId].stype == ScopeType.NONE, "Already Exist");
     require(
-      request.acstat > ActivityStatus.NONE && 
+      request.acstat > ActivityStatus.DELETED && 
       request.alstat > AlterabilityStatus.NONE,
       "Illegal Activity/Alterability"
     );

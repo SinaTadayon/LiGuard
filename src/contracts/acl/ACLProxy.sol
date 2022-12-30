@@ -30,6 +30,7 @@ contract ACLProxy is ACLStorage, BaseProxy {
     assert(_ADMIN_SLOT == bytes32(uint256(keccak256("eip1967.proxy.admin")) - 1));
     LStorageSlot.getAddressSlot(_ADMIN_SLOT).value = msg.sender;
     _sstat = ProxySafeModeStatus.ENABLED;
+    _ustat = ProxyUpdatabilityStatus.DISABLED;
     _upgradeToAndCallUUPS(logic, data, false);
   }
 
@@ -101,6 +102,7 @@ contract ACLProxy is ACLStorage, BaseProxy {
     bytes memory data,
     bool forceCall
   ) private returns (bytes memory) {
+    require(LAddress.isContract(newImplementation), "Illegal Contract");
     // Upgrades from old implementations will perform a rollback test. This test requires the new
     // implementation to upgrade back to the old, non-ERC1822 compliant, implementation. Removing
     // this special case will break upgrade paths from old UUPS implementation to new ones.

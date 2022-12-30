@@ -61,7 +61,7 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
       bytes32 newPolicyId = LACLUtils.generateId(requests[i].name);
       require(_data.policies[newPolicyId].acstat == ActivityStatus.NONE , "Already Exist");
       require(
-        requests[i].acstat > ActivityStatus.NONE && 
+        requests[i].acstat > ActivityStatus.DELETED && 
         requests[i].alstat > AlterabilityStatus.NONE,
         "Illegal Activity/Alterability"
       );
@@ -69,7 +69,7 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
       // checking requested type scope
       BaseScope storage requestedScope = _data.scopes[requests[i].scopeId];
       require(requestedScope.stype != ScopeType.NONE , "Scope Not Found");
-      // require(requestedScope.acstat > ActivityStatus.DISABLED , "Scope Disabled");
+      require(requestedScope.acstat > ActivityStatus.DELETED , "Scope Deleted");
      
       (ScopeType senderScopeType, bytes32 senderScopeId) = _getMemberPolicyScopeInfo(msg.sender);
 
@@ -223,7 +223,7 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
       require(policyEntity.adminId != bytes32(0), "Policy Not Found");      
       require(policyEntity.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
       require(_doPolicyCheckAdminAccess(policyEntity.adminId, memberId, functionId), "Forbidden");  
-      require(requests[i].acstat != ActivityStatus.NONE, "Illegal Activity");       
+      require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");       
       policyEntity.acstat = requests[i].acstat;
       emit PolicyActivityUpdated(msg.sender, requests[i].id, requests[i].acstat);
     }
@@ -288,6 +288,7 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
 
       return typeEntity.members[memberId] != bytes32(0);  
     }
+    return true;
   }
 
   function policyCheckAccess(bytes32 policyId, bytes32 functionId) external view returns (bool) {
@@ -405,6 +406,8 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
     (FunctionEntity storage functionEntity, bool res) = _data.functionTryReadSlot(functionId);    
     if (!res) return false;
 
+    if(_data.agents[memberId].acstat != ActivityStatus.ENABLED) return false;
+
     AgentType adminAgentType = _data.agents[adminId].atype;
     if(adminAgentType == AgentType.ROLE) {
       (RoleEntity storage roleEntity, bool result) = _data.roleTryReadSlot(adminId);
@@ -443,8 +446,9 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
     address functionFacetId = _data.selectors[selector];
-    bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector);    
-    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
+    bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector);
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);       
+    require(IAccessControl(address(this)).hasMemberAccess(senderId, functionId), "Access Denied");
     return functionId;
   }
 

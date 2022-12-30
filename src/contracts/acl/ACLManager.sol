@@ -17,7 +17,7 @@ import "./agent/ITypeManagement.sol";
 import "./policy/IPolicyManagement.sol";
 import "../lib/struct/LEnumerableSet.sol";
 import "../lib/acl/LACLStorage.sol";
-import "../lib/acl/LAccessControl.sol";
+import "../lib/acl/LACLManager.sol";
 import "../proxy/Initializable.sol";
 import "../proxy/BaseUUPSProxy.sol";
 
@@ -40,7 +40,7 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
     string calldata contractName,
     string calldata contractVersion
   ) public onlyProxy onlyLocalAdmin initializer {   
-    LAccessControl.registerProxyFacet(_data, _implementation());
+    LACLManager.registerProxyFacet(_data, _implementation());
     __BASE_UUPS_init(contractName, contractVersion, address(this));
     _firstInit = true;
 
@@ -78,6 +78,7 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
 
   function aclRegisterFacet(FacetRegisterRequest[] calldata requests) external onlyProxy returns (bool) {
     if(_firstInit) {
+      require(_sstat == ProxySafeModeStatus.DISABLED, "Rejected");
       require(_getLocalAdmin() == _msgSender(), "Forbidden");      
       return _doAclRegisterFacet(requests);
     } else {
@@ -88,7 +89,7 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
 
   function _doAclRegisterFacet(FacetRegisterRequest[] calldata requests) internal returns (bool) {
     for(uint i = 0; i < requests.length; i++) {
-      LAccessControl.aclRegisterFacet(_data, requests[i]);
+      LACLManager.aclRegisterFacet(_data, requests[i]);
       emit ACLFacetRegistered(
         _msgSender(), 
         requests[i].facetId, 
@@ -101,6 +102,7 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
   }
 
   function aclUpgradeFacet(FacetUpgradeRequest[] calldata requests) external onlyProxy aclCheck(this.aclUpgradeFacet.selector) returns (bool) {
+    // require(_sstat == ProxySafeModeStatus.DISABLED, "Rejected");
     for(uint i = 0; i < requests.length; i++) {      
       require(_data.facetSet.contains(requests[i].facetId), "Facet Not Found");
       
@@ -135,6 +137,22 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
 
   function aclGetFacets() public view returns (address[] memory) {
     return _data.facetSet.values();
+  }
+
+  function aclGetFacet(bytes4 selector) external view returns (address) {
+    return _data.selectors[selector];
+  }
+
+  function aclHasSelector(bytes4 selector) external view returns (bool) {
+    return _data.selectors[selector] != address(0);
+  }
+
+  function aclGetFacetInfo(address facetId) external view returns (FacetInfo memory) {
+    FacetEntity storage facetEntity = _data.facets[facetId];
+    return FacetInfo({
+      subjectId: facetEntity.subjectId,
+      interfaceId: facetEntity.interfaceId
+    });
   }
 
   function initACL(
@@ -274,7 +292,7 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
       scopeMasterAdminRole.ba.atype = AgentType.ROLE;
       scopeMasterAdminRole.ba.acstat = ActivityStatus.ENABLED;
       scopeMasterAdminRole.ba.alstat = AlterabilityStatus.UPDATABLE;
-      scopeMasterAdminRole.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;          
+      scopeMasterAdminRole.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
       
 
       // Create Scope Master Type       
@@ -469,6 +487,6 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
   }
 
   function getLibrary() external pure returns (address) {
-    return address(LAccessControl);
+    return address(LACLManager);
   }
 }

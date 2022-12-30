@@ -21,8 +21,8 @@ interface IACLCommons {
 
   enum ActivityStatus {
     NONE,
+    DELETED,
     DISABLED,
-    SAFE_MODE,
     ENABLED
   }
 
@@ -136,7 +136,7 @@ interface IACLCommons {
     bytes32 typeId;
     string name;
     uint32 memberLimit;
-    uint32 memberTotal;
+    uint32 memberCount;
   }
 
   struct TypeEntity {

@@ -56,14 +56,14 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
     GlobalEntity storage globalEntity = _data.globalReadSlot(_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
     require(globalEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Global Updatable");    
     require(_doCheckAdminAccess(globalEntity.bs.adminId, senderId, functionId), "Forbidden");
-    require(acstat > ActivityStatus.NONE, "Illegal Activity");
+    require(acstat > ActivityStatus.DELETED, "Illegal Activity");
     globalEntity.bs.acstat = acstat;
     emit GlobalActivityUpdated(msg.sender, _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, globalEntity.bs.acstat);    
     return acstat;
   }
 
   function globalUpdateAlterabilityStatus(AlterabilityStatus alstat) external returns (AlterabilityStatus) {
-    bytes32 functionId = _accessPermission(IGlobalManagement.globalUpdateActivityStatus.selector);
+    bytes32 functionId = _accessPermission(IGlobalManagement.globalUpdateAlterabilityStatus.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     GlobalEntity storage globalEntity = _data.globalReadSlot(_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
     // require(globalEntity.bs.acstat > ActivityStatus.DISABLED, "Global Disabled");
@@ -129,7 +129,7 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
     // // check admin function
     // require(_doCheckAdminAccess(_data.global.bs.adminId, memberId, functionId), "Forbidden");
 
-    bytes32 functionId = _accessPermission(IGlobalManagement.globalUpdateDomainLimit.selector);
+    bytes32 functionId = _accessPermission(IGlobalManagement.globalUpdateAgentLimit.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     GlobalEntity storage globalEntity = _doGetEntityAndCheckAdminAccess(senderId, functionId);
 
@@ -147,6 +147,8 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
   function _doCheckAdminAccess(bytes32 adminId, bytes32 memberId, bytes32 functionId) internal view returns (bool) {
     (FunctionEntity storage functionEntity, bool res) = _data.functionTryReadSlot(functionId);    
     if (!res) return false;
+
+    if(_data.agents[memberId].acstat != ActivityStatus.ENABLED) return false;
 
     AgentType adminAgentType = _data.agents[adminId].atype;
     if(adminAgentType == AgentType.ROLE) {

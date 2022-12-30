@@ -33,6 +33,11 @@ interface IACLManager is IACLCommons {
     bytes4[] selectors;
   }
 
+  struct FacetInfo {
+    address subjectId;
+    bytes4 interfaceId;
+  }
+
   event ACLFacetRegistered(
     address indexed sender, 
     address indexed facetId, 
@@ -65,4 +70,10 @@ interface IACLManager is IACLCommons {
   function aclUpgradeFacet(FacetUpgradeRequest[] calldata requests) external returns (bool);
 
   function aclGetFacets() external view returns (address[] memory);
+
+  function aclGetFacet(bytes4 selector) external view returns (address);
+
+  function aclHasSelector(bytes4 selector) external view returns (bool);
+
+  function aclGetFacetInfo(address facetId) external view returns (FacetInfo memory);
 }

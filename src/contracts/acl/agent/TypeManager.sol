@@ -63,7 +63,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
       bytes32 newTypeId = LACLUtils.generateId(requests[i].name);
       require(_data.agents[newTypeId].atype == AgentType.NONE, "Already Exist");
       require(
-        requests[i].acstat > ActivityStatus.NONE && 
+        requests[i].acstat > ActivityStatus.DELETED && 
         requests[i].alstat > AlterabilityStatus.NONE,
         "Illegal Activity/Alterability"
       );
@@ -71,7 +71,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
       // checking requested type scope
       BaseScope storage requestedScope = _data.scopes[requests[i].scopeId];
       require(requestedScope.stype != ScopeType.NONE , "Not Found");
-      // require(requestedScope.acstat > ActivityStatus.DISABLED , "Scope Disabled");
+      require(requestedScope.acstat > ActivityStatus.DELETED , "Scope Deleted");
       require(requestedScope.agentLimit > requestedScope.referredByAgent, "Illegal Referred");
 
       // increase referred count to target scope
@@ -171,7 +171,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
       TypeEntity storage typeEntity = _data.typeReadSlot(requests[i].id);
       require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
       require(_doCheckAdminAccess(typeEntity.ba.adminId, senderId, functionId), "Forbidden");    
-      require(requests[i].acstat > ActivityStatus.NONE, "Illegal Activity");             
+      require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");             
       typeEntity.ba.acstat = requests[i].acstat;
       emit TypeActivityUpdated(msg.sender, requests[i].id, requests[i].acstat);
     }
@@ -183,7 +183,6 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {      
       TypeEntity storage typeEntity = _data.typeReadSlot(requests[i].id);
-      // require(typeEntity.ba.acstat > ActivityStatus.DISABLED, "Type Disabled");
       require(_doCheckAdminAccess(typeEntity.ba.adminId, senderId, functionId), "Forbidden");  
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       typeEntity.ba.alstat = requests[i].alstat;
@@ -198,7 +197,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
 
     for (uint256 i = 0; i < requests.length; i++) {
       TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].typeId, senderId, functionId);
-
+      require(requests[i].roleLimit > typeEntity.roles.length(), "Illegal Limit");
       typeEntity.roleLimit = requests[i].roleLimit;
       emit TypeRoleLimitUpdated(msg.sender, requests[i].typeId, requests[i].roleLimit);
     }
@@ -317,6 +316,8 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
     (FunctionEntity storage functionEntity, bool res) = _data.functionTryReadSlot(functionId);    
     if (!res) return false;
 
+    if(_data.agents[memberId].acstat != ActivityStatus.ENABLED) return false;
+
     AgentType adminAgentType = _data.agents[adminId].atype;
     if(adminAgentType == AgentType.ROLE) {
       (RoleEntity storage roleEntity, bool result) = _data.roleTryReadSlot(adminId);
@@ -355,8 +356,9 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
     address functionFacetId = _data.selectors[selector];
-    bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector);    
-    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
+    bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector); 
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
+    require(IAccessControl(address(this)).hasMemberAccess(senderId, functionId), "Access Denied");
     return functionId;
   }
 

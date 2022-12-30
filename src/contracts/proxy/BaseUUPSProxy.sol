@@ -42,7 +42,7 @@ abstract contract BaseUUPSProxy is
    */
   modifier onlyProxy() {
     require(address(this) != __self, "Illegal Call");    // Illegal Contract Call
-    require(_implementation() == __self, "Invalid Call");   // Invalid Proxy Called 
+    require(_implementation() == __self, "Invalid Call");   // Invalid Proxy Call 
     _;
   }
 
@@ -75,14 +75,13 @@ abstract contract BaseUUPSProxy is
 
   function _hasPermission(bytes4 selector) internal returns (bool) {
     bytes32 senderId = LACLUtils.accountGenerateId(_msgSender());
-    if (address(this) == _accessControlManager) {
+    if(_accessControlManager == address(this)) {
       bytes memory data = abi.encodeWithSelector(bytes4(keccak256("getFirstInit()")));
-      bytes memory returndata = LAddress.functionDelegateCall(_implementation(), data, "DCall Failed"); // Delegatecall hasAccess Failed
+      bytes memory returndata = LAddress.functionDelegateCall(_implementation(), data, "Call Failed"); // Delegatecall hasAccess Failed
       if(uint8(returndata[returndata.length - 1]) == 1) return false;
-      return IAccessControl(address(this)).hasCSMAccess(address(this), selector, senderId);
-
+      return IAccessControl(_accessControlManager).hasCSMAccess(address(this), selector, senderId);    
     } else {
-      return IAccessControl(_accessControlManager).hasCSMAccess(address(this), selector, senderId);
+      return IAccessControl(_accessControlManager).hasCSMAccess(address(this), selector, senderId);    
     }
   }
 
@@ -98,7 +97,7 @@ abstract contract BaseUUPSProxy is
     assert(_ADMIN_SLOT == bytes32(uint256(keccak256("eip1967.proxy.admin")) - 1));
     // set contract Admin (implementation contract)
     LStorageSlot.getAddressSlot(_ADMIN_SLOT).value = _msgSender();
-
+ 
     // set _isUpgradable and _isSafeMode of contact
     _ustat = ProxyUpdatabilityStatus.DISABLED;
     _sstat = ProxySafeModeStatus.ENABLED;
@@ -119,14 +118,6 @@ abstract contract BaseUUPSProxy is
   ) internal onlyInitializing {
     _contractName = cname;
     _contractVersion = cverion;
-
-      // _accessControlManager = address(this);
-    // } else {
-      // try IERC165(accessControl).supportsInterface(type(IAccessControl).interfaceId) returns (bool isSupported) {
-      //   require(isSupported, "Invalid AccessControlManager");
-      // } catch {
-      //   revert("Illegal AccessControlManager");
-      // }
 
     if (accessControl != address(this)) {
       require(LAddress.isContract(accessControl), "Illegal Contract");
