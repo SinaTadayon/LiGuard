@@ -127,7 +127,6 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
     
     for(uint i = 0; i < requests.length; i++) {
       DomainEntity storage domainEntity = _data.domainReadSlot(requests[i].id);
-      // require(domainEntity.bs.acstat > ActivityStatus.DISABLED, "Domain Disabled");
       require(_doCheckAdminAccess(domainEntity.bs.adminId, senderId, functionId), "Forbidden");            
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       domainEntity.bs.alstat = requests[i].alstat;
@@ -355,8 +354,7 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
   }  
 
   function _doGetEntityAndCheckAdminAccess(bytes32 domainId, bytes32 senderId, bytes32 functionId) internal view returns (DomainEntity storage) {
-    DomainEntity storage domainEntity = _data.domainReadSlot(domainId);
-    // require(domainEntity.bs.acstat > ActivityStatus.DISABLED, "Domain Disabled");
+    DomainEntity storage domainEntity = _data.domainReadSlot(domainId); 
     require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
     require(_doCheckAdminAccess(domainEntity.bs.adminId, senderId, functionId), "Forbidden");
     return domainEntity;

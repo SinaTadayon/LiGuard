@@ -50,16 +50,10 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
       super.supportsInterface(interfaceId);
   }
 
-  // calld by scope master type
-  // admin of realm can be any type or any role
+
   function realmRegister(RealmRegisterRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IRealmManagement.realmRegister.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
-
-    // TypeEntity storage scopeMasterType = _data.typeReadSlot(LIVELY_VERSE_SCOPE_MASTER_TYPE_ID);
-    // bytes32 memberRoleId = scopeMasterType.members[memberId];
-    // RoleEntity storage memberScopeMasterRole = _data.roleReadSlot(memberRoleId);
-    // ScopeType memberScopeType = _data.scopes[memberScopeMasterRole.scopeId].stype;
 
     // fetch scope type and scope id of sender
     (ScopeType memberScopeType, bytes32 memberScopeId) = _doGetMemberScopeInfoFromType(_LIVELY_VERSE_SCOPE_MASTER_TYPE_ID, senderId);    
@@ -84,7 +78,6 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
       }
 
       DomainEntity storage domainEntity = _data.domainReadSlot(requests[i].domainId);
-      // require(domainEntity.bs.acstat > ActivityStatus.DISABLED, "Domain Disabled");
       require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Domain Updatable");
       require(domainEntity.realmLimit > domainEntity.realms.length(), "Illegal Register");
 
@@ -106,25 +99,6 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
       newRealm.contextLimit = requests[i].contextLimit;
       newRealm.bs.adminId = _getRealmAdmin(domainEntity.bs.adminId, requests[i].domainId, requests[i].adminId);
        
-      // checking requested context admin 
-      
-      // if(requests[i].adminId != bytes32(0)) {
-      //   require(_data.agents[requests[i].adminId] > AgentType.MEMBER, "Illegal Admin AgentType");
-
-      //   (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(requests[i].adminId);
-      //   require(ScopeType.DOMAIN <= requestAdminScopeType, "Illegal Admin ScopeType");
-      //   if(ScopeType.DOMAIN == requestAdminScopeType){
-      //     require(requestAdminScopeId == requests[i].domainId, "Illegal Amind Scope");
-
-      //   } else {
-      //     require(requestAdminScopeId == _data.global.id, "Illegal Amind Scope");
-      //   }
-      //   newRealm.bs.adminId = requests[i].adminId;
-
-      // } else {
-      //   newRealm.bs.adminId = domainEntity.bs.adminId;
-      // }
-
       emit RealmRegistered(
         msg.sender,
         newRealmId,
@@ -184,7 +158,6 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
 
     for(uint i = 0; i < requests.length; i++) {      
       RealmEntity storage realmEntity = _data.realmReadSlot(requests[i].id);
-      // require(realmEntity.bs.acstat > ActivityStatus.DISABLED, "Realm Disabled");
       require(_doCheckAdminAccess(realmEntity.bs.adminId, senderId, functionId), "Forbidden");    
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       realmEntity.bs.alstat = requests[i].alstat;
@@ -379,7 +352,6 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
 
   function _doGetEntityAndCheckAdminAccess(bytes32 realmId, bytes32 senderId, bytes32 functionId) internal view returns (RealmEntity storage) {
     RealmEntity storage realmEntity = _data.realmReadSlot(realmId);
-    // require(realmEntity.bs.acstat > ActivityStatus.DISABLED, "Realm Disabled");
     require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");    
     require(_doCheckAdminAccess(realmEntity.bs.adminId, senderId, functionId), "Forbidden");    
     return realmEntity;

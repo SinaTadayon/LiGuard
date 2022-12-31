@@ -21,8 +21,6 @@ import "../lib/acl/LACLManager.sol";
 import "../proxy/Initializable.sol";
 import "../proxy/BaseUUPSProxy.sol";
 
-import "hardhat/console.sol";
-
 /**
  * @title Access Control Manager Contract
  * @author Sina Tadayon, https://github.com/SinaTadayon
@@ -102,7 +100,7 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
   }
 
   function aclUpgradeFacet(FacetUpgradeRequest[] calldata requests) external onlyProxy aclCheck(this.aclUpgradeFacet.selector) returns (bool) {
-    // require(_sstat == ProxySafeModeStatus.DISABLED, "Rejected");
+    require(_sstat == ProxySafeModeStatus.DISABLED, "Rejected");
     for(uint i = 0; i < requests.length; i++) {      
       require(_data.facetSet.contains(requests[i].facetId), "Facet Not Found");
       

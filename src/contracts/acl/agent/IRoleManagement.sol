@@ -14,8 +14,8 @@ import "../IACLCommons.sol";
 interface IRoleManagement is IACLCommons {
 
   struct RoleRegisterRequest {
-    bytes32 adminId;          // should role or member in any scope 
-    bytes32 scopeId;          // related to request sender scope and sender and it can be one of sender scope and under it
+    bytes32 adminId;          
+    bytes32 scopeId;          
     bytes32 typeId;    
     uint32 memberLimit;
     ActivityStatus acstat;
@@ -93,6 +93,4 @@ interface IRoleManagement is IACLCommons {
   function roleHasAccount(bytes32 roleId, address account) external view returns (bool);
 
   function roleGetInfo(bytes32 roleId) external view returns (RoleInfo memory);
-
-
 }

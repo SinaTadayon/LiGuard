@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v2.0.1)
+// LivelyVerse Contracts (last updated v3.0.0)
 
 pragma solidity 0.8.17;
 
@@ -36,12 +36,7 @@ contract ACLProxy is ACLStorage, BaseProxy {
 
   function _fallback() internal override {
     address facetId = _data.selectors[msg.sig];
-    address subjectId = _data.facets[facetId].subjectId;
-    // console.log("facetId address: %s", facetId);
-    // console.log("this address: %s", address(this));
-    // console.log("subjectId address: %s", subjectId);
-    // console.log("selector : ");
-    // console.logBytes4(msg.sig);
+    address subjectId = _data.facets[facetId].subjectId;  
     if(facetId == address(0)) {
       _delegate(_implementation());  
     } else {

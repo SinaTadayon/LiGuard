@@ -81,26 +81,10 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
       // check access
       require(_doCheckAdminAccess(typeEntity.ba.adminId, senderId, functionId), "Forbidden");
 
-
-      // // checking requested role scope
-      // BaseScope storage requestRoleScope = _data.scopes[requests[i].scopeId];
-      // require(requestRoleScope.stype != ScopeType.NONE , "Scope Not Found");
-      // require(requestRoleScope.acstat > ActivityStatus.DELETED , "Scope Deleted");
-      // require(requestRoleScope.agentLimit > requestRoleScope.referredByAgent, "Illegal Referred");
-     
-      // // checking requested role type scope with role scope
-      // ScopeType requestTypeScopeType = _data.scopes[typeEntity.scopeId].stype;
-      // require(requestTypeScopeType >= requestRoleScope.stype, "Illegal Type Scope");
-      // if (requestTypeScopeType == requestRoleScope.stype) {
-      //   require(typeEntity.scopeId == requests[i].scopeId, "Illegal Type Scope ID");
-      // } else {
-      //   require(IAccessControl(address(this)).isScopesCompatible(typeEntity.scopeId, requests[i].scopeId), "Illegal Type Scope ID");
-      // }
-
+      // check and get requested scope type
       ScopeType requestScopeType = _getAndCheckRequestScope(requests[i].scopeId, typeEntity.scopeId);
 
       
-
       // add role to type 
       typeEntity.roles.add(newRoleId);
 
@@ -114,25 +98,6 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
       newRole.memberLimit = requests[i].memberLimit;
       newRole.typeId = requests[i].typeId;
       newRole.ba.adminId = _getRoleAdmin(requestScopeType, typeEntity.ba.adminId, requests[i].scopeId, requests[i].adminId);
-
-      
-      // // checking requested role admin 
-      // if(requests[i].adminId != bytes32(0)) {
-      //   BaseAgent storage adminBaseAgent = _data.agents[requests[i].adminId];
-      //   require(adminBaseAgent.atype > AgentType.MEMBER, "Illegal Admin AgentType");
-      //   (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(requests[i].adminId);
-      //   require(requestRoleScope.stype <= requestAdminScopeType, "Illegal Admin Scope Type");
-      //   if(requestRoleScope.stype == requestAdminScopeType) {
-      //     require(requestAdminScopeId == requests[i].scopeId, "Illegal Amind Scope");
-      //   } else {
-      //     require(IAccessControl(address(this)).isScopesCompatible(requestAdminScopeId, requests[i].scopeId), "Illegal Role Scope");
-      //   }
-      //   newRole.ba.adminId = requests[i].adminId;
-
-      // } else {
-      //   newRole.ba.adminId = typeEntity.ba.adminId;
-      // }
-      
       emit RoleRegistered(
         msg.sender,
         newRoleId,
@@ -149,27 +114,8 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
     bytes32 functionId = _accessPermission(IRoleManagement.roleUpdateAdmin.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
     for(uint i = 0; i < requests.length; i++) {
-      RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
-      
+      RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);      
       roleEntity.ba.adminId = _getRoleAdmin(_data.scopes[roleEntity.scopeId].stype, _data.agents[roleEntity.typeId].adminId, roleEntity.scopeId, requests[i].adminId);
-      // checking requested type admin 
-      // if(requests[i].adminId != bytes32(0)) {
-      //   ScopeType roleScopeType = _data.scopes[roleEntity.scopeId].stype;
-      //   BaseAgent storage adminBaseAgent = _data.agents[requests[i].adminId];
-      //   require(adminBaseAgent.atype > AgentType.MEMBER, "Illegal Admin AgentType");
-      //   (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(requests[i].adminId);
-      //   require(roleScopeType <= requestAdminScopeType, "Illegal Admin ScopeType");
-      //   if(roleScopeType == requestAdminScopeType) {
-      //     require(requestAdminScopeId == roleEntity.scopeId, "Illegal Amind Scope");
-      //   } else {
-      //     require(IAccessControl(address(this)).isScopesCompatible(requestAdminScopeId, roleEntity.scopeId), "Illegal Role Scope");
-      //   }
-      //   roleEntity.ba.adminId = requests[i].adminId;
-
-      // } else {
-      //   roleEntity.ba.adminId = _data.agents[roleEntity.typeId].adminId;
-      // }
-
       emit RoleAdminUpdated(msg.sender, requests[i].id, requests[i].adminId);
     }
     return true;
@@ -220,13 +166,11 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
     for(uint i = 0; i < requests.length; i++) {      
       RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(requests[i].roleId, senderId, functionId);
       TypeEntity storage typeEntity = _data.typeReadSlot(roleEntity.typeId);
-      // require(typeEntity.ba.acstat > ActivityStatus.DISABLED, "Type Disabled");
       require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Type Updatable");  
 
       for (uint256 j = 0; j < requests[i].members.length; j++) {
         require(roleEntity.memberCount < roleEntity.memberLimit, "Illegal Grant");
         MemberEntity storage memberEntity = _data.memberReadSlot(requests[i].members[j]);
-        // require(memberEntity.ba.acstat > ActivityStatus.DISABLED, "Member Disabled");
         if(memberEntity.types.contains(roleEntity.typeId)) {
           require(typeEntity.members[requests[i].members[j]] != requests[i].roleId, "Already Exist");
         } else {
@@ -255,7 +199,6 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
 
       for (uint256 j = 0; j < requests[i].members.length; j++) {
         MemberEntity storage memberEntity = _data.memberReadSlot(requests[i].members[j]);
-        // require(memberEntity.ba.acstat > ActivityStatus.DISABLED, "Member Disabled");
         require(memberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
         require(memberEntity.types.length() > 1, "Illegal Member");
 
@@ -453,7 +396,6 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
 
   function _doGetEntityAndCheckAdminAccess(bytes32 roleId, bytes32 senderId, bytes32 functionId) internal view returns (RoleEntity storage) {
     RoleEntity storage roleEntity = _data.roleReadSlot(roleId);
-    // require(roleEntity.ba.acstat > ActivityStatus.DISABLED, "Role Disabled");    
     require(roleEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
 
     // check access admin role

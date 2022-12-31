@@ -98,25 +98,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
       newType.scopeId = requests[i].scopeId;
       newType.roleLimit = requests[i].roleLimit;
       newType.name = requests[i].name;
-      newType.ba.adminId = _getTypeAdmin(requestedScope.stype, requestedScope.adminId, requests[i].scopeId, requests[i].adminId);
-
-      // // checking requested type admin 
-      // if(requests[i].adminId != bytes32(0)) {
-      //   BaseAgent storage adminBaseAgent = _data.agents[requests[i].adminId];
-      //   require(adminBaseAgent.atype > AgentType.MEMBER, "Illegal Admin AgentType");
-      //   (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(requests[i].adminId);
-      //   require(requestedScope.stype <= requestAdminScopeType, "Illegal Admin ScopeType");
-      //   if(requestedScope.stype == requestAdminScopeType) {
-      //     require(requestAdminScopeId == requests[i].scopeId, "Illegal Amind Scope");
-      //   } else {
-      //     require(IAccessControl(address(this)).isScopesCompatible(requestAdminScopeId, requests[i].scopeId), "Illegal Admin Scope");
-      //   }
-      //   newType.ba.adminId = requests[i].adminId;
-
-      // } else {
-      //   newType.ba.adminId = requestedScope.adminId;
-      // }
-                        
+      newType.ba.adminId = _getTypeAdmin(requestedScope.stype, requestedScope.adminId, requests[i].scopeId, requests[i].adminId);                        
       emit TypeRegistered(
         msg.sender,
         newTypeId,
@@ -141,23 +123,6 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
         typeEntity.scopeId, 
         requests[i].adminId
       );
-
-      // (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(requests[i].adminId);
-      // if(requests[i].adminId != bytes32(0)) {
-      //   ScopeType typeScopeType = _data.scopes[typeEntity.scopeId].stype;
-      //   BaseAgent storage adminBaseAgent = _data.agents[requests[i].adminId];
-      //   require(adminBaseAgent.atype > AgentType.MEMBER, "Illegal Admin AgentType");
-      //   require(typeScopeType <= requestAdminScopeType, "Illegal Admin ScopeType");
-      //   if(typeScopeType == requestAdminScopeType) {
-      //     require(requestAdminScopeId == typeEntity.scopeId, "Illegal Amind Scope");
-      //   } else {
-      //     require(IAccessControl(address(this)).isScopesCompatible(requestAdminScopeId, typeEntity.scopeId), "Illegal Admin Scope");
-      //   }
-      //   typeEntity.ba.adminId = requests[i].adminId;
-
-      // } else {
-      //   typeEntity.ba.adminId = _data.scopes[requestAdminScopeId].adminId;
-      // }
 
       emit TypeAdminUpdated(msg.sender, requests[i].id, requests[i].adminId);
     }
@@ -389,7 +354,6 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
 
   function _doGetEntityAndCheckAdminAccess(bytes32 typeId, bytes32 senderId, bytes32 functionId) internal view returns (TypeEntity storage) {
     TypeEntity storage typeEntity = _data.typeReadSlot(typeId);
-    // require(typeEntity.ba.acstat > ActivityStatus.DISABLED, "Type Disabled");
     require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
     require(_doCheckAdminAccess(typeEntity.ba.adminId, senderId, functionId), "Forbidden");
     return typeEntity;

@@ -15,7 +15,18 @@ import "../lib/struct/LEnumerableSet.sol";
  */
 abstract contract ACLStorage is BaseUUPSStorage, IACLCommons {
   using LEnumerableSet for LEnumerableSet.AddressSet;
-  
+
+  struct DataCollection {    
+    mapping(bytes32 => BaseAgent) agents;
+    mapping(bytes32 => BaseScope) scopes;
+    mapping(bytes32 => PolicyEntity) policies;
+    mapping(bytes32 => bytes32) rolePolicyMap;
+    mapping(bytes4 => address) selectors;           
+    mapping(address => FacetEntity) facets;     
+    LEnumerableSet.AddressSet facetSet;    
+  }
+
+
   bytes32 public constant TYPE_HASH =
     keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
 
@@ -45,17 +56,6 @@ abstract contract ACLStorage is BaseUUPSStorage, IACLCommons {
 
   // Global Scope ID
   bytes32 internal constant _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID = keccak256(abi.encodePacked("LIVELY_VERSE_LIVELY_GLOBAL_SCOPE"));
-
-  struct DataCollection {    
-    mapping(bytes32 => BaseAgent) agents;
-    mapping(bytes32 => BaseScope) scopes;
-    mapping(bytes32 => PolicyEntity) policies;
-    mapping(bytes32 => bytes32) rolePolicyMap;
-    mapping(bytes4 => address) selectors;           // function selector to facet address
-    mapping(address => FacetEntity) facets;     // function facet address to interface
-    LEnumerableSet.AddressSet facetSet;
-    
-  }
 
   bool internal _firstInit;
   DataCollection internal _data;

@@ -16,8 +16,6 @@ import "../utils/Message.sol";
 import "../utils/ERC165.sol";
 import "../lib/acl/LACLUtils.sol";
 
-import "hardhat/console.sol";
-
 /**
  * @title Abstract Base UUPS Proxy Contract
  * @author OpenZeppelin, Sina Tadayon, https://github.com/SinaTadayon

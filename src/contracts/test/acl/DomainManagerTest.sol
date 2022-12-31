@@ -24,23 +24,6 @@ contract DomainManagerTest is ACLStorage, BaseUUPSProxy, IDomainManagementTest {
 
   constructor() {}
 
-  // function initialize(
-  //   string calldata contractName,
-  //   string calldata contractVersion,
-  //   address accessControlManager
-  // ) public onlyProxy onlyLocalAdmin initializer {        
-  //   __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
-
-  //   emit Initialized(
-  //     _msgSender(),
-  //     address(this),
-  //     _implementation(),
-  //     contractName,
-  //     contractVersion,
-  //     _getInitializedCount()
-  //   );
-  // }
-
    function reInitialize(string calldata contractVersion) public onlyProxy onlyLocalAdmin reinitializer(2) {
      _contractVersion = contractVersion;
    }
@@ -355,8 +338,7 @@ contract DomainManagerTest is ACLStorage, BaseUUPSProxy, IDomainManagementTest {
 
   function _doGetEntityAndCheckAdminAccess(bytes32 domainId, bytes32 senderId, bytes32 functionId) internal view returns (DomainEntity storage) {
     DomainEntity storage domainEntity = _data.domainReadSlot(domainId);
-    // require(domainEntity.bs.acstat > ActivityStatus.DISABLED, "Domain Disabled");
-    require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Domain Updatable");
+    require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
     require(_doCheckAdminAccess(domainEntity.bs.adminId, senderId, functionId), "Forbidden");
     return domainEntity;
   }

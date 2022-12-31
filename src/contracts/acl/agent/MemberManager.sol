@@ -69,13 +69,11 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
 
       // check role
       RoleEntity storage roleEntity = _data.roleReadSlot(requests[i].roleId);
-      // require(roleEntity.ba.acstat > ActivityStatus.DISABLED, "Role Disabled");
       require(roleEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Role Updatable");
       require(roleEntity.memberLimit > roleEntity.memberCount, "Illegal Register");      
 
       // check type 
       TypeEntity storage typeEntity = _data.typeReadSlot(roleEntity.typeId);
-      // require(typeEntity.ba.acstat > ActivityStatus.DISABLED, "Type Disabled");
       require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Type Updatable");
 
       // check factory limit
@@ -310,7 +308,6 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
 
   function _doGetEntityAndCheckAdminAccess(bytes32 memberId, bytes32 senderId, bytes32 functionId) internal view returns (MemberEntity storage) {
     MemberEntity storage memberEntity = _data.memberReadSlot(memberId);
-    // require(memberEntity.ba.acstat > ActivityStatus.DISABLED, "Member Disabled");
     require(memberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
     require(_doAgentCheckAdminAccess(memberEntity.ba.adminId, senderId, functionId), "Forbidden");
     return memberEntity;

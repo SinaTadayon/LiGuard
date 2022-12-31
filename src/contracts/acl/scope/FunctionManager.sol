@@ -59,11 +59,9 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
           
       bytes32 contextId = LACLUtils.accountGenerateId(requests[i].contractId);  
       ContextEntity storage contextEntity = _data.contextReadSlot(contextId);    
-      // require(contextEntity.bs.acstat > ActivityStatus.DISABLED, "Context Disabled");
       require(contextEntity.bs.alstat == AlterabilityStatus.UPGRADABLE, "Illegal Upgrade");
 
       if(requests[i].signature.length > 0) {
-        // bytes32 structHash = _getFunctionMessageHash(requests[i].contractId, requests[i].selector);
         bytes32 structHash = keccak256(abi.encode(FUNCTION_MESSAGE_TYPEHASH, requests[i].contractId, requests[i].selector));
         signer = _doGetSignerAddress(requests[i].signature, structHash);
         bytes32 signerId = LACLUtils.accountGenerateId(msg.sender);
@@ -87,24 +85,6 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     
     for(uint i = 0; i < requests.length; i++) {
       FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
-
-      // checking requested type admin       
-      // if(requests[i].adminId != bytes32(0)) {
-      //   require(_data.agents[requests[i].adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
-
-      //   (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(requests[i].adminId);
-      //   require(ScopeType.FUNCTION <= requestAdminScopeType, "Illegal Admin ScopeType");
-      //   if(ScopeType.FUNCTION == requestAdminScopeType) {
-      //     require(requestAdminScopeId == requests[i].id, "Illegal Amind Scope");
-      //   } else {
-      //     require(IAccessControl(address(this)).isScopesCompatible(requestAdminScopeId, requests[i].id), "Illegal Admin Scope");
-      //   }
-      //   functionEntity.bs.adminId = requests[i].adminId;
-
-      // } else {
-      //   functionEntity.bs.adminId = _data.scopes[functionEntity.contextId].adminId;
-      // }
-
       functionEntity.bs.adminId = _doGetAndCheckFunctionAdmin(_data.scopes[functionEntity.contextId].adminId, functionEntity.contextId, requests[i].adminId);
       emit FunctionAdminUpdated(msg.sender, requests[i].id, requests[i].adminId);
     }
@@ -419,10 +399,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
 
   function _doCheckAgentId(bytes32 agentId) internal view {
     BaseAgent storage ba = _data.agents[agentId];
-    // console.log("agent type: ");
-    // console.logBytes1(bytes1(uint8(ba.atype)));
     require(ba.atype > AgentType.MEMBER, "Illegal AgentId");
-    // require(ba.acstat > ActivityStatus.DISABLED, "Agent Disabled");
   }
 
   function _doGetSignerAddress(bytes memory signature, bytes32 structHash) internal view returns (address) {

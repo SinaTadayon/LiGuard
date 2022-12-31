@@ -14,8 +14,6 @@ import "../../lib/struct/LEnumerableSet.sol";
 import "../../proxy/IProxy.sol";
 import "../../proxy/BaseUUPSProxy.sol";
 
-import "hardhat/console.sol";
-
 /**
  * @title Context Manager Contract
  * @author Sina Tadayon, https://github.com/SinaTadayon
@@ -149,7 +147,6 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
     for(uint i = 0; i < requests.length; i++) {      
       ContextEntity storage contextEntity = _data.contextReadSlot(requests[i].id);
-      // require(contextEntity.bs.acstat > ActivityStatus.DISABLED, "Context Disabled");
       require(_doCheckAdminAccess(contextEntity.bs.adminId, senderId, functionId), "Forbidden");      
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       contextEntity.bs.alstat = requests[i].alstat;
@@ -165,9 +162,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
       ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
       
       // checking requested type admin 
-      // contextEntity.bs.adminId = _getContextAdmin(contextEntity.realmId, requests[i].id, _data.scopes[contextEntity.realmId].adminId, requests[i].adminId);
       if(requests[i].adminId != bytes32(0)) {
-        // ScopeType typeScopeType = _data.scopes[typeEntity.scopeId].stype;
         require( _data.agents[requests[i].adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");        
         (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(requests[i].adminId);
         require(ScopeType.CONTEXT <= requestAdminScopeType, "Illegal Admin ScopeType");
@@ -363,7 +358,6 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
 
   function _doGetEntityAndCheckAdminAccess(bytes32 contextId, bytes32 senderId, bytes32 functionId) internal view returns (ContextEntity storage) {
     ContextEntity storage contextEntity = _data.contextReadSlot(contextId);
-    // require(contextEntity.bs.acstat > ActivityStatus.DISABLED, "Context Disabled");
     require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
     require(_doCheckAdminAccess(contextEntity.bs.adminId, senderId, functionId), "Forbidden");
     return contextEntity;
@@ -438,7 +432,6 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
 
       // check realm 
       RealmEntity storage realmEntity = _data.realmReadSlot(request.realmId);
-      // require(realmEntity.bs.acstat > ActivityStatus.DISABLED, "Realm Disabled");
       require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Realm Updatable");
       require(realmEntity.contextLimit > realmEntity.contexts.length(), "Illegal Register");
 

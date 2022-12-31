@@ -8,30 +8,39 @@ import {
   AccessControl__factory,
   ACLManager,
   ACLManager__factory,
-  ACLManagerProxy__factory, ACLManagerTest, ACLManagerTest__factory,
+  ACLManagerProxy__factory,
+  ACLManagerTest,
+  ACLManagerTest__factory,
   ACLProxy__factory,
   ContextManager,
   ContextManager__factory,
   DomainManager,
-  DomainManager__factory, DomainManagerTest, DomainManagerTest__factory,
+  DomainManager__factory,
+  DomainManagerTest,
+  DomainManagerTest__factory,
   FunctionManager,
   FunctionManager__factory,
   GlobalManager,
   GlobalManager__factory,
   IACLManager,
-  IContextManagement, IDomainManagement,
+  IContextManagement,
+  IDomainManagement,
   IFunctionManagement,
-  IMemberManagement, IPolicyManagement,
-  IProxy, IRealmManagement,
-  IRoleManagement, ITypeManagement,
-  LACLManager, LACLManager__factory,
+  IGlobalManagement,
+  IMemberManagement,
+  IPolicyManagement,
+  IProxy,
+  IRealmManagement,
+  IRoleManagement,
+  ITypeManagement,
+  LACLManager,
+  LACLManager__factory,
   LACLManagerTest,
   LACLManagerTest__factory,
   MemberManager,
   MemberManager__factory,
   PolicyManager,
   PolicyManager__factory,
-  // Proxy,
   Proxy__factory,
   RealmManager,
   RealmManager__factory,
@@ -56,12 +65,16 @@ import {
   LIVELY_VERSE_ACL_DOMAIN_ID,
   LIVELY_VERSE_ACL_REALM_ID,
   LIVELY_VERSE_ACL_TYPE_ID,
+  LIVELY_VERSE_AGENT_MASTER_ADMIN_ROLE_ID,
   LIVELY_VERSE_AGENT_MASTER_TYPE_ID,
+  LIVELY_VERSE_ANONYMOUS_TYPE_ID,
   LIVELY_VERSE_ANY_TYPE_ID,
   LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID,
   LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
   LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
-  LIVELY_VERSE_POLICY_MASTER_TYPE_ID, LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID,
+  LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE_ID,
+  LIVELY_VERSE_POLICY_MASTER_TYPE_ID,
+  LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID,
   LIVELY_VERSE_SCOPE_MASTER_TYPE_ID,
   LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
   LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID,
@@ -69,10 +82,8 @@ import {
   ProxySafeModeStatus,
   ProxyUpdatabilityStatus, ScopeType
 } from "./TestUtils";
-import { UpgradedEventObject } from "../../typechain/types/test/proxy/UUPSUpgradeableTest";
-import { ProxyUpgradedEvent, ProxyUpgradedEventObject } from "../../typechain/types/proxy/Proxy";
+import { ProxyUpgradedEventObject } from "../../typechain/types/proxy/Proxy";
 import { ProxyLocalAdminUpdatedEventObject } from "../../typechain/types/proxy/IProxy";
-import { PromiseOrValue } from "../../typechain/types/common";
 import { IACLCommons as IACLCommonsRoles } from "../../typechain/types/acl/agent/IRoleManagement";
 import { IACLCommons } from "../../typechain/types/acl/scope/FunctionManager";
 // ethers.utils.keccak256(ethers.utils.toUtf8Bytes("src/contracts/lib/acl/ContextManagementLib.sol:ContextManagementLib")) => 0x0304621006bd13fe54dc5f6b75a37ec856740450109fd223c2bfb60db9095cad => __$0304621006bd13fe54dc5f6b75a37ec856$__ ( library placeholder)
@@ -92,9 +103,6 @@ describe("AccessControlManager Tests",
     let userWallet1: Wallet;
     let userWallet2: Wallet;
     let userWallet3: Wallet;
-    // let adminAddress: Address;
-    // let userAddress1: Address;
-    // let userAddress2: Address;
     let lACLManager: LACLManager;
     let linkLibraryAddresses: ACLManagerLibraryAddresses;
     let memberManagerSubject: MemberManager;
@@ -1370,6 +1378,15 @@ describe("AccessControlManager Tests",
           accessControlProxy.address
         ])
 
+        //
+        // expect(await accessControlDelegateProxy.hasAccess())
+        // expect(await accessControlDelegateProxy.hasMemberAccess())
+        // expect(await accessControlDelegateProxy.hasCSAccess())
+        // expect(await accessControlDelegateProxy.hasCSMAccess())
+        // expect(await accessControlDelegateProxy.hasAccessToAgent())
+        // expect(await accessControlDelegateProxy.hasMemberAccessToAgent())
+        // expect(await accessControlDelegateProxy.hasCSAccessToAgent())
+        // expect(await accessControlDelegateProxy.hasCSMAccessToAgent())
         // 0x46414ba0   =>     IACLManager
         // 0x7a327937   =>     IAccessControl
         // 0x8e0fb371   =>     IPolicyManagement
@@ -4042,33 +4059,6 @@ describe("AccessControlManager Tests",
         ).to.revertedWith("Illegal IProxy");
       });
 
-      // it("Should upgrade proxy by livelyAdmin with illegal subject failed", async () => {
-      //   // given
-      //   const iBaseProxy = await deployments.getArtifact("IBaseProxy");
-      //   const illegalUUPS = await deployMockContract(systemAdmin, iBaseProxy.abi);
-      //   const typedArray1 = new Int8Array(0);
-      //
-      //   // when and then
-      //   await expect(
-      //     aclManagerProxy.connect(systemAdmin).upgradeTo(illegalUUPS.address, typedArray1, false)
-      //   ).to.revertedWith("Illegal UUPS");
-      // });
-      //
-      // it("Should upgrade proxy by livelyAdmin with illegal proxy subject failed", async () => {
-      //   // given
-      //   const baseUUPSProxy = await deployments.getArtifact("UUPSUpgradeableTest");
-      //   const invalidProxy = await deployMockContract(systemAdmin, baseUUPSProxy.abi);
-      //   await invalidProxy.mock.proxiableUUID.returns(
-      //     "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc"
-      //   );
-      //   const typedArray1 = new Int8Array(0);
-      //
-      //   // when and then
-      //   await expect(
-      //     aclManagerProxy.connect(systemAdmin).upgradeTo(invalidProxy.address, typedArray1, false)
-      //   ).to.revertedWith("Illegal Proxy");
-      // });
-
       it("Should upgrade proxy by livelyAdmin success", async () => {
         // given
         const aclManagerSubjectFactory = new ACLManager__factory(linkLibraryAddresses, systemAdmin);
@@ -4123,6 +4113,25 @@ describe("AccessControlManager Tests",
             ProxySafeModeStatus.ENABLED
           );
       });
+
+      it("Should register ACL_TYPE_TEST failed (in safe mode)", async() => {
+        // given
+        aclTypeTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_TYPE_TEST_NAME));
+        const typeRegisterRequests: ITypeManagement.TypeRegisterRequestStruct[] = [
+          {
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            scopeId: LIVELY_VERSE_ACL_REALM_ID,
+            roleLimit: 1,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.DISABLED,
+            name: ACL_TYPE_TEST_NAME,
+          }
+        ]
+
+        // when
+        await expect(typeManagerDelegateProxy.connect(livelyAdmin).typeRegister(typeRegisterRequests))
+          .to.revertedWith("Rejected");
+      })
 
       it("Should setAdmin proxy failed (in safeMode)", async () => {
 
@@ -4533,6 +4542,7 @@ describe("AccessControlManager Tests",
 
         // then
         expect(await memberManagerDelegateProxy.memberCheckId(roleMemberUserId1)).to.be.true;
+        expect(await memberManagerDelegateProxy.memberCheckAccount(userWallet1.address)).to.be.true;
 
         // and
         const memberInfo: IMemberManagement.MemberInfoStruct = await memberManagerDelegateProxy.memberGetInfo(roleMemberUserId1);
@@ -4779,6 +4789,18 @@ describe("AccessControlManager Tests",
         // and
         expect(await memberManagerDelegateProxy.memberGetTypes(userId1)).to.be.eqls([aclTypeTestId, LIVELY_VERSE_ACL_TYPE_ID]);
         expect(await memberManagerDelegateProxy.memberGetTypes(userId2)).to.be.eqls([aclTypeTestId, LIVELY_VERSE_ACL_TYPE_ID]);
+
+        // and
+        expect(await typeManagerDelegateProxy.typeHasAccount(aclTypeTestId, userWallet1.address)).to.be.true;
+        expect(await typeManagerDelegateProxy.typeHasAccount(aclTypeTestId, userWallet2.address)).to.be.true;
+
+        // and
+        expect(await typeManagerDelegateProxy.typeHasRole(aclTypeTestId, aclRoleTestId)).to.be.true;
+        expect(await typeManagerDelegateProxy.typeHasRole(LIVELY_VERSE_ACL_TYPE_ID, LIVELY_VERSE_ACL_ADMIN_ROLE_ID)).to.be.true;
+
+        // and
+        expect(await typeManagerDelegateProxy.typeGetRoles(LIVELY_VERSE_ACL_TYPE_ID)).to.be.eqls([LIVELY_VERSE_ACL_ADMIN_ROLE_ID]);
+        expect(await typeManagerDelegateProxy.typeGetRoles(aclTypeTestId)).to.be.eqls([aclRoleTestId, aclRoleTestId2]);
       })
 
       it("Should aclRoleTest revoke user1 from acl admin role success", async() => {
@@ -5884,6 +5906,9 @@ describe("AccessControlManager Tests",
 
       it("Should register aclRealmTest in ACL Domain success", async() => {
         // given
+        const memberRegisterFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
         aclRealmTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_REALM_TEST_NAME));
         const requests: IRealmManagement.RealmRegisterRequestStruct[] = [
           {
@@ -5923,6 +5948,13 @@ describe("AccessControlManager Tests",
         expect(await realmManagerDelegateProxy.realmCheckId(aclRealmTestId)).to.be.true;
         expect(await realmManagerDelegateProxy.realmCheckName(ACL_REALM_TEST_NAME)).to.be.true;
         expect(await realmManagerDelegateProxy.realmCheckAdmin(aclRealmTestId, livelyAdminWallet.address)).to.be.true;
+        expect(await realmManagerDelegateProxy.realmHasFunction(LIVELY_VERSE_ACL_REALM_ID, memberRegisterFunctionId)).to.be.true;
+        expect(await realmManagerDelegateProxy.realmHasContext(LIVELY_VERSE_ACL_REALM_ID, ethers.utils.keccak256(memberManagerProxy.address))).to.be.true;
+
+        //
+        const contexts = await realmManagerDelegateProxy.realmGetContexts(LIVELY_VERSE_ACL_REALM_ID);
+        expect(contexts.length).to.be.equal(11)
+
       })
 
       it("Should update admin of aclRealmTest when alterability disabled failed", async() => {
@@ -6157,7 +6189,8 @@ describe("AccessControlManager Tests",
           .to.emit(globalManagerDelegateProxy, "GlobalDomainLimitUpdated")
           .withArgs(systemAdminWallet.address, LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, 5);
       })
-         it("Should update admin of global scope to LIVELY_MATER_ADMIN success", async() => {
+
+      it("Should update admin of global scope to LIVELY_MATER_ADMIN success", async() => {
         // when
         await expect(globalManagerDelegateProxy.connect(systemAdmin).globalUpdateAdmin(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID))
           .to.emit(globalManagerDelegateProxy, "GlobalAdminUpdated")
@@ -6165,10 +6198,22 @@ describe("AccessControlManager Tests",
 
         // then
         expect(await globalManagerDelegateProxy.globalCheckAdmin(systemAdminWallet.address)).to.be.true;
-        expect(await globalManagerDelegateProxy.globalGetDomains()).to.be.eqls([LIVELY_VERSE_ACL_DOMAIN_ID, aclDomainTestId])
+        expect(await globalManagerDelegateProxy.globalGetDomains()).to.be.eqls([LIVELY_VERSE_ACL_DOMAIN_ID, aclDomainTestId]);
+
+        // and
+        const globalInfo: IGlobalManagement.GlobalInfoStruct = await globalManagerDelegateProxy.globalGetInfo();
+        expect(globalInfo.id).to.be.equal(LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
+        expect(globalInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
+        expect(globalInfo.adminType).to.be.equal(AgentType.ROLE);
+        expect(globalInfo.agentLimit).to.be.equal(20);
+        expect(globalInfo.domainLimit).to.be.equal(5);
+        expect(globalInfo.domainCount).to.be.equal(2);
+        expect(globalInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(globalInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+        expect(globalInfo.stype).to.be.equal(ScopeType.GLOBAL);
+        expect(globalInfo.referredByAgent).to.be.equal(13);
       })
     })
-
 
     describe("Upgrade ACL proxy tests", function() {
       let lACLManagerTest: LACLManagerTest;
@@ -6522,6 +6567,29 @@ describe("AccessControlManager Tests",
         expect(await domainManagerDelegateProxyTest.domainCheckId(aclDomainTest2Id)).to.be.true;
         expect(await domainManagerDelegateProxyTest.domainCheckName(ACL_DOMAIN_TEST_2_NAME)).to.be.true;
         expect(await domainManagerDelegateProxyTest.domainCheckAdmin(aclDomainTest2Id, livelyAdminWallet.address)).to.be.true;
+      })
+    })
+
+    describe("IAccessControl Tests", async() => {
+      it("Should all functions called success", async() => {
+
+        expect(await accessControlDelegateProxy.getAnonymousType()).to.be.equal(LIVELY_VERSE_ANONYMOUS_TYPE_ID);
+        expect(await accessControlDelegateProxy.getAnyType()).to.be.equal(LIVELY_VERSE_ANY_TYPE_ID);
+        expect(await accessControlDelegateProxy.getScopeMasterType()).to.be.equal(LIVELY_VERSE_SCOPE_MASTER_TYPE_ID);
+        expect(await accessControlDelegateProxy.getAgentMasterType()).to.be.equal(LIVELY_VERSE_AGENT_MASTER_TYPE_ID);
+        expect(await accessControlDelegateProxy.getSystemMasterType()).to.be.equal(LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID);
+        expect(await accessControlDelegateProxy.getLivelyMasterType()).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_TYPE_ID);
+        expect(await accessControlDelegateProxy.getPolicyMasterType()).to.be.equal(LIVELY_VERSE_POLICY_MASTER_TYPE_ID);
+        expect(await accessControlDelegateProxy.getGlobalScope()).to.be.equal(LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
+        expect(await accessControlDelegateProxy.getLivelyMasterAdminRole()).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
+        expect(await accessControlDelegateProxy.getScopeMasterAdminRole()).to.be.equal(LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID);
+        expect(await accessControlDelegateProxy.getAgentMasterAdminRole()).to.be.equal(LIVELY_VERSE_AGENT_MASTER_ADMIN_ROLE_ID);
+        expect(await accessControlDelegateProxy.getSystemMasterAdminRole()).to.be.equal(LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID);
+        expect(await accessControlDelegateProxy.getPolicyMasterAdminRole()).to.be.equal(LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE_ID);
+        expect(await accessControlDelegateProxy.isAgentExist(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID)).to.be.true;
+        expect(await accessControlDelegateProxy.isScopeExist(LIVELY_VERSE_ACL_DOMAIN_ID)).to.be.true;
+        expect(await accessControlDelegateProxy.getScopeBaseInfo(LIVELY_VERSE_ACL_DOMAIN_ID)).to.be.not.empty;
+        expect(await accessControlDelegateProxy.getAgentBaseInfo(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID)).to.be.not.empty;
       })
     })
 

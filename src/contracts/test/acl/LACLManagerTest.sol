@@ -72,17 +72,7 @@ library LACLManagerTest {
   }
 
   function aclRegisterFacet(ACLStorage.DataCollection storage data, IACLManager.FacetRegisterRequest calldata request) external returns (bool) {
-    
-    // console.logBytes4(type(IAccessControl).interfaceId);
-    // console.logBytes4(type(IPolicyManagement).interfaceId);
-    // console.logBytes4(type(IFunctionManagement).interfaceId);
-    // console.logBytes4(type(IContextManagement).interfaceId);
-    // console.logBytes4(type(IRealmManagement).interfaceId);
-    // console.logBytes4(type(IDomainManagement).interfaceId);
-    // console.logBytes4(type(IGlobalManagement).interfaceId);
-    // console.logBytes4(type(IMemberManagement).interfaceId);
-    // console.logBytes4(type(IRoleManagement).interfaceId);
-    // console.logBytes4(type(ITypeManagement).interfaceId);
+   
     require(  
       request.interfaceId != type(IAccessControl).interfaceId ||
       request.interfaceId != type(IPolicyManagement).interfaceId ||
@@ -102,7 +92,6 @@ library LACLManagerTest {
     for(uint j = 0; j < request.selectors.length; j++) {
       require(data.selectors[request.selectors[j]] == address(0), "Illegal Selector");
       data.selectors[request.selectors[j]] = request.facetId;
-      // emit ACLFacetFunctionRegistered(_msgSender(), requests[i].subjectId, requests[i].selectors[j]);
     }
     data.facetSet.add(request.facetId);
     IACLCommons.FacetEntity storage facetEntity = data.facets[request.facetId];

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v2.0.1)
+// LivelyVerse Contracts (last updated v3.0.0)
 // Author: OpenZeppelin
 
 pragma solidity 0.8.17;

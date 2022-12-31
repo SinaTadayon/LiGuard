@@ -45,12 +45,6 @@ interface IACLManager is IACLCommons {
     bytes4 interfaceId
   );
 
-  // event ACLFacetFunctionRegistered (
-  //   address indexed sender, 
-  //   address indexed facetId, 
-  //   bytes4 selector
-  // );
-
   event ACLFacetUpgraded(
     address indexed sender, 
     address indexed facetId, 

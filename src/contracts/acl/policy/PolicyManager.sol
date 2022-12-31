@@ -90,24 +90,6 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
       policyEntity.scopeId = requests[i].scopeId;
       policyEntity.roleLimit = requests[i].roleLimit;
       policyEntity.adminId = _getPolicyAdmin(requestedScope.stype, requestedScope.adminId, requests[i].scopeId, requests[i].adminId);
-
-      // // checking requested type admin       
-      // if(requests[i].adminId != bytes32(0)) {
-      //   BaseAgent storage adminBaseAgent = _data.agents[requests[i].adminId];
-      //   require(adminBaseAgent.atype > AgentType.MEMBER, "Illegal Admin AgentType");
-      //   (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(requests[i].adminId);
-      //   require(requestedScope.stype <= requestAdminScopeType, "Illegal Admin Scope Type");
-      //   if(requestedScope.stype == requestAdminScopeType) {
-      //     require(requestAdminScopeId == requests[i].scopeId, "Illegal Amind Scope");
-      //   } else {
-      //     require(IAccessControl(address(this)).isScopesCompatible(requestAdminScopeId, requests[i].scopeId), "Illegal Admin Scope");
-      //   }
-      //   policyEntity.adminId = requests[i].adminId;
-
-      // } else {
-      //   policyEntity.adminId = requestedScope.adminId;
-      // }    
-
       emit PolicyRegistered(
         msg.sender,
         newPolicyId,
@@ -189,25 +171,6 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
     bytes32 memberId = LACLUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {
       PolicyEntity storage policyEntity = _doGetPolicyAndCheckAdminAccess(requests[i].id, memberId, functionId);    
-
-      // checking requested type admin       
-      // if(requests[i].adminId != bytes32(0)) {
-      //   BaseAgent storage adminBaseAgent = _data.agents[requests[i].adminId];
-      //   require(adminBaseAgent.atype > AgentType.MEMBER, "Illegal Admin AgentType");
-      //   (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(requests[i].adminId);
-      //   ScopeType policyScopeType = _data.scopes[policyEntity.scopeId].stype;
-      //   require(policyScopeType <= requestAdminScopeType, "Illegal Admin Scope Type");
-      //   if(policyScopeType == requestAdminScopeType) {
-      //     require(requestAdminScopeId == policyEntity.scopeId, "Illegal Amind Scope");
-      //   } else {
-      //     require(IAccessControl(address(this)).isScopesCompatible(requestAdminScopeId, policyEntity.scopeId), "Illegal Admin Scope");
-      //   }
-      //   policyEntity.adminId = requests[i].adminId;
-
-      // } else {
-      //   policyEntity.adminId = _data.scopes[policyEntity.scopeId].adminId;
-      // }
-      
       policyEntity.adminId = _getPolicyAdmin(_data.scopes[policyEntity.scopeId].stype, _data.scopes[policyEntity.scopeId].adminId, policyEntity.scopeId, requests[i].adminId);
       require(!policyEntity.roles.contains(policyEntity.adminId), "Illegal AdminId");
       emit PolicyAdminUpdated(msg.sender, requests[i].id, requests[i].adminId);
@@ -237,7 +200,6 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
     for(uint i = 0; i < requests.length; i++) {
       PolicyEntity storage policyEntity = _data.policies[requests[i].id];
       require(policyEntity.adminId != bytes32(0), "Policy Not Found");      
-      // require(policyEntity.acstat > ActivityStatus.DISABLED, "Policy disable");
       require(_doPolicyCheckAdminAccess(policyEntity.adminId, memberId, functionId), "Forbidden");
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       policyEntity.alstat = requests[i].alstat;
@@ -484,7 +446,6 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
   function _doGetPolicyAndCheckAdminAccess(bytes32 policyId, bytes32 memberId, bytes32 functionId) internal view returns (PolicyEntity storage) {
     PolicyEntity storage policyEntity = _data.policies[policyId];
     require(policyEntity.adminId != bytes32(0), "Policy Not Found");      
-    // require(policyEntity.acstat > ActivityStatus.DISABLED, "Policy disable");
     require(policyEntity.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
     require(_doPolicyCheckAdminAccess(policyEntity.adminId, memberId, functionId), "Forbidden");
     return policyEntity;
