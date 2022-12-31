@@ -61,7 +61,7 @@ import {
   LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID,
   LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
   LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
-  LIVELY_VERSE_POLICY_MASTER_TYPE_ID,
+  LIVELY_VERSE_POLICY_MASTER_TYPE_ID, LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID,
   LIVELY_VERSE_SCOPE_MASTER_TYPE_ID,
   LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
   LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID,
@@ -132,6 +132,7 @@ describe("AccessControlManager Tests",
     let networkChainId: BigNumber;
     let aclRoleTestId: string;
     let aclRoleTestId2: string;
+    let aclRoleGlobalAdminTestId: string;
     let aclTypeTestId: string;
     let aclPolicyTestId: string;
     let aclDomainTestId: string;
@@ -139,6 +140,7 @@ describe("AccessControlManager Tests",
     let aclRealmTestId: string;
     const ACL_ROLE_TEST_NAME = "ACL_ROLE_TEST";
     const ACL_ROLE_TEST_NAME_2 = "ACL_ROLE_TEST_2";
+    const ACL_ROLE_GLOBAL_ADMIN_TEST_NAME = "ACL_ROLE_GLOBAL_ADMIN_TEST";
     const ACL_TYPE_TEST_NAME = "ACL_TYPE_TEST";
     const ACL_POLICY_TEST_NAME = "ACL_POLICY_TEST";
     const ACL_DOMAIN_TEST_NAME = "ACL_DOMAIN_TEST";
@@ -158,28 +160,22 @@ describe("AccessControlManager Tests",
     const CONTRACTS_VERSION =  "3.0.0";
 
     const memberIface = new ethers.utils.Interface(MemberManager__factory.abi);
-
-
     let domainManagerSubjectTest: DomainManagerTest;
     let domainManagerProxyTest: DomainManagerTest;
     let domainManagerDelegateProxyTest: DomainManagerTest;
     let linkLibraryAddressesTest: ACLManagerTestLibraryAddresses;
-    // let accessControlManagerSubject: AccessControlManager;
-    // let accessControlManagerTestSubject: AccessControlManagerTest;
-    // let accessControlManagerProxy: AccessControlManager;
-    // let accessControlManagerTestProxy: AccessControlManagerTest;
 
     this.beforeAll(async () => {
       [livelyAdmin, systemAdmin, aclAdmin, user1, user2, user3] = await ethers.getSigners();
       [livelyAdminWallet, systemAdminWallet, aclAdminWallet, userWallet1, userWallet2, userWallet3] = waffle.provider.getWallets();
       networkChainId = await provider.send("eth_chainId", []);
 
-      console.log(`lively admin address: ${livelyAdminWallet.address}`);
-      console.log(`system admin address: ${systemAdminWallet.address}`);
-      console.log(`acl admin address: ${aclAdminWallet.address}`);
-      console.log(`user1 address: ${userWallet1.address}`);
-      console.log(`user2 address: ${userWallet2.address}`);
-      console.log(`user3 address: ${userWallet3.address}`);
+      // console.log(`lively admin address: ${livelyAdminWallet.address}`);
+      // console.log(`system admin address: ${systemAdminWallet.address}`);
+      // console.log(`acl admin address: ${aclAdminWallet.address}`);
+      // console.log(`user1 address: ${userWallet1.address}`);
+      // console.log(`user2 address: ${userWallet2.address}`);
+      // console.log(`user3 address: ${userWallet3.address}`);
       // adminAddress = await livelyAdmin.getAddress();
       // let userAddress1 = userWallet1.address;
       // userAddress2 = await user2.getAddress();
@@ -1187,6 +1183,7 @@ describe("AccessControlManager Tests",
               policyIface.getSighash("policyCheckId"),
               policyIface.getSighash("policyCheckName"),
               policyIface.getSighash("policyCheckAdmin"),
+              policyIface.getSighash("policyCheckRole"),
               policyIface.getSighash("policyCheckAccess"),
               policyIface.getSighash("policyCheckRoleAccess"),
               policyIface.getSighash("policyHasRole"),
@@ -1346,18 +1343,17 @@ describe("AccessControlManager Tests",
           .to.emit(aclManagerProxy, "ACLFacetRegistered")
           .withArgs(systemAdminWallet.address, accessControlProxy.address, accessControlSubject.address, "0x7a327937")
 
-        console.log(`aclManagerProxy => address: ${aclManagerProxy.address}, subject: ${aclManagerSubject.address}`);
-        console.log(`memberManagerProxy => address: ${memberManagerProxy.address}, subject: ${memberManagerSubject.address}`);
-        console.log(`roleManagerProxy => address: ${roleManagerProxy.address}, subject: ${roleManagerSubject.address}`);
-        console.log(`typeManagerProxy => address: ${typeManagerProxy.address}, subject: ${typeManagerSubject.address}`);
-        console.log(`policyManagerProxy => address: ${policyManagerProxy.address}, subject: ${policyManagerSubject.address}`);
-        console.log(`functionManagerProxy => address: ${functionManagerProxy.address}, subject: ${functionManagerSubject.address}`);
-        console.log(`contextManagerProxy => address: ${contextManagerProxy.address}, subject: ${contextManagerSubject.address}`);
-        console.log(`realmManagerProxy => address: ${realmManagerProxy.address}, subject: ${realmManagerSubject.address}`);
-        console.log(`domainManagerProxy => address: ${domainManagerProxy.address}, subject: ${domainManagerSubject.address}`);
-        console.log(`globalManagerProxy => address: ${globalManagerProxy.address}, subject: ${globalManagerSubject.address}`);
-        console.log(`accessControlProxy => address: ${accessControlProxy.address}, subject: ${accessControlSubject.address}`);
-
+        // console.log(`aclManagerProxy => address: ${aclManagerProxy.address}, subject: ${aclManagerSubject.address}`);
+        // console.log(`memberManagerProxy => address: ${memberManagerProxy.address}, subject: ${memberManagerSubject.address}`);
+        // console.log(`roleManagerProxy => address: ${roleManagerProxy.address}, subject: ${roleManagerSubject.address}`);
+        // console.log(`typeManagerProxy => address: ${typeManagerProxy.address}, subject: ${typeManagerSubject.address}`);
+        // console.log(`policyManagerProxy => address: ${policyManagerProxy.address}, subject: ${policyManagerSubject.address}`);
+        // console.log(`functionManagerProxy => address: ${functionManagerProxy.address}, subject: ${functionManagerSubject.address}`);
+        // console.log(`contextManagerProxy => address: ${contextManagerProxy.address}, subject: ${contextManagerSubject.address}`);
+        // console.log(`realmManagerProxy => address: ${realmManagerProxy.address}, subject: ${realmManagerSubject.address}`);
+        // console.log(`domainManagerProxy => address: ${domainManagerProxy.address}, subject: ${domainManagerSubject.address}`);
+        // console.log(`globalManagerProxy => address: ${globalManagerProxy.address}, subject: ${globalManagerSubject.address}`);
+        // console.log(`accessControlProxy => address: ${accessControlProxy.address}, subject: ${accessControlSubject.address}`);
 
         // then
         expect(await aclManagerProxy.aclGetFacets()).to.be.eqls([
@@ -3189,10 +3185,10 @@ describe("AccessControlManager Tests",
         expect(functionInfo.referredByAgent).to.be.equal(0);
 
         // and
-        // then
         expect(await domainManagerDelegateProxy.domainHasContext(LIVELY_VERSE_ACL_DOMAIN_ID, domainContextId)).to.be.true;
         expect(await domainManagerDelegateProxy.domainHasFunction(LIVELY_VERSE_ACL_DOMAIN_ID, domainRegisterFunctionId)).to.be.true;
         expect(await domainManagerDelegateProxy.domainHasRealm(LIVELY_VERSE_ACL_DOMAIN_ID, LIVELY_VERSE_ACL_REALM_ID)).to.be.true;
+        expect(await domainManagerDelegateProxy.domainGetRealms(LIVELY_VERSE_ACL_DOMAIN_ID)).to.be.eqls([LIVELY_VERSE_ACL_REALM_ID]);
       })
 
       it("Should register GlobalManager functions by systemAdmin success", async() => {
@@ -5012,1432 +5008,1522 @@ describe("AccessControlManager Tests",
       })
     })
 
-    // describe("Policy Test", function() {
-    //   it("Should register aclPolicyTest in ACL policy success", async() => {
-    //     // given
-    //     aclPolicyTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_POLICY_TEST_NAME));
-    //     const requests: IPolicyManagement.PolicyRegisterRequestStruct[] = [
-    //       {
-    //         adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-    //         scopeId: LIVELY_VERSE_ACL_DOMAIN_ID,
-    //         roleLimit: 1,
-    //         policyCode: 80,
-    //         acstat: ActivityStatus.ENABLED,
-    //         alstat: AlterabilityStatus.DISABLED,
-    //         name: ACL_POLICY_TEST_NAME
-    //       }
-    //     ]
-    //
-    //     // when
-    //     await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyRegister(requests)).
-    //     to.emit(policyManagerDelegateProxy, "PolicyRegistered")
-    //       .withArgs(livelyAdminWallet.address, aclPolicyTestId, LIVELY_VERSE_ACL_TYPE_ID,
-    //         LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID, 80)
-    //
-    //     // then
-    //     expect(await policyManagerDelegateProxy.policyCheckId(aclPolicyTestId)).to.be.true
-    //
-    //     // and
-    //     const policyInfo: IPolicyManagement.PolicyInfoStruct = await policyManagerDelegateProxy.policyGetInfo(aclPolicyTestId);
-    //     expect(policyInfo.name).to.be.equal(ACL_ROLE_TEST_NAME);
-    //     expect(policyInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_ADMIN_ROLE_ID);
-    //     expect(policyInfo.scopeId).to.be.equal(LIVELY_VERSE_ACL_DOMAIN_ID);
-    //     expect(policyInfo.roleLimit).to.be.equal(1);
-    //     expect(policyInfo.roleTotal).to.be.equal(0);
-    //     expect(policyInfo.ptype).to.be.equal(PolicyType.RLOCK);
-    //     expect(policyInfo.policyCode).to.be.equal(80);
-    //     expect(policyInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
-    //     expect(policyInfo.alstat).to.be.equal(AlterabilityStatus.DISABLED);
-    //
-    //     // and
-    //     expect(await policyManagerDelegateProxy.policyCheckId(aclPolicyTestId)).to.be.true;
-    //     expect(await policyManagerDelegateProxy.policyCheckName(ACL_POLICY_TEST_NAME)).to.be.true;
-    //     expect(await policyManagerDelegateProxy.policyCheckAdmin(aclPolicyTestId, livelyAdminWallet.address)).to.be.true;
-    //   })
-    //
-    //   it("Should update admin of aclPolicyTest when alterability disabled failed", async() => {
-    //     // given
-    //     const updateAdminRequests: IACLCommonsRoles.UpdateAdminRequestStruct[] = [{
-    //       id: aclPolicyTestId,
-    //       adminId: aclRoleTestId
-    //     }]
-    //
-    //     // when
-    //     await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateAdmin(updateAdminRequests))
-    //       .revertedWith("Illegal Updatable")
-    //   })
-    //
-    //   it("Should update policyCode of aclPolicyTest when alterability disabled failed", async() => {
-    //     // given
-    //     const requests: IPolicyManagement.PolicyUpdateCodeRequestStruct[] = [{
-    //       policyId: aclPolicyTestId,
-    //       policyCode: 30
-    //     }]
-    //
-    //     // when
-    //     await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateCodes(requests))
-    //       .revertedWith("Illegal Updatable")
-    //   })
-    //
-    //   it("Should update activity of aclPolicyTest when alterability disabled failed", async() => {
-    //     // given
-    //     const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
-    //       id: aclPolicyTestId,
-    //       acstat: ActivityStatus.DISABLED
-    //     }]
-    //
-    //     // when
-    //     await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateActivityStatus(requests))
-    //       .revertedWith("Illegal Updatable")
-    //   })
-    //
-    //   it("Should update roleLimit of aclPolicyTest when alterability disabled failed", async() => {
-    //     // given
-    //     const requests: IPolicyManagement.PolicyUpdateRoleLimitRequestStruct[] = [{
-    //       policyId: aclPolicyTestId,
-    //       roleLimit: 5
-    //     }]
-    //
-    //     // when
-    //     await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateRoleLimit(requests))
-    //       .revertedWith("Illegal Updatable")
-    //   })
-    //
-    //   it("Should add roles to aclPolicyTest when alterability disabled failed", async() => {
-    //     // given
-    //     const requests: IPolicyManagement.PolicyAddRolesRequestStruct[] = [{
-    //       policyId: aclPolicyTestId,
-    //       roles: [ aclRoleTestId ]
-    //     }]
-    //
-    //     // when
-    //     await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyAddRoles(requests))
-    //       .revertedWith("Illegal Updatable")
-    //   })
-    //
-    //   it("Should remove roles to aclPolicyTest when alterability disabled failed", async() => {
-    //     // given
-    //     const requests: IPolicyManagement.PolicyAddRolesRequestStruct[] = [{
-    //       policyId: aclPolicyTestId,
-    //       roles: [ aclRoleTestId ]
-    //     }]
-    //
-    //     // when
-    //     await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyAddRoles(requests))
-    //       .revertedWith("Illegal Updatable")
-    //   })
-    //
-    //   it("Should update alterability of aclPolicyTest success", async() => {
-    //     // given
-    //     const requests: IACLCommonsRoles.UpdateAlterabilityRequestStruct[] = [{
-    //       id: aclPolicyTestId,
-    //       alstat: AlterabilityStatus.UPDATABLE
-    //     }]
-    //
-    //     // when
-    //     await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateAlterabilityStatus(requests))
-    //       .to.emit(policyManagerDelegateProxy, "PolicyAlterabilityUpdated")
-    //       .withArgs(livelyAdminWallet.address, aclPolicyTestId, AlterabilityStatus.UPDATABLE)
-    //   })
-    //
-    //   it("Should aclPolicyTest activity disabled success", async() => {
-    //     // given
-    //     const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
-    //       id: aclPolicyTestId,
-    //       acstat: ActivityStatus.DISABLED
-    //     }]
-    //
-    //     // when
-    //     await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateActivityStatus(requests))
-    //       .to.emit(policyManagerDelegateProxy, "PolicyActivityUpdated")
-    //       .withArgs(livelyAdminWallet.address, aclPolicyTestId, ActivityStatus.DISABLED)
-    //   })
-    //
-    //   it("Should aclPolicyTest activity enabled success", async() => {
-    //     // given
-    //     const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
-    //       id: aclPolicyTestId,
-    //       acstat: ActivityStatus.ENABLED
-    //     }]
-    //
-    //     // when
-    //     await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateActivityStatus(requests))
-    //       .to.emit(policyManagerDelegateProxy, "PolicyActivityUpdated")
-    //       .withArgs(livelyAdminWallet.address, aclPolicyTestId, ActivityStatus.DISABLED)
-    //   })
-    //
-    //   it("Should add adminId to aclPolicyTest self failed", async() => {
-    //     // given
-    //     const requests: IPolicyManagement.PolicyAddRolesRequestStruct[] = [{
-    //       policyId: aclPolicyTestId,
-    //       roles: [ LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID ]
-    //     }]
-    //
-    //     // when
-    //     await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyAddRoles(requests))
-    //       .revertedWith("Illegal Role")
-    //   })
-    //
-    //   it("Should update admin of aclPolicyTest success", async() => {
-    //     // given
-    //     const updateAdminRequests: IACLCommonsRoles.UpdateAdminRequestStruct[] = [{
-    //       id: aclPolicyTestId,
-    //       adminId: aclRoleTestId
-    //     }]
-    //
-    //     // when
-    //     await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateAdmin(updateAdminRequests))
-    //       .to.emit(policyManagerDelegateProxy, "policyAdminUpdated")
-    //       .withArgs(livelyAdminWallet.address, aclPolicyTestId, aclRoleTestId);
-    //   })
-    //
-    //   it("Should add roles to aclPolicyTest success", async() => {
-    //     // given
-    //     const requests: IPolicyManagement.PolicyAddRolesRequestStruct[] = [{
-    //       policyId: aclPolicyTestId,
-    //       roles: [ aclRoleTestId ]
-    //     }]
-    //
-    //     // when
-    //     await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyAddRoles(requests))
-    //       .to.emit(policyManagerDelegateProxy, "PolicyRoleAdded")
-    //       .withArgs(livelyAdminWallet.address, aclPolicyTestId, aclRoleTestId);
-    //
-    //     // then
-    //     expect(await policyManagerDelegateProxy.policyCheckRole(aclRoleTestId)).to.be.true;
-    //     expect(await policyManagerDelegateProxy.policyHasRole(aclPolicyTestId, aclRoleTestId)).to.be.true;
-    //
-    //     // and
-    //     const policyInfo: IPolicyManagement.PolicyInfoStruct = await policyManagerDelegateProxy.policyGetInfoByRole(aclRoleTestId);
-    //     expect(policyInfo.name).to.be.equal(ACL_ROLE_TEST_NAME);
-    //     expect(policyInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_ADMIN_ROLE_ID);
-    //     expect(policyInfo.scopeId).to.be.equal(LIVELY_VERSE_ACL_DOMAIN_ID);
-    //     expect(policyInfo.roleLimit).to.be.equal(1);
-    //     expect(policyInfo.roleTotal).to.be.equal(1);
-    //     expect(policyInfo.ptype).to.be.equal(PolicyType.RLOCK);
-    //     expect(policyInfo.policyCode).to.be.equal(80);
-    //     expect(policyInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
-    //     expect(policyInfo.alstat).to.be.equal(AlterabilityStatus.DISABLED);
-    //   })
-    //
-    //   it("Should add roles to aclPolicyTest because of limitation failed", async() => {
-    //     // given
-    //     const requests: IPolicyManagement.PolicyAddRolesRequestStruct[] = [{
-    //       policyId: aclPolicyTestId,
-    //       roles: [ aclRoleTestId ]
-    //     }]
-    //
-    //     // when
-    //     await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyAddRoles(requests))
-    //       .revertedWith("Illegal Limit")
-    //   })
-    //
-    //   it("Should update role limit of aclPolicyTest failed", async() => {
-    //     // given
-    //     const requests: IPolicyManagement.PolicyUpdateRoleLimitRequestStruct[] = [{
-    //       policyId: aclPolicyTestId,
-    //       roleLimit: 0
-    //     }]
-    //
-    //     // when
-    //     await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateRoleLimit(requests))
-    //       .revertedWith("Illegal Limit")
-    //   })
-    //
-    //   it("Should update role limit of aclPolicyTest success", async() => {
-    //     // given
-    //     const requests: IPolicyManagement.PolicyUpdateRoleLimitRequestStruct[] = [{
-    //       policyId: aclPolicyTestId,
-    //       roleLimit: 0
-    //     }]
-    //
-    //     // when
-    //     await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateRoleLimit(requests))
-    //       .revertedWith("Illegal Updatable")
-    //   })
-    //
-    //   it("Should add roles to aclPolicyTest success", async() => {
-    //     // given
-    //     const requests: IPolicyManagement.PolicyAddRolesRequestStruct[] = [{
-    //       policyId: aclPolicyTestId,
-    //       roles: [ LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID ]
-    //     }]
-    //
-    //     // when
-    //     await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyAddRoles(requests))
-    //       .to.emit(policyManagerDelegateProxy, "PolicyRoleAdded")
-    //       .withArgs(livelyAdminWallet.address, aclPolicyTestId, aclRoleTestId);
-    //
-    //     // then
-    //     expect(await policyManagerDelegateProxy.policyCheckRole(aclRoleTestId)).to.be.true;
-    //     expect(await policyManagerDelegateProxy.policyHasRole(aclPolicyTestId, LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)).to.be.true;
-    //   })
-    //
-    //   it("Should remove roles to aclPolicyTest success", async() => {
-    //     // given
-    //     const requests: IPolicyManagement.PolicyAddRolesRequestStruct[] = [{
-    //       policyId: aclPolicyTestId,
-    //       roles: [ aclRoleTestId ]
-    //     }]
-    //
-    //     // when
-    //     await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyRemoveRoles(requests))
-    //       .to.emit(policyManagerDelegateProxy, "PolicyRoleRemoved")
-    //       .withArgs(livelyAdminWallet.address, aclPolicyTestId, aclRoleTestId);
-    //
-    //     // then
-    //     expect(await policyManagerDelegateProxy.policyCheckRole(aclRoleTestId)).to.be.true;
-    //     expect(await policyManagerDelegateProxy.policyHasRole(aclPolicyTestId, LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)).to.be.true;
-    //   })
-    //
-    //   it("Should update policyCode of aclPolicyTest success", async() => {
-    //     // given
-    //     const requests: IPolicyManagement.PolicyUpdateCodeRequestStruct[] = [{
-    //       policyId: aclPolicyTestId,
-    //       policyCode: 30
-    //     }]
-    //
-    //     // when
-    //     await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateCodes(requests))
-    //       .to.emit(policyManagerDelegateProxy, "PolicyCodeUpdated")
-    //       .withArgs(livelyAdminWallet.address, aclPolicyTestId, 30, PolicyType.SLOCK);
-    //   })
-    // })
-    //
-    // describe("Scope Test", function() {
-    //   it("Should disable alterability of memberRegisterFunction success", async() => {
-    //     // given
-    //     const memberRegisterFunctionId = ethers.utils.keccak256(
-    //       ethers.utils.solidityPack(["address", "bytes4"],
-    //         [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
-    //     const requests: IACLCommonsRoles.UpdateAlterabilityRequestStruct[] = [{
-    //       id: memberRegisterFunctionId,
-    //       alstat: AlterabilityStatus.DISABLED
-    //     }]
-    //
-    //     // when
-    //     await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateAlterabilityStatus(requests))
-    //       .to.emit(functionManagerDelegateProxy, "FunctionAlterabilityUpdated")
-    //       .withArgs(livelyAdminWallet.address, memberRegisterFunctionId, AlterabilityStatus.DISABLED);
-    //   })
-    //
-    //   it("Should update admin of memberRegisterFunction when alterability disabled failed", async() => {
-    //     // given
-    //     const memberRegisterFunctionId = ethers.utils.keccak256(
-    //       ethers.utils.solidityPack(["address", "bytes4"],
-    //         [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
-    //     const requests: IACLCommonsRoles.UpdateAdminRequestStruct[] = [{
-    //       id: memberRegisterFunctionId,
-    //       adminId: aclRoleTestId
-    //     }]
-    //
-    //     // when
-    //     await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateAdmin(requests))
-    //       .revertedWith("Illegal Updatable")
-    //   })
-    //
-    //   it("Should update agent of memberRegisterFunction when alterability disabled failed", async() => {
-    //     // given
-    //     const memberRegisterFunctionId = ethers.utils.keccak256(
-    //       ethers.utils.solidityPack(["address", "bytes4"],
-    //         [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
-    //     const requests: IFunctionManagement.FunctionUpdateAgentRequestStruct[] = [{
-    //       functionId: memberRegisterFunctionId,
-    //       agentId: aclRoleTestId
-    //     }]
-    //
-    //     // when
-    //     await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateAgent(requests))
-    //       .revertedWith("Illegal Updatable")
-    //   })
-    //
-    //   it("Should update policyCode of memberRegisterFunction when alterability disabled failed", async() => {
-    //     // given
-    //     const memberRegisterFunctionId = ethers.utils.keccak256(
-    //       ethers.utils.solidityPack(["address", "bytes4"],
-    //         [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
-    //     const requests: IFunctionManagement.FunctionUpdatePolicyRequestStruct[] = [{
-    //       functionId: memberRegisterFunctionId,
-    //       policyCode: 30
-    //     }]
-    //
-    //     // when
-    //     await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdatePolicyCode(requests))
-    //       .revertedWith("Illegal Updatable")
-    //   })
-    //
-    //   it("Should update activity of memberRegisterFunction when alterability disabled failed", async() => {
-    //     // given
-    //     const memberRegisterFunctionId = ethers.utils.keccak256(
-    //       ethers.utils.solidityPack(["address", "bytes4"],
-    //         [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
-    //     const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
-    //       id: memberRegisterFunctionId,
-    //       acstat: ActivityStatus.DISABLED
-    //     }]
-    //
-    //     // when
-    //     await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateActivityStatus(requests))
-    //       .revertedWith("Illegal Updatable")
-    //   })
-    //
-    //   it("Should update agentLimit of memberRegisterFunction when alterability disabled failed", async() => {
-    //     // given
-    //     const memberRegisterFunctionId = ethers.utils.keccak256(
-    //       ethers.utils.solidityPack(["address", "bytes4"],
-    //         [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
-    //     const requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[] = [{
-    //       scopeId: memberRegisterFunctionId,
-    //       agentLimit: 5
-    //     }]
-    //
-    //     // when
-    //     await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateAgentLimit(requests))
-    //       .revertedWith("Illegal Updatable")
-    //   })
-    //
-    //   it("Should update alterability of memberRegisterFunction success", async() => {
-    //     // given
-    //     const memberRegisterFunctionId = ethers.utils.keccak256(
-    //       ethers.utils.solidityPack(["address", "bytes4"],
-    //         [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
-    //     const requests: IACLCommonsRoles.UpdateAlterabilityRequestStruct[] = [{
-    //       id: memberRegisterFunctionId,
-    //       alstat: AlterabilityStatus.UPDATABLE
-    //     }]
-    //
-    //     // when
-    //     await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateAlterabilityStatus(requests))
-    //       .to.emit(functionManagerDelegateProxy, "FunctionAlterabilityUpdated")
-    //       .withArgs(livelyAdminWallet.address, aclPolicyTestId, AlterabilityStatus.UPDATABLE)
-    //   })
-    //
-    //   it("Should disable activity of memberRegisterFunction success", async() => {
-    //     // given
-    //     const memberRegisterFunctionId = ethers.utils.keccak256(
-    //       ethers.utils.solidityPack(["address", "bytes4"],
-    //         [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
-    //     const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
-    //       id: memberRegisterFunctionId,
-    //       acstat: ActivityStatus.DISABLED
-    //     }]
-    //
-    //     // when
-    //     await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateActivityStatus(requests))
-    //       .to.emit(functionManagerDelegateProxy, "FunctionActivityUpdated")
-    //       .withArgs(livelyAdminWallet.address, memberRegisterFunctionId, ActivityStatus.DISABLED)
-    //   })
-    //
-    //   it("Should enable activity of memberRegisterFunction success", async() => {
-    //     // given
-    //     const memberRegisterFunctionId = ethers.utils.keccak256(
-    //       ethers.utils.solidityPack(["address", "bytes4"],
-    //         [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
-    //     const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
-    //       id: memberRegisterFunctionId,
-    //       acstat: ActivityStatus.ENABLED
-    //     }]
-    //
-    //     // when
-    //     await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateActivityStatus(requests))
-    //       .to.emit(functionManagerDelegateProxy, "FunctionActivityUpdated")
-    //       .withArgs(livelyAdminWallet.address, memberRegisterFunctionId, ActivityStatus.ENABLED)
-    //
-    //     // then
-    //     expect(await functionManagerDelegateProxy.functionCheckSelector(memberRegisterFunctionId,  userWallet2.address)).to.be.true;
-    //   })
-    //
-    //   it("Should update admin of memberRegisterFunction success", async() => {
-    //     // given
-    //     const memberRegisterFunctionId = ethers.utils.keccak256(
-    //       ethers.utils.solidityPack(["address", "bytes4"],
-    //         [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
-    //     const updateAdminRequests: IACLCommonsRoles.UpdateAdminRequestStruct[] = [{
-    //       id: memberRegisterFunctionId,
-    //       adminId: aclRoleTestId
-    //     }]
-    //
-    //     // when
-    //     await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateAdmin(updateAdminRequests))
-    //       .to.emit(functionManagerDelegateProxy, "FunctionAdminUpdated")
-    //       .withArgs(livelyAdminWallet.address, memberRegisterFunctionId, aclRoleTestId);
-    //
-    //     // then
-    //     expect(await functionManagerDelegateProxy.functionCheckAdmin(memberRegisterFunctionId,  userWallet2.address)).to.be.true;
-    //   })
-    //
-    //   it("Should update agent of memberRegisterFunction success", async() => {
-    //     // given
-    //     const memberRegisterFunctionId = ethers.utils.keccak256(
-    //       ethers.utils.solidityPack(["address", "bytes4"],
-    //         [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
-    //     const requests: IFunctionManagement.FunctionUpdateAgentRequestStruct[] = [{
-    //       functionId: memberRegisterFunctionId,
-    //       agentId: aclRoleTestId
-    //     }]
-    //
-    //     // when
-    //     await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateAgent(requests))
-    //       .to.emit(functionManagerDelegateProxy, "FunctionAgentUpdated")
-    //       .withArgs(livelyAdminWallet.address, memberRegisterFunctionId, aclRoleTestId);
-    //
-    //     // then
-    //     expect(await functionManagerDelegateProxy.functionCheckAgent(memberRegisterFunctionId,  userWallet2.address)).to.be.true;
-    //   })
-    //
-    //   it("Should update policyCode of memberRegisterFunction success", async() => {
-    //     // given
-    //     const memberRegisterFunctionId = ethers.utils.keccak256(
-    //       ethers.utils.solidityPack(["address", "bytes4"],
-    //         [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
-    //     const requests: IFunctionManagement.FunctionUpdatePolicyRequestStruct[] = [{
-    //       functionId: memberRegisterFunctionId,
-    //       policyCode: 30
-    //     }]
-    //
-    //     // when
-    //     await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdatePolicyCode(requests))
-    //       .to.emit(functionManagerDelegateProxy, "FunctionPolicyUpdated")
-    //       .withArgs(livelyAdminWallet.address, memberRegisterFunctionId, 30);
-    //   })
-    //
-    //   it("Should update agentLimit of memberRegisterFunction success", async() => {
-    //     // given
-    //     const memberRegisterFunctionId = ethers.utils.keccak256(
-    //       ethers.utils.solidityPack(["address", "bytes4"],
-    //         [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
-    //     const requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[] = [{
-    //       scopeId: memberRegisterFunctionId,
-    //       agentLimit: 5
-    //     }]
-    //
-    //     // when
-    //     await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateAgentLimit(requests))
-    //       .to.emit(functionManagerDelegateProxy, "FunctionAgentLimitUpdated")
-    //       .withArgs(livelyAdminWallet.address, memberRegisterFunctionId, 5);
-    //
-    //     // then
-    //     expect(await functionManagerDelegateProxy.functionCheckId(memberRegisterFunctionId)).to.be.true;
-    //     expect(await functionManagerDelegateProxy.functionCheckSelector(memberManagerProxy.address, memberIface.getSighash("memberRegister"))).to.be.true;
-    //   })
-    //
-    //
-    //   it("Should disable alterability of memberContext success", async() => {
-    //     // given
-    //     const memberContextId = ethers.utils.keccak256(memberManagerProxy.address);
-    //     const requests: IACLCommonsRoles.UpdateAlterabilityRequestStruct[] = [{
-    //       id: memberContextId,
-    //       alstat: AlterabilityStatus.DISABLED
-    //     }]
-    //
-    //     // when
-    //     await expect(contextManagerDelegateProxy.connect(livelyAdmin).contextUpdateAlterabilityStatus(requests))
-    //       .to.emit(contextManagerDelegateProxy, "ContextAlterabilityUpdated")
-    //       .withArgs(livelyAdminWallet.address, memberContextId, AlterabilityStatus.DISABLED);
-    //   })
-    //
-    //   it("Should update admin of memberContext when alterability disabled failed", async() => {
-    //     // given
-    //     const memberContextId = ethers.utils.keccak256(memberManagerProxy.address);
-    //     const requests: IACLCommonsRoles.UpdateAdminRequestStruct[] = [{
-    //       id: memberContextId,
-    //       adminId: aclRoleTestId
-    //     }]
-    //
-    //     // when
-    //     await expect(contextManagerDelegateProxy.connect(livelyAdmin).contextUpdateAdmin(requests))
-    //       .revertedWith("Illegal Updatable")
-    //   })
-    //
-    //   it("Should update activity of memberContext when alterability disabled failed", async() => {
-    //     // given
-    //     const memberContextId = ethers.utils.keccak256(memberManagerProxy.address);
-    //     const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
-    //       id: memberContextId,
-    //       acstat: ActivityStatus.DISABLED
-    //     }]
-    //
-    //     // when
-    //     await expect(contextManagerDelegateProxy.connect(livelyAdmin).contextUpdateActivityStatus(requests))
-    //       .revertedWith("Illegal Updatable")
-    //   })
-    //
-    //   it("Should update agentLimit of memberContext when alterability disabled failed", async() => {
-    //     // given
-    //     const memberContextId = ethers.utils.keccak256(memberManagerProxy.address);
-    //     const requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[] = [{
-    //       scopeId: memberContextId,
-    //       agentLimit: 5
-    //     }]
-    //
-    //     // when
-    //     await expect(contextManagerDelegateProxy.connect(livelyAdmin).contextUpdateAgentLimit(requests))
-    //       .revertedWith("Illegal Updatable")
-    //   })
-    //
-    //   it("Should update alterability of memberContext success", async() => {
-    //     // given
-    //     const memberContextId = ethers.utils.keccak256(memberManagerProxy.address);
-    //     const requests: IACLCommonsRoles.UpdateAlterabilityRequestStruct[] = [{
-    //       id: memberContextId,
-    //       alstat: AlterabilityStatus.UPDATABLE
-    //     }]
-    //
-    //     // when
-    //     await expect(contextManagerDelegateProxy.connect(livelyAdmin).contextUpdateAlterabilityStatus(requests))
-    //       .to.emit(contextManagerDelegateProxy, "ContextAlterabilityUpdated")
-    //       .withArgs(livelyAdminWallet.address, aclPolicyTestId, AlterabilityStatus.UPDATABLE)
-    //   })
-    //
-    //   it("Should disable activity of memberContext success", async() => {
-    //     // given
-    //     const memberContextId = ethers.utils.keccak256(memberManagerProxy.address);
-    //     const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
-    //       id: memberContextId,
-    //       acstat: ActivityStatus.DISABLED
-    //     }]
-    //
-    //     // when
-    //     await expect(contextManagerDelegateProxy.connect(livelyAdmin).contextUpdateActivityStatus(requests))
-    //       .to.emit(contextManagerDelegateProxy, "ContextActivityUpdated")
-    //       .withArgs(livelyAdminWallet.address, memberContextId, ActivityStatus.DISABLED)
-    //   })
-    //
-    //   it("Should enable activity of memberContext success", async() => {
-    //     // given
-    //     const memberRegisterFunctionId = ethers.utils.keccak256(
-    //       ethers.utils.solidityPack(["address", "bytes4"],
-    //         [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
-    //     const memberContextId = ethers.utils.keccak256(memberManagerProxy.address);
-    //     const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
-    //       id: memberContextId,
-    //       acstat: ActivityStatus.ENABLED
-    //     }]
-    //
-    //     // when
-    //     await expect(contextManagerDelegateProxy.connect(livelyAdmin).contextUpdateActivityStatus(requests))
-    //       .to.emit(contextManagerDelegateProxy, "ContextActivityUpdated")
-    //       .withArgs(livelyAdminWallet.address, memberContextId, ActivityStatus.ENABLED)
-    //
-    //     // then
-    //     expect(await contextManagerDelegateProxy.contextHasSelector(memberManagerProxy.address,  userWallet2.address)).to.be.true;
-    //     expect(await contextManagerDelegateProxy.contextHasFunction(memberContextId, memberRegisterFunctionId)).to.be.true;
-    //   })
-    //
-    //   it("Should update admin of memberContext success", async() => {
-    //     // given
-    //     const memberContextId = ethers.utils.keccak256(memberManagerProxy.address);
-    //     const updateAdminRequests: IACLCommonsRoles.UpdateAdminRequestStruct[] = [{
-    //       id: memberContextId,
-    //       adminId: aclRoleTestId
-    //     }]
-    //
-    //     // when
-    //     await expect(contextManagerDelegateProxy.connect(livelyAdmin).contextUpdateAdmin(updateAdminRequests))
-    //       .to.emit(contextManagerDelegateProxy, "ContextAdminUpdated")
-    //       .withArgs(livelyAdminWallet.address, memberContextId, aclRoleTestId);
-    //
-    //     // then
-    //     expect(await contextManagerDelegateProxy.contextCheckAdmin(memberContextId,  userWallet2.address)).to.be.true;
-    //   })
-    //
-    //   it("Should update agentLimit of memberContext success", async() => {
-    //     // given
-    //
-    //     const memberContextId = ethers.utils.keccak256(memberManagerProxy.address);
-    //     const requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[] = [{
-    //       scopeId: memberContextId,
-    //       agentLimit: 5
-    //     }]
-    //
-    //     // when
-    //     await expect(contextManagerDelegateProxy.connect(livelyAdmin).contextUpdateAgentLimit(requests))
-    //       .to.emit(contextManagerDelegateProxy, "ContextAgentLimitUpdated")
-    //       .withArgs(livelyAdminWallet.address, memberContextId, 5);
-    //
-    //     // then
-    //     expect(await contextManagerDelegateProxy.contextCheckId(memberContextId)).to.be.true;
-    //     expect(await contextManagerDelegateProxy.contextCheckAccount(memberManagerProxy.address)).to.be.true;
-    //   })
-    //
-    //
-    //   it("Should register aclDomainTest in ACL Domain success", async() => {
-    //     // given
-    //     aclDomainTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_DOMAIN_TEST_NAME));
-    //     const requests: IDomainManagement.DomainRegisterRequestStruct[] = [
-    //       {
-    //         adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-    //         realmLimit: 1,
-    //         agentLimit: 1,
-    //         acstat: ActivityStatus.ENABLED,
-    //         alstat: AlterabilityStatus.DISABLED,
-    //         name: ACL_DOMAIN_TEST_NAME
-    //       }
-    //     ]
-    //
-    //     // when
-    //     await expect(domainManagerDelegateProxy.connect(livelyAdmin).domainRegister(requests)).
-    //     to.emit(domainManagerDelegateProxy, "DomainRegistered")
-    //       .withArgs(livelyAdminWallet.address, aclDomainTestId ,LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID)
-    //
-    //     // then
-    //     expect(await domainManagerDelegateProxy.domainCheckId(aclDomainTestId)).to.be.true
-    //
-    //     // and
-    //     const domainInfo: IDomainManagement.DomainInfoStruct = await domainManagerDelegateProxy.domainGetInfo(aclDomainTestId);
-    //     expect(domainInfo.name).to.be.equal(ACL_DOMAIN_TEST_NAME);
-    //     expect(domainInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_ADMIN_ROLE_ID);
-    //     expect(domainInfo.adminType).to.be.equal(AgentType.ROLE);
-    //     expect(domainInfo.realmLimit).to.be.equal(1);
-    //     expect(domainInfo.realmCount).to.be.equal(0);
-    //     expect(domainInfo.agentLimit).to.be.equal(1);
-    //     expect(domainInfo.referredByAgent).to.be.equal(0);
-    //     expect(domainInfo.stype).to.be.equal(ScopeType.DOMAIN);
-    //     expect(domainInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
-    //     expect(domainInfo.alstat).to.be.equal(AlterabilityStatus.DISABLED);
-    //
-    //     // and
-    //     expect(await domainManagerDelegateProxy.domainCheckId(aclDomainTestId)).to.be.true;
-    //     expect(await domainManagerDelegateProxy.domainCheckName(ACL_DOMAIN_TEST_NAME)).to.be.true;
-    //     expect(await domainManagerDelegateProxy.domainCheckAdmin(aclDomainTestId, livelyAdminWallet.address)).to.be.true;
-    //   })
-    //
-    //   it("Should update admin of aclDomainTest when alterability disabled failed", async() => {
-    //     // given
-    //     const requests: IACLCommonsRoles.UpdateAdminRequestStruct[] = [{
-    //       id: aclDomainTestId,
-    //       adminId: aclRoleTestId
-    //     }]
-    //
-    //     // when
-    //     await expect(domainManagerDelegateProxy.connect(livelyAdmin).domainUpdateAdmin(requests))
-    //       .revertedWith("Illegal Updatable")
-    //   })
-    //
-    //   it("Should update activity of aclDomainTest when alterability disabled failed", async() => {
-    //     // given
-    //     const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
-    //       id: aclDomainTestId,
-    //       acstat: ActivityStatus.DISABLED
-    //     }]
-    //
-    //     // when
-    //     await expect(domainManagerDelegateProxy.connect(livelyAdmin).domainUpdateActivityStatus(requests))
-    //       .revertedWith("Illegal Updatable")
-    //   })
-    //
-    //   it("Should update agentLimit of aclDomainTest when alterability disabled failed", async() => {
-    //     // given
-    //     const requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[] = [{
-    //       scopeId: aclDomainTestId,
-    //       agentLimit: 5
-    //     }]
-    //
-    //     // when
-    //     await expect(domainManagerDelegateProxy.connect(livelyAdmin).domainUpdateAgentLimit(requests))
-    //       .revertedWith("Illegal Updatable")
-    //   })
-    //
-    //   it("Should update roleLimit of aclDomainTest when alterability disabled failed", async() => {
-    //     // given
-    //     const requests: IDomainManagement.DomainUpdateRealmLimitRequestStruct[] = [{
-    //       domainId: aclDomainTestId,
-    //       realmLimit: 1
-    //     }]
-    //
-    //     // when
-    //     await expect(domainManagerDelegateProxy.connect(livelyAdmin).domainUpdateRealmLimit(requests))
-    //       .revertedWith("Illegal Updatable")
-    //   })
-    //
-    //   it("Should update alterability of aclDomainTest success", async() => {
-    //     // given
-    //     const requests: IACLCommonsRoles.UpdateAlterabilityRequestStruct[] = [{
-    //       id: aclDomainTestId,
-    //       alstat: AlterabilityStatus.UPDATABLE
-    //     }]
-    //
-    //     // when
-    //     await expect(domainManagerDelegateProxy.connect(livelyAdmin).domainUpdateAlterabilityStatus(requests))
-    //       .to.emit(domainManagerDelegateProxy, "DomainAlterabilityUpdated")
-    //       .withArgs(livelyAdminWallet.address, aclPolicyTestId, AlterabilityStatus.UPDATABLE)
-    //   })
-    //
-    //   it("Should disable activity of aclDomainTest success", async() => {
-    //     // given
-    //     const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
-    //       id: aclDomainTestId,
-    //       acstat: ActivityStatus.DISABLED
-    //     }]
-    //
-    //     // when
-    //     await expect(domainManagerDelegateProxy.connect(livelyAdmin).domainUpdateActivityStatus(requests))
-    //       .to.emit(domainManagerDelegateProxy, "DomainActivityUpdated")
-    //       .withArgs(livelyAdminWallet.address, aclDomainTestId, ActivityStatus.DISABLED)
-    //   })
-    //
-    //   it("Should enable activity of aclDomainTest success", async() => {
-    //     // given
-    //     const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
-    //       id: aclDomainTestId,
-    //       acstat: ActivityStatus.ENABLED
-    //     }]
-    //
-    //     // when
-    //     await expect(domainManagerDelegateProxy.connect(livelyAdmin).domainUpdateActivityStatus(requests))
-    //       .to.emit(domainManagerDelegateProxy, "DomainActivityUpdated")
-    //       .withArgs(livelyAdminWallet.address, aclDomainTestId, ActivityStatus.ENABLED)
-    //   })
-    //
-    //   it("Should update admin of aclDomainTest success", async() => {
-    //     // given
-    //     const updateAdminRequests: IACLCommonsRoles.UpdateAdminRequestStruct[] = [{
-    //       id: aclDomainTestId,
-    //       adminId: aclRoleTestId
-    //     }]
-    //
-    //     // when
-    //     await expect(domainManagerDelegateProxy.connect(livelyAdmin).domainUpdateAdmin(updateAdminRequests))
-    //       .to.emit(domainManagerDelegateProxy, "DomainAdminUpdated")
-    //       .withArgs(livelyAdminWallet.address, aclDomainTestId, aclRoleTestId);
-    //
-    //     // then
-    //     expect(await domainManagerDelegateProxy.domainCheckAdmin(aclDomainTestId,  userWallet2.address)).to.be.true;
-    //   })
-    //
-    //   it("Should update agentLimit of aclDomainTest success", async() => {
-    //     // given
-    //     const requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[] = [{
-    //       scopeId: aclDomainTestId,
-    //       agentLimit: 5
-    //     }]
-    //
-    //     // when
-    //     await expect(domainManagerDelegateProxy.connect(livelyAdmin).domainUpdateAgentLimit(requests))
-    //       .to.emit(domainManagerDelegateProxy, "DomainAgentLimitUpdated")
-    //       .withArgs(livelyAdminWallet.address, aclDomainTestId, 5);
-    //
-    //     // then
-    //     expect(await domainManagerDelegateProxy.domainCheckId(aclDomainTestId)).to.be.true;
-    //     expect(await domainManagerDelegateProxy.domainCheckName(ACL_DOMAIN_TEST_NAME)).to.be.true;
-    //   })
-    //
-    //   it("Should update roleLimit of aclDomainTest success", async() => {
-    //     // given
-    //     const requests: IDomainManagement.DomainUpdateRealmLimitRequestStruct[] = [{
-    //       domainId: aclDomainTestId,
-    //       realmLimit: 1
-    //     }]
-    //
-    //     // when
-    //     await expect(domainManagerDelegateProxy.connect(livelyAdmin).domainUpdateRealmLimit(requests))
-    //       .to.emit(domainManagerDelegateProxy, "DomainRealmLimitUpdated")
-    //       .withArgs(livelyAdminWallet.address, aclDomainTestId, 5);
-    //   })
-    //
-    //
-    //   it("Should register aclRealmTest in ACL Domain success", async() => {
-    //     // given
-    //     aclRealmTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_REALM_TEST_NAME));
-    //     const requests: IRealmManagement.RealmRegisterRequestStruct[] = [
-    //       {
-    //         domainId: aclDomainTestId,
-    //         adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-    //         contextLimit: 1,
-    //         agentLimit: 1,
-    //         acstat: ActivityStatus.ENABLED,
-    //         alstat: AlterabilityStatus.DISABLED,
-    //         name: ACL_REALM_TEST_NAME
-    //       }
-    //     ]
-    //
-    //     // when
-    //     await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmRegister(requests)).
-    //     to.emit(realmManagerDelegateProxy, "RealmRegistered")
-    //       .withArgs(livelyAdminWallet.address, aclRealmTestId ,LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID)
-    //
-    //     // then
-    //     expect(await realmManagerDelegateProxy.realmCheckId(aclRealmTestId)).to.be.true
-    //
-    //     // and
-    //     const realmInfo: IRealmManagement.RealmInfoStruct = await realmManagerDelegateProxy.realmGetInfo(aclRealmTestId);
-    //     expect(realmInfo.name).to.be.equal(ACL_REALM_TEST_NAME);
-    //     expect(realmInfo.domainId).to.be.equal(aclDomainTestId);
-    //     expect(realmInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_ADMIN_ROLE_ID);
-    //     expect(realmInfo.adminType).to.be.equal(AgentType.ROLE);
-    //     expect(realmInfo.contextLimit).to.be.equal(1);
-    //     expect(realmInfo.contextCount).to.be.equal(0);
-    //     expect(realmInfo.agentLimit).to.be.equal(1);
-    //     expect(realmInfo.referredByAgent).to.be.equal(0);
-    //     expect(realmInfo.stype).to.be.equal(ScopeType.REALM);
-    //     expect(realmInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
-    //     expect(realmInfo.alstat).to.be.equal(AlterabilityStatus.DISABLED);
-    //
-    //     // and
-    //     expect(await realmManagerDelegateProxy.realmCheckId(aclRealmTestId)).to.be.true;
-    //     expect(await realmManagerDelegateProxy.realmCheckName(ACL_REALM_TEST_NAME)).to.be.true;
-    //     expect(await realmManagerDelegateProxy.realmCheckAdmin(aclRealmTestId, livelyAdminWallet.address)).to.be.true;
-    //   })
-    //
-    //   it("Should update admin of aclRealmTest when alterability disabled failed", async() => {
-    //     // given
-    //     const requests: IACLCommonsRoles.UpdateAdminRequestStruct[] = [{
-    //       id: aclRealmTestId,
-    //       adminId: aclRoleTestId
-    //     }]
-    //
-    //     // when
-    //     await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateAdmin(requests))
-    //       .revertedWith("Illegal Updatable")
-    //   })
-    //
-    //   it("Should update activity of aclRealmTest when alterability disabled failed", async() => {
-    //     // given
-    //     const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
-    //       id: aclRealmTestId,
-    //       acstat: ActivityStatus.DISABLED
-    //     }]
-    //
-    //     // when
-    //     await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateActivityStatus(requests))
-    //       .revertedWith("Illegal Updatable")
-    //   })
-    //
-    //   it("Should update agentLimit of aclRealmTest when alterability disabled failed", async() => {
-    //     // given
-    //     const requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[] = [{
-    //       scopeId: aclRealmTestId,
-    //       agentLimit: 5
-    //     }]
-    //
-    //     // when
-    //     await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateAgentLimit(requests))
-    //       .revertedWith("Illegal Updatable")
-    //   })
-    //
-    //   it("Should update contextLimit of aclRealmTest when alterability disabled failed", async() => {
-    //     // given
-    //     const requests: IRealmManagement.RealmUpdateContextLimitRequestStruct[] = [{
-    //       realmId: aclRealmTestId,
-    //       contextLimit: 1
-    //     }]
-    //
-    //     // when
-    //     await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateContextLimit(requests))
-    //       .revertedWith("Illegal Updatable")
-    //   })
-    //
-    //   it("Should update alterability of aclRealmTest success", async() => {
-    //     // given
-    //     const requests: IACLCommonsRoles.UpdateAlterabilityRequestStruct[] = [{
-    //       id: aclRealmTestId,
-    //       alstat: AlterabilityStatus.UPDATABLE
-    //     }]
-    //
-    //     // when
-    //     await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateAlterabilityStatus(requests))
-    //       .to.emit(realmManagerDelegateProxy, "RealmAlterabilityUpdated")
-    //       .withArgs(livelyAdminWallet.address, aclRealmTestId, AlterabilityStatus.UPDATABLE)
-    //   })
-    //
-    //   it("Should disable activity of aclRealmTest success", async() => {
-    //     // given
-    //     const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
-    //       id: aclRealmTestId,
-    //       acstat: ActivityStatus.DISABLED
-    //     }]
-    //
-    //     // when
-    //     await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateActivityStatus(requests))
-    //       .to.emit(realmManagerDelegateProxy, "RealmActivityUpdated")
-    //       .withArgs(livelyAdminWallet.address, aclRealmTestId, ActivityStatus.DISABLED)
-    //   })
-    //
-    //   it("Should enable activity of aclRealmTest success", async() => {
-    //     // given
-    //     const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
-    //       id: aclRealmTestId,
-    //       acstat: ActivityStatus.ENABLED
-    //     }]
-    //
-    //     // when
-    //     await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateActivityStatus(requests))
-    //       .to.emit(realmManagerDelegateProxy, "RealmActivityUpdated")
-    //       .withArgs(livelyAdminWallet.address, aclRealmTestId, ActivityStatus.ENABLED)
-    //   })
-    //
-    //   it("Should update admin of aclRealmTest success", async() => {
-    //     // given
-    //     const updateAdminRequests: IACLCommonsRoles.UpdateAdminRequestStruct[] = [{
-    //       id: aclRealmTestId,
-    //       adminId: aclRoleTestId
-    //     }]
-    //
-    //     // when
-    //     await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateAdmin(updateAdminRequests))
-    //       .to.emit(realmManagerDelegateProxy, "RealmAdminUpdated")
-    //       .withArgs(livelyAdminWallet.address, aclRealmTestId, aclRoleTestId);
-    //
-    //     // then
-    //     expect(await realmManagerDelegateProxy.realmCheckAdmin(aclRealmTestId, userWallet2.address)).to.be.true;
-    //   })
-    //
-    //   it("Should update agentLimit of aclRealmTest success", async() => {
-    //     // given
-    //     const requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[] = [{
-    //       scopeId: aclRealmTestId,
-    //       agentLimit: 5
-    //     }]
-    //
-    //     // when
-    //     await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateAgentLimit(requests))
-    //       .to.emit(realmManagerDelegateProxy, "RealmAgentLimitUpdated")
-    //       .withArgs(livelyAdminWallet.address, aclRealmTestId, 5);
-    //
-    //     // then
-    //     expect(await realmManagerDelegateProxy.realmCheckId(aclRealmTestId)).to.be.true;
-    //     expect(await realmManagerDelegateProxy.realmCheckName(ACL_REALM_TEST_NAME)).to.be.true;
-    //   })
-    //
-    //   it("Should update roleLimit of aclRealmTest success", async() => {
-    //     // given
-    //     const requests: IRealmManagement.RealmUpdateContextLimitRequestStruct[] = [{
-    //       realmId: aclRealmTestId,
-    //       contextLimit: 1
-    //     }]
-    //
-    //     // when
-    //     await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateContextLimit(requests))
-    //       .to.emit(realmManagerDelegateProxy, "RealmContextLimitUpdated")
-    //       .withArgs(livelyAdminWallet.address, aclRealmTestId, 5);
-    //   })
-    //
-    //
-    //
-    //   it("Should disable alterability of global scope success", async() => {
-    //     // when
-    //     await expect(globalManagerDelegateProxy.connect(livelyAdmin).globalUpdateAlterabilityStatus(AlterabilityStatus.DISABLED))
-    //       .to.emit(globalManagerDelegateProxy, "GlobalAlterabilityUpdated")
-    //       .withArgs(livelyAdminWallet.address, LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, AlterabilityStatus.DISABLED);
-    //   })
-    //
-    //   it("Should update admin of global scope when alterability disabled failed", async() => {
-    //
-    //     // when
-    //     await expect(globalManagerDelegateProxy.connect(livelyAdmin).globalUpdateAdmin(aclRoleTestId))
-    //       .revertedWith("Illegal Updatable")
-    //   })
-    //
-    //   it("Should update activity of global scope when alterability disabled failed", async() => {
-    //     // when
-    //     await expect(globalManagerDelegateProxy.connect(livelyAdmin).globalUpdateActivityStatus(ActivityStatus.DISABLED))
-    //       .revertedWith("Illegal Updatable")
-    //   })
-    //
-    //   it("Should update agentLimit of global scope when alterability disabled failed", async() => {
-    //     // when
-    //     await expect(globalManagerDelegateProxy.connect(livelyAdmin).globalUpdateAgentLimit(5))
-    //       .revertedWith("Illegal Updatable")
-    //   })
-    //
-    //   it("Should update alterability of global scope success", async() => {
-    //     // when
-    //     await expect(globalManagerDelegateProxy.connect(livelyAdmin).globalUpdateAlterabilityStatus(AlterabilityStatus.UPDATABLE))
-    //       .to.emit(globalManagerDelegateProxy, "GlobalAlterabilityUpdated")
-    //       .withArgs(livelyAdminWallet.address, LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, AlterabilityStatus.UPDATABLE)
-    //   })
-    //
-    //   it("Should disable activity of global scope success", async() => {
-    //     // when
-    //     await expect(globalManagerDelegateProxy.connect(livelyAdmin).globalUpdateActivityStatus(ActivityStatus.DISABLED))
-    //       .to.emit(globalManagerDelegateProxy, "GlobalActivityUpdated")
-    //       .withArgs(livelyAdminWallet.address, LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, ActivityStatus.DISABLED)
-    //   })
-    //
-    //   it("Should enable activity of global scope success", async() => {
-    //
-    //     // when
-    //     await expect(globalManagerDelegateProxy.connect(livelyAdmin).globalUpdateActivityStatus(ActivityStatus.ENABLED))
-    //       .to.emit(globalManagerDelegateProxy, "GlobalActivityUpdated")
-    //       .withArgs(livelyAdminWallet.address, LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, ActivityStatus.ENABLED)
-    //
-    //   })
-    //
-    //   it("Should update admin of global scope success", async() => {
-    //     // when
-    //     await expect(globalManagerDelegateProxy.connect(livelyAdmin).globalUpdateAdmin(aclRoleTestId))
-    //       .to.emit(globalManagerDelegateProxy, "GlobalAdminUpdated")
-    //       .withArgs(livelyAdminWallet.address, LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, aclRoleTestId);
-    //
-    //     // then
-    //     expect(await globalManagerDelegateProxy.globalCheckAdmin(userWallet2.address)).to.be.true;
-    //   })
-    //
-    //   it("Should update agentLimit of global scope success", async() => {
-    //     // when
-    //     await expect(globalManagerDelegateProxy.connect(livelyAdmin).globalUpdateAgentLimit(5))
-    //       .to.emit(globalManagerDelegateProxy, "GlobalAgentLimitUpdated")
-    //       .withArgs(livelyAdminWallet.address, LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, 5);
-    //   })
-    //
-    //
-    // })
+    describe("Policy Test", function() {
+      it("Should register aclPolicyTest in ACL policy success", async() => {
+        // given
+        aclPolicyTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_POLICY_TEST_NAME));
+        const requests: IPolicyManagement.PolicyRegisterRequestStruct[] = [
+          {
+            adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            scopeId: LIVELY_VERSE_ACL_REALM_ID,
+            roleLimit: 1,
+            policyCode: 80,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.DISABLED,
+            name: ACL_POLICY_TEST_NAME
+          }
+        ]
+
+        // when
+        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyRegister(requests)).
+        to.emit(policyManagerDelegateProxy, "PolicyRegistered")
+          .withArgs(livelyAdminWallet.address, aclPolicyTestId, LIVELY_VERSE_ACL_REALM_ID,
+            LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID, 80)
+
+        // then
+        expect(await policyManagerDelegateProxy.policyCheckId(aclPolicyTestId)).to.be.true
+
+        // and
+        const policyInfo: IPolicyManagement.PolicyInfoStruct = await policyManagerDelegateProxy.policyGetInfo(aclPolicyTestId);
+        expect(policyInfo.name).to.be.equal(ACL_POLICY_TEST_NAME);
+        expect(policyInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
+        expect(policyInfo.scopeId).to.be.equal(LIVELY_VERSE_ACL_REALM_ID);
+        expect(policyInfo.roleLimit).to.be.equal(1);
+        expect(policyInfo.roleCount).to.be.equal(0);
+        expect(policyInfo.ptype).to.be.equal(PolicyType.MLOCK);
+        expect(policyInfo.policyCode).to.be.equal(80);
+        expect(policyInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(policyInfo.alstat).to.be.equal(AlterabilityStatus.DISABLED);
+
+        // and
+        expect(await policyManagerDelegateProxy.policyCheckId(aclPolicyTestId)).to.be.true;
+        expect(await policyManagerDelegateProxy.policyCheckName(ACL_POLICY_TEST_NAME)).to.be.true;
+        expect(await policyManagerDelegateProxy.policyCheckAdmin(aclPolicyTestId, livelyAdminWallet.address)).to.be.true;
+      })
+
+      it("Should update admin of aclPolicyTest when alterability disabled failed", async() => {
+        // given
+        const updateAdminRequests: IACLCommonsRoles.UpdateAdminRequestStruct[] = [{
+          id: aclPolicyTestId,
+          adminId: aclRoleTestId
+        }]
+
+        // when
+        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateAdmin(updateAdminRequests))
+          .revertedWith("Illegal Updatable")
+      })
+
+      it("Should update policyCode of aclPolicyTest when alterability disabled failed", async() => {
+        // given
+        const requests: IPolicyManagement.PolicyUpdateCodeRequestStruct[] = [{
+          policyId: aclPolicyTestId,
+          policyCode: 30
+        }]
+
+        // when
+        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateCodes(requests))
+          .revertedWith("Illegal Updatable")
+      })
+
+      it("Should update activity of aclPolicyTest when alterability disabled failed", async() => {
+        // given
+        const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
+          id: aclPolicyTestId,
+          acstat: ActivityStatus.DISABLED
+        }]
+
+        // when
+        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateActivityStatus(requests))
+          .revertedWith("Illegal Updatable")
+      })
+
+      it("Should update roleLimit of aclPolicyTest when alterability disabled failed", async() => {
+        // given
+        const requests: IPolicyManagement.PolicyUpdateRoleLimitRequestStruct[] = [{
+          policyId: aclPolicyTestId,
+          roleLimit: 5
+        }]
+
+        // when
+        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateRoleLimit(requests))
+          .revertedWith("Illegal Updatable")
+      })
+
+      it("Should add roles to aclPolicyTest when alterability disabled failed", async() => {
+        // given
+        const requests: IPolicyManagement.PolicyAddRolesRequestStruct[] = [{
+          policyId: aclPolicyTestId,
+          roles: [ aclRoleTestId ]
+        }]
+
+        // when
+        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyAddRoles(requests))
+          .revertedWith("Illegal Updatable")
+      })
+
+      it("Should remove roles to aclPolicyTest when alterability disabled failed", async() => {
+        // given
+        const requests: IPolicyManagement.PolicyAddRolesRequestStruct[] = [{
+          policyId: aclPolicyTestId,
+          roles: [ aclRoleTestId ]
+        }]
+
+        // when
+        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyAddRoles(requests))
+          .revertedWith("Illegal Updatable")
+      })
+
+      it("Should update alterability of aclPolicyTest success", async() => {
+        // given
+        const requests: IACLCommonsRoles.UpdateAlterabilityRequestStruct[] = [{
+          id: aclPolicyTestId,
+          alstat: AlterabilityStatus.UPDATABLE
+        }]
+
+        // when
+        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateAlterabilityStatus(requests))
+          .to.emit(policyManagerDelegateProxy, "PolicyAlterabilityUpdated")
+          .withArgs(livelyAdminWallet.address, aclPolicyTestId, AlterabilityStatus.UPDATABLE)
+      })
+
+      it("Should aclPolicyTest activity disabled success", async() => {
+        // given
+        const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
+          id: aclPolicyTestId,
+          acstat: ActivityStatus.DISABLED
+        }]
+
+        // when
+        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateActivityStatus(requests))
+          .to.emit(policyManagerDelegateProxy, "PolicyActivityUpdated")
+          .withArgs(livelyAdminWallet.address, aclPolicyTestId, ActivityStatus.DISABLED)
+      })
+
+      it("Should aclPolicyTest activity enabled success", async() => {
+        // given
+        const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
+          id: aclPolicyTestId,
+          acstat: ActivityStatus.ENABLED
+        }]
+
+        // when
+        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateActivityStatus(requests))
+          .to.emit(policyManagerDelegateProxy, "PolicyActivityUpdated")
+          .withArgs(livelyAdminWallet.address, aclPolicyTestId, ActivityStatus.ENABLED)
+      })
+
+      it("Should add adminId to aclPolicyTest self failed", async() => {
+        // given
+        const requests: IPolicyManagement.PolicyAddRolesRequestStruct[] = [{
+          policyId: aclPolicyTestId,
+          roles: [ LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID ]
+        }]
+
+        // when
+        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyAddRoles(requests))
+          .revertedWith("Illegal Role")
+      })
+
+      it("Should update admin of aclPolicyTest success", async() => {
+        // given
+        const updateAdminRequests: IACLCommonsRoles.UpdateAdminRequestStruct[] = [{
+          id: aclPolicyTestId,
+          adminId: aclRoleTestId
+        }]
+
+        // when
+        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateAdmin(updateAdminRequests))
+          .to.emit(policyManagerDelegateProxy, "PolicyAdminUpdated")
+          .withArgs(livelyAdminWallet.address, aclPolicyTestId, aclRoleTestId);
+      })
+
+      it("Should add roles to aclPolicyTest success", async() => {
+        // given
+        const requests: IPolicyManagement.PolicyAddRolesRequestStruct[] = [{
+          policyId: aclPolicyTestId,
+          roles: [ aclRoleTestId2 ]
+        }]
+
+        // when
+        await expect(policyManagerDelegateProxy.connect(user1).policyAddRoles(requests))
+          .to.emit(policyManagerDelegateProxy, "PolicyRoleAdded")
+          .withArgs(userWallet1.address, aclPolicyTestId, aclRoleTestId2);
+
+        // then
+        expect(await policyManagerDelegateProxy.policyCheckRole(aclRoleTestId2)).to.be.true;
+        expect(await policyManagerDelegateProxy.policyHasRole(aclPolicyTestId, aclRoleTestId2)).to.be.true;
+
+        // and
+        const policyInfo: IPolicyManagement.PolicyInfoStruct = await policyManagerDelegateProxy.policyGetInfoByRole(aclRoleTestId2);
+        expect(policyInfo.name).to.be.equal(ACL_POLICY_TEST_NAME);
+        expect(policyInfo.adminId).to.be.equal(aclRoleTestId);
+        expect(policyInfo.scopeId).to.be.equal(LIVELY_VERSE_ACL_REALM_ID);
+        expect(policyInfo.roleLimit).to.be.equal(1);
+        expect(policyInfo.roleCount).to.be.equal(1);
+        expect(policyInfo.ptype).to.be.equal(PolicyType.MLOCK);
+        expect(policyInfo.policyCode).to.be.equal(80);
+        expect(policyInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(policyInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+      })
+
+      it("Should add roles to aclPolicyTest for illegal role failed", async() => {
+        // given
+        const requests: IPolicyManagement.PolicyAddRolesRequestStruct[] = [{
+          policyId: aclPolicyTestId,
+          roles: [ aclRoleTestId ]
+        }]
+
+        // when
+        await expect(policyManagerDelegateProxy.connect(user1).policyAddRoles(requests))
+          .revertedWith("Illegal Role")
+      })
+         it("Should update admin of aclPolicyTest to SYSTEM_MASTER_ADMIN_ROLE success", async() => {
+        // given
+        const updateAdminRequests: IACLCommonsRoles.UpdateAdminRequestStruct[] = [{
+          id: aclPolicyTestId,
+          adminId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID
+        }]
+
+        // when
+        await expect(policyManagerDelegateProxy.connect(user1).policyUpdateAdmin(updateAdminRequests))
+          .to.emit(policyManagerDelegateProxy, "PolicyAdminUpdated")
+          .withArgs(userWallet1.address, aclPolicyTestId, LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID);
+      })
+
+      it("Should add roles to aclPolicyTest for limitation failed", async() => {
+        // given
+        const requests: IPolicyManagement.PolicyAddRolesRequestStruct[] = [{
+          policyId: aclPolicyTestId,
+          roles: [ aclRoleTestId ]
+        }]
+
+        // when
+        await expect(policyManagerDelegateProxy.connect(systemAdmin).policyAddRoles(requests))
+          .revertedWith("Illegal Limit")
+      })
+
+      it("Should update role limit of aclPolicyTest for forbidden failed", async() => {
+        // given
+        const requests: IPolicyManagement.PolicyUpdateRoleLimitRequestStruct[] = [{
+          policyId: aclPolicyTestId,
+          roleLimit: 0
+        }]
+
+        // when
+        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateRoleLimit(requests))
+          .revertedWith("Forbidden")
+      })
+
+      it("Should update role limit of aclPolicyTest success", async() => {
+        // given
+        const requests: IPolicyManagement.PolicyUpdateRoleLimitRequestStruct[] = [{
+          policyId: aclPolicyTestId,
+          roleLimit: 5
+        }]
+
+        // when
+        await expect(policyManagerDelegateProxy.connect(systemAdmin).policyUpdateRoleLimit(requests))
+          .to.emit(policyManagerDelegateProxy, "PolicyRoleLimitUpdated")
+          .withArgs(systemAdminWallet.address, aclPolicyTestId, 5)
+      })
+
+      it("Should add roles to aclPolicyTest success", async() => {
+        // given
+        const requests: IPolicyManagement.PolicyAddRolesRequestStruct[] = [{
+          policyId: aclPolicyTestId,
+          roles: [ aclRoleTestId ]
+        }]
+
+        // when
+        await expect(policyManagerDelegateProxy.connect(systemAdmin).policyAddRoles(requests))
+          .to.emit(policyManagerDelegateProxy, "PolicyRoleAdded")
+          .withArgs(systemAdminWallet.address, aclPolicyTestId, aclRoleTestId);
+
+        // then
+        expect(await policyManagerDelegateProxy.policyCheckRole(aclRoleTestId)).to.be.true;
+        expect(await policyManagerDelegateProxy.policyHasRole(aclPolicyTestId, aclRoleTestId)).to.be.true;
+        expect(await policyManagerDelegateProxy.policyGetRoles(aclPolicyTestId)).to.be.eqls([aclRoleTestId2, aclRoleTestId])
+      })
+
+      it("Should remove roles to aclPolicyTest success", async() => {
+        // given
+        const requests: IPolicyManagement.PolicyAddRolesRequestStruct[] = [{
+          policyId: aclPolicyTestId,
+          roles: [ aclRoleTestId ]
+        }]
+
+        // when
+        await expect(policyManagerDelegateProxy.connect(systemAdmin).policyRemoveRoles(requests))
+          .to.emit(policyManagerDelegateProxy, "PolicyRoleRemoved")
+          .withArgs(systemAdminWallet.address, aclPolicyTestId, aclRoleTestId);
+
+        // then
+        expect(await policyManagerDelegateProxy.policyCheckRole(aclRoleTestId)).to.be.false;
+        expect(await policyManagerDelegateProxy.policyHasRole(aclPolicyTestId, aclRoleTestId)).to.be.false;
+      })
+
+      it("Should update policyCode of aclPolicyTest success", async() => {
+        // given
+        const memberRegisterFunctionId = ethers.utils.keccak256(
+              ethers.utils.solidityPack(["address", "bytes4"],
+                [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
+        const requests: IPolicyManagement.PolicyUpdateCodeRequestStruct[] = [{
+          policyId: aclPolicyTestId,
+          policyCode: 30
+        }]
+
+        // when
+        await expect(policyManagerDelegateProxy.connect(systemAdmin).policyUpdateCodes(requests))
+          .to.emit(policyManagerDelegateProxy, "PolicyCodeUpdated")
+          .withArgs(systemAdminWallet.address, aclPolicyTestId, 30, PolicyType.SLOCK);
+
+        // and
+        expect(await policyManagerDelegateProxy.policyCheckAccess(aclPolicyTestId, memberRegisterFunctionId)).to.be.false
+        expect(await policyManagerDelegateProxy.policyCheckRoleAccess(aclRoleTestId2, memberRegisterFunctionId)).to.be.false
+      })
+    })
+
+    describe("Scope Test", function() {
+      it("Should disable alterability of memberRegisterFunction success", async() => {
+        // given
+        const memberRegisterFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
+        const requests: IACLCommonsRoles.UpdateAlterabilityRequestStruct[] = [{
+          id: memberRegisterFunctionId,
+          alstat: AlterabilityStatus.DISABLED
+        }]
+
+        // when
+        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateAlterabilityStatus(requests))
+          .to.emit(functionManagerDelegateProxy, "FunctionAlterabilityUpdated")
+          .withArgs(livelyAdminWallet.address, memberRegisterFunctionId, AlterabilityStatus.DISABLED);
+      })
+
+      it("Should update admin of memberRegisterFunction when alterability disabled failed", async() => {
+        // given
+        const memberRegisterFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
+        const requests: IACLCommonsRoles.UpdateAdminRequestStruct[] = [{
+          id: memberRegisterFunctionId,
+          adminId: aclRoleTestId
+        }]
+
+        // when
+        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateAdmin(requests))
+          .revertedWith("Illegal Updatable")
+      })
+
+      it("Should update agent of memberRegisterFunction when alterability disabled failed", async() => {
+        // given
+        const memberRegisterFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
+        const requests: IFunctionManagement.FunctionUpdateAgentRequestStruct[] = [{
+          functionId: memberRegisterFunctionId,
+          agentId: aclRoleTestId
+        }]
+
+        // when
+        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateAgent(requests))
+          .revertedWith("Illegal Updatable")
+      })
+
+      it("Should update policyCode of memberRegisterFunction when alterability disabled failed", async() => {
+        // given
+        const memberRegisterFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
+        const requests: IFunctionManagement.FunctionUpdatePolicyRequestStruct[] = [{
+          functionId: memberRegisterFunctionId,
+          policyCode: 30
+        }]
+
+        // when
+        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdatePolicyCode(requests))
+          .revertedWith("Illegal Updatable")
+      })
+
+      it("Should update activity of memberRegisterFunction when alterability disabled failed", async() => {
+        // given
+        const memberRegisterFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
+        const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
+          id: memberRegisterFunctionId,
+          acstat: ActivityStatus.DISABLED
+        }]
+
+        // when
+        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateActivityStatus(requests))
+          .revertedWith("Illegal Updatable")
+      })
+
+      it("Should update agentLimit of memberRegisterFunction when alterability disabled failed", async() => {
+        // given
+        const memberRegisterFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
+        const requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[] = [{
+          scopeId: memberRegisterFunctionId,
+          agentLimit: 5
+        }]
+
+        // when
+        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateAgentLimit(requests))
+          .revertedWith("Illegal Updatable")
+      })
+
+      it("Should update alterability of memberRegisterFunction success", async() => {
+        // given
+        const memberRegisterFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
+        const requests: IACLCommonsRoles.UpdateAlterabilityRequestStruct[] = [{
+          id: memberRegisterFunctionId,
+          alstat: AlterabilityStatus.UPDATABLE
+        }]
+
+        // when
+        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateAlterabilityStatus(requests))
+          .to.emit(functionManagerDelegateProxy, "FunctionAlterabilityUpdated")
+          .withArgs(livelyAdminWallet.address, memberRegisterFunctionId, AlterabilityStatus.UPDATABLE)
+      })
+
+      it("Should disable activity of memberRegisterFunction success", async() => {
+        // given
+        const memberRegisterFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
+        const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
+          id: memberRegisterFunctionId,
+          acstat: ActivityStatus.DISABLED
+        }]
+
+        // when
+        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateActivityStatus(requests))
+          .to.emit(functionManagerDelegateProxy, "FunctionActivityUpdated")
+          .withArgs(livelyAdminWallet.address, memberRegisterFunctionId, ActivityStatus.DISABLED)
+      })
+
+      it("Should enable activity of memberRegisterFunction success", async() => {
+        // given
+        const memberRegisterFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
+        const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
+          id: memberRegisterFunctionId,
+          acstat: ActivityStatus.ENABLED
+        }]
+
+        // when
+        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateActivityStatus(requests))
+          .to.emit(functionManagerDelegateProxy, "FunctionActivityUpdated")
+          .withArgs(livelyAdminWallet.address, memberRegisterFunctionId, ActivityStatus.ENABLED)
+
+        // then
+        expect(await functionManagerDelegateProxy.functionCheckSelector(memberManagerProxy.address, memberIface.getSighash("memberRegister"))).to.be.true;
+      })
+
+      it("Should update admin of memberRegisterFunction success", async() => {
+        // given
+        const memberRegisterFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
+        const updateAdminRequests: IACLCommonsRoles.UpdateAdminRequestStruct[] = [{
+          id: memberRegisterFunctionId,
+          adminId: aclRoleTestId
+        }]
+
+        // when
+        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateAdmin(updateAdminRequests))
+          .to.emit(functionManagerDelegateProxy, "FunctionAdminUpdated")
+          .withArgs(livelyAdminWallet.address, memberRegisterFunctionId, aclRoleTestId);
+
+        // then
+        expect(await functionManagerDelegateProxy.functionCheckAdmin(memberRegisterFunctionId,  userWallet2.address)).to.be.true;
+      })
+
+      it("Should update agent of memberRegisterFunction success", async() => {
+        // given
+        const memberRegisterFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
+        const requests: IFunctionManagement.FunctionUpdateAgentRequestStruct[] = [{
+          functionId: memberRegisterFunctionId,
+          agentId: aclRoleTestId
+        }]
+
+        // when
+        await expect(functionManagerDelegateProxy.connect(user1).functionUpdateAgent(requests))
+          .to.emit(functionManagerDelegateProxy, "FunctionAgentUpdated")
+          .withArgs(userWallet1.address, memberRegisterFunctionId, aclRoleTestId);
+
+        // then
+        expect(await functionManagerDelegateProxy.functionCheckAgent(memberRegisterFunctionId,  userWallet2.address)).to.be.true;
+      })
+
+      it("Should update policyCode of memberRegisterFunction success", async() => {
+        // given
+        const memberRegisterFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
+        const requests: IFunctionManagement.FunctionUpdatePolicyRequestStruct[] = [{
+          functionId: memberRegisterFunctionId,
+          policyCode: 30
+        }]
+
+        // when
+        await expect(functionManagerDelegateProxy.connect(user1).functionUpdatePolicyCode(requests))
+          .to.emit(functionManagerDelegateProxy, "FunctionPolicyUpdated")
+          .withArgs(userWallet1.address, memberRegisterFunctionId, 30);
+      })
+
+      it("Should update agentLimit of memberRegisterFunction success", async() => {
+        // given
+        const memberRegisterFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
+        const requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[] = [{
+          scopeId: memberRegisterFunctionId,
+          agentLimit: 5
+        }]
+
+        // when
+        await expect(functionManagerDelegateProxy.connect(user1).functionUpdateAgentLimit(requests))
+          .to.emit(functionManagerDelegateProxy, "FunctionAgentLimitUpdated")
+          .withArgs(userWallet1.address, memberRegisterFunctionId, 5);
+
+        // then
+        expect(await functionManagerDelegateProxy.functionCheckId(memberRegisterFunctionId)).to.be.true;
+        expect(await functionManagerDelegateProxy.functionCheckSelector(memberManagerProxy.address, memberIface.getSighash("memberRegister"))).to.be.true;
+      })
 
 
-    // describe("Upgrade ACL proxy tests", function() {
-    //   let lACLManagerTest: LACLManagerTest;
-    //   let aclManagerSubjectTest: ACLManagerTest;
-    //   it("Should enable Upgrade Status of domain proxy by anyone failed", async () => {
-    //     // when and then
-    //     await expect(domainManagerProxy.connect(systemAdmin).setUpdatabilityStatus(ProxyUpdatabilityStatus.ENABLED))
-    //       .to.revertedWith("Forbidden");
-    //   });
-    //
-    //   it("Should enable Upgrade Status of domain proxy by aclAdmin success", async () => {
-    //     // when and then
-    //     await expect(domainManagerProxy.connect(livelyAdmin).setUpdatabilityStatus(ProxyUpdatabilityStatus.ENABLED))
-    //       .to.emit(domainManagerProxy, "ProxyUpdatabilityUpdated")
-    //       .withArgs(
-    //         livelyAdminWallet.address,
-    //         domainManagerProxy.address,
-    //         ProxyUpdatabilityStatus.ENABLED
-    //       );
-    //   });
-    //
-    //   it("Should upgrade domain proxy to another subject by systemAdmin success", async () => {
-    //     // given
-    //     const domainManagerTestFactory = new DomainManagerTest__factory(systemAdmin);
-    //
-    //     // const proxyFactory = new ACLProxy__factory(systemAdmin);
-    //     const iface = new ethers.utils.Interface(DomainManagerTest__factory.abi);
-    //     const data = iface.encodeFunctionData("reInitialize", [
-    //       "3.0.1",
-    //     ]);
-    //
-    //     // when
-    //     domainManagerSubjectTest = await domainManagerTestFactory.deploy();
-    //     await expect(domainManagerProxy.upgradeTo(domainManagerSubjectTest.address, data, false))
-    //       .to.emit(domainManagerProxy, "ProxyUpgraded")
-    //       .withArgs(systemAdminWallet.address, domainManagerProxy.address, domainManagerSubjectTest.address)
-    //     // const proxy = await proxyFactory.deploy(domainManagerSubjectTest.address, data);
-    //
-    //     // then
-    //     domainManagerProxyTest = domainManagerSubjectTest.attach(domainManagerProxy.address);
-    //     const domainSeparator = generateDomainSeparator(
-    //       DOMAIN_MANAGER_CONTRACT_NAME,
-    //       "3.0.1",
-    //       domainManagerProxyTest.address,
-    //       networkChainId
-    //     );
-    //
-    //     domainManagerDelegateProxyTest = domainManagerProxyTest.attach(aclManagerProxy.address);
-    //
-    //     let proxyInfo: IProxy.ProxyInfoStruct = await domainManagerProxyTest.proxyInfo();
-    //     expect(proxyInfo.name).to.be.equal(DOMAIN_MANAGER_CONTRACT_NAME);
-    //     expect(proxyInfo.version).to.be.equal("3.0.1");
-    //     expect(proxyInfo.subject).to.be.equal(domainManagerSubjectTest.address);
-    //     expect(proxyInfo.acl).to.be.equal(aclManagerProxy.address);
-    //     expect(proxyInfo.localAdmin).to.be.equal(systemAdminWallet.address);
-    //     expect(proxyInfo.domainSeparator).to.be.equal(domainSeparator);
-    //     expect(proxyInfo.sstat).to.be.equal(ProxySafeModeStatus.DISABLED);
-    //     expect(proxyInfo.ustat).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
-    //     expect(proxyInfo.initVersion).to.be.equal(2)
-    //   });
-    //
-    //   it("Should upgrade LACLManager proxy to another subject by systemAdmin success", async () => {
-    //
-    //     // given
-    //     const aclFactory = new LACLManagerTest__factory(systemAdmin);
-    //
-    //     // when
-    //     lACLManagerTest = await aclFactory.deploy();
-    //
-    //     // then
-    //     expect(lACLManagerTest.address).not.null;
-    //     expect(await lACLManagerTest.LIB_NAME()).to.be.equal("LACLManager");
-    //     expect(await lACLManagerTest.LIB_VERSION()).to.be.equal("3.0.1");
-    //
-    //   });
-    //
-    //
-    //   it("Should ACLManager subject test deploy success", async () => {
-    //     // given
-    //     linkLibraryAddressesTest = {
-    //       "src/contracts/test/acl/LACLManagerTest.sol:LACLManagerTest": lACLManagerTest.address
-    //     };
-    //
-    //     const aclManagerFactory = new ACLManagerTest__factory(linkLibraryAddressesTest, systemAdmin);
-    //
-    //     // when
-    //     aclManagerSubjectTest = await aclManagerFactory.deploy();
-    //
-    //     // then
-    //     expect(aclManagerSubjectTest.address).not.null;
-    //     expect(await aclManagerSubjectTest.safeModeStatus()).to.be.equal(ProxySafeModeStatus.ENABLED);
-    //     expect(await aclManagerSubjectTest.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
-    //     expect(await aclManagerSubjectTest.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
-    //     expect(await aclManagerSubjectTest.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
-    //     expect(await aclManagerSubjectTest.initVersion()).to.be.equal(0);
-    //   })
-    //
-    //   it("Should enable Upgrade Status of ACL proxy by livelyAdmin success", async () => {
-    //     // when and then
-    //     await expect(aclManagerProxy.connect(livelyAdmin).setUpdatabilityStatus(ProxyUpdatabilityStatus.ENABLED))
-    //       .to.emit(aclManagerProxy, "ProxyUpdatabilityUpdated")
-    //       .withArgs(
-    //         livelyAdminWallet.address,
-    //         aclManagerProxy.address,
-    //         ProxyUpdatabilityStatus.ENABLED
-    //       );
-    //   });
-    //
-    //   it("Should setAdmin proxy to systemAdmin success", async () => {
-    //     // when and then
-    //     await expect(aclManagerProxy.connect(systemAdmin).setLocalAdmin(systemAdminWallet.address))
-    //       .to.emit(aclManagerProxy, "ProxyLocalAdminUpdated")
-    //       .withArgs(systemAdminWallet.address, aclManagerProxy.address, systemAdminWallet.address);
-    //   });
-    //
-    //   it("Should enable Upgrade Status of ACL proxy by livelyAdmin success", async () => {
-    //     // when and then
-    //     await expect(aclManagerProxy.connect(livelyAdmin).setUpdatabilityStatus(ProxyUpdatabilityStatus.ENABLED))
-    //       .to.emit(aclManagerProxy, "ProxyUpdatabilityUpdated")
-    //       .withArgs(
-    //         livelyAdminWallet.address,
-    //         aclManagerProxy.address,
-    //         ProxyUpdatabilityStatus.ENABLED
-    //       );
-    //   });
-    //
-    //   it("Should call acl facet upgrade by systemAdmin success", async () => {
-    //     // given
-    //     const aclIface = new ethers.utils.Interface(ACLManager__factory.abi);
-    //     const aclTestIface = new ethers.utils.Interface(ACLManagerTest__factory.abi);
-    //     const domainIface = new ethers.utils.Interface(DomainManager__factory.abi);
-    //     const domainTestIface = new ethers.utils.Interface(DomainManagerTest__factory.abi);
-    //     const domainFunctionUpgradeRequests: IACLManager.FacetSelectorUpgradeRequestStruct[] = [
-    //       {
-    //         action: ActionType.REMOVE,
-    //         selectors: [
-    //           domainIface.getSighash("domainRegister")
-    //         ]
-    //       },
-    //       {
-    //         action: ActionType.ADD,
-    //         selectors: [
-    //           domainTestIface.getSighash("domainRegister2")
-    //         ]
-    //       },
-    //     ]
-    //
-    //     const aclFunctionUpgradeRequests: IACLManager.FacetSelectorUpgradeRequestStruct[] = [
-    //       {
-    //         action: ActionType.REMOVE,
-    //         selectors: [
-    //           aclIface.getSighash("initialize"),
-    //           aclIface.getSighash("initACL"),
-    //         ]
-    //       },
-    //       {
-    //         action: ActionType.ADD,
-    //         selectors: [
-    //           aclTestIface.getSighash("reInitialize")
-    //         ]
-    //       },
-    //     ]
-    //
-    //     const facetUpgradeRequests: IACLManager.FacetUpgradeRequestStruct[] = [
-    //       {
-    //         facetId: domainManagerProxy.address,
-    //         subjectId: domainManagerSubjectTest.address,
-    //         interfaceId: "0xb2f4af64",
-    //         functions: domainFunctionUpgradeRequests,
-    //       },
-    //       {
-    //         facetId: aclManagerProxy.address,
-    //         subjectId: aclManagerSubjectTest.address,
-    //         interfaceId: "0xb7ffbf12",
-    //         functions: aclFunctionUpgradeRequests,
-    //       }
-    //     ]
-    //
-    //     // when and then
-    //     await expect(aclManagerProxy.connect(systemAdmin).aclUpgradeFacet(facetUpgradeRequests))
-    //       .to.emit(aclManagerProxy, "ACLFacetUpgraded")
-    //       .withArgs(systemAdminWallet.address, domainManagerProxy.address, domainManagerSubjectTest.address, "0xb2f4af64")
-    //       .to.emit(aclManagerProxy, "ACLFacetFunctionUpgraded")
-    //       .withArgs(systemAdminWallet.address, domainManagerProxy.address, domainIface.getSighash("domainRegister"), ActionType.REMOVE)
-    //       .to.emit(aclManagerProxy, "ACLFacetFunctionUpgraded")
-    //       .withArgs(systemAdminWallet.address, domainManagerProxy.address, domainTestIface.getSighash("domainRegister2"), ActionType.ADD)
-    //       .to.emit(aclManagerProxy, "ACLFacetUpgraded")
-    //       .withArgs(systemAdminWallet.address, aclManagerProxy.address, aclManagerSubjectTest.address, "0x46414ba0")
-    //       .to.emit(aclManagerProxy, "ACLFacetFunctionUpgraded")
-    //       .withArgs(systemAdminWallet.address, aclManagerProxy.address, aclIface.getSighash("initialize"), ActionType.REMOVE)
-    //       .to.emit(aclManagerProxy, "ACLFacetFunctionUpgraded")
-    //       .withArgs(systemAdminWallet.address, aclManagerProxy.address, aclIface.getSighash("initACL"), ActionType.REMOVE)
-    //       .to.emit(aclManagerProxy, "ACLFacetFunctionUpgraded")
-    //       .withArgs(systemAdminWallet.address, aclManagerProxy.address, aclTestIface.getSighash("reInitialize"), ActionType.ADD)
-    //
-    //     // and
-    //     const facetACLInfo: IACLManager.FacetInfoStruct = await aclManagerProxy.aclGetFacetInfo(aclManagerProxy.address);
-    //     expect(facetACLInfo.subjectId).to.be.equal(aclManagerSubjectTest.address);
-    //     expect(facetACLInfo.interfaceId).to.be.equal("0xb7ffbf12");
-    //
-    //     // and
-    //     const facetDomainInfo: IACLManager.FacetInfoStruct = await aclManagerProxy.aclGetFacetInfo(domainManagerProxy.address);
-    //     expect(facetDomainInfo.subjectId).to.be.equal(domainManagerSubjectTest.address);
-    //     expect(facetDomainInfo.interfaceId).to.be.equal("0xb2f4af64");
-    //
-    //     // and
-    //     expect(await aclManagerProxy.aclHasSelector(aclTestIface.getSighash("reInitialize"))).to.be.true
-    //     expect(await aclManagerProxy.aclGetFacet(aclTestIface.getSighash("reInitialize"))).to.be.equal(aclManagerProxy.address)
-    //   })
-    //
-    //   it("Should ACLManager proxy upgradeTo aclManagerSubjectTest by systemAdmin success", async () => {
-    //
-    //     // given
-    //     const iface = new ethers.utils.Interface(ACLManagerTest__factory.abi);
-    //     const data = iface.encodeFunctionData("reInitialize", [
-    //       "3.0.1",
-    //     ]);
-    //
-    //     // when and then
-    //     await expect(
-    //       aclManagerProxy.connect(systemAdmin).upgradeTo(aclManagerSubjectTest.address, data, false)
-    //     ).to.emit(aclManagerProxy, "ProxyUpgraded")
-    //       .withArgs(systemAdminWallet.address, aclManagerProxy.address, aclManagerSubjectTest.address);
-    //
-    //     expect(await aclManagerProxy.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
-    //     expect(await aclManagerProxy.contractVersion()).to.be.equal("3.0.1");
-    //     expect(await aclManagerProxy.initVersion()).to.be.equal(2);
-    //     expect(await aclManagerProxy.getLibrary()).to.be.equal(lACLManagerTest.address);
-    //   });
-    //
-    //   it("Should delete activity of domainRegister in domainContext by aclAdmin success", async() => {
-    //     // given
-    //     const domainIface = new ethers.utils.Interface(DomainManager__factory.abi);
-    //     const domainRegisterFunctionId = ethers.utils.keccak256(
-    //       ethers.utils.solidityPack(["address", "bytes4"],
-    //         [domainManagerProxy.address,  domainIface.getSighash("domainRegister")]));
-    //     const domainContextId = ethers.utils.keccak256(domainManagerProxy.address);
-    //     const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
-    //       id: domainRegisterFunctionId,
-    //       acstat: ActivityStatus.DELETED
-    //     }]
-    //
-    //     // when
-    //     await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateActivityStatus(requests))
-    //       .to.emit(functionManagerDelegateProxy, "FunctionActivityUpdated")
-    //       .withArgs(livelyAdminWallet.address, domainRegisterFunctionId, ActivityStatus.DELETED)
-    //
-    //     // then
-    //     const functionInfo: IFunctionManagement.FunctionInfoStruct = await functionManagerDelegateProxy.functionGetInfo(domainRegisterFunctionId);
-    //     expect(functionInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
-    //     expect(functionInfo.agentId).to.be.equal(LIVELY_VERSE_SCOPE_MASTER_TYPE_ID);
-    //     expect(functionInfo.contextId).to.be.equal(domainContextId);
-    //     expect(functionInfo.adminType).to.be.equal(AgentType.TYPE);
-    //     expect(functionInfo.agentType).to.be.equal(AgentType.TYPE);
-    //     expect(functionInfo.agentLimit).to.be.equal(65535);
-    //     expect(functionInfo.policyCode).to.be.equal(0);
-    //     expect(functionInfo.selector).to.be.equal(domainIface.getSighash("domainRegister"));
-    //     expect(functionInfo.acstat).to.be.equal(ActivityStatus.DELETED);
-    //     expect(functionInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
-    //     expect(functionInfo.referredByAgent).to.be.equal(0);
-    //   })
-    //
-    //   it("Should register new domainRegister2 in domainContext by aclAdmin success", async() => {
-    //     const domainTestIface = new ethers.utils.Interface(DomainManagerTest__factory.abi);
-    //     const domainContextId = ethers.utils.keccak256(domainManagerProxy.address);
-    //     const domainRegisterFunctionId = ethers.utils.keccak256(
-    //       ethers.utils.solidityPack(["address", "bytes4"],
-    //         [domainManagerProxy.address,  domainTestIface.getSighash("domainRegister2")]));
-    //     const domainFunctionRequests: IFunctionManagement.FunctionRegisterRequestStruct[] = [
-    //       {
-    //         signature: new Int8Array(0),
-    //         adminId: LIVELY_VERSE_ACL_TYPE_ID,
-    //         agentId: LIVELY_VERSE_SCOPE_MASTER_TYPE_ID,
-    //         contractId: domainManagerProxy.address,
-    //         selector: domainTestIface.getSighash("domainRegister2"),
-    //         agentLimit: 65535,
-    //         policyCode: 0,
-    //         acstat: ActivityStatus.ENABLED,
-    //         alstat: AlterabilityStatus.UPDATABLE
-    //       },
-    //     ]
-    //
-    //     // when
-    //     await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(domainFunctionRequests))
-    //       .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-    //       .withArgs(systemAdminWallet.address, domainContextId, domainRegisterFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-    //         LIVELY_VERSE_SCOPE_MASTER_TYPE_ID, systemAdminWallet.address)
-    //
-    //     // then
-    //     expect(await contextManagerDelegateProxy.contextHasFunction(domainContextId, domainRegisterFunctionId)).to.be.true
-    //
-    //     // and
-    //     const functionInfo: IFunctionManagement.FunctionInfoStruct = await functionManagerDelegateProxy.functionGetInfo(domainRegisterFunctionId);
-    //     expect(functionInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
-    //     expect(functionInfo.agentId).to.be.equal(LIVELY_VERSE_SCOPE_MASTER_TYPE_ID);
-    //     expect(functionInfo.contextId).to.be.equal(domainContextId);
-    //     expect(functionInfo.adminType).to.be.equal(AgentType.TYPE);
-    //     expect(functionInfo.agentType).to.be.equal(AgentType.TYPE);
-    //     expect(functionInfo.agentLimit).to.be.equal(65535);
-    //     expect(functionInfo.policyCode).to.be.equal(0);
-    //     expect(functionInfo.selector).to.be.equal(domainTestIface.getSighash("domainRegister2"));
-    //     expect(functionInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
-    //     expect(functionInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
-    //     expect(functionInfo.referredByAgent).to.be.equal(0);
-    //
-    //     // and
-    //     expect(await domainManagerDelegateProxyTest.domainHasContext(LIVELY_VERSE_ACL_DOMAIN_ID, domainContextId)).to.be.true;
-    //     expect(await domainManagerDelegateProxyTest.domainHasFunction(LIVELY_VERSE_ACL_DOMAIN_ID, domainRegisterFunctionId)).to.be.true;
-    //     expect(await domainManagerDelegateProxyTest.domainHasRealm(LIVELY_VERSE_ACL_DOMAIN_ID, LIVELY_VERSE_ACL_REALM_ID)).to.be.true;
-    //
-    //     // and
-    //     expect(await aclManagerProxy.supportsInterface("0xb2f4af64")).to.be.true
-    //   })
-    //
-    //   it("Should call domainRegister2 by aclAdmin success", async() => {
-    //     // given
-    //     aclDomainTest2Id = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_DOMAIN_TEST_2_NAME));
-    //     const requests: IDomainManagement.DomainRegisterRequestStruct[] = [
-    //       {
-    //         adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-    //         realmLimit: 1,
-    //         agentLimit: 1,
-    //         acstat: ActivityStatus.ENABLED,
-    //         alstat: AlterabilityStatus.DISABLED,
-    //         name: ACL_DOMAIN_TEST_2_NAME
-    //       }
-    //     ]
-    //
-    //     // when
-    //     await expect(domainManagerDelegateProxyTest.connect(livelyAdmin).domainRegister2(requests)).
-    //     to.emit(domainManagerDelegateProxyTest, "DomainRegistered")
-    //       .withArgs(livelyAdminWallet.address, aclDomainTest2Id ,LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID)
-    //
-    //     // then
-    //     expect(await domainManagerDelegateProxyTest.domainCheckId(aclDomainTest2Id)).to.be.true
-    //
-    //     // and
-    //     const domainInfo: IDomainManagement.DomainInfoStruct = await domainManagerDelegateProxyTest.domainGetInfo(aclDomainTest2Id);
-    //     expect(domainInfo.name).to.be.equal(ACL_DOMAIN_TEST_2_NAME);
-    //     expect(domainInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
-    //     expect(domainInfo.adminType).to.be.equal(AgentType.ROLE);
-    //     expect(domainInfo.realmLimit).to.be.equal(1);
-    //     expect(domainInfo.realmCount).to.be.equal(0);
-    //     expect(domainInfo.agentLimit).to.be.equal(1);
-    //     expect(domainInfo.referredByAgent).to.be.equal(0);
-    //     expect(domainInfo.stype).to.be.equal(ScopeType.DOMAIN);
-    //     expect(domainInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
-    //     expect(domainInfo.alstat).to.be.equal(AlterabilityStatus.DISABLED);
-    //
-    //     // and
-    //     expect(await domainManagerDelegateProxyTest.domainCheckId(aclDomainTest2Id)).to.be.true;
-    //     expect(await domainManagerDelegateProxyTest.domainCheckName(ACL_DOMAIN_TEST_2_NAME)).to.be.true;
-    //     expect(await domainManagerDelegateProxyTest.domainCheckAdmin(aclDomainTest2Id, livelyAdminWallet.address)).to.be.true;
-    //   })
-    // })
+      it("Should disable alterability of memberContext success", async() => {
+        // given
+        const memberContextId = ethers.utils.keccak256(memberManagerProxy.address);
+        const requests: IACLCommonsRoles.UpdateAlterabilityRequestStruct[] = [{
+          id: memberContextId,
+          alstat: AlterabilityStatus.DISABLED
+        }]
+
+        // when
+        await expect(contextManagerDelegateProxy.connect(livelyAdmin).contextUpdateAlterabilityStatus(requests))
+          .to.emit(contextManagerDelegateProxy, "ContextAlterabilityUpdated")
+          .withArgs(livelyAdminWallet.address, memberContextId, AlterabilityStatus.DISABLED);
+      })
+
+      it("Should update admin of memberContext when alterability disabled failed", async() => {
+        // given
+        const memberContextId = ethers.utils.keccak256(memberManagerProxy.address);
+        const requests: IACLCommonsRoles.UpdateAdminRequestStruct[] = [{
+          id: memberContextId,
+          adminId: aclRoleTestId
+        }]
+
+        // when
+        await expect(contextManagerDelegateProxy.connect(livelyAdmin).contextUpdateAdmin(requests))
+          .revertedWith("Illegal Updatable")
+      })
+
+      it("Should update activity of memberContext when alterability disabled failed", async() => {
+        // given
+        const memberContextId = ethers.utils.keccak256(memberManagerProxy.address);
+        const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
+          id: memberContextId,
+          acstat: ActivityStatus.DISABLED
+        }]
+
+        // when
+        await expect(contextManagerDelegateProxy.connect(livelyAdmin).contextUpdateActivityStatus(requests))
+          .revertedWith("Illegal Updatable")
+      })
+
+      it("Should update agentLimit of memberContext when alterability disabled failed", async() => {
+        // given
+        const memberContextId = ethers.utils.keccak256(memberManagerProxy.address);
+        const requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[] = [{
+          scopeId: memberContextId,
+          agentLimit: 5
+        }]
+
+        // when
+        await expect(contextManagerDelegateProxy.connect(livelyAdmin).contextUpdateAgentLimit(requests))
+          .revertedWith("Illegal Updatable")
+      })
+
+      it("Should update alterability of memberContext success", async() => {
+        // given
+        const memberContextId = ethers.utils.keccak256(memberManagerProxy.address);
+        const requests: IACLCommonsRoles.UpdateAlterabilityRequestStruct[] = [{
+          id: memberContextId,
+          alstat: AlterabilityStatus.UPDATABLE
+        }]
+
+        // when
+        await expect(contextManagerDelegateProxy.connect(livelyAdmin).contextUpdateAlterabilityStatus(requests))
+          .to.emit(contextManagerDelegateProxy, "ContextAlterabilityUpdated")
+          .withArgs(livelyAdminWallet.address, memberContextId, AlterabilityStatus.UPDATABLE)
+      })
+
+      it("Should disable activity of memberContext success", async() => {
+        // given
+        const memberContextId = ethers.utils.keccak256(memberManagerProxy.address);
+        const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
+          id: memberContextId,
+          acstat: ActivityStatus.DISABLED
+        }]
+
+        // when
+        await expect(contextManagerDelegateProxy.connect(livelyAdmin).contextUpdateActivityStatus(requests))
+          .to.emit(contextManagerDelegateProxy, "ContextActivityUpdated")
+          .withArgs(livelyAdminWallet.address, memberContextId, ActivityStatus.DISABLED)
+      })
+
+      it("Should enable activity of memberContext success", async() => {
+        // given
+        const memberRegisterFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
+        const memberContextId = ethers.utils.keccak256(memberManagerProxy.address);
+        const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
+          id: memberContextId,
+          acstat: ActivityStatus.ENABLED
+        }]
+
+        // when
+        await expect(contextManagerDelegateProxy.connect(livelyAdmin).contextUpdateActivityStatus(requests))
+          .to.emit(contextManagerDelegateProxy, "ContextActivityUpdated")
+          .withArgs(livelyAdminWallet.address, memberContextId, ActivityStatus.ENABLED)
+
+        // then
+        expect(await contextManagerDelegateProxy.contextHasSelector(memberManagerProxy.address,  memberIface.getSighash("memberRegister"))).to.be.true;
+        expect(await contextManagerDelegateProxy.contextHasFunction(memberContextId, memberRegisterFunctionId)).to.be.true;
+
+        // and
+        const functionIds = await contextManagerDelegateProxy.contextGetFunctions(memberContextId);
+        expect(functionIds.length).to.be.equal(12)
+      })
+
+      it("Should update admin of memberContext success", async() => {
+        // given
+        const memberContextId = ethers.utils.keccak256(memberManagerProxy.address);
+        const updateAdminRequests: IACLCommonsRoles.UpdateAdminRequestStruct[] = [{
+          id: memberContextId,
+          adminId: aclRoleTestId
+        }]
+
+        // when
+        await expect(contextManagerDelegateProxy.connect(livelyAdmin).contextUpdateAdmin(updateAdminRequests))
+          .to.emit(contextManagerDelegateProxy, "ContextAdminUpdated")
+          .withArgs(livelyAdminWallet.address, memberContextId, aclRoleTestId);
+
+        // then
+        expect(await contextManagerDelegateProxy.contextCheckAdmin(memberContextId,  userWallet2.address)).to.be.true;
+      })
+
+      it("Should update agentLimit of memberContext success", async() => {
+        // given
+
+        const memberContextId = ethers.utils.keccak256(memberManagerProxy.address);
+        const requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[] = [{
+          scopeId: memberContextId,
+          agentLimit: 5
+        }]
+
+        // when
+        await expect(contextManagerDelegateProxy.connect(user1).contextUpdateAgentLimit(requests))
+          .to.emit(contextManagerDelegateProxy, "ContextAgentLimitUpdated")
+          .withArgs(userWallet1.address, memberContextId, 5);
+
+        // then
+        expect(await contextManagerDelegateProxy.contextCheckId(memberContextId)).to.be.true;
+        expect(await contextManagerDelegateProxy.contextCheckAccount(memberManagerProxy.address)).to.be.true;
+      })
+
+
+      it("Should register aclDomainTest in ACL Domain success", async() => {
+        // given
+        aclDomainTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_DOMAIN_TEST_NAME));
+        const requests: IDomainManagement.DomainRegisterRequestStruct[] = [
+          {
+            adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            realmLimit: 1,
+            agentLimit: 1,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.DISABLED,
+            name: ACL_DOMAIN_TEST_NAME
+          }
+        ]
+
+        // when
+        await expect(domainManagerDelegateProxy.connect(livelyAdmin).domainRegister(requests)).
+        to.emit(domainManagerDelegateProxy, "DomainRegistered")
+          .withArgs(livelyAdminWallet.address, aclDomainTestId ,LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID)
+
+        // then
+        expect(await domainManagerDelegateProxy.domainCheckId(aclDomainTestId)).to.be.true
+
+        // and
+        const domainInfo: IDomainManagement.DomainInfoStruct = await domainManagerDelegateProxy.domainGetInfo(aclDomainTestId);
+        expect(domainInfo.name).to.be.equal(ACL_DOMAIN_TEST_NAME);
+        expect(domainInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
+        expect(domainInfo.adminType).to.be.equal(AgentType.ROLE);
+        expect(domainInfo.realmLimit).to.be.equal(1);
+        expect(domainInfo.realmCount).to.be.equal(0);
+        expect(domainInfo.agentLimit).to.be.equal(1);
+        expect(domainInfo.referredByAgent).to.be.equal(0);
+        expect(domainInfo.stype).to.be.equal(ScopeType.DOMAIN);
+        expect(domainInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(domainInfo.alstat).to.be.equal(AlterabilityStatus.DISABLED);
+
+        // and
+        expect(await domainManagerDelegateProxy.domainCheckId(aclDomainTestId)).to.be.true;
+        expect(await domainManagerDelegateProxy.domainCheckName(ACL_DOMAIN_TEST_NAME)).to.be.true;
+        expect(await domainManagerDelegateProxy.domainCheckAdmin(aclDomainTestId, livelyAdminWallet.address)).to.be.true;
+      })
+
+      it("Should update admin of aclDomainTest when alterability disabled failed", async() => {
+        // given
+        const requests: IACLCommonsRoles.UpdateAdminRequestStruct[] = [{
+          id: aclDomainTestId,
+          adminId: aclRoleTestId
+        }]
+
+        // when
+        await expect(domainManagerDelegateProxy.connect(livelyAdmin).domainUpdateAdmin(requests))
+          .revertedWith("Illegal Updatable")
+      })
+
+      it("Should update activity of aclDomainTest when alterability disabled failed", async() => {
+        // given
+        const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
+          id: aclDomainTestId,
+          acstat: ActivityStatus.DISABLED
+        }]
+
+        // when
+        await expect(domainManagerDelegateProxy.connect(livelyAdmin).domainUpdateActivityStatus(requests))
+          .revertedWith("Illegal Updatable")
+      })
+
+      it("Should update agentLimit of aclDomainTest when alterability disabled failed", async() => {
+        // given
+        const requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[] = [{
+          scopeId: aclDomainTestId,
+          agentLimit: 5
+        }]
+
+        // when
+        await expect(domainManagerDelegateProxy.connect(livelyAdmin).domainUpdateAgentLimit(requests))
+          .revertedWith("Illegal Updatable")
+      })
+
+      it("Should update roleLimit of aclDomainTest when alterability disabled failed", async() => {
+        // given
+        const requests: IDomainManagement.DomainUpdateRealmLimitRequestStruct[] = [{
+          domainId: aclDomainTestId,
+          realmLimit: 1
+        }]
+
+        // when
+        await expect(domainManagerDelegateProxy.connect(livelyAdmin).domainUpdateRealmLimit(requests))
+          .revertedWith("Illegal Updatable")
+      })
+
+      it("Should update alterability of aclDomainTest success", async() => {
+        // given
+        const requests: IACLCommonsRoles.UpdateAlterabilityRequestStruct[] = [{
+          id: aclDomainTestId,
+          alstat: AlterabilityStatus.UPDATABLE
+        }]
+
+        // when
+        await expect(domainManagerDelegateProxy.connect(livelyAdmin).domainUpdateAlterabilityStatus(requests))
+          .to.emit(domainManagerDelegateProxy, "DomainAlterabilityUpdated")
+          .withArgs(livelyAdminWallet.address, aclDomainTestId, AlterabilityStatus.UPDATABLE)
+      })
+
+      it("Should disable activity of aclDomainTest success", async() => {
+        // given
+        const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
+          id: aclDomainTestId,
+          acstat: ActivityStatus.DISABLED
+        }]
+
+        // when
+        await expect(domainManagerDelegateProxy.connect(livelyAdmin).domainUpdateActivityStatus(requests))
+          .to.emit(domainManagerDelegateProxy, "DomainActivityUpdated")
+          .withArgs(livelyAdminWallet.address, aclDomainTestId, ActivityStatus.DISABLED)
+      })
+
+      it("Should enable activity of aclDomainTest success", async() => {
+        // given
+        const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
+          id: aclDomainTestId,
+          acstat: ActivityStatus.ENABLED
+        }]
+
+        // when
+        await expect(domainManagerDelegateProxy.connect(livelyAdmin).domainUpdateActivityStatus(requests))
+          .to.emit(domainManagerDelegateProxy, "DomainActivityUpdated")
+          .withArgs(livelyAdminWallet.address, aclDomainTestId, ActivityStatus.ENABLED)
+      })
+
+      it("Should update admin of aclDomainTest success", async() => {
+        // given
+        const updateAdminRequests: IACLCommonsRoles.UpdateAdminRequestStruct[] = [{
+          id: aclDomainTestId,
+          adminId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID
+        }]
+
+        // when
+        await expect(domainManagerDelegateProxy.connect(livelyAdmin).domainUpdateAdmin(updateAdminRequests))
+          .to.emit(domainManagerDelegateProxy, "DomainAdminUpdated")
+          .withArgs(livelyAdminWallet.address, aclDomainTestId, LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID);
+
+        // then
+        expect(await domainManagerDelegateProxy.domainCheckAdmin(aclDomainTestId,  systemAdminWallet.address)).to.be.true;
+      })
+
+      it("Should update agentLimit of aclDomainTest success", async() => {
+        // given
+        const requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[] = [{
+          scopeId: aclDomainTestId,
+          agentLimit: 5
+        }]
+
+        // when
+        await expect(domainManagerDelegateProxy.connect(systemAdmin).domainUpdateAgentLimit(requests))
+          .to.emit(domainManagerDelegateProxy, "DomainAgentLimitUpdated")
+          .withArgs(systemAdminWallet.address, aclDomainTestId, 5);
+
+        // then
+        expect(await domainManagerDelegateProxy.domainCheckId(aclDomainTestId)).to.be.true;
+        expect(await domainManagerDelegateProxy.domainCheckName(ACL_DOMAIN_TEST_NAME)).to.be.true;
+      })
+
+      it("Should update roleLimit of aclDomainTest success", async() => {
+        // given
+        const requests: IDomainManagement.DomainUpdateRealmLimitRequestStruct[] = [{
+          domainId: aclDomainTestId,
+          realmLimit: 1
+        }]
+
+        // when
+        await expect(domainManagerDelegateProxy.connect(systemAdmin).domainUpdateRealmLimit(requests))
+          .to.emit(domainManagerDelegateProxy, "DomainRealmLimitUpdated")
+          .withArgs(systemAdminWallet.address, aclDomainTestId, 1);
+      })
+
+      it("Should grant systemAdmin to scope master admin role success", async() => {
+        // given
+        const systemAdminId = ethers.utils.keccak256(systemAdminWallet.address)
+        const requests: IRoleManagement.RoleGrantMembersRequestStruct[] = [{
+          roleId: LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID,
+          members: [systemAdminId]
+        }]
+
+        // when
+        await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleGrantMembers(requests))
+          .to.emit(roleManagerDelegateProxy, "RoleMemberGranted")
+          .withArgs(livelyAdminWallet.address, LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID, systemAdminId, LIVELY_VERSE_SCOPE_MASTER_TYPE_ID)
+      })
+
+      it("Should register aclRealmTest in ACL Domain success", async() => {
+        // given
+        aclRealmTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_REALM_TEST_NAME));
+        const requests: IRealmManagement.RealmRegisterRequestStruct[] = [
+          {
+            domainId: aclDomainTestId,
+            adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            contextLimit: 1,
+            agentLimit: 1,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.DISABLED,
+            name: ACL_REALM_TEST_NAME
+          }
+        ]
+
+        // when
+        await expect(realmManagerDelegateProxy.connect(systemAdmin).realmRegister(requests)).
+        to.emit(realmManagerDelegateProxy, "RealmRegistered")
+          .withArgs(systemAdminWallet.address, aclRealmTestId , aclDomainTestId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID)
+
+        // then
+        expect(await realmManagerDelegateProxy.realmCheckId(aclRealmTestId)).to.be.true
+
+        // and
+        const realmInfo: IRealmManagement.RealmInfoStruct = await realmManagerDelegateProxy.realmGetInfo(aclRealmTestId);
+        expect(realmInfo.name).to.be.equal(ACL_REALM_TEST_NAME);
+        expect(realmInfo.domainId).to.be.equal(aclDomainTestId);
+        expect(realmInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
+        expect(realmInfo.adminType).to.be.equal(AgentType.ROLE);
+        expect(realmInfo.contextLimit).to.be.equal(1);
+        expect(realmInfo.contextCount).to.be.equal(0);
+        expect(realmInfo.agentLimit).to.be.equal(1);
+        expect(realmInfo.referredByAgent).to.be.equal(0);
+        expect(realmInfo.stype).to.be.equal(ScopeType.REALM);
+        expect(realmInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(realmInfo.alstat).to.be.equal(AlterabilityStatus.DISABLED);
+
+        // and
+        expect(await realmManagerDelegateProxy.realmCheckId(aclRealmTestId)).to.be.true;
+        expect(await realmManagerDelegateProxy.realmCheckName(ACL_REALM_TEST_NAME)).to.be.true;
+        expect(await realmManagerDelegateProxy.realmCheckAdmin(aclRealmTestId, livelyAdminWallet.address)).to.be.true;
+      })
+
+      it("Should update admin of aclRealmTest when alterability disabled failed", async() => {
+        // given
+        const requests: IACLCommonsRoles.UpdateAdminRequestStruct[] = [{
+          id: aclRealmTestId,
+          adminId: aclRoleTestId
+        }]
+
+        // when
+        await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateAdmin(requests))
+          .revertedWith("Illegal Updatable")
+      })
+
+      it("Should update activity of aclRealmTest when alterability disabled failed", async() => {
+        // given
+        const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
+          id: aclRealmTestId,
+          acstat: ActivityStatus.DISABLED
+        }]
+
+        // when
+        await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateActivityStatus(requests))
+          .revertedWith("Illegal Updatable")
+      })
+
+      it("Should update agentLimit of aclRealmTest when alterability disabled failed", async() => {
+        // given
+        const requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[] = [{
+          scopeId: aclRealmTestId,
+          agentLimit: 5
+        }]
+
+        // when
+        await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateAgentLimit(requests))
+          .revertedWith("Illegal Updatable")
+      })
+
+      it("Should update contextLimit of aclRealmTest when alterability disabled failed", async() => {
+        // given
+        const requests: IRealmManagement.RealmUpdateContextLimitRequestStruct[] = [{
+          realmId: aclRealmTestId,
+          contextLimit: 1
+        }]
+
+        // when
+        await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateContextLimit(requests))
+          .revertedWith("Illegal Updatable")
+      })
+
+      it("Should update alterability of aclRealmTest success", async() => {
+        // given
+        const requests: IACLCommonsRoles.UpdateAlterabilityRequestStruct[] = [{
+          id: aclRealmTestId,
+          alstat: AlterabilityStatus.UPDATABLE
+        }]
+
+        // when
+        await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateAlterabilityStatus(requests))
+          .to.emit(realmManagerDelegateProxy, "RealmAlterabilityUpdated")
+          .withArgs(livelyAdminWallet.address, aclRealmTestId, AlterabilityStatus.UPDATABLE)
+      })
+
+      it("Should disable activity of aclRealmTest success", async() => {
+        // given
+        const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
+          id: aclRealmTestId,
+          acstat: ActivityStatus.DISABLED
+        }]
+
+        // when
+        await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateActivityStatus(requests))
+          .to.emit(realmManagerDelegateProxy, "RealmActivityUpdated")
+          .withArgs(livelyAdminWallet.address, aclRealmTestId, ActivityStatus.DISABLED)
+      })
+
+      it("Should enable activity of aclRealmTest success", async() => {
+        // given
+        const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
+          id: aclRealmTestId,
+          acstat: ActivityStatus.ENABLED
+        }]
+
+        // when
+        await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateActivityStatus(requests))
+          .to.emit(realmManagerDelegateProxy, "RealmActivityUpdated")
+          .withArgs(livelyAdminWallet.address, aclRealmTestId, ActivityStatus.ENABLED)
+      })
+
+      it("Should update admin of aclRealmTest success", async() => {
+        // given
+        const updateAdminRequests: IACLCommonsRoles.UpdateAdminRequestStruct[] = [{
+          id: aclRealmTestId,
+          adminId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID
+        }]
+
+        // when
+        await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateAdmin(updateAdminRequests))
+          .to.emit(realmManagerDelegateProxy, "RealmAdminUpdated")
+          .withArgs(livelyAdminWallet.address, aclRealmTestId, LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID);
+
+        // then
+        expect(await realmManagerDelegateProxy.realmCheckAdmin(aclRealmTestId, systemAdminWallet.address)).to.be.true;
+      })
+
+      it("Should update agentLimit of aclRealmTest success", async() => {
+        // given
+        const requests: IACLCommons.ScopeUpdateAgentLimitRequestStruct[] = [{
+          scopeId: aclRealmTestId,
+          agentLimit: 5
+        }]
+
+        // when
+        await expect(realmManagerDelegateProxy.connect(systemAdmin).realmUpdateAgentLimit(requests))
+          .to.emit(realmManagerDelegateProxy, "RealmAgentLimitUpdated")
+          .withArgs(systemAdminWallet.address, aclRealmTestId, 5);
+
+        // then
+        expect(await realmManagerDelegateProxy.realmCheckId(aclRealmTestId)).to.be.true;
+        expect(await realmManagerDelegateProxy.realmCheckName(ACL_REALM_TEST_NAME)).to.be.true;
+      })
+
+      it("Should update roleLimit of aclRealmTest success", async() => {
+        // given
+        const requests: IRealmManagement.RealmUpdateContextLimitRequestStruct[] = [{
+          realmId: aclRealmTestId,
+          contextLimit: 5
+        }]
+
+        // when
+        await expect(realmManagerDelegateProxy.connect(systemAdmin).realmUpdateContextLimit(requests))
+          .to.emit(realmManagerDelegateProxy, "RealmContextLimitUpdated")
+          .withArgs(systemAdminWallet.address, aclRealmTestId, 5);
+      })
+
+      it("Should disable alterability of global scope success", async() => {
+        // when
+        await expect(globalManagerDelegateProxy.connect(livelyAdmin).globalUpdateAlterabilityStatus(AlterabilityStatus.DISABLED))
+          .to.emit(globalManagerDelegateProxy, "GlobalAlterabilityUpdated")
+          .withArgs(livelyAdminWallet.address, LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, AlterabilityStatus.DISABLED);
+      })
+
+      it("Should update admin of global scope when alterability disabled failed", async() => {
+
+        // when
+        await expect(globalManagerDelegateProxy.connect(livelyAdmin).globalUpdateAdmin(aclRoleTestId))
+          .revertedWith("Illegal Updatable")
+      })
+
+      it("Should update activity of global scope when alterability disabled failed", async() => {
+        // when
+        await expect(globalManagerDelegateProxy.connect(livelyAdmin).globalUpdateActivityStatus(ActivityStatus.DISABLED))
+          .revertedWith("Illegal")
+      })
+
+      it("Should update agentLimit of global scope when alterability disabled failed", async() => {
+        // when
+        await expect(globalManagerDelegateProxy.connect(livelyAdmin).globalUpdateAgentLimit(5))
+          .revertedWith("Illegal Updatable")
+      })
+
+      it("Should update alterability of global scope success", async() => {
+        // when
+        await expect(globalManagerDelegateProxy.connect(livelyAdmin).globalUpdateAlterabilityStatus(AlterabilityStatus.UPDATABLE))
+          .to.emit(globalManagerDelegateProxy, "GlobalAlterabilityUpdated")
+          .withArgs(livelyAdminWallet.address, LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, AlterabilityStatus.UPDATABLE)
+      })
+
+      it("Should disable activity of global scope success", async() => {
+        // when
+        await expect(globalManagerDelegateProxy.connect(livelyAdmin).globalUpdateActivityStatus(ActivityStatus.DISABLED))
+          .to.revertedWith("Illegal");
+      })
+
+      it("Should register aclRoleGlobalAdminTest in LivelyMaster type success", async() => {
+        // given
+        aclRoleGlobalAdminTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_GLOBAL_ADMIN_TEST_NAME));
+        const roleRegisterRequests: IRoleManagement.RoleRegisterRequestStruct[] = [
+          {
+            adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            scopeId: LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID,
+            typeId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
+            memberLimit: 2,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE,
+            name: ACL_ROLE_GLOBAL_ADMIN_TEST_NAME
+          }
+        ]
+
+        // when
+        await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleRegister(roleRegisterRequests)).
+        to.emit(roleManagerDelegateProxy, "RoleRegistered")
+          .withArgs(livelyAdminWallet.address, aclRoleGlobalAdminTestId, LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
+            LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID, LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID)
+
+      })
+
+      it("Should grant systemAdmin to aclRoleGlobalAdminTest role success", async() => {
+        // given
+        const systemAdminId = ethers.utils.keccak256(systemAdminWallet.address)
+        const requests: IRoleManagement.RoleGrantMembersRequestStruct[] = [{
+          roleId: aclRoleGlobalAdminTestId,
+          members: [systemAdminId]
+        }]
+
+        // when
+        await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleGrantMembers(requests))
+          .to.emit(roleManagerDelegateProxy, "RoleMemberGranted")
+          .withArgs(livelyAdminWallet.address, aclRoleGlobalAdminTestId, systemAdminId, LIVELY_VERSE_LIVELY_MASTER_TYPE_ID)
+      })
+
+      it("Should update admin of global scope to aclRoleGlobalAdminTestId success", async() => {
+        // when
+        await expect(globalManagerDelegateProxy.connect(livelyAdmin).globalUpdateAdmin(aclRoleGlobalAdminTestId))
+          .to.emit(globalManagerDelegateProxy, "GlobalAdminUpdated")
+          .withArgs(livelyAdminWallet.address, LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, aclRoleGlobalAdminTestId);
+
+        // then
+        expect(await globalManagerDelegateProxy.globalCheckAdmin(systemAdminWallet.address)).to.be.true;
+      })
+
+      it("Should update agentLimit of global scope success", async() => {
+        // when
+        await expect(globalManagerDelegateProxy.connect(systemAdmin).globalUpdateAgentLimit(20))
+          .to.emit(globalManagerDelegateProxy, "GlobalAgentLimitUpdated")
+          .withArgs(systemAdminWallet.address, LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, 20);
+      })
+
+      it("Should update domainLimit of global scope success", async() => {
+        // when
+        await expect(globalManagerDelegateProxy.connect(systemAdmin).globalUpdateDomainLimit(5))
+          .to.emit(globalManagerDelegateProxy, "GlobalDomainLimitUpdated")
+          .withArgs(systemAdminWallet.address, LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, 5);
+      })
+         it("Should update admin of global scope to LIVELY_MATER_ADMIN success", async() => {
+        // when
+        await expect(globalManagerDelegateProxy.connect(systemAdmin).globalUpdateAdmin(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID))
+          .to.emit(globalManagerDelegateProxy, "GlobalAdminUpdated")
+          .withArgs(systemAdminWallet.address, LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
+
+        // then
+        expect(await globalManagerDelegateProxy.globalCheckAdmin(systemAdminWallet.address)).to.be.true;
+        expect(await globalManagerDelegateProxy.globalGetDomains()).to.be.eqls([LIVELY_VERSE_ACL_DOMAIN_ID, aclDomainTestId])
+      })
+    })
+
+
+    describe("Upgrade ACL proxy tests", function() {
+      let lACLManagerTest: LACLManagerTest;
+      let aclManagerSubjectTest: ACLManagerTest;
+      it("Should enable Upgrade Status of domain proxy by anyone failed", async () => {
+        // when and then
+        await expect(domainManagerProxy.connect(systemAdmin).setUpdatabilityStatus(ProxyUpdatabilityStatus.ENABLED))
+          .to.revertedWith("Forbidden");
+      });
+
+      it("Should enable Upgrade Status of domain proxy by aclAdmin success", async () => {
+        // when and then
+        await expect(domainManagerProxy.connect(livelyAdmin).setUpdatabilityStatus(ProxyUpdatabilityStatus.ENABLED))
+          .to.emit(domainManagerProxy, "ProxyUpdatabilityUpdated")
+          .withArgs(
+            livelyAdminWallet.address,
+            domainManagerProxy.address,
+            ProxyUpdatabilityStatus.ENABLED
+          );
+      });
+
+      it("Should upgrade domain proxy to another subject by systemAdmin success", async () => {
+        // given
+        const domainManagerTestFactory = new DomainManagerTest__factory(systemAdmin);
+
+        // const proxyFactory = new ACLProxy__factory(systemAdmin);
+        const iface = new ethers.utils.Interface(DomainManagerTest__factory.abi);
+        const data = iface.encodeFunctionData("reInitialize", [
+          "3.0.1",
+        ]);
+
+        // when
+        domainManagerSubjectTest = await domainManagerTestFactory.deploy();
+        await expect(domainManagerProxy.upgradeTo(domainManagerSubjectTest.address, data, false))
+          .to.emit(domainManagerProxy, "ProxyUpgraded")
+          .withArgs(systemAdminWallet.address, domainManagerProxy.address, domainManagerSubjectTest.address)
+        // const proxy = await proxyFactory.deploy(domainManagerSubjectTest.address, data);
+
+        // then
+        domainManagerProxyTest = domainManagerSubjectTest.attach(domainManagerProxy.address);
+        const domainSeparator = generateDomainSeparator(
+          DOMAIN_MANAGER_CONTRACT_NAME,
+          "3.0.1",
+          domainManagerProxyTest.address,
+          networkChainId
+        );
+
+        domainManagerDelegateProxyTest = domainManagerProxyTest.attach(aclManagerProxy.address);
+
+        let proxyInfo: IProxy.ProxyInfoStruct = await domainManagerProxyTest.proxyInfo();
+        expect(proxyInfo.name).to.be.equal(DOMAIN_MANAGER_CONTRACT_NAME);
+        expect(proxyInfo.version).to.be.equal("3.0.1");
+        expect(proxyInfo.subject).to.be.equal(domainManagerSubjectTest.address);
+        expect(proxyInfo.acl).to.be.equal(aclManagerProxy.address);
+        expect(proxyInfo.localAdmin).to.be.equal(systemAdminWallet.address);
+        expect(proxyInfo.domainSeparator).to.be.equal(domainSeparator);
+        expect(proxyInfo.sstat).to.be.equal(ProxySafeModeStatus.DISABLED);
+        expect(proxyInfo.ustat).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(proxyInfo.initVersion).to.be.equal(2)
+      });
+
+      it("Should upgrade LACLManager proxy to another subject by systemAdmin success", async () => {
+
+        // given
+        const aclFactory = new LACLManagerTest__factory(systemAdmin);
+
+        // when
+        lACLManagerTest = await aclFactory.deploy();
+
+        // then
+        expect(lACLManagerTest.address).not.null;
+        expect(await lACLManagerTest.LIB_NAME()).to.be.equal("LACLManager");
+        expect(await lACLManagerTest.LIB_VERSION()).to.be.equal("3.0.1");
+
+      });
+
+
+      it("Should ACLManager subject test deploy success", async () => {
+        // given
+        linkLibraryAddressesTest = {
+          "src/contracts/test/acl/LACLManagerTest.sol:LACLManagerTest": lACLManagerTest.address
+        };
+
+        const aclManagerFactory = new ACLManagerTest__factory(linkLibraryAddressesTest, systemAdmin);
+
+        // when
+        aclManagerSubjectTest = await aclManagerFactory.deploy();
+
+        // then
+        expect(aclManagerSubjectTest.address).not.null;
+        expect(await aclManagerSubjectTest.safeModeStatus()).to.be.equal(ProxySafeModeStatus.ENABLED);
+        expect(await aclManagerSubjectTest.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(await aclManagerSubjectTest.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
+        expect(await aclManagerSubjectTest.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
+        expect(await aclManagerSubjectTest.initVersion()).to.be.equal(0);
+      })
+
+      it("Should enable Upgrade Status of ACL proxy by livelyAdmin success", async () => {
+        // when and then
+        await expect(aclManagerProxy.connect(livelyAdmin).setUpdatabilityStatus(ProxyUpdatabilityStatus.ENABLED))
+          .to.emit(aclManagerProxy, "ProxyUpdatabilityUpdated")
+          .withArgs(
+            livelyAdminWallet.address,
+            aclManagerProxy.address,
+            ProxyUpdatabilityStatus.ENABLED
+          );
+      });
+
+      it("Should setAdmin proxy to systemAdmin success", async () => {
+        // when and then
+        await expect(aclManagerProxy.connect(systemAdmin).setLocalAdmin(systemAdminWallet.address))
+          .to.emit(aclManagerProxy, "ProxyLocalAdminUpdated")
+          .withArgs(systemAdminWallet.address, aclManagerProxy.address, systemAdminWallet.address);
+      });
+
+      it("Should enable Upgrade Status of ACL proxy by livelyAdmin success", async () => {
+        // when and then
+        await expect(aclManagerProxy.connect(livelyAdmin).setUpdatabilityStatus(ProxyUpdatabilityStatus.ENABLED))
+          .to.emit(aclManagerProxy, "ProxyUpdatabilityUpdated")
+          .withArgs(
+            livelyAdminWallet.address,
+            aclManagerProxy.address,
+            ProxyUpdatabilityStatus.ENABLED
+          );
+      });
+
+      it("Should call acl facet upgrade by systemAdmin success", async () => {
+        // given
+        const aclIface = new ethers.utils.Interface(ACLManager__factory.abi);
+        const aclTestIface = new ethers.utils.Interface(ACLManagerTest__factory.abi);
+        const domainIface = new ethers.utils.Interface(DomainManager__factory.abi);
+        const domainTestIface = new ethers.utils.Interface(DomainManagerTest__factory.abi);
+        const domainFunctionUpgradeRequests: IACLManager.FacetSelectorUpgradeRequestStruct[] = [
+          {
+            action: ActionType.REMOVE,
+            selectors: [
+              domainIface.getSighash("domainRegister")
+            ]
+          },
+          {
+            action: ActionType.ADD,
+            selectors: [
+              domainTestIface.getSighash("domainRegister2")
+            ]
+          },
+        ]
+
+        const aclFunctionUpgradeRequests: IACLManager.FacetSelectorUpgradeRequestStruct[] = [
+          {
+            action: ActionType.REMOVE,
+            selectors: [
+              aclIface.getSighash("initialize"),
+              aclIface.getSighash("initACL"),
+            ]
+          },
+          {
+            action: ActionType.ADD,
+            selectors: [
+              aclTestIface.getSighash("reInitialize")
+            ]
+          },
+        ]
+
+        const facetUpgradeRequests: IACLManager.FacetUpgradeRequestStruct[] = [
+          {
+            facetId: domainManagerProxy.address,
+            subjectId: domainManagerSubjectTest.address,
+            interfaceId: "0xb2f4af64",
+            functions: domainFunctionUpgradeRequests,
+          },
+          {
+            facetId: aclManagerProxy.address,
+            subjectId: aclManagerSubjectTest.address,
+            interfaceId: "0xb7ffbf12",
+            functions: aclFunctionUpgradeRequests,
+          }
+        ]
+
+        // when and then
+        await expect(aclManagerProxy.connect(systemAdmin).aclUpgradeFacet(facetUpgradeRequests))
+          .to.emit(aclManagerProxy, "ACLFacetUpgraded")
+          .withArgs(systemAdminWallet.address, domainManagerProxy.address, domainManagerSubjectTest.address, "0xb2f4af64")
+          .to.emit(aclManagerProxy, "ACLFacetFunctionUpgraded")
+          .withArgs(systemAdminWallet.address, domainManagerProxy.address, domainIface.getSighash("domainRegister"), ActionType.REMOVE)
+          .to.emit(aclManagerProxy, "ACLFacetFunctionUpgraded")
+          .withArgs(systemAdminWallet.address, domainManagerProxy.address, domainTestIface.getSighash("domainRegister2"), ActionType.ADD)
+          .to.emit(aclManagerProxy, "ACLFacetUpgraded")
+          .withArgs(systemAdminWallet.address, aclManagerProxy.address, aclManagerSubjectTest.address, "0x46414ba0")
+          .to.emit(aclManagerProxy, "ACLFacetFunctionUpgraded")
+          .withArgs(systemAdminWallet.address, aclManagerProxy.address, aclIface.getSighash("initialize"), ActionType.REMOVE)
+          .to.emit(aclManagerProxy, "ACLFacetFunctionUpgraded")
+          .withArgs(systemAdminWallet.address, aclManagerProxy.address, aclIface.getSighash("initACL"), ActionType.REMOVE)
+          .to.emit(aclManagerProxy, "ACLFacetFunctionUpgraded")
+          .withArgs(systemAdminWallet.address, aclManagerProxy.address, aclTestIface.getSighash("reInitialize"), ActionType.ADD)
+
+        // and
+        const facetACLInfo: IACLManager.FacetInfoStruct = await aclManagerProxy.aclGetFacetInfo(aclManagerProxy.address);
+        expect(facetACLInfo.subjectId).to.be.equal(aclManagerSubjectTest.address);
+        expect(facetACLInfo.interfaceId).to.be.equal("0xb7ffbf12");
+
+        // and
+        const facetDomainInfo: IACLManager.FacetInfoStruct = await aclManagerProxy.aclGetFacetInfo(domainManagerProxy.address);
+        expect(facetDomainInfo.subjectId).to.be.equal(domainManagerSubjectTest.address);
+        expect(facetDomainInfo.interfaceId).to.be.equal("0xb2f4af64");
+
+        // and
+        expect(await aclManagerProxy.aclHasSelector(aclTestIface.getSighash("reInitialize"))).to.be.true
+        expect(await aclManagerProxy.aclGetFacet(aclTestIface.getSighash("reInitialize"))).to.be.equal(aclManagerProxy.address)
+      })
+
+      it("Should ACLManager proxy upgradeTo aclManagerSubjectTest by systemAdmin success", async () => {
+
+        // given
+        const iface = new ethers.utils.Interface(ACLManagerTest__factory.abi);
+        const data = iface.encodeFunctionData("reInitialize", [
+          "3.0.1",
+        ]);
+
+        // when and then
+        await expect(
+          aclManagerProxy.connect(systemAdmin).upgradeTo(aclManagerSubjectTest.address, data, false)
+        ).to.emit(aclManagerProxy, "ProxyUpgraded")
+          .withArgs(systemAdminWallet.address, aclManagerProxy.address, aclManagerSubjectTest.address);
+
+        expect(await aclManagerProxy.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(await aclManagerProxy.contractVersion()).to.be.equal("3.0.1");
+        expect(await aclManagerProxy.initVersion()).to.be.equal(2);
+        expect(await aclManagerProxy.getLibrary()).to.be.equal(lACLManagerTest.address);
+      });
+
+      it("Should delete activity of domainRegister in domainContext by aclAdmin success", async() => {
+        // given
+        const domainIface = new ethers.utils.Interface(DomainManager__factory.abi);
+        const domainRegisterFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [domainManagerProxy.address,  domainIface.getSighash("domainRegister")]));
+        const domainContextId = ethers.utils.keccak256(domainManagerProxy.address);
+        const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
+          id: domainRegisterFunctionId,
+          acstat: ActivityStatus.DELETED
+        }]
+
+        // when
+        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateActivityStatus(requests))
+          .to.emit(functionManagerDelegateProxy, "FunctionActivityUpdated")
+          .withArgs(livelyAdminWallet.address, domainRegisterFunctionId, ActivityStatus.DELETED)
+
+        // then
+        const functionInfo: IFunctionManagement.FunctionInfoStruct = await functionManagerDelegateProxy.functionGetInfo(domainRegisterFunctionId);
+        expect(functionInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
+        expect(functionInfo.agentId).to.be.equal(LIVELY_VERSE_SCOPE_MASTER_TYPE_ID);
+        expect(functionInfo.contextId).to.be.equal(domainContextId);
+        expect(functionInfo.adminType).to.be.equal(AgentType.TYPE);
+        expect(functionInfo.agentType).to.be.equal(AgentType.TYPE);
+        expect(functionInfo.agentLimit).to.be.equal(65535);
+        expect(functionInfo.policyCode).to.be.equal(0);
+        expect(functionInfo.selector).to.be.equal(domainIface.getSighash("domainRegister"));
+        expect(functionInfo.acstat).to.be.equal(ActivityStatus.DELETED);
+        expect(functionInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+        expect(functionInfo.referredByAgent).to.be.equal(0);
+      })
+
+      it("Should register new domainRegister2 in domainContext by aclAdmin success", async() => {
+        const domainTestIface = new ethers.utils.Interface(DomainManagerTest__factory.abi);
+        const domainContextId = ethers.utils.keccak256(domainManagerProxy.address);
+        const domainRegisterFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [domainManagerProxy.address,  domainTestIface.getSighash("domainRegister2")]));
+        const domainFunctionRequests: IFunctionManagement.FunctionRegisterRequestStruct[] = [
+          {
+            signature: new Int8Array(0),
+            adminId: LIVELY_VERSE_ACL_TYPE_ID,
+            agentId: LIVELY_VERSE_SCOPE_MASTER_TYPE_ID,
+            contractId: domainManagerProxy.address,
+            selector: domainTestIface.getSighash("domainRegister2"),
+            agentLimit: 65535,
+            policyCode: 0,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          },
+        ]
+
+        // when
+        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(domainFunctionRequests))
+          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+          .withArgs(systemAdminWallet.address, domainContextId, domainRegisterFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
+            LIVELY_VERSE_SCOPE_MASTER_TYPE_ID, systemAdminWallet.address)
+
+        // then
+        expect(await contextManagerDelegateProxy.contextHasFunction(domainContextId, domainRegisterFunctionId)).to.be.true
+
+        // and
+        const functionInfo: IFunctionManagement.FunctionInfoStruct = await functionManagerDelegateProxy.functionGetInfo(domainRegisterFunctionId);
+        expect(functionInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
+        expect(functionInfo.agentId).to.be.equal(LIVELY_VERSE_SCOPE_MASTER_TYPE_ID);
+        expect(functionInfo.contextId).to.be.equal(domainContextId);
+        expect(functionInfo.adminType).to.be.equal(AgentType.TYPE);
+        expect(functionInfo.agentType).to.be.equal(AgentType.TYPE);
+        expect(functionInfo.agentLimit).to.be.equal(65535);
+        expect(functionInfo.policyCode).to.be.equal(0);
+        expect(functionInfo.selector).to.be.equal(domainTestIface.getSighash("domainRegister2"));
+        expect(functionInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(functionInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+        expect(functionInfo.referredByAgent).to.be.equal(0);
+
+        // and
+        expect(await domainManagerDelegateProxyTest.domainHasContext(LIVELY_VERSE_ACL_DOMAIN_ID, domainContextId)).to.be.true;
+        expect(await domainManagerDelegateProxyTest.domainHasFunction(LIVELY_VERSE_ACL_DOMAIN_ID, domainRegisterFunctionId)).to.be.true;
+        expect(await domainManagerDelegateProxyTest.domainHasRealm(LIVELY_VERSE_ACL_DOMAIN_ID, LIVELY_VERSE_ACL_REALM_ID)).to.be.true;
+
+        // and
+        expect(await aclManagerProxy.supportsInterface("0xb2f4af64")).to.be.true
+      })
+
+      it("Should call domainRegister2 by aclAdmin success", async() => {
+        // given
+        aclDomainTest2Id = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_DOMAIN_TEST_2_NAME));
+        const requests: IDomainManagement.DomainRegisterRequestStruct[] = [
+          {
+            adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            realmLimit: 1,
+            agentLimit: 1,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.DISABLED,
+            name: ACL_DOMAIN_TEST_2_NAME
+          }
+        ]
+
+        // when
+        await expect(domainManagerDelegateProxyTest.connect(livelyAdmin).domainRegister2(requests)).
+        to.emit(domainManagerDelegateProxyTest, "DomainRegistered")
+          .withArgs(livelyAdminWallet.address, aclDomainTest2Id ,LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID)
+
+        // then
+        expect(await domainManagerDelegateProxyTest.domainCheckId(aclDomainTest2Id)).to.be.true
+
+        // and
+        const domainInfo: IDomainManagement.DomainInfoStruct = await domainManagerDelegateProxyTest.domainGetInfo(aclDomainTest2Id);
+        expect(domainInfo.name).to.be.equal(ACL_DOMAIN_TEST_2_NAME);
+        expect(domainInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
+        expect(domainInfo.adminType).to.be.equal(AgentType.ROLE);
+        expect(domainInfo.realmLimit).to.be.equal(1);
+        expect(domainInfo.realmCount).to.be.equal(0);
+        expect(domainInfo.agentLimit).to.be.equal(1);
+        expect(domainInfo.referredByAgent).to.be.equal(0);
+        expect(domainInfo.stype).to.be.equal(ScopeType.DOMAIN);
+        expect(domainInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(domainInfo.alstat).to.be.equal(AlterabilityStatus.DISABLED);
+
+        // and
+        expect(await domainManagerDelegateProxyTest.domainCheckId(aclDomainTest2Id)).to.be.true;
+        expect(await domainManagerDelegateProxyTest.domainCheckName(ACL_DOMAIN_TEST_2_NAME)).to.be.true;
+        expect(await domainManagerDelegateProxyTest.domainCheckAdmin(aclDomainTest2Id, livelyAdminWallet.address)).to.be.true;
+      })
+    })
 
     // describe("IGroupManagement Tests", function() {
     //   it("Should register new group by user1 failed", async () => {

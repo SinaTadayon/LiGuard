@@ -132,6 +132,7 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
       for (uint256 j = 0; j < requests[i].roles.length; j++) {
         require(_data.rolePolicyMap[requests[i].roles[j]] == bytes32(0), "Already Exist");
         require(policyEntity.adminId != requests[i].roles[j], "Illegal Role");
+        require(policyEntity.roleLimit > policyEntity.roles.length(), "Illegal Limit");
         RoleEntity storage roleEntity = _data.roleReadSlot(requests[i].roles[j]);
    
         ScopeType roleScopeType = _data.scopes[roleEntity.scopeId].stype;
@@ -250,7 +251,7 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
     bytes32 memberId = LACLUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {
       PolicyEntity storage policyEntity = _doGetPolicyAndCheckAdminAccess(requests[i].policyId, memberId, functionId);
-
+      require(requests[i].roleLimit > policyEntity.roles.length(), "Illegal Limit");
       policyEntity.roleLimit = requests[i].roleLimit;      
       emit PolicyRoleLimitUpdated(msg.sender, requests[i].policyId, requests[i].roleLimit);
     }
@@ -469,7 +470,7 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
       (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(adminId);
       require(requestScopeType <= requestAdminScopeType, "Illegal Admin ScopeType");
       if(requestScopeType == requestAdminScopeType) {
-        require(requestAdminScopeId == scopeId, "Illegal Amind Scope");
+        require(requestAdminScopeId == scopeId, "Illegal Admin Scope");
       } else {
         require(IAccessControl(address(this)).isScopesCompatible(requestAdminScopeId, scopeId), "Illegal Admin Scope");
       }

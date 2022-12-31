@@ -192,7 +192,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
     for (uint256 i = 0; i < requests.length; i++) {
       ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(requests[i].scopeId, senderId, functionId);
-
+      require(requests[i].agentLimit > contextEntity.bs.referredByAgent, "Illegal Limit");
       contextEntity.bs.agentLimit = requests[i].agentLimit;
       emit ContextAgentLimitUpdated(msg.sender, requests[i].scopeId, requests[i].agentLimit);
     }
@@ -355,8 +355,9 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
     address functionFacetId = _data.selectors[selector];
-    bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector);    
-    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
+    bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector); 
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
+    require(IAccessControl(address(this)).hasMemberAccess(senderId, functionId), "Access Denied");
     return functionId;
   }
 

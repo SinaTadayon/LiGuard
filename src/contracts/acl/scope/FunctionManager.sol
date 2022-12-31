@@ -172,6 +172,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
 
     for (uint256 i = 0; i < requests.length; i++) {
       FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(requests[i].scopeId, senderId, functionId);
+      require(requests[i].agentLimit > functionEntity.bs.referredByAgent, "Illegal Limit");
       functionEntity.bs.agentLimit = requests[i].agentLimit;      
       emit FunctionAgentLimitUpdated(msg.sender, requests[i].scopeId, requests[i].agentLimit);
     }
@@ -335,8 +336,8 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
     address functionFacetId = _data.selectors[selector];
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
-    bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector);    
+    bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector); 
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
     require(IAccessControl(address(this)).hasMemberAccess(senderId, functionId), "Access Denied");
     return functionId;
   }

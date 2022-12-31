@@ -71,11 +71,12 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
       GlobalEntity storage livelyGlobalEntity = _data.globalReadSlot(_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
       require(senderScopeId == _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Global Scope");
       require(livelyGlobalEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Global Updatable");
-      require(livelyGlobalEntity.domainLimit > livelyGlobalEntity.domains.length(), "Illegal Domain Register");
+      require(livelyGlobalEntity.domainLimit > livelyGlobalEntity.domains.length(), "Illegal Register");
 
       // check access admin global
       require(_doCheckAdminAccess(livelyGlobalEntity.bs.adminId, senderId, functionId), "Forbidden");
 
+      // add domain to global
       livelyGlobalEntity.domains.add(newDomainId);
 
       // create new domain entity
@@ -112,7 +113,7 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {
       DomainEntity storage domainEntity = _data.domainReadSlot(requests[i].id);
-      require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Domain Updatable");
+      require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
       require(_doCheckAdminAccess(domainEntity.bs.adminId, senderId, functionId), "Forbidden");
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
       emit DomainActivityUpdated(msg.sender, requests[i].id, requests[i].acstat);
@@ -163,6 +164,7 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
 
     for (uint256 i = 0; i < requests.length; i++) {
       DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(requests[i].domainId, senderId, functionId); 
+      require(requests[i].realmLimit > domainEntity.realms.length(), "Illegal Limit");
       domainEntity.realmLimit = requests[i].realmLimit;      
       emit DomainRealmLimitUpdated(msg.sender, requests[i].domainId, requests[i].realmLimit);
     }
@@ -175,6 +177,7 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
 
     for (uint256 i = 0; i < requests.length; i++) {
       DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(requests[i].scopeId, senderId, functionId); 
+      require(requests[i].agentLimit > domainEntity.bs.referredByAgent, "Illegal Limit");
       domainEntity.bs.agentLimit = requests[i].agentLimit;
       emit DomainAgentLimitUpdated(msg.sender, requests[i].scopeId, requests[i].agentLimit);
     }
@@ -345,19 +348,16 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
     address functionFacetId = _data.selectors[selector];
-    bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector);    
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
-    console.log("sender address: %s", msg.sender);   
+    bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector); 
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
     require(IAccessControl(address(this)).hasMemberAccess(senderId, functionId), "Access Denied");
     return functionId;
-    // require(_hasPermission(selector), "Access Denied");
-    // return LACLUtils.functionGenerateId(_data.selectors[selector], selector);
   }  
 
   function _doGetEntityAndCheckAdminAccess(bytes32 domainId, bytes32 senderId, bytes32 functionId) internal view returns (DomainEntity storage) {
     DomainEntity storage domainEntity = _data.domainReadSlot(domainId);
     // require(domainEntity.bs.acstat > ActivityStatus.DISABLED, "Domain Disabled");
-    require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Domain Updatable");
+    require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
     require(_doCheckAdminAccess(domainEntity.bs.adminId, senderId, functionId), "Forbidden");
     return domainEntity;
   }

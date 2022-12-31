@@ -38,7 +38,7 @@ interface IRealmManagement is IACLCommons {
     uint16 referredByAgent;
     ScopeType stype;
     ActivityStatus acstat;
-    AlterabilityStatus alstate;
+    AlterabilityStatus alstat;
     AgentType adminType;
     string name;    
   }

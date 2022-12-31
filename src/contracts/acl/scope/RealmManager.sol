@@ -104,7 +104,7 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
       newRealm.name = requests[i].name;
       newRealm.domainId = requests[i].domainId;
       newRealm.contextLimit = requests[i].contextLimit;
-      newRealm.bs.adminId = _getRealmAdmin(domainEntity.bs.adminId, requests[i].adminId, requests[i].domainId);
+      newRealm.bs.adminId = _getRealmAdmin(domainEntity.bs.adminId, requests[i].domainId, requests[i].adminId);
        
       // checking requested context admin 
       
@@ -198,6 +198,7 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
     for (uint256 i = 0; i < requests.length; i++) {
       RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].realmId, senderId, functionId);
+      require(requests[i].contextLimit > realmEntity.contexts.length(), "Illegal Limit");
       realmEntity.contextLimit = requests[i].contextLimit;      
       emit RealmContextLimitUpdated(msg.sender, requests[i].realmId, requests[i].contextLimit);
     }
@@ -209,6 +210,7 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
     for (uint256 i = 0; i < requests.length; i++) {
       RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].scopeId, senderId, functionId);
+      require(requests[i].agentLimit > realmEntity.bs.referredByAgent, "Illegal Limit");
       realmEntity.bs.agentLimit = requests[i].agentLimit;
       emit RealmAgentLimitUpdated(msg.sender, requests[i].scopeId, requests[i].agentLimit);
     }
@@ -288,7 +290,7 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
         referredByAgent: 0,
         stype: ScopeType.NONE,
         acstat: ActivityStatus.NONE, 
-        alstate: AlterabilityStatus.NONE, 
+        alstat: AlterabilityStatus.NONE, 
         adminType: AgentType.NONE,
         name: ""
       });
@@ -303,7 +305,7 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
       referredByAgent: re.bs.referredByAgent,   
       stype: re.bs.stype,
       acstat: re.bs.acstat, 
-      alstate: re.bs.alstat, 
+      alstat: re.bs.alstat, 
       adminType: _data.agents[re.bs.adminId].atype,
       name: re.name
     });
@@ -369,8 +371,9 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
     address functionFacetId = _data.selectors[selector];
-    bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector);    
-    require(IAccessControl(address(this)).hasAccess(functionId), "Access Denied");
+    bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector); 
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
+    require(IAccessControl(address(this)).hasMemberAccess(senderId, functionId), "Access Denied");
     return functionId;
   }
 

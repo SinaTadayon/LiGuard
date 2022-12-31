@@ -207,7 +207,7 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IAccessControl {
     // check global activity
     // console.log("global: ");
     // console.logBytes1(bytes1(uint8(_data.scopes[_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID].acstat)));
-    if(_data.scopes[_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID].acstat != ActivityStatus.ENABLED) return false;
+    // if(_data.scopes[_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID].acstat != ActivityStatus.ENABLED) return false;
     
     return true;
   }

@@ -27,7 +27,7 @@ interface IGlobalManagement is IACLCommons {
     AlterabilityStatus alstat;
   }
     
-  event GlobalAdminUpdated(address indexed sender, bytes32 globalId, bytes32 indexed adminId, AgentType adminType);
+  event GlobalAdminUpdated(address indexed sender, bytes32 globalId, bytes32 indexed adminId);
 
   event GlobalDomainLimitUpdated(address indexed sender, bytes32 globalId, uint16 domainLimit);
 

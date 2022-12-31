@@ -349,11 +349,8 @@ contract DomainManagerTest is ACLStorage, BaseUUPSProxy, IDomainManagementTest {
     address functionFacetId = _data.selectors[selector];
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector);    
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
-    console.log("sender address: %s", msg.sender);   
     require(IAccessControl(address(this)).hasMemberAccess(senderId, functionId), "Access Denied");
     return functionId;
-    // require(_hasPermission(selector), "Access Denied");
-    // return LACLUtils.functionGenerateId(_data.selectors[selector], selector);
   }  
 
   function _doGetEntityAndCheckAdminAccess(bytes32 domainId, bytes32 senderId, bytes32 functionId) internal view returns (DomainEntity storage) {

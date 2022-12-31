@@ -222,12 +222,6 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
     // bind Lively Master Admin Member to Admin role
     livelyMasterType.members[livelyMasterAdminMemberId] = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
 
-    // console.log("livelyMasterAdminMemberId: ");
-    // console.logBytes32(livelyMasterAdminMemberId);
-    // // console.logBytes1(bytes1(uint8(_data.agents[livelyMasterAdminMemberId].acstat)));
-    // MemberEntity storage m1 = _data.memberReadSlot(livelyMasterAdminMemberId);
-    // console.logBytes1(bytes1(uint8(m1.ba.acstat)));
-
     {
       // Create System Master Type       
       TypeEntity storage systemMasterType = _data.typeWriteSlot(_LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID);
@@ -263,13 +257,8 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
       systemMasterAdminMember.ba.alstat = AlterabilityStatus.UPDATABLE;
       systemMasterAdminMember.ba.acstat = ActivityStatus.ENABLED;
       
-      // console.log("systemMasterAdminMemberId: ");
-      // console.logBytes32(systemMasterAdminMemberId);
-      // console.logBytes1(bytes1(uint8(_data.agents[systemMasterAdminMemberId].acstat)));
-
       // bind Lively Master Admin Member to Admin role
       systemMasterType.members[systemMasterAdminMemberId] = _LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID;
-
 
       // Create Scope Master Type       
       TypeEntity storage scopeMasterType = _data.typeWriteSlot(_LIVELY_VERSE_SCOPE_MASTER_TYPE_ID);
@@ -365,6 +354,7 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
 
     // update livelyGlobalEntity.bs.referredByAgent
     livelyGlobalEntity.bs.referredByAgent = 12;
+    livelyGlobalEntity.domains.add(LACLUtils.generateId2("LIVELY_VERSE_ACL_DOMAIN"));
   }
 
   function _initACLScopes(
@@ -386,8 +376,6 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
 
     // Create Realm ACL
     bytes32 aclRealmId = LACLUtils.generateId2("LIVELY_VERSE_ACL_REALM");
-    // console.log("acl Realm ID: ");
-    // console.logBytes32(aclRealmId);
     RealmEntity storage aclRealm = _data.realmWriteSlot(aclRealmId);
     aclRealm.name = "LIVELY_VERSE_ACL_REALM";
     aclRealm.contextLimit = 16;
@@ -483,7 +471,9 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
     // acl 
     aclType.roles.add(aclAdminRoleId);
     aclType.members[livelyMasterAdminMemberId] = aclAdminRoleId;
-    // aclType.members[systemMasterAdminMemberId] = aclAdminRoleId;    
+
+    // update aclRealm referredByAgent
+    aclRealm.bs.referredByAgent = 2;
   }
 
   function getLibrary() external pure returns (address) {
