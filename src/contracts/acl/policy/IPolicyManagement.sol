@@ -79,6 +79,8 @@ interface IPolicyManagement is IACLCommons {
 
   event PolicyAdminUpdated(address indexed sender, bytes32 indexed policyId, bytes32 indexed adminId);
 
+  event PolicyScopeUpdated(address indexed sender, bytes32 indexed policyId, bytes32 indexed scopeId);
+
   function policyRegister(PolicyRegisterRequest[] calldata requests) external returns (bool);
 
   function policyAddRoles(PolicyAddRolesRequest[] calldata requests) external returns (bool);
@@ -88,6 +90,8 @@ interface IPolicyManagement is IACLCommons {
   function policyUpdateCodes(PolicyUpdateCodeRequest[] calldata requests) external returns (bool);
 
   function policyUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool); 
+
+  function policyUpdateScope(UpdateScopeRequest[] calldata requests) external returns (bool);  
 
   function policyUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
 

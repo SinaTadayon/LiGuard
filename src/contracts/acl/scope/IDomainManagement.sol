@@ -16,8 +16,8 @@ interface IDomainManagement is IACLCommons {
 
   struct DomainRegisterRequest {
     bytes32 adminId;
-    uint16 realmLimit;
-    uint16 agentLimit;
+    uint32 realmLimit;
+    uint32 agentLimit;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
     string name;
@@ -25,15 +25,15 @@ interface IDomainManagement is IACLCommons {
 
   struct DomainUpdateRealmLimitRequest {
     bytes32 domainId;
-    uint16 realmLimit;
+    uint32 realmLimit;
   }
 
   struct DomainInfo {
     bytes32 adminId;
-    uint16 realmLimit;
-    uint16 realmCount;
-    uint16 agentLimit;
-    uint16 referredByAgent;
+    uint32 realmLimit;
+    uint32 realmCount;
+    uint32 agentLimit;
+    uint32 referredByAgent;
     ScopeType stype;
     AgentType adminType;
     ActivityStatus acstat;
@@ -49,13 +49,13 @@ interface IDomainManagement is IACLCommons {
   
   event DomainAdminUpdated(address indexed sender, bytes32 indexed domainId, bytes32 indexed adminId);
 
-  event DomainRealmLimitUpdated(address indexed sender, bytes32 indexed domainId, uint16 realmLimit);
+  event DomainRealmLimitUpdated(address indexed sender, bytes32 indexed domainId, uint32 realmLimit);
 
   event DomainActivityUpdated(address indexed sender, bytes32 indexed domainId, ActivityStatus acstat);
 
   event DomainAlterabilityUpdated(address indexed sender, bytes32 indexed domainId, AlterabilityStatus alstat);
 
-  event DomainAgentLimitUpdated(address indexed sender, bytes32 indexed domainId, uint16 agentLimit);
+  event DomainAgentLimitUpdated(address indexed sender, bytes32 indexed domainId, uint32 agentLimit);
 
   function domainRegister(DomainRegisterRequest[] calldata requests) external returns (bool);
 

@@ -18,7 +18,7 @@ interface IRealmManagement is IACLCommons {
     bytes32 domainId;
     bytes32 adminId;
     uint32 contextLimit;
-    uint16 agentLimit;
+    uint32 agentLimit;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
     string name; 
@@ -34,8 +34,8 @@ interface IRealmManagement is IACLCommons {
     bytes32 adminId;
     uint32 contextLimit;
     uint32 contextCount;
-    uint16 agentLimit;
-    uint16 referredByAgent;
+    uint32 agentLimit;
+    uint32 referredByAgent;
     ScopeType stype;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
@@ -58,7 +58,7 @@ interface IRealmManagement is IACLCommons {
 
   event RealmAlterabilityUpdated(address indexed sender, bytes32 indexed realmId, AlterabilityStatus alstat);
 
-  event RealmAgentLimitUpdated(address indexed sender, bytes32 indexed realmId, uint16 agentLimit);
+  event RealmAgentLimitUpdated(address indexed sender, bytes32 indexed realmId, uint32 agentLimit);
 
   function realmRegister(RealmRegisterRequest[] calldata requests) external returns (bool);
 

@@ -72,14 +72,13 @@ abstract contract BaseUUPSProxy is
   }
 
   function _hasPermission(bytes4 selector) internal returns (bool) {
-    bytes32 senderId = LACLUtils.accountGenerateId(_msgSender());
     if(_accessControlManager == address(this)) {
       bytes memory data = abi.encodeWithSelector(bytes4(keccak256("getFirstInit()")));
       bytes memory returndata = LAddress.functionDelegateCall(_implementation(), data, "Call Failed"); // Delegatecall hasAccess Failed
       if(uint8(returndata[returndata.length - 1]) == 1) return false;
-      return IAccessControl(_accessControlManager).hasCSMAccess(address(this), selector, senderId);    
+      return IAccessControl(_accessControlManager).hasAccountAccess(address(this), selector, _msgSender());    
     } else {
-      return IAccessControl(_accessControlManager).hasCSMAccess(address(this), selector, senderId);    
+      return IAccessControl(_accessControlManager).hasAccountAccess(address(this), selector, _msgSender());
     }
   }
 

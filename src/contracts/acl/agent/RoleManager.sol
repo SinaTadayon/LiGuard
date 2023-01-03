@@ -74,7 +74,6 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
 
       // check type 
       TypeEntity storage typeEntity = _data.typeReadSlot(requests[i].typeId);
-      // require(typeEntity.ba.acstat > ActivityStatus.DISABLED, "Type Disabled");
       require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Type Updatable");
       require(typeEntity.roles.length() < typeEntity.roleLimit, "Illegal Register");
 
@@ -117,6 +116,22 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
       RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);      
       roleEntity.ba.adminId = _getRoleAdmin(_data.scopes[roleEntity.scopeId].stype, _data.agents[roleEntity.typeId].adminId, roleEntity.scopeId, requests[i].adminId);
       emit RoleAdminUpdated(msg.sender, requests[i].id, requests[i].adminId);
+    }
+    return true;
+  }
+
+  function roleUpdateScope(UpdateScopeRequest[] calldata requests) external returns (bool) {
+    bytes32 functionId = _accessPermission(IRoleManagement.roleUpdateAdmin.selector);
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
+    for(uint i = 0; i < requests.length; i++) {
+      RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
+      TypeEntity storage typeEntity = _data.typeReadSlot(roleEntity.typeId);
+      _getAndCheckRequestScope(requests[i].scopeId, typeEntity.scopeId);
+      BaseScope storage oldScope = _data.scopes[roleEntity.scopeId];
+      require(oldScope.referredByAgent > 0, "Illeagl ReferredByAgent");
+      oldScope.referredByAgent -= 1;
+      roleEntity.scopeId = requests[i].scopeId;
+      emit RoleScopeUpdated(msg.sender, requests[i].id, requests[i].scopeId);
     }
     return true;
   }

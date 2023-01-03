@@ -53,11 +53,11 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
   }
 
   function typeRegister(TypeRegisterRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(ITypeManagement.typeRegister.selector);
+    _accessPermission(ITypeManagement.typeRegister.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     
     // fetch scope type and scope id of sender
-    (ScopeType memberScopeType, bytes32 memberScopeId) = _doGetMemberScopeInfoFromType(_LIVELY_VERSE_AGENT_MASTER_TYPE_ID, senderId);    
+    (ScopeType senderScopeType, bytes32 senderScopeId) = _doGetMemberScopeInfoFromType(_LIVELY_VERSE_AGENT_MASTER_TYPE_ID, senderId);    
     
     for(uint i = 0; i < requests.length; i++) {
       bytes32 newTypeId = LACLUtils.generateId(requests[i].name);
@@ -69,25 +69,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
       );
 
       // checking requested type scope
-      BaseScope storage requestedScope = _data.scopes[requests[i].scopeId];
-      require(requestedScope.stype != ScopeType.NONE , "Not Found");
-      require(requestedScope.acstat > ActivityStatus.DELETED , "Scope Deleted");
-      require(requestedScope.agentLimit > requestedScope.referredByAgent, "Illegal Referred");
-
-      // increase referred count to target scope
-      requestedScope.referredByAgent += 1;
-            
-      // check sender scope with request scope
-      require(memberScopeType >= requestedScope.stype, "Illegal Sender ScopeType");
-      if(memberScopeType == requestedScope.stype) {
-        require(memberScopeId == requests[i].scopeId, "Illegal Sender Scope");
-
-      } else {
-        require(IAccessControl(address(this)).isScopesCompatible(memberScopeId, requests[i].scopeId), "Illegal Admin Scope");
-      }       
-
-      // check access
-      require(_doCheckAdminAccess(requestedScope.adminId, senderId, functionId), "Forbidden");
+      BaseScope storage requestedScope = _getAndCheckRequestScope(requests[i].scopeId, senderScopeId, senderScopeType);
      
       // create new type
       TypeEntity storage newType = _data.typeWriteSlot(newTypeId);
@@ -98,7 +80,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
       newType.scopeId = requests[i].scopeId;
       newType.roleLimit = requests[i].roleLimit;
       newType.name = requests[i].name;
-      newType.ba.adminId = _getTypeAdmin(requestedScope.stype, requestedScope.adminId, requests[i].scopeId, requests[i].adminId);                        
+      newType.ba.adminId = _getTypeAdmin(requestedScope.stype, requestedScope.adminId, requests[i].scopeId, requests[i].adminId);
       emit TypeRegistered(
         msg.sender,
         newTypeId,
@@ -125,6 +107,38 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
       );
 
       emit TypeAdminUpdated(msg.sender, requests[i].id, requests[i].adminId);
+    }
+    return true;
+  }
+
+  function typeUpdateScope(UpdateScopeRequest[] calldata requests) external returns (bool) {
+    bytes32 functionId = _accessPermission(ITypeManagement.typeUpdateAdmin.selector);
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
+    ScopeType senderScopeType;
+    bytes32 senderScopeId;
+    for(uint i = 0; i < requests.length; i++) {
+      TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
+
+      AgentType adminAgentType = _data.agents[typeEntity.ba.adminId].atype;
+      if(adminAgentType == AgentType.ROLE) {
+        RoleEntity storage roleEntity = _data.roleReadSlot(typeEntity.ba.adminId);
+        senderScopeId = roleEntity.scopeId;
+        senderScopeType = _data.scopes[roleEntity.scopeId].stype;
+      } else {
+        TypeEntity storage agentType = _data.typeReadSlot(typeEntity.ba.adminId);
+        bytes32 memberRoleId = agentType.members[senderId];
+        RoleEntity storage memberAgentRole = _data.roleReadSlot(memberRoleId);
+        senderScopeType = _data.scopes[memberAgentRole.scopeId].stype;
+        senderScopeId = memberAgentRole.scopeId;
+      }
+      
+      BaseScope storage requestScope = _getAndCheckRequestScope(requests[i].scopeId, senderScopeId, senderScopeType);
+      BaseScope storage oldScope = _data.scopes[typeEntity.scopeId];
+      require(requestScope.stype > oldScope.stype, "Illegal ScopeType");
+      require(oldScope.referredByAgent > 0, "Illeagl ReferredByAgent");
+      oldScope.referredByAgent -= 1;
+      typeEntity.scopeId = requests[i].scopeId;
+      emit TypeScopeUpdated(msg.sender, requests[i].id, requests[i].scopeId);
     }
     return true;
   }
@@ -268,14 +282,6 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
     return (ScopeType.NONE, bytes32(0));  
   }
 
-  function _doTypeUpdateActivityStatus(bytes32 typeId, ActivityStatus status, bytes32 functionId) internal returns (bool) {    
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
-    TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(typeId, senderId, functionId);
-    typeEntity.ba.acstat = status;
-    emit TypeActivityUpdated(msg.sender, typeId, status);
-    return true;  
-  }
-
   // Note: Member could not assigned to any entities as admin
   function _doCheckAdminAccess(bytes32 adminId, bytes32 memberId, bytes32 functionId) internal view returns (bool) {
     (FunctionEntity storage functionEntity, bool res) = _data.functionTryReadSlot(functionId);    
@@ -345,9 +351,9 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
     }
   }
 
-  function _doGetMemberScopeInfoFromType(bytes32 typeId, bytes32 senderId) internal view returns (ScopeType, bytes32) {
-    TypeEntity storage agentAdminType = _data.typeReadSlot(typeId);
-    bytes32 memberRoleId = agentAdminType.members[senderId];
+  function _doGetMemberScopeInfoFromType(bytes32 typeId, bytes32 senderId) internal view returns (ScopeType, bytes32) {    
+    TypeEntity storage agentType = _data.typeReadSlot(typeId);
+    bytes32 memberRoleId = agentType.members[senderId];
     RoleEntity storage memberAgentRole =  _data.roleReadSlot(memberRoleId);
     return (_data.scopes[memberAgentRole.scopeId].stype, memberAgentRole.scopeId);
   }
@@ -358,4 +364,26 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
     require(_doCheckAdminAccess(typeEntity.ba.adminId, senderId, functionId), "Forbidden");
     return typeEntity;
   }
+
+  function _getAndCheckRequestScope(bytes32 requestScopeId, bytes32 senderScopeId, ScopeType senderScopeType) internal returns (BaseScope storage){
+    // checking requested type scope
+    BaseScope storage requestedScope = _data.scopes[requestScopeId];
+    require(requestedScope.stype != ScopeType.NONE , "Not Found");
+    require(requestedScope.acstat > ActivityStatus.DELETED , "Scope Deleted");
+    require(requestedScope.agentLimit > requestedScope.referredByAgent, "Illegal Referred");
+
+    // increase referred count to target scope
+    requestedScope.referredByAgent += 1;
+          
+    // check sender scope with request scope
+    require(senderScopeType >= requestedScope.stype, "Illegal Sender ScopeType");
+    if(senderScopeType == requestedScope.stype) {
+      require(senderScopeId == requestScopeId, "Illegal Sender Scope");
+
+    } else {
+      require(IAccessControl(address(this)).isScopesCompatible(senderScopeId, requestScopeId), "Illegal Admin Scope");
+    }       
+
+    return requestedScope;
+  }     
 }

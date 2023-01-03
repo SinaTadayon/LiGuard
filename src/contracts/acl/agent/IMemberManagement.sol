@@ -16,27 +16,27 @@ interface IMemberManagement is IACLCommons {
   struct MemberRegister {
     bytes32 roleId;
     address account;
-    uint16 typeLimit;
-    uint16 factoryLimit;
+    uint32 typeLimit;
+    uint32 factoryLimit;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
   }
 
   struct MemberUpdateTypeLimitRequest {
     bytes32 memberId;
-    uint16 typeLimit;
+    uint32 typeLimit;
   }
 
   struct MemberUpdateFactoryLimitRequest {
     bytes32 memberId;
-    uint16 factoryLimit;
+    uint32 factoryLimit;
   }
 
   struct MemberInfo {
     bytes32 adminId;
     address account;
-    uint16 typeLimit;
-    uint16 typeCount;
+    uint32 typeLimit;
+    uint32 typeCount;
     AgentType atype;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
@@ -49,9 +49,9 @@ interface IMemberManagement is IACLCommons {
     bytes32 roleId  
   );
 
-  event MemberTypeLimitUpdated(address indexed sender, bytes32 indexed memberId, uint16 typeLimit);
+  event MemberTypeLimitUpdated(address indexed sender, bytes32 indexed memberId, uint32 typeLimit);
 
-  event MemberFactoryLimitUpdated(address indexed sender, bytes32 indexed memberId, uint16 factoryLimit);
+  event MemberFactoryLimitUpdated(address indexed sender, bytes32 indexed memberId, uint32 factoryLimit);
 
   event MemberAdminUpdated(address indexed sender, bytes32 indexed memberId, bytes32 indexed adminId);
 

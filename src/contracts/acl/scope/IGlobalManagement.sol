@@ -17,10 +17,10 @@ interface IGlobalManagement is IACLCommons {
   struct GlobalInfo {
     bytes32 id;
     bytes32 adminId;
-    uint16 domainLimit;
-    uint16 domainCount;
-    uint16 agentLimit;
-    uint16 referredByAgent;
+    uint32 domainLimit;
+    uint32 domainCount;
+    uint32 agentLimit;
+    uint32 referredByAgent;
     ScopeType stype;
     AgentType adminType;
     ActivityStatus acstat;
@@ -29,23 +29,23 @@ interface IGlobalManagement is IACLCommons {
     
   event GlobalAdminUpdated(address indexed sender, bytes32 globalId, bytes32 indexed adminId);
 
-  event GlobalDomainLimitUpdated(address indexed sender, bytes32 globalId, uint16 domainLimit);
+  event GlobalDomainLimitUpdated(address indexed sender, bytes32 globalId, uint32 domainLimit);
 
   event GlobalActivityUpdated(address indexed sender, bytes32 globalId, ActivityStatus acstat);
 
   event GlobalAlterabilityUpdated(address indexed sender, bytes32 globalId, AlterabilityStatus alstat);
 
-  event GlobalAgentLimitUpdated(address indexed sender, bytes32 globalId, uint16 agentLimit);
+  event GlobalAgentLimitUpdated(address indexed sender, bytes32 globalId, uint32 agentLimit);
 
-  function globalUpdateActivityStatus(ActivityStatus acstat) external returns (ActivityStatus);
+  // function globalUpdateActivityStatus(ActivityStatus acstat) external returns (ActivityStatus);
 
   function globalUpdateAlterabilityStatus(AlterabilityStatus alstat) external returns (AlterabilityStatus);
 
   function globalUpdateAdmin(bytes32 newAdminId) external returns (bool);
 
-  function globalUpdateDomainLimit(uint16 domainLimit) external returns (bool);
+  function globalUpdateDomainLimit(uint32 domainLimit) external returns (bool);
 
-  function globalUpdateAgentLimit(uint16 agentLimit) external returns (bool);
+  function globalUpdateAgentLimit(uint32 agentLimit) external returns (bool);
 
   function globalCheckAdmin(address account) external view returns (bool);
 

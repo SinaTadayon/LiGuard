@@ -69,8 +69,8 @@ interface IACLCommons {
     ScopeType stype;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
-    uint16 referredByAgent;
-    uint16 agentLimit;
+    uint32 referredByAgent;
+    uint32 agentLimit;
   }
 
   struct PolicyEntity {
@@ -97,6 +97,7 @@ interface IACLCommons {
     BaseScope bs;
     bytes32 realmId;
     address contractId;
+    uint16 functionLimit;
     LEnumerableSet.Bytes32Set functions;
   }
 
@@ -110,14 +111,14 @@ interface IACLCommons {
 
   struct DomainEntity {
     BaseScope bs;
-    uint16 realmLimit;
+    uint32 realmLimit;
     string name;
     LEnumerableSet.Bytes32Set realms;
   }
 
   struct GlobalEntity {
     BaseScope bs;
-    uint16 domainLimit;
+    uint32 domainLimit;
     string name;    
     LEnumerableSet.Bytes32Set domains;
   }
@@ -125,8 +126,8 @@ interface IACLCommons {
   struct MemberEntity {
     BaseAgent ba;
     address account;
-    uint16 typeLimit;
-    uint16 factoryLimit;
+    uint32 typeLimit;
+    uint32 factoryLimit;
     LEnumerableSet.Bytes32Set types;
   }
 
@@ -143,7 +144,7 @@ interface IACLCommons {
     BaseAgent ba;
     bytes32 scopeId;
     string name;
-    uint16 roleLimit;
+    uint32 roleLimit;
     mapping(bytes32 => bytes32) members;
     LEnumerableSet.Bytes32Set roles;
   }
@@ -171,6 +172,13 @@ interface IACLCommons {
   // Scope Requests
   struct ScopeUpdateAgentLimitRequest {
     bytes32 scopeId; 
-    uint16 agentLimit;
+    uint32 agentLimit;
   }
+
+  // used in Policy / Role / Type
+  struct UpdateScopeRequest {
+    bytes32 id;
+    bytes32 scopeId;
+  }
+
 }

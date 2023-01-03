@@ -22,10 +22,16 @@ interface IContextManagement is IACLCommons {
     address contractId;
     address subject;
     address deployer;
-    uint16 agentLimit;
+    uint32 agentLimit;
+    uint16 functionLimit;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
     bytes signature;
+  }
+
+   struct ContextUpdateFunctionLimitRequest {
+    bytes32 contextId;
+    uint16 functionLimit;
   }
 
   struct ContextInfo {
@@ -35,8 +41,9 @@ interface IContextManagement is IACLCommons {
     string version;
     address contractId;
     uint16 functionCount;
-    uint16 agentLimit;
-    uint16 referredByAgent;
+    uint16 functionLimit;
+    uint32 agentLimit;
+    uint32 referredByAgent;
     AgentType adminType;
     ScopeType stype;
     ActivityStatus acstat;
@@ -46,7 +53,8 @@ interface IContextManagement is IACLCommons {
   event ContextRegistered(
     address indexed sender,
     bytes32 indexed contextId,
-    address indexed contractId,    
+    address indexed contractId,
+    bytes32 realmId,
     address signer,
     address deployer,
     address subject,
@@ -59,7 +67,9 @@ interface IContextManagement is IACLCommons {
 
   event ContextAlterabilityUpdated(address indexed sender, bytes32 indexed contextId, AlterabilityStatus alstat);
 
-  event ContextAgentLimitUpdated(address indexed sender, bytes32 indexed contextId, uint16 agentLimit);
+  event ContextFunctionLimitUpdated(address indexed sender, bytes32 indexed contextId, uint16 functionLimit);
+
+  event ContextAgentLimitUpdated(address indexed sender, bytes32 indexed contextId, uint32 agentLimit);
 
   function contextRegister(ContextRegisterRequest[] calldata requests) external returns (bool);
 
@@ -68,6 +78,8 @@ interface IContextManagement is IACLCommons {
   function contextUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
   function contextUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);
+
+  function contextUpdateFunctionLimit(ContextUpdateFunctionLimitRequest[] calldata requests) external returns (bool);
 
   function contextUpdateAgentLimit(ScopeUpdateAgentLimitRequest[] calldata requests) external returns (bool);
 

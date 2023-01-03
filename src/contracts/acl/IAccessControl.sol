@@ -22,7 +22,7 @@ interface IAccessControl is IACLCommons {
 
   function hasCSAccess(address contractId, bytes4 selector) external view returns (bool);
   
-  function hasCSMAccess(address contractId, bytes4 selector, bytes32 memberId) external view returns (bool);
+  function hasAccountAccess(address contractId, bytes4 selector, address accountId) external view returns (bool);
 
   function hasAccessToAgent(bytes32 agentId, bytes32 functionId) external view returns (bool);
 
@@ -30,7 +30,7 @@ interface IAccessControl is IACLCommons {
 
   function hasCSAccessToAgent(bytes32 agentId, address contractId, bytes4 selector) external view returns (bool);
   
-  function hasCSMAccessToAgent(bytes32 agentId, address contractId, bytes4 selector, bytes32 memberId) external view returns (bool);
+  function hasAccountAccessToAgent(bytes32 agentId, address contractId, bytes4 selector, address accountId) external view returns (bool);
 
   
   // Anonymouse type
@@ -84,4 +84,5 @@ interface IAccessControl is IACLCommons {
   function getAgentBaseInfo(bytes32 agentId) external view returns (BaseAgent memory);
 
   function isScopesCompatible(bytes32 destScopeId, bytes32 srcScopeId) external view returns (bool);  
+
 }

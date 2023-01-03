@@ -66,6 +66,8 @@ interface IRoleManagement is IACLCommons {
 
   event RoleAdminUpdated(address indexed sender, bytes32 indexed roleId, bytes32 indexed adminId);
 
+  event RoleScopeUpdated(address indexed sender, bytes32 indexed roleId, bytes32 indexed scopeId);
+
   event RoleActivityUpdated(address indexed sender, bytes32 indexed roleId, ActivityStatus acstat);
 
   event RoleAlterabilityUpdated(address indexed sender, bytes32 indexed roleId, AlterabilityStatus alstat);
@@ -77,6 +79,8 @@ interface IRoleManagement is IACLCommons {
   function roleRevokeMembers(RoleRevokeMembersRequest[] calldata requests) external returns (bool);
 
   function roleUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);
+
+  function roleUpdateScope(UpdateScopeRequest[] calldata requests) external returns (bool);
 
   function roleUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
 

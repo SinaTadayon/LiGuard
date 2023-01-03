@@ -10,6 +10,7 @@ import "../../lib/acl/LACLStorage.sol";
 import "../../lib/cryptography/LECDSA.sol";
 import "../../lib/struct/LEnumerableSet.sol";
 import "../../lib/acl/LACLUtils.sol";
+import "../../lib/proxy/LClones.sol";
 import "../../proxy/IProxy.sol";
 import "../../proxy/BaseUUPSProxy.sol";
 
@@ -22,6 +23,7 @@ import "../../proxy/BaseUUPSProxy.sol";
 contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
   using LACLStorage for DataCollection;
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
+  using LClones for address;  
 
   constructor() {}
 
@@ -51,29 +53,65 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
       super.supportsInterface(interfaceId);
   }
 
-  function functionRegister(FunctionRegisterRequest[] calldata requests) external returns (bool) {
+  function functionRegister(FunctionSignatureRequest calldata sigRequest, FunctionRegisterRequest[] calldata requests) external returns (bool) {
     _accessPermission(IFunctionManagement.functionRegister.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
     address signer;
-    for (uint256 i = 0; i < requests.length; i++) {
-          
-      bytes32 contextId = LACLUtils.accountGenerateId(requests[i].contractId);  
-      ContextEntity storage contextEntity = _data.contextReadSlot(contextId);    
-      require(contextEntity.bs.alstat == AlterabilityStatus.UPGRADABLE, "Illegal Upgrade");
-
-      if(requests[i].signature.length > 0) {
-        bytes32 structHash = keccak256(abi.encode(FUNCTION_MESSAGE_TYPEHASH, requests[i].contractId, requests[i].selector));
-        signer = _doGetSignerAddress(requests[i].signature, structHash);
-        bytes32 signerId = LACLUtils.accountGenerateId(msg.sender);
-        // check access system scope
-        require(_doCheckSystemScope(contextId, signerId), "Forbidden");
-        _doFunctionRegistration(contextEntity, requests[i], signer, contextId);
-
+    address contractId;
+    if(sigRequest.contractId == address(0)) {
+      if(sigRequest.signature.length > 0) {
+        signer = _doGetSignerAddress(
+          sigRequest.signature, 
+          _getPredictContextMessageHash(sigRequest.deployer, sigRequest.subject, sigRequest.realmId)
+        );
       } else {
-        // check access system scope
-        require(_doCheckSystemScope(contextId, senderId), "Forbidden");
-        _doFunctionRegistration(contextEntity, requests[i], msg.sender, contextId);
+        signer = msg.sender;
       }
+
+      contractId = sigRequest.subject.predictDeterministicAddress(sigRequest.salt, sigRequest.deployer);
+      
+    } else {
+      if(sigRequest.signature.length > 0) {
+        bytes32 structHash = _getContextMessageHash(
+          sigRequest.contractId, 
+          LACLUtils.generateHash(sigRequest.name), 
+          LACLUtils.generateHash(sigRequest.version),
+          sigRequest.realmId
+        );
+        signer = _doGetSignerAddress(sigRequest.signature, structHash);
+      } else {
+        signer = msg.sender;
+      }    
+      contractId = sigRequest.contractId;
+    }
+
+    bytes32 contextId = LACLUtils.accountGenerateId(contractId);  
+    bytes32 signerId = LACLUtils.accountGenerateId(signer);
+    ContextEntity storage contextEntity = _data.contextReadSlot(contextId);    
+    require(contextEntity.bs.alstat == AlterabilityStatus.UPGRADABLE, "Illegal Upgrade");
+
+    for (uint256 i = 0; i < requests.length; i++) {
+
+      // check access system scope
+      require(_doCheckSystemScope(contextId, signerId), "Forbidden");
+      _doFunctionRegistration(contextEntity, requests[i], msg.sender, signer, contextId);
+
+      // bytes32 contextId = LACLUtils.accountGenerateId(requests[i].contractId);  
+      // ContextEntity storage contextEntity = _data.contextReadSlot(contextId);    
+      // require(contextEntity.bs.alstat == AlterabilityStatus.UPGRADABLE, "Illegal Upgrade");
+
+      // if(requests[i].signature.length > 0) {
+      //   bytes32 structHash = keccak256(abi.encode(FUNCTION_MESSAGE_TYPEHASH, requests[i].contractId, requests[i].selector));
+      //   signer = _doGetSignerAddress(requests[i].signature, structHash);
+      //   bytes32 signerId = LACLUtils.accountGenerateId(msg.sender);
+      //   // check access system scope
+      //   require(_doCheckSystemScope(contextId, signerId), "Forbidden");
+      //   _doFunctionRegistration(contextEntity, requests[i], signer, contextId);
+
+      // } else {
+      //   // check access system scope
+      //   require(_doCheckSystemScope(contextId, senderId), "Forbidden");
+      //   _doFunctionRegistration(contextEntity, requests[i], msg.sender, contextId);
+      // }
     }
 
     return true;
@@ -333,7 +371,8 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
    function _doFunctionRegistration(
       ContextEntity storage context, 
       FunctionRegisterRequest calldata functionRequest, 
-      address signerId,
+      address sender,
+      address signer,
       bytes32 contextId
   ) internal {
     bytes32 newFunctionId = LACLUtils.functionGenerateId(context.contractId, functionRequest.selector); 
@@ -343,6 +382,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
       functionRequest.alstat > AlterabilityStatus.NONE,
       "Illegal Activity/Alterability"
     );
+    require(context.functionLimit > context.functions.length(), "Illegal Limit");
 
     _doCheckAgentId(functionRequest.agentId);
     FunctionEntity storage functionEntity = _data.functionWriteSlot(newFunctionId);
@@ -360,12 +400,12 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     context.functions.add(newFunctionId);
    
     emit FunctionRegistered(
-      msg.sender,
+      sender,
       contextId, 
       newFunctionId,
       functionRequest.adminId,
       functionRequest.agentId,
-      signerId
+      signer
     );
   }
 
@@ -389,13 +429,14 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     }
   }
 
-  function _getFunctionMessageHash(
+  function _getContextMessageHash(
     address contractId,
-    bytes4 selector
+    bytes32 name,
+    bytes32 version,
+    bytes32 realmId
   ) internal pure returns (bytes32) {
-    return keccak256(abi.encode(FUNCTION_MESSAGE_TYPEHASH, contractId, selector));
+    return keccak256(abi.encode(CTX_MESSAGE_TYPEHASH, contractId, name, version, realmId));
   }
-
 
   function _doCheckAgentId(bytes32 agentId) internal view {
     BaseAgent storage ba = _data.agents[agentId];
@@ -407,6 +448,14 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     (address msgSigner, LECDSA.RecoverError recoverErr) = LECDSA.tryRecover(msgDigest, signature);
     require(recoverErr == LECDSA.RecoverError.NoError, "Illegal Signature");
     return msgSigner;
+  }
+
+  function _getPredictContextMessageHash(
+    address deployer,
+    address subject,
+    bytes32 realmId
+  ) internal pure returns (bytes32) {
+    return keccak256(abi.encode(PREDICT_CTX_MESSAGE_TYPEHASH, deployer, subject, realmId));
   }
 
   function _hashTypedDataV4(bytes32 structHash) internal view returns (bytes32) {

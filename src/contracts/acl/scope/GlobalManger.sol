@@ -50,18 +50,18 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
       super.supportsInterface(interfaceId);
   }
 
-  function globalUpdateActivityStatus(ActivityStatus acstat) external returns (ActivityStatus) {
-    revert ("Illegal");
-    // bytes32 functionId = _accessPermission(IGlobalManagement.globalUpdateActivityStatus.selector);
-    // bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
-    // GlobalEntity storage globalEntity = _data.globalReadSlot(_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
-    // require(globalEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");    
-    // require(_doCheckAdminAccess(globalEntity.bs.adminId, senderId, functionId), "Forbidden");
-    // require(acstat > ActivityStatus.ENABLED, "Illegal Activity");
-    // globalEntity.bs.acstat = acstat;
-    // emit GlobalActivityUpdated(msg.sender, _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, globalEntity.bs.acstat);    
-    // return acstat;
-  }
+  // function globalUpdateActivityStatus(ActivityStatus acstat) external returns (ActivityStatus) {
+  //   revert ("Illegal");
+  //   // bytes32 functionId = _accessPermission(IGlobalManagement.globalUpdateActivityStatus.selector);
+  //   // bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
+  //   // GlobalEntity storage globalEntity = _data.globalReadSlot(_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
+  //   // require(globalEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");    
+  //   // require(_doCheckAdminAccess(globalEntity.bs.adminId, senderId, functionId), "Forbidden");
+  //   // require(acstat > ActivityStatus.ENABLED, "Illegal Activity");
+  //   // globalEntity.bs.acstat = acstat;
+  //   // emit GlobalActivityUpdated(msg.sender, _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, globalEntity.bs.acstat);    
+  //   // return acstat;
+  // }
 
   function globalUpdateAlterabilityStatus(AlterabilityStatus alstat) external returns (AlterabilityStatus) {
     bytes32 functionId = _accessPermission(IGlobalManagement.globalUpdateAlterabilityStatus.selector);
@@ -96,7 +96,7 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
     return true;
   }
 
-  function globalUpdateDomainLimit(uint16 domainLimit) external returns (bool) {
+  function globalUpdateDomainLimit(uint32 domainLimit) external returns (bool) {
     bytes32 functionId = _accessPermission(IGlobalManagement.globalUpdateDomainLimit.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     GlobalEntity storage globalEntity = _doGetEntityAndCheckAdminAccess(senderId, functionId);
@@ -106,7 +106,7 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
     return true;
   }
 
-  function globalUpdateAgentLimit(uint16 agentLimit) external returns (bool) {
+  function globalUpdateAgentLimit(uint32 agentLimit) external returns (bool) {
     bytes32 functionId = _accessPermission(IGlobalManagement.globalUpdateAgentLimit.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     GlobalEntity storage globalEntity = _doGetEntityAndCheckAdminAccess(senderId, functionId);

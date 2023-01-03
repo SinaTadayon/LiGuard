@@ -182,6 +182,18 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     return true;
   }
 
+  function contextUpdateFunctionLimit(ContextUpdateFunctionLimitRequest[] calldata requests) external returns (bool) {
+    bytes32 functionId = _accessPermission(IContextManagement.contextUpdateAgentLimit.selector);
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
+    for (uint256 i = 0; i < requests.length; i++) {
+      ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(requests[i].contextId, senderId, functionId);
+      require(requests[i].functionLimit > contextEntity.functions.length(), "Illegal Limit");
+      contextEntity.functionLimit = requests[i].functionLimit;      
+      emit ContextFunctionLimitUpdated(msg.sender, requests[i].contextId, requests[i].functionLimit);
+    }
+    return true;    
+  }
+
   function contextUpdateAgentLimit(ScopeUpdateAgentLimitRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IContextManagement.contextUpdateAgentLimit.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
@@ -321,6 +333,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
         version: "",
         contractId: address(0),
         functionCount: 0,
+        functionLimit: 0,
         agentLimit: 0,
         referredByAgent: 0,
         adminType: AgentType.NONE,
@@ -337,6 +350,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
       version: IProxy(ce.contractId).contractVersion(),
       contractId: ce.contractId,
       functionCount: uint16(ce.functions.length()),
+      functionLimit: ce.functionLimit,
       agentLimit: ce.bs.agentLimit,
       referredByAgent: ce.bs.referredByAgent,
       adminType: _data.agents[ce.bs.adminId].atype,
@@ -444,11 +458,12 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
       // create new context
       ContextEntity storage newContext = _data.contextWriteSlot(newContextId);
       newContext.realmId = request.realmId;
-      newContext.contractId = contractId;      
+      newContext.contractId = contractId;
+      newContext.functionLimit = request.functionLimit;      
       newContext.bs.stype = ScopeType.CONTEXT;
       newContext.bs.acstat = request.acstat;
       newContext.bs.alstat = request.alstat;
-      newContext.bs.agentLimit = request.agentLimit;
+      newContext.bs.agentLimit = request.agentLimit;    
       newContext.bs.adminId = _getContextAdmin(request.realmId, newContextId, realmEntity.bs.adminId, request.adminId);    
     }
 
@@ -456,6 +471,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
       msg.sender,
       newContextId, 
       contractId,
+      request.realmId,
       signer,
       request.deployer,
       request.subject,

@@ -15,6 +15,8 @@ import "../lib/acl/LACLStorage.sol";
 import "../lib/struct/LEnumerableSet.sol";
 import "../proxy/BaseUUPSProxy.sol";
 
+import "hardhat/console.sol";
+
 /**
  * @title AccessControl Contract
  * @author Sina Tadayon, https://github.com/SinaTadayon
@@ -72,8 +74,9 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IAccessControl {
     return _doHasAccess(functionEntity.agentId, LACLUtils.accountGenerateId(msg.sender), functionEntity);
   }
 
-  function hasCSMAccess(address contractId, bytes4 selector, bytes32 memberId) external view returns (bool) {
+  function hasAccountAccess(address contractId, bytes4 selector, address accountId) external view returns (bool) {
     bytes32 functionId = LACLUtils.functionGenerateId(contractId, selector);
+    bytes32 memberId = LACLUtils.accountGenerateId(accountId);
     (FunctionEntity storage functionEntity, bool result) = _data.functionTryReadSlot(functionId);
     if (!result) return false;
     return _doHasAccess(functionEntity.agentId, memberId, functionEntity);
@@ -98,8 +101,9 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IAccessControl {
     return _doHasAccess(agentId, LACLUtils.accountGenerateId(msg.sender), functionEntity);
   }
   
-  function hasCSMAccessToAgent(bytes32 agentId, address contractId, bytes4 selector, bytes32 memberId) external view returns (bool) {
+  function hasAccountAccessToAgent(bytes32 agentId, address contractId, bytes4 selector, address accountId) external view returns (bool) {
     bytes32 functionId = LACLUtils.functionGenerateId(contractId, selector);
+    bytes32 memberId = LACLUtils.accountGenerateId(accountId);
     (FunctionEntity storage functionEntity, bool result) = _data.functionTryReadSlot(functionId);
     if (!result) return false;
     return _doHasAccess(agentId, memberId, functionEntity);

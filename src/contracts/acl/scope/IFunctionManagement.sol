@@ -14,13 +14,22 @@ import "../IACLCommons.sol";
  */
 interface IFunctionManagement is IACLCommons {
 
-  struct FunctionRegisterRequest {
+  struct FunctionSignatureRequest {
     bytes signature;
+    bytes32 realmId;
+    bytes32 salt;
+    string name;
+    string version;
+    address subject;
+    address deployer;
+    address contractId;    
+  }
+
+  struct FunctionRegisterRequest {
     bytes32 adminId;
     bytes32 agentId;
-    address contractId;    
     bytes4 selector;
-    uint16 agentLimit;
+    uint32 agentLimit;
     uint8 policyCode;
     ActivityStatus acstat;
     AlterabilityStatus alstat;    
@@ -41,8 +50,8 @@ interface IFunctionManagement is IACLCommons {
     bytes32 agentId;
     bytes32 contextId;
     bytes4 selector;        
-    uint16 agentLimit;
-    uint16 referredByAgent;
+    uint32 agentLimit;
+    uint32 referredByAgent;
     ScopeType stype;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
@@ -70,9 +79,9 @@ interface IFunctionManagement is IACLCommons {
 
   event FunctionPolicyUpdated(address indexed sender, bytes32 indexed functionId, uint8 policyCode);
 
-  event FunctionAgentLimitUpdated(address indexed sender, bytes32 indexed functionId, uint16 agentLimit);
+  event FunctionAgentLimitUpdated(address indexed sender, bytes32 indexed functionId, uint32 agentLimit);
 
-  function functionRegister(FunctionRegisterRequest[] calldata requests) external returns (bool);
+  function functionRegister(FunctionSignatureRequest calldata sigRequest, FunctionRegisterRequest[] calldata requests) external returns (bool);
 
   function functionUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);
 

@@ -145,12 +145,31 @@ export enum PolicyType {
   LOCK            // 255
 }
 
-// export enum LockState {
-//   NONE,
-//   LOCKED,
-//   CLAIMED,
-//   UNLOCKED,
-// }
+export enum LockState {
+  NONE,
+  LOCKED,
+  CLAIMED,
+  UNLOCKED,
+}
+
+
+export enum AssetType {
+  NONE,
+  ERC20,
+  ERC721,
+  ERC1155,
+}
+
+export enum TokenSafeModeStatus {
+  DISABLED,
+  ENABLED
+}
+
+export enum AssetSafeModeStatus {
+  DISABLED,
+  ENABLED
+}
+
 
 export async function generateContextDomainSignatureByHardhat(
   contractAddress: Address,
@@ -256,8 +275,8 @@ export async function generateContextDomainSignatureManually(
     ["bytes32", "bytes32", "bytes32", "uint256", "address"],
     [
       DOMAIN_HASH,
-      ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["AccessControlManager"])),
-      ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["1.0.0"])),
+      ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["ACLManager"])),
+      ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["3.0.0"])),
       chainId,
       verifyingContract,
     ]
