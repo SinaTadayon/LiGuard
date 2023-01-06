@@ -11,7 +11,7 @@ import "../lib/struct/LEnumerableSet.sol";
  * @dev
  *
  */
-interface IACLCommons { 
+interface IACLCommons{ 
   enum AgentType {
     NONE,
     MEMBER,
@@ -126,6 +126,7 @@ interface IACLCommons {
   struct MemberEntity {
     BaseAgent ba;
     address account;
+    uint32 callLimit;
     uint32 typeLimit;
     uint32 factoryLimit;
     LEnumerableSet.Bytes32Set types;
@@ -151,7 +152,7 @@ interface IACLCommons {
 
   struct FacetEntity {
     address subjectId;
-    bytes4 interfaceId;
+    // bytes4 interfaceId;
   }
 
   struct UpdateActivityRequest {

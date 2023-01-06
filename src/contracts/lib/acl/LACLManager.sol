@@ -5,12 +5,13 @@ pragma solidity 0.8.17;
 
 import "../struct/LEnumerableSet.sol";
 import "../../acl/IACLCommons.sol";
+import "../../acl/IACLGenerals.sol";
 import "../../acl/IACLManager.sol";
 import "../../acl/ACLStorage.sol";
 import "../../proxy/IProxy.sol";
 import "../../proxy/IERC1822.sol";
 import "../../utils/IERC165.sol";
-import "../../acl/IAccessControl.sol";
+import "../../acl/IACL.sol";
 import "../../acl/scope/IContextManagement.sol";
 import "../../acl/scope/IFunctionManagement.sol";
 import "../../acl/scope/IRealmManagement.sol";
@@ -41,7 +42,7 @@ library LACLManager {
     data.facetSet.add(address(this));
     IACLCommons.FacetEntity storage facetEntity = data.facets[address(this)];
     facetEntity.subjectId = implementation;
-    facetEntity.interfaceId = type(IACLManager).interfaceId;
+    // facetEntity.interfaceId = type(IACLManager).interfaceId;
     data.selectors[IProxy.upgradeTo.selector] = address(this);
     data.selectors[IProxy.setSafeModeStatus.selector] = address(this);
     data.selectors[IProxy.setUpdatabilityStatus.selector] = address(this);
@@ -74,26 +75,38 @@ library LACLManager {
 
   function aclRegisterFacet(ACLStorage.DataCollection storage data, IACLManager.FacetRegisterRequest calldata request) external returns (bool) {
     
-    console.logBytes4(type(ITypeManagement).interfaceId);
-    console.logBytes4(type(IRoleManagement).interfaceId);
-    console.logBytes4(type(IPolicyManagement).interfaceId);
-    require(  
-      request.interfaceId != type(IACLManager).interfaceId ||
-      request.interfaceId != type(IAccessControl).interfaceId ||
-      request.interfaceId != type(IPolicyManagement).interfaceId ||
-      request.interfaceId != type(IFunctionManagement).interfaceId ||
-      request.interfaceId != type(IContextManagement).interfaceId ||
-      request.interfaceId != type(IRealmManagement).interfaceId ||
-      request.interfaceId != type(IDomainManagement).interfaceId ||
-      request.interfaceId != type(IGlobalManagement).interfaceId ||
-      request.interfaceId != type(IMemberManagement).interfaceId ||
-      request.interfaceId != type(IRoleManagement).interfaceId ||
-      request.interfaceId != type(ITypeManagement).interfaceId, 
-      "Illegal InterfaceId"
-    );
+    // console.logBytes4(type(ITypeManagement).interfaceId);
+    // console.logBytes4(type(IRoleManagement).interfaceId);
+    // // console.logBytes4(type(IPolicyManagement).interfaceId);
+    // console.logBytes4(type(IACL).interfaceId);
+    // console.logBytes4(type(IACLGenerals).interfaceId);
+    // console.logBytes4(type(IPolicyManagement).interfaceId);
+    // console.logBytes4(type(IFunctionManagement).interfaceId);
+    // console.logBytes4(type(IContextManagement).interfaceId);
+    // console.logBytes4(type(IRealmManagement).interfaceId);
+    // console.logBytes4(type(IDomainManagementTest).interfaceId);
+    // console.logBytes4(type(IGlobalManagement).interfaceId);
+    // console.logBytes4(type(IMemberManagement).interfaceId);
+    // console.logBytes4(type(IRoleManagement).interfaceId);
+    // console.logBytes4(type(ITypeManagement).interfaceId);
+    // require(  
+    //   request.interfaceId != type(IACLManager).interfaceId ||
+    //   request.interfaceId != type(IACL).interfaceId ||
+    //   request.interfaceId != type(IACLGenerals).interfaceId ||
+    //   request.interfaceId != type(IPolicyManagement).interfaceId ||
+    //   request.interfaceId != type(IFunctionManagement).interfaceId ||
+    //   request.interfaceId != type(IContextManagement).interfaceId ||
+    //   request.interfaceId != type(IRealmManagement).interfaceId ||
+    //   request.interfaceId != type(IDomainManagement).interfaceId ||
+    //   request.interfaceId != type(IGlobalManagement).interfaceId ||
+    //   request.interfaceId != type(IMemberManagement).interfaceId ||
+    //   request.interfaceId != type(IRoleManagement).interfaceId ||
+    //   request.interfaceId != type(ITypeManagement).interfaceId, 
+    //   "Illegal InterfaceId"
+    // );    
 
     require(!data.facetSet.contains(request.facetId), "Facet Already Exist");    
-    require(IERC165(request.facetId).supportsInterface(request.interfaceId), "Illegal Interface");
+    // require(IERC165(request.facetId).supportsInterface(request.interfaceId), "Illegal Interface");
     for(uint j = 0; j < request.selectors.length; j++) {
       require(data.selectors[request.selectors[j]] == address(0), "Illegal Selector");
       data.selectors[request.selectors[j]] = request.facetId;
@@ -101,7 +114,7 @@ library LACLManager {
     data.facetSet.add(request.facetId);
     IACLCommons.FacetEntity storage facetEntity = data.facets[request.facetId];
     facetEntity.subjectId = request.subjectId;
-    facetEntity.interfaceId = request.interfaceId;      
+    // facetEntity.interfaceId = request.interfaceId;      
 
     return true;      
   }

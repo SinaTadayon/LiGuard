@@ -11,25 +11,22 @@ import "../IACLCommons.sol";
  * @dev
  *
  */
-interface IMemberManagement is IACLCommons {
+interface IMemberManagement is IACLCommons{
 
   struct MemberRegister {
     bytes32 roleId;
+    bytes32 adminId;
     address account;
+    uint32 callLimit;
     uint32 typeLimit;
     uint32 factoryLimit;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
   }
 
-  struct MemberUpdateTypeLimitRequest {
+  struct MemberUpdateLimitRequest {
     bytes32 memberId;
-    uint32 typeLimit;
-  }
-
-  struct MemberUpdateFactoryLimitRequest {
-    bytes32 memberId;
-    uint32 factoryLimit;
+    uint32 limit;
   }
 
   struct MemberInfo {
@@ -37,6 +34,8 @@ interface IMemberManagement is IACLCommons {
     address account;
     uint32 typeLimit;
     uint32 typeCount;
+    uint32 callLimit;
+    uint32 factoryLimit;
     AgentType atype;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
@@ -46,12 +45,15 @@ interface IMemberManagement is IACLCommons {
     address indexed sender, 
     bytes32 indexed memberId, 
     address indexed account,
-    bytes32 roleId  
+    bytes32 roleId,
+    bytes32 adminId 
   );
 
   event MemberTypeLimitUpdated(address indexed sender, bytes32 indexed memberId, uint32 typeLimit);
 
   event MemberFactoryLimitUpdated(address indexed sender, bytes32 indexed memberId, uint32 factoryLimit);
+
+  event MemberCallLimitUpdated(address indexed sender, bytes32 indexed memberId, uint32 callLimit);
 
   event MemberAdminUpdated(address indexed sender, bytes32 indexed memberId, bytes32 indexed adminId);
 
@@ -67,9 +69,11 @@ interface IMemberManagement is IACLCommons {
 
   function memberUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);
 
-  function memberUpdateTypeLimit(MemberUpdateTypeLimitRequest[] calldata requests) external returns (bool);
+  function memberUpdateTypeLimit(MemberUpdateLimitRequest[] calldata requests) external returns (bool);
 
-  function memberUpdateFactoryLimit(MemberUpdateFactoryLimitRequest[] calldata requests) external returns (bool);
+  function memberUpdateFactoryLimit(MemberUpdateLimitRequest[] calldata requests) external returns (bool);
+
+  function memberUpdateCallLimit(MemberUpdateLimitRequest[] calldata requests) external returns (bool);
 
   function memberCheckId(bytes32 memberId) external view returns (bool);
 

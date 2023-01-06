@@ -10,7 +10,7 @@ import "../../token/lively/IERC20Lock.sol";
 import "../../token/lively/LivelyStorage.sol";
 import "../../proxy/IProxy.sol";
 // import "../../acl/IContextManagement.sol";
-import "../../acl/IAccessControl.sol";
+import "../../acl/IACL.sol";
 import "../struct/LEnumerableSet.sol";
 
 /**

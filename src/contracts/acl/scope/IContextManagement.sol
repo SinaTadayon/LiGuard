@@ -11,7 +11,7 @@ import "../IACLCommons.sol";
  * @dev
  *
  */
-interface IContextManagement is IACLCommons {
+interface IContextManagement is IACLCommons{
   
   struct ContextRegisterRequest {
     bytes32 realmId;

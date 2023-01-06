@@ -11,27 +11,7 @@ import "./IACLCommons.sol";
  * @dev
  *
  */
-interface IAccessControl is IACLCommons {
-  /**
-   * @dev Function called by apps to check ACL
-   * @return boolean indicating whether the ACL allows
-   */
-  function hasAccess(bytes32 functionId) external view returns (bool);
-
-  function hasMemberAccess(bytes32 functionId, bytes32 memberId) external view returns (bool);
-
-  function hasCSAccess(address contractId, bytes4 selector) external view returns (bool);
-  
-  function hasAccountAccess(address contractId, bytes4 selector, address accountId) external view returns (bool);
-
-  function hasAccessToAgent(bytes32 agentId, bytes32 functionId) external view returns (bool);
-
-  function hasMemberAccessToAgent(bytes32 agentId, bytes32 functionId, bytes32 memberId) external view returns (bool);
-
-  function hasCSAccessToAgent(bytes32 agentId, address contractId, bytes4 selector) external view returns (bool);
-  
-  function hasAccountAccessToAgent(bytes32 agentId, address contractId, bytes4 selector, address accountId) external view returns (bool);
-
+interface IACLGenerals is IACLCommons{
   
   // Anonymouse type
   function getAnonymousType() external pure returns (bytes32);

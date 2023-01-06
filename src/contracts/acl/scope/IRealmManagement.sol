@@ -12,7 +12,7 @@ import "../IACLCommons.sol";
  *
  */
 
-interface IRealmManagement is IACLCommons {
+interface IRealmManagement is IACLCommons{
 
   struct RealmRegisterRequest {
     bytes32 domainId;

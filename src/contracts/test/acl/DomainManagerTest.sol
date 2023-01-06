@@ -4,7 +4,7 @@
 pragma solidity 0.8.17;
 
 import "./IDomainManagementTest.sol";
-import "../../acl/IAccessControl.sol";
+import "../../acl/IACL.sol";
 import "../../acl/ACLStorage.sol";
 import "../../lib/acl/LACLStorage.sol";
 import "../../lib/acl/LACLUtils.sol";
@@ -326,13 +326,14 @@ contract DomainManagerTest is ACLStorage, BaseUUPSProxy, IDomainManagementTest {
     return bytes32(0);  
   }
   
-  function _accessPermission(bytes4 selector) internal view returns (bytes32) {
+  function _accessPermission(bytes4 selector) internal returns (bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
     address functionFacetId = _data.selectors[selector];
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector);    
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
-    require(IAccessControl(address(this)).hasMemberAccess(senderId, functionId), "Access Denied");
+    IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
+    if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
     return functionId;
   }  
 

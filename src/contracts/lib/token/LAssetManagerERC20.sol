@@ -10,7 +10,7 @@ import "../../token/asset/AssetManagerStorageERC20.sol";
 import "../../token/asset/ERC20/AssetERC20.sol";
 import "../../token/lively/IERC20.sol";
 import "../../proxy/IProxy.sol";
-import "../../acl/IAccessControl.sol";
+import "../../acl/IACL.sol";
 import "../../utils/IERC165.sol";
 
 /**

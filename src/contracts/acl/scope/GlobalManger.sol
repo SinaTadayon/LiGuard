@@ -4,7 +4,8 @@
 pragma solidity 0.8.17;
 
 import "./IGlobalManagement.sol";
-import "../IAccessControl.sol";
+import "../IACL.sol";
+import "../IACLGenerals.sol";
 import "../ACLStorage.sol";
 import "../../lib/acl/LACLStorage.sol";
 import "../../lib/acl/LACLUtils.sol";
@@ -200,13 +201,14 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
     return (ScopeType.NONE, bytes32(0));  
   }
 
-  function _accessPermission(bytes4 selector) internal view returns (bytes32) {
+  function _accessPermission(bytes4 selector) internal returns (bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
     address functionFacetId = _data.selectors[selector];
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector); 
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
-    require(IAccessControl(address(this)).hasMemberAccess(senderId, functionId), "Access Denied");
+    IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
+    if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
     return functionId;
   }
 

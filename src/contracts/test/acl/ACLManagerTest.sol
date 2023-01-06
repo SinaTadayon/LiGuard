@@ -4,7 +4,7 @@
 pragma solidity 0.8.17;
 
 import "./IDomainManagementTest.sol";
-import "../../acl/IAccessControl.sol";
+import "../../acl/IACL.sol";
 import "../../acl/ACLStorage.sol";
 import "../../acl/IACLManager.sol";
 import "../../acl/scope/IContextManagement.sol";
@@ -54,18 +54,19 @@ contract ACLManagerTest is ACLStorage, BaseUUPSProxy, IACLManager {
   function aclGetFacetInfo(address facetId) external view returns (FacetInfo memory) {
     FacetEntity storage facetEntity = _data.facets[facetId];
     return FacetInfo({
-      subjectId: facetEntity.subjectId,
-      interfaceId: facetEntity.interfaceId
+      subjectId: facetEntity.subjectId
+      // interfaceId: facetEntity.interfaceId
     });
   }
-
 
   /**
    * @dev See {IERC165-supportsInterface}.
    */
   function supportsInterface(bytes4 interfaceId) public view override returns (bool) { 
     return
-      interfaceId == type(IAccessControl).interfaceId ||
+      interfaceId == type(IACL).interfaceId ||
+      interfaceId == type(IACLGenerals).interfaceId ||
+      interfaceId == type(IACLManager).interfaceId ||
       interfaceId == type(IPolicyManagement).interfaceId ||
       interfaceId == type(IFunctionManagement).interfaceId ||
       interfaceId == type(IContextManagement).interfaceId ||
@@ -83,7 +84,7 @@ contract ACLManagerTest is ACLStorage, BaseUUPSProxy, IACLManager {
       require(_getLocalAdmin() == _msgSender(), "Forbidden");      
       return _doAclRegisterFacet(requests);
     } else {
-      require(_hasPermission(this.aclRegisterFacet.selector), "Access Denied");
+      require(_hasPermission(this.aclRegisterFacet.selector) == IACL.AuthorizationStatus.PERMITTED, "Access Denied");
       return _doAclRegisterFacet(requests);
     }
   }
@@ -94,8 +95,8 @@ contract ACLManagerTest is ACLStorage, BaseUUPSProxy, IACLManager {
       emit ACLFacetRegistered(
         _msgSender(), 
         requests[i].facetId, 
-        requests[i].subjectId, 
-        requests[i].interfaceId
+        requests[i].subjectId
+        // requests[i].interfaceId
       );
     }
     if(_data.facetSet.length() >= 11) _firstInit = false;
@@ -110,10 +111,10 @@ contract ACLManagerTest is ACLStorage, BaseUUPSProxy, IACLManager {
       require(requests[i].subjectId != address(0) && facetEntity.subjectId != requests[i].subjectId, "Illegal Upgrade");            
 
       facetEntity.subjectId = requests[i].subjectId;
-      if(requests[i].interfaceId != bytes4(0) && facetEntity.interfaceId != requests[i].interfaceId) {
-        require(IERC165(requests[i].facetId).supportsInterface(requests[i].interfaceId), "Illegal Interface");
-        facetEntity.interfaceId = requests[i].interfaceId;
-      }
+      // if(requests[i].interfaceId != bytes4(0) && facetEntity.interfaceId != requests[i].interfaceId) {
+      //   require(IERC165(requests[i].facetId).supportsInterface(requests[i].interfaceId), "Illegal Interface");
+      //   facetEntity.interfaceId = requests[i].interfaceId;
+      // }
 
       for(uint j = 0; j < requests[i].functions.length; j++) {
         if (requests[i].functions[j].action == ActionType.REMOVE) {
@@ -130,7 +131,7 @@ contract ACLManagerTest is ACLStorage, BaseUUPSProxy, IACLManager {
           }
         } 
       }
-      emit ACLFacetUpgraded(_msgSender(), requests[i].facetId, requests[i].subjectId, requests[i].interfaceId);
+      emit ACLFacetUpgraded(_msgSender(), requests[i].facetId, requests[i].subjectId);
     }
     return true;
   }

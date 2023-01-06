@@ -5,7 +5,8 @@ pragma solidity 0.8.17;
 
 import "../ACLStorage.sol";
 import "./IRealmManagement.sol";
-import "../IAccessControl.sol";
+import "../IACL.sol";
+import "../IACLGenerals.sol";
 import "../../lib/acl/LACLStorage.sol";
 import "../../lib/acl/LACLUtils.sol";
 import "../../lib/struct/LEnumerableSet.sol";
@@ -125,7 +126,7 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
         if(ScopeType.REALM == requestAdminScopeType) {
           require(requestAdminScopeId == requests[i].id, "Illegal Amind Scope");
         } else {
-          require(IAccessControl(address(this)).isScopesCompatible(requestAdminScopeId, requests[i].id), "Illegal Admin Scope");
+          require(IACLGenerals(address(this)).isScopesCompatible(requestAdminScopeId, requests[i].id), "Illegal Admin Scope");
         }
         realmEntity.bs.adminId = requests[i].adminId;
 
@@ -340,13 +341,14 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     return false;   
   } 
 
-  function _accessPermission(bytes4 selector) internal view returns (bytes32) {
+  function _accessPermission(bytes4 selector) internal returns (bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
     address functionFacetId = _data.selectors[selector];
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector); 
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
-    require(IAccessControl(address(this)).hasMemberAccess(senderId, functionId), "Access Denied");
+    IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
+    if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
     return functionId;
   }
 

@@ -12,7 +12,7 @@ pragma solidity 0.8.17;
 
 import "../IACLCommons.sol";
 
-interface IDomainManagement is IACLCommons {
+interface IDomainManagement is IACLCommons{
 
   struct DomainRegisterRequest {
     bytes32 adminId;

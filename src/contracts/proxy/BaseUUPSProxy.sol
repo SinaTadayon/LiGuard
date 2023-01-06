@@ -10,7 +10,7 @@ import "./BaseUUPSStorage.sol";
 import "./Initializable.sol";
 import "../lib/LAddress.sol";
 import "../lib/LStorageSlot.sol";
-import "../acl/IAccessControl.sol";
+import "../acl/IACL.sol";
 import "../acl/scope/IContextManagement.sol";
 import "../utils/Message.sol";
 import "../utils/ERC165.sol";
@@ -67,18 +67,18 @@ abstract contract BaseUUPSProxy is
   }
 
   modifier aclCheck(bytes4 selector) {
-    require(_hasPermission(selector), "Forbidden");
+    require(_hasPermission(selector) == IACL.AuthorizationStatus.PERMITTED, "Forbidden");
     _;
   }
 
-  function _hasPermission(bytes4 selector) internal returns (bool) {
+  function _hasPermission(bytes4 selector) internal returns (IACL.AuthorizationStatus) {
     if(_accessControlManager == address(this)) {
       bytes memory data = abi.encodeWithSelector(bytes4(keccak256("getFirstInit()")));
       bytes memory returndata = LAddress.functionDelegateCall(_implementation(), data, "Call Failed"); // Delegatecall hasAccess Failed
-      if(uint8(returndata[returndata.length - 1]) == 1) return false;
-      return IAccessControl(_accessControlManager).hasAccountAccess(address(this), selector, _msgSender());    
+      if(uint8(returndata[returndata.length - 1]) == 1) return IACL.AuthorizationStatus.UNAUTHORIZED;
+      return IACL(_accessControlManager).hasAccountAccess(address(this), selector, _msgSender());
     } else {
-      return IAccessControl(_accessControlManager).hasAccountAccess(address(this), selector, _msgSender());
+      return IACL(_accessControlManager).hasAccountAccess(address(this), selector, _msgSender());
     }
   }
 
@@ -118,11 +118,11 @@ abstract contract BaseUUPSProxy is
 
     if (accessControl != address(this)) {
       require(LAddress.isContract(accessControl), "Illegal Contract");
-      if(!IERC165(accessControl).supportsInterface(type(IAccessControl).interfaceId)) {
+      if(!IERC165(accessControl).supportsInterface(type(IACL).interfaceId)) {
         revert("Illegal ACL");
       }     
     } else {
-      if(!supportsInterface(type(IAccessControl).interfaceId)) {
+      if(!supportsInterface(type(IACL).interfaceId)) {
         revert("Not Supported");
       }
     }
@@ -251,7 +251,7 @@ abstract contract BaseUUPSProxy is
    */
   function _authorizeUpgrade(address newImplementation) internal virtual {
     require(newImplementation != _implementation(), "Illegal");
-    require(_hasPermission(this.upgradeTo.selector), "Forbidden");
+    require(_hasPermission(this.upgradeTo.selector) == IACL.AuthorizationStatus.PERMITTED, "Forbidden");
   }
 
   function localAdmin() external view returns (address) {
@@ -261,7 +261,7 @@ abstract contract BaseUUPSProxy is
   function setLocalAdmin(address newLocalAdmin) external onlyProxy returns (bool) {
     require(_sstat == ProxySafeModeStatus.DISABLED, "Rejected");
     require(_ustat == ProxyUpdatabilityStatus.ENABLED, "Illegal Updatable");
-    require(_hasPermission(this.setLocalAdmin.selector), "Forbidden");
+    require(_hasPermission(this.setLocalAdmin.selector) == IACL.AuthorizationStatus.PERMITTED, "Forbidden");
     require(newLocalAdmin != address(0), "Invalid");
     _ustat = ProxyUpdatabilityStatus.DISABLED;
     _setLocalAdmin(newLocalAdmin);
@@ -286,7 +286,7 @@ abstract contract BaseUUPSProxy is
   // In each upgrade the initialize requirement must be changed
   function setSafeModeStatus(ProxySafeModeStatus sstat) external onlyProxy returns (bool) {
     require(_getInitializedCount() > 0, "NOT INIT");
-    require(_hasPermission(this.setSafeModeStatus.selector), "Forbidden");
+    require(_hasPermission(this.setSafeModeStatus.selector) == IACL.AuthorizationStatus.PERMITTED, "Forbidden");
     _sstat = sstat;
     emit ProxySafeModeUpdated(_msgSender(), address(this), sstat);
     return true;
@@ -294,7 +294,7 @@ abstract contract BaseUUPSProxy is
 
   function setUpdatabilityStatus(ProxyUpdatabilityStatus ustat) external onlyProxy returns (bool) {
     require(_sstat == ProxySafeModeStatus.DISABLED, "Rejected");
-    require(_hasPermission(this.setUpdatabilityStatus.selector), "Forbidden");
+    require(_hasPermission(this.setUpdatabilityStatus.selector) == IACL.AuthorizationStatus.PERMITTED, "Forbidden");
     _ustat = ustat;
     emit ProxyUpdatabilityUpdated(_msgSender(), address(this), ustat);
     return true;
@@ -306,12 +306,12 @@ abstract contract BaseUUPSProxy is
     require(acl != address(0) && LAddress.isContract(acl), "Illegal Contract");
 
     if(_accessControlManager != address(0)) {
-      require(_hasPermission(this.setAccessControlManager.selector), "Forbidden");
+      require(_hasPermission(this.setAccessControlManager.selector) == IACL.AuthorizationStatus.PERMITTED, "Forbidden");
     } else {
       require(_getLocalAdmin() == _msgSender(), "Access Denied");
     }
 
-    if(!IERC165(acl).supportsInterface(type(IAccessControl).interfaceId)) {
+    if(!IERC165(acl).supportsInterface(type(IACL).interfaceId)) {
         revert("Illegal ACL");  
     }
 
@@ -381,7 +381,7 @@ abstract contract BaseUUPSProxy is
 
   function withdrawBalance(address recepient) external returns(uint256) {
     require(_sstat == ProxySafeModeStatus.DISABLED, "Rejected");
-    require(_hasPermission(this.withdrawBalance.selector), "Forbidden");
+    require(_hasPermission(this.withdrawBalance.selector) == IACL.AuthorizationStatus.PERMITTED, "Forbidden");
     uint256 balance = address(this).balance;
     payable(recepient).transfer(address(this).balance);
     return balance;

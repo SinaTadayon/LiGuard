@@ -12,7 +12,7 @@ pragma solidity 0.8.17;
 
 import "../IACLCommons.sol";
 
-interface IGlobalManagement is IACLCommons {
+interface IGlobalManagement is IACLCommons{
  
   struct GlobalInfo {
     bytes32 id;

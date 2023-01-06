@@ -6,7 +6,8 @@ pragma solidity 0.8.17;
 import "./IMemberManagement.sol";
 import "./ITypeManagement.sol";
 import "../ACLStorage.sol";
-import "../IAccessControl.sol";
+import "../IACL.sol";
+import "../IACLGenerals.sol";
 import "../scope/IFunctionManagement.sol";
 import "../../lib/acl/LACLStorage.sol";
 import "../../lib/struct/LEnumerableSet.sol";
@@ -92,7 +93,15 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
 
       // create new member
       MemberEntity storage newMember = _data.memberWriteSlot(newMemberId);
-      newMember.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_TYPE_ID;
+
+      // check adminId
+      if(requests[i].adminId != bytes32(0)) {
+        require(_doAgentCheckAdminAccess(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID, senderId, functionId), "Set Admin Forbidden");
+        newMember.ba.adminId = requests[i].adminId;
+      } else {
+        newMember.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_TYPE_ID;
+      }
+      
       newMember.ba.atype = AgentType.MEMBER;
       newMember.ba.acstat = requests[i].acstat;
       newMember.ba.alstat = requests[i].alstat;
@@ -100,12 +109,14 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
       newMember.types.add(roleEntity.typeId);
       newMember.typeLimit = requests[i].typeLimit;
       newMember.factoryLimit = requests[i].factoryLimit;
+      newMember.callLimit = requests[i].callLimit;
 
       emit MemberRegistered(
         msg.sender,
         newMemberId,
         requests[i].account,
-        requests[i].roleId     
+        requests[i].roleId,
+        newMember.ba.adminId
       );
     }
 
@@ -160,27 +171,38 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
     return true;
   }
 
-  function memberUpdateTypeLimit(MemberUpdateTypeLimitRequest[] calldata requests) external returns (bool) {
+  function memberUpdateTypeLimit(MemberUpdateLimitRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IMemberManagement.memberUpdateTypeLimit.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     for (uint256 i = 0; i < requests.length; i++) {
       MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].memberId, senderId, functionId);
-      require(requests[i].typeLimit > memberEntity.types.length(), "Illegal Limit" );
-      memberEntity.typeLimit = requests[i].typeLimit;
-      emit MemberTypeLimitUpdated(msg.sender, requests[i].memberId, requests[i].typeLimit);
+      require(requests[i].limit > memberEntity.types.length(), "Illegal Limit" );
+      memberEntity.typeLimit = requests[i].limit;
+      emit MemberTypeLimitUpdated(msg.sender, requests[i].memberId, requests[i].limit);
     }
     return true;
   }  
 
-  function memberUpdateFactoryLimit(MemberUpdateFactoryLimitRequest[] calldata requests) external returns (bool) {
+  function memberUpdateFactoryLimit(MemberUpdateLimitRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IMemberManagement.memberUpdateFactoryLimit.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     for (uint256 i = 0; i < requests.length; i++) {
       MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].memberId, senderId, functionId);
-      memberEntity.factoryLimit = requests[i].factoryLimit;
-      emit MemberFactoryLimitUpdated(msg.sender, requests[i].memberId, requests[i].factoryLimit);
+      memberEntity.factoryLimit = requests[i].limit;
+      emit MemberFactoryLimitUpdated(msg.sender, requests[i].memberId, requests[i].limit);
     }
     return true;
+  }
+
+  function memberUpdateCallLimit(MemberUpdateLimitRequest[] calldata requests) external returns (bool) {
+    bytes32 functionId = _accessPermission(IMemberManagement.memberUpdateFactoryLimit.selector);
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
+    for (uint256 i = 0; i < requests.length; i++) {
+      MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].memberId, senderId, functionId);
+      memberEntity.callLimit = requests[i].limit;
+      emit MemberCallLimitUpdated(msg.sender, requests[i].memberId, requests[i].limit);
+    }
+    return true;    
   }
 
   function memberCheckId(bytes32 memberId) external view returns (bool) {
@@ -238,6 +260,8 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
         account: address(0),
         typeLimit: 0,
         typeCount: 0,
+        factoryLimit: 0,
+        callLimit: 0,
         atype: AgentType.NONE,
         acstat: ActivityStatus.NONE,
         alstat: AlterabilityStatus.NONE
@@ -249,6 +273,8 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
       account: member.account,
       typeLimit: member.typeLimit,
       typeCount: uint16(member.types.length()),
+      factoryLimit: member.factoryLimit,
+      callLimit: member.callLimit,
       atype: member.ba.atype,
       acstat: member.ba.acstat,
       alstat: member.ba.alstat
@@ -296,13 +322,14 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
     return false;   
   }
 
-  function _accessPermission(bytes4 selector) internal view returns (bytes32) {
+  function _accessPermission(bytes4 selector) internal returns (bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
     address functionFacetId = _data.selectors[selector];
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector); 
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
-    require(IAccessControl(address(this)).hasMemberAccess(senderId, functionId), "Access Denied");
+    IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
+    if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
     return functionId;
   }
 

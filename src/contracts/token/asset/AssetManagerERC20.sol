@@ -71,75 +71,75 @@ contract AssetManagerERC20 is AssetManagerStorageERC20, BaseUUPSProxy, IAssetMan
     return interfaceId == type(IAssetManagerERC20).interfaceId || super.supportsInterface(interfaceId);
   }
 
-  function tokenLock(address assetId, IERC20Lock.LockTokenRequest[] calldata lockRequests)
-    external
-    returns (bytes32[] memory)
-  {
-    _validationAndPolicyInterceptor(assetId, this.tokenLock.selector);
-    return IAssetERC20(assetId).tokenLock(lockRequests);
-  }
+  // function tokenLock(address assetId, IERC20Lock.LockTokenRequest[] calldata lockRequests)
+  //   external
+  //   returns (bytes32[] memory)
+  // {
+  //   _validationAndPolicyInterceptor(assetId, this.tokenLock.selector);
+  //   return IAssetERC20(assetId).tokenLock(lockRequests);
+  // }
 
-  function tokenTransfer(
-    address assetId,
-    address to,
-    uint256 amount
-  ) external returns (bool) {
-    _validationAndPolicyInterceptor(assetId, this.tokenTransfer.selector);
-    return IAssetERC20(assetId).tokenTransfer(to, amount);
-  }
+  // function tokenTransfer(
+  //   address assetId,
+  //   address to,
+  //   uint256 amount
+  // ) external returns (bool) {
+  //   _validationAndPolicyInterceptor(assetId, this.tokenTransfer.selector);
+  //   return IAssetERC20(assetId).tokenTransfer(to, amount);
+  // }
 
-  function tokenBatchTransfer(address assetId, IERC20Extra.BatchTransferRequest[] calldata request)
-    external
-    returns (bool)
-  {
-    _validationAndPolicyInterceptor(assetId, this.tokenBatchTransfer.selector);
-    return IAssetERC20(assetId).tokenBatchTransfer(request);
-  }
+  // function tokenBatchTransfer(address assetId, IERC20Extra.BatchTransferRequest[] calldata request)
+  //   external
+  //   returns (bool)
+  // {
+  //   _validationAndPolicyInterceptor(assetId, this.tokenBatchTransfer.selector);
+  //   return IAssetERC20(assetId).tokenBatchTransfer(request);
+  // }
 
-  function tokenTransferFrom(
-    address assetId,
-    address from,
-    address to,
-    uint256 amount
-  ) external returns (bool) {
-    _validationAndPolicyInterceptor(assetId, this.tokenTransferFrom.selector);
-    return IAssetERC20(assetId).tokenTransferFrom(from, to, amount);
-  }
+  // function tokenTransferFrom(
+  //   address assetId,
+  //   address from,
+  //   address to,
+  //   uint256 amount
+  // ) external returns (bool) {
+  //   _validationAndPolicyInterceptor(assetId, this.tokenTransferFrom.selector);
+  //   return IAssetERC20(assetId).tokenTransferFrom(from, to, amount);
+  // }
 
-  function tokenBatchTransferFrom(address assetId, IERC20Extra.BatchTransferFromRequest[] calldata request)
-    external
-    returns (bool)
-  {
-    _validationAndPolicyInterceptor(assetId, this.tokenBatchTransferFrom.selector);
-    return IAssetERC20(assetId).tokenBatchTransferFrom(request);
-  }
+  // function tokenBatchTransferFrom(address assetId, IERC20Extra.BatchTransferFromRequest[] calldata request)
+  //   external
+  //   returns (bool)
+  // {
+  //   _validationAndPolicyInterceptor(assetId, this.tokenBatchTransferFrom.selector);
+  //   return IAssetERC20(assetId).tokenBatchTransferFrom(request);
+  // }
 
-  function tokenApprove(
-    address assetId,
-    address spender,
-    uint256 amount
-  ) external returns (bool) {
-    _validationAndPolicyInterceptor(assetId, this.tokenApprove.selector);
-    return IAssetERC20(assetId).tokenApprove(spender, amount);
-  }
+  // function tokenApprove(
+  //   address assetId,
+  //   address spender,
+  //   uint256 amount
+  // ) external returns (bool) {
+  //   _validationAndPolicyInterceptor(assetId, this.tokenApprove.selector);
+  //   return IAssetERC20(assetId).tokenApprove(spender, amount);
+  // }
 
-  function tokenIncreaseAllowance(
-    address assetId,
-    address spender,
-    uint256 amount
-  ) external returns (uint256) {
-    _validationAndPolicyInterceptor(assetId, this.tokenIncreaseAllowance.selector);
-    return IAssetERC20(assetId).tokenIncreaseAllowance(spender, amount);
-  }
+  // function tokenIncreaseAllowance(
+  //   address assetId,
+  //   address spender,
+  //   uint256 amount
+  // ) external returns (uint256) {
+  //   _validationAndPolicyInterceptor(assetId, this.tokenIncreaseAllowance.selector);
+  //   return IAssetERC20(assetId).tokenIncreaseAllowance(spender, amount);
+  // }
 
-  function tokenDecreaseAllowance(
-    address assetId,
-    address spender,
-    uint256 amount
-  ) external returns (uint256) {
-    _validationAndPolicyInterceptor(assetId, this.tokenDecreaseAllowance.selector);
-    return IAssetERC20(assetId).tokenDecreaseAllowance(spender, amount);
-  }
+  // function tokenDecreaseAllowance(
+  //   address assetId,
+  //   address spender,
+  //   uint256 amount
+  // ) external returns (uint256) {
+  //   _validationAndPolicyInterceptor(assetId, this.tokenDecreaseAllowance.selector);
+  //   return IAssetERC20(assetId).tokenDecreaseAllowance(spender, amount);
+  // }
 
   function registerToken(address tokenId, address assetSubjectId, bytes calldata assetSignature) external returns (bool) {
     _policyInterceptor(this.registerToken.selector);

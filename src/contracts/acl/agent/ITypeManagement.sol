@@ -11,7 +11,7 @@ import "../IACLCommons.sol";
  * @dev
  *
  */
-interface ITypeManagement is IACLCommons {
+interface ITypeManagement is IACLCommons{
 
   struct TypeRegisterRequest {
     bytes32 adminId;          

@@ -5,7 +5,8 @@ pragma solidity 0.8.17;
 
 import "./IContextManagement.sol";
 import "../ACLStorage.sol";
-import "../IAccessControl.sol";
+import "../IACL.sol";
+import "../IACLGenerals.sol";
 import "../../lib/acl/LACLStorage.sol";
 import "../../lib/proxy/LClones.sol";
 import "../../lib/cryptography/LECDSA.sol";
@@ -169,7 +170,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
         if(ScopeType.CONTEXT == requestAdminScopeType) {
           require(requestAdminScopeId == requests[i].id, "Illegal Amind Scope");
         } else {
-          require(IAccessControl(address(this)).isScopesCompatible(requestAdminScopeId, requests[i].id), "Illegal Admin Scope");
+          require(IACLGenerals(address(this)).isScopesCompatible(requestAdminScopeId, requests[i].id), "Illegal Admin Scope");
         }
         contextEntity.bs.adminId = requests[i].adminId;
 
@@ -360,13 +361,14 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     });
   }
 
-  function _accessPermission(bytes4 selector) internal view returns (bytes32) {
+  function _accessPermission(bytes4 selector) internal returns (bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
     address functionFacetId = _data.selectors[selector];
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector); 
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
-    require(IAccessControl(address(this)).hasMemberAccess(senderId, functionId), "Access Denied");
+    IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
+    if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
     return functionId;
   }
 
@@ -396,7 +398,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
         require(requestAdminScopeId == realmId, "Illegal Admin Scope");
     
       } else {
-        require(IAccessControl(address(this)).isScopesCompatible(requestAdminScopeId, scopeId), "Illegal Admin Scope");
+        require(IACLGenerals(address(this)).isScopesCompatible(requestAdminScopeId, scopeId), "Illegal Admin Scope");
       }
       contextAdminId = adminId;
 
@@ -421,7 +423,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
       return true;
     } 
 
-    return IAccessControl(address(this)).isScopesCompatible(memberSystemRole.scopeId, scopeId);    
+    return IACLGenerals(address(this)).isScopesCompatible(memberSystemRole.scopeId, scopeId);    
   }
 
 
@@ -430,7 +432,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     bytes32 functionId = LACLUtils.functionGenerateId(_data.selectors[IContextManagement.contextRegister.selector], IContextManagement.contextRegister.selector);
     bytes32 signerId = LACLUtils.accountGenerateId(signer);  
     bytes32 newContextId = LACLUtils.accountGenerateId(contractId);
-    require(IAccessControl(address(this)).hasMemberAccess(signerId, functionId), "Access Denied");
+    require(IACL(address(this)).hasMemberAccess(functionId, signerId) == IACL.AuthorizationStatus.PERMITTED, "Access Denied");
     require(_data.scopes[newContextId].stype == ScopeType.NONE, "Already Exist");
     require(
       request.acstat > ActivityStatus.DELETED && 

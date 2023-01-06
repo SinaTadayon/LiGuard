@@ -62,46 +62,46 @@ interface IAssetManagerERC20 {
 
   function safeModeToken(address tokenId) external view returns (TokenSafeModeStatus);
 
-  function tokenLock(address assetId, IERC20Lock.LockTokenRequest[] calldata lockRequests) external returns (bytes32[] memory);
+  // function tokenLock(address assetId, IERC20Lock.LockTokenRequest[] calldata lockRequests) external returns (bytes32[] memory);
 
-  function tokenTransfer(
-    address assetId,
-    address to,
-    uint256 amount
-  ) external returns (bool);
+  // function tokenTransfer(
+  //   address assetId,
+  //   address to,
+  //   uint256 amount
+  // ) external returns (bool);
 
-  function tokenBatchTransfer(address assetId, IERC20Extra.BatchTransferRequest[] calldata request)
-    external
-    returns (bool);
+  // function tokenBatchTransfer(address assetId, IERC20Extra.BatchTransferRequest[] calldata request)
+  //   external
+  //   returns (bool);
 
-  function tokenTransferFrom(
-    address assetId,
-    address from,
-    address to,
-    uint256 amount
-  ) external returns (bool);
+  // function tokenTransferFrom(
+  //   address assetId,
+  //   address from,
+  //   address to,
+  //   uint256 amount
+  // ) external returns (bool);
 
-  function tokenBatchTransferFrom(address assetId, IERC20Extra.BatchTransferFromRequest[] calldata request)
-    external
-    returns (bool);
+  // function tokenBatchTransferFrom(address assetId, IERC20Extra.BatchTransferFromRequest[] calldata request)
+  //   external
+  //   returns (bool);
 
-  function tokenApprove(
-    address assetId,
-    address spender,
-    uint256 amount
-  ) external returns (bool);
+  // function tokenApprove(
+  //   address assetId,
+  //   address spender,
+  //   uint256 amount
+  // ) external returns (bool);
 
-  function tokenIncreaseAllowance(
-    address assetId,
-    address spender,
-    uint256 amount
-  ) external returns (uint256);
+  // function tokenIncreaseAllowance(
+  //   address assetId,
+  //   address spender,
+  //   uint256 amount
+  // ) external returns (uint256);
 
-  function tokenDecreaseAllowance(
-    address assetId,
-    address spender,
-    uint256 amount
-  ) external returns (uint256);
+  // function tokenDecreaseAllowance(
+  //   address assetId,
+  //   address spender,
+  //   uint256 amount
+  // ) external returns (uint256);
 
   function getAllTokens() external view returns (address[] memory);
 

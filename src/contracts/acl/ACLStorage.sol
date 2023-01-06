@@ -37,23 +37,23 @@ abstract contract ACLStorage is BaseUUPSStorage, IACLCommons {
     keccak256("PredictContext(address deployer,address subject,string realm)");
 
   // General Types ID
-  bytes32 internal constant _LIVELY_VERSE_LIVELY_MASTER_TYPE_ID = keccak256(abi.encodePacked("LIVELY_VERSE_LIVELY_MASTER_TYPE"));
-  bytes32 internal constant _LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID = keccak256(abi.encodePacked("LIVELY_VERSE_SYSTEM_MASTER_TYPE"));
-  bytes32 internal constant _LIVELY_VERSE_ANONYMOUS_TYPE_ID     = keccak256(abi.encodePacked("LIVELY_VERSE_ANONYMOUS_TYPE"));
-  bytes32 internal constant _LIVELY_VERSE_ANY_TYPE_ID           = keccak256(abi.encodePacked("LIVELY_VERSE_ANY_TYPE"));
-  bytes32 internal constant _LIVELY_VERSE_SCOPE_MASTER_TYPE_ID  = keccak256(abi.encodePacked("LIVELY_VERSE_SCOPE_MASTER_TYPE"));
-  bytes32 internal constant _LIVELY_VERSE_AGENT_MASTER_TYPE_ID  = keccak256(abi.encodePacked("LIVELY_VERSE_AGENT_MASTER_TYPE"));
-  bytes32 internal constant _LIVELY_VERSE_POLICY_MASTER_TYPE_ID = keccak256(abi.encodePacked("LIVELY_VERSE_POLICY_MASTER_TYPE"));
+  bytes32 internal constant _LIVELY_VERSE_LIVELY_MASTER_TYPE_ID = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_MASTER"));
+  bytes32 internal constant _LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_SYSTEM_MASTER"));
+  bytes32 internal constant _LIVELY_VERSE_ANONYMOUS_TYPE_ID     = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_ANONYMOUS"));
+  bytes32 internal constant _LIVELY_VERSE_ANY_TYPE_ID           = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_ANY"));
+  bytes32 internal constant _LIVELY_VERSE_SCOPE_MASTER_TYPE_ID  = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_SCOPE_MASTER"));
+  bytes32 internal constant _LIVELY_VERSE_AGENT_MASTER_TYPE_ID  = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_AGENT_MASTER"));
+  bytes32 internal constant _LIVELY_VERSE_POLICY_MASTER_TYPE_ID = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_POLICY_MASTER"));
 
   // General Roles ID 
-  bytes32 internal constant _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID = keccak256(abi.encodePacked("LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE"));
-  bytes32 internal constant _LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID = keccak256(abi.encodePacked("LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE"));
-  bytes32 internal constant _LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID  = keccak256(abi.encodePacked("LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE"));
-  bytes32 internal constant _LIVELY_VERSE_AGENT_MASTER_ADMIN_ROLE_ID  = keccak256(abi.encodePacked("LIVELY_VERSE_AGENT_MASTER_ADMIN_ROLE"));
-  bytes32 internal constant _LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE_ID = keccak256(abi.encodePacked("LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE"));
+  bytes32 internal constant _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID = keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_MASTER_ADMIN"));
+  bytes32 internal constant _LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID = keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_SYSTEM_MASTER_ADMIN"));
+  bytes32 internal constant _LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID  = keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_SCOPE_MASTER_ADMIN"));
+  bytes32 internal constant _LIVELY_VERSE_AGENT_MASTER_ADMIN_ROLE_ID  = keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_AGENT_MASTER_ADMIN"));
+  bytes32 internal constant _LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE_ID = keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_POLICY_MASTER_ADMIN"));
 
   // Global Scope ID
-  bytes32 internal constant _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID = keccak256(abi.encodePacked("LIVELY_VERSE_LIVELY_GLOBAL_SCOPE"));
+  bytes32 internal constant _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID = keccak256(abi.encodePacked("GLOBAL.LIVELY_VERSE"));
 
   bool internal _firstInit;
   DataCollection internal _data;

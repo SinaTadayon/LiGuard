@@ -13,7 +13,8 @@ import "../../../utils/ERC165.sol";
 import "../../../lib/cryptography/LECDSA.sol";
 import "../../../lib/LAddress.sol";
 import "../../../lib/acl/LACLUtils.sol";
-import "../../../acl/IAccessControl.sol";
+import "../../../acl/IACL.sol";
+import "../../../acl/IACLGenerals.sol";
 import "../../../acl/agent/IRoleManagement.sol";
 import "../../../acl/scope/IFunctionManagement.sol";
 import "../../../acl/scope/IContextManagement.sol";
@@ -65,7 +66,7 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
     if(!IERC165(request.erc20TokenId).supportsInterface(type(IERC20Lock).interfaceId))
       revert("Illegal ERC20TokenLock");
 
-    if(!IERC165(request.accessControlId).supportsInterface(type(IAccessControl).interfaceId))
+    if(!IERC165(request.accessControlId).supportsInterface(type(IACL).interfaceId))
       revert("Illegal ACL");
 
     if(!IERC165(request.assetManagerId).supportsInterface(type(IAssetManagerERC20).interfaceId))
@@ -116,18 +117,7 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
   function _createFunctionRequest(InitRequest calldata request) internal pure
     returns (bytes memory)
   {
-    IFunctionManagement.FunctionSignatureRequest memory sigRequest =  IFunctionManagement.FunctionSignatureRequest({
-      signature: request.signature,
-      realmId: request.realmId,
-      salt: request.salt,
-      name: request.contractName,
-      version: request.contractVersion,
-      subject: request.subjectId,
-      deployer: request.assetManagerId,
-      contractId: address(0)
-    });
-
-    IFunctionManagement.FunctionRegisterRequest[] memory functionRequests = new IFunctionManagement.FunctionRegisterRequest[](11);
+    IFunctionManagement.FunctionRequest[] memory functionRequests = new IFunctionManagement.FunctionRequest[](11);
     
     // assetSafeModeSet
     functionRequests[0].adminId =  request.adminId;
@@ -219,7 +209,18 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
     functionRequests[9].acstat = IACLCommons.ActivityStatus.ENABLED;
     functionRequests[9].alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
 
-    return abi.encode(IFunctionManagement.functionRegister.selector, sigRequest, functionRequests);
+    IFunctionManagement.FunctionRegisterRequest[] memory requests = new IFunctionManagement.FunctionRegisterRequest[](1);
+    requests[0].signature =  request.signature;
+    requests[0].realmId =  request.realmId;
+    requests[0].salt =  request.salt;
+    requests[0].name =  request.contractName;
+    requests[0].version =  request.contractVersion;
+    requests[0].subject =  request.subjectId;
+    requests[0].deployer =  request.assetManagerId;
+    requests[0].contractId =  address(0);
+    requests[0].freq = functionRequests;
+
+    return abi.encode(IFunctionManagement.functionRegister.selector, requests);
   }
 
   /**
@@ -298,11 +299,11 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
 
   function assetSetSafeMode(AssetSafeModeStatus status) public override returns (bool) {
     require(
-      IAccessControl(_accessControlId).hasAccountAccess(
+      IACL(_accessControlId).hasAccountAccess(
         address(this),
         this.assetSetSafeMode.selector,
         _msgSender()
-      ),
+      ) == IACL.AuthorizationStatus.PERMITTED,
       "Access Denied"
     );
     require(_getInitializedCount() > 0, "NOT INIT");
@@ -370,14 +371,14 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
     return address(this).balance;
   }
 
-  function _policyInterceptor(bytes4 funcSelector) private view {
+  function _policyInterceptor(bytes4 funcSelector) private {
     require(_assetSafeModeStatus == AssetSafeModeStatus.DISABLED, "Rejected");
     require(
-      IAccessControl(_accessControlId).hasAccountAccess(
+      IACL(_accessControlId).hasAccountAccess(
         address(this),
         funcSelector,
         _msgSender()
-      ),
+      )  == IACL.AuthorizationStatus.PERMITTED,
       "Access Denied"
     );
   }

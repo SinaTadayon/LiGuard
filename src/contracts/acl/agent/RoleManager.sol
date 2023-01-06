@@ -7,7 +7,8 @@ import "./IRoleManagement.sol";
 import "./IMemberManagement.sol";
 import "./ITypeManagement.sol";
 import "../ACLStorage.sol";
-import "../IAccessControl.sol";
+import "../IACL.sol";
+import "../IACLGenerals.sol";
 import "../scope/IFunctionManagement.sol";
 import "../../lib/acl/LACLStorage.sol";
 import "../../lib/struct/LEnumerableSet.sol";
@@ -352,20 +353,20 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
       if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
         return false;
 
-      console.log("4");
       return true;
     } 
 
     return false;   
   }
 
-  function _accessPermission(bytes4 selector) internal view returns (bytes32) {
+  function _accessPermission(bytes4 selector) internal returns (bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
     address functionFacetId = _data.selectors[selector];
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector); 
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
-    require(IAccessControl(address(this)).hasMemberAccess(senderId, functionId), "Access Denied");
+    IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
+    if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
     return functionId;
   }
 
@@ -378,7 +379,7 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
       if(requestScopeType == requestAdminScopeType) {
         require(requestAdminScopeId == scopeId, "Illegal Amind Scope");
       } else {
-        require(IAccessControl(address(this)).isScopesCompatible(requestAdminScopeId, scopeId), "Illegal Admin Scope");
+        require(IACLGenerals(address(this)).isScopesCompatible(requestAdminScopeId, scopeId), "Illegal Admin Scope");
       }
       roleAdminId = adminId;
 
@@ -403,7 +404,7 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
     if (requestTypeScopeType == requestScope.stype) {
       require(typeScopeId == requestScopeId, "Illegal Scope");
     } else {
-      require(IAccessControl(address(this)).isScopesCompatible(typeScopeId, requestScopeId), "Illegal Scope");
+      require(IACLGenerals(address(this)).isScopesCompatible(typeScopeId, requestScopeId), "Illegal Scope");
     }
 
     return requestScope.stype;

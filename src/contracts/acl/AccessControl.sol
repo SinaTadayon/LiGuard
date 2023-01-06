@@ -4,7 +4,8 @@
 pragma solidity 0.8.17;
 
 import "./policy/IPolicyManagement.sol";
-import "./IAccessControl.sol";
+import "./IACL.sol";
+import "./IACLGenerals.sol";
 import "./ACLStorage.sol";
 import "./scope/IFunctionManagement.sol";
 import "./agent/IRoleManagement.sol";
@@ -23,7 +24,7 @@ import "hardhat/console.sol";
  * @dev
  *
  */
-contract AccessControl is ACLStorage, BaseUUPSProxy, IAccessControl {
+contract AccessControl is ACLStorage, BaseUUPSProxy, IACLGenerals, IACL {
   using LACLStorage for DataCollection;
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
 
@@ -51,67 +52,69 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IAccessControl {
    */
   function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
     return
-      interfaceId == type(IAccessControl).interfaceId ||
+      interfaceId == type(IACL).interfaceId ||
+      interfaceId == type(IACLGenerals).interfaceId ||
       super.supportsInterface(interfaceId);
   }
 
-  function hasAccess(bytes32 functionId) external view returns (bool) {
+  function hasAccess(bytes32 functionId) external returns (AuthorizationStatus) {
     (FunctionEntity storage functionEntity, bool result) = _data.functionTryReadSlot(functionId);   
-    if (!result) return false;
+    if (!result) return AuthorizationStatus.FUNCTION_NOT_FOUND;
     return _doHasAccess(functionEntity.agentId, LACLUtils.accountGenerateId(msg.sender), functionEntity);
   }
 
-  function hasMemberAccess(bytes32 memberId, bytes32 functionId) external view returns (bool) {
+  function hasMemberAccess(bytes32 functionId, bytes32 memberId) external returns (AuthorizationStatus) {
     (FunctionEntity storage functionEntity, bool result) = _data.functionTryReadSlot(functionId);
-    if (!result) return false;
+    if (!result) return AuthorizationStatus.FUNCTION_NOT_FOUND;
     return _doHasAccess(functionEntity.agentId, memberId, functionEntity);
   }
 
-  function hasCSAccess(address contractId, bytes4 selector) external view returns (bool) {
+  function hasCSAccess(address contractId, bytes4 selector) external returns (AuthorizationStatus) {
     bytes32 functionId = LACLUtils.functionGenerateId(contractId, selector);
     (FunctionEntity storage functionEntity, bool result) = _data.functionTryReadSlot(functionId);
-    if (!result) return false;
+    if (!result) return AuthorizationStatus.FUNCTION_NOT_FOUND;
     return _doHasAccess(functionEntity.agentId, LACLUtils.accountGenerateId(msg.sender), functionEntity);
   }
 
-  function hasAccountAccess(address contractId, bytes4 selector, address accountId) external view returns (bool) {
+  function hasAccountAccess(address contractId, bytes4 selector, address accountId) external returns (AuthorizationStatus) {
     bytes32 functionId = LACLUtils.functionGenerateId(contractId, selector);
     bytes32 memberId = LACLUtils.accountGenerateId(accountId);
     (FunctionEntity storage functionEntity, bool result) = _data.functionTryReadSlot(functionId);
-    if (!result) return false;
+    if (!result) return AuthorizationStatus.FUNCTION_NOT_FOUND;
     return _doHasAccess(functionEntity.agentId, memberId, functionEntity);
   }
 
-  function hasAccessToAgent(bytes32 agentId, bytes32 functionId) external view returns (bool) {
-    (FunctionEntity storage functionEntity, bool result) = _data.functionTryReadSlot(functionId);
-    if (!result) return false;
-    return _doHasAccess(agentId, LACLUtils.accountGenerateId(msg.sender), functionEntity);
-  }
+  // function hasAccessToAgent(bytes32 agentId, bytes32 functionId) external view returns (bool) {
+  //   (FunctionEntity storage functionEntity, bool result) = _data.functionTryReadSlot(functionId);
+  //   if (!result) return false;
+  //   return _doHasAccess(agentId, LACLUtils.accountGenerateId(msg.sender), functionEntity);
+  // }
 
-  function hasMemberAccessToAgent(bytes32 agentId, bytes32 functionId, bytes32 memberId) external view returns (bool) {
-    (FunctionEntity storage functionEntity, bool result) = _data.functionTryReadSlot(functionId);
-    if (!result) return false;
-    return _doHasAccess(agentId, memberId, functionEntity);
-  }
+  // function hasMemberAccessToAgent(bytes32 agentId, bytes32 functionId, bytes32 memberId) external view returns (bool) {
+  //   (FunctionEntity storage functionEntity, bool result) = _data.functionTryReadSlot(functionId);
+  //   if (!result) return false;
+  //   return _doHasAccess(agentId, memberId, functionEntity);
+  // }
 
-  function hasCSAccessToAgent(bytes32 agentId, address contractId, bytes4 selector) external view returns (bool) {
-    bytes32 functionId = LACLUtils.functionGenerateId(contractId, selector);
-    (FunctionEntity storage functionEntity, bool result) = _data.functionTryReadSlot(functionId);
-    if (!result) return false;
-    return _doHasAccess(agentId, LACLUtils.accountGenerateId(msg.sender), functionEntity);
-  }
+  // function hasCSAccessToAgent(bytes32 agentId, address contractId, bytes4 selector) external view returns (bool) {
+  //   bytes32 functionId = LACLUtils.functionGenerateId(contractId, selector);
+  //   (FunctionEntity storage functionEntity, bool result) = _data.functionTryReadSlot(functionId);
+  //   if (!result) return false;
+  //   return _doHasAccess(agentId, LACLUtils.accountGenerateId(msg.sender), functionEntity);
+  // }
   
-  function hasAccountAccessToAgent(bytes32 agentId, address contractId, bytes4 selector, address accountId) external view returns (bool) {
-    bytes32 functionId = LACLUtils.functionGenerateId(contractId, selector);
-    bytes32 memberId = LACLUtils.accountGenerateId(accountId);
-    (FunctionEntity storage functionEntity, bool result) = _data.functionTryReadSlot(functionId);
-    if (!result) return false;
-    return _doHasAccess(agentId, memberId, functionEntity);
-  }
+  // function hasAccountAccessToAgent(bytes32 agentId, address contractId, bytes4 selector, address accountId) external view returns (bool) {
+  //   bytes32 functionId = LACLUtils.functionGenerateId(contractId, selector);
+  //   bytes32 memberId = LACLUtils.accountGenerateId(accountId);
+  //   (FunctionEntity storage functionEntity, bool result) = _data.functionTryReadSlot(functionId);
+  //   if (!result) return false;
+  //   return _doHasAccess(agentId, memberId, functionEntity);
+  // }
 
-  function _doHasAccess(bytes32 agentId, bytes32 memberId, FunctionEntity storage functionEntity) internal view returns (bool) {
+  function _doHasAccess(bytes32 agentId, bytes32 memberId, FunctionEntity storage functionEntity) internal returns (AuthorizationStatus) {
     
     AgentType atype = _data.agents[agentId].atype;
+
     // console.log("agentId: ");
     // console.logBytes32(agentId);
     // console.log("atype: ");
@@ -124,96 +127,122 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IAccessControl {
     if(atype == AgentType.ROLE) {
       // check member activation
       // console.log("agentId type is role");
-      if(_data.agents[memberId].acstat != ActivityStatus.ENABLED) return false;
-
+      (MemberEntity storage memberEntity, bool result0) = _data.memberTryReadSlot(memberId);
+      if(!result0) return AuthorizationStatus.MEMBER_NOT_FOUND;
+      if(memberEntity.ba.acstat != ActivityStatus.ENABLED) return AuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN;
+      if(memberEntity.callLimit > 0) {
+        memberEntity.callLimit -= 1;
+      } else {
+        return AuthorizationStatus.CALL_FORBIDDEN;
+      }
+      
       // check role activation
       (RoleEntity storage roleEntity, bool result1) = _data.roleTryReadSlot(agentId);
       // console.log("roleEntity: ");
       // console.logBytes1(bytes1(uint8(roleEntity.ba.acstat)));
-      if(!result1 || roleEntity.ba.acstat != ActivityStatus.ENABLED) return false;
+      if(!result1) return AuthorizationStatus.ROLE_NOT_FOUND;      
+      if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return AuthorizationStatus.ROLE_ACTIVITY_FORBIDDEN;
 
       // check type activation
       (TypeEntity storage typeEntity, bool result2) = _data.typeTryReadSlot(roleEntity.typeId);
       // console.log("typeEntity: ");
       // console.logBytes1(bytes1(uint8(typeEntity.ba.acstat)));
-      if(!result2 || typeEntity.ba.acstat != ActivityStatus.ENABLED) return false;
+      if(!result2) return AuthorizationStatus.TYPE_NOT_FOUND;
+      if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return AuthorizationStatus.TYPE_ACTIVITY_FORBIDDEN;
 
       // check memberId with agentId role
-      if (typeEntity.members[memberId] != agentId) return false;
+      if (typeEntity.members[memberId] != agentId) return AuthorizationStatus.UNAUTHORIZED;
 
       // check policy activation
       PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[agentId]];
       // console.log("policyEntity: ");
       // console.logBytes1(bytes1(uint8(policyEntity.acstat)));
       if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
-        return false;
+        return AuthorizationStatus.POLICY_FORBIDDEN;
 
     } else if(atype == AgentType.TYPE) {
       // console.log("agentId is type . . .");
       if(agentId == _LIVELY_VERSE_ANY_TYPE_ID) {
         // console.log("agentId is ANY type . . .");
-        if(_data.agents[memberId].acstat != ActivityStatus.ENABLED) {
-          return false; 
-        }
+      (MemberEntity storage memberEntity, bool result0) = _data.memberTryReadSlot(memberId);
+      if(!result0) return AuthorizationStatus.MEMBER_NOT_FOUND;
+      if(memberEntity.ba.acstat != ActivityStatus.ENABLED) return AuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN;
+      if(memberEntity.callLimit > 0) {
+        memberEntity.callLimit -= 1;
+      } else {
+        return AuthorizationStatus.CALL_FORBIDDEN;
+      }
 
       } else if(agentId != _LIVELY_VERSE_ANONYMOUS_TYPE_ID) {
         // check member activation
         // console.log("agentId is Anonymous type . . .");
-        if(_data.agents[memberId].acstat != ActivityStatus.ENABLED) return false;
+        (MemberEntity storage memberEntity, bool result0) = _data.memberTryReadSlot(memberId);
+        if(!result0) return AuthorizationStatus.MEMBER_NOT_FOUND;
+        if(memberEntity.ba.acstat != ActivityStatus.ENABLED) return AuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN;
+        if(memberEntity.callLimit > 0) {
+          memberEntity.callLimit -= 1;
+        } else {
+          return AuthorizationStatus.CALL_FORBIDDEN;
+        }
         
         // check type activation
         (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(agentId);
         // console.log("typeEntity: ");
         // console.logBytes1(bytes1(uint8(typeEntity.ba.acstat)));
-        if(!result1 || typeEntity.ba.acstat != ActivityStatus.ENABLED) return false;
+        if(!result1) return AuthorizationStatus.TYPE_NOT_FOUND;
+        if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return AuthorizationStatus.TYPE_ACTIVITY_FORBIDDEN;
 
         // check role activation
         bytes32 roleId = typeEntity.members[memberId];
         (RoleEntity storage roleEntity, bool result2) = _data.roleTryReadSlot(roleId);
         // console.log("roleEntity: ");
         // console.logBytes1(bytes1(uint8(roleEntity.ba.acstat)));
-        if(!result2 || roleEntity.ba.acstat != ActivityStatus.ENABLED) return false;
+        if(!result2) return AuthorizationStatus.ROLE_NOT_FOUND;
+        if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return AuthorizationStatus.ROLE_ACTIVITY_FORBIDDEN;
         
         // check policy activation
         PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[roleId]];
         // console.log("policyEntity: ");
         // console.logBytes1(bytes1(uint8(policyEntity.acstat)));
         if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
-          return false;
+          return AuthorizationStatus.POLICY_FORBIDDEN;
       } 
     } else if(atype <= AgentType.MEMBER) {
-      return false;
+      return AuthorizationStatus.UNAUTHORIZED;
     }
 
     // check function activity
     // console.log("functionEntity: ");
     // console.logBytes1(bytes1(uint8(functionEntity.bs.acstat)));
-    if(functionEntity.bs.acstat != ActivityStatus.ENABLED) return false;
+    if(functionEntity.bs.acstat != ActivityStatus.ENABLED) return AuthorizationStatus.FUNCTION_ACTIVITY_FORBIDDEN;
 
     // check context activity
     (ContextEntity storage contextEntity, bool res1) = _data.contextTryReadSlot(functionEntity.contextId);
     // console.log("contextEntity: ");
     // console.logBytes1(bytes1(uint8(contextEntity.bs.acstat)));
-    if(!res1 || contextEntity.bs.acstat != ActivityStatus.ENABLED) return false;
+    if(!res1) return AuthorizationStatus.CONTEXT_NOT_FOUND;
+    if(contextEntity.bs.acstat != ActivityStatus.ENABLED) return AuthorizationStatus.CONTEXT_ACTIVITY_FORBIDDEN;
 
     // check realm activity
     (RealmEntity storage realmEntity, bool res2) = _data.realmTryReadSlot(contextEntity.realmId);
     // console.log("realmEntity: ");
     // console.logBytes1(bytes1(uint8(contextEntity.bs.acstat)));
-    if(!res2 || realmEntity.bs.acstat != ActivityStatus.ENABLED) return false;
+    if(!res2) return AuthorizationStatus.REALM_NOT_FOUND;
+    if(realmEntity.bs.acstat != ActivityStatus.ENABLED) return AuthorizationStatus.REALM_ACTIVITY_FORBIDDEN;
 
     // check domain activity
     (DomainEntity storage domainEntity, bool res3) = _data.domainTryReadSlot(realmEntity.domainId);
     // console.log("domainEntity: ");
     // console.logBytes1(bytes1(uint8(domainEntity.bs.acstat)));
-    if(!res3 || domainEntity.bs.acstat != ActivityStatus.ENABLED) return false;
+    if(!res3) return AuthorizationStatus.DOMAIN_NOT_FOUND;
+    if(domainEntity.bs.acstat != ActivityStatus.ENABLED) return AuthorizationStatus.DOMAIN_ACTIVITY_FORBIDDEN;
 
     // check global activity
     // console.log("global: ");
     // console.logBytes1(bytes1(uint8(_data.scopes[_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID].acstat)));
     // if(_data.scopes[_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID].acstat != ActivityStatus.ENABLED) return false;
     
-    return true;
+    return AuthorizationStatus.PERMITTED;
   }
 
   // Anonymouse type

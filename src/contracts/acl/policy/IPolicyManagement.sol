@@ -12,7 +12,7 @@ import "../IACLCommons.sol";
  *
  */
 
-interface IPolicyManagement is IACLCommons {
+interface IPolicyManagement is IACLCommons{
   struct PolicyRegisterRequest {
     bytes32 adminId;
     bytes32 scopeId;
