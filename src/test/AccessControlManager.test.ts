@@ -1690,7 +1690,7 @@ describe("AccessControlManager Tests",
             agentId: LIVELY_VERSE_ANY_TYPE_ID,
             selector: memberIface.getSighash("memberRegister"),
             agentLimit: 4294967295,
-            policyCode: 0,
+            policyCode: 255,
             acstat: ActivityStatus.ENABLED,
             alstat: AlterabilityStatus.UPDATABLE
           },
@@ -1699,7 +1699,7 @@ describe("AccessControlManager Tests",
             agentId: LIVELY_VERSE_ANY_TYPE_ID,
             selector:  memberIface.getSighash("memberUpdateActivityStatus"),
             agentLimit: 4294967295,
-            policyCode: 0,
+            policyCode: 96,
             acstat: ActivityStatus.ENABLED,
             alstat: AlterabilityStatus.UPDATABLE
           },
@@ -1708,7 +1708,7 @@ describe("AccessControlManager Tests",
             agentId: LIVELY_VERSE_ANY_TYPE_ID,
             selector:  memberIface.getSighash("memberUpdateAlterabilityStatus"),
             agentLimit: 4294967295,
-            policyCode: 0,
+            policyCode: 130,
             acstat: ActivityStatus.ENABLED,
             alstat: AlterabilityStatus.UPDATABLE
           },
@@ -1726,7 +1726,7 @@ describe("AccessControlManager Tests",
             agentId: LIVELY_VERSE_ANY_TYPE_ID,
             selector:  memberIface.getSighash("memberUpdateTypeLimit"),
             agentLimit: 4294967295,
-            policyCode: 0,
+            policyCode: 46,
             acstat: ActivityStatus.ENABLED,
             alstat: AlterabilityStatus.UPDATABLE
           },
@@ -5290,7 +5290,7 @@ describe("AccessControlManager Tests",
 
         // when
         await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateScope(requests)).
-        to.revertedWith("Illegal ScopeType")
+        to.revertedWith("Illegal ST")
       })
 
       it("Should update scope aclPolicyTest in ACL policy success", async() => {
@@ -5938,7 +5938,7 @@ describe("AccessControlManager Tests",
 
         // and
         const functionIds = await contextManagerDelegateProxy.contextGetFunctions(memberContextId);
-        expect(functionIds.length).to.be.equal(12)
+        expect(functionIds.length).to.be.equal(13)
       })
 
       it("Should update admin of memberContext success", async() => {
@@ -6496,7 +6496,7 @@ describe("AccessControlManager Tests",
       let aclManagerSubjectTest: ACLManagerTest;
       it("Should enable Upgrade Status of domain proxy by anyone failed", async () => {
         // when and then
-        await expect(domainManagerProxy.connect(systemAdmin).setUpdatabilityStatus(ProxyUpdatabilityStatus.ENABLED))
+        await expect(domainManagerProxy.connect(user1).setUpdatabilityStatus(ProxyUpdatabilityStatus.ENABLED))
           .to.revertedWith("Forbidden");
       });
 

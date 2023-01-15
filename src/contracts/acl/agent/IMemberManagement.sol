@@ -11,7 +11,7 @@ import "../IACLCommons.sol";
  * @dev
  *
  */
-interface IMemberManagement is IACLCommons{
+interface IMemberManagement is IACLCommons {
 
   struct MemberRegister {
     bytes32 roleId;
