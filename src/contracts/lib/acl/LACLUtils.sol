@@ -4,6 +4,7 @@
 pragma solidity 0.8.17;
 
 import "../../acl/IACL.sol";
+import "../../acl/profile/IProfileACL.sol";
 
 /**
  * @title Context Utils Library
@@ -52,5 +53,27 @@ library LACLUtils {
     else if(status == IACL.AuthorizationStatus.CONTEXT_ACTIVITY_FORBIDDEN) revert IACL.ContextActivityForbidden();
     else if(status == IACL.AuthorizationStatus.REALM_ACTIVITY_FORBIDDEN)  revert IACL.RealmActivityForbidden();
     else if(status == IACL.AuthorizationStatus.DOMAIN_ACTIVITY_FORBIDDEN) revert IACL.DomainActivityForbidden();
+    else revert("Unknown ERR");
+  }
+
+  function generateProfileAuthorizationError(IProfileACL.ProfileAuthorizationStatus status) internal pure {
+    if(status == IProfileACL.ProfileAuthorizationStatus.UNAUTHORIZED) revert IProfileACL.ProfileUnauthorized();
+    else if(status == IProfileACL.ProfileAuthorizationStatus.POLICY_FORBIDDEN) revert IProfileACL.ProfilePolicyForbidden();
+    else if(status == IProfileACL.ProfileAuthorizationStatus.CALL_FORBIDDEN) revert IProfileACL.ProfileCallForbidden();
+    else if(status == IProfileACL.ProfileAuthorizationStatus.MEMBER_NOT_FOUND) revert IProfileACL.ProfileMemberNotFound();
+    else if(status == IProfileACL.ProfileAuthorizationStatus.ROLE_NOT_FOUND) revert IProfileACL.ProfileRoleNotFound();
+    else if(status == IProfileACL.ProfileAuthorizationStatus.TYPE_NOT_FOUND) revert IProfileACL.ProfileTypeNotFound();
+    else if(status == IProfileACL.ProfileAuthorizationStatus.FUNCTION_NOT_FOUND) revert IProfileACL.ProfileFunctionNotFound();
+    else if(status == IProfileACL.ProfileAuthorizationStatus.CONTEXT_NOT_FOUND) revert IProfileACL.ProfileContextNotFound();
+    else if(status == IProfileACL.ProfileAuthorizationStatus.REALM_NOT_FOUND)  revert IProfileACL.ProfileRealmNotFound();
+    else if(status == IProfileACL.ProfileAuthorizationStatus.DOMAIN_NOT_FOUND) revert IProfileACL.ProfileDomainNotFound();
+    else if(status == IProfileACL.ProfileAuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN) revert IProfileACL.ProfileMemberActivityForbidden();
+    else if(status == IProfileACL.ProfileAuthorizationStatus.ROLE_ACTIVITY_FORBIDDEN) revert IProfileACL.ProfileRoleActivityForbidden();
+    else if(status == IProfileACL.ProfileAuthorizationStatus.TYPE_ACTIVITY_FORBIDDEN) revert IProfileACL.ProfileTypeActivityForbidden();
+    else if(status == IProfileACL.ProfileAuthorizationStatus.FUNCTION_ACTIVITY_FORBIDDEN) revert IProfileACL.ProfileFunctionActivityForbidden();
+    else if(status == IProfileACL.ProfileAuthorizationStatus.CONTEXT_ACTIVITY_FORBIDDEN) revert IProfileACL.ProfileContextActivityForbidden();
+    else if(status == IProfileACL.ProfileAuthorizationStatus.REALM_ACTIVITY_FORBIDDEN)  revert IProfileACL.ProfileRealmActivityForbidden();
+    else if(status == IProfileACL.ProfileAuthorizationStatus.DOMAIN_ACTIVITY_FORBIDDEN) revert IProfileACL.ProfileDomainActivityForbidden();
+    else revert("Unknown ERR");
   }
 }

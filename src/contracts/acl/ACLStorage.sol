@@ -21,7 +21,8 @@ abstract contract ACLStorage is BaseUUPSStorage, IACLCommons {
     mapping(bytes32 => BaseScope) scopes;
     mapping(bytes32 => PolicyEntity) policies;
     mapping(bytes32 => bytes32) rolePolicyMap;
-    mapping(bytes4 => address) selectors;           
+    mapping(bytes32 => ProfileEntity) profiles;
+    mapping(bytes4 => address) selectors;
     mapping(address => FacetEntity) facets;     
     LEnumerableSet.AddressSet facetSet;    
   }

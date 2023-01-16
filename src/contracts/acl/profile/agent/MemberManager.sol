@@ -3,9 +3,9 @@
 
 pragma solidity 0.8.17;
 
-import "./IMemberManagement.sol";
-import "./ITypeManagement.sol";
-import "../ACLStorage.sol";
+import "./IProfileMemberManagement.sol";
+import "./IProfileTypeManagement.sol";
+import "../../ACLStorage.sol";
 import "../IACL.sol";
 import "../IACLGenerals.sol";
 import "../scope/IFunctionManagement.sol";

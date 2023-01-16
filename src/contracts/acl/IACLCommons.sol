@@ -70,7 +70,7 @@ interface IACLCommons{
     ActivityStatus acstat;
     AlterabilityStatus alstat;
     uint32 referredByAgent;
-    uint32 agentLimit;
+    // uint32 agentLimit;
   }
 
   struct PolicyEntity {
@@ -154,17 +154,16 @@ interface IACLCommons{
   }
 
   struct ProfileEntity {
-    string name;          // PROFILE.0xxxxxxx(address wallet) => keccak256(name) => profileId
-    uint64 createdAt;
-    uint64 expiredAt;    
-    ActivityStatus acstat;
-    AlterabilityStatus alstat;      
     mapping(bytes32 => BaseAgent) agents;
     mapping(bytes32 => BaseScope) scopes;
     mapping(bytes32 => PolicyEntity) policies;
     mapping(bytes32 => bytes32) rolePolicyMap;
     LEnumerableSet.Bytes32Set owners;
     LEnumerableSet.Bytes32Set deployers;
+    string name;          // PROFILE.0xxxxxxx(address wallet) => keccak256(name) => profileId    
+    uint64 expiredAt;    
+    ActivityStatus acstat;
+    AlterabilityStatus alstat;      
   }
 
   struct MemberEntity {
