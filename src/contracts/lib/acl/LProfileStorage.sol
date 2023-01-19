@@ -14,9 +14,7 @@ import "../../acl/ACLStorage.sol";
  */
 library LProfileStorage {
  
-  function profileGlobalReadSlot(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 scopeId) internal view returns (IACLCommons.GlobalEntity storage ge) {
-    IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
-    require(profileEntity.acstat != IACLCommons.ActivityStatus.NONE, "Profile Not Found");
+  function profileGlobalReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.GlobalEntity storage ge) {
     IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
     if(bs.stype == IACLCommons.ScopeType.GLOBAL) {
       assembly {
@@ -32,9 +30,7 @@ library LProfileStorage {
     } 
   }
 
-  function profileGlobalWriteSlot(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 scopeId) internal view returns (IACLCommons.GlobalEntity storage ge) {
-    IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
-    require(profileEntity.acstat != IACLCommons.ActivityStatus.NONE, "Profile Not Found");
+  function profileGlobalWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.GlobalEntity storage ge) {
     IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
     if(bs.stype == IACLCommons.ScopeType.NONE || bs.stype == IACLCommons.ScopeType.GLOBAL) {
       assembly {
@@ -48,9 +44,7 @@ library LProfileStorage {
     }  
   }
 
-  function profileFunctionReadSlot(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 scopeId) internal view returns (IACLCommons.FunctionEntity storage fe) {
-    IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
-    require(profileEntity.acstat != IACLCommons.ActivityStatus.NONE, "Profile Not Found");
+  function profileFunctionReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.FunctionEntity storage fe) {
     IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
     if(bs.stype == IACLCommons.ScopeType.FUNCTION) {
       assembly {
@@ -66,30 +60,25 @@ library LProfileStorage {
     } 
   }
 
-  function profileFunctionTryReadSlot(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 scopeId) internal view returns (IACLCommons.FunctionEntity storage fe, bool result) {
-    IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
-    if(profileEntity.acstat != IACLCommons.ActivityStatus.NONE) {
-      IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
-      if(bs.stype == IACLCommons.ScopeType.FUNCTION) {
-        assembly {
-          let ptr := mload(0x40)
-          mstore(add(ptr, 0x00), scopeId)
-          mstore(add(ptr, 0x20), add(profileEntity.slot, 1))
-          fe.slot := keccak256(ptr, 0x40)      
-        }
-        result = true;
-        return (fe, result);
-      }     
-    } 
-    assembly {
-        fe.slot := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+  function profileFunctionTryReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.FunctionEntity storage fe, bool result) {
+    IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
+    if(bs.stype == IACLCommons.ScopeType.FUNCTION) {
+      assembly {
+        let ptr := mload(0x40)
+        mstore(add(ptr, 0x00), scopeId)
+        mstore(add(ptr, 0x20), add(profileEntity.slot, 1))
+        fe.slot := keccak256(ptr, 0x40)      
       }
+      result = true;
+      return (fe, result);
+    }     
+    assembly {
+      fe.slot := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+    }
     result = false;
   }
 
-  function profileFunctionWriteSlot(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 scopeId) internal view returns (IACLCommons.FunctionEntity storage fe) {
-    IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
-    require(profileEntity.acstat != IACLCommons.ActivityStatus.NONE, "Profile Not Found");
+  function profileFunctionWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.FunctionEntity storage fe) {
     IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
     if(bs.stype == IACLCommons.ScopeType.NONE || bs.stype == IACLCommons.ScopeType.FUNCTION) {
       assembly {
@@ -103,30 +92,25 @@ library LProfileStorage {
     }  
   }
 
-  function profileFunctionTryWriteSlot(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 scopeId) internal view returns (IACLCommons.FunctionEntity storage fe, bool result) {
-    IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
-    if(profileEntity.acstat != IACLCommons.ActivityStatus.NONE) {
-      IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
-      if(bs.stype == IACLCommons.ScopeType.NONE || bs.stype == IACLCommons.ScopeType.FUNCTION) {
-        assembly {
-          let ptr := mload(0x40)
-          mstore(add(ptr, 0x00), scopeId)
-          mstore(add(ptr, 0x20), add(profileEntity.slot, 1))
-          fe.slot := keccak256(ptr, 0x40)      
-        }
-        result = true;
-        return (fe, result);
-      }        
-    }
+  function profileFunctionTryWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.FunctionEntity storage fe, bool result) {
+    IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
+    if(bs.stype == IACLCommons.ScopeType.NONE || bs.stype == IACLCommons.ScopeType.FUNCTION) {
+      assembly {
+        let ptr := mload(0x40)
+        mstore(add(ptr, 0x00), scopeId)
+        mstore(add(ptr, 0x20), add(profileEntity.slot, 1))
+        fe.slot := keccak256(ptr, 0x40)      
+      }
+      result = true;
+      return (fe, result);
+    }        
     assembly {
       fe.slot := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     }
     result = false;
   }
 
-  function profileContextReadSlot(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 scopeId) internal view returns (IACLCommons.ContextEntity storage ce) {
-    IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
-    require(profileEntity.acstat != IACLCommons.ActivityStatus.NONE, "Profile Not Found");
+  function profileContextReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.ContextEntity storage ce) {
     IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
     if(bs.stype == IACLCommons.ScopeType.CONTEXT) {
       assembly {
@@ -142,30 +126,25 @@ library LProfileStorage {
     } 
   }
 
-  function profileContextTryReadSlot(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 scopeId) internal view returns (IACLCommons.ContextEntity storage ce, bool result) {
-    IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
-    if(profileEntity.acstat != IACLCommons.ActivityStatus.NONE) {
-      IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
-      if(bs.stype == IACLCommons.ScopeType.CONTEXT) {
-        assembly {
-          let ptr := mload(0x40)
-          mstore(add(ptr, 0x00), scopeId)
-          mstore(add(ptr, 0x20), add(profileEntity.slot, 1))
-          ce.slot := keccak256(ptr, 0x40)      
-        }
-        result = true;
-        return (ce, result);
-      }     
-    }
+  function profileContextTryReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.ContextEntity storage ce, bool result) {
+    IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
+    if(bs.stype == IACLCommons.ScopeType.CONTEXT) {
+      assembly {
+        let ptr := mload(0x40)
+        mstore(add(ptr, 0x00), scopeId)
+        mstore(add(ptr, 0x20), add(profileEntity.slot, 1))
+        ce.slot := keccak256(ptr, 0x40)      
+      }
+      result = true;
+      return (ce, result);
+    }     
     assembly {
       ce.slot := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     }
     result = false;    
   }
 
-  function profileContextWriteSlot(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 scopeId) internal view returns (IACLCommons.ContextEntity storage ce) {
-    IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
-    require(profileEntity.acstat != IACLCommons.ActivityStatus.NONE, "Profile Not Found");
+  function profileContextWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.ContextEntity storage ce) {
     IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
     if(bs.stype == IACLCommons.ScopeType.NONE || bs.stype == IACLCommons.ScopeType.CONTEXT) {
       assembly {
@@ -179,20 +158,17 @@ library LProfileStorage {
     }  
   }
 
-  function profileContextTryWriteSlot(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 scopeId) internal view returns (IACLCommons.ContextEntity storage ce, bool result) {
-    IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
-    if(profileEntity.acstat != IACLCommons.ActivityStatus.NONE) {
-      IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
-      if(bs.stype == IACLCommons.ScopeType.NONE || bs.stype == IACLCommons.ScopeType.CONTEXT) {
-        assembly {
-          let ptr := mload(0x40)
-          mstore(add(ptr, 0x00), scopeId)
-          mstore(add(ptr, 0x20), add(profileEntity.slot, 1))
-          ce.slot := keccak256(ptr, 0x40)      
-        }
-        result = true;
-        return (ce, result);
+  function profileContextTryWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.ContextEntity storage ce, bool result) {
+    IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
+    if(bs.stype == IACLCommons.ScopeType.NONE || bs.stype == IACLCommons.ScopeType.CONTEXT) {
+      assembly {
+        let ptr := mload(0x40)
+        mstore(add(ptr, 0x00), scopeId)
+        mstore(add(ptr, 0x20), add(profileEntity.slot, 1))
+        ce.slot := keccak256(ptr, 0x40)      
       }
+      result = true;
+      return (ce, result);
     }  
     assembly {
       ce.slot := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
@@ -200,9 +176,7 @@ library LProfileStorage {
     result = false;
   }
 
-  function profileRealmReadSlot(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 scopeId) internal view returns (IACLCommons.RealmEntity storage re) {
-    IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
-    require(profileEntity.acstat != IACLCommons.ActivityStatus.NONE, "Profile Not Found");
+  function profileRealmReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.RealmEntity storage re) {
     IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
     if(bs.stype == IACLCommons.ScopeType.REALM) {
       assembly {
@@ -218,30 +192,25 @@ library LProfileStorage {
     } 
   }
 
-  function profileRealmTryReadSlot(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 scopeId) internal view returns (IACLCommons.RealmEntity storage re, bool result) {
-    IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
-    if(profileEntity.acstat != IACLCommons.ActivityStatus.NONE) {
-      IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
-      if(bs.stype == IACLCommons.ScopeType.REALM) {
-        assembly {
-          let ptr := mload(0x40)
-          mstore(add(ptr, 0x00), scopeId)
-          mstore(add(ptr, 0x20), add(profileEntity.slot, 1))
-          re.slot := keccak256(ptr, 0x40)      
-        }
-        result = true;
-        return (re, result);
-      }      
-    }
+  function profileRealmTryReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.RealmEntity storage re, bool result) {
+    IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
+    if(bs.stype == IACLCommons.ScopeType.REALM) {
+      assembly {
+        let ptr := mload(0x40)
+        mstore(add(ptr, 0x00), scopeId)
+        mstore(add(ptr, 0x20), add(profileEntity.slot, 1))
+        re.slot := keccak256(ptr, 0x40)      
+      }
+      result = true;
+      return (re, result);
+    }      
     assembly {
       re.slot := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     }
     result = false;
   }
 
-  function profileRealmWriteSlot(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 scopeId) internal view returns (IACLCommons.RealmEntity storage re) {
-    IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
-    require(profileEntity.acstat != IACLCommons.ActivityStatus.NONE, "Profile Not Found");
+  function profileRealmWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.RealmEntity storage re) {
     IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
     if(bs.stype == IACLCommons.ScopeType.NONE || bs.stype == IACLCommons.ScopeType.REALM) {
       assembly {
@@ -256,20 +225,17 @@ library LProfileStorage {
     }  
   }
 
-  function profileRealmTryWriteSlot(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 scopeId) internal view returns (IACLCommons.RealmEntity storage re, bool result) {
-    IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
-    if(profileEntity.acstat != IACLCommons.ActivityStatus.NONE) {
-      IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
-      if(bs.stype == IACLCommons.ScopeType.NONE || bs.stype == IACLCommons.ScopeType.REALM) {
-        assembly {
-          let ptr := mload(0x40)
-          mstore(add(ptr, 0x00), scopeId)
-          mstore(add(ptr, 0x20), add(profileEntity.slot, 1))
-          re.slot := keccak256(ptr, 0x40)
-        }
-        result = true;
-        return (re, result);
+  function profileRealmTryWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.RealmEntity storage re, bool result) {
+    IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
+    if(bs.stype == IACLCommons.ScopeType.NONE || bs.stype == IACLCommons.ScopeType.REALM) {
+      assembly {
+        let ptr := mload(0x40)
+        mstore(add(ptr, 0x00), scopeId)
+        mstore(add(ptr, 0x20), add(profileEntity.slot, 1))
+        re.slot := keccak256(ptr, 0x40)
       }
+      result = true;
+      return (re, result);
     }
     assembly {
       re.slot := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
@@ -277,9 +243,7 @@ library LProfileStorage {
     result = false;
   }
 
-  function profileDomainReadSlot(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 scopeId) internal view returns (IACLCommons.DomainEntity storage de) {
-    IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
-    require(profileEntity.acstat != IACLCommons.ActivityStatus.NONE, "Profile Not Found");
+  function profileDomainReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.DomainEntity storage de) {
     IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
     if(bs.stype == IACLCommons.ScopeType.DOMAIN) {
       assembly {
@@ -295,21 +259,18 @@ library LProfileStorage {
     } 
   }
 
-  function profileDomainTryReadSlot(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 scopeId) internal view returns (IACLCommons.DomainEntity storage de, bool result) {
-    IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
-    if(profileEntity.acstat != IACLCommons.ActivityStatus.NONE) {
-      IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
-      if(bs.stype == IACLCommons.ScopeType.DOMAIN) {
-        assembly {
-          let ptr := mload(0x40)
-          mstore(add(ptr, 0x00), scopeId)
-          mstore(add(ptr, 0x20), add(profileEntity.slot, 1))
-          de.slot := keccak256(ptr, 0x40)      
-        }
-        result = true;
-        return (de, result);
-      }  
-    }
+  function profileDomainTryReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.DomainEntity storage de, bool result) {
+    IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
+    if(bs.stype == IACLCommons.ScopeType.DOMAIN) {
+      assembly {
+        let ptr := mload(0x40)
+        mstore(add(ptr, 0x00), scopeId)
+        mstore(add(ptr, 0x20), add(profileEntity.slot, 1))
+        de.slot := keccak256(ptr, 0x40)      
+      }
+      result = true;
+      return (de, result);
+    }  
     assembly {
       de.slot := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     }
@@ -317,9 +278,7 @@ library LProfileStorage {
   }
 
 
-  function profileDomainWriteSlot(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 scopeId) internal view returns (IACLCommons.DomainEntity storage de) {
-    IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
-    require(profileEntity.acstat != IACLCommons.ActivityStatus.NONE, "Profile Not Found");
+  function profileDomainWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.DomainEntity storage de) {
     IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
     if(bs.stype == IACLCommons.ScopeType.NONE || bs.stype == IACLCommons.ScopeType.DOMAIN) {
       assembly {
@@ -333,21 +292,18 @@ library LProfileStorage {
     }  
   }
 
-  function profileDomainTryWriteSlot(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 scopeId) internal view returns (IACLCommons.DomainEntity storage de, bool result) {
-    IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
-    if(profileEntity.acstat != IACLCommons.ActivityStatus.NONE) {
-      IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
-      if(bs.stype == IACLCommons.ScopeType.NONE || bs.stype == IACLCommons.ScopeType.DOMAIN) {
-        assembly {
-          let ptr := mload(0x40)
-          mstore(add(ptr, 0x00), scopeId)
-          mstore(add(ptr, 0x20), add(profileEntity.slot, 1))
-          de.slot := keccak256(ptr, 0x40)      
-        }
-        result = true;
-        return (de, result);
-      }        
-    }
+  function profileDomainTryWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.DomainEntity storage de, bool result) {
+    IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
+    if(bs.stype == IACLCommons.ScopeType.NONE || bs.stype == IACLCommons.ScopeType.DOMAIN) {
+      assembly {
+        let ptr := mload(0x40)
+        mstore(add(ptr, 0x00), scopeId)
+        mstore(add(ptr, 0x20), add(profileEntity.slot, 1))
+        de.slot := keccak256(ptr, 0x40)      
+      }
+      result = true;
+      return (de, result);
+    }        
     assembly {
       de.slot := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     }
@@ -355,9 +311,7 @@ library LProfileStorage {
   }
 
 
-  function profileMemberReadSlot(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 agentId) internal view returns (IACLCommons.MemberEntity storage me) {
-    IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
-    require(profileEntity.acstat != IACLCommons.ActivityStatus.NONE, "Profile Not Found");
+  function profileMemberReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId) internal view returns (IACLCommons.ProfileMemberEntity storage me) {
     IACLCommons.BaseAgent storage ba = profileEntity.agents[agentId];
     if(ba.atype == IACLCommons.AgentType.MEMBER) {
       assembly {
@@ -373,20 +327,17 @@ library LProfileStorage {
     } 
   }
 
-  function profileMemberTryReadSlot(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 agentId) internal view returns (IACLCommons.MemberEntity storage me, bool result) {
-    IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
-    if(profileEntity.acstat != IACLCommons.ActivityStatus.NONE) {
-      IACLCommons.BaseAgent storage ba = profileEntity.agents[agentId];
-      if(ba.atype == IACLCommons.AgentType.MEMBER) {
-        assembly {
-          let ptr := mload(0x40)
-          mstore(add(ptr, 0x00), agentId)
-          mstore(add(ptr, 0x20), add(profileEntity.slot, 0))
-          me.slot := keccak256(ptr, 0x40)      
-        }
-        result = true;
-        return (me, result);
+  function profileMemberTryReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId) internal view returns (IACLCommons.ProfileMemberEntity storage me, bool result) {
+    IACLCommons.BaseAgent storage ba = profileEntity.agents[agentId];
+    if(ba.atype == IACLCommons.AgentType.MEMBER) {
+      assembly {
+        let ptr := mload(0x40)
+        mstore(add(ptr, 0x00), agentId)
+        mstore(add(ptr, 0x20), add(profileEntity.slot, 0))
+        me.slot := keccak256(ptr, 0x40)      
       }
+      result = true;
+      return (me, result);
     }
     assembly {
       me.slot := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
@@ -394,9 +345,7 @@ library LProfileStorage {
     result = false;
   }
 
-  function profileMemberWriteSlot(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 agentId) internal view returns (IACLCommons.MemberEntity storage me) {
-    IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
-    require(profileEntity.acstat != IACLCommons.ActivityStatus.NONE, "Profile Not Found");
+  function profileMemberWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId) internal view returns (IACLCommons.ProfileMemberEntity storage me) {
     IACLCommons.BaseAgent storage ba = profileEntity.agents[agentId];
     if(ba.atype == IACLCommons.AgentType.NONE || ba.atype == IACLCommons.AgentType.MEMBER) {
       assembly {
@@ -410,30 +359,25 @@ library LProfileStorage {
     }  
   }
 
-  function profileMemberTryWriteSlot(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 agentId) internal view returns (IACLCommons.MemberEntity storage me, bool result) {
-    IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
-    if(profileEntity.acstat != IACLCommons.ActivityStatus.NONE) {
-      IACLCommons.BaseAgent storage ba = profileEntity.agents[agentId];
-      if(ba.atype == IACLCommons.AgentType.NONE || ba.atype == IACLCommons.AgentType.MEMBER) {
-        assembly {
-          let ptr := mload(0x40)
-          mstore(add(ptr, 0x00), agentId)
-          mstore(add(ptr, 0x20), add(profileEntity.slot, 0))
-          me.slot := keccak256(ptr, 0x40)      
-        }
-        result = true;
-        return (me, result);
-      }  
-    }
+  function profileMemberTryWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId) internal view returns (IACLCommons.ProfileMemberEntity storage me, bool result) {
+    IACLCommons.BaseAgent storage ba = profileEntity.agents[agentId];
+    if(ba.atype == IACLCommons.AgentType.NONE || ba.atype == IACLCommons.AgentType.MEMBER) {
+      assembly {
+        let ptr := mload(0x40)
+        mstore(add(ptr, 0x00), agentId)
+        mstore(add(ptr, 0x20), add(profileEntity.slot, 0))
+        me.slot := keccak256(ptr, 0x40)      
+      }
+      result = true;
+      return (me, result);
+    }  
     assembly {
       me.slot := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     }
     result = false;
   }
 
-  function profileRoleReadSlot(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 agentId) internal view returns (IACLCommons.RoleEntity storage re) {
-    IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
-    require(profileEntity.acstat != IACLCommons.ActivityStatus.NONE, "Profile Not Found");
+  function profileRoleReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId) internal view returns (IACLCommons.RoleEntity storage re) {
     IACLCommons.BaseAgent storage ba = profileEntity.agents[agentId];
     if(ba.atype == IACLCommons.AgentType.ROLE) {
       assembly {
@@ -449,20 +393,17 @@ library LProfileStorage {
     } 
   }
 
-  function profileRoleTryReadSlot(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 agentId) internal view returns (IACLCommons.RoleEntity storage re, bool result) {
-    IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
-    if(profileEntity.acstat != IACLCommons.ActivityStatus.NONE) {
-      IACLCommons.BaseAgent storage ba = profileEntity.agents[agentId];
-      if(ba.atype == IACLCommons.AgentType.ROLE) {
-        assembly {
-          let ptr := mload(0x40)
-          mstore(add(ptr, 0x00), agentId)
-          mstore(add(ptr, 0x20), add(profileEntity.slot, 0))
-          re.slot := keccak256(ptr, 0x40)      
-        }
-        result = true;
-        return (re, result);
+  function profileRoleTryReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId) internal view returns (IACLCommons.RoleEntity storage re, bool result) {
+    IACLCommons.BaseAgent storage ba = profileEntity.agents[agentId];
+    if(ba.atype == IACLCommons.AgentType.ROLE) {
+      assembly {
+        let ptr := mload(0x40)
+        mstore(add(ptr, 0x00), agentId)
+        mstore(add(ptr, 0x20), add(profileEntity.slot, 0))
+        re.slot := keccak256(ptr, 0x40)      
       }
+      result = true;
+      return (re, result);
     }
     assembly {
       re.slot := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
@@ -470,9 +411,7 @@ library LProfileStorage {
     result = false;
   }
 
-  function profileRoleWriteSlot(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 agentId) internal view returns (IACLCommons.RoleEntity storage re) {
-    IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
-    require(profileEntity.acstat != IACLCommons.ActivityStatus.NONE, "Profile Not Found");
+  function profileRoleWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId) internal view returns (IACLCommons.RoleEntity storage re) {
     IACLCommons.BaseAgent storage ba = profileEntity.agents[agentId];
     if(ba.atype == IACLCommons.AgentType.NONE || ba.atype == IACLCommons.AgentType.ROLE) {
       assembly {
@@ -487,31 +426,26 @@ library LProfileStorage {
     }  
   }
 
-  function profileRoleTryWriteSlot(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 agentId) internal view returns (IACLCommons.RoleEntity storage re, bool result) {
-    IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
-    if(profileEntity.acstat != IACLCommons.ActivityStatus.NONE) {
-      IACLCommons.BaseAgent storage ba = profileEntity.agents[agentId];
-      if(ba.atype == IACLCommons.AgentType.NONE || ba.atype == IACLCommons.AgentType.ROLE) {
-        assembly {
-          let ptr := mload(0x40)
-          mstore(add(ptr, 0x00), agentId)
-          mstore(add(ptr, 0x20), add(profileEntity.slot, 0))
-          let slot := keccak256(ptr, 0x40)      
-          re.slot := slot
-        }
-        result = true;
-        return (re, result);
-      }  
-    }
+  function profileRoleTryWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId) internal view returns (IACLCommons.RoleEntity storage re, bool result) {
+    IACLCommons.BaseAgent storage ba = profileEntity.agents[agentId];
+    if(ba.atype == IACLCommons.AgentType.NONE || ba.atype == IACLCommons.AgentType.ROLE) {
+      assembly {
+        let ptr := mload(0x40)
+        mstore(add(ptr, 0x00), agentId)
+        mstore(add(ptr, 0x20), add(profileEntity.slot, 0))
+        let slot := keccak256(ptr, 0x40)      
+        re.slot := slot
+      }
+      result = true;
+      return (re, result);
+    }  
     assembly {
       re.slot := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     }
     result = false;
   }
 
-  function profileTypeReadSlot(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 agentId) internal view returns (IACLCommons.TypeEntity storage te) {
-    IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
-    require(profileEntity.acstat != IACLCommons.ActivityStatus.NONE, "Profile Not Found");
+  function profileTypeReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId) internal view returns (IACLCommons.TypeEntity storage te) {
     IACLCommons.BaseAgent storage ba = profileEntity.agents[agentId];
     if(ba.atype == IACLCommons.AgentType.TYPE) {
       assembly {
@@ -527,30 +461,25 @@ library LProfileStorage {
     } 
   }
 
-  function profileTypeTryReadSlot(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 agentId) internal view returns (IACLCommons.TypeEntity storage te, bool result) {
-    IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
-    if(profileEntity.acstat != IACLCommons.ActivityStatus.NONE) {
-      IACLCommons.BaseAgent storage ba = profileEntity.agents[agentId];
-      if(ba.atype == IACLCommons.AgentType.TYPE) {
-        assembly {
-          let ptr := mload(0x40)
-          mstore(add(ptr, 0x00), agentId)
-          mstore(add(ptr, 0x20), add(profileEntity.slot, 0))
-          te.slot := keccak256(ptr, 0x40)      
-        }
-        result = true;
-        return (te, result);
-      }  
-    }
+  function profileTypeTryReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId) internal view returns (IACLCommons.TypeEntity storage te, bool result) {
+    IACLCommons.BaseAgent storage ba = profileEntity.agents[agentId];
+    if(ba.atype == IACLCommons.AgentType.TYPE) {
+      assembly {
+        let ptr := mload(0x40)
+        mstore(add(ptr, 0x00), agentId)
+        mstore(add(ptr, 0x20), add(profileEntity.slot, 0))
+        te.slot := keccak256(ptr, 0x40)      
+      }
+      result = true;
+      return (te, result);
+    }  
     assembly {
       te.slot := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     }
     result = false;    
   }
 
-  function profileTypeWriteSlot(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 agentId) internal view returns (IACLCommons.TypeEntity storage te) {
-    IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
-    require(profileEntity.acstat != IACLCommons.ActivityStatus.NONE, "Profile Not Found");
+  function profileTypeWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId) internal view returns (IACLCommons.TypeEntity storage te) {
     IACLCommons.BaseAgent storage ba = profileEntity.agents[agentId];
     if(ba.atype == IACLCommons.AgentType.NONE || ba.atype == IACLCommons.AgentType.TYPE) {
       assembly {
@@ -564,21 +493,18 @@ library LProfileStorage {
     }  
   }
 
-  function profileTypeTryWriteSlot(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 agentId) internal view returns (IACLCommons.TypeEntity storage te, bool result) {
-    IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
-    if(profileEntity.acstat != IACLCommons.ActivityStatus.NONE) {
-      IACLCommons.BaseAgent storage ba = profileEntity.agents[agentId];
-      if(ba.atype == IACLCommons.AgentType.NONE || ba.atype == IACLCommons.AgentType.TYPE) {
-        assembly {
-          let ptr := mload(0x40)
-          mstore(add(ptr, 0x00), agentId)
-          mstore(add(ptr, 0x20), add(profileEntity.slot, 0))
-          te.slot := keccak256(ptr, 0x40)      
-        }
-        result = true;
-        return (te, result);
-      }  
-    }
+  function profileTypeTryWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId) internal view returns (IACLCommons.TypeEntity storage te, bool result) {
+    IACLCommons.BaseAgent storage ba = profileEntity.agents[agentId];
+    if(ba.atype == IACLCommons.AgentType.NONE || ba.atype == IACLCommons.AgentType.TYPE) {
+      assembly {
+        let ptr := mload(0x40)
+        mstore(add(ptr, 0x00), agentId)
+        mstore(add(ptr, 0x20), add(profileEntity.slot, 0))
+        te.slot := keccak256(ptr, 0x40)      
+      }
+      result = true;
+      return (te, result);
+    }  
     assembly {
       te.slot := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     }

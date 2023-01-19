@@ -15,7 +15,8 @@ interface IProfileACL {
     PERMITTED,
     UNAUTHORIZED,
     POLICY_FORBIDDEN,
-    CALL_FORBIDDEN,
+    PROFILE_CALL_FORBIDDEN,
+    MEMBER_CALL_FORBIDDEN,
     MEMBER_NOT_FOUND,
     ROLE_NOT_FOUND,
     TYPE_NOT_FOUND,
@@ -29,12 +30,14 @@ interface IProfileACL {
     FUNCTION_ACTIVITY_FORBIDDEN,
     CONTEXT_ACTIVITY_FORBIDDEN,    
     REALM_ACTIVITY_FORBIDDEN,
-    DOMAIN_ACTIVITY_FORBIDDEN
+    DOMAIN_ACTIVITY_FORBIDDEN,
+    PROFILE_ACTIVITY_FORBIDDEN
   }
 
   error ProfileUnauthorized();
   error ProfilePolicyForbidden();
   error ProfileCallForbidden();
+  error ProfileMemberCallForbidden();
   error ProfileMemberNotFound();
   error ProfileRoleNotFound();
   error ProfileTypeNotFound();
@@ -49,6 +52,7 @@ interface IProfileACL {
   error ProfileContextActivityForbidden();
   error ProfileRealmActivityForbidden();
   error ProfileDomainActivityForbidden();
+  error ProfileActivityForbidden();
 
 
   function profileHasAccess(bytes32 profileId, bytes32 functionId) external returns (ProfileAuthorizationStatus);

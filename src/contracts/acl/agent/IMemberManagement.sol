@@ -13,7 +13,7 @@ import "../IACLCommons.sol";
  */
 interface IMemberManagement is IACLCommons {
 
-  struct MemberRegister {
+  struct MemberRegisterRequest {
     bytes32 roleId;
     bytes32 adminId;
     address account;
@@ -61,7 +61,7 @@ interface IMemberManagement is IACLCommons {
 
   event MemberAlterabilityUpdated(address indexed sender, bytes32 indexed memberId, AlterabilityStatus alstat);
 
-  function memberRegister(MemberRegister[] calldata requests) external returns (bool);
+  function memberRegister(MemberRegisterRequest[] calldata requests) external returns (bool);
 
   function memberUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
 

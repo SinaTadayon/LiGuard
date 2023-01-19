@@ -54,7 +54,7 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
   }
 
   // Note: called by eveny admin of role
-  function memberRegister(MemberRegister[] calldata requests) external returns (bool) {
+  function memberRegister(MemberRegisterRequest[] calldata requests) external returns (bool) {
 
     bytes32 functionId = _accessPermission(IMemberManagement.memberRegister.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  

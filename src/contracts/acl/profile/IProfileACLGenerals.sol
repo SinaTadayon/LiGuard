@@ -26,13 +26,13 @@ interface IProfileACLGenerals is IACLCommons {
   function getProfileMasterType() external pure returns (bytes32);
 
   // Global Scope
-  function getGlobalScope() external pure returns (bytes32);
+  function getProfileGlobalScope() external pure returns (bytes32);
 
-  // profile master admin role
-  function getProfileMasterAdminRole() external pure returns (bytes32);
+  // profile master type
+  function getProfileMaster() external pure returns (bytes32);
 
-  // system master admin role
-  function getProfileSystemMasterAdminRole() external pure returns (bytes32);
+  // system system master
+  function getProfileSystemMaster() external pure returns (bytes32);
 
   
   // general

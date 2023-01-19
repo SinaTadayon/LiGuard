@@ -85,14 +85,14 @@ interface IACLCommons{
     LEnumerableSet.Bytes32Set roles;
   }
 
-  struct ProfileFunctionEntity {
-    BaseScope bs;    
-    bytes32 agentId;
-    bytes32 profileId;
-    bytes32 contextId;
-    bytes4 selector;
-    uint8 policyCode;        
-  }
+  // struct ProfileFunctionEntity {
+  //   BaseScope bs;    
+  //   bytes32 agentId;
+  //   bytes32 profileId;
+  //   bytes32 contextId;
+  //   bytes4 selector;
+  //   uint8 policyCode;        
+  // }
 
   struct FunctionEntity {
     BaseScope bs;    
@@ -132,44 +132,11 @@ interface IACLCommons{
     LEnumerableSet.Bytes32Set domains;
   }
 
-  struct ProfileLimit {
-    uint32 profileCallLimit;
-    uint32 memberRegisterLimit;
-    uint32 roleRegisterLimit;  
-    uint32 typeRegisterLimit;
-    uint32 functionRegisterLimit;
-    uint32 contextRegisterLimit;
-    uint16 realmRegisterLimit;
-    uint16 domainRegisterLimit;
-    uint16 policyRegisterLimit;
-    uint16 functionLimit;
-    uint16 contextLimit;
-    uint16 realmLimit;
-    uint16 domainLimit;
-    uint16 memberCallLimit;
-    uint16 memberLimit;
-    uint16 typeRoleLimit;
-    uint16 typeLimit;    
-    uint16 policyRoleLimit;
-  }
-
-  struct ProfileEntity {
-    mapping(bytes32 => BaseAgent) agents;
-    mapping(bytes32 => BaseScope) scopes;
-    mapping(bytes32 => PolicyEntity) policies;
-    mapping(bytes32 => bytes32) rolePolicyMap;
-    LEnumerableSet.Bytes32Set owners;
-    LEnumerableSet.Bytes32Set deployers;
-    string name;          // PROFILE.0xxxxxxx(address wallet) => keccak256(name) => profileId    
-    uint64 expiredAt;    
-    ActivityStatus acstat;
-    AlterabilityStatus alstat;      
-  }
-
   struct MemberEntity {
     BaseAgent ba;
     address account;
-    ProfileLimit profileLimit;
+    ProfileLimit limits;
+    ProfileRegisterLimit registerLimits;
     LEnumerableSet.Bytes32Set types;
   }
 
@@ -195,32 +162,6 @@ interface IACLCommons{
     address subjectId;
     // bytes4 interfaceId;
   }
-
-  struct ProfileUpdateActivityRequest {
-    bytes32 profileId;
-    bytes32 entityId;
-    ActivityStatus acstat;
-  }
-
-  struct ProfileUpdateAlterabilityRequest {
-    bytes32 profileId;
-    bytes32 entityId;
-    AlterabilityStatus alstat;
-  }
-
-  struct ProfileUpdateAdminRequest {
-    bytes32 profieId;
-    bytes32 entityId;
-    bytes32 adminId;
-  }
-
-  struct ProfileUpdateScopeRequest {
-    bytes32 profieId;
-    bytes32 entityId;
-    bytes32 scopeId;
-  }
-
-  ////////////////////////////////////////////////////////////////////
 
   struct UpdateActivityRequest {
     bytes32 id;
@@ -248,5 +189,98 @@ interface IACLCommons{
     bytes32 id;
     bytes32 scopeId;
   }
+
+  ////////////////////////////////////////////////////////////////////
+  // Profiles 
+
+  struct ProfileRegisterLimit {
+    uint32 memberRegisterLimit;
+    uint32 roleRegisterLimit;  
+    uint32 typeRegisterLimit;
+    uint32 functionRegisterLimit;
+    uint32 contextRegisterLimit;
+    uint16 realmRegisterLimit;
+    uint16 domainRegisterLimit;
+    uint16 policyRegisterLimit;
+  }
+
+  struct ProfileLimit {
+    uint32 profileCallLimit;
+    uint16 functionLimit;
+    uint16 contextLimit;
+    uint16 realmLimit;
+    uint16 domainLimit;
+    uint16 memberCallLimit;
+    uint16 memberLimit;
+    uint16 typeRoleLimit;
+    uint16 typeLimit;    
+    uint16 policyRoleLimit;
+  }
+
+  struct ProfileEntity {
+    mapping(bytes32 => BaseAgent) agents;
+    mapping(bytes32 => BaseScope) scopes;
+    mapping(bytes32 => PolicyEntity) policies;
+    mapping(bytes32 => bytes32) rolePolicyMap;
+    LEnumerableSet.Bytes32Set owners;
+    LEnumerableSet.Bytes32Set deployers;
+    string name;          // PROFILE.0xxxxxxx(address wallet) => keccak256(name) => profileId    
+    uint64 expiredAt;    
+    ActivityStatus acstat;
+    AlterabilityStatus alstat;
+    ProfileRegisterLimit registerlimits;
+    ProfileLimit limits;      
+  }
+
+  struct ProfileMemberEntity {
+    BaseAgent ba;
+    address account;    
+    uint32 callLimit;    
+    uint32 typeLimit;
+    ProfileRegisterLimit registerLimits;
+    LEnumerableSet.Bytes32Set types;
+  }
+
+  struct ProfileUpdateActivityRequest {
+    bytes32 profileId;
+    ProfileActivityRequest[] data;
+  }
+
+  struct ProfileActivityRequest {
+    bytes32 entityId;
+    ActivityStatus acstat;
+  }
+
+  struct ProfileUpdateAlterabilityRequest {
+    bytes32 profileId;
+    ProfileAlterabilityRequest[] data;
+  }
+
+  struct ProfileAlterabilityRequest {
+    bytes32 entityId;
+    AlterabilityStatus alstat;
+  }
+
+  struct ProfileUpdateAdminRequest {
+    bytes32 profieId;
+    ProfileAdminRequest[] data;
+  }
+
+  struct ProfileAdminRequest {
+    bytes32 entityId;
+    bytes32 adminId;
+  }
+
+
+  struct ProfileUpdateScopeRequest {
+    bytes32 profieId;
+    ProfileScopeRequest[] data;
+  }
+
+  struct ProfileScopeRequest {
+    bytes32 entityId;
+    bytes32 scopeId;
+  }
+  
 
 }

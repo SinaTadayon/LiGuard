@@ -59,7 +59,8 @@ library LACLUtils {
   function generateProfileAuthorizationError(IProfileACL.ProfileAuthorizationStatus status) internal pure {
     if(status == IProfileACL.ProfileAuthorizationStatus.UNAUTHORIZED) revert IProfileACL.ProfileUnauthorized();
     else if(status == IProfileACL.ProfileAuthorizationStatus.POLICY_FORBIDDEN) revert IProfileACL.ProfilePolicyForbidden();
-    else if(status == IProfileACL.ProfileAuthorizationStatus.CALL_FORBIDDEN) revert IProfileACL.ProfileCallForbidden();
+    else if(status == IProfileACL.ProfileAuthorizationStatus.PROFILE_CALL_FORBIDDEN) revert IProfileACL.ProfileCallForbidden();
+    else if(status == IProfileACL.ProfileAuthorizationStatus.MEMBER_CALL_FORBIDDEN) revert IProfileACL.ProfileMemberCallForbidden();    
     else if(status == IProfileACL.ProfileAuthorizationStatus.MEMBER_NOT_FOUND) revert IProfileACL.ProfileMemberNotFound();
     else if(status == IProfileACL.ProfileAuthorizationStatus.ROLE_NOT_FOUND) revert IProfileACL.ProfileRoleNotFound();
     else if(status == IProfileACL.ProfileAuthorizationStatus.TYPE_NOT_FOUND) revert IProfileACL.ProfileTypeNotFound();
@@ -74,6 +75,7 @@ library LACLUtils {
     else if(status == IProfileACL.ProfileAuthorizationStatus.CONTEXT_ACTIVITY_FORBIDDEN) revert IProfileACL.ProfileContextActivityForbidden();
     else if(status == IProfileACL.ProfileAuthorizationStatus.REALM_ACTIVITY_FORBIDDEN)  revert IProfileACL.ProfileRealmActivityForbidden();
     else if(status == IProfileACL.ProfileAuthorizationStatus.DOMAIN_ACTIVITY_FORBIDDEN) revert IProfileACL.ProfileDomainActivityForbidden();
+    else if(status == IProfileACL.ProfileAuthorizationStatus.PROFILE_ACTIVITY_FORBIDDEN) revert IProfileACL.ProfileActivityForbidden();
     else revert("Unknown ERR");
   }
 }

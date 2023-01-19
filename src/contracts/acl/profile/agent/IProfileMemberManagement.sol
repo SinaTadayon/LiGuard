@@ -15,14 +15,34 @@ interface IPrfoileMemberManagement is IACLCommons {
 
   struct ProfileMemberRegisterRequest {
     bytes32 profileId;
+    ProfileMemberRequest[] members;
+  }
+
+  struct ProfileMemberRequest {        
+    bytes32 adminId;
     bytes32 roleId;
     address account;
+    ProfileRegisterLimit registerLimit;
   }
 
   struct ProfileMemberUpdateLimitRequest {
     bytes32 profileId;
+    ProfileMemberLimitRequest[] limits;
+  }
+
+  struct ProfileMemberLimitRequest {
     bytes32 memberId;
     uint32 limit;
+  }
+
+  struct ProfileMemberUpdateRegisterLimitRequest {
+    bytes32 profileId;
+    ProfileMemberRegisterLimitRequest[] registerLimits;
+  }
+
+  struct ProfileMemberRegisterLimitRequest {
+    bytes32 memberId;
+    ProfileRegisterLimit registerLimit;
   }
 
   struct ProfileMemberInfo {
@@ -30,8 +50,8 @@ interface IPrfoileMemberManagement is IACLCommons {
     address account;
     uint32 typeLimit;
     uint32 typeCount;
-    uint32 factoryLimit; 
-    uint16 callLimit;
+    uint32 callLimit;
+    ProfileRegisterLimit registerLimit;
     AgentType atype;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
@@ -48,7 +68,7 @@ interface IPrfoileMemberManagement is IACLCommons {
 
   event ProfileMemberTypeLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed memberId, uint32 typeLimit);
 
-  event ProfileFactoryLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed memberId, uint32 factoryLimit);
+  event ProfileRegisterLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed memberId, ProfileRegisterLimit registerLimit);
 
   event ProfileCallLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed memberId, uint32 callLimit);
 
@@ -62,7 +82,7 @@ interface IPrfoileMemberManagement is IACLCommons {
 
   function profileMemberUpdateTypeLimit(ProfileMemberUpdateLimitRequest[] calldata requests) external returns (bool);
 
-  function profileMemberUpdateFactoryLimit(ProfileMemberUpdateLimitRequest[] calldata requests) external returns (bool);
+  function profileMemberUpdateRegsiterLimit(ProfileMemberUpdateRegisterLimitRequest[] calldata requests) external returns (bool);
 
   function profielMemberUpdateCallLimit(ProfileMemberUpdateLimitRequest[] calldata requests) external returns (bool);
 
