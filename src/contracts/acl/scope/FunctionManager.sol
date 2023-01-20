@@ -56,8 +56,8 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
   }
 
   function functionRegister(FunctionRegisterRequest[] calldata requests) external returns (bool) {
-    _accessPermission(IFunctionManagement.functionRegister.selector);
-
+    
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");
     for (uint256 i = 0; i < requests.length; i++) {
       address signer;
       address contractId;
@@ -90,15 +90,21 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
 
       bytes32 contextId = LACLUtils.accountGenerateId(contractId);  
       bytes32 signerId = LACLUtils.accountGenerateId(signer);
+
+      address functionFacetId = _data.selectors[selector];
+      bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector); 
+      IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, signerId);
+      if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
+
       ContextEntity storage contextEntity = _data.contextReadSlot(contextId);    
       require(contextEntity.bs.alstat == AlterabilityStatus.UPGRADABLE, "Illegal Upgrade");
       require(contextEntity.functionLimit > contextEntity.functions.length(), "Illegal Limit");
 
-      for (uint256 j = 0; j < requests[i].freq.length; j++) {
+      for (uint256 j = 0; j < requests[i].functions.length; j++) {
 
         // check access system scope
         require(_doCheckSystemScope(contextId, signerId), "Forbidden");        
-        _doFunctionRegistration(contextEntity, requests[i].freq[j], msg.sender, signer, contextId);
+        _doFunctionRegistration(contextEntity, requests[i].functions[j], msg.sender, signer, contextId);
       }
     }
     return true;

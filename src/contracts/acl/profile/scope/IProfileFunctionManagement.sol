@@ -7,7 +7,7 @@ pragma solidity 0.8.17;
 import "../../IACLCommons.sol";
 
 /**
- * @title Function Management Interface
+ * @title Profile Function Management Interface
  * @author Sina Tadayon, https://github.com/SinaTadayon
  * @dev
  *
@@ -24,27 +24,32 @@ interface IProfileFunctionManagement is IACLCommons {
     address subject;
     address deployer;
     address contractId;    
-    ProfileFunctionRequest[] freq;
+    ProfileFunctionRequest[] functions;
   }
 
   struct ProfileFunctionRequest {
     bytes32 adminId;
     bytes32 agentId;
     bytes4 selector;
-    // uint32 agentLimit;
     uint8 policyCode;
-    // ActivityStatus acstat;
-    // AlterabilityStatus alstat;    
   }
 
   struct ProfileFunctionUpdatePolicyRequest {
     bytes32 profileId;
+    ProfileFunctionPolicyRequest[] codes;
+  }
+
+  struct ProfileFunctionPolicyRequest {
     bytes32 functionId;
     uint8 policyCode;
   }
 
   struct ProfileFunctionUpdateAgentRequest {
     bytes32 profileId;
+    ProfileFunctionAgentRequest[] agents;
+  }
+
+  struct ProfileFunctionAgentRequest {
     bytes32 functionId;
     bytes32 agentId;
   }
@@ -54,7 +59,6 @@ interface IProfileFunctionManagement is IACLCommons {
     bytes32 agentId;
     bytes32 contextId;
     bytes4 selector;        
-    // uint32 agentLimit;
     uint32 referredByAgent;
     ScopeType stype;
     ActivityStatus acstat;
@@ -83,8 +87,6 @@ interface IProfileFunctionManagement is IACLCommons {
   event ProfileFunctionAlterabilityUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed functionId, AlterabilityStatus alstat);
 
   event ProfileFunctionPolicyUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed functionId, uint8 policyCode);
-  
-  // event FunctionAgentLimitUpdated(address indexed sender, bytes32 indexed functionId, uint32 agentLimit);
 
   function profileFunctionRegister(ProfileFunctionRegisterRequest[] calldata requests) external returns (bool);
 
@@ -98,7 +100,6 @@ interface IProfileFunctionManagement is IACLCommons {
 
   function profileFunctionUpdatePolicyCode(ProfileFunctionUpdatePolicyRequest[] calldata requests) external returns (bool); 
 
-  // function profileFunctionUpdateAgentLimit(ProfileScopeUpdateAgentLimitRequest[] calldata requests) external returns (bool);
   function profileFunctionCheckId(bytes32 profileId, bytes32 functionId) external view returns (bool);
 
   function profileFunctionCheckSelector(bytes32 profileId, address contractId, bytes4 selector) external view returns (bool);

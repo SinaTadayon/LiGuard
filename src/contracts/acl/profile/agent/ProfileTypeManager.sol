@@ -79,7 +79,7 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
         newType.ba.acstat = ActivityStatus.ENABLED;
         newType.ba.alstat = AlterablitiyStatus.UPGRADABLE;
         newType.scopeId = requests[i].types[j].scopeId;
-        newType.roleLimit = profileEntity.limits.roleLimit;
+        newType.roleLimit = profileEntity.limits.typeRoleLimit;
         newType.name = requests[i].types[j].name;
         newType.ba.adminId = _getTypeAdmin(profileEntity, requestedScope.stype, requestedScope.adminId, requests[i].types[j].scopeId, requests[i].types[j].adminId);
         emit ProfileTypeRegistered(

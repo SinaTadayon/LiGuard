@@ -6,7 +6,7 @@ pragma solidity 0.8.17;
 import "../../IACLCommons.sol";
 
 /**
- * @title Policy Management Interface
+ * @title Profile Policy Management Interface
  * @author Sina Tadayon, https://github.com/SinaTadayon
  * @dev
  *
@@ -15,35 +15,52 @@ import "../../IACLCommons.sol";
 interface IProfilePolicyManagement is IACLCommons {
   struct ProfilePolicyRegisterRequest {
     bytes32 profileId;
+    ProfilePolicyRegisterDataRequest[] policies;
+  }
+
+  struct ProfilePolicyRegisterDataRequest {
     bytes32 adminId;
     bytes32 scopeId;
-    // uint32 roleLimit;
     uint8 policyCode;
-    // ActivityStatus acstat;
-    // AlterabilityStatus alstat;
     string name;    
   }
 
   struct ProfilePolicyAddRolesRequest {
     bytes32 profileId;
+    ProfilePolicyAddRolesDataRequest[] data;
+  }
+
+  struct ProfilePolicyAddRolesDataRequest {
     bytes32 policyId;
     bytes32[] roles;
   }
   
   struct ProfilePolicyRemoveRolesRequest {
     bytes32 profileId;
+    ProfilePolicyRemoveRolesDataRequest[] data;
+  }
+
+  struct ProfilePolicyRemoveRolesDataRequest {
     bytes32 policyId;
     bytes32[] roles;
   }
 
   struct ProfilePolicyUpdateCodeRequest { 
     bytes32 profileId;
+    ProfilePolicyCodeRequest[] policies;
+  }
+
+  struct ProfilePolicyCodeRequest {   
     bytes32 policyId;
     uint8 policyCode;
   }
   
   struct ProfilePolicyUpdateRoleLimitRequest {
     bytes32 profileId;
+    ProfilePolicyRoleLimitRequest[] limits;
+  }
+
+  struct ProfilePolicyRoleLimitRequest {
     bytes32 policyId;
     uint32 roleLimit;
   }

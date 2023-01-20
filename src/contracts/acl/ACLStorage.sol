@@ -27,7 +27,6 @@ abstract contract ACLStorage is BaseUUPSStorage, IACLCommons {
     LEnumerableSet.AddressSet facetSet;    
   }
 
-
   bytes32 public constant TYPE_HASH =
     keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
 
@@ -36,6 +35,13 @@ abstract contract ACLStorage is BaseUUPSStorage, IACLCommons {
 
   bytes32 public constant PREDICT_CTX_MESSAGE_TYPEHASH =
     keccak256("PredictContext(address deployer,address subject,string realm)");
+
+  bytes32 public constant PROFILE_CTX_MESSAGE_TYPEHASH =
+    keccak256("ProfileContext(bytes32 profileId, address contractId,string name,string version,string realm)");
+
+  bytes32 public constant PROFILE_PREDICT_CTX_MESSAGE_TYPEHASH =
+    keccak256("ProfilePredictContext(bytes32 profileId, address deployer,address subject,string realm)");
+  
 
   // General Types ID
   bytes32 internal constant _LIVELY_VERSE_LIVELY_MASTER_TYPE_ID         = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_MASTER"));

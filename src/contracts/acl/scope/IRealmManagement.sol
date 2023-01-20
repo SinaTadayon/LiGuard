@@ -76,7 +76,7 @@ interface IRealmManagement is IACLCommons{
 
   function realmCheckName(string calldata realmName) external view returns (bool);
 
-  function realmCheckAdmin(bytes32 contextId, address account) external view returns (bool);
+  function realmCheckAdmin(bytes32 realmId, address account) external view returns (bool);
 
   function realmHasFunction(bytes32 realmId, bytes32 functionId) external view returns (bool);
 

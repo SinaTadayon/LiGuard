@@ -23,7 +23,7 @@ interface IFunctionManagement is IACLCommons{
     address subject;
     address deployer;
     address contractId;    
-    FunctionRequest[] freq;
+    FunctionRequest[] functions;
   }
 
   struct FunctionRequest {

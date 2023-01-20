@@ -16,27 +16,32 @@ interface IProfileRealmManagement is IACLCommons {
 
   struct ProfileRealmRegisterRequest {
     bytes32 profileId;
+    ProfileRealmRegisterDataRequest[] realms;
+  }
+
+  struct ProfileRealmRegisterDataRequest {  
     bytes32 domainId;
     bytes32 adminId;
-    // uint32 contextLimit;
-    // uint32 agentLimit;
-    // ActivityStatus acstat;
-    // AlterabilityStatus alstat;
     string name; 
   }
 
+
   struct ProfileRealmUpdateContextLimitRequest {
     bytes32 profileId;
+    ProfileRealmContextLimitRequest[] limits;
+  }
+
+  struct ProfileRealmContextLimitRequest {
     bytes32 realmId;
     uint32 contextLimit;
   }
+
 
   struct ProfileRealmInfo {
     bytes32 domainId;
     bytes32 adminId;
     uint32 contextLimit;
     uint32 contextCount;
-    // uint32 agentLimit;
     uint32 referredByAgent;
     ScopeType stype;
     ActivityStatus acstat;
@@ -60,7 +65,6 @@ interface IProfileRealmManagement is IACLCommons {
   event ProfileRealmActivityUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed realmId, ActivityStatus acstat);
   
   event ProfileRealmAlterabilityUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed realmId, AlterabilityStatus alstat);
-  // event RealmAgentLimitUpdated(address indexed sender, bytes32 indexed realmId, uint32 agentLimit);
 
   function profileRealmRegister(ProfileRealmRegisterRequest[] calldata requests) external returns (bool);
 
@@ -71,13 +75,12 @@ interface IProfileRealmManagement is IACLCommons {
   function profileRealmUpdateAlterabilityStatus(ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
   function profileRealmUpdateContextLimit(ProfileRealmUpdateContextLimitRequest[] calldata requests) external returns (bool);
-  // function profileRealmUpdateAgentLimit(ScopeUpdateAgentLimitRequest[] calldata requests) external returns (bool);
 
   function profileRealmCheckId(bytes32 profileId, bytes32 realmId) external view returns (bool);
 
   function profileRealmCheckName(bytes32 profileId, string calldata realmName) external view returns (bool);
 
-  function profileRealmCheckAdmin(bytes32 profileId, bytes32 contextId, address account) external view returns (bool);
+  function profileRealmCheckAdmin(bytes32 profileId, bytes32 realmId, address account) external view returns (bool);
 
   function profileRealmHasFunction(bytes32 profileId, bytes32 realmId, bytes32 functionId) external view returns (bool);
 

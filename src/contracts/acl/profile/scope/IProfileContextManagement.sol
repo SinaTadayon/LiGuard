@@ -6,15 +6,19 @@ pragma solidity 0.8.17;
 import "../../IACLCommons.sol";
 
 /**
- * @title Context Management Interface
+ * @title Profile Context Management Interface
  * @author Sina Tadayon, https://github.com/SinaTadayon
  * @dev
  *
  */
 interface IProfileContextManagement is IACLCommons {
-  
+
   struct ProfileContextRegisterRequest {
     bytes32 profileId;
+    ProfileContextRegisterDataRequest[] contexts;
+  }
+
+  struct ProfileContextRegisterDataRequest {
     bytes32 realmId;
     bytes32 adminId;
     bytes32 salt;
@@ -23,15 +27,15 @@ interface IProfileContextManagement is IACLCommons {
     address contractId;
     address subject;
     address deployer;
-    // uint32 agentLimit;
-    // uint16 functionLimit;
-    // ActivityStatus acstat;
-    // AlterabilityStatus alstat;
     bytes signature;
   }
 
    struct ProfileContextUpdateFunctionLimitRequest {
-     bytes32 profileId;
+    bytes32 profileId;
+    ProfileContextFunctionLimitRequest[] limits;
+  }
+
+  struct ProfileContextFunctionLimitRequest {
     bytes32 contextId;
     uint16 functionLimit;
   }
@@ -44,7 +48,6 @@ interface IProfileContextManagement is IACLCommons {
     address contractId;
     uint16 functionCount;
     uint16 functionLimit;
-    // uint32 agentLimit;
     uint32 referredByAgent;
     AgentType adminType;
     ScopeType stype;
@@ -71,7 +74,6 @@ interface IProfileContextManagement is IACLCommons {
   event ProfileContextAlterabilityUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed contextId, AlterabilityStatus alstat);
 
   event ProfileContextFunctionLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed contextId, uint16 functionLimit);
-  // event ContextAgentLimitUpdated(address indexed sender, bytes32 indexed contextId, uint32 agentLimit);
 
   function profileContextRegister(ProfileContextRegisterRequest[] calldata requests) external returns (bool);
 
@@ -82,7 +84,6 @@ interface IProfileContextManagement is IACLCommons {
   function profileContextUpdateAdmin(ProfileUpdateAdminRequest[] calldata requests) external returns (bool);
 
   function profileContextUpdateFunctionLimit(ProfileContextUpdateFunctionLimitRequest[] calldata requests) external returns (bool);
-  // function profileContextUpdateAgentLimit(ProfileScopeUpdateAgentLimitRequest[] calldata requests) external returns (bool);
 
   function profileContextCheckId(bytes32 profileId, bytes32 contextId) external view returns (bool);
 

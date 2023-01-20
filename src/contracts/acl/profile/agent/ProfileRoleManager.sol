@@ -96,7 +96,7 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
         newRole.ba.alstat = AlterabilityStatus.UPGRADABLE;
         newRole.name = requests[i].roles[j].name;
         newRole.scopeId = requests[i].roles[j].scopeId;
-        // newRole.memberLimit = requests[i].memberLimit;
+        newRole.memberLimit = profileEntity.limits.memberLimit;
         newRole.typeId = requests[i].roles[j].typeId;
         newRole.ba.adminId = _getRoleAdmin(profileEntity, requestScopeType, typeEntity.ba.adminId, requests[i].roles[j].scopeId, requests[i].roles[j].adminId);
         emit ProfileRoleRegistered(
@@ -279,7 +279,7 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
   }
 
   function profileTypeHasAccount(bytes32 profileId, bytes32 typeId, address account) external view returns (bool) {
-    
+
   }
 
   function profileRoleHasAccount(bytes32 profileId, bytes32 roleId, address account) external view returns (bool) {
