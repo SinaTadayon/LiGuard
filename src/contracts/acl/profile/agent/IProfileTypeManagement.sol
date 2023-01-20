@@ -15,16 +15,21 @@ interface IProfileTypeManagement is IACLCommons {
 
   struct ProfileTypeRegisterRequest {
     bytes32 profileId;
+    ProfileTypeRegisterDataRequest[] types;
+  }
+
+  struct ProfileTypeRegisterDataRequest {
     bytes32 adminId;
     bytes32 scopeId;
-    // uint32 roleLimit;
-    // ActivityStatus acstat;
-    // AlterabilityStatus alstat;
     string name;
   }
 
   struct ProfileTypeUpdateRoleLimitRequest {
     bytes32 profileId;
+    ProfileTypeRoleLimitRequest[] limits;
+  }
+
+  struct ProfileTypeRoleLimitRequest {
     bytes32 typeId;
     uint32 roleLimit;
   }

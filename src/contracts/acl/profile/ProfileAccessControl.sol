@@ -310,7 +310,14 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
   function isProfileScopesCompatible(bytes32 profileId, bytes32 destScopeId, bytes32 srcScopeId) external view returns (bool) {
     ProfileEntity storage profileEntity = _data.profiles[profileId];
     if(profileEntity.acstat == ActivityStatus.NONE) return false;
+    return _doProfileScopesCompatible(ProfileEntity, destScopeId, srcScopeId);
+  }
 
+  function isProfileScopesCompatible(ProfileEntity storage profileEntity, bytes32 destScopeId, bytes32 srcScopeId) public view returns (bool) {
+    return _doProfileScopesCompatible(ProfileEntity, destScopeId, srcScopeId);
+  }
+
+  function _doProfileScopesCompatible(ProfileEntity storage profileEntity, bytes32 destScopeId, bytes32 srcScopeId) public view returns (bool) {
     ScopeType destScopeType = profileEntity.scopes[destScopeId].stype;
     ScopeType srcScopeType = profileEntity.scopes[srcScopeId].stype;
     if(destScopeType == ScopeType.NONE || srcScopeType == ScopeType.NONE) return false;

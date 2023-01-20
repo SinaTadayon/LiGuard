@@ -15,29 +15,43 @@ interface IProfileRoleManagement is IACLCommons{
 
   struct ProfileRoleRegisterRequest {
     bytes32 profileId;
+    ProfileRoleRegisterDataRequest[] roles;
+  }
+
+  struct ProfileRoleRegisterDataRequest {
     bytes32 adminId;
     bytes32 scopeId;          
     bytes32 typeId; 
-    // uint32 memberLimit;
-    // ActivityStatus acstat;
-    // AlterabilityStatus alstat;   
     string name;
   }
 
+
   struct ProfileRoleGrantMembersRequest {
     bytes32 profileId;
+    ProfileRoleGrantMembersDataRequest[] data;
+  }
+
+  struct ProfileRoleGrantMembersDataRequest {
     bytes32 roleId;
     bytes32[] members;
   }
 
   struct ProfileRoleRevokeMembersRequest {
     bytes32 profileId;
+    ProfileRoleRevokeMembersDataRequest[] data;
+  }
+
+  struct ProfileRoleRevokeMembersDataRequest {
     bytes32 roleId;
     bytes32[] members;
   }
 
   struct ProfileRoleUpdateMemberLimitRequest {
     bytes32 profileId;
+    ProfileRoleMemberLimitRequest[] limits;
+  }
+
+  struct ProfileRoleMemberLimitRequest {
     bytes32 roleId;
     uint32 memberLimit;
   }
@@ -93,13 +107,13 @@ interface IProfileRoleManagement is IACLCommons{
 
   function profileRoleUpdateMemberLimit(ProfileRoleUpdateMemberLimitRequest[] calldata requests) external returns (bool);
 
-  function profileRoleCheckId(bytes32 roleId) external view returns (bool);
+  function profileRoleCheckId(bytes32 profileId, bytes32 roleId) external view returns (bool);
 
-  function profileRoleCheckName(string calldata roleName) external view returns (bool);
+  function profileRoleCheckName(bytes32 profileId, string calldata roleName) external view returns (bool);
 
-  function profileRoleCheckAdmin(bytes32 roleId, address account) external view returns (bool);
+  function profileRoleCheckAdmin(bytes32 profileId, bytes32 roleId, address account) external view returns (bool);
 
-  function profileRoleHasAccount(bytes32 roleId, address account) external view returns (bool);
+  function profileRoleHasAccount(bytes32 profileId, bytes32 roleId, address account) external view returns (bool);
 
-  function profileRoleGetInfo(bytes32 roleId) external view returns (ProfileRoleInfo memory);
+  function profileRoleGetInfo(bytes32 profileId, bytes32 roleId) external view returns (ProfileRoleInfo memory);
 }

@@ -276,7 +276,7 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
     ProfileEntity storage profileEntity = _data.profiles[profileId];
     (ProfileMemberEntity storage member, bool result) = profileEntity.profileMemberTryReadSlot(memberId);
     if(!result || profileEntity.acstat == ActivityStatus.NONE) {
-      return MemberInfo({
+      return ProfileMemberInfo({
         adminId: bytes32(0),
         account: address(0),
         typeLimit: 0,
@@ -298,7 +298,7 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
       });
     }
 
-    return MemberInfo({
+    return ProfileMemberInfo({
       adminId: member.ba.adminId,
       account: member.account,
       typeLimit: member.typeLimit,

@@ -15,10 +15,10 @@ interface IPrfoileMemberManagement is IACLCommons {
 
   struct ProfileMemberRegisterRequest {
     bytes32 profileId;
-    ProfileMemberRequest[] members;
+    ProfileMemberRegisterDataRequest[] members;
   }
 
-  struct ProfileMemberRequest {        
+  struct ProfileMemberRegisterDataRequest {        
     bytes32 adminId;
     bytes32 roleId;
     address account;
