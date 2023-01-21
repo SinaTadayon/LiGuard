@@ -17,25 +17,20 @@ interface IMemberManagement is IACLCommons {
     bytes32 roleId;
     bytes32 adminId;
     address account;
-    uint32 callLimit;
-    uint32 typeLimit;
-    uint32 factoryLimit;
+    GeneralLimit limits;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
   }
 
-  struct MemberUpdateLimitRequest {
+  struct MemberUpdateGeneralLimitRequest {
     bytes32 memberId;
-    uint32 limit;
+    GeneralLimit limits;
   }
 
   struct MemberInfo {
     bytes32 adminId;
     address account;
-    uint32 typeLimit;
-    uint32 typeCount;
-    uint32 callLimit;
-    uint32 factoryLimit;
+    GeneralLimit limits;
     AgentType atype;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
@@ -49,11 +44,7 @@ interface IMemberManagement is IACLCommons {
     bytes32 adminId 
   );
 
-  event MemberTypeLimitUpdated(address indexed sender, bytes32 indexed memberId, uint32 typeLimit);
-
-  event MemberFactoryLimitUpdated(address indexed sender, bytes32 indexed memberId, uint32 factoryLimit);
-
-  event MemberCallLimitUpdated(address indexed sender, bytes32 indexed memberId, uint32 callLimit);
+  event MemberGeneralLimitUpdated(address indexed sender, bytes32 indexed memberId, GeneralLimit limits);
 
   event MemberAdminUpdated(address indexed sender, bytes32 indexed memberId, bytes32 indexed adminId);
 
@@ -69,11 +60,7 @@ interface IMemberManagement is IACLCommons {
 
   function memberUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);
 
-  function memberUpdateTypeLimit(MemberUpdateLimitRequest[] calldata requests) external returns (bool);
-
-  function memberUpdateFactoryLimit(MemberUpdateLimitRequest[] calldata requests) external returns (bool);
-
-  function memberUpdateCallLimit(MemberUpdateLimitRequest[] calldata requests) external returns (bool);
+  function memberUpdateGeneralLimit(MemberUpdateGeneralLimitRequest[] calldata requests) external returns (bool);
 
   function memberCheckId(bytes32 memberId) external view returns (bool);
 

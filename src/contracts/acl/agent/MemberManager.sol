@@ -58,15 +58,21 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
 
     bytes32 functionId = _accessPermission(IMemberManagement.memberRegister.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
+
+    // check and set
+    MemberEntity storage memberEntity = _data.memberReadSlot(senderId);
+    require(memberEntity.limits.memberRegisterLimit - uint16(requests.length) > 0, "Illegal RegisterLimit");
+    memberEntity.limits.memberRegisterLimit -= uint16(requests.length);
+
     for (uint256 i = 0; i < requests.length; i++) {
       bytes32 newMemberId = LACLUtils.accountGenerateId(requests[i].account);
       require(_data.agents[newMemberId].acstat == ActivityStatus.NONE, "Already Exist");
-      require(requests[i].typeLimit >= 1, "Illegal TypeLimit");
+      require(requests[i].limits.typeLimit >= 1, "Illegal TypeLimit");
       require(
         requests[i].acstat > ActivityStatus.DELETED && 
         requests[i].alstat > AlterabilityStatus.NONE,
         "Illegal Activity/Alterability"
-      );
+      );     
 
       // check role
       RoleEntity storage roleEntity = _data.roleReadSlot(requests[i].roleId);
@@ -76,11 +82,6 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
       // check type 
       TypeEntity storage typeEntity = _data.typeReadSlot(roleEntity.typeId);
       require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Type Updatable");
-
-      // check factory limit
-      if(requests[i].factoryLimit > 0) {
-        require(roleEntity.typeId == _LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID, "Illegal Factory Limit" );
-      }
 
       // check access
       require(_doAgentCheckAdminAccess(roleEntity.ba.adminId, senderId, functionId), "Forbidden");
@@ -96,10 +97,10 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
 
       // check adminId
       if(requests[i].adminId != bytes32(0)) {
-        require(_doAgentCheckAdminAccess(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID, senderId, functionId), "Set Admin Forbidden");
+        require(_doAgentCheckAdminAccess(_LIVELY_VERSE_MEMBER_MASTER_TYPE_ID, senderId, functionId), "Set Admin Forbidden");
         newMember.ba.adminId = requests[i].adminId;
       } else {
-        newMember.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_TYPE_ID;
+        newMember.ba.adminId = _LIVELY_VERSE_MEMBER_MASTER_TYPE_ID;
       }
       
       newMember.ba.atype = AgentType.MEMBER;
@@ -107,9 +108,7 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
       newMember.ba.alstat = requests[i].alstat;
       newMember.account = requests[i].account;
       newMember.types.add(roleEntity.typeId);
-      newMember.typeLimit = requests[i].typeLimit;
-      newMember.factoryLimit = requests[i].factoryLimit;
-      newMember.callLimit = requests[i].callLimit;
+      newMember.limits = requests[i].limits;
 
       emit MemberRegistered(
         msg.sender,
@@ -164,46 +163,24 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
         require(requestedAdminAgent.atype > AgentType.MEMBER, "Illegal Admin AgentType");       
         memberEntity.ba.adminId = requests[i].adminId;      
       } else {
-        memberEntity.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_TYPE_ID;
+        memberEntity.ba.adminId = _LIVELY_VERSE_MEMBER_MASTER_TYPE_ID;
       }
       emit MemberAdminUpdated(msg.sender, requests[i].id, requests[i].adminId);
     }
     return true;
   }
 
-  function memberUpdateTypeLimit(MemberUpdateLimitRequest[] calldata requests) external returns (bool) {
+  function memberUpdateGeneralLimit(MemberUpdateGeneralLimitRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IMemberManagement.memberUpdateTypeLimit.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     for (uint256 i = 0; i < requests.length; i++) {
       MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].memberId, senderId, functionId);
-      require(requests[i].limit > memberEntity.types.length(), "Illegal Limit" );
-      memberEntity.typeLimit = requests[i].limit;
-      emit MemberTypeLimitUpdated(msg.sender, requests[i].memberId, requests[i].limit);
+      require(requests[i].limits.typeLimit > memberEntity.types.length(), "Illegal Limit" );
+      memberEntity.limits = requests[i].limits;
+      emit MemberGeneralLimitUpdated(msg.sender, requests[i].memberId, requests[i].limits);
     }
     return true;
   }  
-
-  function memberUpdateFactoryLimit(MemberUpdateLimitRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IMemberManagement.memberUpdateFactoryLimit.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
-    for (uint256 i = 0; i < requests.length; i++) {
-      MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].memberId, senderId, functionId);
-      memberEntity.factoryLimit = requests[i].limit;
-      emit MemberFactoryLimitUpdated(msg.sender, requests[i].memberId, requests[i].limit);
-    }
-    return true;
-  }
-
-  function memberUpdateCallLimit(MemberUpdateLimitRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IMemberManagement.memberUpdateFactoryLimit.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
-    for (uint256 i = 0; i < requests.length; i++) {
-      MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].memberId, senderId, functionId);
-      memberEntity.callLimit = requests[i].limit;
-      emit MemberCallLimitUpdated(msg.sender, requests[i].memberId, requests[i].limit);
-    }
-    return true;    
-  }
 
   function memberCheckId(bytes32 memberId) external view returns (bool) {
     return _data.agents[memberId].atype == AgentType.MEMBER;
@@ -258,10 +235,25 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
       return MemberInfo({
         adminId: bytes32(0),
         account: address(0),
-        typeLimit: 0,
-        typeCount: 0,
-        factoryLimit: 0,
-        callLimit: 0,
+        limits: GeneralLimit({
+          contextLimit: 0,
+          memberRegisterLimit: 0,
+          roleRegisterLimit: 0,
+          typeRegisterLimit: 0,
+          functionRegisterLimit: 0,
+          contextRegisterLimit: 0,
+          memberLimit: 0,
+          realmRegisterLimit: 0,
+          domainRegisterLimit: 0,
+          policyRegisterLimit: 0,
+          functionLimit: 0,
+          realmLimit: 0,
+          domainLimit: 0,
+          callLimit: 0,
+          typeRoleLimit: 0,
+          typeLimit: 0,
+          policyRoleLimit: 0
+        }),
         atype: AgentType.NONE,
         acstat: ActivityStatus.NONE,
         alstat: AlterabilityStatus.NONE
@@ -271,10 +263,25 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
     return MemberInfo({
       adminId: member.ba.adminId,
       account: member.account,
-      typeLimit: member.typeLimit,
-      typeCount: uint16(member.types.length()),
-      factoryLimit: member.factoryLimit,
-      callLimit: member.callLimit,
+      limits: GeneralLimit({
+        contextLimit: member.limits.contextLimit,
+        memberRegisterLimit: member.limits.memberRegisterLimit,
+        roleRegisterLimit: member.limits.roleRegisterLimit,
+        typeRegisterLimit: member.limits.typeRegisterLimit,
+        functionRegisterLimit: member.limits.functionRegisterLimit,
+        contextRegisterLimit: member.limits.contextRegisterLimit,
+        memberLimit: member.limits.memberLimit,
+        realmRegisterLimit: member.limits.realmRegisterLimit,
+        domainRegisterLimit: member.limits.domainRegisterLimit,
+        policyRegisterLimit: member.limits.policyRegisterLimit,
+        functionLimit: member.limits.functionLimit,
+        realmLimit: member.limits.realmLimit,
+        domainLimit: member.limits.domainLimit,
+        callLimit: member.limits.callLimit,
+        typeRoleLimit: member.limits.typeRoleLimit,
+        typeLimit: member.limits.typeLimit,
+        policyRoleLimit: member.limits.policyRoleLimit
+      }),
       atype: member.ba.atype,
       acstat: member.ba.acstat,
       alstat: member.ba.alstat

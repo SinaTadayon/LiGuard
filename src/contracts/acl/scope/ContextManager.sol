@@ -95,40 +95,6 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     return true;
   }
 
-  function _getContextMessageHash(
-    address contractId,
-    bytes32 name,
-    bytes32 version,
-    bytes32 realmId
-  ) internal pure returns (bytes32) {
-    return keccak256(abi.encode(CTX_MESSAGE_TYPEHASH, contractId, name, version, realmId));
-  }
-
-  function _getPredictContextMessageHash(
-    address deployer,
-    address subject,
-    bytes32 realmId
-  ) internal pure returns (bytes32) {
-    return keccak256(abi.encode(PREDICT_CTX_MESSAGE_TYPEHASH, deployer, subject, realmId));
-  }
-
-  function _hashTypedDataV4(bytes32 structHash) internal view returns (bytes32) {
-    return LECDSA.toTypedDataHash(_contractDomainSeparatorV4(), structHash);
-  }
-
-  function _contractDomainSeparatorV4() internal view returns (bytes32) {
-    return
-      keccak256(
-        abi.encode(
-          TYPE_HASH,          
-          IProxy(address(this)).contractName(),
-          IProxy(address(this)).contractVersion(),
-          block.chainid,
-          address(this)
-        )
-      );
-  }
-
   function contextUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IContextManagement.contextUpdateActivityStatus.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
@@ -195,17 +161,17 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     return true;    
   }
 
-  function contextUpdateAgentLimit(ScopeUpdateAgentLimitRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IContextManagement.contextUpdateAgentLimit.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
-    for (uint256 i = 0; i < requests.length; i++) {
-      ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(requests[i].scopeId, senderId, functionId);
-      require(requests[i].agentLimit > contextEntity.bs.referredByAgent, "Illegal Limit");
-      contextEntity.bs.agentLimit = requests[i].agentLimit;
-      emit ContextAgentLimitUpdated(msg.sender, requests[i].scopeId, requests[i].agentLimit);
-    }
-    return true;
-  }
+  // function contextUpdateAgentLimit(ScopeUpdateAgentLimitRequest[] calldata requests) external returns (bool) {
+  //   bytes32 functionId = _accessPermission(IContextManagement.contextUpdateAgentLimit.selector);
+  //   bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
+  //   for (uint256 i = 0; i < requests.length; i++) {
+  //     ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(requests[i].scopeId, senderId, functionId);
+  //     require(requests[i].agentLimit > contextEntity.bs.referredByAgent, "Illegal Limit");
+  //     contextEntity.bs.agentLimit = requests[i].agentLimit;
+  //     emit ContextAgentLimitUpdated(msg.sender, requests[i].scopeId, requests[i].agentLimit);
+  //   }
+  //   return true;
+  // }
 
   function contextCheckId(bytes32 contextId) external view returns (bool) {
     return _data.scopes[contextId].stype == ScopeType.CONTEXT;
@@ -426,6 +392,39 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     return IACLGenerals(address(this)).isScopesCompatible(memberSystemRole.scopeId, scopeId);    
   }
 
+  function _getContextMessageHash(
+    address contractId,
+    bytes32 name,
+    bytes32 version,
+    bytes32 realmId
+  ) internal pure returns (bytes32) {
+    return keccak256(abi.encode(CTX_MESSAGE_TYPEHASH, contractId, name, version, realmId));
+  }
+
+  function _getPredictContextMessageHash(
+    address deployer,
+    address subject,
+    bytes32 realmId
+  ) internal pure returns (bytes32) {
+    return keccak256(abi.encode(PREDICT_CTX_MESSAGE_TYPEHASH, deployer, subject, realmId));
+  }
+
+  function _hashTypedDataV4(bytes32 structHash) internal view returns (bytes32) {
+    return LECDSA.toTypedDataHash(_contractDomainSeparatorV4(), structHash);
+  }
+
+  function _contractDomainSeparatorV4() internal view returns (bytes32) {
+    return
+      keccak256(
+        abi.encode(
+          TYPE_HASH,          
+          IProxy(address(this)).contractName(),
+          IProxy(address(this)).contractVersion(),
+          block.chainid,
+          address(this)
+        )
+      );
+  }
 
   function _doRegisterContext(ContextRegisterRequest calldata request, address contractId, address signer) internal {
     
@@ -441,10 +440,10 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     );
 
     {
-      // update member factory limit
+      // update member context register limit
       MemberEntity storage memberEntity = _data.memberReadSlot(signerId);
-      require(memberEntity.factoryLimit > 0, "Illegal Factory");
-      memberEntity.factoryLimit -= 1;
+      require(memberEntity.limits.contextRegisterLimit > 0, "Illegal RegisterLimit");
+      memberEntity.limits.contextRegisterLimit -= 1;
 
       // check realm 
       RealmEntity storage realmEntity = _data.realmReadSlot(request.realmId);
@@ -461,11 +460,10 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
       ContextEntity storage newContext = _data.contextWriteSlot(newContextId);
       newContext.realmId = request.realmId;
       newContext.contractId = contractId;
-      newContext.functionLimit = request.functionLimit;      
+      newContext.functionLimit = memberEntity.limits.functionLimit;      
       newContext.bs.stype = ScopeType.CONTEXT;
       newContext.bs.acstat = request.acstat;
-      newContext.bs.alstat = request.alstat;
-      newContext.bs.agentLimit = request.agentLimit;    
+      newContext.bs.alstat = request.alstat;  
       newContext.bs.adminId = _getContextAdmin(request.realmId, newContextId, realmEntity.bs.adminId, request.adminId);    
     }
 

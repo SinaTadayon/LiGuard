@@ -49,10 +49,11 @@ abstract contract ACLStorage is BaseUUPSStorage, IACLCommons {
   bytes32 internal constant _LIVELY_VERSE_ANONYMOUS_TYPE_ID             = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_ANONYMOUS"));
   bytes32 internal constant _LIVELY_VERSE_ANY_TYPE_ID                   = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_ANY"));
   bytes32 internal constant _LIVELY_VERSE_SCOPE_MASTER_TYPE_ID          = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_SCOPE_MASTER"));
-  bytes32 internal constant _LIVELY_VERSE_AGENT_MASTER_TYPE_ID          = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_AGENT_MASTER"));
+  bytes32 internal constant _LIVELY_VERSE_MEMBER_MASTER_TYPE_ID         = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_MEMBER_MASTER"));
+  bytes32 internal constant _LIVELY_VERSE_TYPE_MASTER_TYPE_ID           = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_TYPE_MASTER"));
   bytes32 internal constant _LIVELY_VERSE_POLICY_MASTER_TYPE_ID         = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_POLICY_MASTER"));
-  bytes32 internal constant _LIVELY_VERSE_PROFILE_MASTER_TYPE_ID        = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_PROFILE_MASTER"));
-  bytes32 internal constant _LIVELY_VERSE_PROFILE_SYSTEM_MASTER_TYPE_ID = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_PROFILE_SYSTEM_MASTER"));
+  // bytes32 internal constant _LIVELY_VERSE_PROFILE_MASTER_TYPE_ID        = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_PROFILE_MASTER"));
+  // bytes32 internal constant _LIVELY_VERSE_PROFILE_SYSTEM_MASTER_TYPE_ID = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_PROFILE_SYSTEM_MASTER"));
 
 
   // // General Roles ID 
@@ -64,6 +65,7 @@ abstract contract ACLStorage is BaseUUPSStorage, IACLCommons {
 
   // Global Scope ID
   bytes32 internal constant _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID = keccak256(abi.encodePacked("GLOBAL.LIVELY_VERSE"));
+  // bytes32 internal constant _LIVELY_VERSE_PROFILE_GLOBAL_SCOPE_ID = keccak256(abi.encodePacked("GLOBAL.LIVELY_VERSE_PROFILE"));
 
   bool internal _firstInit;
   DataCollection internal _data;

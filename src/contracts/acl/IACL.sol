@@ -29,7 +29,8 @@ interface IACL {
     FUNCTION_ACTIVITY_FORBIDDEN,
     CONTEXT_ACTIVITY_FORBIDDEN,    
     REALM_ACTIVITY_FORBIDDEN,
-    DOMAIN_ACTIVITY_FORBIDDEN
+    DOMAIN_ACTIVITY_FORBIDDEN,
+    GLOBAL_ACTIVITY_FORBIDDEN
   }
 
   error Unauthorized();
@@ -49,6 +50,7 @@ interface IACL {
   error ContextActivityForbidden();
   error RealmActivityForbidden();
   error DomainActivityForbidden();
+  error GlobalActivityForbidden();
 
 
   function hasAccess(bytes32 functionId) external returns (AuthorizationStatus);

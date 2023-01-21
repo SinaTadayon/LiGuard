@@ -4,7 +4,7 @@
 pragma solidity 0.8.17;
 
 /**
- * @title Domain Management Interface
+ * @title Profile Domain Management Interface
  * @author Sina Tadayon, https://github.com/SinaTadayon
  * @dev
  *
@@ -16,16 +16,20 @@ interface IProfileDomainManagement is IACLCommons {
 
   struct ProfileDomainRegisterRequest {
     bytes32 profileId;
+    ProfileDomainRegisterDataRequest[] domains;
+  }
+
+  struct ProfileDomainRegisterDataRequest {
     bytes32 adminId;
-    // uint32 realmLimit;
-    // uint32 agentLimit;
-    // ActivityStatus acstat;
-    // AlterabilityStatus alstat;
     string name;
   }
 
   struct ProfileDomainUpdateRealmLimitRequest {
     bytes32 profileId;
+    ProfileDomainRealmLimitRequest[] limits;
+  }
+
+  struct ProfileDomainRealmLimitRequest {   
     bytes32 domainId;
     uint32 realmLimit;
   }
@@ -34,7 +38,6 @@ interface IProfileDomainManagement is IACLCommons {
     bytes32 adminId;
     uint32 realmLimit;
     uint32 realmCount;
-    // uint32 agentLimit;
     uint32 referredByAgent;
     ScopeType stype;
     AgentType adminType;
@@ -57,7 +60,6 @@ interface IProfileDomainManagement is IACLCommons {
   event ProfileDomainActivityUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed domainId, ActivityStatus acstat);
   
   event ProfileDomainAlterabilityUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed domainId, AlterabilityStatus alstat);
-  // event DomainAgentLimitUpdated(address indexed sender, bytes32 indexed domainId, uint32 agentLimit);
 
   function profileDomainRegister(ProfileDomainRegisterRequest[] calldata requests) external returns (bool);
 
@@ -69,7 +71,6 @@ interface IProfileDomainManagement is IACLCommons {
 
   function profileDomainUpdateRealmLimit(ProfileDomainUpdateRealmLimitRequest[] calldata requests) external returns (bool);
 
-  // function profileDomainUpdateAgentLimit(ScopeUpdateAgentLimitRequest[] calldata requests) external returns (bool);
   function profileDomainCheckId(bytes32 profileId, bytes32 domainId) external view returns (bool);
 
   function profileDomainCheckName(bytes32 profileId, string calldata domainName) external view returns (bool);

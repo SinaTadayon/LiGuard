@@ -57,8 +57,14 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
     _accessPermission(ITypeManagement.typeRegister.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     
+    // check and set
+    MemberEntity storage memberEntity = _data.memberReadSlot(senderId);
+    require(memberEntity.limits.typeRegisterLimit - uint16(requests.length) > 0, "Illegal RegisterLimit");
+    memberEntity.limits.typeRegisterLimit -= uint16(requests.length);
+
+
     // fetch scope type and scope id of sender
-    (ScopeType senderScopeType, bytes32 senderScopeId) = _doGetMemberScopeInfoFromType(_LIVELY_VERSE_AGENT_MASTER_TYPE_ID, senderId);    
+    (ScopeType senderScopeType, bytes32 senderScopeId) = _doGetMemberScopeInfoFromType(_LIVELY_VERSE_TYPE_MASTER_TYPE_ID, senderId);    
     
     for(uint i = 0; i < requests.length; i++) {
       bytes32 newTypeId = LACLUtils.generateId(requests[i].name);
@@ -79,7 +85,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
       newType.ba.alstat = requests[i].alstat;
       newType.ba.adminId = requests[i].adminId;
       newType.scopeId = requests[i].scopeId;
-      newType.roleLimit = requests[i].roleLimit;
+      newType.roleLimit = memberEntity.limits.typeRoleLimit;
       newType.name = requests[i].name;
       newType.ba.adminId = _getTypeAdmin(requestedScope.stype, requestedScope.adminId, requests[i].scopeId, requests[i].adminId);
       emit TypeRegistered(

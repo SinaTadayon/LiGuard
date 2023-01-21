@@ -102,7 +102,8 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
       for(uint j = 0; j < requests[i].data.length; j++) {
         ContextEntity storage contextEntity = profileEntity.profileContextReadSlot(requests[i].data[j].entityId);
         require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-        require(_doCheckAdminAccess(profileEntity, contextEntity.bs.adminId, senderId, functionId), "Forbidden");
+        IProfileACL.ProfileAccessAdminStatus status = _doCheckAdminAccess(profileEntity, contextEntity.bs.adminId, senderId, functionId);
+        if(status != IProfileACL.ProfileAccessAdminStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
         require(requests[i].data[j].acstat > ActivityStatus.DELETED, "Illegal Activity");    
         contextEntity.bs.acstat = requests[i].data[j].acstat;
         emit ProfileContextActivityUpdated(msg.sender, requests[i].profileId, requests[i].data[j].id, requests[i].data[j].acstat);
@@ -117,7 +118,8 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
       bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);        
       for(uint j = 0; j < requests[i].data.length; j++) {
         ContextEntity storage contextEntity = profileEntity.profileContextReadSlot(requests[i].data[j].entityId);
-        require(_doCheckAdminAccess(profileEntity, contextEntity.bs.adminId, senderId, functionId), "Forbidden");      
+        IProfileACL.ProfileAccessAdminStatus status = _doCheckAdminAccess(profileEntity, contextEntity.bs.adminId, senderId, functionId);
+        if(status != IProfileACL.ProfileAccessAdminStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
         require(requests[i].data[j].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
         contextEntity.bs.alstat = requests[i].data[j].alstat;
         emit ContextAlterabilityUpdated(msg.sender, requests[i].profileId, requests[i].data[j].id, requests[i].data[j].alstat);
@@ -276,47 +278,51 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
     return typeEntity.members[memberId] != bytes32(0);
   }
 
-   function _doCheckAdminAccess(ProfileEntity storage profileEntity, bytes32 adminId, bytes32 senderId, bytes32 functionId) internal view returns (bool) {       
+  function _doCheckAdminAccess(ProfileEntity storage profileEntity, bytes32 adminId, bytes32 senderId, bytes32 functionId) internal view returns (IProfileACL.ProfileAccessAdminStatus) {
     // owners always access to all entities to modify those
-    if(profileEntity.owners.contains(senderId)) return true;    
+    if(profileEntity.owners.contains(senderId)) return IProfileACL.ProfileAccessAdminStatus.PERMITTED;
 
     (FunctionEntity storage functionEntity, bool res) = profileEntity.profileFunctionTryReadSlot(functionId);    
-    if (!res) return false;
+    if (!res) return IProfileACL.ProfileAccessAdminStatus.FUNCTION_NOT_FOUND;
 
-    if(profileEntity.agents[memberId].acstat != ActivityStatus.ENABLED) return false;
-
+    // if(profileEntity.agents[senderId].acstat != ActivityStatus.ENABLED) return false;
+    
     AgentType adminAgentType = profileEntity.agents[adminId].atype;
     if(adminAgentType == AgentType.ROLE) {
       (RoleEntity storage roleEntity, bool result) = profileEntity.profileRoleTryReadSlot(adminId);
-      if(!result || roleEntity.ba.acstat != ActivityStatus.ENABLED) return false;
+      if(!result) return IProfileACL.ProfileAccessAdminStatus.ROLE_NOT_FOUND;
+      if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAccessAdminStatus.ROLE_ACTIVITY_FORBIDDEN;
 
       (TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(roleEntity.typeId);
-      if(!result1 || typeEntity.ba.acstat != ActivityStatus.ENABLED) return false;
+      if(!result1) return IProfileACL.ProfileAccessAdminStatus.TYPE_NOT_FOUND;
+      if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAccessAdminStatus.TYPE_ACTIVITY_FORBIDDEN;
       
-      if (typeEntity.members[memberId] != adminId) return false;
-
+      if (typeEntity.members[senderId] != adminId) return IProfileACL.ProfileAccessAdminStatus.NOT_PERMITTED;
+      
       PolicyEntity storage policyEntity = profileEntity.policies[profileEntity.rolePolicyMap[adminId]];
       if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
-        return false;
+        return IProfileACL.ProfileAccessAdminStatus.POLICY_FORBIDDEN;
 
-      return true;
+      return IProfileACL.ProfileAccessAdminStatus.PERMITTED;
    
     } else if(adminAgentType == AgentType.TYPE) { 
       (TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(adminId);
-      if(!result1 || typeEntity.ba.acstat != ActivityStatus.ENABLED) return false;
+      if(!result1) return IProfileACL.ProfileAccessAdminStatus.TYPE_NOT_FOUND;
+      if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAccessAdminStatus.TYPE_ACTIVITY_FORBIDDEN;
 
-      bytes32 roleId = typeEntity.members[memberId];
+      bytes32 roleId = typeEntity.members[senderId];
       (RoleEntity storage roleEntity, bool result2) = profileEntity.profileRoleTryReadSlot(roleId);
-      if(!result2 || roleEntity.ba.acstat != ActivityStatus.ENABLED) return false;
+      if(!result2) return IProfileACL.ProfileAccessAdminStatus.ROLE_NOT_FOUND;
+      if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAccessAdminStatus.ROLE_ACTIVITY_FORBIDDEN;
       
       PolicyEntity storage policyEntity = profileEntity.policies[profileEntity.rolePolicyMap[roleId]];
       if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
-        return false;
+        return IProfileACL.ProfileAccessAdminStatus.POLICY_FORBIDDEN;
 
-      return true;
+      return IProfileACL.ProfileAccessAdminStatus.PERMITTED;
     } 
 
-    return false;   
+    return IProfileACL.ProfileAccessAdminStatus.NOT_PERMITTED;
   }
 
   function _doAgentGetScopeInfo(ProfileEntity storage profileEntity, bytes32 agentId) internal view returns (ScopeType, bytes32) {
@@ -353,13 +359,14 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
   function _doGetEntityAndCheckAdminAccess(ProfileEntity storage profileEntity, bytes32 contextId, bytes32 senderId, bytes32 functionId) internal view returns (ContextEntity storage) {
     ContextEntity storage contextEntity = profileEntity.profileContextReadSlot(contextId);
     require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-    require(_doCheckAdminAccess(profileEntity, contextEntity.bs.adminId, senderId, functionId), "Forbidden");
+    IProfileACL.ProfileAccessAdminStatus status = _doCheckAdminAccess(profileEntity, contextEntity.bs.adminId, senderId, functionId);
+    if(status != IProfileACL.ProfileAccessAdminStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
     return contextEntity;
   }
 
   function _doGetScopeInfo(ProfileEntity storage profileEntity, bytes32 signerId) internal view returns (ScopeType, bytes32) {
     // get scope id of sender
-    TypeEntity storage systemAdminType = profileEntity.profileTypeReadSlot(_LIVELY_VERSE_PROFILE_SYSTEM_MASTER_TYPE_ID);
+    TypeEntity storage systemAdminType = profileEntity.profileTypeReadSlot(_LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID);
     bytes32 signerRoleId = systemAdminType.members[signerId];
     RoleEntity storage signerSystemRole =  profileEntity.profileRoleReadSlot(signerRoleId);
     ScopeType signerSystemScopeType = profileEntity.scopes[signerSystemRole.scopeId].stype;
@@ -393,7 +400,7 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
   }
 
   function _doCheckSystemScope(ProfileEntity storage profileEntity, bytes32 scopeId, bytes32 memberId) internal view returns (bool) {  
-    TypeEntity storage systemType = profileEntity.profileTypeReadSlot(_LIVELY_VERSE_PROFILE_SYSTEM_MASTER_TYPE_ID);
+    TypeEntity storage systemType = profileEntity.profileTypeReadSlot(_LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID);
     bytes32 memberRoleId = systemType.members[memberId];
     RoleEntity storage memberSystemRole = profileEntity.profileRoleReadSlot(memberRoleId);
     if(_data.scopes[memberSystemRole.scopeId].stype < ScopeType.REALM) return false;
@@ -447,18 +454,29 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
     bytes32 newContextId = LACLUtils.accountGenerateId(contractId);
 
     ProfileEntity storage profileEntity = data.profiles[request.profileId];
-    if(profileEntity.acstat != ActivityStatus.ENABLED) {
-      LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.PROFILE_ACTIVITY_FORBIDDEN);
-    }
+    // if(profileEntity.acstat != ActivityStatus.ENABLED) {
+    //   LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.PROFILE_ACTIVITY_FORBIDDEN);
+    // }
 
     require(IProfileACL(address(this)).profileHasMemberAccess(profileEntity, functionId, signerId) == ProfileAuthorizationStatus.PERMITTED, "Access Denied");
     require(profileEntity.scopes[newContextId].stype == ScopeType.NONE, "Already Exist");
 
+    // check profile and type limitations and update it
+    MemberEntity storage memberEntity = profileEntity.profileMemberReadSlot(senderId);
+    require(memberEntity.contextRegisterLimit > 0, "Illegal Limit");
+    require(memberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
+    require(profileEntity.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
+    require(memberEntity.registerLimits.policyRegisterLimit > 0, "Illegal TypeRegisterLimit");
+    require(profileEntity.limits.policyRegisterLimit > 0, "Illegal RegisterLimit");
+    memberEntity.registerLimits.policyRegisterLimit -= 1; 
+    memberEntity.contextRegisterLimit -= 1;
+    profileEntity.limits.policyRegisterLimit -= 1;
+
     {
       // update member factory limit
-      MemberEntity storage memberEntity = profileEntity.profileMemberReadSlot(signerId);
-      require(memberEntity.contextRegisterLimit > 0, "Illegal Limit");
-      memberEntity.contextRegisterLimit -= 1;
+      // MemberEntity storage memberEntity = profileEntity.profileMemberReadSlot(signerId);
+      // require(memberEntity.contextRegisterLimit > 0, "Illegal Limit");
+      // memberEntity.contextRegisterLimit -= 1;
 
       // check realm 
       RealmEntity storage realmEntity = profileEntity.profileRealmReadSlot(request.realmId);

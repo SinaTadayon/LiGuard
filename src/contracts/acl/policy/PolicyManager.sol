@@ -58,6 +58,12 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
   function policyRegister(PolicyRegisterRequest[] calldata requests) external returns (bool) {    
     _accessPermission(IPolicyManagement.policyRegister.selector);
     (ScopeType senderScopeType, bytes32 senderScopeId) = _getMemberPolicyScopeInfo(msg.sender);
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
+
+    // check and set
+    MemberEntity storage memberEntity = _data.memberReadSlot(senderId);
+    require(memberEntity.limits.policyRegisterLimit - uint16(requests.length) > 0, "Illegal RegisterLimit");
+    memberEntity.limits.policyRegisterLimit -= uint16(requests.length);
 
     for(uint i = 0; i < requests.length; i++) {
       bytes32 newPolicyId = LACLUtils.generateId(requests[i].name);
@@ -69,7 +75,7 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
       );
 
       // // checking requested type scope
-      BaseScope storage requestedScope =  _getAndCheckRequestScope(requests[i].scopeId, senderScopeId, senderScopeType);
+      BaseScope storage requestedScope = _getAndCheckRequestScope(requests[i].scopeId, senderScopeId, senderScopeType);
 
       // create policy entity
       PolicyEntity storage policyEntity = _data.policies[newPolicyId];
@@ -79,7 +85,7 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
       policyEntity.alstat = requests[i].alstat;
       policyEntity.name = requests[i].name;
       policyEntity.scopeId = requests[i].scopeId;
-      policyEntity.roleLimit = requests[i].roleLimit;
+      policyEntity.roleLimit = memberEntity.limits.policyRoleLimit;
       policyEntity.adminId = _getPolicyAdmin(requestedScope.stype, requestedScope.adminId, requests[i].scopeId, requests[i].adminId);
       emit PolicyRegistered(
         msg.sender,

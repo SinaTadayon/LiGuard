@@ -70,29 +70,19 @@ interface IACLCommons{
     ActivityStatus acstat;
     AlterabilityStatus alstat;
     uint32 referredByAgent;
-    // uint32 agentLimit;
   }
 
   struct PolicyEntity {
     bytes32 adminId;
     bytes32 scopeId;
     string name;
-    uint32 roleLimit;
+    uint16 roleLimit;
     uint8 policyCode;
     PolicyType ptype; 
     ActivityStatus acstat;
     AlterabilityStatus alstat;   
     LEnumerableSet.Bytes32Set roles;
   }
-
-  // struct ProfileFunctionEntity {
-  //   BaseScope bs;    
-  //   bytes32 agentId;
-  //   bytes32 profileId;
-  //   bytes32 contextId;
-  //   bytes4 selector;
-  //   uint8 policyCode;        
-  // }
 
   struct FunctionEntity {
     BaseScope bs;    
@@ -120,23 +110,42 @@ interface IACLCommons{
 
   struct DomainEntity {
     BaseScope bs;
-    uint32 realmLimit;
+    uint16 realmLimit;
     string name;
     LEnumerableSet.Bytes32Set realms;
   }
 
   struct GlobalEntity {
     BaseScope bs;
-    uint32 domainLimit;
+    uint16 domainLimit;
     string name;    
     LEnumerableSet.Bytes32Set domains;
   }
 
+  struct GeneralLimit {
+    uint32 contextLimit;
+    uint32 memberRegisterLimit;
+    uint32 roleRegisterLimit;  
+    uint32 typeRegisterLimit;
+    uint32 functionRegisterLimit;
+    uint32 contextRegisterLimit;
+    uint24 memberLimit;
+    uint16 realmRegisterLimit;
+    uint16 domainRegisterLimit;
+    uint16 policyRegisterLimit;        
+    uint16 functionLimit;  
+    uint16 realmLimit;
+    uint16 domainLimit;
+    uint16 callLimit;
+    uint16 typeRoleLimit;
+    uint16 typeLimit;    
+    uint16 policyRoleLimit;
+  }
+  
   struct MemberEntity {
     BaseAgent ba;
     address account;
-    ProfileLimit limits;
-    ProfileRegisterLimit registerLimits;
+    GeneralLimit limits;
     LEnumerableSet.Bytes32Set types;
   }
 
@@ -145,15 +154,15 @@ interface IACLCommons{
     bytes32 scopeId;
     bytes32 typeId;
     string name;
-    uint32 memberLimit;
-    uint32 memberCount;
+    uint24 memberLimit;
+    uint24 memberCount;
   }
 
   struct TypeEntity {
     BaseAgent ba;
     bytes32 scopeId;
     string name;
-    uint32 roleLimit;
+    uint16 roleLimit;
     mapping(bytes32 => bytes32) members;
     LEnumerableSet.Bytes32Set roles;
   }
@@ -178,12 +187,6 @@ interface IACLCommons{
     bytes32 adminId;
   }
 
-  // Scope Requests
-  // struct ScopeUpdateAgentLimitRequest {
-  //   bytes32 scopeId; 
-  //   uint32 agentLimit;
-  // }
-
   // used in Policy / Role / Type
   struct UpdateScopeRequest {
     bytes32 id;
@@ -206,12 +209,12 @@ interface IACLCommons{
 
   struct ProfileLimit {
     uint32 profileCallLimit;
-    uint16 functionLimit;
-    uint16 contextLimit;
+    uint32 contextLimit;
+    uint24 memberLimit;
+    uint16 functionLimit;  
     uint16 realmLimit;
     uint16 domainLimit;
     uint16 memberCallLimit;
-    uint16 memberLimit;
     uint16 typeRoleLimit;
     uint16 typeLimit;    
     uint16 policyRoleLimit;

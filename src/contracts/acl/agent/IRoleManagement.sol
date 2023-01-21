@@ -17,7 +17,7 @@ interface IRoleManagement is IACLCommons{
     bytes32 adminId;          
     bytes32 scopeId;          
     bytes32 typeId;    
-    uint32 memberLimit;
+    // uint32 memberLimit;
     ActivityStatus acstat;
     AlterabilityStatus alstat;   
     string name;
@@ -35,15 +35,15 @@ interface IRoleManagement is IACLCommons{
 
   struct RoleUpdateMemberLimitRequest {
     bytes32 roleId;
-    uint32 memberLimit;
+    uint16 memberLimit;
   }
 
   struct RoleInfo {
     bytes32 scopeId;
     bytes32 typeId;
     bytes32 adminId;
-    uint32 memberLimit;
-    uint32 memberCount;
+    uint16 memberLimit;
+    uint16 memberCount;
     AgentType atype;
     ActivityStatus acstat;
     AlterabilityStatus alstat;   

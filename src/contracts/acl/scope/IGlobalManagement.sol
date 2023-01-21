@@ -37,7 +37,7 @@ interface IGlobalManagement is IACLCommons{
 
   event GlobalAgentLimitUpdated(address indexed sender, bytes32 globalId, uint32 agentLimit);
 
-  // function globalUpdateActivityStatus(ActivityStatus acstat) external returns (ActivityStatus);
+  function globalUpdateActivityStatus(ActivityStatus acstat) external returns (ActivityStatus);
 
   function globalUpdateAlterabilityStatus(AlterabilityStatus alstat) external returns (AlterabilityStatus);
 

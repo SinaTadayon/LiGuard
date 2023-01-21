@@ -14,12 +14,31 @@ import "../../IACLCommons.sol";
 
 interface IProfileGlobalManagement is IACLCommons {
  
+  struct ProfileGlobalUpdateDomainLimitRequest {
+    bytes32 profileId;
+    uint32 domainLimit;
+  }
+
+  struct ProfileGlobalUpdateActivityRequest {
+    bytes32 profileId;
+    ActivityStatus acstat;
+  }
+
+  struct ProfileGlobalUpdateAlterabilityRequest {
+    bytes32 profileId;
+    AlterabilityStatus alstat;
+  }
+
+  struct ProfileGlobalUpdateAdminRequest {
+    bytes32 profileId;
+    bytes32 adminId;
+  }
+
   struct ProfileGlobalInfo {
     bytes32 id;
     bytes32 adminId;
     uint32 domainLimit;
     uint32 domainCount;
-    // uint32 agentLimit;
     uint32 referredByAgent;
     ScopeType stype;
     AgentType adminType;
@@ -29,22 +48,19 @@ interface IProfileGlobalManagement is IACLCommons {
     
   event ProfileGlobalAdminUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed globalId, bytes32 adminId);
   
-  event ProfileGlobalDomainLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed globalId, uint32 domainLimit);
+  event ProfileGlobalDomainLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed globalId, uint32 domainLimit);  
   
-  event ProfileGlobalActivityUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed globalId, ActivityStatus acstat);
+  event ProfileGlobalActiviyUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed globalId, ActivityStatus acstat);
   
   event ProfileGlobalAlterabilityUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed globalId, AlterabilityStatus alstat);
 
-  // event GlobalAgentLimitUpdated(address indexed sender, bytes32 globalId, uint32 agentLimit);
-  // function globalUpdateActivityStatus(ActivityStatus acstat) external returns (ActivityStatus);
+  function profileGlobalUpdateActivityStatus(ProfileGlobalUpdateActivityRequest[] calldata requests) external returns (bool);
 
-  function profileGlobalUpdateAlterabilityStatus(bytes32 profileId, AlterabilityStatus alstat) external returns (AlterabilityStatus);
+  function profileGlobalUpdateAlterabilityStatus(ProfileGlobalUpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
-  function profileGlobalUpdateAdmin(bytes32 profileId, bytes32 newAdminId) external returns (bool);
+  function profileGlobalUpdateAdmin(ProfileGlobalUpdateAdminRequest[] calldata requests) external returns (bool);
 
-  function profileGlobalUpdateDomainLimit(bytes32 profileId, uint32 domainLimit) external returns (bool);
-
-  function profileGlobalUpdateAgentLimit(bytes32 profileId, uint32 agentLimit) external returns (bool);
+  function profileGlobalUpdateDomainLimit(ProfileGlobalUpdateDomainLimitRequest[] calldata requests) external returns (bool);
 
   function profileGlobalCheckAdmin(bytes32 profileId, address account) external view returns (bool);
 

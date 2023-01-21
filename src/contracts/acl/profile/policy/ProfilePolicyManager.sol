@@ -58,17 +58,22 @@ contract ProfilePolicyManager is ACLStorage, BaseUUPSProxy, IProfilePolicyManage
   function profilePolicyRegister(ProfilePolicyRegisterRequest[] calldata requests) external returns (bool) {
     for(uint i = 0; i < requests.length; i++) {
       (ProfileEntity storage profileEntity, bytes32 functionId) = _accessPermission(requests[i].profileId, IProfilePolicyManagement.profilePolicyRegister.selector);
+
+      // check profile and type limitations and update it
+      MemberEntity storage memberEntity = profileEntity.profileMemberReadSlot(senderId);
+      require(memberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
+      require(profileEntity.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
+      require(memberEntity.registerLimits.policyRegisterLimit - uint16(requests[i].policies.length) > 0, "Illegal TypeRegisterLimit");
+      require(profileEntity.limits.policyRegisterLimit - uint16(requests[i].policies.length) > 0, "Illegal RegisterLimit");
+      memberEntity.registerLimits.policyRegisterLimit -= uint16(requests[i].policies.length); 
+      profileEntity.limits.policyRegisterLimit -= uint16(requests[i].policies.length);
+
       (ScopeType senderScopeType, bytes32 senderScopeId) = _getMemberPolicyScopeInfo(profileEntity, msg.sender);
 
       for(uint j = 0; j < requests[i].policies.length; j++) {
         bytes32 newPolicyId = LACLUtils.generateId(requests[i].policies[j].name);
         require(profileEntity.policies[newPolicyId].acstat == ActivityStatus.NONE , "Already Exist");
-        // require(
-        //   requests[i].acstat > ActivityStatus.DELETED && 
-        //   requests[i].alstat > AlterabilityStatus.NONE,
-        //   "Illegal Activity/Alterability"
-        // );
-
+       
         // // checking requested type scope
         BaseScope storage requestedScope = _getAndCheckRequestScope(profileEntity, requests[i].policies[j].scopeId, senderScopeId, senderScopeType);
 
@@ -225,7 +230,8 @@ contract ProfilePolicyManager is ACLStorage, BaseUUPSProxy, IProfilePolicyManage
       for(uint j = 0; j < requests[i].data.length; j++) {
         PolicyEntity storage policyEntity = profileEntity.policies[requests[i].data[j].entityId];
         require(policyEntity.adminId != bytes32(0), "Not Found");      
-        require(_doCheckAdminAccess(profileEntity, policyEntity.adminId, senderId, functionId), "Forbidden");
+        IProfileACL.ProfileAccessAdminStatus status = _doCheckAdminAccess(profileEntity, policyEntity.adminId, senderId, functionId);
+        if(status != IProfileACL.ProfileAccessAdminStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
         require(requests[i].data[j].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
         policyEntity.alstat = requests[i].data[j].alstat;
         emit ProfilePolicyAlterabilityUpdated(msg.sender, requests[i].profileId, requests[i].data[j].id, requests[i].data[j].alstat);
@@ -400,52 +406,54 @@ contract ProfilePolicyManager is ACLStorage, BaseUUPSProxy, IProfilePolicyManage
     return (ScopeType.NONE, bytes32(0));  
   }
 
-   // Note: Member could not assigned to any entities as admin
-  function _doCheckAdminAccess(ProfileEntity storage profileEntity, bytes32 adminId, bytes32 memberId, bytes32 functionId) internal view returns (bool) {
-    
+  function _doCheckAdminAccess(ProfileEntity storage profileEntity, bytes32 adminId, bytes32 senderId, bytes32 functionId) internal view returns (IProfileACL.ProfileAccessAdminStatus) {
     // owners always access to all entities to modify those
-    if(profileEntity.owners.contains(senderId)) return true;    
+    if(profileEntity.owners.contains(senderId)) return IProfileACL.ProfileAccessAdminStatus.PERMITTED;
 
     (FunctionEntity storage functionEntity, bool res) = profileEntity.profileFunctionTryReadSlot(functionId);    
-    if (!res) return false;
+    if (!res) return IProfileACL.ProfileAccessAdminStatus.FUNCTION_NOT_FOUND;
 
-    if(profileEntity.agents[memberId].acstat != ActivityStatus.ENABLED) return false;
-
+    // if(profileEntity.agents[senderId].acstat != ActivityStatus.ENABLED) return false;
+    
     AgentType adminAgentType = profileEntity.agents[adminId].atype;
     if(adminAgentType == AgentType.ROLE) {
       (RoleEntity storage roleEntity, bool result) = profileEntity.profileRoleTryReadSlot(adminId);
-      if(!result || roleEntity.ba.acstat != ActivityStatus.ENABLED) return false;
+      if(!result) return IProfileACL.ProfileAccessAdminStatus.ROLE_NOT_FOUND;
+      if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAccessAdminStatus.ROLE_ACTIVITY_FORBIDDEN;
 
       (TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(roleEntity.typeId);
-      if(!result1 || typeEntity.ba.acstat != ActivityStatus.ENABLED) return false;
+      if(!result1) return IProfileACL.ProfileAccessAdminStatus.TYPE_NOT_FOUND;
+      if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAccessAdminStatus.TYPE_ACTIVITY_FORBIDDEN;
       
-      if (typeEntity.members[memberId] != adminId) return false;
-
+      if (typeEntity.members[senderId] != adminId) return IProfileACL.ProfileAccessAdminStatus.NOT_PERMITTED;
+      
       PolicyEntity storage policyEntity = profileEntity.policies[profileEntity.rolePolicyMap[adminId]];
       if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
-        return false;
+        return IProfileACL.ProfileAccessAdminStatus.POLICY_FORBIDDEN;
 
-      return true;
+      return IProfileACL.ProfileAccessAdminStatus.PERMITTED;
    
     } else if(adminAgentType == AgentType.TYPE) { 
       (TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(adminId);
-      if(!result1 || typeEntity.ba.acstat != ActivityStatus.ENABLED) return false;
+      if(!result1) return IProfileACL.ProfileAccessAdminStatus.TYPE_NOT_FOUND;
+      if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAccessAdminStatus.TYPE_ACTIVITY_FORBIDDEN;
 
-      bytes32 roleId = typeEntity.members[memberId];
+      bytes32 roleId = typeEntity.members[senderId];
       (RoleEntity storage roleEntity, bool result2) = profileEntity.profileRoleTryReadSlot(roleId);
-      if(!result2 || roleEntity.ba.acstat != ActivityStatus.ENABLED) return false;
+      if(!result2) return IProfileACL.ProfileAccessAdminStatus.ROLE_NOT_FOUND;
+      if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAccessAdminStatus.ROLE_ACTIVITY_FORBIDDEN;
       
       PolicyEntity storage policyEntity = profileEntity.policies[profileEntity.rolePolicyMap[roleId]];
       if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
-        return false;
+        return IProfileACL.ProfileAccessAdminStatus.POLICY_FORBIDDEN;
 
-      return true;
+      return IProfileACL.ProfileAccessAdminStatus.PERMITTED;
     } 
 
-    return false;   
+    return IProfileACL.ProfileAccessAdminStatus.NOT_PERMITTED;
   }
 
-   function _accessPermission(bytes32 profileId, bytes4 selector) internal returns (ProfileEntity storage, bytes32) {
+  function _accessPermission(bytes32 profileId, bytes4 selector) internal returns (ProfileEntity storage, bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
     ProfileEntity storage profileEntity = data.profiles[profileId];
@@ -462,7 +470,7 @@ contract ProfilePolicyManager is ACLStorage, BaseUUPSProxy, IProfilePolicyManage
 
   function _getMemberPolicyScopeInfo(ProfileEntity storage profileEntity, address account) internal view returns (ScopeType, bytes32){
     bytes32 memberId = LACLUtils.accountGenerateId(account);  
-    TypeEntity storage policyMasterType = profileEntity.typeReadSlot(_LIVELY_VERSE_PROFILE_MASTER_TYPE_ID);
+    TypeEntity storage policyMasterType = profileEntity.typeReadSlot(_LIVELY_VERSE_POLICY_MASTER_TYPE_ID);
     bytes32 senderRoleId = policyMasterType.members[memberId];
     RoleEntity storage senderPolicyRole =  profileEntity.profileRoleReadSlot(senderRoleId);
     return (profileEntity.scopes[senderPolicyRole.scopeId].stype, senderPolicyRole.scopeId);
@@ -490,7 +498,8 @@ contract ProfilePolicyManager is ACLStorage, BaseUUPSProxy, IProfilePolicyManage
     PolicyEntity storage policyEntity = profileEntity.policies[policyId];
     require(policyEntity.adminId != bytes32(0), "Not Found");      
     require(policyEntity.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-    require(_doCheckAdminAccess(profileEntity, policyEntity.adminId, memberId, functionId), "Forbidden");
+    IProfileACL.ProfileAccessAdminStatus status = _doCheckAdminAccess(profileEntity, policyEntity.adminId, memberId, functionId);
+    if(status != IProfileACL.ProfileAccessAdminStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
     return policyEntity;
   }
 

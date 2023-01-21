@@ -94,7 +94,12 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
       address functionFacetId = _data.selectors[selector];
       bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector); 
       IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, signerId);
-      if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
+      if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);      
+
+      // update member function register limit
+      MemberEntity storage memberEntity = _data.memberReadSlot(signerId);
+      require(memberEntity.limits.functionRegisterLimit - uint16(requests[i].functions.length) > 0, "Illegal RegisterLimit");
+      memberEntity.limits.functionRegisterLimit -= uint16(requests[i].functions.length);
 
       ContextEntity storage contextEntity = _data.contextReadSlot(contextId);    
       require(contextEntity.bs.alstat == AlterabilityStatus.UPGRADABLE, "Illegal Upgrade");
@@ -177,18 +182,18 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     return true;
   }
 
-  function functionUpdateAgentLimit(ScopeUpdateAgentLimitRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IFunctionManagement.functionUpdateAgentLimit.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
+  // function functionUpdateAgentLimit(ScopeUpdateAgentLimitRequest[] calldata requests) external returns (bool) {
+  //   bytes32 functionId = _accessPermission(IFunctionManagement.functionUpdateAgentLimit.selector);
+  //   bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
 
-    for (uint256 i = 0; i < requests.length; i++) {
-      FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(requests[i].scopeId, senderId, functionId);
-      require(requests[i].agentLimit > functionEntity.bs.referredByAgent, "Illegal Limit");
-      functionEntity.bs.agentLimit = requests[i].agentLimit;      
-      emit FunctionAgentLimitUpdated(msg.sender, requests[i].scopeId, requests[i].agentLimit);
-    }
-    return true;
-  }
+  //   for (uint256 i = 0; i < requests.length; i++) {
+  //     FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(requests[i].scopeId, senderId, functionId);
+  //     require(requests[i].agentLimit > functionEntity.bs.referredByAgent, "Illegal Limit");
+  //     functionEntity.bs.agentLimit = requests[i].agentLimit;      
+  //     emit FunctionAgentLimitUpdated(msg.sender, requests[i].scopeId, requests[i].agentLimit);
+  //   }
+  //   return true;
+  // }
 
   function functionCheckId(bytes32 functionId) external view returns (bool) {    
     return _data.scopes[functionId].stype == ScopeType.FUNCTION;
@@ -376,7 +381,6 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
       functionRequest.alstat > AlterabilityStatus.NONE,
       "Illegal Activity/Alterability"
     );
-    
 
     _doCheckAgentId(functionRequest.agentId);
     FunctionEntity storage functionEntity = _data.functionWriteSlot(newFunctionId);
@@ -387,7 +391,6 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     functionEntity.selector = functionRequest.selector;
     functionEntity.bs.acstat = functionRequest.acstat;
     functionEntity.bs.alstat = functionRequest.alstat;
-    functionEntity.bs.agentLimit = functionRequest.agentLimit;   
     functionEntity.bs.adminId = _doGetAndCheckFunctionAdmin(context.bs.adminId, contextId, functionRequest.adminId);
     
     // add function to context

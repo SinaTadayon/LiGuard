@@ -53,6 +53,7 @@ library LACLUtils {
     else if(status == IACL.AuthorizationStatus.CONTEXT_ACTIVITY_FORBIDDEN) revert IACL.ContextActivityForbidden();
     else if(status == IACL.AuthorizationStatus.REALM_ACTIVITY_FORBIDDEN)  revert IACL.RealmActivityForbidden();
     else if(status == IACL.AuthorizationStatus.DOMAIN_ACTIVITY_FORBIDDEN) revert IACL.DomainActivityForbidden();
+    else if(status == IACL.AuthorizationStatus.GLOBAL_ACTIVITY_FORBIDDEN) revert IACL.GlobalActivityForbidden();
     else revert("Unknown ERR");
   }
 
@@ -75,7 +76,19 @@ library LACLUtils {
     else if(status == IProfileACL.ProfileAuthorizationStatus.CONTEXT_ACTIVITY_FORBIDDEN) revert IProfileACL.ProfileContextActivityForbidden();
     else if(status == IProfileACL.ProfileAuthorizationStatus.REALM_ACTIVITY_FORBIDDEN)  revert IProfileACL.ProfileRealmActivityForbidden();
     else if(status == IProfileACL.ProfileAuthorizationStatus.DOMAIN_ACTIVITY_FORBIDDEN) revert IProfileACL.ProfileDomainActivityForbidden();
+    else if(status == IProfileACL.ProfileAuthorizationStatus.GLOBAL_ACTIVITY_FORBIDDEN) revert IProfileACL.ProfileGlobalActivityForbidden();
     else if(status == IProfileACL.ProfileAuthorizationStatus.PROFILE_ACTIVITY_FORBIDDEN) revert IProfileACL.ProfileActivityForbidden();
+    else revert("Unknown ERR");
+  }
+
+  function generateProfileAdminAccessError(IProfileACL.ProfileAccessAdminStatus status) internal pure {
+    if(status == IProfileACL.ProfileAccessAdminStatus.NOT_PERMITTED) revert IProfileACL.ProfileAdminAccessNotPermitted();
+    else if(status == IProfileACL.ProfileAccessAdminStatus.POLICY_FORBIDDEN) revert IProfileACL.ProfileAdminAccessPolicyForbidden();
+    else if(status == IProfileACL.ProfileAccessAdminStatus.ROLE_NOT_FOUND) revert IProfileACL.ProfileAdminAccessRoleNotFound();
+    else if(status == IProfileACL.ProfileAccessAdminStatus.TYPE_NOT_FOUND) revert IProfileACL.ProfileAdminAccessTypeNotFound();
+    else if(status == IProfileACL.ProfileAccessAdminStatus.FUNCTION_NOT_FOUND) revert IProfileACL.ProfileAdminAccessFunctionNotFound();
+    else if(status == IProfileACL.ProfileAccessAdminStatus.ROLE_ACTIVITY_FORBIDDEN) revert IProfileACL.ProfileAdminAccessRoleActivityForbidden();
+    else if(status == IProfileACL.ProfileAccessAdminStatus.TYPE_ACTIVITY_FORBIDDEN) revert IProfileACL.ProfileAdminAccessTypeActivityForbidden();
     else revert("Unknown ERR");
   }
 }

@@ -56,6 +56,11 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
     bytes32 functionId = _accessPermission(IDomainManagement.domainRegister.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     
+    // check and set
+    MemberEntity storage memberEntity = _data.memberReadSlot(senderId);
+    require(memberEntity.limits.domainRegisterLimit - uint16(requests.length) > 0, "Illegal RegisterLimit");
+    memberEntity.limits.domainRegisterLimit -= uint16(requests.length);
+
     // fetch scope type and scope id of sender
     bytes32 senderScopeId = _doGetMemberScopeInfoFromType(_LIVELY_VERSE_SCOPE_MASTER_TYPE_ID, senderId);    
    
@@ -85,9 +90,8 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
       newDomain.bs.stype = ScopeType.DOMAIN;
       newDomain.bs.acstat = requests[i].acstat;
       newDomain.bs.alstat = requests[i].alstat;      
-      newDomain.bs.agentLimit = requests[i].agentLimit;
       newDomain.name = requests[i].name;
-      newDomain.realmLimit = requests[i].realmLimit;
+      newDomain.realmLimit = memberEntity.limits.realmLimit;
        
       // checking requested domain admin 
       if(requests[i].adminId != bytes32(0)) {
@@ -171,18 +175,18 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
     return true;
   }
 
-  function domainUpdateAgentLimit(ScopeUpdateAgentLimitRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IDomainManagement.domainUpdateAgentLimit.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender); 
+  // function domainUpdateAgentLimit(ScopeUpdateAgentLimitRequest[] calldata requests) external returns (bool) {
+  //   bytes32 functionId = _accessPermission(IDomainManagement.domainUpdateAgentLimit.selector);
+  //   bytes32 senderId = LACLUtils.accountGenerateId(msg.sender); 
 
-    for (uint256 i = 0; i < requests.length; i++) {
-      DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(requests[i].scopeId, senderId, functionId); 
-      require(requests[i].agentLimit > domainEntity.bs.referredByAgent, "Illegal Limit");
-      domainEntity.bs.agentLimit = requests[i].agentLimit;
-      emit DomainAgentLimitUpdated(msg.sender, requests[i].scopeId, requests[i].agentLimit);
-    }
-    return true;
-  }
+  //   for (uint256 i = 0; i < requests.length; i++) {
+  //     DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(requests[i].scopeId, senderId, functionId); 
+  //     require(requests[i].agentLimit > domainEntity.bs.referredByAgent, "Illegal Limit");
+  //     domainEntity.bs.agentLimit = requests[i].agentLimit;
+  //     emit DomainAgentLimitUpdated(msg.sender, requests[i].scopeId, requests[i].agentLimit);
+  //   }
+  //   return true;
+  // }
 
   function domainCheckId(bytes32 domainId) external view returns (bool) {
     return _data.scopes[domainId].stype == ScopeType.DOMAIN;

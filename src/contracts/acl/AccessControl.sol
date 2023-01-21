@@ -84,33 +84,6 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IACLGenerals, IACL {
     return _doHasAccess(functionEntity.agentId, memberId, functionEntity);
   }
 
-  // function hasAccessToAgent(bytes32 agentId, bytes32 functionId) external view returns (bool) {
-  //   (FunctionEntity storage functionEntity, bool result) = _data.functionTryReadSlot(functionId);
-  //   if (!result) return false;
-  //   return _doHasAccess(agentId, LACLUtils.accountGenerateId(msg.sender), functionEntity);
-  // }
-
-  // function hasMemberAccessToAgent(bytes32 agentId, bytes32 functionId, bytes32 memberId) external view returns (bool) {
-  //   (FunctionEntity storage functionEntity, bool result) = _data.functionTryReadSlot(functionId);
-  //   if (!result) return false;
-  //   return _doHasAccess(agentId, memberId, functionEntity);
-  // }
-
-  // function hasCSAccessToAgent(bytes32 agentId, address contractId, bytes4 selector) external view returns (bool) {
-  //   bytes32 functionId = LACLUtils.functionGenerateId(contractId, selector);
-  //   (FunctionEntity storage functionEntity, bool result) = _data.functionTryReadSlot(functionId);
-  //   if (!result) return false;
-  //   return _doHasAccess(agentId, LACLUtils.accountGenerateId(msg.sender), functionEntity);
-  // }
-  
-  // function hasAccountAccessToAgent(bytes32 agentId, address contractId, bytes4 selector, address accountId) external view returns (bool) {
-  //   bytes32 functionId = LACLUtils.functionGenerateId(contractId, selector);
-  //   bytes32 memberId = LACLUtils.accountGenerateId(accountId);
-  //   (FunctionEntity storage functionEntity, bool result) = _data.functionTryReadSlot(functionId);
-  //   if (!result) return false;
-  //   return _doHasAccess(agentId, memberId, functionEntity);
-  // }
-
   function _doHasAccess(bytes32 agentId, bytes32 memberId, FunctionEntity storage functionEntity) internal returns (AuthorizationStatus) {
     
     AgentType atype = _data.agents[agentId].atype;
@@ -240,7 +213,8 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IACLGenerals, IACL {
     // check global activity
     // console.log("global: ");
     // console.logBytes1(bytes1(uint8(_data.scopes[_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID].acstat)));
-    // if(_data.scopes[_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID].acstat != ActivityStatus.ENABLED) return false;
+    GlobalEntity storage globalEntity = _data.globalReadSlot(_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
+    if(globalEntity.bs.acstat != ActivityStatus.ENABLED) return AuthorizationStatus.GLOBAL_ACTIVITY_FORBIDDEN;
     
     return AuthorizationStatus.PERMITTED;
   }

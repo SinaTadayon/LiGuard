@@ -250,6 +250,12 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
     // console.logBytes1(bytes1(uint8(domainEntity.bs.acstat)));
     if(!res3) return ProfileAuthorizationStatus.DOMAIN_NOT_FOUND;
     if(domainEntity.bs.acstat != ActivityStatus.ENABLED) return ProfileAuthorizationStatus.DOMAIN_ACTIVITY_FORBIDDEN;
+
+    // check global activity
+    // console.log("global: ");
+    // console.logBytes1(bytes1(uint8(_data.scopes[_LIVELY_VERSE_PROFILE_GLOBAL_SCOPE_ID].acstat)));
+    GlobalEntity storage globalEntity = profileEntity.profileGlobalReadSlot(_LIVELY_VERSE_PROFILE_GLOBAL_SCOPE_ID);
+    if(globalEntity.bs.acstat != ActivityStatus.ENABLED) return AuthorizationStatus.GLOBAL_ACTIVITY_FORBIDDEN;
     
     return ProfileAuthorizationStatus.PERMITTED;
   }

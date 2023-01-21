@@ -31,6 +31,7 @@ interface IProfileACL {
     CONTEXT_ACTIVITY_FORBIDDEN,    
     REALM_ACTIVITY_FORBIDDEN,
     DOMAIN_ACTIVITY_FORBIDDEN,
+    GLOBAL_ACTIVITY_FORBIDDEN,
     PROFILE_ACTIVITY_FORBIDDEN
   }
 
@@ -52,8 +53,29 @@ interface IProfileACL {
   error ProfileContextActivityForbidden();
   error ProfileRealmActivityForbidden();
   error ProfileDomainActivityForbidden();
+  error ProfileGlobalActivityForbidden();
   error ProfileActivityForbidden();
 
+  enum ProfileAccessAdminStatus {
+    PERMITTED,
+    NOT_PERMITTED,
+    POLICY_FORBIDDEN,
+    ROLE_NOT_FOUND,
+    TYPE_NOT_FOUND,
+    FUNCTION_NOT_FOUND,
+    ROLE_ACTIVITY_FORBIDDEN,
+    TYPE_ACTIVITY_FORBIDDEN
+  }
+  
+  error ProfileAdminAccessNotPermitted();
+  error ProfileAdminAccessPolicyForbidden();
+  error ProfileAdminAccessRoleNotFound();
+  error ProfileAdminAccessTypeNotFound();
+  error ProfileAdminAccessFunctionNotFound();
+  error ProfileAdminAccessRoleActivityForbidden();
+  error ProfileAdminAccessTypeActivityForbidden();
+
+  error ProfileSetAdminForbidden(ProfileAccessAdminStatus);
 
   function profileHasAccess(bytes32 profileId, bytes32 functionId) external returns (ProfileAuthorizationStatus);
 

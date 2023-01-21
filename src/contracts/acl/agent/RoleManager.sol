@@ -59,6 +59,12 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
   function roleRegister(RoleRegisterRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IRoleManagement.roleRegister.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
+
+    // check and set
+    MemberEntity storage memberEntity = _data.memberReadSlot(senderId);
+    require(memberEntity.limits.roleRegisterLimit - uint16(requests.length) > 0, "Illegal RegisterLimit");
+    memberEntity.limits.roleRegisterLimit -= uint16(requests.length);
+
     for(uint i = 0; i < requests.length; i++) {
       bytes32 newRoleId = LACLUtils.generateId(requests[i].name);
       require(_data.agents[newRoleId].atype == AgentType.NONE, "Role Already Exist");
@@ -95,7 +101,7 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
       newRole.ba.alstat = requests[i].alstat;
       newRole.name = requests[i].name;
       newRole.scopeId = requests[i].scopeId;
-      newRole.memberLimit = requests[i].memberLimit;
+      newRole.memberLimit = memberEntity.limits.memberLimit;
       newRole.typeId = requests[i].typeId;
       newRole.ba.adminId = _getRoleAdmin(requestScopeType, typeEntity.ba.adminId, requests[i].scopeId, requests[i].adminId);
       emit RoleRegistered(
@@ -191,7 +197,7 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
           require(typeEntity.members[requests[i].members[j]] != requests[i].roleId, "Already Exist");
         } else {
           require(memberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
-          require(memberEntity.typeLimit > memberEntity.types.length(), "Illegal Member Types");
+          require(memberEntity.limits.typeLimit > memberEntity.types.length(), "Illegal Member Types");
           memberEntity.types.add(roleEntity.typeId);  
         }
 
@@ -207,7 +213,7 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
     bytes32 functionId = _accessPermission(IRoleManagement.roleRevokeMembers.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
     for(uint i = 0; i < requests.length; i++) {      
-    RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(requests[i].roleId, senderId, functionId);
+      RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(requests[i].roleId, senderId, functionId);
 
       TypeEntity storage typeEntity = _data.typeReadSlot(roleEntity.typeId);
       // require(typeEntity.ba.acstat > ActivityStatus.DISABLED, "Type Disabled");

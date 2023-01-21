@@ -16,7 +16,7 @@ interface ITypeManagement is IACLCommons{
   struct TypeRegisterRequest {
     bytes32 adminId;          
     bytes32 scopeId;
-    uint32 roleLimit;
+    // uint32 roleLimit;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
     string name;
@@ -24,14 +24,14 @@ interface ITypeManagement is IACLCommons{
 
   struct TypeUpdateRoleLimitRequest {
     bytes32 typeId;
-    uint32 roleLimit;
+    uint16 roleLimit;
   }
 
   struct TypeInfo {
     bytes32 scopeId;
     bytes32 adminId;
-    uint32 roleLimit;
-    uint32 roleCount;
+    uint16 roleLimit;
+    uint16 roleCount;
     AgentType atype;
     ActivityStatus acstat;
     AlterabilityStatus alstat;

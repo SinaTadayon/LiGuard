@@ -56,6 +56,11 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     bytes32 functionId = _accessPermission(IRealmManagement.realmRegister.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
 
+    // check and set
+    MemberEntity storage memberEntity = _data.memberReadSlot(senderId);
+    require(memberEntity.limits.realmRegisterLimit - uint16(requests.length) > 0, "Illegal RegisterLimit");
+    memberEntity.limits.realmRegisterLimit -= uint16(requests.length);
+
     // fetch scope type and scope id of sender
     (ScopeType memberScopeType, bytes32 memberScopeId) = _doGetMemberScopeInfoFromType(_LIVELY_VERSE_SCOPE_MASTER_TYPE_ID, senderId);    
     
@@ -67,7 +72,6 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
         requests[i].alstat > AlterabilityStatus.NONE,
         "Illegal Activity/Alterability"
       );
-
 
       // check sender scopes
       require(memberScopeType >= ScopeType.DOMAIN, "Illegal ScopeType");
@@ -94,10 +98,9 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
       newRealm.bs.acstat = requests[i].acstat;
       newRealm.bs.alstat = requests[i].alstat;
       newRealm.bs.adminId = requests[i].adminId;
-      newRealm.bs.agentLimit = requests[i].agentLimit;
       newRealm.name = requests[i].name;
       newRealm.domainId = requests[i].domainId;
-      newRealm.contextLimit = requests[i].contextLimit;
+      newRealm.contextLimit = memberEntity.limits.contextLimit;
       newRealm.bs.adminId = _getRealmAdmin(domainEntity.bs.adminId, requests[i].domainId, requests[i].adminId);
        
       emit RealmRegistered(
@@ -179,17 +182,17 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     return true;
   }
 
-  function realmUpdateAgentLimit(ScopeUpdateAgentLimitRequest[] calldata requests) external returns (bool) {
-     bytes32 functionId = _accessPermission(IRealmManagement.realmUpdateAgentLimit.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
-    for (uint256 i = 0; i < requests.length; i++) {
-      RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].scopeId, senderId, functionId);
-      require(requests[i].agentLimit > realmEntity.bs.referredByAgent, "Illegal Limit");
-      realmEntity.bs.agentLimit = requests[i].agentLimit;
-      emit RealmAgentLimitUpdated(msg.sender, requests[i].scopeId, requests[i].agentLimit);
-    }
-    return true;
-  }
+  // function realmUpdateAgentLimit(ScopeUpdateAgentLimitRequest[] calldata requests) external returns (bool) {
+  //    bytes32 functionId = _accessPermission(IRealmManagement.realmUpdateAgentLimit.selector);
+  //   bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
+  //   for (uint256 i = 0; i < requests.length; i++) {
+  //     RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].scopeId, senderId, functionId);
+  //     require(requests[i].agentLimit > realmEntity.bs.referredByAgent, "Illegal Limit");
+  //     realmEntity.bs.agentLimit = requests[i].agentLimit;
+  //     emit RealmAgentLimitUpdated(msg.sender, requests[i].scopeId, requests[i].agentLimit);
+  //   }
+  //   return true;
+  // }
 
   function realmCheckId(bytes32 realmId) external view returns (bool) {
     return _data.scopes[realmId].stype == ScopeType.REALM;
