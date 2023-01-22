@@ -81,14 +81,25 @@ library LACLUtils {
     else revert("Unknown ERR");
   }
 
-  function generateProfileAdminAccessError(IProfileACL.ProfileAccessAdminStatus status) internal pure {
-    if(status == IProfileACL.ProfileAccessAdminStatus.NOT_PERMITTED) revert IProfileACL.ProfileAdminAccessNotPermitted();
-    else if(status == IProfileACL.ProfileAccessAdminStatus.POLICY_FORBIDDEN) revert IProfileACL.ProfileAdminAccessPolicyForbidden();
-    else if(status == IProfileACL.ProfileAccessAdminStatus.ROLE_NOT_FOUND) revert IProfileACL.ProfileAdminAccessRoleNotFound();
-    else if(status == IProfileACL.ProfileAccessAdminStatus.TYPE_NOT_FOUND) revert IProfileACL.ProfileAdminAccessTypeNotFound();
-    else if(status == IProfileACL.ProfileAccessAdminStatus.FUNCTION_NOT_FOUND) revert IProfileACL.ProfileAdminAccessFunctionNotFound();
-    else if(status == IProfileACL.ProfileAccessAdminStatus.ROLE_ACTIVITY_FORBIDDEN) revert IProfileACL.ProfileAdminAccessRoleActivityForbidden();
-    else if(status == IProfileACL.ProfileAccessAdminStatus.TYPE_ACTIVITY_FORBIDDEN) revert IProfileACL.ProfileAdminAccessTypeActivityForbidden();
+  function generateProfileAdminAccessError(IProfileACL.ProfileAdminAccessStatus status) internal pure {
+    if(status == IProfileACL.ProfileAdminAccessStatus.NOT_PERMITTED) revert IProfileACL.ProfileAdminAccessNotPermitted();
+    else if(status == IProfileACL.ProfileAdminAccessStatus.POLICY_FORBIDDEN) revert IProfileACL.ProfileAdminAccessPolicyForbidden();
+    else if(status == IProfileACL.ProfileAdminAccessStatus.ROLE_NOT_FOUND) revert IProfileACL.ProfileAdminAccessRoleNotFound();
+    else if(status == IProfileACL.ProfileAdminAccessStatus.TYPE_NOT_FOUND) revert IProfileACL.ProfileAdminAccessTypeNotFound();
+    else if(status == IProfileACL.ProfileAdminAccessStatus.FUNCTION_NOT_FOUND) revert IProfileACL.ProfileAdminAccessFunctionNotFound();
+    else if(status == IProfileACL.ProfileAdminAccessStatus.ROLE_ACTIVITY_FORBIDDEN) revert IProfileACL.ProfileAdminAccessRoleActivityForbidden();
+    else if(status == IProfileACL.ProfileAdminAccessStatus.TYPE_ACTIVITY_FORBIDDEN) revert IProfileACL.ProfileAdminAccessTypeActivityForbidden();
+    else revert("Unknown ERR");
+  }
+
+  function generateAdminAccessError(IACL.AdminAccessStatus status) internal pure {
+    if(status == IACL.AdminAccessStatus.NOT_PERMITTED) revert IACL.AdminAccessNotPermitted();
+    else if(status == IACL.AdminAccessStatus.POLICY_FORBIDDEN) revert IACL.AdminAccessPolicyForbidden();
+    else if(status == IACL.AdminAccessStatus.ROLE_NOT_FOUND) revert IACL.AdminAccessRoleNotFound();
+    else if(status == IACL.AdminAccessStatus.TYPE_NOT_FOUND) revert IACL.AdminAccessTypeNotFound();
+    else if(status == IACL.AdminAccessStatus.FUNCTION_NOT_FOUND) revert IACL.AdminAccessFunctionNotFound();
+    else if(status == IACL.AdminAccessStatus.ROLE_ACTIVITY_FORBIDDEN) revert IACL.AdminAccessRoleActivityForbidden();
+    else if(status == IACL.AdminAccessStatus.TYPE_ACTIVITY_FORBIDDEN) revert IACL.AdminAccessTypeActivityForbidden();
     else revert("Unknown ERR");
   }
 }

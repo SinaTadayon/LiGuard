@@ -52,6 +52,27 @@ interface IACL {
   error DomainActivityForbidden();
   error GlobalActivityForbidden();
 
+  enum AdminAccessStatus {
+    PERMITTED,
+    NOT_PERMITTED,
+    POLICY_FORBIDDEN,
+    ROLE_NOT_FOUND,
+    TYPE_NOT_FOUND,
+    FUNCTION_NOT_FOUND,
+    ROLE_ACTIVITY_FORBIDDEN,
+    TYPE_ACTIVITY_FORBIDDEN
+  }
+  
+  error AdminAccessNotPermitted();
+  error AdminAccessPolicyForbidden();
+  error AdminAccessRoleNotFound();
+  error AdminAccessTypeNotFound();
+  error AdminAccessFunctionNotFound();
+  error AdminAccessRoleActivityForbidden();
+  error AdminAccessTypeActivityForbidden();
+
+  error SetAdminForbidden(AdminAccessStatus);
+
 
   function hasAccess(bytes32 functionId) external returns (AuthorizationStatus);
 

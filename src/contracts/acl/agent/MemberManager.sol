@@ -84,7 +84,8 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
       require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Type Updatable");
 
       // check access
-      require(_doAgentCheckAdminAccess(roleEntity.ba.adminId, senderId, functionId), "Forbidden");
+      IACL.AdminAccessStatus adminAccessStatus = _doCheckAdminAccess(roleEntity.ba.adminId, senderId, functionId);
+      if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
 
       // add new member to type
       typeEntity.members[newMemberId] = requests[i].roleId;
@@ -97,7 +98,8 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
 
       // check adminId
       if(requests[i].adminId != bytes32(0)) {
-        require(_doAgentCheckAdminAccess(_LIVELY_VERSE_MEMBER_MASTER_TYPE_ID, senderId, functionId), "Set Admin Forbidden");
+        adminAccessStatus = _doCheckAdminAccess(_LIVELY_VERSE_MEMBER_MASTER_TYPE_ID, senderId, functionId);        
+        if(adminAccessStatus != IACL.AdminAccessStatus.PERMITTED) revert SetAdminForbidden(adminAccessStatus);
         newMember.ba.adminId = requests[i].adminId;
       } else {
         newMember.ba.adminId = _LIVELY_VERSE_MEMBER_MASTER_TYPE_ID;
@@ -129,7 +131,8 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
     for(uint i = 0; i < requests.length; i++) {      
       MemberEntity storage memberEntity = _data.memberReadSlot(requests[i].id);      
       require(memberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-      require(_doAgentCheckAdminAccess(memberEntity.ba.adminId, senderId, functionId), "Forbidden");
+      IACL.AdminAccessStatus adminAccessStatus = _doCheckAdminAccess(memberEntity.ba.adminId, senderId, functionId);
+      if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
       memberEntity.ba.acstat = requests[i].acstat;
       emit MemberActivityUpdated(msg.sender, requests[i].id, requests[i].acstat);
@@ -142,7 +145,8 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {      
       MemberEntity storage memberEntity = _data.memberReadSlot(requests[i].id);      
-      require(_doAgentCheckAdminAccess(memberEntity.ba.adminId, senderId, functionId), "Forbidden");      
+      IACL.AdminAccessStatus adminAccessStatus = _doCheckAdminAccess(memberEntity.ba.adminId, senderId, functionId);
+      if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       memberEntity.ba.alstat = requests[i].alstat;
       emit MemberAlterabilityUpdated(msg.sender, requests[i].id, requests[i].alstat);
@@ -288,45 +292,48 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
     });
   }
 
-  // Note: Member could not assigned to any entities as admin
-  function _doAgentCheckAdminAccess(bytes32 adminId, bytes32 memberId, bytes32 functionId) internal view returns (bool) {
+  function _doCheckAdminAccess(bytes32 adminId, bytes32 memberId, bytes32 functionId) internal view returns (IACL.AdminAccessStatus) {
     (FunctionEntity storage functionEntity, bool res) = _data.functionTryReadSlot(functionId);    
-    if (!res) return false;
+    if (!res) return IACL.AdminAccessStatus.FUNCTION_NOT_FOUND;
 
-    if(_data.agents[memberId].acstat != ActivityStatus.ENABLED) return false;
+    // if(_data.agents[memberId].acstat != ActivityStatus.ENABLED) return false;
     
     AgentType adminAgentType = _data.agents[adminId].atype;
     if(adminAgentType == AgentType.ROLE) {
       (RoleEntity storage roleEntity, bool result) = _data.roleTryReadSlot(adminId);
-      if(!result || roleEntity.ba.acstat != ActivityStatus.ENABLED) return false;
+      if(!result) return IACL.AdminAccessStatus.ROLE_NOT_FOUND;
+      if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AdminAccessStatus.ROLE_ACTIVITY_FORBIDDEN;
 
       (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(roleEntity.typeId);
-      if(!result1 || typeEntity.ba.acstat != ActivityStatus.ENABLED) return false;
+      if(!result1) return IACL.AdminAccessStatus.TYPE_NOT_FOUND;
+      if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AdminAccessStatus.TYPE_ACTIVITY_FORBIDDEN;
       
-      if (typeEntity.members[memberId] != adminId) return false;
+      if (typeEntity.members[memberId] != adminId) return IACL.AdminAccessStatus.NOT_PERMITTED;
       
       PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[adminId]];
       if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
-        return false;
+        return IACL.AdminAccessStatus.POLICY_FORBIDDEN;
 
-      return true;
+      return IACL.AdminAccessStatus.PERMITTED;
    
     } else if(adminAgentType == AgentType.TYPE) { 
       (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(adminId);
-      if(!result1 || typeEntity.ba.acstat != ActivityStatus.ENABLED) return false;
+      if(!result1) return IACL.AdminAccessStatus.TYPE_NOT_FOUND;
+      if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AdminAccessStatus.TYPE_ACTIVITY_FORBIDDEN;
 
       bytes32 roleId = typeEntity.members[memberId];
       (RoleEntity storage roleEntity, bool result2) = _data.roleTryReadSlot(roleId);
-      if(!result2 || roleEntity.ba.acstat != ActivityStatus.ENABLED) return false;
+      if(!result2) return IACL.AdminAccessStatus.ROLE_NOT_FOUND;
+      if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AdminAccessStatus.ROLE_ACTIVITY_FORBIDDEN;
       
       PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[roleId]];
       if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
-        return false;
+        return IACL.AdminAccessStatus.POLICY_FORBIDDEN;
 
-      return true;
+      return IACL.AdminAccessStatus.PERMITTED;
     } 
 
-    return false;   
+    return IACL.AdminAccessStatus.NOT_PERMITTED;   
   }
 
   function _accessPermission(bytes4 selector) internal returns (bytes32) {
@@ -343,7 +350,8 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
   function _doGetEntityAndCheckAdminAccess(bytes32 memberId, bytes32 senderId, bytes32 functionId) internal view returns (MemberEntity storage) {
     MemberEntity storage memberEntity = _data.memberReadSlot(memberId);
     require(memberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-    require(_doAgentCheckAdminAccess(memberEntity.ba.adminId, senderId, functionId), "Forbidden");
+    IACL.AdminAccessStatus status = _doCheckAdminAccess(memberEntity.ba.adminId, senderId, functionId);
+    if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
     return memberEntity;
   }
 

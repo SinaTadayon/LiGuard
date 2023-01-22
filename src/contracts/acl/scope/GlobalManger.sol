@@ -56,7 +56,8 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     GlobalEntity storage globalEntity = _data.globalReadSlot(_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
     require(globalEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");    
-    require(_doCheckAdminAccess(globalEntity.bs.adminId, senderId, functionId), "Forbidden");
+    IACL.AdminAccessStatus status = _doCheckAdminAccess(globalEntity.bs.adminId, senderId, functionId);
+    if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
     require(acstat > ActivityStatus.DELETED, "Illegal Activity");
     globalEntity.bs.acstat = acstat;
     emit GlobalActivityUpdated(msg.sender, _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, globalEntity.bs.acstat);    
@@ -67,8 +68,8 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
     bytes32 functionId = _accessPermission(IGlobalManagement.globalUpdateAlterabilityStatus.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     GlobalEntity storage globalEntity = _data.globalReadSlot(_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
-    // require(globalEntity.bs.acstat > ActivityStatus.DISABLED, "Global Disabled");
-    require(_doCheckAdminAccess(globalEntity.bs.adminId, senderId, functionId), "Forbidden");
+    IACL.AdminAccessStatus status = _doCheckAdminAccess(globalEntity.bs.adminId, senderId, functionId);
+    if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
     require(alstat != AlterabilityStatus.NONE, "Illegal Alterability");
     globalEntity.bs.alstat = alstat;
     emit GlobalAlterabilityUpdated(msg.sender, _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, globalEntity.bs.alstat);    
@@ -106,62 +107,55 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
     return true;
   }
 
-  // function globalUpdateAgentLimit(uint32 agentLimit) external returns (bool) {
-  //   bytes32 functionId = _accessPermission(IGlobalManagement.globalUpdateAgentLimit.selector);
-  //   bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
-  //   GlobalEntity storage globalEntity = _doGetEntityAndCheckAdminAccess(senderId, functionId);
-  //   require(agentLimit > globalEntity.bs.referredByAgent, "Illegal Limit");
-  //   globalEntity.bs.agentLimit = agentLimit;
-  //   emit GlobalAgentLimitUpdated(msg.sender, _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, agentLimit);
-  //   return true;
-  // }
-
   function globalCheckAdmin(address account) external view returns (bool) {
     bytes32 memberId = LACLUtils.accountGenerateId(account);
     TypeEntity storage livelyAdminType = _data.typeReadSlot(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID);
     return livelyAdminType.members[memberId] != bytes32(0);  
   }
 
-  function _doCheckAdminAccess(bytes32 adminId, bytes32 memberId, bytes32 functionId) internal view returns (bool) {
+  function _doCheckAdminAccess(bytes32 adminId, bytes32 memberId, bytes32 functionId) internal view returns (IACL.AdminAccessStatus) {
     (FunctionEntity storage functionEntity, bool res) = _data.functionTryReadSlot(functionId);    
-    if (!res) return false;
+    if (!res) return IACL.AdminAccessStatus.FUNCTION_NOT_FOUND;
 
-    if(_data.agents[memberId].acstat != ActivityStatus.ENABLED) return false;
-
+    // if(_data.agents[memberId].acstat != ActivityStatus.ENABLED) return false;
+    
     AgentType adminAgentType = _data.agents[adminId].atype;
     if(adminAgentType == AgentType.ROLE) {
       (RoleEntity storage roleEntity, bool result) = _data.roleTryReadSlot(adminId);
-      if(!result || roleEntity.ba.acstat != ActivityStatus.ENABLED) return false;
+      if(!result) return IACL.AdminAccessStatus.ROLE_NOT_FOUND;
+      if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AdminAccessStatus.ROLE_ACTIVITY_FORBIDDEN;
 
       (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(roleEntity.typeId);
-      if(!result1 || typeEntity.ba.acstat != ActivityStatus.ENABLED) return false;
+      if(!result1) return IACL.AdminAccessStatus.TYPE_NOT_FOUND;
+      if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AdminAccessStatus.TYPE_ACTIVITY_FORBIDDEN;
       
-      if (typeEntity.members[memberId] != adminId) return false;
-
+      if (typeEntity.members[memberId] != adminId) return IACL.AdminAccessStatus.NOT_PERMITTED;
+      
       PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[adminId]];
       if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
-        return false;
+        return IACL.AdminAccessStatus.POLICY_FORBIDDEN;
 
-      return true;
+      return IACL.AdminAccessStatus.PERMITTED;
    
     } else if(adminAgentType == AgentType.TYPE) { 
       (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(adminId);
-      if(!result1 || typeEntity.ba.acstat != ActivityStatus.ENABLED) return false;
+      if(!result1) return IACL.AdminAccessStatus.TYPE_NOT_FOUND;
+      if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AdminAccessStatus.TYPE_ACTIVITY_FORBIDDEN;
 
       bytes32 roleId = typeEntity.members[memberId];
       (RoleEntity storage roleEntity, bool result2) = _data.roleTryReadSlot(roleId);
-      if(!result2 || roleEntity.ba.acstat != ActivityStatus.ENABLED) return false;
+      if(!result2) return IACL.AdminAccessStatus.ROLE_NOT_FOUND;
+      if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AdminAccessStatus.ROLE_ACTIVITY_FORBIDDEN;
       
       PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[roleId]];
       if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
-        return false;
+        return IACL.AdminAccessStatus.POLICY_FORBIDDEN;
 
-      return true;
+      return IACL.AdminAccessStatus.PERMITTED;
     } 
 
-    return false;   
-  } 
-
+    return IACL.AdminAccessStatus.NOT_PERMITTED;   
+  }
 
   function globalGetDomains() external view returns (bytes32[] memory) {
     GlobalEntity storage globalEntity = _data.globalReadSlot(_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
@@ -225,7 +219,8 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
   function _doGetEntityAndCheckAdminAccess(bytes32 senderId, bytes32 functionId) internal view returns (GlobalEntity storage) {
     GlobalEntity storage globalEntity = _data.globalReadSlot(_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
     require(globalEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");    
-    require(_doCheckAdminAccess(globalEntity.bs.adminId, senderId, functionId), "Forbidden");
+    IACL.AdminAccessStatus status = _doCheckAdminAccess(globalEntity.bs.adminId, senderId, functionId);
+    if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
     return globalEntity;
   }
 

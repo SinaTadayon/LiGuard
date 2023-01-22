@@ -57,8 +57,8 @@ contract ProfileGlobalManager is ACLStorage, BaseUUPSProxy, IProfileGlobalManage
       bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
       GlobalEntity storage globalEntity = profileEntity.profileGlobalReadSlot(_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
       require(globalEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");    
-      IProfileACL.ProfileAccessAdminStatus status = _doCheckAdminAccess(profileEntity, globalEntity.bs.adminId, senderId, functionId);
-      if(status != IProfileACL.ProfileAccessAdminStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
+      IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, globalEntity.bs.adminId, senderId, functionId);
+      if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
       require(requests[i].acstat > ActivityStatus.ENABLED, "Illegal Activity");
       globalEntity.bs.acstat = requests[i].acstat;
       emit ProfileGlobalActivityUpdated(msg.sender, requests[i].profileId, _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, requests[i].acstat);
@@ -72,8 +72,8 @@ contract ProfileGlobalManager is ACLStorage, BaseUUPSProxy, IProfileGlobalManage
       (ProfileEntity storage profileEntity, bytes32 functionId) = _accessPermission(requests[i].profileId, IProfileGlobalManagement.profileGlobalUpdateAlterabilityStatus.selector);
       bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
       GlobalEntity storage globalEntity = profileEntity.profileGlobalReadSlot(_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
-      IProfileACL.ProfileAccessAdminStatus status = _doCheckAdminAccess(globalEntity.bs.adminId, senderId, functionId);
-      if(status != IProfileACL.ProfileAccessAdminStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
+      IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(globalEntity.bs.adminId, senderId, functionId);
+      if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       globalEntity.bs.alstat = requests[i].alstat;
       emit ProfileGlobalAlterabilityUpdated(msg.sender, requests[i].profileId, _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, requests[i].alstat);    
@@ -161,51 +161,51 @@ contract ProfileGlobalManager is ACLStorage, BaseUUPSProxy, IProfileGlobalManage
     });
   }
 
-  function _doCheckAdminAccess(ProfileEntity storage profileEntity, bytes32 adminId, bytes32 senderId, bytes32 functionId) internal view returns (IProfileACL.ProfileAccessAdminStatus) {
+  function _doCheckAdminAccess(ProfileEntity storage profileEntity, bytes32 adminId, bytes32 senderId, bytes32 functionId) internal view returns (IProfileACL.ProfileAdminAccessStatus) {
     // owners always access to all entities to modify those
-    if(profileEntity.owners.contains(senderId)) return IProfileACL.ProfileAccessAdminStatus.PERMITTED;
+    if(profileEntity.owners.contains(senderId)) return IProfileACL.ProfileAdminAccessStatus.PERMITTED;
 
     (FunctionEntity storage functionEntity, bool res) = profileEntity.profileFunctionTryReadSlot(functionId);    
-    if (!res) return IProfileACL.ProfileAccessAdminStatus.FUNCTION_NOT_FOUND;
+    if (!res) return IProfileACL.ProfileAdminAccessStatus.FUNCTION_NOT_FOUND;
 
     // if(profileEntity.agents[senderId].acstat != ActivityStatus.ENABLED) return false;
     
     AgentType adminAgentType = profileEntity.agents[adminId].atype;
     if(adminAgentType == AgentType.ROLE) {
       (RoleEntity storage roleEntity, bool result) = profileEntity.profileRoleTryReadSlot(adminId);
-      if(!result) return IProfileACL.ProfileAccessAdminStatus.ROLE_NOT_FOUND;
-      if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAccessAdminStatus.ROLE_ACTIVITY_FORBIDDEN;
+      if(!result) return IProfileACL.ProfileAdminAccessStatus.ROLE_NOT_FOUND;
+      if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAdminAccessStatus.ROLE_ACTIVITY_FORBIDDEN;
 
       (TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(roleEntity.typeId);
-      if(!result1) return IProfileACL.ProfileAccessAdminStatus.TYPE_NOT_FOUND;
-      if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAccessAdminStatus.TYPE_ACTIVITY_FORBIDDEN;
+      if(!result1) return IProfileACL.ProfileAdminAccessStatus.TYPE_NOT_FOUND;
+      if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAdminAccessStatus.TYPE_ACTIVITY_FORBIDDEN;
       
-      if (typeEntity.members[senderId] != adminId) return IProfileACL.ProfileAccessAdminStatus.NOT_PERMITTED;
+      if (typeEntity.members[senderId] != adminId) return IProfileACL.ProfileAdminAccessStatus.NOT_PERMITTED;
       
       PolicyEntity storage policyEntity = profileEntity.policies[profileEntity.rolePolicyMap[adminId]];
       if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
-        return IProfileACL.ProfileAccessAdminStatus.POLICY_FORBIDDEN;
+        return IProfileACL.ProfileAdminAccessStatus.POLICY_FORBIDDEN;
 
-      return IProfileACL.ProfileAccessAdminStatus.PERMITTED;
+      return IProfileACL.ProfileAdminAccessStatus.PERMITTED;
    
     } else if(adminAgentType == AgentType.TYPE) { 
       (TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(adminId);
-      if(!result1) return IProfileACL.ProfileAccessAdminStatus.TYPE_NOT_FOUND;
-      if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAccessAdminStatus.TYPE_ACTIVITY_FORBIDDEN;
+      if(!result1) return IProfileACL.ProfileAdminAccessStatus.TYPE_NOT_FOUND;
+      if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAdminAccessStatus.TYPE_ACTIVITY_FORBIDDEN;
 
       bytes32 roleId = typeEntity.members[senderId];
       (RoleEntity storage roleEntity, bool result2) = profileEntity.profileRoleTryReadSlot(roleId);
-      if(!result2) return IProfileACL.ProfileAccessAdminStatus.ROLE_NOT_FOUND;
-      if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAccessAdminStatus.ROLE_ACTIVITY_FORBIDDEN;
+      if(!result2) return IProfileACL.ProfileAdminAccessStatus.ROLE_NOT_FOUND;
+      if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAdminAccessStatus.ROLE_ACTIVITY_FORBIDDEN;
       
       PolicyEntity storage policyEntity = profileEntity.policies[profileEntity.rolePolicyMap[roleId]];
       if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
-        return IProfileACL.ProfileAccessAdminStatus.POLICY_FORBIDDEN;
+        return IProfileACL.ProfileAdminAccessStatus.POLICY_FORBIDDEN;
 
-      return IProfileACL.ProfileAccessAdminStatus.PERMITTED;
+      return IProfileACL.ProfileAdminAccessStatus.PERMITTED;
     } 
 
-    return IProfileACL.ProfileAccessAdminStatus.NOT_PERMITTED;
+    return IProfileACL.ProfileAdminAccessStatus.NOT_PERMITTED;
   }
 
   function _doAgentGetScopeInfo(ProfileEntity storage profileEntity, bytes32 agentId) internal view returns (ScopeType, bytes32) {
@@ -257,8 +257,8 @@ contract ProfileGlobalManager is ACLStorage, BaseUUPSProxy, IProfileGlobalManage
   function _doGetEntityAndCheckAdminAccess(ProfileEntity storage profileEntity, bytes32 senderId, bytes32 functionId) internal view returns (GlobalEntity storage) {
     GlobalEntity storage globalEntity = profileEntity.profileGlobalReadSlot(_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
     require(globalEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");    
-    IProfileACL.ProfileAccessAdminStatus status = _doCheckAdminAccess(profileEntity, globalEntity.bs.adminId, senderId, functionId);
-    if(status != IProfileACL.ProfileAccessAdminStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
+    IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, globalEntity.bs.adminId, senderId, functionId);
+    if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
     return globalEntity;
   }
 

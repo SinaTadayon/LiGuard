@@ -146,7 +146,8 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     for(uint i = 0; i < requests.length; i++) {
       FunctionEntity storage functionEntity = _data.functionReadSlot(requests[i].id);
       require(functionEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-      require(_doCheckAdminAccess(functionEntity.bs.adminId, senderId, functionId), "Forbidden");
+      IACL.AdminAccessStatus status = _doCheckAdminAccess(functionEntity.bs.adminId, senderId, functionId);
+      if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
       require(requests[i].acstat != ActivityStatus.NONE, "Illegal Activity");
       functionEntity.bs.acstat = requests[i].acstat;
       emit FunctionActivityUpdated(msg.sender, requests[i].id, requests[i].acstat);
@@ -162,7 +163,8 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     for(uint i = 0; i < requests.length; i++) {      
       FunctionEntity storage functionEntity = _data.functionReadSlot(requests[i].id);
       require(functionEntity.bs.acstat > ActivityStatus.DELETED, "Function Deleted");
-      require(_doCheckAdminAccess(functionEntity.bs.adminId, senderId, functionId), "Forbidden");
+      IACL.AdminAccessStatus status = _doCheckAdminAccess(functionEntity.bs.adminId, senderId, functionId);
+      if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       functionEntity.bs.alstat = requests[i].alstat;
       emit FunctionAlterabilityUpdated(msg.sender, requests[i].id, requests[i].alstat);
@@ -181,19 +183,6 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     }
     return true;
   }
-
-  // function functionUpdateAgentLimit(ScopeUpdateAgentLimitRequest[] calldata requests) external returns (bool) {
-  //   bytes32 functionId = _accessPermission(IFunctionManagement.functionUpdateAgentLimit.selector);
-  //   bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
-
-  //   for (uint256 i = 0; i < requests.length; i++) {
-  //     FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(requests[i].scopeId, senderId, functionId);
-  //     require(requests[i].agentLimit > functionEntity.bs.referredByAgent, "Illegal Limit");
-  //     functionEntity.bs.agentLimit = requests[i].agentLimit;      
-  //     emit FunctionAgentLimitUpdated(msg.sender, requests[i].scopeId, requests[i].agentLimit);
-  //   }
-  //   return true;
-  // }
 
   function functionCheckId(bytes32 functionId) external view returns (bool) {    
     return _data.scopes[functionId].stype == ScopeType.FUNCTION;
@@ -308,44 +297,48 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     return IACLGenerals(address(this)).isScopesCompatible(memberSystemRole.scopeId, scopeId);    
   }
 
-  function _doCheckAdminAccess(bytes32 adminId, bytes32 memberId, bytes32 functionId) internal view returns (bool) {
+  function _doCheckAdminAccess(bytes32 adminId, bytes32 memberId, bytes32 functionId) internal view returns (IACL.AdminAccessStatus) {
     (FunctionEntity storage functionEntity, bool res) = _data.functionTryReadSlot(functionId);    
-    if (!res) return false;
+    if (!res) return IACL.AdminAccessStatus.FUNCTION_NOT_FOUND;
 
-    if(_data.agents[memberId].acstat != ActivityStatus.ENABLED) return false;
-
+    // if(_data.agents[memberId].acstat != ActivityStatus.ENABLED) return false;
+    
     AgentType adminAgentType = _data.agents[adminId].atype;
     if(adminAgentType == AgentType.ROLE) {
       (RoleEntity storage roleEntity, bool result) = _data.roleTryReadSlot(adminId);
-      if(!result || roleEntity.ba.acstat != ActivityStatus.ENABLED) return false;
+      if(!result) return IACL.AdminAccessStatus.ROLE_NOT_FOUND;
+      if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AdminAccessStatus.ROLE_ACTIVITY_FORBIDDEN;
 
       (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(roleEntity.typeId);
-      if(!result1 || typeEntity.ba.acstat != ActivityStatus.ENABLED) return false;
+      if(!result1) return IACL.AdminAccessStatus.TYPE_NOT_FOUND;
+      if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AdminAccessStatus.TYPE_ACTIVITY_FORBIDDEN;
       
-      if (typeEntity.members[memberId] != adminId) return false;
-
+      if (typeEntity.members[memberId] != adminId) return IACL.AdminAccessStatus.NOT_PERMITTED;
+      
       PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[adminId]];
       if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
-        return false;
+        return IACL.AdminAccessStatus.POLICY_FORBIDDEN;
 
-      return true;
+      return IACL.AdminAccessStatus.PERMITTED;
    
     } else if(adminAgentType == AgentType.TYPE) { 
       (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(adminId);
-      if(!result1 || typeEntity.ba.acstat != ActivityStatus.ENABLED) return false;
+      if(!result1) return IACL.AdminAccessStatus.TYPE_NOT_FOUND;
+      if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AdminAccessStatus.TYPE_ACTIVITY_FORBIDDEN;
 
       bytes32 roleId = typeEntity.members[memberId];
       (RoleEntity storage roleEntity, bool result2) = _data.roleTryReadSlot(roleId);
-      if(!result2 || roleEntity.ba.acstat != ActivityStatus.ENABLED) return false;
+      if(!result2) return IACL.AdminAccessStatus.ROLE_NOT_FOUND;
+      if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AdminAccessStatus.ROLE_ACTIVITY_FORBIDDEN;
       
       PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[roleId]];
       if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
-        return false;
+        return IACL.AdminAccessStatus.POLICY_FORBIDDEN;
 
-      return true;
+      return IACL.AdminAccessStatus.PERMITTED;
     } 
 
-    return false;   
+    return IACL.AdminAccessStatus.NOT_PERMITTED;   
   }
 
   function _accessPermission(bytes4 selector) internal returns (bytes32) {
@@ -363,7 +356,8 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     FunctionEntity storage functionEntity = _data.functionReadSlot(fId);
     require(functionEntity.bs.acstat > ActivityStatus.DELETED, "Function Deleted");
     require(functionEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-    require(_doCheckAdminAccess(functionEntity.bs.adminId, senderId, functionId), "Forbidden");
+    IACL.AdminAccessStatus status = _doCheckAdminAccess(functionEntity.bs.adminId, senderId, functionId);
+    if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
     return functionEntity;
   } 
 

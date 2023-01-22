@@ -56,7 +56,7 @@ interface IProfileACL {
   error ProfileGlobalActivityForbidden();
   error ProfileActivityForbidden();
 
-  enum ProfileAccessAdminStatus {
+  enum ProfileAdminAccessStatus {
     PERMITTED,
     NOT_PERMITTED,
     POLICY_FORBIDDEN,
@@ -75,7 +75,7 @@ interface IProfileACL {
   error ProfileAdminAccessRoleActivityForbidden();
   error ProfileAdminAccessTypeActivityForbidden();
 
-  error ProfileSetAdminForbidden(ProfileAccessAdminStatus);
+  error ProfileSetAdminForbidden(ProfileAdminAccessStatus);
 
   function profileHasAccess(bytes32 profileId, bytes32 functionId) external returns (ProfileAuthorizationStatus);
 
