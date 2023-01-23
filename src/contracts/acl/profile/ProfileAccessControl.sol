@@ -3,7 +3,7 @@
 
 pragma solidity 0.8.17;
 
-import "./policy/IPolicyManagement.sol";
+import "./policy/IProfilePolicyManagement.sol";
 import "./IProfileACL.sol";
 import "./IProfileACLGenerals.sol";
 import "./scope/IProfileFunctionManagement.sol";
@@ -281,7 +281,7 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
   }
 
   function getProfileGlobalScope() external pure returns (bytes32) {
-    return _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
+    return _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID;
   }
 
 

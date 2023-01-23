@@ -91,10 +91,7 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
       bytes32 contextId = LACLUtils.accountGenerateId(contractId);  
       bytes32 signerId = LACLUtils.accountGenerateId(signer);
     
-      ProfileEntity storage profileEntity = data.profiles[profileId];
-      if(profileEntity.acstat != ActivityStatus.ENABLED) {
-        LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.PROFILE_ACTIVITY_FORBIDDEN);
-      }
+      ProfileEntity storage profileEntity = data.profiles[profileId];      
       address functionFacetId = _data.selectors[IProfileFunctionManagement.profileFunctionRegister.selector];
       bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, IProfileFunctionManagement.profileFunctionRegister.selector); 
       ProfileAuthorizationStatus status = IProfileACL(address(this)).profileHasMemberAccess(profileEntity, functionId, signerId);
@@ -302,7 +299,7 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
   }
 
   function _doCheckSystemScope(ProfileEntity storage profileEntity, bytes32 scopeId, bytes32 memberId) internal view returns (bool) {  
-    TypeEntity storage systemType = profileEntity.profileTypeReadSlot(_LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID);
+    TypeEntity storage systemType = profileEntity.profileTypeReadSlot(_LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID);
     bytes32 memberRoleId = systemType.members[memberId];
     RoleEntity storage memberSystemRole = profileEntity.profileRoleReadSlot(memberRoleId);
     if(profileEntity.scopes[memberSystemRole.scopeId].stype < ScopeType.CONTEXT) return false;

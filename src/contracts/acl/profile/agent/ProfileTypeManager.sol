@@ -69,7 +69,7 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
 
 
       // fetch scope type and scope id of sender
-      (ScopeType senderScopeType, bytes32 senderScopeId) = _doGetMemberScopeInfoFromType(profileEntity, _LIVELY_VERSE_TYPE_MASTER_TYPE_ID, senderId);
+      (ScopeType senderScopeType, bytes32 senderScopeId) = _doGetMemberScopeInfoFromType(profileEntity, _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID, senderId);
       
       for(uint j = 0; j < requests[i].types.length; j++) {
         bytes32 newTypeId = LACLUtils.generateId(requests[i].types[j].name);

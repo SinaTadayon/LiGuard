@@ -366,7 +366,7 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
 
   function _doGetScopeInfo(ProfileEntity storage profileEntity, bytes32 signerId) internal view returns (ScopeType, bytes32) {
     // get scope id of sender
-    TypeEntity storage systemAdminType = profileEntity.profileTypeReadSlot(_LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID);
+    TypeEntity storage systemAdminType = profileEntity.profileTypeReadSlot(_LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID);
     bytes32 signerRoleId = systemAdminType.members[signerId];
     RoleEntity storage signerSystemRole =  profileEntity.profileRoleReadSlot(signerRoleId);
     ScopeType signerSystemScopeType = profileEntity.scopes[signerSystemRole.scopeId].stype;
@@ -400,7 +400,7 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
   }
 
   function _doCheckSystemScope(ProfileEntity storage profileEntity, bytes32 scopeId, bytes32 memberId) internal view returns (bool) {  
-    TypeEntity storage systemType = profileEntity.profileTypeReadSlot(_LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID);
+    TypeEntity storage systemType = profileEntity.profileTypeReadSlot(_LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID);
     bytes32 memberRoleId = systemType.members[memberId];
     RoleEntity storage memberSystemRole = profileEntity.profileRoleReadSlot(memberRoleId);
     if(_data.scopes[memberSystemRole.scopeId].stype < ScopeType.REALM) return false;
@@ -453,12 +453,9 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
     bytes32 signerId = LACLUtils.accountGenerateId(signer);  
     bytes32 newContextId = LACLUtils.accountGenerateId(contractId);
 
-    ProfileEntity storage profileEntity = data.profiles[request.profileId];
-    // if(profileEntity.acstat != ActivityStatus.ENABLED) {
-    //   LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.PROFILE_ACTIVITY_FORBIDDEN);
-    // }
-
-    require(IProfileACL(address(this)).profileHasMemberAccess(profileEntity, functionId, signerId) == ProfileAuthorizationStatus.PERMITTED, "Access Denied");
+    ProfileEntity storage profileEntity = data.profiles[request.profileId];    
+    ProfileAuthorizationStatus status = IProfileACL(address(this)).profileHasMemberAccess(profileEntity, functionId, signerId);
+    if(status != ProfileAuthorizationStatus.PERMITTED) LACLUtils.generateProfileAuthorizationError(status);          
     require(profileEntity.scopes[newContextId].stype == ScopeType.NONE, "Already Exist");
 
     // check profile and type limitations and update it

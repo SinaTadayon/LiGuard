@@ -21,7 +21,7 @@ import "../../acl/agent/IMemberManagement.sol";
 import "../../acl/agent/IRoleManagement.sol";
 import "../../acl/agent/ITypeManagement.sol";
 import "../../acl/policy/IPolicyManagement.sol";
-import "../../test/acl/IDomainManagementTest.sol";
+// import "../../test/acl/IDomainManagementTest.sol";
 
 import "hardhat/console.sol";
 
@@ -75,36 +75,6 @@ library LACLManager {
 
   function aclRegisterFacet(ACLStorage.DataCollection storage data, IACLManager.FacetRegisterRequest calldata request) external returns (bool) {
     
-    // console.logBytes4(type(ITypeManagement).interfaceId);
-    // console.logBytes4(type(IRoleManagement).interfaceId);
-    // // console.logBytes4(type(IPolicyManagement).interfaceId);
-    // console.logBytes4(type(IACL).interfaceId);
-    // console.logBytes4(type(IACLGenerals).interfaceId);
-    // console.logBytes4(type(IPolicyManagement).interfaceId);
-    // console.logBytes4(type(IFunctionManagement).interfaceId);
-    // console.logBytes4(type(IContextManagement).interfaceId);
-    // console.logBytes4(type(IRealmManagement).interfaceId);
-    // console.logBytes4(type(IDomainManagementTest).interfaceId);
-    // console.logBytes4(type(IGlobalManagement).interfaceId);
-    // console.logBytes4(type(IMemberManagement).interfaceId);
-    // console.logBytes4(type(IRoleManagement).interfaceId);
-    // console.logBytes4(type(ITypeManagement).interfaceId);
-    // require(  
-    //   request.interfaceId != type(IACLManager).interfaceId ||
-    //   request.interfaceId != type(IACL).interfaceId ||
-    //   request.interfaceId != type(IACLGenerals).interfaceId ||
-    //   request.interfaceId != type(IPolicyManagement).interfaceId ||
-    //   request.interfaceId != type(IFunctionManagement).interfaceId ||
-    //   request.interfaceId != type(IContextManagement).interfaceId ||
-    //   request.interfaceId != type(IRealmManagement).interfaceId ||
-    //   request.interfaceId != type(IDomainManagement).interfaceId ||
-    //   request.interfaceId != type(IGlobalManagement).interfaceId ||
-    //   request.interfaceId != type(IMemberManagement).interfaceId ||
-    //   request.interfaceId != type(IRoleManagement).interfaceId ||
-    //   request.interfaceId != type(ITypeManagement).interfaceId, 
-    //   "Illegal InterfaceId"
-    // );    
-
     require(!data.facetSet.contains(request.facetId), "Facet Already Exist");    
     // require(IERC165(request.facetId).supportsInterface(request.interfaceId), "Illegal Interface");
     for(uint j = 0; j < request.selectors.length; j++) {

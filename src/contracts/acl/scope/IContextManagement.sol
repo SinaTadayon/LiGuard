@@ -81,7 +81,7 @@ interface IContextManagement is IACLCommons{
 
   function contextUpdateFunctionLimit(ContextUpdateFunctionLimitRequest[] calldata requests) external returns (bool);
 
-  function contextUpdateAgentLimit(ScopeUpdateAgentLimitRequest[] calldata requests) external returns (bool);
+  // function contextUpdateAgentLimit(ScopeUpdateAgentLimitRequest[] calldata requests) external returns (bool);
 
   function contextCheckId(bytes32 contextId) external view returns (bool);
 

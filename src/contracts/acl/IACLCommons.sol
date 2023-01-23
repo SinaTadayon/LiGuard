@@ -57,6 +57,14 @@ interface IACLCommons{
     LOCK            // 255
   }
 
+  // enum ProfileAccountType {
+  //   NONE,
+  //   MEMBER,
+  //   SYSADMIN,
+  //   ADMIN,
+  //   OWNER
+  // }
+
   struct BaseAgent {
     bytes32 adminId;
     AgentType atype;
@@ -141,7 +149,7 @@ interface IACLCommons{
     uint16 typeLimit;    
     uint16 policyRoleLimit;
   }
-  
+
   struct MemberEntity {
     BaseAgent ba;
     address account;
@@ -220,19 +228,24 @@ interface IACLCommons{
     uint16 policyRoleLimit;
   }
 
+  struct ProfileAccount {
+    bytes32[] profiles;
+  }
+
   struct ProfileEntity {
     mapping(bytes32 => BaseAgent) agents;
     mapping(bytes32 => BaseScope) scopes;
     mapping(bytes32 => PolicyEntity) policies;
-    mapping(bytes32 => bytes32) rolePolicyMap;
-    LEnumerableSet.Bytes32Set owners;
-    LEnumerableSet.Bytes32Set deployers;
-    string name;          // PROFILE.0xxxxxxx(address wallet) => keccak256(name) => profileId    
+    mapping(bytes32 => bytes32) rolePolicyMap;    
+    LEnumerableSet.Bytes32Set admins;
+    bytes32 adminId;
+    string name;
+    address owner;
     uint64 expiredAt;    
     ActivityStatus acstat;
     AlterabilityStatus alstat;
-    ProfileRegisterLimit registerlimits;
-    ProfileLimit limits;      
+    ProfileRegisterLimit registerLimits;
+    ProfileLimit limits;    
   }
 
   struct ProfileMemberEntity {
@@ -240,6 +253,7 @@ interface IACLCommons{
     address account;    
     uint32 callLimit;    
     uint32 typeLimit;
+    // ProfileAccountType patype;
     ProfileRegisterLimit registerLimits;
     LEnumerableSet.Bytes32Set types;
   }
@@ -265,7 +279,7 @@ interface IACLCommons{
   }
 
   struct ProfileUpdateAdminRequest {
-    bytes32 profieId;
+    bytes32 profileId;
     ProfileAdminRequest[] data;
   }
 
@@ -276,7 +290,7 @@ interface IACLCommons{
 
 
   struct ProfileUpdateScopeRequest {
-    bytes32 profieId;
+    bytes32 profileId;
     ProfileScopeRequest[] data;
   }
 

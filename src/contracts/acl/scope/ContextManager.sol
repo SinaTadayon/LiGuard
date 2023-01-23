@@ -427,7 +427,8 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     bytes32 functionId = LACLUtils.functionGenerateId(_data.selectors[IContextManagement.contextRegister.selector], IContextManagement.contextRegister.selector);
     bytes32 signerId = LACLUtils.accountGenerateId(signer);  
     bytes32 newContextId = LACLUtils.accountGenerateId(contractId);
-    require(IACL(address(this)).hasMemberAccess(functionId, signerId) == IACL.AuthorizationStatus.PERMITTED, "Access Denied");
+    IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, signerId);
+    if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status); 
     require(_data.scopes[newContextId].stype == ScopeType.NONE, "Already Exist");
     require(
       request.acstat > ActivityStatus.DELETED && 

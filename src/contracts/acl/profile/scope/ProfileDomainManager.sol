@@ -67,7 +67,7 @@ contract ProfileDomainManager is ACLStorage, BaseUUPSProxy, IProfileDomainManage
       profileEntity.limits.domainRegisterLimit -= uint16(requests[i].domains.length);
 
       // fetch scope type and scope id of sender
-      bytes32 senderScopeId = _doGetMemberScopeInfoFromType(profileEntity, _LIVELY_VERSE_LIVELY_MASTER_TYPE_ID, senderId);    
+      bytes32 senderScopeId = _doGetMemberScopeInfoFromType(profileEntity, _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID, senderId);    
     
       for(uint j = 0; j < requests[i].domains.length; j++) {
         bytes32 newDomainId = LACLUtils.generateId(requests[i].domains[j].name);

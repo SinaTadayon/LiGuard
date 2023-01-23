@@ -22,6 +22,7 @@ abstract contract ACLStorage is BaseUUPSStorage, IACLCommons {
     mapping(bytes32 => PolicyEntity) policies;
     mapping(bytes32 => bytes32) rolePolicyMap;
     mapping(bytes32 => ProfileEntity) profiles;
+    mapping(address => ProfileAccount) profileAccounts;
     mapping(bytes4 => address) selectors;
     mapping(address => FacetEntity) facets;     
     LEnumerableSet.AddressSet facetSet;    
@@ -41,6 +42,9 @@ abstract contract ACLStorage is BaseUUPSStorage, IACLCommons {
 
   bytes32 public constant PROFILE_PREDICT_CTX_MESSAGE_TYPEHASH =
     keccak256("ProfilePredictContext(bytes32 profileId, address deployer,address subject,string realm)");
+
+  bytes32 public constant PROFILE_REGISTER_MESSAGE_TYPEHASH =
+    keccak256("ProfileRegister(string name, address owner,uint64 expiredAt)");
   
 
   // General Types ID
@@ -52,9 +56,10 @@ abstract contract ACLStorage is BaseUUPSStorage, IACLCommons {
   bytes32 internal constant _LIVELY_VERSE_MEMBER_MASTER_TYPE_ID         = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_MEMBER_MASTER"));
   bytes32 internal constant _LIVELY_VERSE_TYPE_MASTER_TYPE_ID           = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_TYPE_MASTER"));
   bytes32 internal constant _LIVELY_VERSE_POLICY_MASTER_TYPE_ID         = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_POLICY_MASTER"));
-  // bytes32 internal constant _LIVELY_VERSE_PROFILE_MASTER_TYPE_ID        = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_PROFILE_MASTER"));
-  // bytes32 internal constant _LIVELY_VERSE_PROFILE_SYSTEM_MASTER_TYPE_ID = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_PROFILE_SYSTEM_MASTER"));
+  bytes32 internal constant _LIVELY_VERSE_PROFILE_MASTER_TYPE_ID        = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_PROFILE_MASTER"));
 
+  // Global Scope ID
+  bytes32 internal constant _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID        = keccak256(abi.encodePacked("GLOBAL.LIVELY_VERSE"));
 
   // // General Roles ID 
   // bytes32 internal constant _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID = keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_MASTER_ADMIN"));
@@ -63,9 +68,11 @@ abstract contract ACLStorage is BaseUUPSStorage, IACLCommons {
   // bytes32 internal constant _LIVELY_VERSE_AGENT_MASTER_ADMIN_ROLE_ID  = keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_AGENT_MASTER_ADMIN"));
   // bytes32 internal constant _LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE_ID = keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_POLICY_MASTER_ADMIN"));
 
-  // Global Scope ID
-  bytes32 internal constant _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID = keccak256(abi.encodePacked("GLOBAL.LIVELY_VERSE"));
-  // bytes32 internal constant _LIVELY_VERSE_PROFILE_GLOBAL_SCOPE_ID = keccak256(abi.encodePacked("GLOBAL.LIVELY_VERSE_PROFILE"));
+  bytes32 internal constant _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID         = keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_MASTER"));
+  bytes32 internal constant _LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID         = keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER"));
+  bytes32 internal constant _LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID   = keccak256(abi.encodePacked("ROLE.LIVELY_PROFILE.LIVELY_MASTER_ADMIN"));
+  // bytes32 internal constant _LIVELY_PROFILE_SYSTEM_MASTER_ADMIN_ROLE_ID   = keccak256(abi.encodePacked("ROLE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER_ADMIN"));
+  bytes32 internal constant _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID        = keccak256(abi.encodePacked("GLOBAL.LIVELY_PROFILE"));
 
   bool internal _firstInit;
   DataCollection internal _data;

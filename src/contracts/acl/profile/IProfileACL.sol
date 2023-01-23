@@ -84,4 +84,5 @@ interface IProfileACL {
   function profileHasCSAccess(bytes32 profileId, address contractId, bytes4 selector) external returns (ProfileAuthorizationStatus);
 
   function profileHasAccountAccess(bytes32 profileId, address contractId, bytes4 selector, address accountId) external returns (ProfileAuthorizationStatus);
+  
 }

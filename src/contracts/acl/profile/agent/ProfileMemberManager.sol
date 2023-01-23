@@ -4,8 +4,10 @@
 pragma solidity 0.8.17;
 
 import "./IProfileMemberManagement.sol";
+import "./IProfileRoleManagement.sol";
 import "./IProfileTypeManagement.sol";
 import "../IProfileACL.sol";
+import "../ProfileAccessControl.sol";
 import "../IProfileACLGenerals.sol";
 import "../scope/IProfileFunctionManagement.sol";
 import "../../ACLStorage.sol";
@@ -61,13 +63,13 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
       bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
 
       // check profile and member limitations and update it
-      MemberEntity storage memberEntity = profileEntity.profileMemberReadSlot(senderId);
-      require(memberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
+      ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(senderId);
+      require(profileMemberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
       require(profileEntity.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-      require(memberEntity.registerLimits.memberRegisterLimit - uint16(requests[i].members.length) > 0, "Illegal MemeberRegisterLimit");
-      require(profileEntity.limits.memberRegisterLimit - uint16(requests[i].members.length) > 0, "Illegal RegisterLimit");
-      memberEntity.registerLimits.memberRegisterLimit -= uint16(requests[i].members.length); 
-      profileEntity.limits.memberRegisterLimit -= uint16(requests[i].members.length);
+      require(profileMemberEntity.registerLimits.memberRegisterLimit - uint16(requests[i].members.length) > 0, "Illegal MemeberRegisterLimit");
+      require(profileEntity.registerLimits.memberRegisterLimit - uint16(requests[i].members.length) > 0, "Illegal RegisterLimit");
+      profileMemberEntity.registerLimits.memberRegisterLimit -= uint16(requests[i].members.length); 
+      profileEntity.registerLimits.memberRegisterLimit -= uint16(requests[i].members.length);
 
       for (uint256 j = 0; j < requests[i].members.length; j++) {
         bytes32 newMemberId = LACLUtils.accountGenerateId(requests[i].members[j].account);      
@@ -80,25 +82,33 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
         // check type 
         TypeEntity storage typeEntity = profileEntity.profileTypeReadSlot(roleEntity.typeId);
         require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Type Updatable");
-       
+           
         // check access
         IProfileACL.ProfileAdminAccessStatus adminAccessStatus = _doCheckAdminAccess(profileEntity, roleEntity.ba.adminId, senderId, functionId);
-        if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(adminAccessStatus);
+        if(adminAccessStatus != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(adminAccessStatus);
 
         // if member already exist, it try to grant member to requested role
         if(_data.agents[newMemberId].acstat == ActivityStatus.NONE) {
-            MemberEntity storage memberEntityReq = profileEntity.profileMemberReadSlot(newMemberId);
-            if(memberEntityReq.types.contains(roleEntity.typeId)) {
-              require(typeEntity.members[newMemberId] != roleId, "Already Exist");
+            ProfileMemberEntity storage profileMemberEntityReq = profileEntity.profileMemberReadSlot(newMemberId);
+            if(profileMemberEntityReq.types.contains(roleEntity.typeId)) {
+              require(typeEntity.members[newMemberId] != requests[i].members[j].roleId, "Already Exist");
             } else {
-              require(memberEntityReq.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
-              require(memberEntityReq.typeLimit > memberEntityReq.types.length(), "Illegal Member Types");
-              memberEntityReq.types.add(roleEntity.typeId);  
+              require(profileMemberEntityReq.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
+              require(profileMemberEntityReq.typeLimit > profileMemberEntityReq.types.length(), "Illegal Member Types");
+              profileMemberEntityReq.types.add(roleEntity.typeId);  
             }
 
-            typeEntity.members[newMemberId] = roleId;
+            // create profile account for member
+            _checkProfileAccount(requests[i].profileId, roleEntity.typeId, profileMemberEntityReq);
+
+            // check admin
+            if(roleEntity.typeId == _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID) {
+              profileEntity.admins.add(newMemberId);
+            }
+
+            typeEntity.members[newMemberId] = requests[i].members[j].roleId;
             roleEntity.memberCount += 1;
-            emit ProfileRoleMemberGranted(msg.sender, requests[i].profileId, requests[i].members[j].roleId, newMemberId, roleEntity.typeId);
+            emit ProfileMemberRoleGranted(msg.sender, requests[i].profileId, requests[i].members[j].roleId, newMemberId, roleEntity.typeId);
     
         } else {
           // add new member to type
@@ -110,13 +120,19 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
           // create new member
           ProfileMemberEntity storage newMember = profileEntity.profileMemberWriteSlot(newMemberId);
 
+          // create profileAccount
+          ProfileAccount storage profileAccount = _data.profileAccounts[memberAddress];
+          require(profileAccount.profiles.length == 0, "Illegal ProfileAccount");
+          ProfileAccount storage newProfileAccount = _data.profileAccounts[memberAddress];
+          newProfileAccount.profiles.push(profileId);
+
           // check adminId
           if(requests[i].members[j].adminId != bytes32(0)) {
-            adminAccessStatus = _doCheckAdminAccess(profileEntity, _LIVELY_VERSE_MEMBER_MASTER_TYPE_ID, senderId, functionId);
+            adminAccessStatus = _doCheckAdminAccess(profileEntity, _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID, senderId, functionId);
             if(adminAccessStatus != IProfileACL.ProfileAdminAccessStatus.PERMITTED) revert IProfileACL.ProfileSetAdminForbidden(adminAccessStatus);
             newMember.ba.adminId = requests[i].members[j].adminId;
           } else {
-            newMember.ba.adminId = _LIVELY_VERSE_MEMBER_MASTER_TYPE_ID;
+            newMember.ba.adminId = _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID;
           }
           
           newMember.ba.atype = AgentType.MEMBER;
@@ -125,7 +141,7 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
           newMember.account = requests[i].members[j].account;
           newMember.types.add(roleEntity.typeId);
           newMember.typeLimit = profileEntity.limits.typeLimit;
-          newMember.callLimit = profileEntity.limits.callLimit;
+          newMember.callLimit = profileEntity.limits.memberCallLimit;
           newMember.registerLimits = requests[i].members[j].registerLimit;
 
           emit ProfileMemberRegistered(
@@ -153,6 +169,13 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
         IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, memberEntity.ba.adminId, senderId, functionId);
         if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
         require(requests[i].data[j].acstat > ActivityStatus.DELETED, "Illegal Activity");
+        ProfileAccount storage profileAccount = _data.profileAccounts[memberAddress];
+        for (uint k = 0; k < profileAccount.profiles.length; k++) {
+          if(profileAccount.profiles[i].profileId == profileId) {
+            require(profileAccount.profiles[i].atype != ProfileAccountType.OWNER, "Illegal Member");
+            break;
+          }
+        }
         memberEntity.ba.acstat = requests[i].data[j].acstat;
         emit ProfileMemberActivityUpdated(msg.sender, requests[i].profileId, requests[i].data[j].entityId, requests[i].data[j].acstat);
       }
@@ -185,12 +208,12 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
         ProfileMemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].data[j].entityId, senderId, functionId);
 
         // checking requested admin of member
-        if (requests[i].adminId != bytes32(0)) {
-          BaseAgent storage requestedAdminAgent = _data.agents[requests[i].adminId];
+        if (requests[i].data[j].adminId != bytes32(0)) {
+          BaseAgent storage requestedAdminAgent = _data.agents[requests[i].data[j].adminId];
           require(requestedAdminAgent.atype > AgentType.MEMBER, "Illegal Admin AgentType");       
-          memberEntity.ba.adminId = requests[i].adminId;      
+          memberEntity.ba.adminId = requests[i].data[j].adminId;      
         } else {
-          memberEntity.ba.adminId = _LIVELY_VERSE_MEMBER_MASTER_TYPE_ID;
+          memberEntity.ba.adminId = _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID;
         }
         emit ProfileMemberAdminUpdated(msg.sender, requests[i].profileId, requests[i].data[j].entityId, requests[i].data[j].adminId);
       }
@@ -202,11 +225,11 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
     for(uint i = 0; i < requests.length; i++) {
       (ProfileEntity storage profileEntity, bytes32 functionId) = _accessPermission(requests[i].profileId, IProfileMemberManagement.profileMemberUpdateTypeLimit.selector);
       bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
-      for(uint j = 0; i < requests[i].data.length; j++) {
-        ProfileMemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].data[j].memberId, senderId, functionId);
-        require(requests[i].data[j].limit > memberEntity.types.length(), "Illegal Limit" );
-        memberEntity.typeLimit = requests[i].data[j].limit;
-        emit ProfileMemberTypeLimitUpdated(msg.sender, requests[i].profileId, requests[i].data[j].memberId, requests[i].data[j].limit);
+      for(uint j = 0; i < requests[i].limits.length; j++) {
+        ProfileMemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].limits[j].memberId, senderId, functionId);
+        require(requests[i].limits[j].limit > memberEntity.types.length(), "Illegal Limit" );
+        memberEntity.typeLimit = requests[i].limits[j].limit;
+        emit ProfileMemberTypeLimitUpdated(msg.sender, requests[i].profileId, requests[i].limits[j].memberId, requests[i].limits[j].limit);
       }
     }
     return true;
@@ -216,10 +239,10 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
     for(uint i = 0; i < requests.length; i++) {
       (ProfileEntity storage profileEntity, bytes32 functionId) = _accessPermission(requests[i].profileId, IProfileMemberManagement.profileMemberUpdateRegsiterLimit.selector);
       bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
-      for(uint j = 0; i < requests[i].data.length; j++) {
-        ProfileMemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].data[j].memberId, senderId, functionId);
-        memberEntity.factoryLimit = requests[i].data[j].registerLimits;
-        emit ProfileMemberFactoryLimitUpdated(msg.sender, requests[i].profileId, requests[i].data[j].memberId, requests[i].data[j].registerLimits);
+      for(uint j = 0; i < requests[i].registerLimits.length; j++) {
+        ProfileMemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].registerLimits[j].memberId, senderId, functionId);
+        memberEntity.registerLimits = requests[i].registerLimits[j].registerLimit;
+        emit ProfileMemberRegisterLimitUpdated(msg.sender, requests[i].profileId, requests[i].registerLimits[j].memberId, requests[i].registerLimits[j].registerLimit);
       }
     }
     return true;
@@ -229,10 +252,10 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
     for(uint i = 0; i < requests.length; i++) {
       (ProfileEntity storage profileEntity, bytes32 functionId) = _accessPermission(requests[i].profileId, IProfileMemberManagement.profielMemberUpdateCallLimit.selector);
       bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
-      for(uint j = 0; i < requests[i].data.length; j++) {
-        ProfileMemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].data[j].memberId, senderId, functionId);
-        memberEntity.callLimit = requests[i].data[j].limit;
-        emit ProfileMemberCallLimitUpdated(msg.sender, requests[i].profileId, requests[i].data.memberId, requests[i].data.limit);
+      for(uint j = 0; i < requests[i].limits.length; j++) {
+        ProfileMemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].limits[j].memberId, senderId, functionId);
+        memberEntity.callLimit = requests[i].limits[j].limit;
+        emit ProfileMemberCallLimitUpdated(msg.sender, requests[i].profileId, requests[i].limits[j].memberId, requests[i].limits[j].limit);
       }
     }
     return true;    
@@ -324,14 +347,14 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
       typeCount: uint32(member.types.length()),
       callLimit: member.callLimit,
       registerLimit: ProfileRegisterLimit({
-        memberRegisterLimit: member.memberRegisterLimit,
-        roleRegisterLimit: member.roleRegisterLimit,
-        typeRegisterLimit: member.typeRegisterLimit,
-        functionRegisterLimit: member.functionRegisterLimit,
-        contextRegisterLimit: member.contextRegisterLimit,
-        realmRegisterLimit: member.realmRegisterLimit,
-        domainRegisterLimit: member.domainRegisterLimit,
-        policyRegisterLimit:member.policyRegisterLimit0
+        memberRegisterLimit: member.registerLimits.memberRegisterLimit,
+        roleRegisterLimit: member.registerLimits.roleRegisterLimit,
+        typeRegisterLimit: member.registerLimits.typeRegisterLimit,
+        functionRegisterLimit: member.registerLimits.functionRegisterLimit,
+        contextRegisterLimit: member.registerLimits.contextRegisterLimit,
+        realmRegisterLimit: member.registerLimits.realmRegisterLimit,
+        domainRegisterLimit: member.registerLimits.domainRegisterLimit,
+        policyRegisterLimit:member.registerLimits.policyRegisterLimit
       }),
       atype: member.ba.atype,
       acstat: member.ba.acstat,
@@ -341,7 +364,7 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
 
   function _doCheckAdminAccess(ProfileEntity storage profileEntity, bytes32 adminId, bytes32 senderId, bytes32 functionId) internal view returns (IProfileACL.ProfileAdminAccessStatus) {
     // owners always access to all entities to modify those
-    if(profileEntity.owners.contains(senderId)) return IProfileACL.ProfileAdminAccessStatus.PERMITTED;
+    if(profileEntity.admins.contains(senderId)) return IProfileACL.ProfileAdminAccessStatus.PERMITTED;
 
     (FunctionEntity storage functionEntity, bool res) = profileEntity.profileFunctionTryReadSlot(functionId);    
     if (!res) return IProfileACL.ProfileAdminAccessStatus.FUNCTION_NOT_FOUND;
@@ -389,15 +412,15 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
   function _accessPermission(bytes32 profileId, bytes4 selector) internal returns (ProfileEntity storage, bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
-    ProfileEntity storage profileEntity = data.profiles[profileId];
+    ProfileEntity storage profileEntity = _data.profiles[profileId];
     if(profileEntity.acstat != ActivityStatus.ENABLED) {
-      LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.PROFILE_ACTIVITY_FORBIDDEN);
+      LACLUtils.generateProfileAuthorizationError(IProfileACL.ProfileAuthorizationStatus.PROFILE_ACTIVITY_FORBIDDEN);
     }
     address functionFacetId = _data.selectors[selector];
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector); 
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
-    ProfileAuthorizationStatus status = IProfileACL(address(this)).profileHasMemberAccess(profileEntity, functionId, senderId);
-    if(status != ProfileAuthorizationStatus.PERMITTED) LACLUtils.generateProfileAuthorizationError(status);
+    IProfileACL.ProfileAuthorizationStatus status = ProfileAccessControl(address(this)).profileHasMemberAccess(profileEntity, functionId, senderId);
+    if(status != IProfileACL.ProfileAuthorizationStatus.PERMITTED) LACLUtils.generateProfileAuthorizationError(status);
     return (profileEntity, functionId);
   }
 
@@ -409,19 +432,20 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
     return memberEntity;
   }
 
-  // function _doRoleGrantMember(ProfileEntity storage profileEntity, TypeEntity storage typeEntity, RoleEntity storage roleEntity, bytes32 roleId, bytes32 memberId) internal returns (bool) {  
-  //   require(roleEntity.memberCount < roleEntity.memberLimit, "Illegal Grant");
-  //   MemberEntity storage memberEntity = profileEntity.profileMemberReadSlot(memberId);
-  //   if(memberEntity.types.contains(roleEntity.typeId)) {
-  //     require(typeEntity.members[memberId] != roleId, "Already Exist");
-  //   } else {
-  //     require(memberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
-  //     require(memberEntity.typeLimit > memberEntity.types.length(), "Illegal Member Types");
-  //     memberEntity.types.add(roleEntity.typeId);  
-  //   }
-  //   typeEntity.members[memberId] = roleId;
-  //   roleEntity.memberCount += 1;
-  //   emit ProfileRoleMemberGranted(msg.sender, requests[i].profileId, requests[i].data[j].roleId, requests[i].data[j].members[k], roleEntity.typeId);
-  //   return true;
-  // }
+  function _checkProfileAccount(bytes32 profileId, bytes32 typeId, ProfileMemberEntity storage profileMemberEntity) internal {
+    ProfileAccount storage profileAccount = _data.profileAccounts[memberAddress];
+    bool findFlag = false;
+    for (uint i = 0; i < profileAccount.profiles.length; i++) {
+      if(profileAccount.profiles[i] == profileId) {
+        if((profileMemberEntity.types.contains(_LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID) || 
+          profileMemberEntity.types.contains(_LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID)) &&
+          (typeId == _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID || typeId == _LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID)
+        ) {
+          revert ("Illegal GrantMemberType");
+        }      
+        findFlag = true;
+        break;
+      }
+    }
+  }
 }

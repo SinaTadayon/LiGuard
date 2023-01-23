@@ -470,7 +470,7 @@ contract ProfilePolicyManager is ACLStorage, BaseUUPSProxy, IProfilePolicyManage
 
   function _getMemberPolicyScopeInfo(ProfileEntity storage profileEntity, address account) internal view returns (ScopeType, bytes32){
     bytes32 memberId = LACLUtils.accountGenerateId(account);  
-    TypeEntity storage policyMasterType = profileEntity.typeReadSlot(_LIVELY_VERSE_POLICY_MASTER_TYPE_ID);
+    TypeEntity storage policyMasterType = profileEntity.typeReadSlot(_LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID);
     bytes32 senderRoleId = policyMasterType.members[memberId];
     RoleEntity storage senderPolicyRole =  profileEntity.profileRoleReadSlot(senderRoleId);
     return (profileEntity.scopes[senderPolicyRole.scopeId].stype, senderPolicyRole.scopeId);

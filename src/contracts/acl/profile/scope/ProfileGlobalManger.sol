@@ -55,13 +55,13 @@ contract ProfileGlobalManager is ACLStorage, BaseUUPSProxy, IProfileGlobalManage
     for(uint i = 0; i < requests.length; i++) {
       (ProfileEntity storage profileEntity, bytes32 functionId) = _accessPermissionActivity(requests[i].profileId, IProfileGlobalManagement.profileGlobalUpdateActivityStatus.selector);
       bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
-      GlobalEntity storage globalEntity = profileEntity.profileGlobalReadSlot(_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
+      GlobalEntity storage globalEntity = profileEntity.profileGlobalReadSlot(_LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID);
       require(globalEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");    
       IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, globalEntity.bs.adminId, senderId, functionId);
       if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
       require(requests[i].acstat > ActivityStatus.ENABLED, "Illegal Activity");
       globalEntity.bs.acstat = requests[i].acstat;
-      emit ProfileGlobalActivityUpdated(msg.sender, requests[i].profileId, _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, requests[i].acstat);
+      emit ProfileGlobalActivityUpdated(msg.sender, requests[i].profileId, _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, requests[i].acstat);
     }
     return true;
   }
@@ -71,12 +71,12 @@ contract ProfileGlobalManager is ACLStorage, BaseUUPSProxy, IProfileGlobalManage
     for(uint i = 0; i < requests.length; i++) {
       (ProfileEntity storage profileEntity, bytes32 functionId) = _accessPermission(requests[i].profileId, IProfileGlobalManagement.profileGlobalUpdateAlterabilityStatus.selector);
       bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
-      GlobalEntity storage globalEntity = profileEntity.profileGlobalReadSlot(_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
+      GlobalEntity storage globalEntity = profileEntity.profileGlobalReadSlot(_LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID);
       IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(globalEntity.bs.adminId, senderId, functionId);
       if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       globalEntity.bs.alstat = requests[i].alstat;
-      emit ProfileGlobalAlterabilityUpdated(msg.sender, requests[i].profileId, _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, requests[i].alstat);    
+      emit ProfileGlobalAlterabilityUpdated(msg.sender, requests[i].profileId, _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, requests[i].alstat);    
     }
     return true;
   }
@@ -90,14 +90,14 @@ contract ProfileGlobalManager is ACLStorage, BaseUUPSProxy, IProfileGlobalManage
       BaseAgent storage adminBaseAgent = profileEntity.agents[requests[i].adminId];
       require(adminBaseAgent.atype > AgentType.MEMBER, "Illegal Admin AgentType");
       if (adminBaseAgent.atype == AgentType.ROLE) {
-        TypeEntity storage profileAdminType = profileEntity.profileTypeReadSlot(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID);
+        TypeEntity storage profileAdminType = profileEntity.profileTypeReadSlot(_LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID);
         require(profileAdminType.roles.contains(requests[i].adminId), "Not Found");
       } else {
-        require(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID == requests[i].adminId, "Illegal Admin");
+        require(_LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID == requests[i].adminId, "Illegal Admin");
       }
       
       globalEntity.bs.adminId = requests[i].adminId;
-      emit ProfileGlobalAdminUpdated(msg.sender, requests[i].profileId, _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, requests[i].adminId);
+      emit ProfileGlobalAdminUpdated(msg.sender, requests[i].profileId, _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, requests[i].adminId);
     }
     return true;
   }
@@ -109,7 +109,7 @@ contract ProfileGlobalManager is ACLStorage, BaseUUPSProxy, IProfileGlobalManage
       GlobalEntity storage globalEntity = _doGetEntityAndCheckAdminAccess(profileEntity, senderId, functionId);
       require(requests[i].domainLimit > globalEntity.domains.length() , "Illegal Limit");
       globalEntity.domainLimit = requests[i].domainLimit;
-      emit GlobalDomainLimitUpdated(msg.sender, requests[i].profileId, _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, requests[i].domainLimit);    
+      emit GlobalDomainLimitUpdated(msg.sender, requests[i].profileId, _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, requests[i].domainLimit);    
     }
     return true;
   }
@@ -118,7 +118,7 @@ contract ProfileGlobalManager is ACLStorage, BaseUUPSProxy, IProfileGlobalManage
     ProfileEntity storage profileEntity = _data.profiles[profileId];
     if(profileEntity.acstat == ActivityStatus.NONE) return false;
     bytes32 memberId = LACLUtils.accountGenerateId(account);
-    TypeEntity storage profileAdminType = profileEntity.profileTypeReadSlot(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID);
+    TypeEntity storage profileAdminType = profileEntity.profileTypeReadSlot(_LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID);
     return profileAdminType.members[memberId] != bytes32(0);  
   }
 
@@ -126,13 +126,13 @@ contract ProfileGlobalManager is ACLStorage, BaseUUPSProxy, IProfileGlobalManage
   function profileGlobalGetDomains(bytes32 profileId) external view returns (bytes32[] memory) {
     ProfileEntity storage profileEntity = _data.profiles[profileId];
     if(profileEntity.acstat == ActivityStatus.NONE) return new bytes32[](0);
-    GlobalEntity storage globalEntity = profileEntity.profileGlobalReadSlot(_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
+    GlobalEntity storage globalEntity = profileEntity.profileGlobalReadSlot(_LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID);
     return globalEntity.domains.values();
   }
 
   function profileGlobalGetInfo(bytes32 profileId) external view returns (ProfileGlobalInfo memory) {
     ProfileEntity storage profileEntity = _data.profiles[profileId];
-    GlobalEntity storage globalEntity = profileEntity.globalReadSlot(_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
+    GlobalEntity storage globalEntity = profileEntity.globalReadSlot(_LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID);
 
     if(profileEntity.acstat == ActivityStatus.NONE) {
       return ProfileGlobalInfo ({            
@@ -149,7 +149,7 @@ contract ProfileGlobalManager is ACLStorage, BaseUUPSProxy, IProfileGlobalManage
     }
 
     return ProfileGlobalInfo ({            
-      id: _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID,
+      id: _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID,
       adminId: globalEntity.bs.adminId,
       domainLimit: globalEntity.domainLimit,
       domainCount: uint16(globalEntity.domains.length()),      
@@ -255,7 +255,7 @@ contract ProfileGlobalManager is ACLStorage, BaseUUPSProxy, IProfileGlobalManage
   }
 
   function _doGetEntityAndCheckAdminAccess(ProfileEntity storage profileEntity, bytes32 senderId, bytes32 functionId) internal view returns (GlobalEntity storage) {
-    GlobalEntity storage globalEntity = profileEntity.profileGlobalReadSlot(_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
+    GlobalEntity storage globalEntity = profileEntity.profileGlobalReadSlot(_LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID);
     require(globalEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");    
     IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, globalEntity.bs.adminId, senderId, functionId);
     if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);

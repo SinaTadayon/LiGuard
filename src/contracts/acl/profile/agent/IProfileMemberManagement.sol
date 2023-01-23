@@ -11,7 +11,7 @@ import "../../IACLCommons.sol";
  * @dev
  *
  */
-interface IPrfoileMemberManagement is IACLCommons {
+interface IProfileMemberManagement is IACLCommons {
 
   struct ProfileMemberRegisterRequest {
     bytes32 profileId;
@@ -66,11 +66,15 @@ interface IPrfoileMemberManagement is IACLCommons {
     bytes32 adminId 
   );
 
+  event ProfileMemberRoleGranted(address indexed sender, bytes32 indexed profileId, bytes32 indexed roleId, bytes32 memberId, bytes32 typeId);
+
+  event ProfileMemberDeleted(address indexed sender, bytes32 indexed memberId, address indexed account);
+
   event ProfileMemberTypeLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed memberId, uint32 typeLimit);
 
-  event ProfileRegisterLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed memberId, ProfileRegisterLimit registerLimit);
+  event ProfileMemberRegisterLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed memberId, ProfileRegisterLimit registerLimit);
 
-  event ProfileCallLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed memberId, uint32 callLimit);
+  event ProfileMemberCallLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed memberId, uint32 callLimit);
 
   event ProfileMemberAdminUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed memberId, bytes32 adminId);
 

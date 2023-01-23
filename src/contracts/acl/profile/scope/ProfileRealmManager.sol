@@ -67,7 +67,7 @@ contract ProfileRealmManager is ACLStorage, BaseUUPSProxy, IProfileRealmManageme
 
 
       // fetch scope type and scope id of sender
-      (ScopeType memberScopeType, bytes32 memberScopeId) = _doGetMemberScopeInfoFromType(profileEntity, _LIVELY_VERSE_LIVELY_MASTER_TYPE_ID, senderId);    
+      (ScopeType memberScopeType, bytes32 memberScopeId) = _doGetMemberScopeInfoFromType(profileEntity, _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID, senderId);    
     
       for(uint j = 0; j < requests[i].realms.length; j++) {
         bytes32 newRealmId = LACLUtils.generateId(requests[i].realms[j].name);

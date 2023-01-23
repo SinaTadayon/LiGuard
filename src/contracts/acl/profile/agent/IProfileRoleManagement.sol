@@ -53,15 +53,15 @@ interface IProfileRoleManagement is IACLCommons{
 
   struct ProfileRoleMemberLimitRequest {
     bytes32 roleId;
-    uint32 memberLimit;
+    uint24 memberLimit;
   }
 
   struct ProfileRoleInfo {
     bytes32 scopeId;
     bytes32 typeId;
     bytes32 adminId;
-    uint32 memberLimit;
-    uint32 memberCount;
+    uint24 memberLimit;
+    uint24 memberCount;
     AgentType atype;
     ActivityStatus acstat;
     AlterabilityStatus alstat;   
@@ -81,7 +81,7 @@ interface IProfileRoleManagement is IACLCommons{
 
   event ProfileRoleMemberRevoked(address indexed sender, bytes32 indexed profileId, bytes32 indexed roleId, bytes32 memberId, bytes32 typeId);  
 
-  event ProfileRoleMemberLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed roleId, uint32 memberLimit);
+  event ProfileRoleMemberLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed roleId, uint24 memberLimit);
 
   event ProfileRoleAdminUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed roleId, bytes32 adminId);
 
