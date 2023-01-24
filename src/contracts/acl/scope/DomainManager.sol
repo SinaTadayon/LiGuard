@@ -118,11 +118,9 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
    bytes32 functionId = _accessPermission(IDomainManagement.domainUpdateActivityStatus.selector);
    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {
-      DomainEntity storage domainEntity = _data.domainReadSlot(requests[i].id);
-      require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-      IACL.AdminAccessStatus status = _doCheckAdminAccess(domainEntity.bs.adminId, senderId, functionId);
-      if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
+     DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId); 
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
+      domainEntity.bs.acstat = requests[i].acstat;
       emit DomainActivityUpdated(msg.sender, requests[i].id, requests[i].acstat);
     }
     return true;
@@ -130,8 +128,7 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
 
   function domainUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IDomainManagement.domainUpdateAlterabilityStatus.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
-    
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);      
     for(uint i = 0; i < requests.length; i++) {
       DomainEntity storage domainEntity = _data.domainReadSlot(requests[i].id);
       IACL.AdminAccessStatus status = _doCheckAdminAccess(domainEntity.bs.adminId, senderId, functionId);

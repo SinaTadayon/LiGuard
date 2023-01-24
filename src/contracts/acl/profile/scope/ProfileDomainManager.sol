@@ -121,11 +121,9 @@ contract ProfileDomainManager is ACLStorage, BaseUUPSProxy, IProfileDomainManage
       (ProfileEntity storage profileEntity, bytes32 functionId) = _accessPermission(requests[i].profileId, IProfileDomainManagement.profileDomainUpdateActivityStatus.selector);
       bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
       for(uint j = 0; j < requests[i].data.length; j++) {
-        DomainEntity storage domainEntity = profileEntity.profileDomainReadSlot(requests[i].data[j].entityId);
-        require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-        IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, domainEntity.bs.adminId, senderId, functionId);
-        if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
+        DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].data[j].entityId, senderId, functionId); 
         require(requests[i].data[j].acstat > ActivityStatus.DELETED, "Illegal Activity");
+        domainEntity.bs.acstat = requests[i].data[j].acstat;
         emit ProfileDomainActivityUpdated(msg.sender, requests[i].profileId, requests[i].data[j].entityId, requests[i].data[j].acstat);
       }
     }

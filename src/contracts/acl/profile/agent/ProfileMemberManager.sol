@@ -164,18 +164,9 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
       (ProfileEntity storage profileEntity, bytes32 functionId) = _accessPermission(requests[i].profileId, IProfileMemberManagement.profileMemberUpdateActivityStatus.selector);
       bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
       for(uint j = 0; i < requests[i].data.length; j++) {
-        ProfileMemberEntity storage memberEntity = profileEntity.profileMemberReadSlot(requests[i].data[j].entityId);
-        require(memberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-        IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, memberEntity.ba.adminId, senderId, functionId);
-        if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
-        require(requests[i].data[j].acstat > ActivityStatus.DELETED, "Illegal Activity");
-        ProfileAccount storage profileAccount = _data.profileAccounts[memberAddress];
-        for (uint k = 0; k < profileAccount.profiles.length; k++) {
-          if(profileAccount.profiles[i].profileId == profileId) {
-            require(profileAccount.profiles[i].atype != ProfileAccountType.OWNER, "Illegal Member");
-            break;
-          }
-        }
+        ProfileMemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].data[j].entityId, senderId, functionId);
+        require(profileEntity.owner != memberEntity.account , "Illegal Member");
+        require(requests[i].data[j].acstat > ActivityStatus.DELETED, "Illegal Activity");        
         memberEntity.ba.acstat = requests[i].data[j].acstat;
         emit ProfileMemberActivityUpdated(msg.sender, requests[i].profileId, requests[i].data[j].entityId, requests[i].data[j].acstat);
       }

@@ -99,10 +99,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     bytes32 functionId = _accessPermission(IContextManagement.contextUpdateActivityStatus.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
     for(uint i = 0; i < requests.length; i++) {
-      ContextEntity storage contextEntity = _data.contextReadSlot(requests[i].id);      
-      require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-      IACL.AdminAccessStatus status = _doCheckAdminAccess(contextEntity.bs.adminId, senderId, functionId);
-      if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
+      ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");    
       contextEntity.bs.acstat = requests[i].acstat;
       emit ContextActivityUpdated(msg.sender, requests[i].id, requests[i].acstat);
@@ -152,7 +149,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
   }
 
   function contextUpdateFunctionLimit(ContextUpdateFunctionLimitRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IContextManagement.contextUpdateAgentLimit.selector);
+    bytes32 functionId = _accessPermission(IContextManagement.contextUpdateFunctionLimit.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
     for (uint256 i = 0; i < requests.length; i++) {
       ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(requests[i].contextId, senderId, functionId);
@@ -296,7 +293,6 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
         contractId: address(0),
         functionCount: 0,
         functionLimit: 0,
-        agentLimit: 0,
         referredByAgent: 0,
         adminType: AgentType.NONE,
         stype: ScopeType.NONE,
@@ -313,7 +309,6 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
       contractId: ce.contractId,
       functionCount: uint16(ce.functions.length()),
       functionLimit: ce.functionLimit,
-      agentLimit: ce.bs.agentLimit,
       referredByAgent: ce.bs.referredByAgent,
       adminType: _data.agents[ce.bs.adminId].atype,
       stype: ce.bs.stype,

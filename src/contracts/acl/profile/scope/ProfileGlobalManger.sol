@@ -55,10 +55,7 @@ contract ProfileGlobalManager is ACLStorage, BaseUUPSProxy, IProfileGlobalManage
     for(uint i = 0; i < requests.length; i++) {
       (ProfileEntity storage profileEntity, bytes32 functionId) = _accessPermissionActivity(requests[i].profileId, IProfileGlobalManagement.profileGlobalUpdateActivityStatus.selector);
       bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
-      GlobalEntity storage globalEntity = profileEntity.profileGlobalReadSlot(_LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID);
-      require(globalEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");    
-      IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, globalEntity.bs.adminId, senderId, functionId);
-      if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
+      GlobalEntity storage globalEntity = _doGetEntityAndCheckAdminAccess(profileEntity, senderId, functionId);
       require(requests[i].acstat > ActivityStatus.ENABLED, "Illegal Activity");
       globalEntity.bs.acstat = requests[i].acstat;
       emit ProfileGlobalActivityUpdated(msg.sender, requests[i].profileId, _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, requests[i].acstat);

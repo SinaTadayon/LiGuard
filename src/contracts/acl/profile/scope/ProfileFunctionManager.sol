@@ -152,10 +152,7 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
       (ProfileEntity storage profileEntity, bytes32 functionId) = _accessPermission(requests[i].profileId, IProfileFunctionManagement.profileFunctionUpdateActivityStatus.selector);
       bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);        
       for(uint j = 0; j < requests[i].data.length; j++) {
-        FunctionEntity storage functionEntity = profileEntity.profileFunctionReadSlot(requests[i].data[j].entityId);
-        require(functionEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-        IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, functionEntity.bs.adminId, senderId, functionId);
-        if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
+        FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].data[j].entityId, senderId, functionId);        
         require(requests[i].data[j].acstat != ActivityStatus.NONE, "Illegal Activity");
         functionEntity.bs.acstat = requests[i].data[j].acstat;
         emit ProfileFunctionActivityUpdated(msg.sender, requests[i].profileId, requests[i].data[j].entityId, requests[i].data[j].acstat);        

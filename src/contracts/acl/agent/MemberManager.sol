@@ -129,10 +129,7 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
     bytes32 functionId = _accessPermission(IMemberManagement.memberUpdateActivityStatus.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {      
-      MemberEntity storage memberEntity = _data.memberReadSlot(requests[i].id);      
-      require(memberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-      IACL.AdminAccessStatus adminAccessStatus = _doCheckAdminAccess(memberEntity.ba.adminId, senderId, functionId);
-      if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
+      MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
       memberEntity.ba.acstat = requests[i].acstat;
       emit MemberActivityUpdated(msg.sender, requests[i].id, requests[i].acstat);

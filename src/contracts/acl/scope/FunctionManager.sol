@@ -144,14 +144,10 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     bytes32 functionId = _accessPermission(IFunctionManagement.functionUpdateActivityStatus.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {
-      FunctionEntity storage functionEntity = _data.functionReadSlot(requests[i].id);
-      require(functionEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-      IACL.AdminAccessStatus status = _doCheckAdminAccess(functionEntity.bs.adminId, senderId, functionId);
-      if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
+      FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(requests[i].functionId, senderId, functionId);
       require(requests[i].acstat != ActivityStatus.NONE, "Illegal Activity");
       functionEntity.bs.acstat = requests[i].acstat;
-      emit FunctionActivityUpdated(msg.sender, requests[i].id, requests[i].acstat);
-      
+      emit FunctionActivityUpdated(msg.sender, requests[i].id, requests[i].acstat);      
     }
     return true;
   }

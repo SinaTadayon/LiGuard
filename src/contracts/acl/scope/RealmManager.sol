@@ -147,13 +147,10 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     bytes32 functionId = _accessPermission(IRealmManagement.realmUpdateActivityStatus.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {
-      RealmEntity storage realmEntity = _data.realmReadSlot(requests[i].id);      
-      require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");    
-      IACL.AdminAccessStatus status = _doCheckAdminAccess(realmEntity.bs.adminId, senderId, functionId);
-      if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);  
+      RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);      
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");  
       realmEntity.bs.acstat = requests[i].acstat;
-    emit RealmActivityUpdated(msg.sender, requests[i].id, requests[i].acstat);
+      emit RealmActivityUpdated(msg.sender, requests[i].id, requests[i].acstat);
     }
     return true;
   }

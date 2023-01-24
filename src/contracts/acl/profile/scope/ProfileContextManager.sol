@@ -100,10 +100,7 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
       (ProfileEntity storage profileEntity, bytes32 functionId) = _accessPermission(requests[i].profileId, IProfileContextManagement.profileContextUpdateActivityStatus.selector);
       bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);        
       for(uint j = 0; j < requests[i].data.length; j++) {
-        ContextEntity storage contextEntity = profileEntity.profileContextReadSlot(requests[i].data[j].entityId);
-        require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-        IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, contextEntity.bs.adminId, senderId, functionId);
-        if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
+        ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].data[j].entityId, senderId, functionId);
         require(requests[i].data[j].acstat > ActivityStatus.DELETED, "Illegal Activity");    
         contextEntity.bs.acstat = requests[i].data[j].acstat;
         emit ProfileContextActivityUpdated(msg.sender, requests[i].profileId, requests[i].data[j].id, requests[i].data[j].acstat);
@@ -122,7 +119,7 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
         if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
         require(requests[i].data[j].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
         contextEntity.bs.alstat = requests[i].data[j].alstat;
-        emit ContextAlterabilityUpdated(msg.sender, requests[i].profileId, requests[i].data[j].id, requests[i].data[j].alstat);
+        emit ProfileContextAlterabilityUpdated(msg.sender, requests[i].profileId, requests[i].data[j].id, requests[i].data[j].alstat);
       }
     }
     return true;

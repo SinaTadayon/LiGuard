@@ -189,55 +189,159 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
     }
   }
 
-  function profileUpdateActivityStatus(ProfileUpdateActivityRequest[] calldata requests) external returns (bool) {
-
+  function profileUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
+    bytes32 functionId = _accessPermission(IProfileManagement.profileUpdateActivityStatus.selector);
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
+    for(uint i = 0; i < requests.length; i++) {
+      ProfileEntity storage profileEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
+      require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");  
+      profileEntity.acstat = requests[i].acstat;
+      emit ProfileActivityUpdated(msg.sender, requests[i].id, requests[i].acstat);
+    }
+    return true;
   }
 
-  function profileUpdateAlterabilityStatus(ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool) {
-
+  function profileUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
+    bytes32 functionId = _accessPermission(IProfileManagement.profileUpdateAlterabilityStatus.selector);
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
+    for(uint i = 0; i < requests.length; i++) {
+      ProfileEntity storage profileEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
+      require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
+      profileEntity.alstat = requests[i].alstat;
+      emit ProfileAlterabilityUpdated(msg.sender, requests[i].id, requests[i].alstat);
+    }
+    return true;
   }
 
-  function profileUpdateAdmin(ProfileUpdateAdminRequest[] calldata requests) external returns (bool) {
+  function profileUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool) {
+    bytes32 functionId = _accessPermission(IProfileManagement.profileUpdateAdmin.selector);
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
+    for(uint i = 0; i < requests.length; i++) {
+      ProfileEntity storage profileEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
+      
+      // checking requested domain admin 
+      if(requests[i].adminId != bytes32(0)) {
+        require(_data.agents[requests[i].adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
+        bytes32 requestAdminScopeId = _doAgentGetScopeInfo(requests[i].adminId);
+        require(requestAdminScopeId == _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Amind Scope");
+        profileEntity.adminId = requests[i].adminId;
+      } else {
+        profileEntity.adminId = _LIVELY_VERSE_PROFILE_MASTER_TYPE_ID;
+      }
 
+      emit DomainAdminUpdated(msg.sender, requests[i].id, requests[i].adminId);
+    }
   }
 
   function profileCheckId(bytes32 profileId) external view returns (bool) {
-
+    return _data.profiles[profileId].acstat != ActivityStatus.NONE;
   }
 
   function profileCheckName(string calldata name) external view returns (bool) {
-
+    return _data.profiles[LACLUtils.generateId(name)].acstat != ActivityStatus.NONE;
   }
 
   function profileCheckOwner(bytes32 profileId, address account) external view returns (bool) {
+    return _data.profiles[profileId].owner == account;
+  }
 
+  function profileCheckLivelyAdmin(bytes32 profileId, address account) external view returns (bool) {
+    return _data.profiles[profileId].admins.contains(LACLUtils.accountGenerateId(account));
+  }
+
+  function profileCheckLivelySystemAdmin(bytes32 profileId, address account) external view returns (bool) {
+    ProfileEntity storage profileEntity =  _data.profiles[profileId];
+    if(profileEntity.acstat == ActivityStatus.NONE) return false;
+    (ProfileMemberEntity storage profileMemberEntity, bool result) = profileEntity.profileMemberTryReadSlot(LACLUtils.accountGenerateId(account));
+    if(!result) return false;
+    return profileMemberEntity.types.contains(_LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID);
   }
 
   function profileCheckAdmin(bytes32 profileId, address account) external view returns (bool) {
+    ProfileEntity storage profileEntity =  _data.profiles[profileId];
+    if(profileEntity.acstat == ActivityStatus.NONE) return false;
 
+    bytes32 profileAdminId = profileEntity.adminId;
+    AgentType agentType = _data.agents[profileAdminId].atype;
+    bytes32 memberId = LACLUtils.accountGenerateId(account);
+
+    if(agentType == AgentType.ROLE) {
+       (RoleEntity storage roleEntity, bool result) = _data.roleTryReadSlot(profileAdminId);
+      if(!result) return false;
+
+      (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(roleEntity.typeId);
+      if(!result1) return false;  
+
+      return typeEntity.members[memberId] != bytes32(0);
+    
+    } else if(agentType == AgentType.TYPE) {
+      (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(profileAdminId);
+      if(!result1) return false;  
+
+      return typeEntity.members[memberId] != bytes32(0);  
+    }
+  
+    return false;
   }
 
-  function profileGetAccountInfo(address account) external view returns (ProfileAccount[] memory) {
-
+  function profileGetProfileAccount(address account) external view returns (bytes32[] memory) {
+    return _data.profileAccounts[account].profiles;
   }
 
   function profileGetAdmins(bytes32 profileId) external view returns (bytes32[] memory) {
-
-  }
-
-  function profileGetSystemAdmins(bytes32 profileId) external view returns (bytes32[] memory) {
-
+    return _data.profiles[profileId].admins.values();
   }
 
   function profileGetInfo(bytes32 profileId) external view returns (ProfileInfo memory) {
+    ProfileEntity storage profileEntity =  _data.profiles[profileId];
+    if(profileEntity.acstat == ActivityStatus.NONE) {
+      return ProfileInfo ({
+        name: "",
+        expiredAt: 0,
+        adminId: bytes32(0),
+        owner: address(0),
+        registerLimits: ProfileRegisterLimit({
+          memberRegisterLimit: 0,
+          roleRegisterLimit: 0,
+          typeRegisterLimit: 0,
+          functionRegisterLimit: 0,
+          contextRegisterLimit: 0,
+          realmRegisterLimit: 0,
+          domainRegisterLimit: 0,
+          policyRegisterLimit: 0
+        }),
+        limits: ProfileLimit({
+          profileCallLimit: 0,
+          contextLimit: 0,
+          memberLimit: 0,
+          functionLimit: 0,
+          realmLimit: 0,
+          domainLimit: 0,
+          memberCallLimit: 0,
+          typeRoleLimit: 0,
+          typeLimit: 0,
+          policyRoleLimit: 0
+        }),
+        acstat: ActivityStatus.NONE,
+        alstat: AlterabilityStatus.NONE
+      });
+    }
 
-  }  
+    return ProfileInfo ({
+      name: profileEntity.name,
+      expiredAt: profileEntity.expiredAt,
+      adminId: profileEntity.adminId,
+      owner: profileEntity.owner,
+      registerLimits: profileEntity.registerLimits,
+      limits: profileEntity.limits,
+      acstat: profileEntity.acstat,
+      alstat: profileEntity.alstat
+    });
+  }
 
   function _doCheckAdminAccess(bytes32 adminId, bytes32 memberId, bytes32 functionId) internal view returns (IACL.AdminAccessStatus) {
     (FunctionEntity storage functionEntity, bool res) = _data.functionTryReadSlot(functionId);    
     if (!res) return IACL.AdminAccessStatus.FUNCTION_NOT_FOUND;
-
-    // if(_data.agents[memberId].acstat != ActivityStatus.ENABLED) return false;
     
     AgentType adminAgentType = _data.agents[adminId].atype;
     if(adminAgentType == AgentType.ROLE) {
@@ -286,6 +390,20 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
     IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
     if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
     return functionId;
+  }
+
+  function _doAgentGetScopeInfo(bytes32 agentId) internal view returns (bytes32) {
+    AgentType atype = _data.agents[agentId].atype;
+    if (atype == AgentType.ROLE) {
+      RoleEntity storage roleEntity = _data.roleReadSlot(agentId);
+      return  roleEntity.scopeId;
+
+    } else if(atype == AgentType.TYPE) {
+      TypeEntity storage typeEntity = _data.typeReadSlot(agentId);
+      return typeEntity.scopeId;
+    }
+
+    return bytes32(0);  
   }
 
   function _doGetScopeFromType(bytes32 typeId, bytes32 senderId) internal view returns (ScopeType, bytes32) {    

@@ -40,24 +40,12 @@ interface IProfileManagement is IACLCommons {
     uint64 expiredAt;
   }
 
-  // struct ProfileAddAdminRequest {
-  //   bytes32 profile;
-  //   address[] admins;
-  //   address[] systemAdmins;
-  // }
-
-  // struct ProfileRemoveAdminRequest {
-  //   bytes32 profile;
-  //   address[] admins;
-  //   address[] systemAdmins;
-  // }
-
   struct ProfileInfo {
     string name;    
     uint64 expiredAt;
     bytes32 adminId;
     address owner;
-    ProfileRegisterLimit registerlimits;
+    ProfileRegisterLimit registerLimits;
     ProfileLimit limits;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
@@ -86,7 +74,7 @@ interface IProfileManagement is IACLCommons {
   
   event ProfileOwnerAccountUpdated(address indexed sender, bytes32 indexed profileId, address indexed owner, address newOwner);
 
-  function profileRegister(ProfileRegisterRequest calldata request) external returns (bytes32);
+  function profileRegister(ProfileRegisterRequest[] calldata request) external returns (bool);
 
   function profileUpdateLimits(ProfileUpdateLimitsRequest[] calldata requests) external returns (bool);
 
@@ -94,11 +82,11 @@ interface IProfileManagement is IACLCommons {
 
   function profielUpdateOwnerAccount(ProfileUpdateOwnerAccountRequest[] calldata requests) external returns (bool);
 
-  function profileUpdateActivityStatus(ProfileUpdateActivityRequest[] calldata requests) external returns (bool);
+  function profileUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
 
-  function profileUpdateAlterabilityStatus(ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool);
+  function profileUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
-  function profileUpdateAdmin(ProfileUpdateAdminRequest[] calldata requests) external returns (bool);
+  function profileUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);
 
   function profileCheckId(bytes32 profileId) external view returns (bool);
 
@@ -112,11 +100,9 @@ interface IProfileManagement is IACLCommons {
 
   function profileCheckAdmin(bytes32 profileId, address account) external view returns (bool);
 
-  function profileGetProfileAccount(address account) external view returns (ProfileAccount[] memory);
+  function profileGetProfileAccount(address account) external view returns (bytes32[] memory);
 
-  function profileGetAdmins(bytes32 profileId) external view returns (bytes32[] memory);
-
-  function profileGetSystemAdmins(bytes32 profileId) external view returns (bytes32[] memory);
+  function profileGetAdmins(bytes32 profileId) external view returns (bytes32[] memory); 
 
   function profileGetInfo(bytes32 profileId) external view returns (ProfileInfo memory);
  

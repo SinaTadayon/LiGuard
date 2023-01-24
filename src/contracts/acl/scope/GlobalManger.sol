@@ -54,10 +54,7 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
   function globalUpdateActivityStatus(ActivityStatus acstat) external returns (ActivityStatus) {  
     bytes32 functionId = _accessPermissionActivity(IGlobalManagement.globalUpdateActivityStatus.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
-    GlobalEntity storage globalEntity = _data.globalReadSlot(_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
-    require(globalEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");    
-    IACL.AdminAccessStatus status = _doCheckAdminAccess(globalEntity.bs.adminId, senderId, functionId);
-    if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
+    GlobalEntity storage globalEntity = _doGetEntityAndCheckAdminAccess(senderId, functionId);
     require(acstat > ActivityStatus.DELETED, "Illegal Activity");
     globalEntity.bs.acstat = acstat;
     emit GlobalActivityUpdated(msg.sender, _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, globalEntity.bs.acstat);    
