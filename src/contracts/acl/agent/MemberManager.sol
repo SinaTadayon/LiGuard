@@ -172,7 +172,7 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
   }
 
   function memberUpdateGeneralLimit(MemberUpdateGeneralLimitRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IMemberManagement.memberUpdateTypeLimit.selector);
+    bytes32 functionId = _accessPermission(IMemberManagement.memberUpdateGeneralLimit.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     for (uint256 i = 0; i < requests.length; i++) {
       MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].memberId, senderId, functionId);

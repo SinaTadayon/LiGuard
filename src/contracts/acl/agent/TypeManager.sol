@@ -119,7 +119,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
   }
 
   function typeUpdateScope(UpdateScopeRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(ITypeManagement.typeUpdateAdmin.selector);
+    bytes32 functionId = _accessPermission(ITypeManagement.typeUpdateScope.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     ScopeType senderScopeType;
     bytes32 senderScopeId;

@@ -42,7 +42,6 @@ interface IContextManagement is IACLCommons{
     address contractId;
     uint16 functionCount;
     uint16 functionLimit;
-    uint32 agentLimit;
     uint32 referredByAgent;
     AgentType adminType;
     ScopeType stype;

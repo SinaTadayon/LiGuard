@@ -51,7 +51,6 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
       super.supportsInterface(interfaceId);
   }
 
-
   function realmRegister(RealmRegisterRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IRealmManagement.realmRegister.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  

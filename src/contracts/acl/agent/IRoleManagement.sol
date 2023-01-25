@@ -58,6 +58,8 @@ interface IRoleManagement is IACLCommons{
     bytes32 scopeId
   );
 
+  event RoleMemberDeleted(address indexed sender, bytes32 indexed roleId, bytes32 indexed memberId, bytes32 typeId, address account);
+
   event RoleMemberGranted(address indexed sender, bytes32 indexed roleId, bytes32 indexed memberId, bytes32 typeId);
 
   event RoleMemberRevoked(address indexed sender, bytes32 indexed roleId, bytes32 indexed memberId, bytes32 typeId);  

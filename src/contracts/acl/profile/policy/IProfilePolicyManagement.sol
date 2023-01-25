@@ -62,15 +62,15 @@ interface IProfilePolicyManagement is IACLCommons {
 
   struct ProfilePolicyRoleLimitRequest {
     bytes32 policyId;
-    uint32 roleLimit;
+    uint16 roleLimit;
   }
 
   struct ProfilePolicyInfo {
     bytes32 adminId;
     bytes32 scopeId;
     string name;
-    uint32 roleLimit;
-    uint32 roleCount;
+    uint16 roleLimit;
+    uint16 roleCount;
     uint8 policyCode;
     AgentType adminType;
     ScopeType scopeType;

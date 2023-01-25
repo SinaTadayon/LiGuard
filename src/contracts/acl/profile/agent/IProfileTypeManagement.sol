@@ -31,14 +31,14 @@ interface IProfileTypeManagement is IACLCommons {
 
   struct ProfileTypeRoleLimitRequest {
     bytes32 typeId;
-    uint32 roleLimit;
+    uint16 roleLimit;
   }
 
   struct ProfileTypeInfo {
     bytes32 scopeId;
     bytes32 adminId;
-    uint32 roleLimit;
-    uint32 roleCount;
+    uint16 roleLimit;
+    uint16 roleCount;
     AgentType atype;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
@@ -57,7 +57,7 @@ interface IProfileTypeManagement is IACLCommons {
 
   event ProfileTypeAlterabilityUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed typeId, AlterabilityStatus alstat);
 
-  event ProfileTypeRoleLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed typeId, uint32 roleLimit);
+  event ProfileTypeRoleLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed typeId, uint16 roleLimit);
 
   event ProfileTypeScopeUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed typeId, bytes32 scopeId);
 

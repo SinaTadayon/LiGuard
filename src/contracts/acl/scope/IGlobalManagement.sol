@@ -17,9 +17,8 @@ interface IGlobalManagement is IACLCommons{
   struct GlobalInfo {
     bytes32 id;
     bytes32 adminId;
-    uint32 domainLimit;
-    uint32 domainCount;
-    uint32 agentLimit;
+    uint16 domainLimit;
+    uint16 domainCount;
     uint32 referredByAgent;
     ScopeType stype;
     AgentType adminType;
@@ -43,9 +42,7 @@ interface IGlobalManagement is IACLCommons{
 
   function globalUpdateAdmin(bytes32 newAdminId) external returns (bool);
 
-  function globalUpdateDomainLimit(uint32 domainLimit) external returns (bool);
-
-  function globalUpdateAgentLimit(uint32 agentLimit) external returns (bool);
+  function globalUpdateDomainLimit(uint16 domainLimit) external returns (bool);
 
   function globalCheckAdmin(address account) external view returns (bool);
 

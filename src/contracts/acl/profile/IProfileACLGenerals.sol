@@ -6,7 +6,7 @@ pragma solidity 0.8.17;
 import "../IACLCommons.sol";
 
 /**
- * @title Access Control Interface
+ * @title Access Control General Interface
  * @author Sina Tadayon, https://github.com/SinaTadayon
  * @dev
  *
@@ -27,12 +27,6 @@ interface IProfileACLGenerals is IACLCommons {
 
   // Global Scope
   function getProfileGlobalScope() external pure returns (bytes32);
-
-  // profile master type
-  function getProfileMaster() external pure returns (bytes32);
-
-  // system system master
-  function getProfileSystemMaster() external pure returns (bytes32);
 
   
   // general

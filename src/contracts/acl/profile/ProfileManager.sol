@@ -178,7 +178,7 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
       ownerMember.typeLimit = profileEntity.limits.typeLimit;
       ownerMember.callLimit = profileEntity.limits.profileCallLimit;
       ownerMember.registerLimits = profileEntity.registerLimits;          
-      ownerMember.ba.adminId = _LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID;      
+      ownerMember.ba.adminId = keccak256(abi.encodePacked("ROLE.LIVELY_PROFILE.LIVELY_MASTER_ADMIN"));      
       ownerMember.ba.atype = IACLCommons.AgentType.MEMBER;
       ownerMember.ba.alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
       ownerMember.ba.acstat = IACLCommons.ActivityStatus.ENABLED;

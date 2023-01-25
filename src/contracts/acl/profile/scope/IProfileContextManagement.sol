@@ -15,10 +15,6 @@ interface IProfileContextManagement is IACLCommons {
 
   struct ProfileContextRegisterRequest {
     bytes32 profileId;
-    ProfileContextRegisterDataRequest[] contexts;
-  }
-
-  struct ProfileContextRegisterDataRequest {
     bytes32 realmId;
     bytes32 adminId;
     bytes32 salt;
@@ -58,7 +54,7 @@ interface IProfileContextManagement is IACLCommons {
   event ProfileContextRegistered(
     address indexed sender,
     bytes32 indexed profileId,
-    address indexed contextId,
+    bytes32 indexed contextId,
     bytes32 realmId,
     bytes32 adminId,
     address contractId,

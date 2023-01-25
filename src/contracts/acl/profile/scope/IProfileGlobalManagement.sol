@@ -16,7 +16,7 @@ interface IProfileGlobalManagement is IACLCommons {
  
   struct ProfileGlobalUpdateDomainLimitRequest {
     bytes32 profileId;
-    uint32 domainLimit;
+    uint16 domainLimit;
   }
 
   struct ProfileGlobalUpdateActivityRequest {
@@ -37,8 +37,8 @@ interface IProfileGlobalManagement is IACLCommons {
   struct ProfileGlobalInfo {
     bytes32 id;
     bytes32 adminId;
-    uint32 domainLimit;
-    uint32 domainCount;
+    uint16 domainLimit;
+    uint16 domainCount;
     uint32 referredByAgent;
     ScopeType stype;
     AgentType adminType;
@@ -50,7 +50,7 @@ interface IProfileGlobalManagement is IACLCommons {
   
   event ProfileGlobalDomainLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed globalId, uint32 domainLimit);  
   
-  event ProfileGlobalActiviyUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed globalId, ActivityStatus acstat);
+  event ProfileGlobalActivityUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed globalId, ActivityStatus acstat);
   
   event ProfileGlobalAlterabilityUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed globalId, AlterabilityStatus alstat);
 

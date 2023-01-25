@@ -22,7 +22,7 @@ import "../../../proxy/BaseUUPSProxy.sol";
  *
  */
 contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement {
-  using LACLStorage for DataCollection;
+  using LProfileStorage for ProfileEntity;
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
 
   constructor() {}
@@ -59,13 +59,13 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
       bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
 
       // check profile and type limitations and update it
-      MemberEntity storage memberEntity = profileEntity.profileMemberReadSlot(senderId);
-      require(memberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
+      ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(senderId);
+      require(profileMemberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
       require(profileEntity.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-      require(memberEntity.registerLimits.typeRegisterLimit - uint16(requests[i].types.length) > 0, "Illegal TypeRegisterLimit");
-      require(profileEntity.limits.typeRegisterLimit - uint16(requests[i].types.length) > 0, "Illegal RegisterLimit");
-      memberEntity.registerLimits.typeRegisterLimit -= uint16(requests[i].types.length); 
-      profileEntity.limits.typeRegisterLimit -= uint16(requests[i].types.length);
+      require(profileMemberEntity.registerLimits.typeRegisterLimit - uint16(requests[i].types.length) > 0, "Illegal TypeRegisterLimit");
+      require(profileEntity.registerLimits.typeRegisterLimit - uint16(requests[i].types.length) > 0, "Illegal RegisterLimit");
+      profileMemberEntity.registerLimits.typeRegisterLimit -= uint16(requests[i].types.length); 
+      profileEntity.registerLimits.typeRegisterLimit -= uint16(requests[i].types.length);
 
 
       // fetch scope type and scope id of sender
@@ -81,17 +81,17 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
         // );
 
         // checking requested type scope
-        BaseScope storage requestedScope = _getAndCheckRequestScope(profileEntity, requests[i].types[j].scopeId, senderScopeId, senderScopeType);
+        BaseScope storage requestedScope = _getAndCheckRequestScope(profileEntity, requests[i].types[j].scopeId, senderScopeId, senderScopeType, requests[i].profileId);
       
         // create new type
-        TypeEntity storage newType = _data.typeWriteSlot(newTypeId);
+        TypeEntity storage newType = profileEntity.profileTypeWriteSlot(newTypeId);
         newType.ba.atype = AgentType.TYPE;
         newType.ba.acstat = ActivityStatus.ENABLED;
-        newType.ba.alstat = AlterablitiyStatus.UPGRADABLE;
+        newType.ba.alstat = AlterabilityStatus.UPGRADABLE;
         newType.scopeId = requests[i].types[j].scopeId;
         newType.roleLimit = profileEntity.limits.typeRoleLimit;
         newType.name = requests[i].types[j].name;
-        newType.ba.adminId = _getTypeAdmin(profileEntity, requestedScope.stype, requestedScope.adminId, requests[i].types[j].scopeId, requests[i].types[j].adminId);
+        newType.ba.adminId = _getTypeAdmin(profileEntity, requestedScope.stype, requestedScope.adminId, requests[i].types[j].scopeId, requests[i].types[j].adminId, requests[i].profileId);
         emit ProfileTypeRegistered(
           msg.sender,
           requests[i].profileId,
@@ -117,7 +117,8 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
           profileEntity.scopes[typeEntity.scopeId].stype, 
           profileEntity.scopes[typeEntity.scopeId].adminId, 
           typeEntity.scopeId, 
-          requests[i].data[j].adminId
+          requests[i].data[j].adminId,
+          requests[i].profileId
         );
 
         emit ProfileTypeAdminUpdated(msg.sender, requests[i].profileId, requests[i].data[j].entityId, requests[i].data[j].adminId);
@@ -148,7 +149,7 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
           senderScopeId = memberAgentRole.scopeId;
         }
         
-        BaseScope storage requestScope = _getAndCheckRequestScope(profileEntity, requests[i].data[j].scopeId, senderScopeId, senderScopeType);
+        BaseScope storage requestScope = _getAndCheckRequestScope(profileEntity, requests[i].data[j].scopeId, senderScopeId, senderScopeType, requests[i].profileId);
         BaseScope storage oldScope = profileEntity.scopes[typeEntity.scopeId];
         require(requestScope.stype > oldScope.stype, "Illegal ScopeType");
         require(oldScope.referredByAgent > 0, "Illeagl ReferredByAgent");
@@ -166,9 +167,9 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
       bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);        
       for(uint j = 0; j < requests[i].data.length; j++) {
         TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].data[j].entityId, senderId, functionId);
-        require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");             
-        typeEntity.ba.acstat = requests[i].acstat;
-        emit ProfileTypeActivityUpdated(msg.sender, requests[i].profileId, requests[i].data[j].id, requests[i].data[j].acstat);
+        require(requests[i].data[j].acstat > ActivityStatus.DELETED, "Illegal Activity");             
+        typeEntity.ba.acstat = requests[i].data[j].acstat;
+        emit ProfileTypeActivityUpdated(msg.sender, requests[i].profileId, requests[i].data[j].entityId, requests[i].data[j].acstat);
       }
     }
     return true;
@@ -179,7 +180,7 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
       (ProfileEntity storage profileEntity, bytes32 functionId) = _accessPermission(requests[i].profileId, IProfileTypeManagement.profileTypeUpdateAlterabilityStatus.selector);
       bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);        
       for(uint j = 0; j < requests[i].data.length; j++) {
-        TypeEntity storage typeEntity = profileEntity.profileTypeReadSlot(requests[i].data[j].id);
+        TypeEntity storage typeEntity = profileEntity.profileTypeReadSlot(requests[i].data[j].entityId);
         IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, typeEntity.ba.adminId, senderId, functionId);
         if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
         require(requests[i].data[j].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
@@ -192,12 +193,12 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
 
   function profileTypeUpdateRoleLimit(ProfileTypeUpdateRoleLimitRequest[] calldata requests) external returns (bool) {
     for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId) = _accessPermission(requests[i].profileId, IProfileTypeManagement.profileTypeUpdateAlterabilityStatus.selector);
+      (ProfileEntity storage profileEntity, bytes32 functionId) = _accessPermission(requests[i].profileId, IProfileTypeManagement.profileTypeUpdateRoleLimit.selector);
       bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);        
       for(uint j = 0; j < requests[i].limits.length; j++) {
         TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].limits[j].typeId, senderId, functionId);
         require(requests[i].limits[j].roleLimit > typeEntity.roles.length(), "Illegal Limit");
-        typeEntity.roleLimit = requests[i].limits[j].roleLimit;
+        typeEntity.roleLimit = requests[i].limits[j].roleLimit;        
         emit ProfileTypeRoleLimitUpdated(msg.sender, requests[i].profileId, requests[i].limits[j].typeId, requests[i].limits[j].roleLimit);
       }
     }
@@ -260,7 +261,7 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
 
   function profileTypeGetInfo(bytes32 profileId, bytes32 typeId) external view returns (ProfileTypeInfo memory) {
     ProfileEntity storage profileEntity = _data.profiles[profileId];
-    (TypeEntity storage te, bool result) = _data.typeTryReadSlot(typeId);
+    (TypeEntity storage te, bool result) = profileEntity.profileTypeTryReadSlot(typeId);
     if(!result || profileEntity.acstat == ActivityStatus.NONE) {
       return ProfileTypeInfo ({
         scopeId: bytes32(0),
@@ -278,7 +279,7 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
       scopeId: te.scopeId,
       adminId: te.ba.adminId,      
       roleLimit: te.roleLimit,
-      roleCount: uint32(te.roles.length()),
+      roleCount: uint16(te.roles.length()),
       atype: te.ba.atype,
       acstat: te.ba.acstat,
       alstat: te.ba.alstat,
@@ -314,7 +315,7 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
 
   function _doCheckAdminAccess(ProfileEntity storage profileEntity, bytes32 adminId, bytes32 senderId, bytes32 functionId) internal view returns (IProfileACL.ProfileAdminAccessStatus) {
     // owners always access to all entities to modify those
-    if(profileEntity.owners.contains(senderId)) return IProfileACL.ProfileAdminAccessStatus.PERMITTED;
+    if(profileEntity.admins.contains(senderId)) return IProfileACL.ProfileAdminAccessStatus.PERMITTED;
 
     (FunctionEntity storage functionEntity, bool res) = profileEntity.profileFunctionTryReadSlot(functionId);    
     if (!res) return IProfileACL.ProfileAdminAccessStatus.FUNCTION_NOT_FOUND;
@@ -362,28 +363,28 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
   function _accessPermission(bytes32 profileId, bytes4 selector) internal returns (ProfileEntity storage, bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
-    ProfileEntity storage profileEntity = data.profiles[profileId];
+    ProfileEntity storage profileEntity = _data.profiles[profileId];
     if(profileEntity.acstat != ActivityStatus.ENABLED) {
-      LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.PROFILE_ACTIVITY_FORBIDDEN);
+      LACLUtils.generateProfileAuthorizationError(IProfileACL.ProfileAuthorizationStatus.PROFILE_ACTIVITY_FORBIDDEN);
     }
     address functionFacetId = _data.selectors[selector];
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector); 
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
-    ProfileAuthorizationStatus status = IProfileACL(address(this)).profileHasMemberAccess(profileEntity, functionId, senderId);
-    if(status != ProfileAuthorizationStatus.PERMITTED) LACLUtils.generateProfileAuthorizationError(status);
+    IProfileACL.ProfileAuthorizationStatus status = IProfileACL(address(this)).profileHasMemberAccess(profileId, functionId, senderId);
+    if(status != IProfileACL.ProfileAuthorizationStatus.PERMITTED) LACLUtils.generateProfileAuthorizationError(status);
     return (profileEntity, functionId);
   }
 
-  function _getTypeAdmin(ProfileEntity storage profileEntity, ScopeType requestScopeType, bytes32 requestScopeAdmin, bytes32 scopeId, bytes32 adminId) internal view returns (bytes32 typeAdminId) {
+  function _getTypeAdmin(ProfileEntity storage profileEntity, ScopeType requestScopeType, bytes32 requestScopeAdmin, bytes32 scopeId, bytes32 adminId, bytes32 profileId) internal view returns (bytes32 typeAdminId) {
     // checking requested type admin 
     if(adminId != bytes32(0)) {
       require(profileEntity.agents[adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
-      (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(adminId);
+      (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(profileEntity, adminId);
       require(requestScopeType <= requestAdminScopeType, "Illegal Admin ScopeType");
       if(requestScopeType == requestAdminScopeType) {
         require(requestAdminScopeId == scopeId, "Illegal Amind Scope");
       } else {
-        require(IProfileACLGenerals(address(this)).isProfileScopesCompatible(profileEntity, requestAdminScopeId, scopeId), "Illegal Admin Scope");
+        require(IProfileACLGenerals(address(this)).isProfileScopesCompatible(profileId, requestAdminScopeId, scopeId), "Illegal Admin Scope");
       }
       typeAdminId = adminId;
 
@@ -407,12 +408,11 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
     return typeEntity;
   }
 
-  function _getAndCheckRequestScope(ProfileEntity storage profileEntity, bytes32 requestScopeId, bytes32 senderScopeId, ScopeType senderScopeType) internal returns (BaseScope storage){
+  function _getAndCheckRequestScope(ProfileEntity storage profileEntity, bytes32 requestScopeId, bytes32 senderScopeId, ScopeType senderScopeType, bytes32 profileId) internal returns (BaseScope storage){
     // checking requested type scope
     BaseScope storage requestedScope = profileEntity.scopes[requestScopeId];
     require(requestedScope.stype != ScopeType.NONE , "Not Found");
     require(requestedScope.acstat > ActivityStatus.DELETED , "Scope Deleted");
-    require(requestedScope.agentLimit > requestedScope.referredByAgent, "Illegal Referred");
 
     // increase referred count to target scope
     requestedScope.referredByAgent += 1;
@@ -423,7 +423,7 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
       require(senderScopeId == requestScopeId, "Illegal Sender Scope");
 
     } else {
-      require(IProfileACLGenerals(address(this)).isProfileScopesCompatible(profileEntity, senderScopeId, requestScopeId), "Illegal Admin Scope");
+      require(IProfileACLGenerals(address(this)).isProfileScopesCompatible(profileId, senderScopeId, requestScopeId), "Illegal Admin Scope");
     }       
 
     return requestedScope;

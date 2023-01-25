@@ -121,10 +121,10 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
           ProfileMemberEntity storage newMember = profileEntity.profileMemberWriteSlot(newMemberId);
 
           // create profileAccount
-          ProfileAccount storage profileAccount = _data.profileAccounts[memberAddress];
+          ProfileAccount storage profileAccount = _data.profileAccounts[requests[i].members[j].account];
           require(profileAccount.profiles.length == 0, "Illegal ProfileAccount");
-          ProfileAccount storage newProfileAccount = _data.profileAccounts[memberAddress];
-          newProfileAccount.profiles.push(profileId);
+          ProfileAccount storage newProfileAccount = _data.profileAccounts[requests[i].members[j].account];
+          newProfileAccount.profiles.push(requests[i].profileId);
 
           // check adminId
           if(requests[i].members[j].adminId != bytes32(0)) {
@@ -410,7 +410,7 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
     address functionFacetId = _data.selectors[selector];
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector); 
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
-    IProfileACL.ProfileAuthorizationStatus status = ProfileAccessControl(address(this)).profileHasMemberAccess(profileEntity, functionId, senderId);
+    IProfileACL.ProfileAuthorizationStatus status = IProfileACL(address(this)).profileHasMemberAccess(profileId, functionId, senderId);
     if(status != IProfileACL.ProfileAuthorizationStatus.PERMITTED) LACLUtils.generateProfileAuthorizationError(status);
     return (profileEntity, functionId);
   }
@@ -423,8 +423,8 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
     return memberEntity;
   }
 
-  function _checkProfileAccount(bytes32 profileId, bytes32 typeId, ProfileMemberEntity storage profileMemberEntity) internal {
-    ProfileAccount storage profileAccount = _data.profileAccounts[memberAddress];
+  function _checkProfileAccount(bytes32 profileId, bytes32 typeId, ProfileMemberEntity storage profileMemberEntity) internal view {
+    ProfileAccount storage profileAccount = _data.profileAccounts[profileMemberEntity.account];
     bool findFlag = false;
     for (uint i = 0; i < profileAccount.profiles.length; i++) {
       if(profileAccount.profiles[i] == profileId) {

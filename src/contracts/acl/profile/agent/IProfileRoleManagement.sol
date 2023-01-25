@@ -77,6 +77,8 @@ interface IProfileRoleManagement is IACLCommons{
     bytes32 scopeId
   );
 
+  event ProfileRoleMemberDeleted(address indexed sender, bytes32 indexed profileId, bytes32 indexed memberId, bytes32 roleId, bytes32 typeId, address account);
+
   event ProfileRoleMemberGranted(address indexed sender, bytes32 indexed profileId, bytes32 indexed roleId, bytes32 memberId, bytes32 typeId);
 
   event ProfileRoleMemberRevoked(address indexed sender, bytes32 indexed profileId, bytes32 indexed roleId, bytes32 memberId, bytes32 typeId);  

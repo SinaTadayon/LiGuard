@@ -70,8 +70,6 @@ abstract contract ACLStorage is BaseUUPSStorage, IACLCommons {
 
   bytes32 internal constant _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID         = keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_MASTER"));
   bytes32 internal constant _LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID         = keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER"));
-  bytes32 internal constant _LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID   = keccak256(abi.encodePacked("ROLE.LIVELY_PROFILE.LIVELY_MASTER_ADMIN"));
-  // bytes32 internal constant _LIVELY_PROFILE_SYSTEM_MASTER_ADMIN_ROLE_ID   = keccak256(abi.encodePacked("ROLE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER_ADMIN"));
   bytes32 internal constant _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID        = keccak256(abi.encodePacked("GLOBAL.LIVELY_PROFILE"));
 
   bool internal _firstInit;

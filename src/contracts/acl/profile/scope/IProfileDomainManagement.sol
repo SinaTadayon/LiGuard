@@ -31,13 +31,13 @@ interface IProfileDomainManagement is IACLCommons {
 
   struct ProfileDomainRealmLimitRequest {   
     bytes32 domainId;
-    uint32 realmLimit;
+    uint16 realmLimit;
   }
 
   struct ProfileDomainInfo {
     bytes32 adminId;
-    uint32 realmLimit;
-    uint32 realmCount;
+    uint16 realmLimit;
+    uint16 realmCount;
     uint32 referredByAgent;
     ScopeType stype;
     AgentType adminType;

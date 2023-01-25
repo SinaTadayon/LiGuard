@@ -128,7 +128,7 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
   }
 
   function roleUpdateScope(UpdateScopeRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IRoleManagement.roleUpdateAdmin.selector);
+    bytes32 functionId = _accessPermission(IRoleManagement.roleUpdateScope.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
     for(uint i = 0; i < requests.length; i++) {
       RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
@@ -197,6 +197,14 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
         } else {
           require(memberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
           require(memberEntity.limits.typeLimit > memberEntity.types.length(), "Illegal Member Types");
+
+        if((memberEntity.types.contains(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID) || 
+            memberEntity.types.contains(_LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID)) &&
+            (roleEntity.typeId == _LIVELY_VERSE_LIVELY_MASTER_TYPE_ID || 
+            roleEntity.typeId == _LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID)) {
+          revert ("Illegal GrantMemberType");
+        }      
+
           memberEntity.types.add(roleEntity.typeId);  
         }
 
@@ -215,13 +223,12 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
       RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(requests[i].roleId, senderId, functionId);
 
       TypeEntity storage typeEntity = _data.typeReadSlot(roleEntity.typeId);
-      // require(typeEntity.ba.acstat > ActivityStatus.DISABLED, "Type Disabled");
       require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Type Updatable");  
 
       for (uint256 j = 0; j < requests[i].members.length; j++) {
         MemberEntity storage memberEntity = _data.memberReadSlot(requests[i].members[j]);
         require(memberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
-        require(memberEntity.types.length() > 1, "Illegal Member");
+        // require(memberEntity.types.length() > 1, "Illegal Member");
 
         require(typeEntity.members[requests[i].members[j]] != bytes32(0), "Not Found");
         require(roleEntity.memberCount > 0, "Illegal MemberTotal");
@@ -230,6 +237,13 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
           roleEntity.memberCount -= 1; 
         }
         memberEntity.types.remove(roleEntity.typeId);
+        if(memberEntity.types.length() == 0) { 
+          delete memberEntity.ba;
+          delete memberEntity.account;
+          delete memberEntity.limits;
+          delete memberEntity.types;
+          emit RoleMemberDeleted(msg.sender, requests[i].members[j], requests[i].roleId, roleEntity.typeId, memberEntity.account);
+        }
         emit RoleMemberRevoked(msg.sender, requests[i].roleId, requests[i].members[j], roleEntity.typeId);
       }
     }

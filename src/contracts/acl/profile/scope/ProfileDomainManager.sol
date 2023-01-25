@@ -58,13 +58,13 @@ contract ProfileDomainManager is ACLStorage, BaseUUPSProxy, IProfileDomainManage
       bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
     
       // check profile and type limitations and update it
-      MemberEntity storage memberEntity = profileEntity.profileMemberReadSlot(senderId);
-      require(memberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
+      ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(senderId);
+      require(profileMemberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
       require(profileEntity.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-      require(memberEntity.registerLimits.domainRegisterLimit - uint16(requests[i].domains.length) > 0, "Illegal DomainRegisterLimit");
-      require(profileEntity.limits.domainRegisterLimit - uint16(requests[i].domains.length) > 0, "Illegal RegisterLimit");
-      memberEntity.registerLimits.domainRegisterLimit -= uint16(requests[i].domains.length); 
-      profileEntity.limits.domainRegisterLimit -= uint16(requests[i].domains.length);
+      require(profileMemberEntity.registerLimits.domainRegisterLimit - uint16(requests[i].domains.length) > 0, "Illegal DomainRegisterLimit");
+      require(profileEntity.registerLimits.domainRegisterLimit - uint16(requests[i].domains.length) > 0, "Illegal RegisterLimit");
+      profileMemberEntity.registerLimits.domainRegisterLimit -= uint16(requests[i].domains.length); 
+      profileEntity.registerLimits.domainRegisterLimit -= uint16(requests[i].domains.length);
 
       // fetch scope type and scope id of sender
       bytes32 senderScopeId = _doGetMemberScopeInfoFromType(profileEntity, _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID, senderId);    
@@ -74,8 +74,8 @@ contract ProfileDomainManager is ACLStorage, BaseUUPSProxy, IProfileDomainManage
         require(profileEntity.scopes[newDomainId].stype == ScopeType.NONE, "Already Exist");
 
         // check sender scopes
-        GlobalEntity storage livelyGlobalEntity = profileEntity.globalReadSlot(_LIVELY_VERSE_PROFILE_GLOBAL_SCOPE_ID);
-        require(senderScopeId == _LIVELY_VERSE_PROFILE_GLOBAL_SCOPE_ID, "Illegal Global Scope");
+        GlobalEntity storage livelyGlobalEntity = profileEntity.profileGlobalReadSlot(_LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID);
+        require(senderScopeId == _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Global Scope");
         require(livelyGlobalEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Global Updatable");
         require(livelyGlobalEntity.domainLimit > livelyGlobalEntity.domains.length(), "Illegal Register");
 
@@ -98,7 +98,7 @@ contract ProfileDomainManager is ACLStorage, BaseUUPSProxy, IProfileDomainManage
         if(requests[i].domains[j].adminId != bytes32(0)) {
           require(profileEntity.agents[requests[i].domains[j].adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
           bytes32 requestAdminScopeId = _doAgentGetScopeInfo(profileEntity, requests[i].domains[j].adminId);
-          require(requestAdminScopeId == _LIVELY_VERSE_PROFILE_GLOBAL_SCOPE_ID, "Illegal Amind Scope");
+          require(requestAdminScopeId == _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Amind Scope");
           newDomain.bs.adminId = requests[i].domains[j].adminId;
         } else {
           newDomain.bs.adminId = livelyGlobalEntity.bs.adminId;
@@ -140,7 +140,7 @@ contract ProfileDomainManager is ACLStorage, BaseUUPSProxy, IProfileDomainManage
         if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
         require(requests[i].data[j].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
         domainEntity.bs.alstat = requests[i].data[j].alstat;
-        emit ProfileDomainAlterabilityUpdated(msg.sender, requests[i].profileId, requests[i].data[j].id, requests[i].data[j].alstat);
+        emit ProfileDomainAlterabilityUpdated(msg.sender, requests[i].profileId, requests[i].data[j].entityId, requests[i].data[j].alstat);
       }
     }
     return true;  
@@ -157,10 +157,10 @@ contract ProfileDomainManager is ACLStorage, BaseUUPSProxy, IProfileDomainManage
         if(requests[i].data[j].adminId != bytes32(0)) {
           require(profileEntity.agents[requests[i].data[j].adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
           bytes32 requestAdminScopeId = _doAgentGetScopeInfo(profileEntity, requests[i].data[j].adminId);
-          require(requestAdminScopeId == _LIVELY_VERSE_PROFILE_GLOBAL_SCOPE_ID, "Illegal Amind Scope");
+          require(requestAdminScopeId == _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Amind Scope");
           domainEntity.bs.adminId = requests[i].data[j].adminId;
         } else {
-          domainEntity.bs.adminId = profileEntity.scopes[_LIVELY_VERSE_PROFILE_GLOBAL_SCOPE_ID].adminId;
+          domainEntity.bs.adminId = profileEntity.scopes[_LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID].adminId;
         }
 
         emit ProfileDomainAdminUpdated(msg.sender, requests[i].profileId, requests[i].data[j].entityId, requests[i].data[j].adminId);
@@ -173,11 +173,11 @@ contract ProfileDomainManager is ACLStorage, BaseUUPSProxy, IProfileDomainManage
     for(uint i = 0; i < requests.length; i++) {
       (ProfileEntity storage profileEntity, bytes32 functionId) = _accessPermission(requests[i].profileId, IProfileDomainManagement.profileDomainUpdateRealmLimit.selector);
       bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
-      for(uint j = 0; j < requests[i].data.length; j++) {
-        DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].data[j].entityId, senderId, functionId); 
-        require(requests[i].data[j].realmLimit > domainEntity.realms.length(), "Illegal Limit");
-        domainEntity.realmLimit = requests[i].data[j].realmLimit;      
-        emit ProfileDomainRealmLimitUpdated(msg.sender, requests[i].profileId, requests[i].data[j].domainId, requests[i].data[j].realmLimit);
+      for(uint j = 0; j < requests[i].limits.length; j++) {
+        DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].limits[j].domainId, senderId, functionId); 
+        require(requests[i].limits[j].realmLimit > domainEntity.realms.length(), "Illegal Limit");
+        domainEntity.realmLimit = requests[i].limits[j].realmLimit;           
+        emit ProfileDomainRealmLimitUpdated(msg.sender, requests[i].profileId, requests[i].limits[j].domainId, requests[i].limits[j].realmLimit);
       }
     }
     return true;
@@ -270,7 +270,7 @@ contract ProfileDomainManager is ACLStorage, BaseUUPSProxy, IProfileDomainManage
 
   function profileDomainGetInfo(bytes32 profileId, bytes32 domainId) external view returns (ProfileDomainInfo memory) {
     ProfileEntity storage profileEntity = _data.profiles[profileId];
-    (DomainEntity storage de, bool result) = profileEntity.domainTryReadSlot(domainId);
+    (DomainEntity storage de, bool result) = profileEntity.profileDomainTryReadSlot(domainId);
     if(!result || profileEntity.acstat == ActivityStatus.NONE) {
       return ProfileDomainInfo ({
         adminId: bytes32(0),
@@ -300,7 +300,7 @@ contract ProfileDomainManager is ACLStorage, BaseUUPSProxy, IProfileDomainManage
 
   function _doCheckAdminAccess(ProfileEntity storage profileEntity, bytes32 adminId, bytes32 senderId, bytes32 functionId) internal view returns (IProfileACL.ProfileAdminAccessStatus) {
     // owners always access to all entities to modify those
-    if(profileEntity.owners.contains(senderId)) return IProfileACL.ProfileAdminAccessStatus.PERMITTED;
+    if(profileEntity.admins.contains(senderId)) return IProfileACL.ProfileAdminAccessStatus.PERMITTED;
 
     (FunctionEntity storage functionEntity, bool res) = profileEntity.profileFunctionTryReadSlot(functionId);    
     if (!res) return IProfileACL.ProfileAdminAccessStatus.FUNCTION_NOT_FOUND;
@@ -362,15 +362,15 @@ contract ProfileDomainManager is ACLStorage, BaseUUPSProxy, IProfileDomainManage
   function _accessPermission(bytes32 profileId, bytes4 selector) internal returns (ProfileEntity storage, bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
-    ProfileEntity storage profileEntity = data.profiles[profileId];
+    ProfileEntity storage profileEntity = _data.profiles[profileId];
     if(profileEntity.acstat != ActivityStatus.ENABLED) {
-      LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.PROFILE_ACTIVITY_FORBIDDEN);
+      LACLUtils.generateProfileAuthorizationError(IProfileACL.ProfileAuthorizationStatus.PROFILE_ACTIVITY_FORBIDDEN);
     }
     address functionFacetId = _data.selectors[selector];
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector); 
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
-    ProfileAuthorizationStatus status = IProfileACL(address(this)).profileHasMemberAccess(profileEntity, functionId, senderId);
-    if(status != ProfileAuthorizationStatus.PERMITTED) LACLUtils.generateProfileAuthorizationError(status);
+    IProfileACL.ProfileAuthorizationStatus status = IProfileACL(address(this)).profileHasMemberAccess(profileId, functionId, senderId);
+    if(status != IProfileACL.ProfileAuthorizationStatus.PERMITTED) LACLUtils.generateProfileAuthorizationError(status);
     return (profileEntity, functionId);
   }
 

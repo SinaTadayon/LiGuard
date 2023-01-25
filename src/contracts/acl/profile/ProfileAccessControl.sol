@@ -53,12 +53,12 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
   function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
     return
       interfaceId == type(IProfileACL).interfaceId ||
-      interfaceId == type(IACLGenerals).interfaceId ||
+      interfaceId == type(IProfileACLGenerals).interfaceId ||
       super.supportsInterface(interfaceId);
   }
   
   function profileHasAccess(bytes32 profileId, bytes32 functionId) external returns (ProfileAuthorizationStatus) {
-    ProfileEntity storage profileEntity = data.profiles[profileId];
+    ProfileEntity storage profileEntity = _data.profiles[profileId];
     if(profileEntity.acstat != ActivityStatus.ENABLED) return ProfileAuthorizationStatus.PROFILE_ACTIVITY_FORBIDDEN;
     (FunctionEntity storage functionEntity, bool result) = profileEntity.profileFunctionTryReadSlot(functionId);   
     if (!result) return ProfileAuthorizationStatus.FUNCTION_NOT_FOUND;
@@ -66,15 +66,15 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
   }
 
   function profileHasMemberAccess(bytes32 profileId, bytes32 functionId, bytes32 memberId) external returns (ProfileAuthorizationStatus) {
-    ProfileEntity storage profileEntity = data.profiles[profileId];
+    ProfileEntity storage profileEntity = _data.profiles[profileId];
     if(profileEntity.acstat != ActivityStatus.ENABLED) return ProfileAuthorizationStatus.PROFILE_ACTIVITY_FORBIDDEN;
     (FunctionEntity storage functionEntity, bool result) = profileEntity.profileFunctionTryReadSlot(functionId);
     if (!result) return ProfileAuthorizationStatus.FUNCTION_NOT_FOUND;
-    return _doHasAccess(profileId, memberId, functionEntity);
+    return _doHasAccess(profileEntity, memberId, functionEntity);
   }
 
   function profileHasCSAccess(bytes32 profileId, address contractId, bytes4 selector) external returns (ProfileAuthorizationStatus) {
-    ProfileEntity storage profileEntity = data.profiles[profileId];
+    ProfileEntity storage profileEntity = _data.profiles[profileId];
     if(profileEntity.acstat != ActivityStatus.ENABLED) return ProfileAuthorizationStatus.PROFILE_ACTIVITY_FORBIDDEN;
     bytes32 functionId = LACLUtils.functionGenerateId(contractId, selector);
     (FunctionEntity storage functionEntity, bool result) = profileEntity.profileFunctionTryReadSlot(functionId);
@@ -83,35 +83,8 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
   }
 
   function profileHasAccountAccess(bytes32 profileId, address contractId, bytes4 selector, address accountId) external returns (ProfileAuthorizationStatus) {
-    ProfileEntity storage profileEntity = data.profiles[profileId];
+    ProfileEntity storage profileEntity = _data.profiles[profileId];
     if(profileEntity.acstat != ActivityStatus.ENABLED) return ProfileAuthorizationStatus.PROFILE_ACTIVITY_FORBIDDEN;
-    bytes32 functionId = LACLUtils.functionGenerateId(contractId, selector);
-    bytes32 memberId = LACLUtils.accountGenerateId(accountId);
-    (FunctionEntity storage functionEntity, bool result) = profileEntity.profileFunctionTryReadSlot(functionId);
-    if (!result) return ProfileAuthorizationStatus.FUNCTION_NOT_FOUND;
-    return _doHasAccess(profileEntity, memberId, functionEntity);
-  }
-
-  function profileHasAccess(ProfileEntity storage profileEntity, bytes32 functionId) public returns (ProfileAuthorizationStatus) {
-    (FunctionEntity storage functionEntity, bool result) = profileEntity.profileFunctionTryReadSlot(functionId);   
-    if (!result) return ProfileAuthorizationStatus.FUNCTION_NOT_FOUND;
-    return _doHasAccess(profileEntity, LACLUtils.accountGenerateId(msg.sender), functionEntity);
-  }
-
-  function profileHasMemberAccess(ProfileEntity storage profileEntity, bytes32 functionId, bytes32 memberId) public returns (ProfileAuthorizationStatus) {
-    (FunctionEntity storage functionEntity, bool result) = profileEntity.profileFunctionTryReadSlot(functionId);
-    if (!result) return ProfileAuthorizationStatus.FUNCTION_NOT_FOUND;
-    return _doHasAccess(profileId, memberId, functionEntity);
-  }
-
-  function profileHasCSAccess(ProfileEntity storage profileEntity, address contractId, bytes4 selector) public returns (ProfileAuthorizationStatus) {
-    bytes32 functionId = LACLUtils.functionGenerateId(contractId, selector);
-    (FunctionEntity storage functionEntity, bool result) = profileEntity.profileFunctionTryReadSlot(functionId);
-    if (!result) return ProfileAuthorizationStatus.FUNCTION_NOT_FOUND;
-    return _doHasAccess(profileEntity, LACLUtils.accountGenerateId(msg.sender), functionEntity);
-  }
-
-  function profileHasAccountAccess(ProfileEntity storage profileEntity, address contractId, bytes4 selector, address accountId) public returns (ProfileAuthorizationStatus) {
     bytes32 functionId = LACLUtils.functionGenerateId(contractId, selector);
     bytes32 memberId = LACLUtils.accountGenerateId(accountId);
     (FunctionEntity storage functionEntity, bool result) = profileEntity.profileFunctionTryReadSlot(functionId);
@@ -141,11 +114,11 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
     if(atype == AgentType.ROLE) {
       // check member activation
       // console.log("agentId type is role");
-      (MemberEntity storage memberEntity, bool result0) = profileEntity.profileMemberTryReadSlot(memberId);
+      (ProfileMemberEntity storage profileMemberEntity, bool result0) = profileEntity.profileMemberTryReadSlot(memberId);
       if(!result0) return ProfileAuthorizationStatus.MEMBER_NOT_FOUND;
-      if(memberEntity.ba.acstat != ActivityStatus.ENABLED) return ProfileAuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN; 
-      if(memberEntity.callLimit > 0) {
-        memberEntity.callLimit -= 1;
+      if(profileMemberEntity.ba.acstat != ActivityStatus.ENABLED) return ProfileAuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN; 
+      if(profileMemberEntity.callLimit > 0) {
+        profileMemberEntity.callLimit -= 1;
       } else {
         return ProfileAuthorizationStatus.MEMBER_CALL_FORBIDDEN;
       }
@@ -178,11 +151,11 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
       // console.log("agentId is type . . .");
       if(functionEntity.agentId == _LIVELY_VERSE_ANY_TYPE_ID) {
         // console.log("agentId is ANY type . . .");
-        (MemberEntity storage memberEntity, bool result0) = profileEntity.profileMemberTryReadSlot(memberId);
+        (ProfileMemberEntity storage profileMemberEntity, bool result0) = profileEntity.profileMemberTryReadSlot(memberId);
         if(!result0) return ProfileAuthorizationStatus.MEMBER_NOT_FOUND;
-        if(memberEntity.ba.acstat != ActivityStatus.ENABLED) return ProfileAuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN;        
-        if(memberEntity.callLimit > 0) {
-          memberEntity.callLimit -= 1;
+        if(profileMemberEntity.ba.acstat != ActivityStatus.ENABLED) return ProfileAuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN;        
+        if(profileMemberEntity.callLimit > 0) {
+          profileMemberEntity.callLimit -= 1;
         } else {
           return ProfileAuthorizationStatus.MEMBER_CALL_FORBIDDEN;
         }
@@ -190,11 +163,11 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
       } else if(functionEntity.agentId != _LIVELY_VERSE_ANONYMOUS_TYPE_ID) {
         // check member activation
         // console.log("agentId is Anonymous type . . .");
-        (MemberEntity storage memberEntity, bool result0) = profileEntity.profileMemberTryReadSlot(memberId);
+        (ProfileMemberEntity storage profileMemberEntity, bool result0) = profileEntity.profileMemberTryReadSlot(memberId);
         if(!result0) return ProfileAuthorizationStatus.MEMBER_NOT_FOUND;
-        if(memberEntity.ba.acstat != ActivityStatus.ENABLED) return ProfileAuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN;
-        if(memberEntity.callLimit > 0) {
-          memberEntity.callLimit -= 1;
+        if(profileMemberEntity.ba.acstat != ActivityStatus.ENABLED) return ProfileAuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN;
+        if(profileMemberEntity.callLimit > 0) {
+          profileMemberEntity.callLimit -= 1;
         } else {
           return ProfileAuthorizationStatus.MEMBER_CALL_FORBIDDEN;
         }
@@ -254,8 +227,8 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
     // check global activity
     // console.log("global: ");
     // console.logBytes1(bytes1(uint8(_data.scopes[_LIVELY_VERSE_PROFILE_GLOBAL_SCOPE_ID].acstat)));
-    GlobalEntity storage globalEntity = profileEntity.profileGlobalReadSlot(_LIVELY_VERSE_PROFILE_GLOBAL_SCOPE_ID);
-    if(globalEntity.bs.acstat != ActivityStatus.ENABLED) return AuthorizationStatus.GLOBAL_ACTIVITY_FORBIDDEN;
+    GlobalEntity storage globalEntity = profileEntity.profileGlobalReadSlot(_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
+    if(globalEntity.bs.acstat != ActivityStatus.ENABLED) return ProfileAuthorizationStatus.GLOBAL_ACTIVITY_FORBIDDEN;
     
     return ProfileAuthorizationStatus.PERMITTED;
   }
@@ -272,27 +245,16 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
 
   // system admin type
   function getProfileSystemMasterType() external pure returns (bytes32) {
-    return _LIVELY_VERSE_PROFILE_SYSTEM_MASTER_TYPE_ID;
+    return _LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID;
   }
 
   // admin type
   function getProfileMasterType() external pure returns (bytes32) {
-    return _LIVELY_VERSE_LIVELY_PROFILE_MASTER_TYPE_ID;
+    return _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID;
   }
 
   function getProfileGlobalScope() external pure returns (bytes32) {
     return _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID;
-  }
-
-
-   // lively profile master
-  function getProfileMaster() external pure returns (bytes32) {
-    return _LIVELY_VERSE_PROFILE_MASTER_TYPE_ID;
-  }
-
-  // scope master admin role
-  function getProfileSystemMaster() external pure returns (bytes32) {
-    return _LIVELY_VERSE_PROFILE_MASTER_TYPE_ID;
   }
 
 
@@ -316,14 +278,14 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
   function isProfileScopesCompatible(bytes32 profileId, bytes32 destScopeId, bytes32 srcScopeId) external view returns (bool) {
     ProfileEntity storage profileEntity = _data.profiles[profileId];
     if(profileEntity.acstat == ActivityStatus.NONE) return false;
-    return _doProfileScopesCompatible(ProfileEntity, destScopeId, srcScopeId);
+    return _doProfileScopesCompatible(profileEntity, destScopeId, srcScopeId);
   }
 
-  function isProfileScopesCompatible(ProfileEntity storage profileEntity, bytes32 destScopeId, bytes32 srcScopeId) public view returns (bool) {
-    return _doProfileScopesCompatible(ProfileEntity, destScopeId, srcScopeId);
-  }
+  // function isProfileScopesCompatible(ProfileEntity storage profileEntity, bytes32 destScopeId, bytes32 srcScopeId) public view returns (bool) {
+  //   return _doProfileScopesCompatible(ProfileEntity, destScopeId, srcScopeId);
+  // }
 
-  function _doProfileScopesCompatible(ProfileEntity storage profileEntity, bytes32 destScopeId, bytes32 srcScopeId) public view returns (bool) {
+  function _doProfileScopesCompatible(ProfileEntity storage profileEntity, bytes32 destScopeId, bytes32 srcScopeId) internal view returns (bool) {
     ScopeType destScopeType = profileEntity.scopes[destScopeId].stype;
     ScopeType srcScopeType = profileEntity.scopes[srcScopeId].stype;
     if(destScopeType == ScopeType.NONE || srcScopeType == ScopeType.NONE) return false;

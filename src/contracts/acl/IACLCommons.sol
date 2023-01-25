@@ -57,14 +57,6 @@ interface IACLCommons{
     LOCK            // 255
   }
 
-  // enum ProfileAccountType {
-  //   NONE,
-  //   MEMBER,
-  //   SYSADMIN,
-  //   ADMIN,
-  //   OWNER
-  // }
-
   struct BaseAgent {
     bytes32 adminId;
     AgentType atype;
@@ -138,10 +130,10 @@ interface IACLCommons{
     uint32 functionRegisterLimit;
     uint32 contextRegisterLimit;
     uint24 memberLimit;
-    uint16 realmRegisterLimit;
-    uint16 domainRegisterLimit;
-    uint16 policyRegisterLimit;        
+    uint24 realmRegisterLimit;
     uint16 functionLimit;  
+    uint24 domainRegisterLimit;
+    uint24 policyRegisterLimit;            
     uint16 realmLimit;
     uint16 domainLimit;
     uint16 callLimit;
@@ -177,7 +169,6 @@ interface IACLCommons{
 
   struct FacetEntity {
     address subjectId;
-    // bytes4 interfaceId;
   }
 
   struct UpdateActivityRequest {
@@ -253,7 +244,6 @@ interface IACLCommons{
     address account;    
     uint32 callLimit;    
     uint32 typeLimit;
-    // ProfileAccountType patype;
     ProfileRegisterLimit registerLimits;
     LEnumerableSet.Bytes32Set types;
   }
