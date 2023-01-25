@@ -65,7 +65,6 @@ contract ProfileRealmManager is ACLStorage, BaseUUPSProxy, IProfileRealmManageme
       profileMemberEntity.registerLimits.realmRegisterLimit -= uint16(requests[i].realms.length); 
       profileEntity.registerLimits.realmRegisterLimit -= uint16(requests[i].realms.length);
 
-
       // fetch scope type and scope id of sender
       (ScopeType memberScopeType, bytes32 memberScopeId) = _doGetMemberScopeInfoFromType(profileEntity, _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID, senderId);    
     
@@ -82,37 +81,43 @@ contract ProfileRealmManager is ACLStorage, BaseUUPSProxy, IProfileRealmManageme
           require(memberScopeId == _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Global Scope");
         }
 
-        DomainEntity storage domainEntity = profileEntity.profileDomainReadSlot(requests[i].realms[j].domainId);
-        require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Domain Updatable");
-        require(domainEntity.realmLimit > domainEntity.realms.length(), "Illegal Register");
+        _doProfileRealmRegister(requests[i].realms[j], profileEntity, requests[i].profileId, newRealmId, senderId, functionId);
 
-        // check access admin realm
-        IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, domainEntity.bs.adminId, senderId, functionId);
-        if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
-
-        // add to domain
-        domainEntity.realms.add(newRealmId);
-
-        // create new realm entity
-        RealmEntity storage newRealm = profileEntity.profileRealmWriteSlot(newRealmId);
-        newRealm.bs.stype = ScopeType.REALM;
-        newRealm.bs.acstat = ActivityStatus.ENABLED;
-        newRealm.bs.alstat = AlterabilityStatus.UPGRADABLE;
-        newRealm.name = requests[i].realms[j].name;
-        newRealm.domainId = requests[i].realms[j].domainId;
-        newRealm.contextLimit = profileEntity.limits.contextLimit;
-        newRealm.bs.adminId = _getRealmAdmin(profileEntity, domainEntity.bs.adminId, requests[i].realms[j].domainId, requests[i].realms[j].adminId);
-        
-        emit ProfileRealmRegistered(
-          msg.sender,
-          requests[i].profileId,
-          newRealmId,
-          requests[i].realms[j].domainId,
-          requests[i].realms[j].adminId
-        );
       }
     }
     return true;
+  }
+
+  function _doProfileRealmRegister(ProfileRealmRegisterDataRequest calldata request, ProfileEntity storage profileEntity, bytes32 profileId, bytes32 newRealmId, bytes32 senderId, bytes32 functionId) internal {
+
+    DomainEntity storage domainEntity = profileEntity.profileDomainReadSlot(request.domainId);
+    require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Domain Updatable");
+    require(domainEntity.realmLimit > domainEntity.realms.length(), "Illegal Register");
+
+    // check access admin realm
+    IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, domainEntity.bs.adminId, senderId, functionId);
+    if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
+
+    // add to domain
+    domainEntity.realms.add(newRealmId);
+
+    // create new realm entity
+    RealmEntity storage newRealm = profileEntity.profileRealmWriteSlot(newRealmId);
+    newRealm.bs.stype = ScopeType.REALM;
+    newRealm.bs.acstat = ActivityStatus.ENABLED;
+    newRealm.bs.alstat = AlterabilityStatus.UPGRADABLE;
+    newRealm.name = request.name;
+    newRealm.domainId = request.domainId;
+    newRealm.contextLimit = profileEntity.limits.contextLimit;
+    newRealm.bs.adminId = _getRealmAdmin(profileEntity, domainEntity.bs.adminId, request.domainId, request.adminId);
+    
+    emit ProfileRealmRegistered(
+      msg.sender,
+      profileId,
+      newRealmId,
+      request.domainId,
+      request.adminId
+    );
   }
 
   function profileRealmUpdateAdmin(ProfileUpdateAdminRequest[] calldata requests) external returns (bool) {

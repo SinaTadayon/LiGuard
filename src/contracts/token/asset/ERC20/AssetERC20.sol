@@ -104,8 +104,6 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
       contractId: address(0),
       subject: request.subjectId,
       deployer: request.assetManagerId,
-      agentLimit: type(uint32).max,  
-      functionLimit: type(uint16).max,
       acstat: IACLCommons.ActivityStatus.ENABLED,
       alstat: IACLCommons.AlterabilityStatus.UPDATABLE,
       signature: request.signature
@@ -122,8 +120,7 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
     // assetSafeModeSet
     functionRequests[0].adminId =  request.adminId;
     functionRequests[0].agentId =  request.adminId;
-    functionRequests[0].selector = this.assetSetSafeMode.selector;
-    functionRequests[0].agentLimit = type(uint32).max;    
+    functionRequests[0].selector = this.assetSetSafeMode.selector;    
     functionRequests[0].policyCode = 0;
     functionRequests[0].acstat = IACLCommons.ActivityStatus.ENABLED;
     functionRequests[0].alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
@@ -132,7 +129,6 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
     functionRequests[1].adminId =  request.adminId;
     functionRequests[1].agentId =  request.agentId;
     functionRequests[1].selector = IAssetERC20.tokenLock.selector;
-    functionRequests[1].agentLimit = type(uint32).max;
     functionRequests[1].policyCode = 0;
     functionRequests[1].acstat = IACLCommons.ActivityStatus.ENABLED;
     functionRequests[1].alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
@@ -141,7 +137,6 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
     functionRequests[2].adminId =  request.adminId;
     functionRequests[2].agentId =  request.agentId;
     functionRequests[2].selector = IAssetERC20.tokenTransfer.selector;
-    functionRequests[2].agentLimit = type(uint32).max;
     functionRequests[2].policyCode = 0;
     functionRequests[2].acstat = IACLCommons.ActivityStatus.ENABLED;
     functionRequests[2].alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
@@ -150,7 +145,6 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
     functionRequests[3].adminId =  request.adminId;
     functionRequests[3].agentId =  request.agentId;
     functionRequests[3].selector = IAssetERC20.tokenBatchTransfer.selector;
-    functionRequests[3].agentLimit = type(uint32).max;
     functionRequests[3].policyCode = 0;
     functionRequests[3].acstat = IACLCommons.ActivityStatus.ENABLED;
     functionRequests[3].alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
@@ -159,7 +153,6 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
     functionRequests[4].adminId =  request.adminId;
     functionRequests[4].agentId =  request.agentId;
     functionRequests[4].selector = IAssetERC20.tokenTransferFrom.selector;
-    functionRequests[4].agentLimit = type(uint32).max;
     functionRequests[4].policyCode = 0;
     functionRequests[4].acstat = IACLCommons.ActivityStatus.ENABLED;
     functionRequests[4].alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
@@ -168,7 +161,6 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
     functionRequests[5].adminId =  request.adminId;
     functionRequests[5].agentId =  request.agentId;
     functionRequests[5].selector = IAssetERC20.tokenBatchTransferFrom.selector;
-    functionRequests[5].agentLimit = type(uint32).max;
     functionRequests[5].policyCode = 0;
     functionRequests[5].acstat = IACLCommons.ActivityStatus.ENABLED;
     functionRequests[5].alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
@@ -177,7 +169,6 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
     functionRequests[6].adminId =  request.adminId;
     functionRequests[6].agentId =  request.agentId;
     functionRequests[6].selector = IAssetERC20.tokenApprove.selector;
-    functionRequests[6].agentLimit = type(uint32).max;
     functionRequests[6].policyCode = 0;
     functionRequests[6].acstat = IACLCommons.ActivityStatus.ENABLED;
     functionRequests[6].alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
@@ -186,7 +177,6 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
     functionRequests[7].adminId =  request.adminId;
     functionRequests[7].agentId =  request.agentId;
     functionRequests[7].selector = IAssetERC20.tokenIncreaseAllowance.selector;
-    functionRequests[7].agentLimit = type(uint32).max;
     functionRequests[7].policyCode = 0;
     functionRequests[7].acstat = IACLCommons.ActivityStatus.ENABLED;
     functionRequests[7].alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
@@ -195,7 +185,6 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
     functionRequests[8].adminId =  request.adminId;
     functionRequests[8].agentId =  request.agentId;
     functionRequests[8].selector = IAssetERC20.tokenDecreaseAllowance.selector;
-    functionRequests[8].agentLimit = type(uint32).max;
     functionRequests[8].policyCode = 0;
     functionRequests[8].acstat = IACLCommons.ActivityStatus.ENABLED;
     functionRequests[8].alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
@@ -204,7 +193,6 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
     functionRequests[9].adminId =  request.adminId;
     functionRequests[9].agentId =  request.agentId;
     functionRequests[9].selector = this.withdrawBalance.selector;
-    functionRequests[9].agentLimit = type(uint32).max;
     functionRequests[9].policyCode = 0;
     functionRequests[9].acstat = IACLCommons.ActivityStatus.ENABLED;
     functionRequests[9].alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
@@ -218,7 +206,7 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
     requests[0].subject =  request.subjectId;
     requests[0].deployer =  request.assetManagerId;
     requests[0].contractId =  address(0);
-    requests[0].freq = functionRequests;
+    requests[0].functions = functionRequests;
 
     return abi.encode(IFunctionManagement.functionRegister.selector, requests);
   }

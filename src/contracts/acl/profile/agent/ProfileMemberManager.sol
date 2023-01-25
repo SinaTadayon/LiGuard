@@ -71,88 +71,8 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
       profileMemberEntity.registerLimits.memberRegisterLimit -= uint16(requests[i].members.length); 
       profileEntity.registerLimits.memberRegisterLimit -= uint16(requests[i].members.length);
 
-      for (uint256 j = 0; j < requests[i].members.length; j++) {
-        bytes32 newMemberId = LACLUtils.accountGenerateId(requests[i].members[j].account);      
-             
-        // check role
-        RoleEntity storage roleEntity = profileEntity.profileRoleReadSlot(requests[i].members[j].roleId);
-        require(roleEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Role Updatable");
-        require(roleEntity.memberLimit > roleEntity.memberCount, "Illegal Register");      
-
-        // check type 
-        TypeEntity storage typeEntity = profileEntity.profileTypeReadSlot(roleEntity.typeId);
-        require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Type Updatable");
-           
-        // check access
-        IProfileACL.ProfileAdminAccessStatus adminAccessStatus = _doCheckAdminAccess(profileEntity, roleEntity.ba.adminId, senderId, functionId);
-        if(adminAccessStatus != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(adminAccessStatus);
-
-        // if member already exist, it try to grant member to requested role
-        if(_data.agents[newMemberId].acstat == ActivityStatus.NONE) {
-            ProfileMemberEntity storage profileMemberEntityReq = profileEntity.profileMemberReadSlot(newMemberId);
-            if(profileMemberEntityReq.types.contains(roleEntity.typeId)) {
-              require(typeEntity.members[newMemberId] != requests[i].members[j].roleId, "Already Exist");
-            } else {
-              require(profileMemberEntityReq.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
-              require(profileMemberEntityReq.typeLimit > profileMemberEntityReq.types.length(), "Illegal Member Types");
-              profileMemberEntityReq.types.add(roleEntity.typeId);  
-            }
-
-            // create profile account for member
-            _checkProfileAccount(requests[i].profileId, roleEntity.typeId, profileMemberEntityReq);
-
-            // check admin
-            if(roleEntity.typeId == _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID) {
-              profileEntity.admins.add(newMemberId);
-            }
-
-            typeEntity.members[newMemberId] = requests[i].members[j].roleId;
-            roleEntity.memberCount += 1;
-            emit ProfileMemberRoleGranted(msg.sender, requests[i].profileId, requests[i].members[j].roleId, newMemberId, roleEntity.typeId);
-    
-        } else {
-          // add new member to type
-          typeEntity.members[newMemberId] = requests[i].members[j].roleId;
-
-          // add new member to role
-          roleEntity.memberCount +=1;      
-
-          // create new member
-          ProfileMemberEntity storage newMember = profileEntity.profileMemberWriteSlot(newMemberId);
-
-          // create profileAccount
-          ProfileAccount storage profileAccount = _data.profileAccounts[requests[i].members[j].account];
-          require(profileAccount.profiles.length == 0, "Illegal ProfileAccount");
-          ProfileAccount storage newProfileAccount = _data.profileAccounts[requests[i].members[j].account];
-          newProfileAccount.profiles.push(requests[i].profileId);
-
-          // check adminId
-          if(requests[i].members[j].adminId != bytes32(0)) {
-            adminAccessStatus = _doCheckAdminAccess(profileEntity, _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID, senderId, functionId);
-            if(adminAccessStatus != IProfileACL.ProfileAdminAccessStatus.PERMITTED) revert IProfileACL.ProfileSetAdminForbidden(adminAccessStatus);
-            newMember.ba.adminId = requests[i].members[j].adminId;
-          } else {
-            newMember.ba.adminId = _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID;
-          }
-          
-          newMember.ba.atype = AgentType.MEMBER;
-          newMember.ba.acstat = ActivityStatus.ENABLED;
-          newMember.ba.alstat = AlterabilityStatus.UPGRADABLE;
-          newMember.account = requests[i].members[j].account;
-          newMember.types.add(roleEntity.typeId);
-          newMember.typeLimit = profileEntity.limits.typeLimit;
-          newMember.callLimit = profileEntity.limits.memberCallLimit;
-          newMember.registerLimits = requests[i].members[j].registerLimit;
-
-          emit ProfileMemberRegistered(
-            msg.sender,
-            requests[i].profileId,
-            newMemberId,
-            requests[i].members[j].account,
-            requests[i].members[j].roleId,
-            newMember.ba.adminId
-          );
-        }
+      for (uint256 j = 0; j < requests[i].members.length; j++) {     
+        _doProfileMemberRegister(profileEntity, requests[i].members[j], senderId, requests[i].profileId, functionId);
       }
     }
 
@@ -437,6 +357,90 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
         findFlag = true;
         break;
       }
+    }
+  }
+
+    function _doProfileMemberRegister(ProfileEntity storage profileEntity, ProfileMemberRegisterDataRequest calldata memberRequest, bytes32 senderId, bytes32 profileId, bytes32 functionId) internal {
+    bytes32 newMemberId = LACLUtils.accountGenerateId(memberRequest.account);      
+          
+    // check role
+    RoleEntity storage roleEntity = profileEntity.profileRoleReadSlot(memberRequest.roleId);
+    require(roleEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Role Updatable");
+    require(roleEntity.memberLimit > roleEntity.memberCount, "Illegal Register");      
+
+    // check type 
+    TypeEntity storage typeEntity = profileEntity.profileTypeReadSlot(roleEntity.typeId);
+    require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Type Updatable");
+        
+    // check access
+    IProfileACL.ProfileAdminAccessStatus adminAccessStatus = _doCheckAdminAccess(profileEntity, roleEntity.ba.adminId, senderId, functionId);
+    if(adminAccessStatus != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(adminAccessStatus);
+
+    // if member already exist, it try to grant member to requested role
+    if(_data.agents[newMemberId].acstat == ActivityStatus.NONE) {
+        ProfileMemberEntity storage profileMemberEntityReq = profileEntity.profileMemberReadSlot(newMemberId);
+        if(profileMemberEntityReq.types.contains(roleEntity.typeId)) {
+          require(typeEntity.members[newMemberId] != memberRequest.roleId, "Already Exist");
+        } else {
+          require(profileMemberEntityReq.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
+          require(profileMemberEntityReq.typeLimit > profileMemberEntityReq.types.length(), "Illegal Member Types");
+          profileMemberEntityReq.types.add(roleEntity.typeId);  
+        }
+
+        // create profile account for member
+        _checkProfileAccount(profileId, roleEntity.typeId, profileMemberEntityReq);
+
+        // check admin
+        if(roleEntity.typeId == _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID) {
+          profileEntity.admins.add(newMemberId);
+        }
+
+        typeEntity.members[newMemberId] = memberRequest.roleId;
+        roleEntity.memberCount += 1;
+        emit ProfileMemberRoleGranted(msg.sender, profileId, memberRequest.roleId, newMemberId, roleEntity.typeId);
+
+    } else {
+      // add new member to type
+      typeEntity.members[newMemberId] = memberRequest.roleId;
+
+      // add new member to role
+      roleEntity.memberCount +=1;      
+
+      // create new member
+      ProfileMemberEntity storage newMember = profileEntity.profileMemberWriteSlot(newMemberId);
+
+      // create profileAccount
+      ProfileAccount storage profileAccount = _data.profileAccounts[memberRequest.account];
+      require(profileAccount.profiles.length == 0, "Illegal ProfileAccount");
+      ProfileAccount storage newProfileAccount = _data.profileAccounts[memberRequest.account];
+      newProfileAccount.profiles.push(profileId);
+
+      // check adminId
+      if(memberRequest.adminId != bytes32(0)) {
+        adminAccessStatus = _doCheckAdminAccess(profileEntity, _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID, senderId, functionId);
+        if(adminAccessStatus != IProfileACL.ProfileAdminAccessStatus.PERMITTED) revert IProfileACL.ProfileSetAdminForbidden(adminAccessStatus);
+        newMember.ba.adminId = memberRequest.adminId;
+      } else {
+        newMember.ba.adminId = _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID;
+      }
+      
+      newMember.ba.atype = AgentType.MEMBER;
+      newMember.ba.acstat = ActivityStatus.ENABLED;
+      newMember.ba.alstat = AlterabilityStatus.UPGRADABLE;
+      newMember.account = memberRequest.account;
+      newMember.types.add(roleEntity.typeId);
+      newMember.typeLimit = profileEntity.limits.typeLimit;
+      newMember.callLimit = profileEntity.limits.memberCallLimit;
+      newMember.registerLimits = memberRequest.registerLimit;
+
+      emit ProfileMemberRegistered(
+        msg.sender,
+        profileId,
+        newMemberId,
+        memberRequest.account,
+        memberRequest.roleId,
+        newMember.ba.adminId
+      );
     }
   }
 }

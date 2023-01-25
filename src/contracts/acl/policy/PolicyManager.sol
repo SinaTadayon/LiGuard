@@ -176,7 +176,7 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
   }
 
   function policyUpdateScope(UpdateScopeRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(ITypeManagement.policyUpdateScope.selector);
+    bytes32 functionId = _accessPermission(IPolicyManagement.policyUpdateScope.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     ScopeType senderScopeType;
     bytes32 senderScopeId;
@@ -238,7 +238,7 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
     for(uint i = 0; i < requests.length; i++) {
       PolicyEntity storage policyEntity = _doGetPolicyAndCheckAdminAccess(requests[i].policyId, memberId, functionId);
       require(requests[i].roleLimit > policyEntity.roles.length(), "Illegal Limit");
-      policyEntity.roleLimit = requests[i].roleLimit;      
+      policyEntity.roleLimit = requests[i].roleLimit;         
       emit PolicyRoleLimitUpdated(msg.sender, requests[i].policyId, requests[i].roleLimit);
     }
     return true;
@@ -336,7 +336,7 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
       scopeId: _data.policies[policyId].scopeId,
       name: _data.policies[policyId].name,
       roleLimit: _data.policies[policyId].roleLimit,
-      roleCount: uint32(_data.policies[policyId].roles.length()),
+      roleCount: uint16(_data.policies[policyId].roles.length()),
       policyCode: _data.policies[policyId].policyCode,
       adminType: _data.agents[_data.policies[policyId].adminId].atype,
       scopeType: _data.scopes[_data.policies[policyId].scopeId].stype,

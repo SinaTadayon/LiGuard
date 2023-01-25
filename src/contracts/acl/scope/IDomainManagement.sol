@@ -16,8 +16,6 @@ interface IDomainManagement is IACLCommons{
 
   struct DomainRegisterRequest {
     bytes32 adminId;
-    uint32 realmLimit;
-    uint32 agentLimit;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
     string name;
@@ -25,14 +23,13 @@ interface IDomainManagement is IACLCommons{
 
   struct DomainUpdateRealmLimitRequest {
     bytes32 domainId;
-    uint32 realmLimit;
+    uint16 realmLimit;
   }
 
   struct DomainInfo {
     bytes32 adminId;
-    uint32 realmLimit;
-    uint32 realmCount;
-    uint32 agentLimit;
+    uint16 realmLimit;
+    uint16 realmCount;
     uint32 referredByAgent;
     ScopeType stype;
     AgentType adminType;
@@ -66,8 +63,6 @@ interface IDomainManagement is IACLCommons{
   function domainUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);
 
   function domainUpdateRealmLimit(DomainUpdateRealmLimitRequest[] calldata requests) external returns (bool);
-
-  function domainUpdateAgentLimit(ScopeUpdateAgentLimitRequest[] calldata requests) external returns (bool);
 
   function domainCheckId(bytes32 domainId) external view returns (bool);
 

@@ -68,52 +68,57 @@ contract ProfileDomainManager is ACLStorage, BaseUUPSProxy, IProfileDomainManage
 
       // fetch scope type and scope id of sender
       bytes32 senderScopeId = _doGetMemberScopeInfoFromType(profileEntity, _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID, senderId);    
+      require(senderScopeId == _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Global Scope");
     
-      for(uint j = 0; j < requests[i].domains.length; j++) {
-        bytes32 newDomainId = LACLUtils.generateId(requests[i].domains[j].name);
-        require(profileEntity.scopes[newDomainId].stype == ScopeType.NONE, "Already Exist");
-
-        // check sender scopes
-        GlobalEntity storage livelyGlobalEntity = profileEntity.profileGlobalReadSlot(_LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID);
-        require(senderScopeId == _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Global Scope");
-        require(livelyGlobalEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Global Updatable");
-        require(livelyGlobalEntity.domainLimit > livelyGlobalEntity.domains.length(), "Illegal Register");
-
-        // check access admin global
-        IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, livelyGlobalEntity.bs.adminId, senderId, functionId);
-        if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
-
-        // add domain to global
-        livelyGlobalEntity.domains.add(newDomainId);
-
-        // create new domain entity
-        DomainEntity storage newDomain = profileEntity.profileDomainWriteSlot(newDomainId);
-        newDomain.bs.stype = ScopeType.DOMAIN;
-        newDomain.bs.acstat = ActivityStatus.ENABLED;
-        newDomain.bs.alstat = AlterabilityStatus.UPGRADABLE;      
-        newDomain.name = requests[i].domains[j].name;
-        newDomain.realmLimit = profileEntity.limits.realmLimit;
-        
-        // checking requested domain admin 
-        if(requests[i].domains[j].adminId != bytes32(0)) {
-          require(profileEntity.agents[requests[i].domains[j].adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
-          bytes32 requestAdminScopeId = _doAgentGetScopeInfo(profileEntity, requests[i].domains[j].adminId);
-          require(requestAdminScopeId == _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Amind Scope");
-          newDomain.bs.adminId = requests[i].domains[j].adminId;
-        } else {
-          newDomain.bs.adminId = livelyGlobalEntity.bs.adminId;
-        }
-              
-        emit ProfileDomainRegistered(
-          msg.sender,
-          requests[i].profileId,
-          newDomainId,
-          requests[i].domains[j].adminId
-        );
+      for(uint j = 0; j < requests[i].domains.length; j++) {        
+        _doProfileDomainRegister(profileEntity, requests[i].domains[j], requests[i].profileId, senderId, functionId);
       }
     }
 
     return true;
+  }
+
+  function _doProfileDomainRegister(ProfileEntity storage profileEntity, ProfileDomainRegisterDataRequest calldata request, bytes32 profileId, bytes32 senderId, bytes32 functionId) internal {
+    bytes32 newDomainId = LACLUtils.generateId(request.name);
+    require(profileEntity.scopes[newDomainId].stype == ScopeType.NONE, "Already Exist");
+
+    // check sender scopes
+    GlobalEntity storage livelyGlobalEntity = profileEntity.profileGlobalReadSlot(_LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID);
+
+    require(livelyGlobalEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Global Updatable");
+    require(livelyGlobalEntity.domainLimit > livelyGlobalEntity.domains.length(), "Illegal Register");
+
+    // check access admin global
+    IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, livelyGlobalEntity.bs.adminId, senderId, functionId);
+    if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
+
+    // add domain to global
+    livelyGlobalEntity.domains.add(newDomainId);
+
+    // create new domain entity
+    DomainEntity storage newDomain = profileEntity.profileDomainWriteSlot(newDomainId);
+    newDomain.bs.stype = ScopeType.DOMAIN;
+    newDomain.bs.acstat = ActivityStatus.ENABLED;
+    newDomain.bs.alstat = AlterabilityStatus.UPGRADABLE;      
+    newDomain.name = request.name;
+    newDomain.realmLimit = profileEntity.limits.realmLimit;
+    
+    // checking requested domain admin 
+    if(request.adminId != bytes32(0)) {
+      require(profileEntity.agents[request.adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
+      bytes32 requestAdminScopeId = _doAgentGetScopeInfo(profileEntity, request.adminId);
+      require(requestAdminScopeId == _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Amind Scope");
+      newDomain.bs.adminId = request.adminId;
+    } else {
+      newDomain.bs.adminId = livelyGlobalEntity.bs.adminId;
+    }
+
+    emit ProfileDomainRegistered(
+      msg.sender,
+      profileId,
+      newDomainId,
+      request.adminId
+    );
   }
  
   function profileDomainUpdateActivityStatus(ProfileUpdateActivityRequest[] calldata requests) external returns (bool) {

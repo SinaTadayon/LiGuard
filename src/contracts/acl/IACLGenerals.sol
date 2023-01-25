@@ -22,8 +22,11 @@ interface IACLGenerals is IACLCommons{
   // scope master type
   function getScopeMasterType() external pure returns (bytes32);
 
-  // agent master type
-  function getAgentMasterType() external pure returns (bytes32);
+  // type master type
+  function getTypeMasterType() external pure returns (bytes32);
+
+  // member master type
+  function getMemberMasterType() external pure returns (bytes32);
   
   // system master type
   function getSystemMasterType() external pure returns (bytes32);
@@ -34,24 +37,27 @@ interface IACLGenerals is IACLCommons{
   // Policy Master type
   function getPolicyMasterType() external pure returns (bytes32);
 
+  // Profile Master type
+  function getProfileMasterType() external pure returns (bytes32);
+
   // Global Scope
   function getGlobalScope() external pure returns (bytes32);
 
 
-  // lively master admin role
-  function getLivelyMasterAdminRole() external pure returns (bytes32);
+  // // lively master admin role
+  // function getLivelyMasterAdminRole() external pure returns (bytes32);
 
-  // scope master admin role
-  function getScopeMasterAdminRole() external pure returns (bytes32);
+  // // scope master admin role
+  // function getScopeMasterAdminRole() external pure returns (bytes32);
 
-  // agent master admin role
-  function getAgentMasterAdminRole() external pure returns (bytes32);
+  // // agent master admin role
+  // function getAgentMasterAdminRole() external pure returns (bytes32);
   
-  // system master admin role
-  function getSystemMasterAdminRole() external pure returns (bytes32);
+  // // system master admin role
+  // function getSystemMasterAdminRole() external pure returns (bytes32);
 
-  // Policy Master admin role
-  function getPolicyMasterAdminRole() external pure returns (bytes32);
+  // // Policy Master admin role
+  // function getPolicyMasterAdminRole() external pure returns (bytes32);
 
 
   // general

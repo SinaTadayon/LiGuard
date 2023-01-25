@@ -92,16 +92,18 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
       // add to domain
       domainEntity.realms.add(newRealmId);
 
-      // create new realm entity
-      RealmEntity storage newRealm = _data.realmWriteSlot(newRealmId);
-      newRealm.bs.stype = ScopeType.REALM;
-      newRealm.bs.acstat = requests[i].acstat;
-      newRealm.bs.alstat = requests[i].alstat;
-      newRealm.bs.adminId = requests[i].adminId;
-      newRealm.name = requests[i].name;
-      newRealm.domainId = requests[i].domainId;
-      newRealm.contextLimit = memberEntity.limits.contextLimit;
-      newRealm.bs.adminId = _getRealmAdmin(domainEntity.bs.adminId, requests[i].domainId, requests[i].adminId);
+      {
+        // create new realm entity
+        RealmEntity storage newRealm = _data.realmWriteSlot(newRealmId);
+        newRealm.bs.stype = ScopeType.REALM;
+        newRealm.bs.acstat = requests[i].acstat;
+        newRealm.bs.alstat = requests[i].alstat;
+        newRealm.bs.adminId = requests[i].adminId;
+        newRealm.name = requests[i].name;
+        newRealm.domainId = requests[i].domainId;
+        newRealm.contextLimit = memberEntity.limits.contextLimit;
+        newRealm.bs.adminId = _getRealmAdmin(domainEntity.bs.adminId, requests[i].domainId, requests[i].adminId);
+      }
        
       emit RealmRegistered(
         msg.sender,
@@ -250,7 +252,6 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
         adminId: bytes32(0),
         contextLimit: 0, 
         contextCount: 0,
-        agentLimit: 0,
         referredByAgent: 0,
         stype: ScopeType.NONE,
         acstat: ActivityStatus.NONE, 
@@ -265,7 +266,6 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
       adminId: re.bs.adminId,
       contextLimit: re.contextLimit, 
       contextCount: uint32(re.contexts.length()),
-      agentLimit: re.bs.agentLimit,
       referredByAgent: re.bs.referredByAgent,   
       stype: re.bs.stype,
       acstat: re.bs.acstat, 

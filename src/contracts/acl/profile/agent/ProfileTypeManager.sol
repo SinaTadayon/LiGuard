@@ -72,33 +72,7 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
       (ScopeType senderScopeType, bytes32 senderScopeId) = _doGetMemberScopeInfoFromType(profileEntity, _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID, senderId);
       
       for(uint j = 0; j < requests[i].types.length; j++) {
-        bytes32 newTypeId = LACLUtils.generateId(requests[i].types[j].name);
-        require(profileEntity.agents[newTypeId].atype == AgentType.NONE, "Already Exist");
-        // require(
-        //   requests[i].acstat > ActivityStatus.DELETED && 
-        //   requests[i].alstat > AlterabilityStatus.NONE,
-        //   "Illegal Activity/Alterability"
-        // );
-
-        // checking requested type scope
-        BaseScope storage requestedScope = _getAndCheckRequestScope(profileEntity, requests[i].types[j].scopeId, senderScopeId, senderScopeType, requests[i].profileId);
-      
-        // create new type
-        TypeEntity storage newType = profileEntity.profileTypeWriteSlot(newTypeId);
-        newType.ba.atype = AgentType.TYPE;
-        newType.ba.acstat = ActivityStatus.ENABLED;
-        newType.ba.alstat = AlterabilityStatus.UPGRADABLE;
-        newType.scopeId = requests[i].types[j].scopeId;
-        newType.roleLimit = profileEntity.limits.typeRoleLimit;
-        newType.name = requests[i].types[j].name;
-        newType.ba.adminId = _getTypeAdmin(profileEntity, requestedScope.stype, requestedScope.adminId, requests[i].types[j].scopeId, requests[i].types[j].adminId, requests[i].profileId);
-        emit ProfileTypeRegistered(
-          msg.sender,
-          requests[i].profileId,
-          newTypeId,
-          requests[i].types[j].scopeId,
-          requests[i].types[j].adminId
-        );
+        _doProfileTypeRegister(requests[i].types[j], profileEntity, requests[i].profileId, senderScopeType, senderScopeId);    
       }
     }
     return true;
@@ -131,31 +105,8 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
     for(uint i = 0; i < requests.length; i++) {
       (ProfileEntity storage profileEntity, bytes32 functionId) = _accessPermission(requests[i].profileId, IProfileTypeManagement.profileTypeUpdateScope.selector);
       bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);        
-      ScopeType senderScopeType;
-      bytes32 senderScopeId;
       for(uint j = 0; j < requests[i].data.length; j++) {
-        TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].data[j].entityId, senderId, functionId);
-
-        AgentType adminAgentType = profileEntity.agents[typeEntity.ba.adminId].atype;
-        if(adminAgentType == AgentType.ROLE) {
-          RoleEntity storage roleEntity = profileEntity.profileRoleReadSlot(typeEntity.ba.adminId);
-          senderScopeId = roleEntity.scopeId;
-          senderScopeType = profileEntity.scopes[roleEntity.scopeId].stype;
-        } else {
-          TypeEntity storage agentType = profileEntity.profileTypeReadSlot(typeEntity.ba.adminId);
-          bytes32 memberRoleId = agentType.members[senderId];
-          RoleEntity storage memberAgentRole = profileEntity.profileRoleReadSlot(memberRoleId);
-          senderScopeType = profileEntity.scopes[memberAgentRole.scopeId].stype;
-          senderScopeId = memberAgentRole.scopeId;
-        }
-        
-        BaseScope storage requestScope = _getAndCheckRequestScope(profileEntity, requests[i].data[j].scopeId, senderScopeId, senderScopeType, requests[i].profileId);
-        BaseScope storage oldScope = profileEntity.scopes[typeEntity.scopeId];
-        require(requestScope.stype > oldScope.stype, "Illegal ScopeType");
-        require(oldScope.referredByAgent > 0, "Illeagl ReferredByAgent");
-        oldScope.referredByAgent -= 1;
-        typeEntity.scopeId = requests[i].data[j].scopeId;
-        emit ProfileTypeScopeUpdated(msg.sender, requests[i].profileId, requests[i].data[j].entityId, requests[i].data[j].scopeId);
+        _doTypeUpdateScope(requests[i].data[j], profileEntity, requests[i].profileId, senderId, functionId);
       }
     }
     return true;
@@ -428,4 +379,59 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
 
     return requestedScope;
   }     
+
+  function _doProfileTypeRegister(ProfileTypeRegisterDataRequest calldata typeRequest, ProfileEntity storage profileEntity, bytes32 profileId, ScopeType senderScopeType, bytes32 senderScopeId) internal {
+
+    bytes32 newTypeId = LACLUtils.generateId(typeRequest.name);
+    require(profileEntity.agents[newTypeId].atype == AgentType.NONE, "Already Exist");    
+
+    // checking requested type scope
+    BaseScope storage requestedScope = _getAndCheckRequestScope(profileEntity, typeRequest.scopeId, senderScopeId, senderScopeType, profileId);
+        
+    // create new type
+    TypeEntity storage newType = profileEntity.profileTypeWriteSlot(newTypeId);
+    newType.ba.atype = AgentType.TYPE;
+    newType.ba.acstat = ActivityStatus.ENABLED;
+    newType.ba.alstat = AlterabilityStatus.UPGRADABLE;
+    newType.scopeId = typeRequest.scopeId;
+    newType.roleLimit = profileEntity.limits.typeRoleLimit;
+    newType.name = typeRequest.name;
+    newType.ba.adminId = _getTypeAdmin(profileEntity, requestedScope.stype, requestedScope.adminId, typeRequest.scopeId, typeRequest.adminId, profileId);
+
+    emit ProfileTypeRegistered(
+      msg.sender,
+      profileId,
+      newTypeId,
+      typeRequest.scopeId,
+      typeRequest.adminId
+    );
+  }
+
+  function _doTypeUpdateScope(ProfileScopeRequest calldata request, ProfileEntity storage profileEntity, bytes32 profileId, bytes32 senderId, bytes32 functionId) internal {
+    ScopeType senderScopeType;
+    bytes32 senderScopeId;
+
+    TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(profileEntity, request.entityId, senderId, functionId);    
+
+    AgentType adminAgentType = profileEntity.agents[typeEntity.ba.adminId].atype;
+    if(adminAgentType == AgentType.ROLE) {
+      RoleEntity storage roleEntity = profileEntity.profileRoleReadSlot(typeEntity.ba.adminId);
+      senderScopeId = roleEntity.scopeId;
+      senderScopeType = profileEntity.scopes[roleEntity.scopeId].stype;
+    } else {
+      TypeEntity storage agentType = profileEntity.profileTypeReadSlot(typeEntity.ba.adminId);
+      bytes32 memberRoleId = agentType.members[senderId];
+      RoleEntity storage memberAgentRole = profileEntity.profileRoleReadSlot(memberRoleId);
+      senderScopeType = profileEntity.scopes[memberAgentRole.scopeId].stype;
+      senderScopeId = memberAgentRole.scopeId;
+    }
+
+    BaseScope storage requestScope = _getAndCheckRequestScope(profileEntity, request.scopeId, senderScopeId, senderScopeType, profileId);
+    BaseScope storage oldScope = profileEntity.scopes[typeEntity.scopeId];
+    require(requestScope.stype > oldScope.stype, "Illegal ScopeType");
+    require(oldScope.referredByAgent > 0, "Illeagl ReferredByAgent");
+    oldScope.referredByAgent -= 1;
+    typeEntity.scopeId = request.scopeId;
+    emit ProfileTypeScopeUpdated(msg.sender, profileId, request.entityId, request.scopeId);
+  }
 }

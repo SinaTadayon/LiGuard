@@ -78,7 +78,7 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
         requests[i].typeId != _LIVELY_VERSE_ANY_TYPE_ID,
         "Illegal Type"
       );
-
+      
       // check type 
       TypeEntity storage typeEntity = _data.typeReadSlot(requests[i].typeId);
       require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Type Updatable");
@@ -88,29 +88,7 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
       IACL.AdminAccessStatus status = _doCheckAdminAccess(typeEntity.ba.adminId, senderId, functionId);
       if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
 
-      // check and get requested scope type
-      ScopeType requestScopeType = _getAndCheckRequestScope(requests[i].scopeId, typeEntity.scopeId);
-      
-      // add role to type 
-      typeEntity.roles.add(newRoleId);
-
-      // create role entity
-      RoleEntity storage newRole = _data.roleWriteSlot(newRoleId);
-      newRole.ba.atype = AgentType.ROLE;
-      newRole.ba.acstat = requests[i].acstat;
-      newRole.ba.alstat = requests[i].alstat;
-      newRole.name = requests[i].name;
-      newRole.scopeId = requests[i].scopeId;
-      newRole.memberLimit = memberEntity.limits.memberLimit;
-      newRole.typeId = requests[i].typeId;
-      newRole.ba.adminId = _getRoleAdmin(requestScopeType, typeEntity.ba.adminId, requests[i].scopeId, requests[i].adminId);
-      emit RoleRegistered(
-        msg.sender,
-        newRoleId,
-        requests[i].typeId, 
-        newRole.ba.adminId,
-        requests[i].scopeId 
-      );
+      _doRegisterRole(requests[i], typeEntity, memberEntity, newRoleId);
     }
     return true;
   }
@@ -147,7 +125,7 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
     bytes32 functionId = _accessPermission(IRoleManagement.roleUpdateActivityStatus.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
     for(uint i = 0; i < requests.length; i++) {
-      RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(requests[i].roleId, senderId, functionId);
+      RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
       roleEntity.ba.acstat = requests[i].acstat;
       emit RoleActivityUpdated(msg.sender, requests[i].id, requests[i].acstat);
@@ -318,7 +296,7 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
       acstat: roleEntity.ba.acstat,
       alstat: roleEntity.ba.alstat,
       name: roleEntity.name
-    });
+    });    
   }
 
   function _doAgentGetScopeInfo(bytes32 agentId) internal view returns (ScopeType, bytes32) {
@@ -415,7 +393,6 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
     BaseScope storage requestScope = _data.scopes[requestScopeId];
     require(requestScope.stype != ScopeType.NONE , "Scope Not Found");
     require(requestScope.acstat > ActivityStatus.DELETED , "Scope Deleted");
-    require(requestScope.agentLimit > requestScope.referredByAgent, "Illegal Referred");
 
     // increase referred count to target scope
     requestScope.referredByAgent +=1;
@@ -440,5 +417,31 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
     IACL.AdminAccessStatus status = _doCheckAdminAccess(roleEntity.ba.adminId, senderId, functionId);
     if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
     return roleEntity;
+  }
+
+  function _doRegisterRole(RoleRegisterRequest calldata request, TypeEntity storage typeEntity, MemberEntity storage memberEntity, bytes32 newRoleId) internal {
+    // check and get requested scope type
+    ScopeType requestScopeType = _getAndCheckRequestScope(request.scopeId, typeEntity.scopeId);
+    
+    // add role to type 
+    typeEntity.roles.add(newRoleId);
+
+    // create role entity
+    RoleEntity storage newRole = _data.roleWriteSlot(newRoleId);
+    newRole.ba.atype = AgentType.ROLE;
+    newRole.ba.acstat = request.acstat;
+    newRole.ba.alstat = request.alstat;
+    newRole.name = request.name;
+    newRole.scopeId = request.scopeId;
+    newRole.memberLimit = memberEntity.limits.memberLimit;
+    newRole.typeId = request.typeId;
+    newRole.ba.adminId = _getRoleAdmin(requestScopeType, typeEntity.ba.adminId, request.scopeId, request.adminId);
+    emit RoleRegistered(
+      msg.sender,
+      newRoleId,
+      request.typeId, 
+      newRole.ba.adminId,
+      request.scopeId 
+    );
   }
 }

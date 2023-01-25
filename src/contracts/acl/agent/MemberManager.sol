@@ -85,7 +85,7 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
 
       // check access
       IACL.AdminAccessStatus adminAccessStatus = _doCheckAdminAccess(roleEntity.ba.adminId, senderId, functionId);
-      if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
+      if(adminAccessStatus != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(adminAccessStatus);
 
       // add new member to type
       typeEntity.members[newMemberId] = requests[i].roleId;
@@ -99,7 +99,7 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
       // check adminId
       if(requests[i].adminId != bytes32(0)) {
         adminAccessStatus = _doCheckAdminAccess(_LIVELY_VERSE_MEMBER_MASTER_TYPE_ID, senderId, functionId);        
-        if(adminAccessStatus != IACL.AdminAccessStatus.PERMITTED) revert SetAdminForbidden(adminAccessStatus);
+        if(adminAccessStatus != IACL.AdminAccessStatus.PERMITTED) revert IACL.SetAdminForbidden(adminAccessStatus);
         newMember.ba.adminId = requests[i].adminId;
       } else {
         newMember.ba.adminId = _LIVELY_VERSE_MEMBER_MASTER_TYPE_ID;
@@ -143,7 +143,7 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
     for(uint i = 0; i < requests.length; i++) {      
       MemberEntity storage memberEntity = _data.memberReadSlot(requests[i].id);      
       IACL.AdminAccessStatus adminAccessStatus = _doCheckAdminAccess(memberEntity.ba.adminId, senderId, functionId);
-      if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
+      if(adminAccessStatus != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(adminAccessStatus);
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       memberEntity.ba.alstat = requests[i].alstat;
       emit MemberAlterabilityUpdated(msg.sender, requests[i].id, requests[i].alstat);

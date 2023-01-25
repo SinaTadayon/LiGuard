@@ -91,8 +91,8 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
       bytes32 contextId = LACLUtils.accountGenerateId(contractId);  
       bytes32 signerId = LACLUtils.accountGenerateId(signer);
 
-      address functionFacetId = _data.selectors[selector];
-      bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector); 
+      address functionFacetId = _data.selectors[IFunctionManagement.functionRegister.selector];
+      bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, IFunctionManagement.functionRegister.selector); 
       IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, signerId);
       if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);      
 
@@ -144,7 +144,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     bytes32 functionId = _accessPermission(IFunctionManagement.functionUpdateActivityStatus.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {
-      FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(requests[i].functionId, senderId, functionId);
+      FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
       require(requests[i].acstat != ActivityStatus.NONE, "Illegal Activity");
       functionEntity.bs.acstat = requests[i].acstat;
       emit FunctionActivityUpdated(msg.sender, requests[i].id, requests[i].acstat);      
@@ -238,7 +238,6 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
         agentId: bytes32(0),
         contextId: bytes32(0),
         selector: bytes4(0),
-        agentLimit: 0,
         referredByAgent: 0,
         stype: ScopeType.NONE,
         acstat: ActivityStatus.NONE,
@@ -247,14 +246,13 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
         agentType: AgentType.NONE, 
         policyCode: 0
       });
-    }
+    }    
 
     return FunctionInfo({
       adminId: fe.bs.adminId,
       agentId: fe.agentId,
       contextId: fe.contextId,
       selector: fe.selector,
-      agentLimit: fe.bs.agentLimit,
       referredByAgent: fe.bs.referredByAgent,
       stype: fe.bs.stype,
       acstat: fe.bs.acstat,

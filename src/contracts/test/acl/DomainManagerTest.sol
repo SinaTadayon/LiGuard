@@ -70,9 +70,8 @@ contract DomainManagerTest is ACLStorage, BaseUUPSProxy, IDomainManagementTest {
       newDomain.bs.stype = ScopeType.DOMAIN;
       newDomain.bs.acstat = requests[i].acstat;
       newDomain.bs.alstat = requests[i].alstat;      
-      newDomain.bs.agentLimit = requests[i].agentLimit;
       newDomain.name = requests[i].name;
-      newDomain.realmLimit = requests[i].realmLimit;
+      newDomain.realmLimit = 10;
        
       // checking requested domain admin 
       if(requests[i].adminId != bytes32(0)) {
@@ -152,19 +151,7 @@ contract DomainManagerTest is ACLStorage, BaseUUPSProxy, IDomainManagementTest {
       DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(requests[i].domainId, senderId, functionId); 
       domainEntity.realmLimit = requests[i].realmLimit;      
       emit DomainRealmLimitUpdated(msg.sender, requests[i].domainId, requests[i].realmLimit);
-    }
-    return true;
-  }
-
-  function domainUpdateAgentLimit(ScopeUpdateAgentLimitRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IDomainManagementTest.domainUpdateAgentLimit.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender); 
-
-    for (uint256 i = 0; i < requests.length; i++) {
-      DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(requests[i].scopeId, senderId, functionId); 
-      domainEntity.bs.agentLimit = requests[i].agentLimit;
-      emit DomainAgentLimitUpdated(msg.sender, requests[i].scopeId, requests[i].agentLimit);
-    }
+    }    
     return true;
   }
 
@@ -250,7 +237,6 @@ contract DomainManagerTest is ACLStorage, BaseUUPSProxy, IDomainManagementTest {
         adminId: bytes32(0),
         realmLimit: 0,
         realmCount: 0,
-        agentLimit: 0,
         referredByAgent: 0,
         stype: ScopeType.NONE,
         adminType: AgentType.NONE,
@@ -264,7 +250,6 @@ contract DomainManagerTest is ACLStorage, BaseUUPSProxy, IDomainManagementTest {
       adminId: de.bs.adminId,
       realmLimit: de.realmLimit,
       realmCount: uint16(de.realms.length()),
-      agentLimit: de.bs.agentLimit,
       referredByAgent: de.bs.referredByAgent,
       adminType: _data.agents[de.bs.adminId].atype,  
       stype: de.bs.stype,

@@ -103,8 +103,8 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IACLGenerals, IACL {
       (MemberEntity storage memberEntity, bool result0) = _data.memberTryReadSlot(memberId);
       if(!result0) return AuthorizationStatus.MEMBER_NOT_FOUND;
       if(memberEntity.ba.acstat != ActivityStatus.ENABLED) return AuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN;
-      if(memberEntity.callLimit > 0) {
-        memberEntity.callLimit -= 1;
+      if(memberEntity.limits.callLimit > 0) {
+        memberEntity.limits.callLimit -= 1;
       } else {
         return AuthorizationStatus.CALL_FORBIDDEN;
       }
@@ -140,8 +140,8 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IACLGenerals, IACL {
       (MemberEntity storage memberEntity, bool result0) = _data.memberTryReadSlot(memberId);
       if(!result0) return AuthorizationStatus.MEMBER_NOT_FOUND;
       if(memberEntity.ba.acstat != ActivityStatus.ENABLED) return AuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN;
-      if(memberEntity.callLimit > 0) {
-        memberEntity.callLimit -= 1;
+      if(memberEntity.limits.callLimit > 0) {
+        memberEntity.limits.callLimit -= 1;
       } else {
         return AuthorizationStatus.CALL_FORBIDDEN;
       }
@@ -152,8 +152,8 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IACLGenerals, IACL {
         (MemberEntity storage memberEntity, bool result0) = _data.memberTryReadSlot(memberId);
         if(!result0) return AuthorizationStatus.MEMBER_NOT_FOUND;
         if(memberEntity.ba.acstat != ActivityStatus.ENABLED) return AuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN;
-        if(memberEntity.callLimit > 0) {
-          memberEntity.callLimit -= 1;
+        if(memberEntity.limits.callLimit > 0) {
+          memberEntity.limits.callLimit -= 1;
         } else {
           return AuthorizationStatus.CALL_FORBIDDEN;
         }
@@ -234,9 +234,14 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IACLGenerals, IACL {
     return _LIVELY_VERSE_SCOPE_MASTER_TYPE_ID;
   }
 
-  // agent master type
-  function getAgentMasterType() external pure returns (bytes32) {
-    return _LIVELY_VERSE_AGENT_MASTER_TYPE_ID;
+  // type master type
+  function getTypeMasterType() external pure returns (bytes32) {
+    return _LIVELY_VERSE_TYPE_MASTER_TYPE_ID;
+  }
+
+  // type master type
+  function getMemberMasterType() external pure returns (bytes32) {
+    return _LIVELY_VERSE_MEMBER_MASTER_TYPE_ID;
   }
 
   // system admin type
@@ -254,36 +259,14 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IACLGenerals, IACL {
     return _LIVELY_VERSE_POLICY_MASTER_TYPE_ID;
   }
 
+  // Profile Master
+  function getProfileMasterType() external pure returns (bytes32) {
+    return _LIVELY_VERSE_PROFILE_MASTER_TYPE_ID;
+  }
+
   function getGlobalScope() external pure returns (bytes32) {
     return _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
   }
-
-
-   // lively master admin role
-  function getLivelyMasterAdminRole() external pure returns (bytes32) {
-    return _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
-  }
-
-  // scope master admin role
-  function getScopeMasterAdminRole() external pure returns (bytes32) {
-    return _LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID;
-  }
-
-  // agent master admin role
-  function getAgentMasterAdminRole() external pure returns (bytes32) {
-    return _LIVELY_VERSE_AGENT_MASTER_ADMIN_ROLE_ID;
-  }
-  
-  // system master admin role
-  function getSystemMasterAdminRole() external pure returns (bytes32) {
-    return _LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID;
-  }
-
-  // Policy Master admin role
-  function getPolicyMasterAdminRole() external pure returns (bytes32) {
-    return _LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE_ID;
-  }
-
 
   // general
   function isAgentExist(bytes32 agentId) external view returns (bool) {

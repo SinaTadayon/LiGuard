@@ -154,7 +154,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
     bytes32 functionId = _accessPermission(ITypeManagement.typeUpdateActivityStatus.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {
-      TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].typeId, senderId, functionId);
+      TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");             
       typeEntity.ba.acstat = requests[i].acstat;
       emit TypeActivityUpdated(msg.sender, requests[i].id, requests[i].acstat);
@@ -381,7 +381,6 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
     BaseScope storage requestedScope = _data.scopes[requestScopeId];
     require(requestedScope.stype != ScopeType.NONE , "Not Found");
     require(requestedScope.acstat > ActivityStatus.DELETED , "Scope Deleted");
-    require(requestedScope.agentLimit > requestedScope.referredByAgent, "Illegal Referred");
 
     // increase referred count to target scope
     requestedScope.referredByAgent += 1;

@@ -37,8 +37,10 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
   bytes32 internal constant _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID = keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_MASTER_ADMIN"));
   bytes32 internal constant _LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID = keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_SYSTEM_MASTER_ADMIN"));
   bytes32 internal constant _LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID  = keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_SCOPE_MASTER_ADMIN"));
-  bytes32 internal constant _LIVELY_VERSE_AGENT_MASTER_ADMIN_ROLE_ID  = keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_AGENT_MASTER_ADMIN"));
+  bytes32 internal constant _LIVELY_VERSE_TYPE_MASTER_ADMIN_ROLE_ID   = keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_TYPE_MASTER_ADMIN"));
+  bytes32 internal constant _LIVELY_VERSE_MEMBER_MASTER_ADMIN_ROLE_ID = keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_MEMBER_MASTER_ADMIN"));
   bytes32 internal constant _LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE_ID = keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_POLICY_MASTER_ADMIN"));
+  bytes32 internal constant _LIVELY_VERSE_PROFILE_MASTER_ADMIN_ROLE_ID = keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_PROFILE_MASTER_ADMIN"));
 
 
   constructor() {}
@@ -187,7 +189,6 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
     livelyGlobalEntity.bs.acstat = ActivityStatus.ENABLED;
     livelyGlobalEntity.bs.alstat = AlterabilityStatus.UPDATABLE;
     livelyGlobalEntity.bs.stype = ScopeType.GLOBAL;
-    livelyGlobalEntity.bs.agentLimit = type(uint16).max;
     livelyGlobalEntity.bs.adminId = _LIVELY_VERSE_LIVELY_MASTER_TYPE_ID;
 
     // Create Lively Master Type       
@@ -276,9 +277,7 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
 
       // Create System Master Admin Member
       bytes32 systemMasterAdminMemberId = LACLUtils.accountGenerateId(systemAdmin);
-      MemberEntity storage systemMasterAdminMember = _data.memberWriteSlot(systemMasterAdminMemberId);
-      systemMasterAdminMember.typeLimit = type(uint32).max;
-      
+      MemberEntity storage systemMasterAdminMember = _data.memberWriteSlot(systemMasterAdminMemberId);      
       systemMasterAdminMember.limits = GeneralLimit({
         contextLimit: type(uint32).max,
         memberRegisterLimit: 0,
@@ -330,7 +329,7 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
       scopeMasterAdminRole.ba.acstat = ActivityStatus.ENABLED;
       scopeMasterAdminRole.ba.alstat = AlterabilityStatus.UPDATABLE;
       scopeMasterAdminRole.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
-      
+   
       // Create Type Master Type
       TypeEntity storage typeMasterType = _data.typeWriteSlot(_LIVELY_VERSE_TYPE_MASTER_TYPE_ID);
       typeMasterType.name = "TYPE.LIVELY_VERSE.LIVELY_TYPE_MASTER";
@@ -377,7 +376,9 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
       memberMasterAdminRole.ba.acstat = ActivityStatus.ENABLED;
       memberMasterAdminRole.ba.alstat = AlterabilityStatus.UPDATABLE;
       memberMasterAdminRole.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
+    }
 
+    {
       // Create Policy Master Type
       TypeEntity storage policyMasterType = _data.typeWriteSlot(_LIVELY_VERSE_POLICY_MASTER_TYPE_ID);
       policyMasterType.name = "TYPE.LIVELY_VERSE.LIVELY_POLICY_MASTER";
@@ -460,7 +461,7 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
     bytes32 aclDomainId = LACLUtils.generateId2("DOMAIN.LIVELY_VERSE.LIVELY_GUARD");
     DomainEntity storage aclDomain = _data.domainWriteSlot(aclDomainId);
     aclDomain.name = "DOMAIN.LIVELY_VERSE.LIVELY_GUARD";
-    aclDomain.realmLimit = 1;
+    aclDomain.realmLimit = 3;
     aclDomain.bs.stype = ScopeType.DOMAIN;
     aclDomain.bs.alstat = AlterabilityStatus.UPDATABLE;
     aclDomain.bs.acstat = ActivityStatus.ENABLED;
@@ -470,7 +471,7 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
     bytes32 aclRealmId = LACLUtils.generateId2("REALM.LIVELY_VERSE.LIVELY_GUARD.ACL");
     RealmEntity storage aclRealm = _data.realmWriteSlot(aclRealmId);
     aclRealm.name = "REALM.LIVELY_VERSE.LIVELY_GUARD.ACL";
-    aclRealm.contextLimit = 64;
+    aclRealm.contextLimit = 128;
     aclRealm.domainId = aclDomainId;
     aclRealm.bs.stype = ScopeType.REALM;
     aclRealm.bs.alstat = AlterabilityStatus.UPGRADABLE;

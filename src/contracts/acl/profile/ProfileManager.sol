@@ -82,39 +82,7 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
       bytes32 profileId = LACLUtils.generateId(requests[i].name);
       require(_data.profiles[profileId].acstat == ActivityStatus.NONE, "Already Exist");
 
-      // fetch scope type and scope id of sender
-      (ScopeType signerScopeType, bytes32 signerScopeId) = _doGetScopeFromType(_LIVELY_VERSE_PROFILE_MASTER_TYPE_ID, signerId);
-      require(signerScopeType == ScopeType.GLOBAL && signerScopeId == _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Scope");
-      require(requests[i].expiredAt > block.timestamp + 1 days, "Illegal Expiration");
-
-      _createUpdateProfileAccount(profileId, requests[i].owner);
-      _createUpdateProfileAccount(profileId, requests[i].admin);
-      _createUpdateProfileAccount(profileId, requests[i].systemAdmin);
-
-      ProfileEntity storage profileEntity = _data.profiles[profileId];
-      profileEntity.name = requests[i].name;
-      profileEntity.adminId = _LIVELY_VERSE_PROFILE_MASTER_TYPE_ID;
-      profileEntity.owner = requests[i].owner;
-      profileEntity.expiredAt = requests[i].expiredAt;
-      profileEntity.acstat = ActivityStatus.ENABLED;
-      profileEntity.alstat = AlterabilityStatus.UPDATABLE;
-      profileEntity.registerLimits = requests[i].registerLimits;
-      profileEntity.limits = requests[i].limits;
-      profileEntity.admins.add(LACLUtils.accountGenerateId(requests[i].owner));
-      profileEntity.admins.add(LACLUtils.accountGenerateId(requests[i].admin));
-
-      LProfileManager.initProfile(profileEntity, requests[i].owner, requests[i].admin, requests[i].systemAdmin);
-
-      emit ProfileRegistered (
-        msg.sender,
-        profileId,
-        requests[i].owner,
-        signer,
-        requests[i].admin,
-        requests[i].systemAdmin,        
-        requests[i].registerLimits,
-        requests[i].limits
-      );      
+      _doProfileRegister(requests[i], signerId, profileId, signer);
     }
   }
 
@@ -169,22 +137,25 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
         }
       }
       
-      // add profile's new owner    
-      _createUpdateProfileAccount(requests[i].profileId, requests[i].newOwner);
-       
-       // Create Owner Member      
-      IACLCommons.ProfileMemberEntity storage ownerMember = profileEntity.profileMemberWriteSlot(newOwnerMemberId);   
-      ownerMember.account = requests[i].newOwner;
-      ownerMember.typeLimit = profileEntity.limits.typeLimit;
-      ownerMember.callLimit = profileEntity.limits.profileCallLimit;
-      ownerMember.registerLimits = profileEntity.registerLimits;          
-      ownerMember.ba.adminId = keccak256(abi.encodePacked("ROLE.LIVELY_PROFILE.LIVELY_MASTER_ADMIN"));      
-      ownerMember.ba.atype = IACLCommons.AgentType.MEMBER;
-      ownerMember.ba.alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
-      ownerMember.ba.acstat = IACLCommons.ActivityStatus.ENABLED;
+      {
+        // add profile's new owner    
+        _createUpdateProfileAccount(requests[i].profileId, requests[i].newOwner);
+        bytes32 newOwnerMemberId = LACLUtils.accountGenerateId(requests[i].newOwner); 
+        
+        // Create Owner Member      
+        IACLCommons.ProfileMemberEntity storage ownerMember = profileEntity.profileMemberWriteSlot(newOwnerMemberId);   
+        ownerMember.account = requests[i].newOwner;
+        ownerMember.typeLimit = profileEntity.limits.typeLimit;
+        ownerMember.callLimit = profileEntity.limits.profileCallLimit;
+        ownerMember.registerLimits = profileEntity.registerLimits;          
+        ownerMember.ba.adminId = keccak256(abi.encodePacked("ROLE.LIVELY_PROFILE.LIVELY_MASTER_ADMIN"));      
+        ownerMember.ba.atype = IACLCommons.AgentType.MEMBER;
+        ownerMember.ba.alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
+        ownerMember.ba.acstat = IACLCommons.ActivityStatus.ENABLED;
 
-      profileEntity.owner = requests[i].newOwner;
-      profileEntity.admins.add(newOwnerId);
+        profileEntity.owner = requests[i].newOwner;
+        profileEntity.admins.add(newOwnerId);
+      }
       emit ProfileOwnerAccountUpdated(msg.sender, requests[i].profileId, requests[i].owner, requests[i].newOwner);
     }
   }
@@ -229,7 +200,7 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
         profileEntity.adminId = _LIVELY_VERSE_PROFILE_MASTER_TYPE_ID;
       }
 
-      emit DomainAdminUpdated(msg.sender, requests[i].id, requests[i].adminId);
+      emit ProfileAdminUpdated(msg.sender, requests[i].id, requests[i].adminId);
     }
   }
 
@@ -462,5 +433,41 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
       require(profileAccount.profiles.length < 7, "Illegal ProfileAccountLimit");
       profileAccount.profiles.push(profileId);
     }
+  }
+
+  function _doProfileRegister(ProfileRegisterRequest calldata request, bytes32 signerId, bytes32 profileId, address signer) internal {
+    // fetch scope type and scope id of sender
+    (ScopeType signerScopeType, bytes32 signerScopeId) = _doGetScopeFromType(_LIVELY_VERSE_PROFILE_MASTER_TYPE_ID, signerId);
+    require(signerScopeType == ScopeType.GLOBAL && signerScopeId == _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Scope");
+    require(request.expiredAt > block.timestamp + 1 days, "Illegal Expiration");
+  
+    _createUpdateProfileAccount(profileId, request.owner);
+    _createUpdateProfileAccount(profileId, request.admin);
+    _createUpdateProfileAccount(profileId, request.systemAdmin);
+
+    ProfileEntity storage profileEntity = _data.profiles[profileId];
+    profileEntity.name = request.name;
+    profileEntity.adminId = _LIVELY_VERSE_PROFILE_MASTER_TYPE_ID;
+    profileEntity.owner = request.owner;
+    profileEntity.expiredAt = request.expiredAt;
+    profileEntity.acstat = ActivityStatus.ENABLED;
+    profileEntity.alstat = AlterabilityStatus.UPDATABLE;
+    profileEntity.registerLimits = request.registerLimits;
+    profileEntity.limits = request.limits;
+    profileEntity.admins.add(LACLUtils.accountGenerateId(request.owner));
+    profileEntity.admins.add(LACLUtils.accountGenerateId(request.admin));
+
+    LProfileManager.initProfile(profileEntity, request.owner, request.admin, request.systemAdmin);
+
+    emit ProfileRegistered (
+      msg.sender,
+      profileId,
+      request.owner,
+      signer,
+      request.admin,
+      request.systemAdmin,        
+      request.registerLimits,
+      request.limits
+    );      
   }
 }

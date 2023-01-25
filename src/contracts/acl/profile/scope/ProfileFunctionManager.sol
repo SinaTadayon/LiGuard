@@ -92,23 +92,27 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
       bytes32 signerId = LACLUtils.accountGenerateId(signer);
     
       ProfileEntity storage profileEntity = _data.profiles[requests[i].profileId];      
-      address functionFacetId = _data.selectors[IProfileFunctionManagement.profileFunctionRegister.selector];
-      bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, IProfileFunctionManagement.profileFunctionRegister.selector); 
-      IProfileACL.ProfileAuthorizationStatus status = IProfileACL(address(this)).profileHasMemberAccess(requests[i].profileId, functionId, signerId);
-      if(status != IProfileACL.ProfileAuthorizationStatus.PERMITTED) LACLUtils.generateProfileAuthorizationError(status);          
+      {
+        address functionFacetId = _data.selectors[IProfileFunctionManagement.profileFunctionRegister.selector];
+        bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, IProfileFunctionManagement.profileFunctionRegister.selector); 
+        IProfileACL.ProfileAuthorizationStatus status = IProfileACL(address(this)).profileHasMemberAccess(requests[i].profileId, functionId, signerId);
+        if(status != IProfileACL.ProfileAuthorizationStatus.PERMITTED) LACLUtils.generateProfileAuthorizationError(status);          
+      }
           
       ContextEntity storage contextEntity = profileEntity.profileContextReadSlot(contextId);    
       require(contextEntity.bs.alstat == AlterabilityStatus.UPGRADABLE, "Illegal Upgrade");
       require(contextEntity.functionLimit > contextEntity.functions.length(), "Illegal Limit");
 
-      // check profile and type limitations and update it
-      ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(signerId);
-      require(profileMemberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
-      require(profileEntity.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-      require(profileMemberEntity.registerLimits.functionRegisterLimit - uint16(requests[i].functions.length) > 0, "Illegal FunctionRegisterLimit");
-      require(profileEntity.registerLimits.functionRegisterLimit - uint16(requests[i].functions.length) > 0, "Illegal RegisterLimit");
-      profileMemberEntity.registerLimits.functionRegisterLimit -= uint16(requests[i].functions.length); 
-      profileEntity.registerLimits.functionRegisterLimit -= uint16(requests[i].functions.length);
+      {
+        // check profile and type limitations and update it
+        ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(signerId);
+        require(profileMemberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
+        require(profileEntity.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
+        require(profileMemberEntity.registerLimits.functionRegisterLimit - uint16(requests[i].functions.length) > 0, "Illegal FunctionRegisterLimit");
+        require(profileEntity.registerLimits.functionRegisterLimit - uint16(requests[i].functions.length) > 0, "Illegal RegisterLimit");
+        profileMemberEntity.registerLimits.functionRegisterLimit -= uint16(requests[i].functions.length); 
+        profileEntity.registerLimits.functionRegisterLimit -= uint16(requests[i].functions.length);
+      }
 
       for (uint j = 0; j < requests[i].functions.length; j++) {
 
@@ -399,7 +403,7 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
     functionEntity.selector = functionRequest.selector;
     functionEntity.bs.acstat = ActivityStatus.ENABLED;
     functionEntity.bs.alstat = AlterabilityStatus.UPGRADABLE;
-    functionEntity.bs.adminId = _doGetAndCheckFunctionAdmin(profileEntity, context.bs.adminId, contextId, functionRequest.adminId, requests[i].profileId);
+    functionEntity.bs.adminId = _doGetAndCheckFunctionAdmin(profileEntity, context.bs.adminId, contextId, functionRequest.adminId, profileId);
     
     // add function to context
     context.functions.add(newFunctionId);

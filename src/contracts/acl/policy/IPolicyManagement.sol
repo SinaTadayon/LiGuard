@@ -16,7 +16,6 @@ interface IPolicyManagement is IACLCommons {
   struct PolicyRegisterRequest {
     bytes32 adminId;
     bytes32 scopeId;
-    uint32 roleLimit;
     uint8 policyCode;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
@@ -40,15 +39,15 @@ interface IPolicyManagement is IACLCommons {
   
   struct PolicyUpdateRoleLimitRequest {
     bytes32 policyId;
-    uint32 roleLimit;
+    uint16 roleLimit;
   }
 
   struct PolicyInfo {
     bytes32 adminId;
     bytes32 scopeId;
     string name;
-    uint32 roleLimit;
-    uint32 roleCount;
+    uint16 roleLimit;
+    uint16 roleCount;
     uint8 policyCode;
     AgentType adminType;
     ScopeType scopeType;

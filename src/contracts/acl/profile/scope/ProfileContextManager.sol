@@ -370,19 +370,19 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
     return (signerSystemScopeType, signerSystemRole.scopeId);
   }
 
-  function _getContextAdmin(ProfileEntity storage profileEntity, bytes32 realmId, bytes32 scopeId, bytes32 requestScopeAdmin, bytes32 adminId, bytes32 profileId) internal view returns (bytes32 contextAdminId) {
+  function _getContextAdmin(ProfileEntity storage profileEntity, ProfileContextRegisterRequest calldata request, bytes32 scopeId, bytes32 requestScopeAdmin) internal view returns (bytes32 contextAdminId) {
     // checking requested context admin 
-    if(adminId != bytes32(0)) {
-      require(profileEntity.agents[adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");      
-      (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(profileEntity, adminId);
+    if(request.adminId != bytes32(0)) {
+      require(profileEntity.agents[request.adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");      
+      (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(profileEntity, request.adminId);
       require(ScopeType.REALM <= requestAdminScopeType, "Illegal Admin ScopeType");
       if(ScopeType.REALM == requestAdminScopeType) {
-        require(requestAdminScopeId == realmId, "Illegal Admin Scope");
+        require(requestAdminScopeId == request.realmId, "Illegal Admin Scope");
     
       } else {
-        require(IProfileACLGenerals(address(this)).isProfileScopesCompatible(profileId, requestAdminScopeId, scopeId), "Illegal Admin Scope");
+        require(IProfileACLGenerals(address(this)).isProfileScopesCompatible(request.profileId, requestAdminScopeId, scopeId), "Illegal Admin Scope");
       }
-      contextAdminId = adminId;
+      contextAdminId = request.adminId;
 
     } else {
       contextAdminId = requestScopeAdmin;
@@ -450,27 +450,23 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
     bytes32 signerId = LACLUtils.accountGenerateId(signer);  
     bytes32 newContextId = LACLUtils.accountGenerateId(contractId);
 
-    ProfileEntity storage profileEntity = _data.profiles[request.profileId];    
-    IProfileACL.ProfileAuthorizationStatus status = IProfileACL(address(this)).profileHasMemberAccess(request.profileId, functionId, signerId);
-    if(status != IProfileACL.ProfileAuthorizationStatus.PERMITTED) LACLUtils.generateProfileAuthorizationError(status);          
-    require(profileEntity.scopes[newContextId].stype == ScopeType.NONE, "Already Exist");
-
-    // check profile and type limitations and update it
-    ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(signerId);
-    require(profileMemberEntity.registerLimits.contextRegisterLimit > 0, "Illegal Limit");
-    require(profileMemberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
-    require(profileEntity.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-    require(profileMemberEntity.registerLimits.policyRegisterLimit > 0, "Illegal TypeRegisterLimit");
-    require(profileEntity.registerLimits.policyRegisterLimit > 0, "Illegal RegisterLimit");
-    profileMemberEntity.registerLimits.policyRegisterLimit -= 1; 
-    profileMemberEntity.registerLimits.contextRegisterLimit -= 1;
-    profileEntity.registerLimits.policyRegisterLimit -= 1;
-
     {
-      // update member factory limit
-      // MemberEntity storage memberEntity = profileEntity.profileMemberReadSlot(signerId);
-      // require(memberEntity.contextRegisterLimit > 0, "Illegal Limit");
-      // memberEntity.contextRegisterLimit -= 1;
+
+      ProfileEntity storage profileEntity = _data.profiles[request.profileId];    
+      IProfileACL.ProfileAuthorizationStatus status = IProfileACL(address(this)).profileHasMemberAccess(request.profileId, functionId, signerId);
+      if(status != IProfileACL.ProfileAuthorizationStatus.PERMITTED) LACLUtils.generateProfileAuthorizationError(status);          
+      require(profileEntity.scopes[newContextId].stype == ScopeType.NONE, "Already Exist");
+
+      // check profile and type limitations and update it
+      ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(signerId);
+      require(profileMemberEntity.registerLimits.contextRegisterLimit > 0, "Illegal Limit");
+      require(profileMemberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
+      require(profileEntity.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
+      require(profileMemberEntity.registerLimits.policyRegisterLimit > 0, "Illegal TypeRegisterLimit");
+      require(profileEntity.registerLimits.policyRegisterLimit > 0, "Illegal RegisterLimit");
+      profileMemberEntity.registerLimits.policyRegisterLimit -= 1; 
+      profileMemberEntity.registerLimits.contextRegisterLimit -= 1;
+      profileEntity.registerLimits.policyRegisterLimit -= 1;
 
       // check realm 
       RealmEntity storage realmEntity = profileEntity.profileRealmReadSlot(request.realmId);
@@ -482,7 +478,7 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
 
       // add context to realm
       realmEntity.contexts.add(newContextId);    
-
+    
       // create new context
       ContextEntity storage newContext =  profileEntity.profileContextWriteSlot(newContextId);
       newContext.realmId = request.realmId;
@@ -491,7 +487,7 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
       newContext.bs.stype = ScopeType.CONTEXT;
       newContext.bs.acstat = ActivityStatus.ENABLED;
       newContext.bs.alstat = AlterabilityStatus.UPGRADABLE;      
-      newContext.bs.adminId = _getContextAdmin(profileEntity, request.realmId, newContextId, realmEntity.bs.adminId, request.adminId, request.profileId);    
+      newContext.bs.adminId = _getContextAdmin(profileEntity, request, newContextId, realmEntity.bs.adminId);  
     }
 
     emit ProfileContextRegistered(      

@@ -331,38 +331,9 @@ contract ProfileGlobalManager is ACLStorage, BaseUUPSProxy, IProfileGlobalManage
         }
 
       } else if(functionEntity.agentId != _LIVELY_VERSE_ANONYMOUS_TYPE_ID) {
-        // check member activation
-        // console.log("agentId is Anonymous type . . .");
-        (ProfileMemberEntity storage profileMemberEntity, bool result0) = profileEntity.profileMemberTryReadSlot(memberId);
-        if(!result0) return IProfileACL.ProfileAuthorizationStatus.MEMBER_NOT_FOUND;
-        if(profileMemberEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN;
-        if(profileMemberEntity.callLimit > 0) {
-          profileMemberEntity.callLimit -= 1;
-        } else {
-          return IProfileACL.ProfileAuthorizationStatus.MEMBER_CALL_FORBIDDEN;
-        }
+        IProfileACL.ProfileAuthorizationStatus status = _doCheckTypeAccess(profileEntity, memberId, functionEntity);
+        if(status != IProfileACL.ProfileAuthorizationStatus.PERMITTED) return status;
         
-        // check type activation
-        (TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(functionEntity.agentId);
-        // console.log("typeEntity: ");
-        // console.logBytes1(bytes1(uint8(typeEntity.ba.acstat)));
-        if(!result1) return IProfileACL.ProfileAuthorizationStatus.TYPE_NOT_FOUND;
-        if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAuthorizationStatus.TYPE_ACTIVITY_FORBIDDEN;
-
-        // check role activation
-        bytes32 roleId = typeEntity.members[memberId];
-        (RoleEntity storage roleEntity, bool result2) = profileEntity.profileRoleTryReadSlot(roleId);
-        // console.log("roleEntity: ");
-        // console.logBytes1(bytes1(uint8(roleEntity.ba.acstat)));
-        if(!result2) return IProfileACL.ProfileAuthorizationStatus.ROLE_NOT_FOUND;
-        if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAuthorizationStatus.ROLE_ACTIVITY_FORBIDDEN;
-        
-        // check policy activation
-        PolicyEntity storage policyEntity = profileEntity.policies[profileEntity.rolePolicyMap[roleId]];
-        // console.log("policyEntity: ");
-        // console.logBytes1(bytes1(uint8(policyEntity.acstat)));
-        if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
-          return IProfileACL.ProfileAuthorizationStatus.POLICY_FORBIDDEN;
       } 
     } else if(atype <= AgentType.MEMBER) {
       return IProfileACL.ProfileAuthorizationStatus.UNAUTHORIZED;
@@ -394,6 +365,40 @@ contract ProfileGlobalManager is ACLStorage, BaseUUPSProxy, IProfileGlobalManage
     if(!res3) return IProfileACL.ProfileAuthorizationStatus.DOMAIN_NOT_FOUND;
     if(domainEntity.bs.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAuthorizationStatus.DOMAIN_ACTIVITY_FORBIDDEN;
     
+    return IProfileACL.ProfileAuthorizationStatus.PERMITTED;
+  }
+
+  function _doCheckTypeAccess(ProfileEntity storage profileEntity, bytes32 memberId, FunctionEntity storage functionEntity) internal returns (IProfileACL.ProfileAuthorizationStatus) {
+    (ProfileMemberEntity storage profileMemberEntity, bool result0) = profileEntity.profileMemberTryReadSlot(memberId);
+    if(!result0) return IProfileACL.ProfileAuthorizationStatus.MEMBER_NOT_FOUND;
+    if(profileMemberEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN;
+    if(profileMemberEntity.callLimit > 0) {
+      profileMemberEntity.callLimit -= 1;
+    } else {
+      return IProfileACL.ProfileAuthorizationStatus.MEMBER_CALL_FORBIDDEN;
+    }
+    
+    // check type activation
+    (TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(functionEntity.agentId);
+    // console.log("typeEntity: ");
+    // console.logBytes1(bytes1(uint8(typeEntity.ba.acstat)));
+    if(!result1) return IProfileACL.ProfileAuthorizationStatus.TYPE_NOT_FOUND;
+    if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAuthorizationStatus.TYPE_ACTIVITY_FORBIDDEN;
+
+    // check role activation
+    bytes32 roleId = typeEntity.members[memberId];
+    (RoleEntity storage roleEntity, bool result2) = profileEntity.profileRoleTryReadSlot(roleId);
+    // console.log("roleEntity: ");
+    // console.logBytes1(bytes1(uint8(roleEntity.ba.acstat)));
+    if(!result2) return IProfileACL.ProfileAuthorizationStatus.ROLE_NOT_FOUND;
+    if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAuthorizationStatus.ROLE_ACTIVITY_FORBIDDEN;
+
+    // check policy activation
+    PolicyEntity storage policyEntity = profileEntity.policies[profileEntity.rolePolicyMap[roleId]];
+    // console.log("policyEntity: ");
+    // console.logBytes1(bytes1(uint8(policyEntity.acstat)));
+    if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
+      return IProfileACL.ProfileAuthorizationStatus.POLICY_FORBIDDEN;
     return IProfileACL.ProfileAuthorizationStatus.PERMITTED;
   }
 }

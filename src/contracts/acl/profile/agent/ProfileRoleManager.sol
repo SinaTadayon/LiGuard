@@ -80,39 +80,17 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
           "Illegal Type"
         );
 
-        // check type 
+        // check type
         TypeEntity storage typeEntity = profileEntity.profileTypeReadSlot(requests[i].roles[j].typeId);
         require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Type Updatable");
         require(typeEntity.roles.length() < typeEntity.roleLimit, "Illegal Register");
 
-        // check access
-        IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, typeEntity.ba.adminId, senderId, functionId);
-        if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
-
-        // check and get requested scope type
-        ScopeType requestScopeType = _getAndCheckRequestScope(profileEntity, requests[i].roles[j].scopeId, typeEntity.scopeId, requests[i].profileId);
-        
-        // add role to type 
-        typeEntity.roles.add(newRoleId);
-
-        // create role entity
-        RoleEntity storage newRole = profileEntity.profileRoleWriteSlot(newRoleId);
-        newRole.ba.atype = AgentType.ROLE;
-        newRole.ba.acstat = ActivityStatus.ENABLED;
-        newRole.ba.alstat = AlterabilityStatus.UPGRADABLE;
-        newRole.name = requests[i].roles[j].name;
-        newRole.scopeId = requests[i].roles[j].scopeId;
-        newRole.memberLimit = profileEntity.limits.memberLimit;
-        newRole.typeId = requests[i].roles[j].typeId;
-        newRole.ba.adminId = _getRoleAdmin(profileEntity, requestScopeType, typeEntity.ba.adminId, requests[i].roles[j].scopeId, requests[i].roles[j].adminId, requests[i].profileId);
-        emit ProfileRoleRegistered(
-          msg.sender,          
-          requests[i].profileId,
-          newRoleId,
-          requests[i].roles[j].typeId, 
-          newRole.ba.adminId,
-          requests[i].roles[j].scopeId 
-        );
+        {
+          // check access
+          IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, typeEntity.ba.adminId, senderId, functionId);
+          if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
+        }
+        _doProfileRoleRegister(requests[i].roles[j], profileEntity, typeEntity, newRoleId, requests[i].profileId);
       }
     }
     return true;
@@ -509,5 +487,34 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
     }
 
     require(!findFlag, "Profile Not Found");
+  }
+
+  function _doProfileRoleRegister(ProfileRoleRegisterDataRequest calldata roleRequest, ProfileEntity storage profileEntity, TypeEntity storage typeEntity, bytes32 newRoleId, bytes32 profileId) internal {
+
+    // check and get requested scope type
+    ScopeType requestScopeType = _getAndCheckRequestScope(profileEntity, roleRequest.scopeId, typeEntity.scopeId, profileId);
+    
+    // add role to type 
+    typeEntity.roles.add(newRoleId);
+
+    // create role entity
+    RoleEntity storage newRole = profileEntity.profileRoleWriteSlot(newRoleId);
+    newRole.ba.atype = AgentType.ROLE;
+    newRole.ba.acstat = ActivityStatus.ENABLED;
+    newRole.ba.alstat = AlterabilityStatus.UPGRADABLE;
+    newRole.name = roleRequest.name;
+    newRole.scopeId = roleRequest.scopeId;
+    newRole.memberLimit = profileEntity.limits.memberLimit;
+    newRole.typeId = roleRequest.typeId;
+    newRole.ba.adminId = _getRoleAdmin(profileEntity, requestScopeType, typeEntity.ba.adminId, roleRequest.scopeId, roleRequest.adminId, profileId);
+    
+    emit ProfileRoleRegistered(
+      msg.sender,          
+      profileId,
+      newRoleId,
+      roleRequest.typeId, 
+      newRole.ba.adminId,
+      roleRequest.scopeId 
+    );
   }
 }

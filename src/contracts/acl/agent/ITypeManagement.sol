@@ -16,7 +16,6 @@ interface ITypeManagement is IACLCommons{
   struct TypeRegisterRequest {
     bytes32 adminId;          
     bytes32 scopeId;
-    // uint32 roleLimit;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
     string name;
