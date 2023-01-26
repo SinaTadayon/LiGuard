@@ -24,6 +24,17 @@ interface IProfileDomainManagement is IACLCommons {
     string name;
   }
 
+  struct ProfileDomainMoveRealmRequest {
+    bytes32 profileId;
+    ProfileDomainMoveRealmDataRequest[] data;
+  }
+
+  struct ProfileDomainMoveRealmDataRequest {
+    bytes32 domainId;
+    bytes32 targetDomainId;
+    bytes32 realmId;
+  }
+
   struct ProfileDomainUpdateRealmLimitRequest {
     bytes32 profileId;
     ProfileDomainRealmLimitRequest[] limits;
@@ -53,6 +64,8 @@ interface IProfileDomainManagement is IACLCommons {
     bytes32 adminId
   );
   
+  event ProfileDomainRealmMoved(address indexed sender, bytes32 indexed profileId, bytes32 indexed domainId, bytes32 realmId, bytes32 newDomainId);
+
   event ProfileDomainAdminUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed domainId, bytes32 adminId);
   
   event ProfileDomainRealmLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed domainId, uint32 realmLimit);
@@ -68,6 +81,8 @@ interface IProfileDomainManagement is IACLCommons {
   function profileDomainUpdateAlterabilityStatus(ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
   function profileDomainUpdateAdmin(ProfileUpdateAdminRequest[] calldata requests) external returns (bool);
+
+  function profileDomainMoveRealm(ProfileDomainMoveRealmRequest[] calldata requests) external returns (bool);
 
   function profileDomainUpdateRealmLimit(ProfileDomainUpdateRealmLimitRequest[] calldata requests) external returns (bool);
 

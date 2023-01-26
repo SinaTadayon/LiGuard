@@ -144,6 +144,25 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     return true;
   }
 
+  function realmMoveContext(RealmMoveContextRequest[] calldata requests) external returns (bool) {
+    bytes32 functionId = _accessPermission(IRealmManagement.realmMoveContext.selector);
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
+
+    for(uint i = 0; i < requests.length; i++) {
+      RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].realmId, senderId, functionId);
+      require(realmEntity.contexts.contains(requests[i].contextId), "Context Not Found");
+      RealmEntity storage targetRealmEntity = _doGetEntityAndCheckAdminAccess(requests[i].targetRealmId, senderId, functionId);
+      ContextEntity storage contextEntity = _doGetContextEntityAndCheckAdminAccess(requests[i].contextId, senderId, functionId);
+      require(targetRealmEntity.contextLimit > targetRealmEntity.contexts.length(), "Illegal Move" );
+      realmEntity.contexts.remove(requests[i].contextId);
+      targetRealmEntity.contexts.add(requests[i].contextId);
+      contextEntity.realmId = requests[i].targetRealmId;
+      emit RealmContextMoved(msg.sender, requests[i].realmId, requests[i].contextId, requests[i].targetRealmId);
+    }
+
+    return true;
+  }
+
   function realmUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IRealmManagement.realmUpdateActivityStatus.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
@@ -353,6 +372,14 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);  
     return realmEntity;
   }  
+
+  function _doGetContextEntityAndCheckAdminAccess(bytes32 contextId, bytes32 senderId, bytes32 functionId) internal view returns (ContextEntity storage) {
+    ContextEntity storage contextEntity = _data.contextReadSlot(contextId);
+    require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
+    IACL.AdminAccessStatus status = _doCheckAdminAccess(contextEntity.bs.adminId, senderId, functionId);
+    if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
+    return contextEntity;
+  }
 
   function _doGetMemberScopeInfoFromType(bytes32 typeId, bytes32 senderId) internal view returns (ScopeType, bytes32) {
     TypeEntity storage agentAdminType = _data.typeReadSlot(typeId);

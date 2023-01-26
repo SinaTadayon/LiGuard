@@ -25,6 +25,16 @@ interface IProfileRealmManagement is IACLCommons {
     string name; 
   }
 
+  struct ProfileRealmMoveContextRequest {
+    bytes32 profileId;
+    ProfileRealmMoveContextDataRequest[] data;
+  }
+
+  struct ProfileRealmMoveContextDataRequest {
+    bytes32 realmId;
+    bytes32 targetRealmId;
+    bytes32 contextId;
+  }
 
   struct ProfileRealmUpdateContextLimitRequest {
     bytes32 profileId;
@@ -57,7 +67,9 @@ interface IProfileRealmManagement is IACLCommons {
     bytes32 domainId,
     bytes32 adminId 
   );
-  
+
+  event ProfileRealmContextMoved(address indexed sender, bytes32 indexed profileId, bytes32 indexed realmId, bytes32 contextId, bytes32 newRealmId);
+
   event ProfileRealmAdminUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed realmId, bytes32 adminId);
   
   event ProfileRealmContextLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed realmId, uint32 contextLimit);
@@ -69,6 +81,8 @@ interface IProfileRealmManagement is IACLCommons {
   function profileRealmRegister(ProfileRealmRegisterRequest[] calldata requests) external returns (bool);
 
   function profileRealmUpdateAdmin(ProfileUpdateAdminRequest[] calldata requests) external returns (bool);
+
+  function profileRealmMoveContext(ProfileRealmMoveContextRequest[] calldata requests) external returns (bool);
 
   function profileRealmUpdateActivityStatus(ProfileUpdateActivityRequest[] calldata requests) external returns (bool);
 

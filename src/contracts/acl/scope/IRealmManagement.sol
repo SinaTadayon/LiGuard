@@ -22,6 +22,12 @@ interface IRealmManagement is IACLCommons{
     string name; 
   }
 
+  struct RealmMoveContextRequest {
+    bytes32 realmId;
+    bytes32 targetRealmId;
+    bytes32 contextId;
+  }
+
   struct RealmUpdateContextLimitRequest {
     bytes32 realmId;
     uint32 contextLimit;
@@ -47,6 +53,8 @@ interface IRealmManagement is IACLCommons{
     bytes32 adminId 
   );
   
+  event RealmContextMoved(address indexed sender, bytes32 indexed realmId, bytes32 indexed contextId, bytes32 newRealmId);
+
   event RealmAdminUpdated(address indexed sender, bytes32 indexed realmId, bytes32 indexed adminId);
 
   event RealmContextLimitUpdated(address indexed sender, bytes32 indexed realmId, uint32 contextLimit);
@@ -60,6 +68,8 @@ interface IRealmManagement is IACLCommons{
   function realmRegister(RealmRegisterRequest[] calldata requests) external returns (bool);
 
   function realmUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);
+
+  function realmMoveContext(RealmMoveContextRequest[] calldata requests) external returns (bool);
 
   function realmUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
 

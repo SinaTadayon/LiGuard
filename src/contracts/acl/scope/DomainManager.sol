@@ -162,6 +162,32 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
     return true;
   }
 
+  function domainMoveRealm(DomainMoveRealmRequest[] calldata requests) external returns (bool) {
+    bytes32 functionId = _accessPermission(IDomainManagement.domainMoveRealm.selector);
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
+
+    for(uint i = 0; i < requests.length; i++) {
+      DomainEntity storage domainEntity = _doGetEntityAndCheckAdminAccess(requests[i].domainId, senderId, functionId);
+      require(domainEntity.realms.contains(requests[i].realmId), "Realm Not Found");
+      DomainEntity storage targetDomainEntity = _doGetEntityAndCheckAdminAccess(requests[i].targetDomainId, senderId, functionId);
+      RealmEntity storage realmEntity = _doGetRealmEntityAndCheckAdminAccess(requests[i].realmId, senderId, functionId);
+      require(targetDomainEntity.realmLimit > targetDomainEntity.realms.length(), "Illegal Move" );
+      domainEntity.realms.remove(requests[i].realmId);
+      targetDomainEntity.realms.add(requests[i].realmId);
+      realmEntity.domainId = requests[i].targetDomainId;
+      emit DomainRealmMoved(msg.sender, requests[i].domainId, requests[i].realmId, requests[i].targetDomainId);
+    }
+    return true;
+  }
+
+  function _doGetRealmEntityAndCheckAdminAccess(bytes32 realmId, bytes32 senderId, bytes32 functionId) internal view returns (RealmEntity storage) {
+    RealmEntity storage realmEntity = _data.realmReadSlot(realmId);
+    require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");    
+    IACL.AdminAccessStatus status = _doCheckAdminAccess(realmEntity.bs.adminId, senderId, functionId);
+    if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);  
+    return realmEntity;
+  }  
+
   function domainUpdateRealmLimit(DomainUpdateRealmLimitRequest[] calldata requests) external returns (bool) {
     bytes32 functionId = _accessPermission(IDomainManagement.domainUpdateRealmLimit.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender); 

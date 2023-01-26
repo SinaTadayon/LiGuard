@@ -26,6 +26,12 @@ interface IDomainManagement is IACLCommons{
     uint16 realmLimit;
   }
 
+  struct DomainMoveRealmRequest {
+    bytes32 domainId;
+    bytes32 targetDomainId;
+    bytes32 realmId;
+  }
+
   struct DomainInfo {
     bytes32 adminId;
     uint16 realmLimit;
@@ -43,6 +49,8 @@ interface IDomainManagement is IACLCommons{
     bytes32 indexed domainId,
     bytes32 indexed adminId
   );
+
+  event DomainRealmMoved(address indexed sender, bytes32 indexed domainId, bytes32 indexed realmId, bytes32 newDomainId);
   
   event DomainAdminUpdated(address indexed sender, bytes32 indexed domainId, bytes32 indexed adminId);
 
@@ -61,6 +69,8 @@ interface IDomainManagement is IACLCommons{
   function domainUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
   function domainUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);
+
+  function domainMoveRealm(DomainMoveRealmRequest[] calldata requests) external returns (bool);
 
   function domainUpdateRealmLimit(DomainUpdateRealmLimitRequest[] calldata requests) external returns (bool);
 
