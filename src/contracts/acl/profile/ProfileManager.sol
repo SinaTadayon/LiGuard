@@ -13,7 +13,7 @@ import "../ACLStorage.sol";
 import "../../proxy/IProxy.sol";
 import "../../lib/acl/LACLUtils.sol";
 import "../../lib/acl/LProfileStorage.sol";
-import "../../lib/acl/LProfileManager.sol";
+import "../../lib/acl/LACLCommons.sol";
 import "../../lib/acl/LACLStorage.sol";
 import "../../lib/cryptography/LECDSA.sol";
 import "../../lib/struct/LEnumerableSet.sol";
@@ -76,13 +76,26 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
       }
 
       signerId = LACLUtils.accountGenerateId(signer);
-      bytes32 functionId = LACLUtils.functionGenerateId(_data.selectors[IProfileManagement.profileRegister.selector], IProfileManagement.profileRegister.selector);
-      IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, signerId);
-      if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status); 
+      
+      {
+        bytes32 functionId = LACLUtils.functionGenerateId(_data.selectors[IProfileManagement.profileRegister.selector], IProfileManagement.profileRegister.selector);
+        IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, signerId);
+        if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status); 
+      }
+    
       bytes32 profileId = LACLUtils.generateId(requests[i].name);
       require(_data.profiles[profileId].acstat == ActivityStatus.NONE, "Already Exist");
-
-      _doProfileRegister(requests[i], signerId, profileId, signer);
+      LACLCommons.profileRegister(_data, requests[i], signerId, profileId);
+      emit ProfileRegistered (
+        msg.sender,
+        profileId,
+        requests[i].owner,
+        signer,
+        requests[i].admin,
+        requests[i].systemAdmin,        
+        requests[i].registerLimits,
+        requests[i].limits
+      );
     }
   }
 
@@ -113,51 +126,53 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     for(uint i = 0; i < requests.length; i++) {
       ProfileEntity storage profileEntity = _doGetEntityAndCheckAdminAccess(requests[i].profileId, senderId, functionId);
+      LACLCommons.profielUpdateOwnerAccount(_data, profileEntity, requests[i]);
       // disable profile owner 
-      require(profileEntity.owner == requests[i].owner, "Illegal Owner");
-      bytes32 ownerId = LACLUtils.accountGenerateId(requests[i].owner);  
-      bytes32 newOwnerId = LACLUtils.accountGenerateId(requests[i].newOwner);
-      require(profileEntity.agents[newOwnerId].acstat == ActivityStatus.NONE, "Already Exists");
-      ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(ownerId);
-      profileMemberEntity.ba.acstat = ActivityStatus.DISABLED;
-      profileMemberEntity.ba.alstat = AlterabilityStatus.DISABLED;
-      profileEntity.admins.remove(ownerId);
-      ProfileAccount storage profileAccount = _data.profileAccounts[requests[i].owner];
-      for(uint j = 0; j < profileAccount.profiles.length; j++) {
-        if(profileAccount.profiles[j] == requests[i].profileId) {
-           if(profileAccount.profiles.length > 1) {
-            if(j < profileAccount.profiles.length - 1)
-              profileAccount.profiles[j] = profileAccount.profiles[profileAccount.profiles.length - 1];
-            profileAccount.profiles.pop();
-          } else {
-            profileAccount.profiles.pop();
-            delete profileAccount.profiles;
-          }          
-          break;
-        }
-      }
+      // require(profileEntity.owner == requests[i].owner, "Illegal Owner");
+      // bytes32 ownerId = LACLUtils.accountGenerateId(requests[i].owner);  
+      // bytes32 newOwnerId = LACLUtils.accountGenerateId(requests[i].newOwner);
+      // require(profileEntity.agents[newOwnerId].acstat == ActivityStatus.NONE, "Already Exists");
+      // ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(ownerId);
+      // profileMemberEntity.ba.acstat = ActivityStatus.DISABLED;
+      // profileMemberEntity.ba.alstat = AlterabilityStatus.DISABLED;
+      // profileEntity.admins.remove(ownerId);
+      // ProfileAccount storage profileAccount = _data.profileAccounts[requests[i].owner];
+      // for(uint j = 0; j < profileAccount.profiles.length; j++) {
+      //   if(profileAccount.profiles[j] == requests[i].profileId) {
+      //      if(profileAccount.profiles.length > 1) {
+      //       if(j < profileAccount.profiles.length - 1)
+      //         profileAccount.profiles[j] = profileAccount.profiles[profileAccount.profiles.length - 1];
+      //       profileAccount.profiles.pop();
+      //     } else {
+      //       profileAccount.profiles.pop();
+      //       delete profileAccount.profiles;
+      //     }          
+      //     break;
+      //   }
+      // }
       
-      {
-        // add profile's new owner    
-        _createUpdateProfileAccount(requests[i].profileId, requests[i].newOwner);
-        bytes32 newOwnerMemberId = LACLUtils.accountGenerateId(requests[i].newOwner); 
+      // {
+      //   // add profile's new owner    
+      //   _createUpdateProfileAccount(requests[i].profileId, requests[i].newOwner);
+      //   bytes32 newOwnerMemberId = LACLUtils.accountGenerateId(requests[i].newOwner); 
         
-        // Create Owner Member      
-        IACLCommons.ProfileMemberEntity storage ownerMember = profileEntity.profileMemberWriteSlot(newOwnerMemberId);   
-        ownerMember.account = requests[i].newOwner;
-        ownerMember.typeLimit = profileEntity.limits.typeLimit;
-        ownerMember.callLimit = profileEntity.limits.profileCallLimit;
-        ownerMember.registerLimits = profileEntity.registerLimits;          
-        ownerMember.ba.adminId = keccak256(abi.encodePacked("ROLE.LIVELY_PROFILE.LIVELY_MASTER_ADMIN"));      
-        ownerMember.ba.atype = IACLCommons.AgentType.MEMBER;
-        ownerMember.ba.alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
-        ownerMember.ba.acstat = IACLCommons.ActivityStatus.ENABLED;
+      //   // Create Owner Member      
+      //   IACLCommons.ProfileMemberEntity storage ownerMember = profileEntity.profileMemberWriteSlot(newOwnerMemberId);   
+      //   ownerMember.account = requests[i].newOwner;
+      //   ownerMember.typeLimit = profileEntity.limits.typeLimit;
+      //   ownerMember.callLimit = profileEntity.limits.profileCallLimit;
+      //   ownerMember.registerLimits = profileEntity.registerLimits;          
+      //   ownerMember.ba.adminId = keccak256(abi.encodePacked("ROLE.LIVELY_PROFILE.LIVELY_MASTER_ADMIN"));      
+      //   ownerMember.ba.atype = IACLCommons.AgentType.MEMBER;
+      //   ownerMember.ba.alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
+      //   ownerMember.ba.acstat = IACLCommons.ActivityStatus.ENABLED;
 
-        profileEntity.owner = requests[i].newOwner;
-        profileEntity.admins.add(newOwnerId);
-      }
+      //   profileEntity.owner = requests[i].newOwner;
+      //   profileEntity.admins.add(newOwnerId);
+      // }
       emit ProfileOwnerAccountUpdated(msg.sender, requests[i].profileId, requests[i].owner, requests[i].newOwner);
     }
+    return true;
   }
 
   function profileUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
@@ -229,30 +244,31 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
   }
 
   function profileCheckAdmin(bytes32 profileId, address account) external view returns (bool) {
-    ProfileEntity storage profileEntity =  _data.profiles[profileId];
-    if(profileEntity.acstat == ActivityStatus.NONE) return false;
+    return LACLCommons.profileCheckAdmin(_data, profileId, account);
+    // ProfileEntity storage profileEntity =  _data.profiles[profileId];
+    // if(profileEntity.acstat == ActivityStatus.NONE) return false;
 
-    bytes32 profileAdminId = profileEntity.adminId;
-    AgentType agentType = _data.agents[profileAdminId].atype;
-    bytes32 memberId = LACLUtils.accountGenerateId(account);
+    // bytes32 profileAdminId = profileEntity.adminId;
+    // AgentType agentType = _data.agents[profileAdminId].atype;
+    // bytes32 memberId = LACLUtils.accountGenerateId(account);
 
-    if(agentType == AgentType.ROLE) {
-       (RoleEntity storage roleEntity, bool result) = _data.roleTryReadSlot(profileAdminId);
-      if(!result) return false;
+    // if(agentType == AgentType.ROLE) {
+    //    (RoleEntity storage roleEntity, bool result) = _data.roleTryReadSlot(profileAdminId);
+    //   if(!result) return false;
 
-      (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(roleEntity.typeId);
-      if(!result1) return false;  
+    //   (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(roleEntity.typeId);
+    //   if(!result1) return false;  
 
-      return typeEntity.members[memberId] != bytes32(0);
+    //   return typeEntity.members[memberId] != bytes32(0);
     
-    } else if(agentType == AgentType.TYPE) {
-      (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(profileAdminId);
-      if(!result1) return false;  
+    // } else if(agentType == AgentType.TYPE) {
+    //   (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(profileAdminId);
+    //   if(!result1) return false;  
 
-      return typeEntity.members[memberId] != bytes32(0);  
-    }
+    //   return typeEntity.members[memberId] != bytes32(0);  
+    // }
   
-    return false;
+    // return false;
   }
 
   function profileGetProfileAccount(address account) external view returns (bytes32[] memory) {
@@ -311,45 +327,46 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
   }
 
   function _doCheckAdminAccess(bytes32 adminId, bytes32 memberId, bytes32 functionId) internal view returns (IACL.AdminAccessStatus) {
-    (FunctionEntity storage functionEntity, bool res) = _data.functionTryReadSlot(functionId);    
-    if (!res) return IACL.AdminAccessStatus.FUNCTION_NOT_FOUND;
+    return LACLCommons.checkAdminAccess(_data, adminId, memberId, functionId);
+    // (FunctionEntity storage functionEntity, bool res) = _data.functionTryReadSlot(functionId);    
+    // if (!res) return IACL.AdminAccessStatus.FUNCTION_NOT_FOUND;
     
-    AgentType adminAgentType = _data.agents[adminId].atype;
-    if(adminAgentType == AgentType.ROLE) {
-      (RoleEntity storage roleEntity, bool result) = _data.roleTryReadSlot(adminId);
-      if(!result) return IACL.AdminAccessStatus.ROLE_NOT_FOUND;
-      if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AdminAccessStatus.ROLE_ACTIVITY_FORBIDDEN;
+    // AgentType adminAgentType = _data.agents[adminId].atype;
+    // if(adminAgentType == AgentType.ROLE) {
+    //   (RoleEntity storage roleEntity, bool result) = _data.roleTryReadSlot(adminId);
+    //   if(!result) return IACL.AdminAccessStatus.ROLE_NOT_FOUND;
+    //   if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AdminAccessStatus.ROLE_ACTIVITY_FORBIDDEN;
 
-      (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(roleEntity.typeId);
-      if(!result1) return IACL.AdminAccessStatus.TYPE_NOT_FOUND;
-      if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AdminAccessStatus.TYPE_ACTIVITY_FORBIDDEN;
+    //   (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(roleEntity.typeId);
+    //   if(!result1) return IACL.AdminAccessStatus.TYPE_NOT_FOUND;
+    //   if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AdminAccessStatus.TYPE_ACTIVITY_FORBIDDEN;
       
-      if (typeEntity.members[memberId] != adminId) return IACL.AdminAccessStatus.NOT_PERMITTED;
+    //   if (typeEntity.members[memberId] != adminId) return IACL.AdminAccessStatus.NOT_PERMITTED;
       
-      PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[adminId]];
-      if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
-        return IACL.AdminAccessStatus.POLICY_FORBIDDEN;
+    //   PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[adminId]];
+    //   if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
+    //     return IACL.AdminAccessStatus.POLICY_FORBIDDEN;
 
-      return IACL.AdminAccessStatus.PERMITTED;
+    //   return IACL.AdminAccessStatus.PERMITTED;
    
-    } else if(adminAgentType == AgentType.TYPE) { 
-      (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(adminId);
-      if(!result1) return IACL.AdminAccessStatus.TYPE_NOT_FOUND;
-      if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AdminAccessStatus.TYPE_ACTIVITY_FORBIDDEN;
+    // } else if(adminAgentType == AgentType.TYPE) { 
+    //   (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(adminId);
+    //   if(!result1) return IACL.AdminAccessStatus.TYPE_NOT_FOUND;
+    //   if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AdminAccessStatus.TYPE_ACTIVITY_FORBIDDEN;
 
-      bytes32 roleId = typeEntity.members[memberId];
-      (RoleEntity storage roleEntity, bool result2) = _data.roleTryReadSlot(roleId);
-      if(!result2) return IACL.AdminAccessStatus.ROLE_NOT_FOUND;
-      if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AdminAccessStatus.ROLE_ACTIVITY_FORBIDDEN;
+    //   bytes32 roleId = typeEntity.members[memberId];
+    //   (RoleEntity storage roleEntity, bool result2) = _data.roleTryReadSlot(roleId);
+    //   if(!result2) return IACL.AdminAccessStatus.ROLE_NOT_FOUND;
+    //   if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AdminAccessStatus.ROLE_ACTIVITY_FORBIDDEN;
       
-      PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[roleId]];
-      if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
-        return IACL.AdminAccessStatus.POLICY_FORBIDDEN;
+    //   PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[roleId]];
+    //   if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
+    //     return IACL.AdminAccessStatus.POLICY_FORBIDDEN;
 
-      return IACL.AdminAccessStatus.PERMITTED;
-    } 
+    //   return IACL.AdminAccessStatus.PERMITTED;
+    // } 
 
-    return IACL.AdminAccessStatus.NOT_PERMITTED;   
+    // return IACL.AdminAccessStatus.NOT_PERMITTED;   
   }
 
   function _accessPermission(bytes4 selector) internal returns (bytes32) {
@@ -377,12 +394,12 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
     return bytes32(0);  
   }
 
-  function _doGetScopeFromType(bytes32 typeId, bytes32 senderId) internal view returns (ScopeType, bytes32) {    
-    TypeEntity storage agentType = _data.typeReadSlot(typeId);
-    bytes32 memberRoleId = agentType.members[senderId];
-    RoleEntity storage memberAgentRole = _data.roleReadSlot(memberRoleId);
-    return (_data.scopes[memberAgentRole.scopeId].stype, memberAgentRole.scopeId);
-  }
+  // function _doGetScopeFromType(bytes32 typeId, bytes32 senderId) internal view returns (ScopeType, bytes32) {    
+  //   TypeEntity storage agentType = _data.typeReadSlot(typeId);
+  //   bytes32 memberRoleId = agentType.members[senderId];
+  //   RoleEntity storage memberAgentRole = _data.roleReadSlot(memberRoleId);
+  //   return (_data.scopes[memberAgentRole.scopeId].stype, memberAgentRole.scopeId);
+  // }
 
   function _doGetEntityAndCheckAdminAccess(bytes32 profileId, bytes32 senderId, bytes32 functionId) internal view returns (ProfileEntity storage) {
     ProfileEntity storage profileEntity = _data.profiles[profileId];
@@ -425,49 +442,54 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
   }
 
   function _createUpdateProfileAccount(bytes32 profileId, address memberAddress) internal {
-    ProfileAccount storage profileAccount = _data.profileAccounts[memberAddress];
-    if(profileAccount.profiles.length == 0) {
-      ProfileAccount storage newProfileAccount = _data.profileAccounts[memberAddress];
-      newProfileAccount.profiles.push(profileId);  
-    } else {   
-      require(profileAccount.profiles.length < 7, "Illegal ProfileAccountLimit");
-      profileAccount.profiles.push(profileId);
-    }
+    LACLCommons.createUpdateProfileAccount(_data, profileId, memberAddress);
+    // ProfileAccount storage profileAccount = _data.profileAccounts[memberAddress];
+    // if(profileAccount.profiles.length == 0) {
+    //   ProfileAccount storage newProfileAccount = _data.profileAccounts[memberAddress];
+    //   newProfileAccount.profiles.push(profileId);  
+    // } else {   
+    //   require(profileAccount.profiles.length < 7, "Illegal ProfileAccountLimit");
+    //   profileAccount.profiles.push(profileId);
+    // }
   }
 
-  function _doProfileRegister(ProfileRegisterRequest calldata request, bytes32 signerId, bytes32 profileId, address signer) internal {
-    // fetch scope type and scope id of sender
-    (ScopeType signerScopeType, bytes32 signerScopeId) = _doGetScopeFromType(_LIVELY_VERSE_PROFILE_MASTER_TYPE_ID, signerId);
-    require(signerScopeType == ScopeType.GLOBAL && signerScopeId == _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Scope");
-    require(request.expiredAt > block.timestamp + 1 days, "Illegal Expiration");
+  // function _doProfileRegister(ProfileRegisterRequest calldata request, bytes32 signerId, bytes32 profileId, address signer) internal {
+  //   // fetch scope type and scope id of sender
+  //   (ScopeType signerScopeType, bytes32 signerScopeId) = _doGetScopeFromType(_LIVELY_VERSE_PROFILE_MASTER_TYPE_ID, signerId);
+  //   require(signerScopeType == ScopeType.GLOBAL && signerScopeId == _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Scope");
+  //   require(request.expiredAt > block.timestamp + 1 days, "Illegal Expiration");
   
-    _createUpdateProfileAccount(profileId, request.owner);
-    _createUpdateProfileAccount(profileId, request.admin);
-    _createUpdateProfileAccount(profileId, request.systemAdmin);
+  //   _createUpdateProfileAccount(profileId, request.owner);
+  //   _createUpdateProfileAccount(profileId, request.admin);
+  //   _createUpdateProfileAccount(profileId, request.systemAdmin);
 
-    ProfileEntity storage profileEntity = _data.profiles[profileId];
-    profileEntity.name = request.name;
-    profileEntity.adminId = _LIVELY_VERSE_PROFILE_MASTER_TYPE_ID;
-    profileEntity.owner = request.owner;
-    profileEntity.expiredAt = request.expiredAt;
-    profileEntity.acstat = ActivityStatus.ENABLED;
-    profileEntity.alstat = AlterabilityStatus.UPDATABLE;
-    profileEntity.registerLimits = request.registerLimits;
-    profileEntity.limits = request.limits;
-    profileEntity.admins.add(LACLUtils.accountGenerateId(request.owner));
-    profileEntity.admins.add(LACLUtils.accountGenerateId(request.admin));
+  //   ProfileEntity storage profileEntity = _data.profiles[profileId];
+  //   profileEntity.name = request.name;
+  //   profileEntity.adminId = _LIVELY_VERSE_PROFILE_MASTER_TYPE_ID;
+  //   profileEntity.owner = request.owner;
+  //   profileEntity.expiredAt = request.expiredAt;
+  //   profileEntity.acstat = ActivityStatus.ENABLED;
+  //   profileEntity.alstat = AlterabilityStatus.UPDATABLE;
+  //   profileEntity.registerLimits = request.registerLimits;
+  //   profileEntity.limits = request.limits;
+  //   profileEntity.admins.add(LACLUtils.accountGenerateId(request.owner));
+  //   profileEntity.admins.add(LACLUtils.accountGenerateId(request.admin));
 
-    LProfileManager.initProfile(profileEntity, request.owner, request.admin, request.systemAdmin);
+  //   LACLCommons.initProfile(profileEntity, request.owner, request.admin, request.systemAdmin);
 
-    emit ProfileRegistered (
-      msg.sender,
-      profileId,
-      request.owner,
-      signer,
-      request.admin,
-      request.systemAdmin,        
-      request.registerLimits,
-      request.limits
-    );      
+  //   emit ProfileRegistered (
+  //     msg.sender,
+  //     profileId,
+  //     request.owner,
+  //     signer,
+  //     request.admin,
+  //     request.systemAdmin,        
+  //     request.registerLimits,
+  //     request.limits
+  //   );      
+  // }
+
+   function getLibrary() external pure returns (address) {
+    return address(LACLCommons);
   }
 }

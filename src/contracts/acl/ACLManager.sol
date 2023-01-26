@@ -18,7 +18,7 @@ import "./agent/ITypeManagement.sol";
 import "./policy/IPolicyManagement.sol";
 import "../lib/struct/LEnumerableSet.sol";
 import "../lib/acl/LACLStorage.sol";
-import "../lib/acl/LACLManager.sol";
+import "../lib/acl/LACLCommons.sol";
 import "../proxy/Initializable.sol";
 import "../proxy/BaseUUPSProxy.sol";
 
@@ -49,7 +49,7 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
     string calldata contractName,
     string calldata contractVersion
   ) public onlyProxy onlyLocalAdmin initializer {   
-    LACLManager.registerProxyFacet(_data, _implementation());
+    LACLCommons.registerProxyFacet(_data, _implementation());
     __BASE_UUPS_init(contractName, contractVersion, address(this));
     _firstInit = true;
 
@@ -100,7 +100,7 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
 
   function _doAclRegisterFacet(FacetRegisterRequest[] calldata requests) internal returns (bool) {
     for(uint i = 0; i < requests.length; i++) {
-      LACLManager.aclRegisterFacet(_data, requests[i]);
+      LACLCommons.aclRegisterFacet(_data, requests[i]);
       emit ACLFacetRegistered(
         _msgSender(), 
         requests[i].facetId, 
@@ -172,283 +172,13 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
     address livelyAdmin,
     address systemAdmin    
   ) public onlyProxy onlyLocalAdmin {
-    _initACLAgents(livelyAdmin, systemAdmin);
+    LACLCommons.initACLAgents(_data, livelyAdmin, systemAdmin);
+    // _initACLAgents(livelyAdmin, systemAdmin);
     _initACLScopes(
       contextManagerAddress, 
       functionManagerAddress, 
       LACLUtils.accountGenerateId(livelyAdmin)
     );
-  }
-
-  function _initACLAgents(address livelyAdmin, address systemAdmin) internal {
-
-    // init Global Scope
-    GlobalEntity storage livelyGlobalEntity = _data.globalWriteSlot(_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
-    livelyGlobalEntity.name = "GLOBAL.LIVELY_VERSE";
-    livelyGlobalEntity.domainLimit = type(uint16).max;
-    livelyGlobalEntity.bs.acstat = ActivityStatus.ENABLED;
-    livelyGlobalEntity.bs.alstat = AlterabilityStatus.UPDATABLE;
-    livelyGlobalEntity.bs.stype = ScopeType.GLOBAL;
-    livelyGlobalEntity.bs.adminId = _LIVELY_VERSE_LIVELY_MASTER_TYPE_ID;
-
-    // Create Lively Master Type       
-    TypeEntity storage livelyMasterType = _data.typeWriteSlot(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID);
-    livelyMasterType.name = "TYPE.LIVELY_VERSE.LIVELY_MASTER";
-    livelyMasterType.roleLimit = type(uint16).max;
-    livelyMasterType.scopeId = _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
-    livelyMasterType.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
-    livelyMasterType.ba.atype = AgentType.TYPE;
-    livelyMasterType.ba.acstat = ActivityStatus.ENABLED;
-    livelyMasterType.ba.alstat = AlterabilityStatus.UPDATABLE;
-    livelyMasterType.roles.add(_LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
-          
-    // Create Lively Master Admin Role
-    RoleEntity storage livelyMasterAdminRole = _data.roleWriteSlot(_LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
-    livelyMasterAdminRole.name = "ROLE.LIVELY_VERSE.LIVELY_MASTER_ADMIN";
-    livelyMasterAdminRole.scopeId = _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
-    livelyMasterAdminRole.typeId = _LIVELY_VERSE_LIVELY_MASTER_TYPE_ID;
-    livelyMasterAdminRole.memberLimit = type(uint24).max;
-    livelyMasterAdminRole.ba.atype = AgentType.ROLE;
-    livelyMasterAdminRole.ba.acstat = ActivityStatus.ENABLED;
-    livelyMasterAdminRole.ba.alstat = AlterabilityStatus.UPDATABLE;
-    livelyMasterAdminRole.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
-
-    // Create Lively Master Admin Member
-    bytes32 livelyMasterAdminMemberId = LACLUtils.accountGenerateId(livelyAdmin);
-    MemberEntity storage livelyMasterAdminMember = _data.memberWriteSlot(livelyMasterAdminMemberId);   
-    livelyMasterAdminMember.account = livelyAdmin;
-    livelyMasterAdminMember.limits = GeneralLimit({
-      contextLimit: type(uint32).max,
-      memberRegisterLimit: type(uint32).max,
-      roleRegisterLimit: type(uint32).max,
-      typeRegisterLimit: type(uint32).max,
-      functionRegisterLimit: type(uint32).max,
-      contextRegisterLimit: type(uint32).max,
-      memberLimit: type(uint24).max,
-      realmRegisterLimit: type(uint16).max,
-      domainRegisterLimit: type(uint16).max,
-      policyRegisterLimit: type(uint16).max,
-      functionLimit: type(uint16).max,
-      realmLimit: type(uint16).max,
-      domainLimit: type(uint16).max,
-      callLimit: type(uint16).max,
-      typeRoleLimit: type(uint16).max,
-      typeLimit: type(uint16).max,
-      policyRoleLimit: type(uint16).max
-    });
-      
-    livelyMasterAdminMember.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
-    livelyMasterAdminMember.ba.atype = AgentType.MEMBER;
-    livelyMasterAdminMember.ba.alstat = AlterabilityStatus.UPDATABLE;
-    livelyMasterAdminMember.ba.acstat = ActivityStatus.ENABLED;      
-
-    // bind Lively Master Admin Member to Admin role of Lively, Scope, Agent and Policy types
-    livelyMasterAdminMember.types.add(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID);
-    livelyMasterAdminMember.types.add(_LIVELY_VERSE_SCOPE_MASTER_TYPE_ID);
-    livelyMasterAdminMember.types.add(_LIVELY_VERSE_TYPE_MASTER_TYPE_ID);
-    livelyMasterAdminMember.types.add(_LIVELY_VERSE_MEMBER_MASTER_TYPE_ID);
-    livelyMasterAdminMember.types.add(_LIVELY_VERSE_POLICY_MASTER_TYPE_ID);
-
-    // bind Lively Master Admin Member to Admin role
-    livelyMasterType.members[livelyMasterAdminMemberId] = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
-
-    {
-      // Create System Master Type       
-      TypeEntity storage systemMasterType = _data.typeWriteSlot(_LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID);
-      systemMasterType.name = "TYPE.LIVELY_VERSE.LIVELY_SYSTEM_MASTER";
-      systemMasterType.roleLimit = type(uint16).max;
-      systemMasterType.scopeId = _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
-      systemMasterType.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
-      systemMasterType.ba.atype = AgentType.TYPE;
-      systemMasterType.ba.acstat = ActivityStatus.ENABLED;
-      systemMasterType.ba.alstat = AlterabilityStatus.UPDATABLE;
-      systemMasterType.roles.add(_LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID);
-
-      // Create System Master Admin Role
-      RoleEntity storage systemMasterAdminRole = _data.roleWriteSlot(_LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID);
-      systemMasterAdminRole.name = "ROLE.LIVELY_VERSE.LIVELY_SYSTEM_MASTER_ADMIN";
-      systemMasterAdminRole.scopeId = _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
-      systemMasterAdminRole.typeId = _LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID;
-      systemMasterAdminRole.memberLimit = type(uint24).max;
-      systemMasterAdminRole.ba.atype = AgentType.ROLE;
-      systemMasterAdminRole.ba.acstat = ActivityStatus.ENABLED;
-      systemMasterAdminRole.ba.alstat = AlterabilityStatus.UPDATABLE;
-      systemMasterAdminRole.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
-
-      // Create System Master Admin Member
-      bytes32 systemMasterAdminMemberId = LACLUtils.accountGenerateId(systemAdmin);
-      MemberEntity storage systemMasterAdminMember = _data.memberWriteSlot(systemMasterAdminMemberId);      
-      systemMasterAdminMember.limits = GeneralLimit({
-        contextLimit: type(uint32).max,
-        memberRegisterLimit: 0,
-        roleRegisterLimit: 0,
-        typeRegisterLimit: 0,
-        functionRegisterLimit: type(uint32).max,
-        contextRegisterLimit: 128,
-        memberLimit: 0,
-        realmRegisterLimit: 0,
-        domainRegisterLimit: 0,
-        policyRegisterLimit: 0,
-        functionLimit: type(uint16).max,
-        realmLimit: 0,
-        domainLimit: 0,
-        callLimit: 0,
-        typeRoleLimit: 0,
-        typeLimit: 0,
-        policyRoleLimit: 0
-      });
-    
-      systemMasterAdminMember.account = systemAdmin;      
-      systemMasterAdminMember.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
-      systemMasterAdminMember.ba.atype = AgentType.MEMBER;
-      systemMasterAdminMember.ba.alstat = AlterabilityStatus.UPDATABLE;
-      systemMasterAdminMember.ba.acstat = ActivityStatus.ENABLED;
-      
-      // bind Lively Master Admin Member to Admin role
-      systemMasterType.members[systemMasterAdminMemberId] = _LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID;
-
-      // Create Scope Master Type       
-      TypeEntity storage scopeMasterType = _data.typeWriteSlot(_LIVELY_VERSE_SCOPE_MASTER_TYPE_ID);
-      scopeMasterType.name = "TYPE.LIVELY_VERSE.LIVELY_SCOPE_MASTER";
-      scopeMasterType.roleLimit = type(uint16).max;
-      scopeMasterType.scopeId = _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
-      scopeMasterType.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
-      scopeMasterType.ba.atype = AgentType.TYPE;
-      scopeMasterType.ba.acstat = ActivityStatus.ENABLED;
-      scopeMasterType.ba.alstat = AlterabilityStatus.UPDATABLE;
-      scopeMasterType.roles.add(_LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID);
-      scopeMasterType.members[livelyMasterAdminMemberId] = _LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID;
-      
-      // Create Scope Master Admin Role
-      RoleEntity storage scopeMasterAdminRole = _data.roleWriteSlot(_LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID);
-      scopeMasterAdminRole.name = "ROLE.LIVELY_VERSE.LIVELY_SCOPE_MASTER_ADMIN";
-      scopeMasterAdminRole.scopeId = _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
-      scopeMasterAdminRole.typeId = _LIVELY_VERSE_SCOPE_MASTER_TYPE_ID;
-      scopeMasterAdminRole.memberLimit = type(uint24).max;
-      scopeMasterAdminRole.ba.atype = AgentType.ROLE;
-      scopeMasterAdminRole.ba.acstat = ActivityStatus.ENABLED;
-      scopeMasterAdminRole.ba.alstat = AlterabilityStatus.UPDATABLE;
-      scopeMasterAdminRole.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
-   
-      // Create Type Master Type
-      TypeEntity storage typeMasterType = _data.typeWriteSlot(_LIVELY_VERSE_TYPE_MASTER_TYPE_ID);
-      typeMasterType.name = "TYPE.LIVELY_VERSE.LIVELY_TYPE_MASTER";
-      typeMasterType.roleLimit = type(uint16).max;
-      typeMasterType.scopeId = _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
-      typeMasterType.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
-      typeMasterType.ba.atype = AgentType.TYPE;
-      typeMasterType.ba.acstat = ActivityStatus.ENABLED;
-      typeMasterType.ba.alstat = AlterabilityStatus.UPDATABLE;
-      typeMasterType.roles.add(_LIVELY_VERSE_TYPE_MASTER_ADMIN_ROLE_ID);
-      typeMasterType.members[livelyMasterAdminMemberId] = _LIVELY_VERSE_TYPE_MASTER_ADMIN_ROLE_ID;
-
-      // Create Type Master Admin Role
-      RoleEntity storage typeMasterAdminRole = _data.roleWriteSlot(_LIVELY_VERSE_TYPE_MASTER_ADMIN_ROLE_ID);
-      typeMasterAdminRole.name = "ROLE.LIVELY_VERSE.LIVELY_TYPE_MASTER_ADMIN";
-      typeMasterAdminRole.scopeId = _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
-      typeMasterAdminRole.typeId = _LIVELY_VERSE_TYPE_MASTER_TYPE_ID;
-      typeMasterAdminRole.memberLimit = type(uint24).max;
-      typeMasterAdminRole.ba.atype = AgentType.ROLE;
-      typeMasterAdminRole.ba.acstat = ActivityStatus.ENABLED;
-      typeMasterAdminRole.ba.alstat = AlterabilityStatus.UPDATABLE;
-      typeMasterAdminRole.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
-
-      
-      // Create Member Master Type
-      TypeEntity storage memberMasterType = _data.typeWriteSlot(_LIVELY_VERSE_MEMBER_MASTER_TYPE_ID);
-      memberMasterType.name = "TYPE.LIVELY_VERSE.LIVELY_MEMBER_MASTER";
-      memberMasterType.roleLimit = type(uint16).max;
-      memberMasterType.scopeId = _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
-      memberMasterType.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
-      memberMasterType.ba.atype = AgentType.TYPE;
-      memberMasterType.ba.acstat = ActivityStatus.ENABLED;
-      memberMasterType.ba.alstat = AlterabilityStatus.UPDATABLE;
-      memberMasterType.roles.add(_LIVELY_VERSE_MEMBER_MASTER_ADMIN_ROLE_ID);
-      memberMasterType.members[livelyMasterAdminMemberId] = _LIVELY_VERSE_MEMBER_MASTER_ADMIN_ROLE_ID;
-
-      // Create Member Master Admin Role
-      RoleEntity storage memberMasterAdminRole = _data.roleWriteSlot(_LIVELY_VERSE_MEMBER_MASTER_ADMIN_ROLE_ID);
-      memberMasterAdminRole.name = "ROLE.LIVELY_VERSE.LIVELY_MEMBER_MASTER_ADMIN";
-      memberMasterAdminRole.scopeId = _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
-      memberMasterAdminRole.typeId = _LIVELY_VERSE_TYPE_MASTER_TYPE_ID;
-      memberMasterAdminRole.memberLimit = type(uint24).max;
-      memberMasterAdminRole.ba.atype = AgentType.ROLE;
-      memberMasterAdminRole.ba.acstat = ActivityStatus.ENABLED;
-      memberMasterAdminRole.ba.alstat = AlterabilityStatus.UPDATABLE;
-      memberMasterAdminRole.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
-    }
-
-    {
-      // Create Policy Master Type
-      TypeEntity storage policyMasterType = _data.typeWriteSlot(_LIVELY_VERSE_POLICY_MASTER_TYPE_ID);
-      policyMasterType.name = "TYPE.LIVELY_VERSE.LIVELY_POLICY_MASTER";
-      policyMasterType.roleLimit = type(uint16).max;
-      policyMasterType.scopeId = _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
-      policyMasterType.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
-      policyMasterType.ba.atype = AgentType.TYPE;
-      policyMasterType.ba.acstat = ActivityStatus.ENABLED;
-      policyMasterType.ba.alstat = AlterabilityStatus.UPDATABLE;
-      policyMasterType.roles.add(_LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE_ID);
-      policyMasterType.members[livelyMasterAdminMemberId] = _LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE_ID;
-
-      // Create Policy Master Admin Role
-      RoleEntity storage policyMasterAdminRole = _data.roleWriteSlot(_LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE_ID);
-      policyMasterAdminRole.name = "TYPE.LIVELY_VERSE.LIVELY_POLICY_MASTER_ADMIN";
-      policyMasterAdminRole.scopeId = _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
-      policyMasterAdminRole.typeId = _LIVELY_VERSE_POLICY_MASTER_TYPE_ID;
-      policyMasterAdminRole.memberLimit = type(uint24).max;
-      policyMasterAdminRole.ba.atype = AgentType.ROLE;
-      policyMasterAdminRole.ba.acstat = ActivityStatus.ENABLED;
-      policyMasterAdminRole.ba.alstat = AlterabilityStatus.UPDATABLE;
-      policyMasterAdminRole.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
-      
-      // Create Profile Master Type
-      TypeEntity storage profileMasterType = _data.typeWriteSlot(_LIVELY_VERSE_PROFILE_MASTER_TYPE_ID);
-      profileMasterType.name = "TYPE.LIVELY_VERSE.LIVELY_PROFILE_MASTER";
-      profileMasterType.roleLimit = type(uint16).max;
-      profileMasterType.scopeId = _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
-      profileMasterType.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
-      profileMasterType.ba.atype = AgentType.TYPE;
-      profileMasterType.ba.acstat = ActivityStatus.ENABLED;
-      profileMasterType.ba.alstat = AlterabilityStatus.UPDATABLE;
-      profileMasterType.roles.add(_LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE_ID);
-      profileMasterType.members[livelyMasterAdminMemberId] = _LIVELY_VERSE_PROFILE_MASTER_ADMIN_ROLE_ID;
-
-      // Create Profile Master Admin Role
-      RoleEntity storage profileMasterAdminRole = _data.roleWriteSlot(_LIVELY_VERSE_PROFILE_MASTER_ADMIN_ROLE_ID);
-      profileMasterAdminRole.name = "TYPE.LIVELY_VERSE.LIVELY_PROFILE_MASTER_ADMIN";
-      profileMasterAdminRole.scopeId = _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
-      profileMasterAdminRole.typeId = _LIVELY_VERSE_PROFILE_MASTER_TYPE_ID;
-      profileMasterAdminRole.memberLimit = type(uint24).max;
-      profileMasterAdminRole.ba.atype = AgentType.ROLE;
-      profileMasterAdminRole.ba.acstat = ActivityStatus.ENABLED;
-      profileMasterAdminRole.ba.alstat = AlterabilityStatus.UPDATABLE;
-      profileMasterAdminRole.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
-
-      // Create Anonymouse  Type
-      TypeEntity storage anonymousType = _data.typeWriteSlot(_LIVELY_VERSE_ANONYMOUS_TYPE_ID);
-      anonymousType.name = "TYPE.LIVELY_VERSE.LIVELY_ANONYMOUS";
-      anonymousType.roleLimit = 0;
-      anonymousType.scopeId = _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
-      anonymousType.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
-      anonymousType.ba.atype = AgentType.TYPE;
-      anonymousType.ba.acstat = ActivityStatus.ENABLED;
-      anonymousType.ba.alstat = AlterabilityStatus.UPDATABLE;
-
-      // Create Any Type
-      TypeEntity storage anyType = _data.typeWriteSlot(_LIVELY_VERSE_ANY_TYPE_ID);
-      anyType.name = "TYPE.LIVELY_VERSE.LIVELY_ANY";
-      anyType.roleLimit = 0;
-      anyType.scopeId = _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
-      anyType.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
-      anyType.ba.atype = AgentType.TYPE;
-      anyType.ba.acstat = ActivityStatus.ENABLED;
-      anyType.ba.alstat = AlterabilityStatus.UPDATABLE;
-    }
-
-    // update livelyGlobalEntity.bs.referredByAgent
-    livelyGlobalEntity.bs.referredByAgent = 16;
-    livelyGlobalEntity.domains.add(LACLUtils.generateId2("DOMAIN.LIVELY_VERSE.LIVELY_GUARD"));
   }
 
   function _initACLScopes(
@@ -566,6 +296,6 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
   }
 
   function getLibrary() external pure returns (address) {
-    return address(LACLManager);
+    return address(LACLCommons);
   }
 }
