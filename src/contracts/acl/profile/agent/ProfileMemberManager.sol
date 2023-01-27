@@ -14,6 +14,7 @@ import "../../ACLStorage.sol";
 import "../../../lib/acl/LProfileStorage.sol";
 import "../../../lib/struct/LEnumerableSet.sol";
 import "../../../lib/acl/LACLUtils.sol";
+import "../../../lib/acl/LProfileCommons.sol";
 import "../../../proxy/IProxy.sol";
 import "../../../proxy/BaseUUPSProxy.sol";
 
@@ -62,14 +63,16 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
       (ProfileEntity storage profileEntity, bytes32 functionId) = _accessPermission(requests[i].profileId, IProfileMemberManagement.profileMemberRegister.selector);
       bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
 
-      // check profile and member limitations and update it
-      ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(senderId);
-      require(profileMemberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
-      require(profileEntity.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-      require(profileMemberEntity.registerLimits.memberRegisterLimit - uint16(requests[i].members.length) > 0, "Illegal MemeberRegisterLimit");
-      require(profileEntity.registerLimits.memberRegisterLimit - uint16(requests[i].members.length) > 0, "Illegal RegisterLimit");
-      profileMemberEntity.registerLimits.memberRegisterLimit -= uint16(requests[i].members.length); 
-      profileEntity.registerLimits.memberRegisterLimit -= uint16(requests[i].members.length);
+      LProfileCommons.profileCheckMemberForMemberRegister(profileEntity, uint16(requests[i].members.length), senderId);
+
+      // // check profile and member limitations and update it
+      // ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(senderId);
+      // require(profileMemberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
+      // require(profileEntity.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
+      // require(profileMemberEntity.registerLimits.memberRegisterLimit - uint16(requests[i].members.length) > 0, "Illegal MemeberRegisterLimit");
+      // require(profileEntity.registerLimits.memberRegisterLimit - uint16(requests[i].members.length) > 0, "Illegal RegisterLimit");
+      // profileMemberEntity.registerLimits.memberRegisterLimit -= uint16(requests[i].members.length); 
+      // profileEntity.registerLimits.memberRegisterLimit -= uint16(requests[i].members.length);
 
       for (uint256 j = 0; j < requests[i].members.length; j++) {     
         _doProfileMemberRegister(profileEntity, requests[i].members[j], senderId, requests[i].profileId, functionId);
@@ -181,31 +184,32 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
   }
 
   function profileMemberCheckAdmin(bytes32 profileId, bytes32 memberId, address account) external view returns (bool) {
-    ProfileEntity storage profileEntity = _data.profiles[profileId];
-    if(profileEntity.acstat == ActivityStatus.NONE) return false;
-    if (profileEntity.agents[memberId].atype != AgentType.MEMBER) return false;    
+    return LProfileCommons.profileMemberCheckAdmin(_data, profileId, memberId, account);
+    // ProfileEntity storage profileEntity = _data.profiles[profileId];
+    // if(profileEntity.acstat == ActivityStatus.NONE) return false;
+    // if (profileEntity.agents[memberId].atype != AgentType.MEMBER) return false;    
     
-    bytes32 memberAdminId = profileEntity.agents[memberId].adminId;
-    AgentType adminAgenType = profileEntity.agents[memberAdminId].atype;
-    bytes32 accountId = LACLUtils.accountGenerateId(account);
+    // bytes32 memberAdminId = profileEntity.agents[memberId].adminId;
+    // AgentType adminAgenType = profileEntity.agents[memberAdminId].atype;
+    // bytes32 accountId = LACLUtils.accountGenerateId(account);
 
-    if(adminAgenType == AgentType.ROLE) {
-      (RoleEntity storage roleEntity, bool result) = profileEntity.profileRoleTryReadSlot(memberAdminId);
-      if(!result) return false;
+    // if(adminAgenType == AgentType.ROLE) {
+    //   (RoleEntity storage roleEntity, bool result) = profileEntity.profileRoleTryReadSlot(memberAdminId);
+    //   if(!result) return false;
 
-      (TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(roleEntity.typeId);
-      if(!result1) return false;  
+    //   (TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(roleEntity.typeId);
+    //   if(!result1) return false;  
 
-      return typeEntity.members[accountId] != bytes32(0);
+    //   return typeEntity.members[accountId] != bytes32(0);
     
-    } else if(adminAgenType == AgentType.TYPE) {
-      (TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(memberAdminId);
-      if(!result1) return false;  
+    // } else if(adminAgenType == AgentType.TYPE) {
+    //   (TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(memberAdminId);
+    //   if(!result1) return false;  
 
-      return typeEntity.members[accountId] != bytes32(0);  
-    }
+    //   return typeEntity.members[accountId] != bytes32(0);  
+    // }
   
-    return false;
+    // return false;
   }
 
 
@@ -226,98 +230,100 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
   }
 
   function profileMemberGetInfo(bytes32 profileId, bytes32 memberId) external view returns (ProfileMemberInfo memory) {
-    ProfileEntity storage profileEntity = _data.profiles[profileId];
-    (ProfileMemberEntity storage member, bool result) = profileEntity.profileMemberTryReadSlot(memberId);
-    if(!result || profileEntity.acstat == ActivityStatus.NONE) {
-      return ProfileMemberInfo({
-        adminId: bytes32(0),
-        account: address(0),
-        typeLimit: 0,
-        typeCount: 0,
-        callLimit: 0,
-        registerLimit: ProfileRegisterLimit({
-          memberRegisterLimit: 0,
-          roleRegisterLimit: 0,
-          typeRegisterLimit: 0,
-          functionRegisterLimit: 0,
-          contextRegisterLimit: 0,
-          realmRegisterLimit: 0,
-          domainRegisterLimit: 0,
-          policyRegisterLimit: 0
-        }),
-        atype: AgentType.NONE,
-        acstat: ActivityStatus.NONE,
-        alstat: AlterabilityStatus.NONE
-      });
-    }
+    return LProfileCommons.profileMemberGetInfo(_data, profileId, memberId);
+    // ProfileEntity storage profileEntity = _data.profiles[profileId];
+    // (ProfileMemberEntity storage member, bool result) = profileEntity.profileMemberTryReadSlot(memberId);
+    // if(!result || profileEntity.acstat == ActivityStatus.NONE) {
+    //   return ProfileMemberInfo({
+    //     adminId: bytes32(0),
+    //     account: address(0),
+    //     typeLimit: 0,
+    //     typeCount: 0,
+    //     callLimit: 0,
+    //     registerLimit: ProfileRegisterLimit({
+    //       memberRegisterLimit: 0,
+    //       roleRegisterLimit: 0,
+    //       typeRegisterLimit: 0,
+    //       functionRegisterLimit: 0,
+    //       contextRegisterLimit: 0,
+    //       realmRegisterLimit: 0,
+    //       domainRegisterLimit: 0,
+    //       policyRegisterLimit: 0
+    //     }),
+    //     atype: AgentType.NONE,
+    //     acstat: ActivityStatus.NONE,
+    //     alstat: AlterabilityStatus.NONE
+    //   });
+    // }
 
-    return ProfileMemberInfo({
-      adminId: member.ba.adminId,
-      account: member.account,
-      typeLimit: member.typeLimit,
-      typeCount: uint32(member.types.length()),
-      callLimit: member.callLimit,
-      registerLimit: ProfileRegisterLimit({
-        memberRegisterLimit: member.registerLimits.memberRegisterLimit,
-        roleRegisterLimit: member.registerLimits.roleRegisterLimit,
-        typeRegisterLimit: member.registerLimits.typeRegisterLimit,
-        functionRegisterLimit: member.registerLimits.functionRegisterLimit,
-        contextRegisterLimit: member.registerLimits.contextRegisterLimit,
-        realmRegisterLimit: member.registerLimits.realmRegisterLimit,
-        domainRegisterLimit: member.registerLimits.domainRegisterLimit,
-        policyRegisterLimit:member.registerLimits.policyRegisterLimit
-      }),
-      atype: member.ba.atype,
-      acstat: member.ba.acstat,
-      alstat: member.ba.alstat
-    });
+    // return ProfileMemberInfo({
+    //   adminId: member.ba.adminId,
+    //   account: member.account,
+    //   typeLimit: member.typeLimit,
+    //   typeCount: uint32(member.types.length()),
+    //   callLimit: member.callLimit,
+    //   registerLimit: ProfileRegisterLimit({
+    //     memberRegisterLimit: member.registerLimits.memberRegisterLimit,
+    //     roleRegisterLimit: member.registerLimits.roleRegisterLimit,
+    //     typeRegisterLimit: member.registerLimits.typeRegisterLimit,
+    //     functionRegisterLimit: member.registerLimits.functionRegisterLimit,
+    //     contextRegisterLimit: member.registerLimits.contextRegisterLimit,
+    //     realmRegisterLimit: member.registerLimits.realmRegisterLimit,
+    //     domainRegisterLimit: member.registerLimits.domainRegisterLimit,
+    //     policyRegisterLimit:member.registerLimits.policyRegisterLimit
+    //   }),
+    //   atype: member.ba.atype,
+    //   acstat: member.ba.acstat,
+    //   alstat: member.ba.alstat
+    // });
   }
 
   function _doCheckAdminAccess(ProfileEntity storage profileEntity, bytes32 adminId, bytes32 senderId, bytes32 functionId) internal view returns (IProfileACL.ProfileAdminAccessStatus) {
-    // owners always access to all entities to modify those
-    if(profileEntity.admins.contains(senderId)) return IProfileACL.ProfileAdminAccessStatus.PERMITTED;
+    return LProfileCommons.profileCheckAdminAccess(profileEntity, adminId, senderId, functionId);
+    // // owners always access to all entities to modify those
+    // if(profileEntity.admins.contains(senderId)) return IProfileACL.ProfileAdminAccessStatus.PERMITTED;
 
-    (FunctionEntity storage functionEntity, bool res) = profileEntity.profileFunctionTryReadSlot(functionId);    
-    if (!res) return IProfileACL.ProfileAdminAccessStatus.FUNCTION_NOT_FOUND;
+    // (FunctionEntity storage functionEntity, bool res) = profileEntity.profileFunctionTryReadSlot(functionId);    
+    // if (!res) return IProfileACL.ProfileAdminAccessStatus.FUNCTION_NOT_FOUND;
 
-    // if(profileEntity.agents[senderId].acstat != ActivityStatus.ENABLED) return false;
+    // // if(profileEntity.agents[senderId].acstat != ActivityStatus.ENABLED) return false;
     
-    AgentType adminAgentType = profileEntity.agents[adminId].atype;
-    if(adminAgentType == AgentType.ROLE) {
-      (RoleEntity storage roleEntity, bool result) = profileEntity.profileRoleTryReadSlot(adminId);
-      if(!result) return IProfileACL.ProfileAdminAccessStatus.ROLE_NOT_FOUND;
-      if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAdminAccessStatus.ROLE_ACTIVITY_FORBIDDEN;
+    // AgentType adminAgentType = profileEntity.agents[adminId].atype;
+    // if(adminAgentType == AgentType.ROLE) {
+    //   (RoleEntity storage roleEntity, bool result) = profileEntity.profileRoleTryReadSlot(adminId);
+    //   if(!result) return IProfileACL.ProfileAdminAccessStatus.ROLE_NOT_FOUND;
+    //   if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAdminAccessStatus.ROLE_ACTIVITY_FORBIDDEN;
 
-      (TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(roleEntity.typeId);
-      if(!result1) return IProfileACL.ProfileAdminAccessStatus.TYPE_NOT_FOUND;
-      if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAdminAccessStatus.TYPE_ACTIVITY_FORBIDDEN;
+    //   (TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(roleEntity.typeId);
+    //   if(!result1) return IProfileACL.ProfileAdminAccessStatus.TYPE_NOT_FOUND;
+    //   if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAdminAccessStatus.TYPE_ACTIVITY_FORBIDDEN;
       
-      if (typeEntity.members[senderId] != adminId) return IProfileACL.ProfileAdminAccessStatus.NOT_PERMITTED;
+    //   if (typeEntity.members[senderId] != adminId) return IProfileACL.ProfileAdminAccessStatus.NOT_PERMITTED;
       
-      PolicyEntity storage policyEntity = profileEntity.policies[profileEntity.rolePolicyMap[adminId]];
-      if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
-        return IProfileACL.ProfileAdminAccessStatus.POLICY_FORBIDDEN;
+    //   PolicyEntity storage policyEntity = profileEntity.policies[profileEntity.rolePolicyMap[adminId]];
+    //   if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
+    //     return IProfileACL.ProfileAdminAccessStatus.POLICY_FORBIDDEN;
 
-      return IProfileACL.ProfileAdminAccessStatus.PERMITTED;
+    //   return IProfileACL.ProfileAdminAccessStatus.PERMITTED;
    
-    } else if(adminAgentType == AgentType.TYPE) { 
-      (TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(adminId);
-      if(!result1) return IProfileACL.ProfileAdminAccessStatus.TYPE_NOT_FOUND;
-      if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAdminAccessStatus.TYPE_ACTIVITY_FORBIDDEN;
+    // } else if(adminAgentType == AgentType.TYPE) { 
+    //   (TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(adminId);
+    //   if(!result1) return IProfileACL.ProfileAdminAccessStatus.TYPE_NOT_FOUND;
+    //   if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAdminAccessStatus.TYPE_ACTIVITY_FORBIDDEN;
 
-      bytes32 roleId = typeEntity.members[senderId];
-      (RoleEntity storage roleEntity, bool result2) = profileEntity.profileRoleTryReadSlot(roleId);
-      if(!result2) return IProfileACL.ProfileAdminAccessStatus.ROLE_NOT_FOUND;
-      if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAdminAccessStatus.ROLE_ACTIVITY_FORBIDDEN;
+    //   bytes32 roleId = typeEntity.members[senderId];
+    //   (RoleEntity storage roleEntity, bool result2) = profileEntity.profileRoleTryReadSlot(roleId);
+    //   if(!result2) return IProfileACL.ProfileAdminAccessStatus.ROLE_NOT_FOUND;
+    //   if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAdminAccessStatus.ROLE_ACTIVITY_FORBIDDEN;
       
-      PolicyEntity storage policyEntity = profileEntity.policies[profileEntity.rolePolicyMap[roleId]];
-      if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
-        return IProfileACL.ProfileAdminAccessStatus.POLICY_FORBIDDEN;
+    //   PolicyEntity storage policyEntity = profileEntity.policies[profileEntity.rolePolicyMap[roleId]];
+    //   if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
+    //     return IProfileACL.ProfileAdminAccessStatus.POLICY_FORBIDDEN;
 
-      return IProfileACL.ProfileAdminAccessStatus.PERMITTED;
-    } 
+    //   return IProfileACL.ProfileAdminAccessStatus.PERMITTED;
+    // } 
 
-    return IProfileACL.ProfileAdminAccessStatus.NOT_PERMITTED;
+    // return IProfileACL.ProfileAdminAccessStatus.NOT_PERMITTED;
   }
 
   function _accessPermission(bytes32 profileId, bytes4 selector) internal returns (ProfileEntity storage, bytes32) {
@@ -360,7 +366,7 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
     }
   }
 
-    function _doProfileMemberRegister(ProfileEntity storage profileEntity, ProfileMemberRegisterDataRequest calldata memberRequest, bytes32 senderId, bytes32 profileId, bytes32 functionId) internal {
+  function _doProfileMemberRegister(ProfileEntity storage profileEntity, ProfileMemberRegisterDataRequest calldata memberRequest, bytes32 senderId, bytes32 profileId, bytes32 functionId) internal {
     bytes32 newMemberId = LACLUtils.accountGenerateId(memberRequest.account);      
           
     // check role

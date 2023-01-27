@@ -27,20 +27,12 @@ interface IProfilePolicyManagement is IACLCommons {
 
   struct ProfilePolicyAddRolesRequest {
     bytes32 profileId;
-    ProfilePolicyAddRolesDataRequest[] data;
-  }
-
-  struct ProfilePolicyAddRolesDataRequest {
     bytes32 policyId;
     bytes32[] roles;
   }
-  
+
   struct ProfilePolicyRemoveRolesRequest {
     bytes32 profileId;
-    ProfilePolicyRemoveRolesDataRequest[] data;
-  }
-
-  struct ProfilePolicyRemoveRolesDataRequest {
     bytes32 policyId;
     bytes32[] roles;
   }
