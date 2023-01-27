@@ -268,23 +268,114 @@ library LProfileCommons {
     return (newRoleId, newRole.ba.adminId);
   }
 
-  function profileRoleGrantMembers(ACLStorage.DataCollection storage data, IACLCommons.ProfileEntity storage profileEntity, IACLCommons.RoleEntity storage roleEntity, IACLCommons.TypeEntity storage typeEntity, bytes32 profileId, bytes32 roleId, bytes32 memberId) external {
-    require(roleEntity.memberCount < roleEntity.memberLimit, "Illegal Grant");
-    IACLCommons.ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(memberId);
-    if(profileMemberEntity.types.contains(roleEntity.typeId)) {
-      require(typeEntity.members[memberId] != roleId, "Already Exist");
-    } else {
-      require(profileMemberEntity.ba.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
-      require(profileMemberEntity.typeLimit > profileMemberEntity.types.length(), "Illegal TypeLimit");
-      _updateProfileAccount(data, profileMemberEntity, profileId, roleEntity.typeId, false);
-      // check and add member from admin
-      if(roleEntity.typeId == LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID) 
-        profileEntity.admins.add(memberId);          
-    }
+  // function profileRoleGrantMembers(ACLStorage.DataCollection storage data, IACLCommons.ProfileEntity storage profileEntity, IACLCommons.RoleEntity storage roleEntity, IProfileRoleManagement.ProfileRoleGrantMembersRequest calldata request) external {
+  //   IACLCommons.TypeEntity storage typeEntity = profileEntity.profileTypeReadSlot(roleEntity.typeId);
+  //   require(typeEntity.ba.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Type Updatable");  
 
-    typeEntity.members[memberId] = roleId;
-    roleEntity.memberCount += 1;        
+  //   for (uint256 k = 0; k < request.members.length; k++) {
+  //     require(roleEntity.memberCount < roleEntity.memberLimit, "Illegal Grant");
+  //     IACLCommons.ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(request.members[k]);
+  //     if(profileMemberEntity.types.contains(roleEntity.typeId)) {
+  //       require(typeEntity.members[request.members[k]] != request.roleId, "Already Exist");
+  //     } else {
+  //       require(profileMemberEntity.ba.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
+  //       require(profileMemberEntity.typeLimit > profileMemberEntity.types.length(), "Illegal TypeLimit");
+  //       _updateProfileAccount(data, profileMemberEntity, request.profileId, roleEntity.typeId,  false);
+  //       // check and add member from admin
+  //       if(roleEntity.typeId == LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID) 
+  //         profileEntity.admins.add(request.members[k]);          
+  //     }
+
+  //     typeEntity.members[request.members[k]] = request.roleId;
+  //     roleEntity.memberCount += 1;      
+  //   }
+  // }
+
+  function profileRoleGetInfo(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 roleId) external view returns (IProfileRoleManagement.ProfileRoleInfo memory) {
+    IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
+    (IACLCommons.RoleEntity storage roleEntity, bool result) = profileEntity.profileRoleTryReadSlot(roleId);
+    if(!result || profileEntity.acstat == IACLCommons.ActivityStatus.NONE) {
+      return IProfileRoleManagement.ProfileRoleInfo ({
+        scopeId: bytes32(0),
+        typeId: bytes32(0),
+        adminId: bytes32(0),
+        memberLimit: 0,
+        memberCount: 0,
+        atype: IACLCommons.AgentType.NONE,
+        acstat: IACLCommons.ActivityStatus.NONE,
+        alstat: IACLCommons.AlterabilityStatus.NONE,
+        name: ""
+      });
+    }
+    return IProfileRoleManagement.ProfileRoleInfo ({
+      scopeId: roleEntity.scopeId,
+      typeId: roleEntity.typeId,
+      adminId: roleEntity.ba.adminId,
+      memberLimit: roleEntity.memberLimit,
+      memberCount: roleEntity.memberCount,
+      atype: roleEntity.ba.atype,
+      acstat: roleEntity.ba.acstat,
+      alstat: roleEntity.ba.alstat,
+      name: roleEntity.name
+    });
   }
+
+  function profileRoleHasAccount(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 roleId, address account) external view returns (bool) {
+    IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
+    if(profileEntity.acstat == IACLCommons.ActivityStatus.NONE) return false;
+    bytes32 memberId = LACLUtils.accountGenerateId(account);
+
+    (IACLCommons.RoleEntity storage roleEntity, bool result) = profileEntity.profileRoleTryReadSlot(roleId);
+    if(!result) return false;
+
+    (IACLCommons.TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(roleEntity.typeId);
+    if(!result1) return false;  
+
+    return typeEntity.members[memberId] != bytes32(0);
+  }
+
+  function profileRoleCheckAdmin(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 roleId, address account) external view returns (bool) {
+    IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
+    if(profileEntity.acstat == IACLCommons.ActivityStatus.NONE) return false;
+    if (profileEntity.agents[roleId].atype != IACLCommons.AgentType.ROLE) return false;    
+    
+    bytes32 roleAdminId = profileEntity.agents[roleId].adminId;
+    IACLCommons.AgentType adminAgenType = profileEntity.agents[roleAdminId].atype;
+    bytes32 memberId = LACLUtils.accountGenerateId(account);
+
+    if(adminAgenType == IACLCommons.AgentType.ROLE) {
+      (IACLCommons.RoleEntity storage roleEntity, bool result) = profileEntity.profileRoleTryReadSlot(roleId);
+      if(!result) return false;
+
+      (IACLCommons.TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(roleEntity.typeId);
+      if(!result1) return false;  
+
+      return typeEntity.members[memberId] != bytes32(0);
+
+    
+    } else if(adminAgenType == IACLCommons.AgentType.TYPE) {
+      (IACLCommons.TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(roleAdminId);
+      if(!result1) return false;  
+
+      return typeEntity.members[memberId] != bytes32(0);  
+    }
+  
+    return false;
+  }
+
+  function profileRoleUpdateScope(IProfileRoleManagement.ProfileScopeRequest calldata request, IACLCommons.ProfileEntity storage profileEntity, bytes32 profileId, bytes32 senderId, bytes32 functionId) external returns (bool) {    
+
+    IACLCommons.RoleEntity storage roleEntity = _doProfileGetRoleEntityAndCheckAdminAccess(profileEntity, request.entityId, senderId, functionId);
+    IACLCommons.TypeEntity storage typeEntity = profileEntity.profileTypeReadSlot(roleEntity.typeId);
+    _doProfileCheckRoleRequestScope(profileEntity, request.scopeId, typeEntity.scopeId, profileId);
+    IACLCommons.BaseScope storage oldScope = profileEntity.scopes[roleEntity.scopeId];
+    require(oldScope.referredByAgent > 0, "Illeagl ReferredByAgent");
+    oldScope.referredByAgent -= 1;
+    roleEntity.scopeId = request.scopeId;
+
+    return true;
+  }
+
 
   function profileGetRoleEntityAndCheckAdminAccess(IACLCommons.ProfileEntity storage profileEntity, bytes32 roleId, bytes32 senderId, bytes32 functionId) external view returns (IACLCommons.RoleEntity storage) {
     return _doProfileGetRoleEntityAndCheckAdminAccess(profileEntity, roleId, senderId, functionId);
@@ -299,6 +390,11 @@ library LProfileCommons {
     if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
     return roleEntity;
   }
+
+  function updateProfileAccount(ACLStorage.DataCollection storage data, IACLCommons.ProfileMemberEntity storage profileMemberEntity, bytes32 profileId, bytes32 typeId, bool isRevoke) external {
+    return _updateProfileAccount(data, profileMemberEntity, profileId, typeId, isRevoke);
+  }
+
 
   function _updateProfileAccount(ACLStorage.DataCollection storage data, IACLCommons.ProfileMemberEntity storage profileMemberEntity, bytes32 profileId, bytes32 typeId, bool isRevoke) internal {
     IACLCommons.ProfileAccount storage profileAccount = data.profileAccounts[profileMemberEntity.account];

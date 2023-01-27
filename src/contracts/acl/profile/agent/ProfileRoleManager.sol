@@ -126,13 +126,14 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
       (ProfileEntity storage profileEntity, bytes32 functionId) = _accessPermission(requests[i].profileId, IProfileRoleManagement.profileRoleUpdateScope.selector);
       bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
       for(uint j = 0; j < requests[i].data.length; j++) {
-        RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].data[j].entityId, senderId, functionId);
-        TypeEntity storage typeEntity = profileEntity.profileTypeReadSlot(roleEntity.typeId);
-        _getAndCheckRequestScope(profileEntity, requests[i].data[j].scopeId, typeEntity.scopeId, requests[i].profileId);
-        BaseScope storage oldScope = profileEntity.scopes[roleEntity.scopeId];
-        require(oldScope.referredByAgent > 0, "Illeagl ReferredByAgent");
-        oldScope.referredByAgent -= 1;
-        roleEntity.scopeId = requests[i].data[j].scopeId;
+        LProfileCommons.profileRoleUpdateScope(requests[i].data[j], profileEntity, requests[i].profileId, senderId, functionId);
+        // RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].data[j].entityId, senderId, functionId);        
+        // TypeEntity storage typeEntity = profileEntity.profileTypeReadSlot(roleEntity.typeId);
+        // _getAndCheckRequestScope(profileEntity, requests[i].data[j].scopeId, typeEntity.scopeId, requests[i].profileId);
+        // BaseScope storage oldScope = profileEntity.scopes[roleEntity.scopeId];
+        // require(oldScope.referredByAgent > 0, "Illeagl ReferredByAgent");
+        // oldScope.referredByAgent -= 1;
+        // roleEntity.scopeId = requests[i].data[j].scopeId;
         emit ProfileRoleScopeUpdated(msg.sender, requests[i].profileId, requests[i].data[j].entityId, requests[i].data[j].scopeId);
       }
     }
@@ -189,10 +190,9 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
       bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
       RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].roleId, senderId, functionId);
       TypeEntity storage typeEntity = profileEntity.profileTypeReadSlot(roleEntity.typeId);
-      require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Type Updatable");  
-
-      for (uint j = 0; j < requests[i].members.length; j++) {
-        // LProfileCommons.profileRoleGrantMembers(_data, profileEntity, roleEntity, typeEntity, requests[i].profileId, requests[i].data[j].roleId, requests[i].data[j].members[k]);
+      require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Type Updatable");
+      // LProfileCommons.profileRoleGrantMembers(_data, profileEntity, roleEntity, requests[i]);        
+      for (uint j = 0; j < requests[i].members.length; j++) {        
         require(roleEntity.memberCount < roleEntity.memberLimit, "Illegal Grant");
         ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(requests[i].members[j]);
         if(profileMemberEntity.types.contains(roleEntity.typeId)) {
@@ -267,91 +267,90 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
   }
 
   function profileRoleCheckAdmin(bytes32 profileId, bytes32 roleId, address account) external view returns (bool) {
-    ProfileEntity storage profileEntity = _data.profiles[profileId];
-    if(profileEntity.acstat == ActivityStatus.NONE) return false;
-    if (profileEntity.agents[roleId].atype != AgentType.ROLE) return false;    
+    return LProfileCommons.profileRoleCheckAdmin(_data, profileId, roleId, account);
+    // ProfileEntity storage profileEntity = _data.profiles[profileId];
+    // if(profileEntity.acstat == ActivityStatus.NONE) return false;
+    // if (profileEntity.agents[roleId].atype != AgentType.ROLE) return false;    
     
-    bytes32 roleAdminId = profileEntity.agents[roleId].adminId;
-    AgentType adminAgenType = profileEntity.agents[roleAdminId].atype;
-    bytes32 memberId = LACLUtils.accountGenerateId(account);
+    // bytes32 roleAdminId = profileEntity.agents[roleId].adminId;
+    // AgentType adminAgenType = profileEntity.agents[roleAdminId].atype;
+    // bytes32 memberId = LACLUtils.accountGenerateId(account);
 
-    if(adminAgenType == AgentType.ROLE) {
-      return _doRoleHasMember(profileEntity, roleAdminId, memberId);
+    // if(adminAgenType == AgentType.ROLE) {
+    //   return _doRoleHasMember(profileEntity, roleAdminId, memberId);
     
-    } else if(adminAgenType == AgentType.TYPE) {
-      (TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(roleAdminId);
-      if(!result1) return false;  
+    // } else if(adminAgenType == AgentType.TYPE) {
+    //   (TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(roleAdminId);
+    //   if(!result1) return false;  
 
-      return typeEntity.members[memberId] != bytes32(0);  
-    }
+    //   return typeEntity.members[memberId] != bytes32(0);  
+    // }
   
-    return false;
-  }
-
-  function profileTypeHasAccount(bytes32 profileId, bytes32 typeId, address account) external view returns (bool) {
-
+    // return false;
   }
 
   function profileRoleHasAccount(bytes32 profileId, bytes32 roleId, address account) external view returns (bool) {
-    ProfileEntity storage profileEntity = _data.profiles[profileId];
-    if(profileEntity.acstat == ActivityStatus.NONE) return false;
-    return _doRoleHasMember(profileEntity, roleId, LACLUtils.accountGenerateId(account));
+    return LProfileCommons.profileRoleHasAccount(_data, profileId, roleId, account);
+    // ProfileEntity storage profileEntity = _data.profiles[profileId];
+    // if(profileEntity.acstat == ActivityStatus.NONE) return false;
+    // return _doRoleHasMember(profileEntity, roleId, LACLUtils.accountGenerateId(account));
   }
 
-  function _doRoleHasMember(ProfileEntity storage profileEntity, bytes32 roleId, bytes32 memberId) internal view returns (bool) {
-    (RoleEntity storage roleEntity, bool result) = profileEntity.profileRoleTryReadSlot(roleId);
-    if(!result) return false;
+  // function _doRoleHasMember(ProfileEntity storage profileEntity, bytes32 roleId, bytes32 memberId) internal view returns (bool) {
+  //   (RoleEntity storage roleEntity, bool result) = profileEntity.profileRoleTryReadSlot(roleId);
+  //   if(!result) return false;
 
-    (TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(roleEntity.typeId);
-    if(!result1) return false;  
+  //   (TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(roleEntity.typeId);
+  //   if(!result1) return false;  
 
-    return typeEntity.members[memberId] != bytes32(0);
-  }
+  //   return typeEntity.members[memberId] != bytes32(0);
+  // }
 
   function profileRoleGetInfo(bytes32 profileId, bytes32 roleId) external view returns (ProfileRoleInfo memory) {
-    ProfileEntity storage profileEntity = _data.profiles[profileId];
-    (RoleEntity storage roleEntity, bool result) = profileEntity.profileRoleTryReadSlot(roleId);
-    if(!result || profileEntity.acstat == ActivityStatus.NONE) {
-      return ProfileRoleInfo ({
-        scopeId: bytes32(0),
-        typeId: bytes32(0),
-        adminId: bytes32(0),
-        memberLimit: 0,
-        memberCount: 0,
-        atype: AgentType.NONE,
-        acstat: ActivityStatus.NONE,
-        alstat: AlterabilityStatus.NONE,
-        name: ""
-      });
-    }
-    return ProfileRoleInfo ({
-      scopeId: roleEntity.scopeId,
-      typeId: roleEntity.typeId,
-      adminId: roleEntity.ba.adminId,
-      memberLimit: roleEntity.memberLimit,
-      memberCount: roleEntity.memberCount,
-      atype: roleEntity.ba.atype,
-      acstat: roleEntity.ba.acstat,
-      alstat: roleEntity.ba.alstat,
-      name: roleEntity.name
-    });
+    return LProfileCommons.profileRoleGetInfo(_data, profileId, roleId);
+    // ProfileEntity storage profileEntity = _data.profiles[profileId];
+    // (RoleEntity storage roleEntity, bool result) = profileEntity.profileRoleTryReadSlot(roleId);
+    // if(!result || profileEntity.acstat == ActivityStatus.NONE) {
+    //   return ProfileRoleInfo ({
+    //     scopeId: bytes32(0),
+    //     typeId: bytes32(0),
+    //     adminId: bytes32(0),
+    //     memberLimit: 0,
+    //     memberCount: 0,
+    //     atype: AgentType.NONE,
+    //     acstat: ActivityStatus.NONE,
+    //     alstat: AlterabilityStatus.NONE,
+    //     name: ""
+    //   });
+    // }
+    // return ProfileRoleInfo ({
+    //   scopeId: roleEntity.scopeId,
+    //   typeId: roleEntity.typeId,
+    //   adminId: roleEntity.ba.adminId,
+    //   memberLimit: roleEntity.memberLimit,
+    //   memberCount: roleEntity.memberCount,
+    //   atype: roleEntity.ba.atype,
+    //   acstat: roleEntity.ba.acstat,
+    //   alstat: roleEntity.ba.alstat,
+    //   name: roleEntity.name
+    // });
   }
 
-  function _doAgentGetScopeInfo(ProfileEntity storage profileEntity, bytes32 agentId) internal view returns (ScopeType, bytes32) {
-    AgentType atype = _data.agents[agentId].atype;
-    if (atype == AgentType.ROLE) {
-      RoleEntity storage roleEntity = profileEntity.profileRoleReadSlot(agentId);
-      BaseScope storage baseScope = profileEntity.scopes[roleEntity.scopeId];
-      return (baseScope.stype, roleEntity.scopeId);
+  // function _doAgentGetScopeInfo(ProfileEntity storage profileEntity, bytes32 agentId) internal view returns (ScopeType, bytes32) {
+  //   AgentType atype = _data.agents[agentId].atype;
+  //   if (atype == AgentType.ROLE) {
+  //     RoleEntity storage roleEntity = profileEntity.profileRoleReadSlot(agentId);
+  //     BaseScope storage baseScope = profileEntity.scopes[roleEntity.scopeId];
+  //     return (baseScope.stype, roleEntity.scopeId);
 
-    } else if(atype == AgentType.TYPE) {
-      TypeEntity storage typeEntity = profileEntity.profileTypeReadSlot(agentId);
-      BaseScope storage baseScope = profileEntity.scopes[typeEntity.scopeId];
-      return (baseScope.stype, typeEntity.scopeId);
-    }
+  //   } else if(atype == AgentType.TYPE) {
+  //     TypeEntity storage typeEntity = profileEntity.profileTypeReadSlot(agentId);
+  //     BaseScope storage baseScope = profileEntity.scopes[typeEntity.scopeId];
+  //     return (baseScope.stype, typeEntity.scopeId);
+  //   }
 
-    return (ScopeType.NONE, bytes32(0));  
-  }
+  //   return (ScopeType.NONE, bytes32(0));  
+  // }
 
   function _doCheckAdminAccess(ProfileEntity storage profileEntity, bytes32 adminId, bytes32 senderId, bytes32 functionId) internal view returns (IProfileACL.ProfileAdminAccessStatus) {
     return LProfileCommons.profileCheckAdminAccess(profileEntity, adminId, senderId, functionId);
@@ -471,34 +470,35 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
   }
 
   function _updateProfileAccount(bytes32 profileId, bytes32 typeId, ProfileMemberEntity storage profileMemberEntity, bool isRevoke) internal {
-    ProfileAccount storage profileAccount = _data.profileAccounts[profileMemberEntity.account];
-    bool findFlag = false;
-    for (uint i = 0; i < profileAccount.profiles.length; i++) {
-      if(profileAccount.profiles[i] == profileId) {
-        findFlag = true;
-        if(!isRevoke) {
-          if((profileMemberEntity.types.contains(_LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID) || 
-            profileMemberEntity.types.contains(_LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID)) &&
-            (typeId == _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID || typeId == _LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID)) 
-          {
-            revert ("Illegal GrantMemberType");
-          }      
+    return LProfileCommons.updateProfileAccount(_data, profileMemberEntity, profileId, typeId, isRevoke);
+    // ProfileAccount storage profileAccount = _data.profileAccounts[profileMemberEntity.account];
+    // bool findFlag = false;
+    // for (uint i = 0; i < profileAccount.profiles.length; i++) {
+    //   if(profileAccount.profiles[i] == profileId) {
+    //     findFlag = true;
+    //     if(!isRevoke) {
+    //       if((profileMemberEntity.types.contains(_LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID) || 
+    //         profileMemberEntity.types.contains(_LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID)) &&
+    //         (typeId == _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID || typeId == _LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID)) 
+    //       {
+    //         revert ("Illegal GrantMemberType");
+    //       }      
         
-        } else {          
-          if(profileAccount.profiles.length > 1) {
-            if(i < profileAccount.profiles.length - 1)
-              profileAccount.profiles[i] = profileAccount.profiles[profileAccount.profiles.length - 1];                
-            profileAccount.profiles.pop();
-          } else {
-            profileAccount.profiles.pop();
-            delete profileAccount.profiles;
-          }          
-        }
-        break;
-      }
-    }
+    //     } else {          
+    //       if(profileAccount.profiles.length > 1) {
+    //         if(i < profileAccount.profiles.length - 1)
+    //           profileAccount.profiles[i] = profileAccount.profiles[profileAccount.profiles.length - 1];                
+    //         profileAccount.profiles.pop();
+    //       } else {
+    //         profileAccount.profiles.pop();
+    //         delete profileAccount.profiles;
+    //       }          
+    //     }
+    //     break;
+    //   }
+    // }
 
-    require(!findFlag, "Profile Not Found");
+    // require(!findFlag, "Profile Not Found");
   }
 
   // function _doProfileRoleRegister(ProfileRoleRegisterDataRequest calldata roleRequest, ProfileEntity storage profileEntity, TypeEntity storage typeEntity, bytes32 newRoleId, bytes32 profileId) internal {
