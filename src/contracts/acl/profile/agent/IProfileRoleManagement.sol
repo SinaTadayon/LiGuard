@@ -25,23 +25,14 @@ interface IProfileRoleManagement is IACLCommons{
     string name;
   }
 
-
   struct ProfileRoleGrantMembersRequest {
     bytes32 profileId;
-    ProfileRoleGrantMembersDataRequest[] data;
-  }
-
-  struct ProfileRoleGrantMembersDataRequest {
     bytes32 roleId;
-    bytes32[] members;
+    bytes32[] members;    
   }
 
   struct ProfileRoleRevokeMembersRequest {
     bytes32 profileId;
-    ProfileRoleRevokeMembersDataRequest[] data;
-  }
-
-  struct ProfileRoleRevokeMembersDataRequest {
     bytes32 roleId;
     bytes32[] members;
   }

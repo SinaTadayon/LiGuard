@@ -16,13 +16,13 @@ import "../../utils/IERC165.sol";
 import "../../acl/profile/IProfileACL.sol";
 import "../../acl/profile/scope/IProfileContextManagement.sol";
 import "../../acl/profile/scope/IProfileFunctionManagement.sol";
-// import "../../acl/profile/scope/IProfileRealmManagement.sol";
+import "../../acl/profile/scope/IProfileRealmManagement.sol";
 import "../../acl/profile/scope/IProfileDomainManagement.sol";
 // import "../../acl/profile/scope/IProfileGlobalManagement.sol";
-// import "../../acl/profile/agent/IProfileMemberManagement.sol";
-// import "../../acl/profile/agent/IProfileRoleManagement.sol";
+import "../../acl/profile/agent/IProfileMemberManagement.sol";
+import "../../acl/profile/agent/IProfileRoleManagement.sol";
 // import "../../acl/profile/agent/IProfileTypeManagement.sol";
-// import "../../acl/profile/policy/IProfilePolicyManagement.sol";
+import "../../acl/profile/policy/IProfilePolicyManagement.sol";
 
 import "hardhat/console.sol";
 
@@ -39,6 +39,10 @@ library LProfileCommons {
   string public constant LIB_NAME = "LProfileManager";
   string public constant LIB_VERSION = "3.0.0";
 
+  bytes32 public constant LIVELY_VERSE_ANONYMOUS_TYPE_ID             = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_ANONYMOUS"));
+  bytes32 public constant LIVELY_VERSE_ANY_TYPE_ID                   = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_ANY"));
+
+  bytes32 public constant LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID         = keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_MASTER"));
   bytes32 public constant LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID         = keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER"));
   bytes32 public constant LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID        = keccak256(abi.encodePacked("GLOBAL.LIVELY_PROFILE"));
 
@@ -126,6 +130,27 @@ library LProfileCommons {
     profileEntity.registerLimits.functionRegisterLimit -= uint16(requestLength);
   }
 
+  function profileCheckMemberForRealmRegister(IACLCommons.ProfileEntity storage profileEntity, uint16 requestLength, bytes32 senderId) external {
+      // check profile and realm limitations and update it
+    IACLCommons.ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(senderId);
+    require(profileMemberEntity.ba.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
+    require(profileEntity.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Updatable");
+    require(profileMemberEntity.registerLimits.domainRegisterLimit - uint16(requestLength) > 0, "Illegal RealmRegisterLimit");
+    require(profileEntity.registerLimits.realmRegisterLimit - uint16(requestLength) > 0, "Illegal RegisterLimit");
+    profileMemberEntity.registerLimits.realmRegisterLimit -= uint16(requestLength); 
+    profileEntity.registerLimits.realmRegisterLimit -= uint16(requestLength);
+  }
+
+  function profileCheckMemberForRoleRegister(IACLCommons.ProfileEntity storage profileEntity, uint16 requestLength, bytes32 senderId) external {
+    IACLCommons.ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(senderId);
+    require(profileMemberEntity.ba.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
+    require(profileEntity.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Updatable");
+    require(profileMemberEntity.registerLimits.roleRegisterLimit - uint16(requestLength) > 0, "Illegal RoleRegisterLimit");
+    require(profileEntity.registerLimits.roleRegisterLimit - uint16(requestLength) > 0, "Illegal RegisterLimit");
+    profileMemberEntity.registerLimits.roleRegisterLimit -= uint16(requestLength); 
+    profileEntity.registerLimits.roleRegisterLimit -= uint16(requestLength);
+  }
+
   function profileDomainRegister(IACLCommons.ProfileEntity storage profileEntity, IProfileDomainManagement.ProfileDomainRegisterDataRequest calldata request, bytes32 profileId, bytes32 senderId, bytes32 functionId) external returns (bytes32) {
     bytes32 newDomainId = LACLUtils.generateId(request.name);
     require(profileEntity.scopes[newDomainId].stype == IACLCommons.ScopeType.NONE, "Already Exist");
@@ -162,6 +187,217 @@ library LProfileCommons {
     }
 
     return newDomainId;
+  }
+
+  function profileRealmRegister(IProfileRealmManagement.ProfileRealmRegisterDataRequest calldata request, IACLCommons.ProfileEntity storage profileEntity, bytes32 senderId, bytes32 functionId, IACLCommons.ScopeType memberScopeType, bytes32 memberScopeId) external returns(bytes32) {
+    bytes32 newRealmId = LACLUtils.generateId(request.name);
+    require(profileEntity.scopes[newRealmId].stype == IACLCommons.ScopeType.NONE, "Already Exist");
+
+    // check sender scopes
+    require(memberScopeType >= IACLCommons.ScopeType.DOMAIN, "Illegal ScopeType");
+    if(memberScopeType == IACLCommons.ScopeType.DOMAIN) {
+      require(memberScopeId == request.domainId, "Illegal Domain Scope");
+
+    } else {
+      require(memberScopeId == LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Global Scope");
+    }
+
+
+    IACLCommons.DomainEntity storage domainEntity = profileEntity.profileDomainReadSlot(request.domainId);
+    require(domainEntity.bs.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Domain Updatable");
+    require(domainEntity.realmLimit > domainEntity.realms.length(), "Illegal Register");
+
+    // check access admin realm
+    IProfileACL.ProfileAdminAccessStatus status = _doProfileCheckAdminAccess(profileEntity, domainEntity.bs.adminId, senderId, functionId);
+    if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
+
+    // add to domain
+    domainEntity.realms.add(newRealmId);
+
+    // create new realm entity
+    IACLCommons.RealmEntity storage newRealm = profileEntity.profileRealmWriteSlot(newRealmId);
+    newRealm.bs.stype = IACLCommons.ScopeType.REALM;
+    newRealm.bs.acstat = IACLCommons.ActivityStatus.ENABLED;
+    newRealm.bs.alstat = IACLCommons.AlterabilityStatus.UPGRADABLE;
+    newRealm.name = request.name;
+    newRealm.domainId = request.domainId;
+    newRealm.contextLimit = profileEntity.limits.contextLimit;
+    newRealm.bs.adminId = _getProfileRealmAdmin(profileEntity, domainEntity.bs.adminId, request.domainId, request.adminId);
+
+    return newRealmId;    
+
+  }
+
+  function profileRoleRegister(IProfileRoleManagement.ProfileRoleRegisterDataRequest calldata request, IACLCommons.ProfileEntity storage profileEntity, bytes32 profileId, bytes32 senderId, bytes32 functionId) external returns (bytes32, bytes32) {
+    bytes32 newRoleId = LACLUtils.generateId(request.name);
+    require(profileEntity.agents[newRoleId].atype == IACLCommons.AgentType.NONE, "Role Already Exist");   
+    require(
+      request.typeId != LIVELY_VERSE_ANONYMOUS_TYPE_ID && 
+      request.typeId != LIVELY_VERSE_ANY_TYPE_ID,
+      "Illegal Type"
+    );
+
+    // check type
+    IACLCommons.TypeEntity storage typeEntity = profileEntity.profileTypeReadSlot(request.typeId);
+    require(typeEntity.ba.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Type Updatable");
+    require(typeEntity.roles.length() < typeEntity.roleLimit, "Illegal Register");
+    
+    {
+      // check access
+      IProfileACL.ProfileAdminAccessStatus status = _doProfileCheckAdminAccess(profileEntity, typeEntity.ba.adminId, senderId, functionId);
+      if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
+    }
+  
+    // check and get requested scope type
+    IACLCommons.ScopeType requestScopeType = _doProfileCheckRoleRequestScope(profileEntity, request.scopeId, typeEntity.scopeId, profileId);
+    
+    // add role to type 
+    typeEntity.roles.add(newRoleId);
+
+    // create role entity
+    IACLCommons.RoleEntity storage newRole = profileEntity.profileRoleWriteSlot(newRoleId);
+    newRole.ba.atype = IACLCommons.AgentType.ROLE;
+    newRole.ba.acstat = IACLCommons.ActivityStatus.ENABLED;
+    newRole.ba.alstat = IACLCommons.AlterabilityStatus.UPGRADABLE;
+    newRole.name = request.name;
+    newRole.scopeId = request.scopeId;
+    newRole.memberLimit = profileEntity.limits.memberLimit;
+    newRole.typeId = request.typeId;
+    newRole.ba.adminId = _doProfileGetRoleAdmin(profileEntity, requestScopeType, typeEntity.ba.adminId, request.scopeId, request.adminId, profileId);
+
+    return (newRoleId, newRole.ba.adminId);
+  }
+
+  function profileRoleGrantMembers(ACLStorage.DataCollection storage data, IACLCommons.ProfileEntity storage profileEntity, IACLCommons.RoleEntity storage roleEntity, IACLCommons.TypeEntity storage typeEntity, bytes32 profileId, bytes32 roleId, bytes32 memberId) external {
+    require(roleEntity.memberCount < roleEntity.memberLimit, "Illegal Grant");
+    IACLCommons.ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(memberId);
+    if(profileMemberEntity.types.contains(roleEntity.typeId)) {
+      require(typeEntity.members[memberId] != roleId, "Already Exist");
+    } else {
+      require(profileMemberEntity.ba.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
+      require(profileMemberEntity.typeLimit > profileMemberEntity.types.length(), "Illegal TypeLimit");
+      _updateProfileAccount(data, profileMemberEntity, profileId, roleEntity.typeId, false);
+      // check and add member from admin
+      if(roleEntity.typeId == LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID) 
+        profileEntity.admins.add(memberId);          
+    }
+
+    typeEntity.members[memberId] = roleId;
+    roleEntity.memberCount += 1;        
+  }
+
+  function profileGetRoleEntityAndCheckAdminAccess(IACLCommons.ProfileEntity storage profileEntity, bytes32 roleId, bytes32 senderId, bytes32 functionId) external view returns (IACLCommons.RoleEntity storage) {
+    return _doProfileGetRoleEntityAndCheckAdminAccess(profileEntity, roleId, senderId, functionId);
+  }
+
+  function _doProfileGetRoleEntityAndCheckAdminAccess(IACLCommons.ProfileEntity storage profileEntity, bytes32 roleId, bytes32 senderId, bytes32 functionId) internal view returns (IACLCommons.RoleEntity storage) {
+    IACLCommons.RoleEntity storage roleEntity = profileEntity.profileRoleReadSlot(roleId);
+    require(roleEntity.ba.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Updatable");
+
+    // check access admin role
+    IProfileACL.ProfileAdminAccessStatus status = _doProfileCheckAdminAccess(profileEntity, roleEntity.ba.adminId, senderId, functionId);
+    if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
+    return roleEntity;
+  }
+
+  function _updateProfileAccount(ACLStorage.DataCollection storage data, IACLCommons.ProfileMemberEntity storage profileMemberEntity, bytes32 profileId, bytes32 typeId, bool isRevoke) internal {
+    IACLCommons.ProfileAccount storage profileAccount = data.profileAccounts[profileMemberEntity.account];
+    bool findFlag = false;
+    for (uint i = 0; i < profileAccount.profiles.length; i++) {
+      if(profileAccount.profiles[i] == profileId) {
+        findFlag = true;
+        if(!isRevoke) {
+          if((profileMemberEntity.types.contains(LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID) || 
+            profileMemberEntity.types.contains(LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID)) &&
+            (typeId == LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID || typeId == LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID)) 
+          {
+            revert ("Illegal GrantMemberType");
+          }      
+        
+        } else {          
+          if(profileAccount.profiles.length > 1) {
+            if(i < profileAccount.profiles.length - 1)
+              profileAccount.profiles[i] = profileAccount.profiles[profileAccount.profiles.length - 1];                
+            profileAccount.profiles.pop();
+          } else {
+            profileAccount.profiles.pop();
+            delete profileAccount.profiles;
+          }          
+        }
+        break;
+      }
+    }
+
+    require(!findFlag, "Profile Not Found");
+  }
+
+
+  function profileGetRoleAdmin(IACLCommons.ProfileEntity storage profileEntity, IACLCommons.ScopeType requestScopeType, bytes32 requestScopeAdmin, bytes32 scopeId, bytes32 adminId, bytes32 profileId) external view returns (bytes32 roleAdminId) {
+    return _doProfileGetRoleAdmin(profileEntity, requestScopeType, requestScopeAdmin, scopeId, adminId, profileId);
+  }
+
+  function _doProfileGetRoleAdmin(IACLCommons.ProfileEntity storage profileEntity, IACLCommons.ScopeType requestScopeType, bytes32 requestScopeAdmin, bytes32 scopeId, bytes32 adminId, bytes32 profileId) internal view returns (bytes32 roleAdminId) {
+    // checking requested type admin       
+    if(adminId != bytes32(0)) {
+      require(profileEntity.agents[adminId].atype > IACLCommons.AgentType.MEMBER, "Illegal Admin AgentType");
+      (IACLCommons.ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(profileEntity, adminId);
+      require(requestScopeType <= requestAdminScopeType, "Illegal Admin ScopeType");
+      if(requestScopeType == requestAdminScopeType) {
+        require(requestAdminScopeId == scopeId, "Illegal Amind Scope");
+      } else {
+        require(IProfileACLGenerals(address(this)).isProfileScopesCompatible(profileId, requestAdminScopeId, scopeId), "Illegal Admin Scope");
+      }
+      roleAdminId = adminId;
+
+    } else {
+      roleAdminId = requestScopeAdmin;
+    }     
+  }
+
+  function profileCheckRoleRequestScope (IACLCommons.ProfileEntity storage profileEntity, bytes32 requestScopeId, bytes32 typeScopeId, bytes32 profileId) external returns(IACLCommons.ScopeType) {
+    return _doProfileCheckRoleRequestScope(profileEntity, requestScopeId, typeScopeId, profileId);
+  }
+
+  function _doProfileCheckRoleRequestScope(IACLCommons.ProfileEntity storage profileEntity, bytes32 requestScopeId, bytes32 typeScopeId, bytes32 profileId) internal returns(IACLCommons.ScopeType) {
+    // checking requested role scope
+    IACLCommons.BaseScope storage requestScope = profileEntity.scopes[requestScopeId];
+    require(requestScope.stype != IACLCommons.ScopeType.NONE , "Scope Not Found");
+    require(requestScope.acstat > IACLCommons.ActivityStatus.DELETED , "Scope Deleted");
+    // require(requestScope.agentLimit > requestScope.referredByAgent, "Illegal Referred");
+
+    // increase referred count to target scope
+    requestScope.referredByAgent +=1;
+    
+    // checking requested role type scope with role scope
+    IACLCommons.ScopeType requestTypeScopeType = profileEntity.scopes[typeScopeId].stype;
+    require(requestTypeScopeType >= requestScope.stype, "Illegal Scope Type");
+    if (requestTypeScopeType == requestScope.stype) {
+      require(typeScopeId == requestScopeId, "Illegal Scope");
+    } else {
+      require(IProfileACLGenerals(address(this)).isProfileScopesCompatible(profileId, typeScopeId, requestScopeId), "Illegal Scope");
+    }
+
+    return requestScope.stype;
+  }
+
+  function _getProfileRealmAdmin(IACLCommons.ProfileEntity storage profileEntity, bytes32 requestScopeAdmin, bytes32 domainId, bytes32 adminId) internal view returns (bytes32 realmAdminId) {
+    // checking requested context admin 
+    if(adminId != bytes32(0)) {
+      require(profileEntity.agents[adminId].atype > IACLCommons.AgentType.MEMBER, "Illegal Admin AgentType");
+
+      (IACLCommons.ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(profileEntity, adminId);
+      require(IACLCommons.ScopeType.DOMAIN <= requestAdminScopeType, "Illegal Admin ScopeType");
+      if(IACLCommons.ScopeType.DOMAIN == requestAdminScopeType){
+        require(requestAdminScopeId == domainId, "Illegal Amind Scope");
+
+      } else {
+        require(requestAdminScopeId == LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Amind Scope");
+      }
+      realmAdminId = adminId;
+
+    } else {
+      realmAdminId = requestScopeAdmin;
+    }
   }
 
   function profileFunctionRegistration(
@@ -326,8 +562,6 @@ library LProfileCommons {
       functionAdminId = contextAdminId;
     }
   }
-
-
 
   function _doDomainAgentGetScopeInfo(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId) internal view returns (bytes32) {
     IACLCommons.AgentType atype = profileEntity.agents[agentId].atype;
