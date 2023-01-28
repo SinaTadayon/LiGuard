@@ -13,18 +13,6 @@ import "./IBaseProxy.sol";
  */
 interface IProxy is IBaseProxy {
 
-  struct ProxyInfo {
-    bytes32 domainSeparator;
-    string name;
-    string version;
-    address acl;
-    address subject;
-    address localAdmin;
-    uint16 initVersion;
-    ProxySafeModeStatus sstat;
-    ProxyUpdatabilityStatus ustat;
-  }
-
   /**
    * @dev Emitted when the admin account has changed.
    */
@@ -77,8 +65,6 @@ interface IProxy is IBaseProxy {
   function updatabilityStatus() external view returns (ProxyUpdatabilityStatus);
 
   function localAdmin() external view returns (address);
-
-  function proxyInfo() external view returns (ProxyInfo memory);
 
   function domainSeparator() external view returns (bytes32);
 

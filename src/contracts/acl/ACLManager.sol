@@ -36,12 +36,6 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
   // General Roles ID 
   bytes32 internal constant _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID = keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_MASTER_ADMIN"));
   bytes32 internal constant _LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID = keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_SYSTEM_MASTER_ADMIN"));
-  bytes32 internal constant _LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID  = keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_SCOPE_MASTER_ADMIN"));
-  bytes32 internal constant _LIVELY_VERSE_TYPE_MASTER_ADMIN_ROLE_ID   = keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_TYPE_MASTER_ADMIN"));
-  bytes32 internal constant _LIVELY_VERSE_MEMBER_MASTER_ADMIN_ROLE_ID = keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_MEMBER_MASTER_ADMIN"));
-  bytes32 internal constant _LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE_ID = keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_POLICY_MASTER_ADMIN"));
-  bytes32 internal constant _LIVELY_VERSE_PROFILE_MASTER_ADMIN_ROLE_ID = keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_PROFILE_MASTER_ADMIN"));
-
 
   constructor() {}
 
@@ -105,10 +99,9 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
         _msgSender(), 
         requests[i].facetId, 
         requests[i].subjectId
-        // requests[i].interfaceId
       );
     }
-    if(_data.facetSet.length() >= 11) _firstInit = false;
+    if(_data.facetSet.length() >= 22) _firstInit = false;
     return true;      
   }
 

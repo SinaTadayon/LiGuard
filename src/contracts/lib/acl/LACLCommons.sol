@@ -35,7 +35,7 @@ library LACLCommons {
   using LEnumerableSet for LEnumerableSet.AddressSet;
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
 
-  string public constant LIB_NAME = "LACLManager";
+  string public constant LIB_NAME = "LACLCommons";
   string public constant LIB_VERSION = "3.0.0";
 
   bytes32 public constant LIVELY_VERSE_LIVELY_MASTER_TYPE_ID         = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_MASTER"));
@@ -169,7 +169,7 @@ library LACLCommons {
     return requestedScope;
   }
 
-    function profileCheckAdmin(ACLStorage.DataCollection storage data, bytes32 profileId, address account) external view returns (bool) {
+  function profileCheckAdmin(ACLStorage.DataCollection storage data, bytes32 profileId, address account) external view returns (bool) {
     IACLCommons.ProfileEntity storage profileEntity =  data.profiles[profileId];
     if(profileEntity.acstat == IACLCommons.ActivityStatus.NONE) return false;
 
@@ -196,7 +196,7 @@ library LACLCommons {
     return false;
   }
 
-  function profielUpdateOwnerAccount(ACLStorage.DataCollection storage data, IACLCommons.ProfileEntity storage profileEntity, IProfileManagement.ProfileUpdateOwnerAccountRequest calldata request) external returns (bool) {
+  function profileUpdateOwnerAccount(ACLStorage.DataCollection storage data, IACLCommons.ProfileEntity storage profileEntity, IProfileManagement.ProfileUpdateOwnerAccountRequest calldata request) external returns (bool) {
 
     // disable profile owner 
     require(profileEntity.owner == request.owner, "Illegal Owner");
@@ -245,6 +245,31 @@ library LACLCommons {
   function createUpdateProfileAccount(ACLStorage.DataCollection storage data, bytes32 profileId, address memberAddress) external {
     _doCreateUpdateProfileAccount(data, profileId, memberAddress);
   }
+
+  function profileRegister(ACLStorage.DataCollection storage data, IProfileManagement.ProfileRegisterRequest calldata request, bytes32 signerId, bytes32 profileId) external {
+    // fetch scope type and scope id of sender
+    (IACLCommons.ScopeType signerScopeType, bytes32 signerScopeId) = _doGetScopeFromType(data, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID, signerId);
+    require(signerScopeType == IACLCommons.ScopeType.GLOBAL && signerScopeId == LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Scope");
+    require(request.expiredAt > block.timestamp + 1 days, "Illegal Expiration");
+  
+    _doCreateUpdateProfileAccount(data, profileId, request.owner);
+    _doCreateUpdateProfileAccount(data, profileId, request.admin);
+    _doCreateUpdateProfileAccount(data, profileId, request.systemAdmin);
+
+    IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
+    profileEntity.name = request.name;
+    profileEntity.adminId = LIVELY_VERSE_PROFILE_MASTER_TYPE_ID;
+    profileEntity.owner = request.owner;
+    profileEntity.expiredAt = request.expiredAt;
+    profileEntity.acstat = IACLCommons.ActivityStatus.ENABLED;
+    profileEntity.alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
+    profileEntity.registerLimits = request.registerLimits;
+    profileEntity.limits = request.limits;
+    profileEntity.admins.add(LACLUtils.accountGenerateId(request.owner));
+    profileEntity.admins.add(LACLUtils.accountGenerateId(request.admin));
+
+    _doInitProfile(profileEntity, request.owner, request.admin, request.systemAdmin);   
+  }  
 
   function _doAgentGetScopeInfo(ACLStorage.DataCollection storage data, bytes32 agentId) private view returns (IACLCommons.ScopeType, bytes32) {
     IACLCommons.AgentType atype = data.agents[agentId].atype;
@@ -315,31 +340,6 @@ library LACLCommons {
     }
   }
 
-   function profileRegister(ACLStorage.DataCollection storage data, IProfileManagement.ProfileRegisterRequest calldata request, bytes32 signerId, bytes32 profileId) external {
-    // fetch scope type and scope id of sender
-    (IACLCommons.ScopeType signerScopeType, bytes32 signerScopeId) = _doGetScopeFromType(data, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID, signerId);
-    require(signerScopeType == IACLCommons.ScopeType.GLOBAL && signerScopeId == LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Scope");
-    require(request.expiredAt > block.timestamp + 1 days, "Illegal Expiration");
-  
-    _doCreateUpdateProfileAccount(data, profileId, request.owner);
-    _doCreateUpdateProfileAccount(data, profileId, request.admin);
-    _doCreateUpdateProfileAccount(data, profileId, request.systemAdmin);
-
-    IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
-    profileEntity.name = request.name;
-    profileEntity.adminId = LIVELY_VERSE_PROFILE_MASTER_TYPE_ID;
-    profileEntity.owner = request.owner;
-    profileEntity.expiredAt = request.expiredAt;
-    profileEntity.acstat = IACLCommons.ActivityStatus.ENABLED;
-    profileEntity.alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
-    profileEntity.registerLimits = request.registerLimits;
-    profileEntity.limits = request.limits;
-    profileEntity.admins.add(LACLUtils.accountGenerateId(request.owner));
-    profileEntity.admins.add(LACLUtils.accountGenerateId(request.admin));
-
-    _doInitProfile(profileEntity, request.owner, request.admin, request.systemAdmin);   
-  }  
-
   function _doGetScopeFromType(ACLStorage.DataCollection storage data, bytes32 typeId, bytes32 senderId) private view returns (IACLCommons.ScopeType, bytes32) {    
     IACLCommons.TypeEntity storage agentType = data.typeReadSlot(typeId);
     bytes32 memberRoleId = agentType.members[senderId];
@@ -347,7 +347,7 @@ library LACLCommons {
     return (data.scopes[memberAgentRole.scopeId].stype, memberAgentRole.scopeId);
   }
 
-    function _doInitProfile(IACLCommons.ProfileEntity storage profileEntity, address owner, address livelyAdmin, address systemAdmin) private {
+  function _doInitProfile(IACLCommons.ProfileEntity storage profileEntity, address owner, address livelyAdmin, address systemAdmin) private {
     // init Global Scope
     IACLCommons.GlobalEntity storage livelyGlobalEntity = profileEntity.profileGlobalWriteSlot(LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID);
     livelyGlobalEntity.name = "GLOBAL.LIVELY_PROFILE";
@@ -413,7 +413,6 @@ library LACLCommons {
     
     // update livelyGlobalEntity.bs.referredByAgent
     livelyGlobalEntity.bs.referredByAgent = 4;
-    livelyGlobalEntity.domains.add(LACLUtils.generateId2("DOMAIN.LIVELY_PROFILE.ZERO_DOMAIN"));
   }
 
   function _doInitProfileSystemMaster(IACLCommons.ProfileEntity storage profileEntity, address systemAdmin) private {
@@ -464,7 +463,7 @@ library LACLCommons {
     systemMasterType.members[systemMasterAdminMemberId] = LIVELY_PROFILE_SYSTEM_MASTER_ADMIN_ROLE_ID;
   }
 
-    function _initACLAgents(ACLStorage.DataCollection storage data, address livelyAdmin, address systemAdmin) private {
+  function _initACLAgents(ACLStorage.DataCollection storage data, address livelyAdmin, address systemAdmin) private {
 
     // init Global Scope
     IACLCommons.GlobalEntity storage livelyGlobalEntity = data.globalWriteSlot(LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);

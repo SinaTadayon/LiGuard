@@ -81,7 +81,7 @@ interface IProfileManagement is IACLCommons {
 
   function profileUpdateExpiration(ProfileUpdateExpirationRequest[] calldata requests) external returns (bool);
 
-  function profielUpdateOwnerAccount(ProfileUpdateOwnerAccountRequest[] calldata requests) external returns (bool);
+  function profileUpdateOwnerAccount(ProfileUpdateOwnerAccountRequest[] calldata requests) external returns (bool);
 
   function profileUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
 

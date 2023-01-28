@@ -321,19 +321,6 @@ abstract contract BaseUUPSProxy is
     return true;   
   }
 
-  function proxyInfo() external view returns (ProxyInfo memory) {
-    return ProxyInfo({
-      domainSeparator: _domainSeparatorV4(),
-      name: _contractName,
-      version: _contractVersion,
-      acl: _accessControlManager,
-      subject: _implementation(),
-      localAdmin: _getLocalAdmin(),
-      initVersion: _getInitializedCount(),
-      sstat: _sstat,
-      ustat: _ustat
-    });
-  }
   function contractName() external view returns (string memory) {
     return _contractName;
   }

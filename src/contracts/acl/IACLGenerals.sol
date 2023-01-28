@@ -42,24 +42,7 @@ interface IACLGenerals is IACLCommons{
 
   // Global Scope
   function getGlobalScope() external pure returns (bytes32);
-
-
-  // // lively master admin role
-  // function getLivelyMasterAdminRole() external pure returns (bytes32);
-
-  // // scope master admin role
-  // function getScopeMasterAdminRole() external pure returns (bytes32);
-
-  // // agent master admin role
-  // function getAgentMasterAdminRole() external pure returns (bytes32);
-  
-  // // system master admin role
-  // function getSystemMasterAdminRole() external pure returns (bytes32);
-
-  // // Policy Master admin role
-  // function getPolicyMasterAdminRole() external pure returns (bytes32);
-
-
+ 
   // general
   function isAgentExist(bytes32 agentId) external view returns (bool);
 

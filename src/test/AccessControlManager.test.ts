@@ -33,14 +33,35 @@ import {
   IRealmManagement,
   IRoleManagement,
   ITypeManagement,
-  LACLManager,
-  LACLManager__factory,
+  LACLCommons,
+  LACLCommons__factory,
   LACLManagerTest,
   LACLManagerTest__factory,
+  LProfileCommons,
+  LProfileCommons__factory,
+  LProfileRolePolicy,
+  LProfileRolePolicy__factory,
   MemberManager,
   MemberManager__factory,
   PolicyManager,
   PolicyManager__factory,
+  ProfileAccessControl, ProfileAccessControl__factory,
+  ProfileContextManager,
+  ProfileContextManager__factory,
+  ProfileDomainManager, ProfileDomainManager__factory,
+  ProfileFunctionManager,
+  ProfileFunctionManager__factory,
+  ProfileGlobalManager, ProfileGlobalManager__factory,
+  ProfileManager,
+  ProfileManager__factory,
+  ProfileMemberManager,
+  ProfileMemberManager__factory,
+  ProfilePolicyManager, ProfilePolicyManager__factory,
+  ProfileRealmManager, ProfileRealmManager__factory,
+  ProfileRoleManager,
+  ProfileRoleManager__factory,
+  ProfileTypeManager,
+  ProfileTypeManager__factory,
   Proxy__factory,
   RealmManager,
   RealmManager__factory,
@@ -65,8 +86,6 @@ import {
   LIVELY_VERSE_ACL_DOMAIN_ID,
   LIVELY_VERSE_ACL_REALM_ID,
   LIVELY_VERSE_ACL_TYPE_ID,
-  LIVELY_VERSE_AGENT_MASTER_ADMIN_ROLE_ID,
-  LIVELY_VERSE_AGENT_MASTER_TYPE_ID,
   LIVELY_VERSE_ANONYMOUS_TYPE_ID,
   LIVELY_VERSE_ANY_TYPE_ID,
   LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID,
@@ -86,10 +105,34 @@ import { ProxyUpgradedEventObject } from "../../typechain/types/proxy/Proxy";
 import { ProxyLocalAdminUpdatedEventObject } from "../../typechain/types/proxy/IProxy";
 import {IACLCommons as IACLCommonsRoles } from "../../typechain/types/acl/agent/IRoleManagement";
 import {IACLCommons} from "../../typechain/types/acl/scope/FunctionManager";
+import { RoleManagerLibraryAddresses } from "../../typechain/types/factories/acl/agent/RoleManager__factory";
+import { PolicyManagerLibraryAddresses } from "../../typechain/types/factories/acl/policy/PolicyManager__factory";
+import { ProfileManagerLibraryAddresses } from "../../typechain/types/factories/acl/profile/ProfileManager__factory";
+import {
+  ProfileMemberManagerLibraryAddresses
+} from "../../typechain/types/factories/acl/profile/agent/ProfileMemberManager__factory";
+import {
+  ProfileRoleManagerLibraryAddresses
+} from "../../typechain/types/factories/acl/profile/agent/ProfileRoleManager__factory";
+import {
+  ProfilePolicyManagerLibraryAddresses
+} from "../../typechain/types/factories/acl/profile/policy/ProfilePolicyManager__factory";
+import {
+  ProfileContextManagerLibraryAddresses
+} from "../../typechain/types/factories/acl/profile/scope/ProfileContextManager__factory";
+import {
+  ProfileFunctionManagerLibraryAddresses
+} from "../../typechain/types/factories/acl/profile/scope/ProfileFunctionManager__factory";
+import {
+  ProfileRealmManagerLibraryAddresses
+} from "../../typechain/types/factories/acl/profile/scope/ProfileRealmManager__factory";
+import {
+  ProfileDomainManagerLibraryAddresses
+} from "../../typechain/types/factories/acl/profile/scope/ProfileDomainManager__factory";
 // ethers.utils.keccak256(ethers.utils.toUtf8Bytes("src/contracts/lib/acl/ContextManagementLib.sol:ContextManagementLib")) => 0x0304621006bd13fe54dc5f6b75a37ec856740450109fd223c2bfb60db9095cad => __$0304621006bd13fe54dc5f6b75a37ec856$__ ( library placeholder)
 const { provider, deployMockContract } = waffle;
 
-describe("AccessControlManager Tests",
+describe("ACLManager Tests",
   function() {
     let livelyAdmin: Signer;
     let systemAdmin: Signer;
@@ -103,8 +146,29 @@ describe("AccessControlManager Tests",
     let userWallet1: Wallet;
     let userWallet2: Wallet;
     let userWallet3: Wallet;
-    let lACLManager: LACLManager;
-    let linkLibraryAddresses: ACLManagerLibraryAddresses;
+    let lACLCommons: LACLCommons;
+    let lProfileCommons: LProfileCommons;
+    let lProfileRolePolicy: LProfileRolePolicy;
+
+    // acl libraries
+    let linkAclLibraryAddresses: ACLManagerLibraryAddresses;
+    let linkRoleLibraryAddresses: RoleManagerLibraryAddresses;
+    let linkPolicyLibraryAddresses: PolicyManagerLibraryAddresses;
+    let linkProfileManagerLibraryAddresses: ProfileManagerLibraryAddresses;
+
+    // profiles libraries
+    let linkProfileMemberLibraryAddresses: ProfileMemberManagerLibraryAddresses;
+    let linkProfileRoleLibraryAddresses: ProfileRoleManagerLibraryAddresses;
+    let linkProfilePolicyLibraryAddresses: ProfilePolicyManagerLibraryAddresses;
+    let linkProfileFunctionLibraryAddresses: ProfileFunctionManagerLibraryAddresses;
+    let linkProfileContextLibraryAddresses: ProfileContextManagerLibraryAddresses;
+    let linkProfileRealmLibraryAddresses: ProfileRealmManagerLibraryAddresses;
+    let linkProfileDomainLibraryAddresses: ProfileDomainManagerLibraryAddresses;
+
+    // main acl contracts
+    let profileManagerSubject: ProfileManager;
+    let profileManagerProxy: ProfileManager;
+    let profileManagerDelegateProxy: ProfileManager;
     let memberManagerSubject: MemberManager;
     let memberManagerProxy: MemberManager;
     let memberManagerDelegateProxy: MemberManager;
@@ -135,8 +199,43 @@ describe("AccessControlManager Tests",
     let accessControlSubject: AccessControl;
     let accessControlProxy: AccessControl;
     let accessControlDelegateProxy: AccessControl;
+
+    // profile acl contracts
+    let profileMemberManagerSubject: ProfileMemberManager;
+    let profileMemberManagerProxy: ProfileMemberManager;
+    let profileMemberManagerDelegateProxy: ProfileMemberManager;
+    let profileRoleManagerSubject: ProfileRoleManager;
+    let profileRoleManagerProxy: ProfileRoleManager;
+    let profileRoleManagerDelegateProxy: ProfileRoleManager;
+    let profileTypeManagerSubject: ProfileTypeManager;
+    let profileTypeManagerProxy: ProfileTypeManager;
+    let profileTypeManagerDelegateProxy: ProfileTypeManager;
+    let profileFunctionManagerSubject: ProfileFunctionManager;
+    let profileFunctionManagerProxy: ProfileFunctionManager;
+    let profileFunctionManagerDelegateProxy: ProfileFunctionManager;
+    let profileContextManagerSubject: ProfileContextManager;
+    let profileContextManagerProxy: ProfileContextManager;
+    let profileContextManagerDelegateProxy: ProfileContextManager;
+    let profileRealmManagerSubject: ProfileRealmManager;
+    let profileRealmManagerProxy: ProfileRealmManager;
+    let profileRealmManagerDelegateProxy: ProfileRealmManager;
+    let profileDomainManagerSubject: ProfileDomainManager;
+    let profileDomainManagerProxy: ProfileDomainManager;
+    let profileDomainManagerDelegateProxy: ProfileDomainManager;
+    let profileGlobalManagerSubject: ProfileGlobalManager;
+    let profileGlobalManagerProxy: ProfileGlobalManager;
+    let profileGlobalManagerDelegateProxy: ProfileGlobalManager;
+    let profilePolicyManagerSubject: ProfilePolicyManager;
+    let profilePolicyManagerProxy: ProfilePolicyManager;
+    let profilePolicyManagerDelegateProxy: ProfilePolicyManager;
+    let profileAccessControlSubject: ProfileAccessControl;
+    let profileAccessControlProxy: ProfileAccessControl;
+    let profileAccessControlDelegateProxy: ProfileAccessControl;
+
+    // acl manager contract
     let aclManagerSubject: ACLManager;
     let aclManagerProxy: ACLManager;
+
     let networkChainId: BigNumber;
     let aclRoleTestId: string;
     let aclRoleTestId2: string;
@@ -154,6 +253,8 @@ describe("AccessControlManager Tests",
     const ACL_DOMAIN_TEST_NAME = "ACL_DOMAIN_TEST";
     const ACL_DOMAIN_TEST_2_NAME = "ACL_DOMAIN_TEST_2";
     const ACL_REALM_TEST_NAME = "ACL_REALM_TEST";
+
+    // main acl contracts name
     const MEMBER_MANAGER_CONTRACT_NAME = "MemberManager";
     const ROLE_MANAGER_CONTRACT_NAME = "RoleManager";
     const TYPE_MANAGER_CONTRACT_NAME = "TypeManager";
@@ -163,7 +264,21 @@ describe("AccessControlManager Tests",
     const DOMAIN_MANAGER_CONTRACT_NAME = "DomainManager";
     const GLOBAL_MANAGER_CONTRACT_NAME = "GlobalManager";
     const POLICY_MANAGER_CONTRACT_NAME = "PolicyManager";
+    const PROFILE_MANAGER_CONTRACT_NAME = "PolicyManager";
     const ACCESS_CONTROL_CONTRACT_NAME = "AccessControl";
+
+    // profile acl contracts name
+    const PROFILE_MEMBER_MANAGER_CONTRACT_NAME = "ProfileMemberManager";
+    const PROFILE_ROLE_MANAGER_CONTRACT_NAME = "ProfileRoleManager";
+    const PROFILE_TYPE_MANAGER_CONTRACT_NAME = "ProfileTypeManager";
+    const PROFILE_FUNCTION_MANAGER_CONTRACT_NAME = "ProfileFunctionManager";
+    const PROFILE_CONTEXT_MANAGER_CONTRACT_NAME = "ProfileContextManager";
+    const PROFILE_REALM_MANAGER_CONTRACT_NAME = "ProfileRealmManager";
+    const PROFILE_DOMAIN_MANAGER_CONTRACT_NAME = "ProfileDomainManager";
+    const PROFILE_GLOBAL_MANAGER_CONTRACT_NAME = "ProfileGlobalManager";
+    const PROFILE_POLICY_MANAGER_CONTRACT_NAME = "ProfilePolicyManager";
+    const PROFILE_ACCESS_CONTROL_CONTRACT_NAME = "ProfileAccessControl";
+
     const ACL_MANAGER_CONTRACT_NAME = "ACLManager";
     const CONTRACTS_VERSION =  "3.0.0";
 
@@ -191,21 +306,62 @@ describe("AccessControlManager Tests",
     });
 
     describe("Libraries Deployments Test", function() {
-      it("Should LACLManager deploy success", async () => {
+      it("Should LACLCommons deploy success", async () => {
         // given
-        const aclFactory = new LACLManager__factory(systemAdmin);
+        const aclFactory = new LACLCommons__factory(systemAdmin);
 
         // when
-        lACLManager = await aclFactory.deploy();
+        lACLCommons = await aclFactory.deploy();
 
         // then
-        expect(lACLManager.address).not.null;
-        expect(await lACLManager.LIB_NAME()).to.be.equal("LACLManager");
-        expect(await lACLManager.LIB_VERSION()).to.be.equal("3.0.0");
+        expect(lACLCommons.address).not.null;
+        expect(await lACLCommons.LIB_NAME()).to.be.equal("LACLCommons");
+        expect(await lACLCommons.LIB_VERSION()).to.be.equal("3.0.0");
+      });
+
+      it("Should LProfileCommons deploy success", async () => {
+        // given
+        const aclFactory = new LProfileCommons__factory(systemAdmin);
+
+        // when
+        lProfileCommons = await aclFactory.deploy();
+
+        // then
+        expect(lProfileCommons.address).not.null;
+        expect(await lProfileCommons.LIB_NAME()).to.be.equal("LProfileCommons");
+        expect(await lProfileCommons.LIB_VERSION()).to.be.equal("3.0.0");
+      });
+
+      it("Should LProfileRolePolicy deploy success", async () => {
+        // given
+        const aclFactory = new LProfileRolePolicy__factory(systemAdmin);
+
+        // when
+        lProfileRolePolicy = await aclFactory.deploy();
+
+        // then
+        expect(lProfileRolePolicy.address).not.null;
+        expect(await lProfileRolePolicy.LIB_NAME()).to.be.equal("LProfileRolePolicy");
+        expect(await lProfileRolePolicy.LIB_VERSION()).to.be.equal("3.0.0");
       });
     });
 
     describe("ACL Modules Subject Tests", function() {
+      this.beforeAll( async() => {
+        // acl libraries
+        linkRoleLibraryAddresses = {
+          "src/contracts/lib/acl/LACLCommons.sol:LACLCommons": lACLCommons.address
+        }
+
+        linkPolicyLibraryAddresses = {
+          "src/contracts/lib/acl/LACLCommons.sol:LACLCommons": lACLCommons.address
+        }
+
+        linkProfileManagerLibraryAddresses = {
+          "src/contracts/lib/acl/LACLCommons.sol:LACLCommons": lACLCommons.address
+        }
+      })
+
       it("Should MemberManager subject deploy success", async() => {
         // given
         const memberManagerFactory = new MemberManager__factory(systemAdmin);
@@ -224,7 +380,7 @@ describe("AccessControlManager Tests",
 
       it("Should RoleManager subject deploy success", async() => {
         // given
-        const roleManagerFactory = new RoleManager__factory(systemAdmin);
+        const roleManagerFactory = new RoleManager__factory(linkRoleLibraryAddresses, systemAdmin);
 
         // when
         roleManagerSubject = await roleManagerFactory.deploy();
@@ -336,7 +492,7 @@ describe("AccessControlManager Tests",
 
       it("Should PolicyManager subject deploy success", async() => {
         // given
-        const policyManagerFactory = new PolicyManager__factory(systemAdmin);
+        const policyManagerFactory = new PolicyManager__factory(linkPolicyLibraryAddresses, systemAdmin);
 
         // when
         policyManagerSubject = await policyManagerFactory.deploy();
@@ -348,6 +504,22 @@ describe("AccessControlManager Tests",
         expect(await policyManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
         expect(await policyManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
         expect(await policyManagerSubject.initVersion()).to.be.equal(0);
+      })
+
+      it("Should ProfileManager subject deploy success", async() => {
+        // given
+        const profileManagerFactory = new ProfileManager__factory(linkProfileManagerLibraryAddresses, systemAdmin);
+
+        // when
+        profileManagerSubject = await profileManagerFactory.deploy();
+
+        // then
+        expect(profileManagerSubject.address).not.null;
+        expect(await profileManagerSubject.safeModeStatus()).to.be.equal(ProxySafeModeStatus.ENABLED);
+        expect(await profileManagerSubject.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(await profileManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
+        expect(await profileManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
+        expect(await profileManagerSubject.initVersion()).to.be.equal(0);
       })
 
       it("Should AccessControl subject deploy success", async() => {
@@ -367,16 +539,208 @@ describe("AccessControlManager Tests",
       })
     })
 
+    describe("ACL Profile Modules Subject Tests", function() {
+      this.beforeAll( async() => {
+        // profiles libraries
+        linkProfileMemberLibraryAddresses = {
+          "src/contracts/lib/acl/LProfileCommons.sol:LProfileCommons": lProfileCommons.address
+        }
+
+        linkProfileRoleLibraryAddresses = {
+          "src/contracts/lib/acl/LProfileRolePolicy.sol:LProfileRolePolicy": lProfileRolePolicy.address
+        }
+
+        linkProfilePolicyLibraryAddresses = {
+          "src/contracts/lib/acl/LProfileRolePolicy.sol:LProfileRolePolicy": lProfileRolePolicy.address
+        }
+
+        linkProfileFunctionLibraryAddresses = {
+          "src/contracts/lib/acl/LProfileCommons.sol:LProfileCommons": lProfileCommons.address
+        }
+
+        linkProfileContextLibraryAddresses = {
+          "src/contracts/lib/acl/LProfileCommons.sol:LProfileCommons": lProfileCommons.address
+        }
+
+        linkProfileRealmLibraryAddresses = {
+          "src/contracts/lib/acl/LProfileCommons.sol:LProfileCommons": lProfileCommons.address
+        }
+        linkProfileDomainLibraryAddresses = {
+          "src/contracts/lib/acl/LProfileCommons.sol:LProfileCommons": lProfileCommons.address
+        }
+      })
+
+      it("Should ProfileMemberManager subject deploy success", async() => {
+        // given
+        const profileMemberManagerFactory = new ProfileMemberManager__factory(linkProfileMemberLibraryAddresses, systemAdmin);
+
+        // when
+        profileMemberManagerSubject = await profileMemberManagerFactory.deploy();
+
+        // then
+        expect(profileMemberManagerSubject.address).not.null;
+        expect(await profileMemberManagerSubject.safeModeStatus()).to.be.equal(ProxySafeModeStatus.ENABLED);
+        expect(await profileMemberManagerSubject.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(await profileMemberManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
+        expect(await profileMemberManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
+        expect(await profileMemberManagerSubject.initVersion()).to.be.equal(0);
+      })
+
+      it("Should ProfileRoleManager subject deploy success", async() => {
+        // given
+        const profileRoleManagerFactory = new ProfileRoleManager__factory(linkProfileRoleLibraryAddresses, systemAdmin);
+
+        // when
+        profileRoleManagerSubject = await profileRoleManagerFactory.deploy();
+
+        // then
+        expect(profileRoleManagerSubject.address).not.null;
+        expect(await profileRoleManagerSubject.safeModeStatus()).to.be.equal(ProxySafeModeStatus.ENABLED);
+        expect(await profileRoleManagerSubject.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(await profileRoleManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
+        expect(await profileRoleManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
+        expect(await profileRoleManagerSubject.initVersion()).to.be.equal(0);
+      })
+
+      it("Should ProfileTypeManager subject deploy success", async() => {
+        // given
+        const profileTypeManagerFactory = new ProfileTypeManager__factory(systemAdmin);
+
+        // when
+        profileTypeManagerSubject = await profileTypeManagerFactory.deploy();
+
+        // then
+        expect(profileTypeManagerSubject.address).not.null;
+        expect(await profileTypeManagerSubject.safeModeStatus()).to.be.equal(ProxySafeModeStatus.ENABLED);
+        expect(await profileTypeManagerSubject.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(await profileTypeManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
+        expect(await profileTypeManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
+        expect(await profileTypeManagerSubject.initVersion()).to.be.equal(0);
+      })
+
+      it("Should ProfileFunctionManager subject deploy success", async() => {
+        // given
+        const profileFunctionManagerFactory = new ProfileFunctionManager__factory(linkProfileFunctionLibraryAddresses, systemAdmin);
+
+        // when
+        profileFunctionManagerSubject = await profileFunctionManagerFactory.deploy();
+
+        // then
+        expect(profileFunctionManagerSubject.address).not.null;
+        expect(await profileFunctionManagerSubject.safeModeStatus()).to.be.equal(ProxySafeModeStatus.ENABLED);
+        expect(await profileFunctionManagerSubject.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(await profileFunctionManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
+        expect(await profileFunctionManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
+        expect(await profileFunctionManagerSubject.initVersion()).to.be.equal(0);
+      })
+
+      it("Should ProfileContextManager subject deploy success", async() => {
+        // given
+        const profileContextManagerFactory = new ProfileContextManager__factory(linkProfileContextLibraryAddresses, systemAdmin);
+
+        // when
+        profileContextManagerSubject = await profileContextManagerFactory.deploy();
+
+        // then
+        expect(profileContextManagerSubject.address).not.null;
+        expect(await profileContextManagerSubject.safeModeStatus()).to.be.equal(ProxySafeModeStatus.ENABLED);
+        expect(await profileContextManagerSubject.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(await profileContextManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
+        expect(await profileContextManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
+        expect(await profileContextManagerSubject.initVersion()).to.be.equal(0);
+      })
+
+      it("Should ProfileRealmManager subject deploy success", async() => {
+        // given
+        const profileRealmManagerFactory = new ProfileRealmManager__factory(linkProfileRealmLibraryAddresses, systemAdmin);
+
+        // when
+        profileRealmManagerSubject = await profileRealmManagerFactory.deploy();
+
+        // then
+        expect(profileRealmManagerSubject.address).not.null;
+        expect(await profileRealmManagerSubject.safeModeStatus()).to.be.equal(ProxySafeModeStatus.ENABLED);
+        expect(await profileRealmManagerSubject.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(await profileRealmManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
+        expect(await profileRealmManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
+        expect(await profileRealmManagerSubject.initVersion()).to.be.equal(0);
+      })
+
+      it("Should ProfileDomainManager subject deploy success", async() => {
+        // given
+        const profileDomainManagerFactory = new ProfileDomainManager__factory(linkProfileDomainLibraryAddresses, systemAdmin);
+
+        // when
+        profileDomainManagerSubject = await profileDomainManagerFactory.deploy();
+
+        // then
+        expect(profileDomainManagerSubject.address).not.null;
+        expect(await profileDomainManagerSubject.safeModeStatus()).to.be.equal(ProxySafeModeStatus.ENABLED);
+        expect(await profileDomainManagerSubject.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(await profileDomainManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
+        expect(await profileDomainManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
+        expect(await profileDomainManagerSubject.initVersion()).to.be.equal(0);
+      })
+
+      it("Should ProfileGlobalManager subject deploy success", async() => {
+        // given
+        const profileGlobalManagerFactory = new ProfileGlobalManager__factory(systemAdmin);
+
+        // when
+        profileGlobalManagerSubject = await profileGlobalManagerFactory.deploy();
+
+        // then
+        expect(profileGlobalManagerSubject.address).not.null;
+        expect(await profileGlobalManagerSubject.safeModeStatus()).to.be.equal(ProxySafeModeStatus.ENABLED);
+        expect(await profileGlobalManagerSubject.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(await profileGlobalManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
+        expect(await profileGlobalManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
+        expect(await profileGlobalManagerSubject.initVersion()).to.be.equal(0);
+      })
+
+      it("Should ProfilePolicyManager subject deploy success", async() => {
+        // given
+        const profilePolicyManagerFactory = new ProfilePolicyManager__factory(linkProfilePolicyLibraryAddresses, systemAdmin);
+
+        // when
+        profilePolicyManagerSubject = await profilePolicyManagerFactory.deploy();
+
+        // then
+        expect(profilePolicyManagerSubject.address).not.null;
+        expect(await profilePolicyManagerSubject.safeModeStatus()).to.be.equal(ProxySafeModeStatus.ENABLED);
+        expect(await profilePolicyManagerSubject.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(await profilePolicyManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
+        expect(await profilePolicyManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
+        expect(await profilePolicyManagerSubject.initVersion()).to.be.equal(0);
+      })
+
+      it("Should ProfileAccessControl subject deploy success", async() => {
+        // given
+        const profileAccessControlFactory = new ProfileAccessControl__factory(systemAdmin);
+
+        // when
+        profileAccessControlSubject = await profileAccessControlFactory.deploy();
+
+        // then
+        expect(profileAccessControlSubject.address).not.null;
+        expect(await profileAccessControlSubject.safeModeStatus()).to.be.equal(ProxySafeModeStatus.ENABLED);
+        expect(await profileAccessControlSubject.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(await profileAccessControlSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
+        expect(await profileAccessControlSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
+        expect(await profileAccessControlSubject.initVersion()).to.be.equal(0);
+      })
+    })
+
     describe("ACLManager Subject Tests", function() {
       this.beforeAll(() => {
-        linkLibraryAddresses = {
-          "src/contracts/lib/acl/LACLManager.sol:LACLManager": lACLManager.address
+        linkAclLibraryAddresses = {
+          "src/contracts/lib/acl/LACLCommons.sol:LACLCommons": lACLCommons.address
         };
       });
 
       it("Should ACLManager subject deploy success", async () => {
         // given
-        const aclManagerFactory = new ACLManager__factory(linkLibraryAddresses, systemAdmin);
+        const aclManagerFactory = new ACLManager__factory(linkAclLibraryAddresses, systemAdmin);
 
         // when
         aclManagerSubject = await aclManagerFactory.deploy();
@@ -486,9 +850,9 @@ describe("AccessControlManager Tests",
 
       it("Should deploy proxy success without initialize (typechain)", async () => {
         // given
-        const aclManagerSubjectFactory = new ACLManager__factory(linkLibraryAddresses, systemAdmin);
+        // const aclManagerSubjectFactory = new ACLManager__factory(linkAclLibraryAddresses, systemAdmin);
         const proxyFactory = new ACLManagerProxy__factory(systemAdmin);
-        aclManagerSubject = await aclManagerSubjectFactory.deploy();
+        // aclManagerSubject = await aclManagerSubjectFactory.deploy();
 
         // when
         const proxy = await proxyFactory.deploy(aclManagerSubject.address, new Int8Array(0));
@@ -547,7 +911,7 @@ describe("AccessControlManager Tests",
         // given
         const aclManagerFactory = await ethers.getContractFactory("ACLManager", {
           libraries: {
-            LACLManager: lACLManager.address,
+            LACLCommons: lACLCommons.address,
           }
         });
         const aclManagerSubject = await aclManagerFactory.connect(systemAdmin).deploy();
@@ -582,19 +946,7 @@ describe("AccessControlManager Tests",
         expect(await aclManager.accessControlManager()).to.be.hexEqual(aclManager.address);
         expect(await aclManager.initVersion()).to.be.equal(1);
         expect(await aclManager.domainSeparator()).to.be.hexEqual(domainSeparator);
-        expect(await aclManager.getLibrary()).to.be.equal(lACLManager.address);
-
-        let proxyInfo: IProxy.ProxyInfoStruct = await aclManager.proxyInfo();
-        expect(proxyInfo.name).to.be.equal(ACL_MANAGER_CONTRACT_NAME);
-        expect(proxyInfo.version).to.be.equal(CONTRACTS_VERSION);
-        expect(proxyInfo.subject).to.be.equal(aclManagerSubject.address);
-        expect(proxyInfo.acl).to.be.equal(aclManager.address);
-        expect(proxyInfo.localAdmin).to.be.equal(systemAdminWallet.address);
-        expect(proxyInfo.domainSeparator).to.be.equal(domainSeparator);
-        expect(proxyInfo.sstat).to.be.equal(ProxySafeModeStatus.DISABLED);
-        expect(proxyInfo.ustat).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
-        expect(proxyInfo.initVersion).to.be.equal(1);
-
+        expect(await aclManager.getLibrary()).to.be.equal(lACLCommons.address);
       });
 
       it("Should proxy raised events when deployment and initialization were successful", async () => {
@@ -753,17 +1105,6 @@ describe("AccessControlManager Tests",
         expect(await memberManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
         expect(await memberManagerProxy.initVersion()).to.be.equal(1);
         expect(await memberManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
-
-        let proxyInfo: IProxy.ProxyInfoStruct = await memberManagerProxy.proxyInfo();
-        expect(proxyInfo.name).to.be.equal(MEMBER_MANAGER_CONTRACT_NAME);
-        expect(proxyInfo.version).to.be.equal(CONTRACTS_VERSION);
-        expect(proxyInfo.subject).to.be.equal(memberManagerSubject.address);
-        expect(proxyInfo.acl).to.be.equal(aclManagerProxy.address);
-        expect(proxyInfo.localAdmin).to.be.equal(systemAdminWallet.address);
-        expect(proxyInfo.domainSeparator).to.be.equal(domainSeparator);
-        expect(proxyInfo.sstat).to.be.equal(ProxySafeModeStatus.DISABLED);
-        expect(proxyInfo.ustat).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
-        expect(proxyInfo.initVersion).to.be.equal(1)
       });
 
       it("Should RoleManager proxy deploy success", async () => {
@@ -789,16 +1130,15 @@ describe("AccessControlManager Tests",
         );
 
         // and
-        let proxyInfo: IProxy.ProxyInfoStruct = await roleManagerProxy.proxyInfo();
-        expect(proxyInfo.name).to.be.equal(ROLE_MANAGER_CONTRACT_NAME);
-        expect(proxyInfo.version).to.be.equal(CONTRACTS_VERSION);
-        expect(proxyInfo.subject).to.be.equal(roleManagerSubject.address);
-        expect(proxyInfo.acl).to.be.equal(aclManagerProxy.address);
-        expect(proxyInfo.localAdmin).to.be.equal(systemAdminWallet.address);
-        expect(proxyInfo.domainSeparator).to.be.equal(domainSeparator);
-        expect(proxyInfo.sstat).to.be.equal(ProxySafeModeStatus.DISABLED);
-        expect(proxyInfo.ustat).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
-        expect(proxyInfo.initVersion).to.be.equal(1)
+        expect(await roleManagerProxy.safeModeStatus()).to.be.equal(ProxySafeModeStatus.DISABLED);
+        expect(await roleManagerProxy.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(await roleManagerProxy.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
+        expect(await roleManagerProxy.contractName()).to.be.equal(ROLE_MANAGER_CONTRACT_NAME);
+        expect(await roleManagerProxy.contractVersion()).to.be.equal(CONTRACTS_VERSION);
+        expect(await roleManagerProxy.subjectAddress()).to.be.hexEqual(roleManagerSubject.address);
+        expect(await roleManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
+        expect(await roleManagerProxy.initVersion()).to.be.equal(1);
+        expect(await roleManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
       });
 
       it("Should TypeManager proxy deploy success", async () => {
@@ -825,16 +1165,15 @@ describe("AccessControlManager Tests",
         );
 
         // and
-        let proxyInfo: IProxy.ProxyInfoStruct = await typeManagerProxy.proxyInfo();
-        expect(proxyInfo.name).to.be.equal(TYPE_MANAGER_CONTRACT_NAME);
-        expect(proxyInfo.version).to.be.equal(CONTRACTS_VERSION);
-        expect(proxyInfo.subject).to.be.equal(typeManagerSubject.address);
-        expect(proxyInfo.acl).to.be.equal(aclManagerProxy.address);
-        expect(proxyInfo.localAdmin).to.be.equal(systemAdminWallet.address);
-        expect(proxyInfo.domainSeparator).to.be.equal(domainSeparator);
-        expect(proxyInfo.sstat).to.be.equal(ProxySafeModeStatus.DISABLED);
-        expect(proxyInfo.ustat).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
-        expect(proxyInfo.initVersion).to.be.equal(1)
+        expect(await typeManagerProxy.safeModeStatus()).to.be.equal(ProxySafeModeStatus.DISABLED);
+        expect(await typeManagerProxy.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(await typeManagerProxy.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
+        expect(await typeManagerProxy.contractName()).to.be.equal(TYPE_MANAGER_CONTRACT_NAME);
+        expect(await typeManagerProxy.contractVersion()).to.be.equal(CONTRACTS_VERSION);
+        expect(await typeManagerProxy.subjectAddress()).to.be.hexEqual(typeManagerSubject.address);
+        expect(await typeManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
+        expect(await typeManagerProxy.initVersion()).to.be.equal(1);
+        expect(await typeManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
       });
 
       it("Should FunctionManager proxy deploy success", async () => {
@@ -861,16 +1200,15 @@ describe("AccessControlManager Tests",
         );
 
         // and
-        let proxyInfo: IProxy.ProxyInfoStruct = await functionManagerProxy.proxyInfo();
-        expect(proxyInfo.name).to.be.equal(FUNCTION_MANAGER_CONTRACT_NAME);
-        expect(proxyInfo.version).to.be.equal(CONTRACTS_VERSION);
-        expect(proxyInfo.subject).to.be.equal(functionManagerSubject.address);
-        expect(proxyInfo.acl).to.be.equal(aclManagerProxy.address);
-        expect(proxyInfo.localAdmin).to.be.equal(systemAdminWallet.address);
-        expect(proxyInfo.domainSeparator).to.be.equal(domainSeparator);
-        expect(proxyInfo.sstat).to.be.equal(ProxySafeModeStatus.DISABLED);
-        expect(proxyInfo.ustat).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
-        expect(proxyInfo.initVersion).to.be.equal(1)
+        expect(await functionManagerProxy.safeModeStatus()).to.be.equal(ProxySafeModeStatus.DISABLED);
+        expect(await functionManagerProxy.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(await functionManagerProxy.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
+        expect(await functionManagerProxy.contractName()).to.be.equal(FUNCTION_MANAGER_CONTRACT_NAME);
+        expect(await functionManagerProxy.contractVersion()).to.be.equal(CONTRACTS_VERSION);
+        expect(await functionManagerProxy.subjectAddress()).to.be.hexEqual(functionManagerSubject.address);
+        expect(await functionManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
+        expect(await functionManagerProxy.initVersion()).to.be.equal(1);
+        expect(await functionManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
       });
 
       it("Should ContextManager proxy deploy success", async () => {
@@ -897,16 +1235,15 @@ describe("AccessControlManager Tests",
         );
 
         // and
-        let proxyInfo: IProxy.ProxyInfoStruct = await contextManagerProxy.proxyInfo();
-        expect(proxyInfo.name).to.be.equal(CONTEXT_MANAGER_CONTRACT_NAME);
-        expect(proxyInfo.version).to.be.equal(CONTRACTS_VERSION);
-        expect(proxyInfo.subject).to.be.equal(contextManagerSubject.address);
-        expect(proxyInfo.acl).to.be.equal(aclManagerProxy.address);
-        expect(proxyInfo.localAdmin).to.be.equal(systemAdminWallet.address);
-        expect(proxyInfo.domainSeparator).to.be.equal(domainSeparator);
-        expect(proxyInfo.sstat).to.be.equal(ProxySafeModeStatus.DISABLED);
-        expect(proxyInfo.ustat).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
-        expect(proxyInfo.initVersion).to.be.equal(1)
+        expect(await contextManagerProxy.safeModeStatus()).to.be.equal(ProxySafeModeStatus.DISABLED);
+        expect(await contextManagerProxy.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(await contextManagerProxy.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
+        expect(await contextManagerProxy.contractName()).to.be.equal(CONTEXT_MANAGER_CONTRACT_NAME);
+        expect(await contextManagerProxy.contractVersion()).to.be.equal(CONTRACTS_VERSION);
+        expect(await contextManagerProxy.subjectAddress()).to.be.hexEqual(contextManagerSubject.address);
+        expect(await contextManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
+        expect(await contextManagerProxy.initVersion()).to.be.equal(1);
+        expect(await contextManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
       });
 
       it("Should RealmManager proxy deploy success", async () => {
@@ -932,16 +1269,16 @@ describe("AccessControlManager Tests",
           networkChainId
         );
 
-        let proxyInfo: IProxy.ProxyInfoStruct = await realmManagerProxy.proxyInfo();
-        expect(proxyInfo.name).to.be.equal(REALM_MANAGER_CONTRACT_NAME);
-        expect(proxyInfo.version).to.be.equal(CONTRACTS_VERSION);
-        expect(proxyInfo.subject).to.be.equal(realmManagerSubject.address);
-        expect(proxyInfo.acl).to.be.equal(aclManagerProxy.address);
-        expect(proxyInfo.localAdmin).to.be.equal(systemAdminWallet.address);
-        expect(proxyInfo.domainSeparator).to.be.equal(domainSeparator);
-        expect(proxyInfo.sstat).to.be.equal(ProxySafeModeStatus.DISABLED);
-        expect(proxyInfo.ustat).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
-        expect(proxyInfo.initVersion).to.be.equal(1)
+        // and
+        expect(await realmManagerProxy.safeModeStatus()).to.be.equal(ProxySafeModeStatus.DISABLED);
+        expect(await realmManagerProxy.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(await realmManagerProxy.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
+        expect(await realmManagerProxy.contractName()).to.be.equal(REALM_MANAGER_CONTRACT_NAME);
+        expect(await realmManagerProxy.contractVersion()).to.be.equal(CONTRACTS_VERSION);
+        expect(await realmManagerProxy.subjectAddress()).to.be.hexEqual(realmManagerSubject.address);
+        expect(await realmManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
+        expect(await realmManagerProxy.initVersion()).to.be.equal(1);
+        expect(await realmManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
       });
 
       it("Should DomainManager proxy deploy success", async () => {
@@ -967,16 +1304,16 @@ describe("AccessControlManager Tests",
           networkChainId
         );
 
-        let proxyInfo: IProxy.ProxyInfoStruct = await domainManagerProxy.proxyInfo();
-        expect(proxyInfo.name).to.be.equal(DOMAIN_MANAGER_CONTRACT_NAME);
-        expect(proxyInfo.version).to.be.equal(CONTRACTS_VERSION);
-        expect(proxyInfo.subject).to.be.equal(domainManagerSubject.address);
-        expect(proxyInfo.acl).to.be.equal(aclManagerProxy.address);
-        expect(proxyInfo.localAdmin).to.be.equal(systemAdminWallet.address);
-        expect(proxyInfo.domainSeparator).to.be.equal(domainSeparator);
-        expect(proxyInfo.sstat).to.be.equal(ProxySafeModeStatus.DISABLED);
-        expect(proxyInfo.ustat).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
-        expect(proxyInfo.initVersion).to.be.equal(1)
+        // and
+        expect(await domainManagerProxy.safeModeStatus()).to.be.equal(ProxySafeModeStatus.DISABLED);
+        expect(await domainManagerProxy.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(await domainManagerProxy.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
+        expect(await domainManagerProxy.contractName()).to.be.equal(DOMAIN_MANAGER_CONTRACT_NAME);
+        expect(await domainManagerProxy.contractVersion()).to.be.equal(CONTRACTS_VERSION);
+        expect(await domainManagerProxy.subjectAddress()).to.be.hexEqual(domainManagerSubject.address);
+        expect(await domainManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
+        expect(await domainManagerProxy.initVersion()).to.be.equal(1);
+        expect(await domainManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
       });
 
       it("Should GlobalManager proxy deploy success", async () => {
@@ -1002,16 +1339,16 @@ describe("AccessControlManager Tests",
           networkChainId
         );
 
-        let proxyInfo: IProxy.ProxyInfoStruct = await globalManagerProxy.proxyInfo();
-        expect(proxyInfo.name).to.be.equal(GLOBAL_MANAGER_CONTRACT_NAME);
-        expect(proxyInfo.version).to.be.equal(CONTRACTS_VERSION);
-        expect(proxyInfo.subject).to.be.equal(globalManagerSubject.address);
-        expect(proxyInfo.acl).to.be.equal(aclManagerProxy.address);
-        expect(proxyInfo.localAdmin).to.be.equal(systemAdminWallet.address);
-        expect(proxyInfo.domainSeparator).to.be.equal(domainSeparator);
-        expect(proxyInfo.sstat).to.be.equal(ProxySafeModeStatus.DISABLED);
-        expect(proxyInfo.ustat).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
-        expect(proxyInfo.initVersion).to.be.equal(1)
+        // and
+        expect(await globalManagerProxy.safeModeStatus()).to.be.equal(ProxySafeModeStatus.DISABLED);
+        expect(await globalManagerProxy.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(await globalManagerProxy.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
+        expect(await globalManagerProxy.contractName()).to.be.equal(GLOBAL_MANAGER_CONTRACT_NAME);
+        expect(await globalManagerProxy.contractVersion()).to.be.equal(CONTRACTS_VERSION);
+        expect(await globalManagerProxy.subjectAddress()).to.be.hexEqual(profileMemberManagerSubject.address);
+        expect(await globalManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
+        expect(await globalManagerProxy.initVersion()).to.be.equal(1);
+        expect(await globalManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
       });
 
       it("Should PolicyManager proxy deploy success", async () => {
@@ -1037,16 +1374,51 @@ describe("AccessControlManager Tests",
           networkChainId
         );
 
-        let proxyInfo: IProxy.ProxyInfoStruct = await policyManagerProxy.proxyInfo();
-        expect(proxyInfo.name).to.be.equal(POLICY_MANAGER_CONTRACT_NAME);
-        expect(proxyInfo.version).to.be.equal(CONTRACTS_VERSION);
-        expect(proxyInfo.subject).to.be.equal(policyManagerSubject.address);
-        expect(proxyInfo.acl).to.be.equal(aclManagerProxy.address);
-        expect(proxyInfo.localAdmin).to.be.equal(systemAdminWallet.address);
-        expect(proxyInfo.domainSeparator).to.be.equal(domainSeparator);
-        expect(proxyInfo.sstat).to.be.equal(ProxySafeModeStatus.DISABLED);
-        expect(proxyInfo.ustat).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
-        expect(proxyInfo.initVersion).to.be.equal(1)
+        // and
+        expect(await policyManagerProxy.safeModeStatus()).to.be.equal(ProxySafeModeStatus.DISABLED);
+        expect(await policyManagerProxy.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(await policyManagerProxy.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
+        expect(await policyManagerProxy.contractName()).to.be.equal(POLICY_MANAGER_CONTRACT_NAME);
+        expect(await policyManagerProxy.contractVersion()).to.be.equal(CONTRACTS_VERSION);
+        expect(await policyManagerProxy.subjectAddress()).to.be.hexEqual(policyManagerSubject.address);
+        expect(await policyManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
+        expect(await policyManagerProxy.initVersion()).to.be.equal(1);
+        expect(await policyManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
+      });
+
+      it("Should ProfileManager proxy deploy success", async () => {
+        // given
+        const proxyFactory = new ACLProxy__factory(systemAdmin);
+        const iface = new ethers.utils.Interface(ProfileManager__factory.abi);
+        const data = iface.encodeFunctionData("initialize", [
+          PROFILE_MANAGER_CONTRACT_NAME,
+          CONTRACTS_VERSION,
+          aclManagerProxy.address,
+        ]);
+
+        // when
+        const proxy = await proxyFactory.deploy(profileManagerSubject.address, data);
+        await proxy.deployTransaction.wait();
+
+        // then
+        profileManagerProxy = profileManagerSubject.attach(proxy.address);
+        const domainSeparator = generateDomainSeparator(
+          PROFILE_MANAGER_CONTRACT_NAME,
+          CONTRACTS_VERSION,
+          policyManagerProxy.address,
+          networkChainId
+        );
+
+        // and
+        expect(await profileManagerProxy.safeModeStatus()).to.be.equal(ProxySafeModeStatus.DISABLED);
+        expect(await profileManagerProxy.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(await profileManagerProxy.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
+        expect(await profileManagerProxy.contractName()).to.be.equal(PROFILE_MANAGER_CONTRACT_NAME);
+        expect(await profileManagerProxy.contractVersion()).to.be.equal(CONTRACTS_VERSION);
+        expect(await profileManagerProxy.subjectAddress()).to.be.hexEqual(profileManagerSubject.address);
+        expect(await profileManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
+        expect(await profileManagerProxy.initVersion()).to.be.equal(1);
+        expect(await profileManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
       });
 
       it("Should AccessControl proxy deploy success", async () => {
@@ -1072,16 +1444,424 @@ describe("AccessControlManager Tests",
           networkChainId
         );
 
-        let proxyInfo: IProxy.ProxyInfoStruct = await accessControlProxy.proxyInfo();
-        expect(proxyInfo.name).to.be.equal(ACCESS_CONTROL_CONTRACT_NAME);
-        expect(proxyInfo.version).to.be.equal(CONTRACTS_VERSION);
-        expect(proxyInfo.subject).to.be.equal(accessControlSubject.address);
-        expect(proxyInfo.acl).to.be.equal(aclManagerProxy.address);
-        expect(proxyInfo.localAdmin).to.be.equal(systemAdminWallet.address);
-        expect(proxyInfo.domainSeparator).to.be.equal(domainSeparator);
-        expect(proxyInfo.sstat).to.be.equal(ProxySafeModeStatus.DISABLED);
-        expect(proxyInfo.ustat).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
-        expect(proxyInfo.initVersion).to.be.equal(1)
+        // and
+        expect(await accessControlProxy.safeModeStatus()).to.be.equal(ProxySafeModeStatus.DISABLED);
+        expect(await accessControlProxy.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(await accessControlProxy.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
+        expect(await accessControlProxy.contractName()).to.be.equal(ACCESS_CONTROL_CONTRACT_NAME);
+        expect(await accessControlProxy.contractVersion()).to.be.equal(CONTRACTS_VERSION);
+        expect(await accessControlProxy.subjectAddress()).to.be.hexEqual(accessControlSubject.address);
+        expect(await accessControlProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
+        expect(await accessControlProxy.initVersion()).to.be.equal(1);
+        expect(await accessControlProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
+      });
+    })
+
+    describe("ACL Profiles Modules Proxies Tests", function() {
+      it("Should deploy proxy ProfileMemberManager with invalid acl failed", async () => {
+        // given
+        const proxyFactory = new Proxy__factory(systemAdmin);
+        const iface = new ethers.utils.Interface(ProfileMemberManager__factory.abi);
+        const data = iface.encodeFunctionData("initialize", [
+          PROFILE_MEMBER_MANAGER_CONTRACT_NAME,
+          CONTRACTS_VERSION,
+          ethers.constants.AddressZero,
+        ]);
+
+        // when
+        await expect(proxyFactory.deploy(profileMemberManagerSubject.address, data))
+          .revertedWith("Illegal Contract");
+      });
+
+      it("Should deploy proxy ProfileMemberManager with illegal acl failed", async () => {
+        // given
+        const baseUUPSProxy = await deployments.getArtifact("UUPSUpgradeableTest");
+        const invalidUUPS = await deployMockContract(systemAdmin, baseUUPSProxy.abi);
+        await invalidUUPS.mock.supportsInterface.returns(false);
+        const proxyFactory = new Proxy__factory(systemAdmin);
+        const iface = new ethers.utils.Interface(ProfileMemberManager__factory.abi);
+        const data = iface.encodeFunctionData("initialize", [
+          PROFILE_MEMBER_MANAGER_CONTRACT_NAME,
+          CONTRACTS_VERSION,
+          invalidUUPS.address,
+        ]);
+
+        // when
+        await expect(proxyFactory.deploy(profileMemberManagerSubject.address, data))
+          .revertedWith("Illegal ACL");
+      });
+
+      it("Should ProfileMemberManager proxy deploy success", async () => {
+        // given
+        const proxyFactory = new ACLProxy__factory(systemAdmin);
+        const iface = new ethers.utils.Interface(ProfileMemberManager__factory.abi);
+        const data = iface.encodeFunctionData("initialize", [
+          PROFILE_MEMBER_MANAGER_CONTRACT_NAME,
+          CONTRACTS_VERSION,
+          aclManagerProxy.address,
+        ]);
+
+        // when
+        const proxy = await proxyFactory.deploy(profileMemberManagerSubject.address, data);
+        const txReceipt = await proxy.deployTransaction.wait();
+
+        // then
+        profileMemberManagerProxy = profileMemberManagerSubject.attach(proxy.address);
+        const domainSeparator = generateDomainSeparator(
+          PROFILE_MEMBER_MANAGER_CONTRACT_NAME,
+          CONTRACTS_VERSION,
+          profileMemberManagerProxy.address,
+          networkChainId
+        );
+
+        // and
+        let logDesc = profileMemberManagerSubject.interface.parseLog(txReceipt.logs[0]);
+        const upgradeEvent: ProxyUpgradedEventObject = <ProxyUpgradedEventObject>(<unknown>logDesc.args);
+        expect(upgradeEvent.sender, "Illegal Sender Address").to.be.hexEqual(systemAdminWallet.address);
+        expect(upgradeEvent.proxy, "Illegal Proxy Address").to.be.hexEqual(profileMemberManagerProxy.address);
+        expect(upgradeEvent.newImplementation, "Illegal New Implementation").to.be.hexEqual(profileMemberManagerSubject.address);
+
+        // and
+        logDesc = profileMemberManagerSubject.interface.parseLog(txReceipt.logs[1]);
+        const adminChangedEvent: ProxyLocalAdminUpdatedEventObject = <ProxyLocalAdminUpdatedEventObject>(<unknown>logDesc.args);
+        expect(adminChangedEvent.sender, "Illegal Sender Address").to.be.hexEqual(systemAdminWallet.address);
+        expect(adminChangedEvent.proxy, "Illegal Proxy Address").to.be.hexEqual(profileMemberManagerProxy.address);
+        expect(adminChangedEvent.newAdmin, "Illegal New Admin Address").to.be.hexEqual(systemAdminWallet.address);
+
+        // and
+        logDesc = profileMemberManagerSubject.interface.parseLog(txReceipt.logs[2]);
+        const initializedEvent: InitializedEventObject = <InitializedEventObject>(<unknown>logDesc.args);
+        expect(initializedEvent.sender, "Illegal Sender Address").to.be.hexEqual(systemAdminWallet.address);
+        expect(initializedEvent.proxy, "Illegal Proxy Address").to.be.hexEqual(profileMemberManagerProxy.address);
+        expect(initializedEvent.subject, "Illegal Subject Address").to.be.hexEqual(profileMemberManagerSubject.address);
+        expect(initializedEvent.name, "Illegal Name").to.be.equal(PROFILE_MEMBER_MANAGER_CONTRACT_NAME);
+        expect(initializedEvent.version, "Illegal Version").to.be.equal(CONTRACTS_VERSION);
+        expect(initializedEvent.initCount, "Illegal InitializedCount").to.be.equal(1);
+
+        // and
+        expect(await profileMemberManagerProxy.safeModeStatus()).to.be.equal(ProxySafeModeStatus.DISABLED);
+        expect(await profileMemberManagerProxy.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(await profileMemberManagerProxy.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
+        expect(await profileMemberManagerProxy.contractName()).to.be.equal(PROFILE_MEMBER_MANAGER_CONTRACT_NAME);
+        expect(await profileMemberManagerProxy.contractVersion()).to.be.equal(CONTRACTS_VERSION);
+        expect(await profileMemberManagerProxy.subjectAddress()).to.be.hexEqual(profileMemberManagerSubject.address);
+        expect(await profileMemberManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
+        expect(await profileMemberManagerProxy.initVersion()).to.be.equal(1);
+        expect(await profileMemberManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
+      });
+
+      it("Should ProfileRoleManager proxy deploy success", async () => {
+        // given
+        const proxyFactory = new ACLProxy__factory(systemAdmin);
+        const iface = new ethers.utils.Interface(ProfileRoleManager__factory.abi);
+        const data = iface.encodeFunctionData("initialize", [
+          PROFILE_ROLE_MANAGER_CONTRACT_NAME,
+          CONTRACTS_VERSION,
+          aclManagerProxy.address,
+        ]);
+
+        // when
+        const proxy = await proxyFactory.deploy(profileRoleManagerSubject.address, data);
+
+        // then
+        profileRoleManagerProxy = profileRoleManagerSubject.attach(proxy.address);
+        const domainSeparator = generateDomainSeparator(
+          PROFILE_ROLE_MANAGER_CONTRACT_NAME,
+          CONTRACTS_VERSION,
+          profileRoleManagerProxy.address,
+          networkChainId
+        );
+
+        // and
+        expect(await profileRoleManagerProxy.safeModeStatus()).to.be.equal(ProxySafeModeStatus.DISABLED);
+        expect(await profileRoleManagerProxy.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(await profileRoleManagerProxy.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
+        expect(await profileRoleManagerProxy.contractName()).to.be.equal(PROFILE_ROLE_MANAGER_CONTRACT_NAME);
+        expect(await profileRoleManagerProxy.contractVersion()).to.be.equal(CONTRACTS_VERSION);
+        expect(await profileRoleManagerProxy.subjectAddress()).to.be.hexEqual(profileMemberManagerSubject.address);
+        expect(await profileRoleManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
+        expect(await profileRoleManagerProxy.initVersion()).to.be.equal(1);
+        expect(await profileRoleManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
+      });
+
+      it("Should ProfileTypeManager proxy deploy success", async () => {
+        // given
+        const proxyFactory = new ACLProxy__factory(systemAdmin);
+        const iface = new ethers.utils.Interface(ProfileTypeManager__factory.abi);
+        const data = iface.encodeFunctionData("initialize", [
+          PROFILE_TYPE_MANAGER_CONTRACT_NAME,
+          CONTRACTS_VERSION,
+          aclManagerProxy.address,
+        ]);
+
+        // when
+        const proxy = await proxyFactory.deploy(profileTypeManagerSubject.address, data);
+        await proxy.deployTransaction.wait();
+
+        // then
+        profileTypeManagerProxy = profileTypeManagerSubject.attach(proxy.address);
+        const domainSeparator = generateDomainSeparator(
+          PROFILE_TYPE_MANAGER_CONTRACT_NAME,
+          CONTRACTS_VERSION,
+          profileTypeManagerProxy.address,
+          networkChainId
+        );
+
+        // and
+        expect(await profileTypeManagerProxy.safeModeStatus()).to.be.equal(ProxySafeModeStatus.DISABLED);
+        expect(await profileTypeManagerProxy.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(await profileTypeManagerProxy.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
+        expect(await profileTypeManagerProxy.contractName()).to.be.equal(PROFILE_TYPE_MANAGER_CONTRACT_NAME);
+        expect(await profileTypeManagerProxy.contractVersion()).to.be.equal(CONTRACTS_VERSION);
+        expect(await profileTypeManagerProxy.subjectAddress()).to.be.hexEqual(profileTypeManagerSubject.address);
+        expect(await profileTypeManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
+        expect(await profileTypeManagerProxy.initVersion()).to.be.equal(1);
+        expect(await profileTypeManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
+      });
+
+      it("Should ProfileFunctionManager proxy deploy success", async () => {
+        // given
+        const proxyFactory = new ACLProxy__factory(systemAdmin);
+        const iface = new ethers.utils.Interface(ProfileFunctionManager__factory.abi);
+        const data = iface.encodeFunctionData("initialize", [
+          PROFILE_FUNCTION_MANAGER_CONTRACT_NAME,
+          CONTRACTS_VERSION,
+          aclManagerProxy.address,
+        ]);
+
+        // when
+        const proxy = await proxyFactory.deploy(profileFunctionManagerSubject.address, data);
+        await proxy.deployTransaction.wait();
+
+        // then
+        profileFunctionManagerProxy = profileFunctionManagerSubject.attach(proxy.address);
+        const domainSeparator = generateDomainSeparator(
+          PROFILE_FUNCTION_MANAGER_CONTRACT_NAME,
+          CONTRACTS_VERSION,
+          profileFunctionManagerProxy.address,
+          networkChainId
+        );
+
+        // and
+        expect(await profileFunctionManagerProxy.safeModeStatus()).to.be.equal(ProxySafeModeStatus.DISABLED);
+        expect(await profileFunctionManagerProxy.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(await profileFunctionManagerProxy.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
+        expect(await profileFunctionManagerProxy.contractName()).to.be.equal(PROFILE_FUNCTION_MANAGER_CONTRACT_NAME);
+        expect(await profileFunctionManagerProxy.contractVersion()).to.be.equal(CONTRACTS_VERSION);
+        expect(await profileFunctionManagerProxy.subjectAddress()).to.be.hexEqual(profileFunctionManagerSubject.address);
+        expect(await profileFunctionManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
+        expect(await profileFunctionManagerProxy.initVersion()).to.be.equal(1);
+        expect(await profileFunctionManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
+      });
+
+      it("Should ProfileContextManager proxy deploy success", async () => {
+        // given
+        const proxyFactory = new ACLProxy__factory(systemAdmin);
+        const iface = new ethers.utils.Interface(ProfileContextManager__factory.abi);
+        const data = iface.encodeFunctionData("initialize", [
+          PROFILE_CONTEXT_MANAGER_CONTRACT_NAME,
+          CONTRACTS_VERSION,
+          aclManagerProxy.address,
+        ]);
+
+        // when
+        const proxy = await proxyFactory.deploy(profileContextManagerSubject.address, data);
+        const txReceipt = await proxy.deployTransaction.wait();
+
+        // then
+        profileContextManagerProxy = profileContextManagerSubject.attach(proxy.address);
+        const domainSeparator = generateDomainSeparator(
+          PROFILE_CONTEXT_MANAGER_CONTRACT_NAME,
+          CONTRACTS_VERSION,
+          profileContextManagerProxy.address,
+          networkChainId
+        );
+
+        // and
+        expect(await profileContextManagerProxy.safeModeStatus()).to.be.equal(ProxySafeModeStatus.DISABLED);
+        expect(await profileContextManagerProxy.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(await profileContextManagerProxy.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
+        expect(await profileContextManagerProxy.contractName()).to.be.equal(PROFILE_CONTEXT_MANAGER_CONTRACT_NAME);
+        expect(await profileContextManagerProxy.contractVersion()).to.be.equal(CONTRACTS_VERSION);
+        expect(await profileContextManagerProxy.subjectAddress()).to.be.hexEqual(profileContextManagerSubject.address);
+        expect(await profileContextManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
+        expect(await profileContextManagerProxy.initVersion()).to.be.equal(1);
+        expect(await profileContextManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
+      });
+
+      it("Should ProfileRealmManager proxy deploy success", async () => {
+        // given
+        const proxyFactory = new ACLProxy__factory(systemAdmin);
+        const iface = new ethers.utils.Interface(ProfileRealmManager__factory.abi);
+        const data = iface.encodeFunctionData("initialize", [
+          PROFILE_REALM_MANAGER_CONTRACT_NAME,
+          CONTRACTS_VERSION,
+          aclManagerProxy.address,
+        ]);
+
+        // when
+        const proxy = await proxyFactory.deploy(profileRealmManagerSubject.address, data);
+        await proxy.deployTransaction.wait();
+
+        // then
+        profileRealmManagerProxy = profileRealmManagerSubject.attach(proxy.address);
+        const domainSeparator = generateDomainSeparator(
+          PROFILE_REALM_MANAGER_CONTRACT_NAME,
+          CONTRACTS_VERSION,
+          profileRealmManagerProxy.address,
+          networkChainId
+        );
+
+        // and
+        expect(await profileRealmManagerProxy.safeModeStatus()).to.be.equal(ProxySafeModeStatus.DISABLED);
+        expect(await profileRealmManagerProxy.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(await profileRealmManagerProxy.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
+        expect(await profileRealmManagerProxy.contractName()).to.be.equal(PROFILE_REALM_MANAGER_CONTRACT_NAME);
+        expect(await profileRealmManagerProxy.contractVersion()).to.be.equal(CONTRACTS_VERSION);
+        expect(await profileRealmManagerProxy.subjectAddress()).to.be.hexEqual(profileRealmManagerSubject.address);
+        expect(await profileRealmManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
+        expect(await profileRealmManagerProxy.initVersion()).to.be.equal(1);
+        expect(await profileRealmManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
+      });
+
+      it("Should ProfileDomainManager proxy deploy success", async () => {
+        // given
+        const proxyFactory = new ACLProxy__factory(systemAdmin);
+        const iface = new ethers.utils.Interface(ProfileDomainManager__factory.abi);
+        const data = iface.encodeFunctionData("initialize", [
+          PROFILE_DOMAIN_MANAGER_CONTRACT_NAME,
+          CONTRACTS_VERSION,
+          aclManagerProxy.address,
+        ]);
+
+        // when
+        const proxy = await proxyFactory.deploy(profileDomainManagerSubject.address, data);
+        await proxy.deployTransaction.wait();
+
+        // then
+        profileDomainManagerProxy = profileDomainManagerSubject.attach(proxy.address);
+        const domainSeparator = generateDomainSeparator(
+          PROFILE_DOMAIN_MANAGER_CONTRACT_NAME,
+          CONTRACTS_VERSION,
+          profileDomainManagerProxy.address,
+          networkChainId
+        );
+
+        // and
+        expect(await profileDomainManagerProxy.safeModeStatus()).to.be.equal(ProxySafeModeStatus.DISABLED);
+        expect(await profileDomainManagerProxy.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(await profileDomainManagerProxy.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
+        expect(await profileDomainManagerProxy.contractName()).to.be.equal(PROFILE_DOMAIN_MANAGER_CONTRACT_NAME);
+        expect(await profileDomainManagerProxy.contractVersion()).to.be.equal(CONTRACTS_VERSION);
+        expect(await profileDomainManagerProxy.subjectAddress()).to.be.hexEqual(profileDomainManagerSubject.address);
+        expect(await profileDomainManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
+        expect(await profileDomainManagerProxy.initVersion()).to.be.equal(1);
+        expect(await profileDomainManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
+      });
+
+      it("Should ProfileGlobalManager proxy deploy success", async () => {
+        // given
+        const proxyFactory = new ACLProxy__factory(systemAdmin);
+        const iface = new ethers.utils.Interface(ProfileGlobalManager__factory.abi);
+        const data = iface.encodeFunctionData("initialize", [
+          PROFILE_GLOBAL_MANAGER_CONTRACT_NAME,
+          CONTRACTS_VERSION,
+          aclManagerProxy.address,
+        ]);
+
+        // when
+        const proxy = await proxyFactory.deploy(profileGlobalManagerSubject.address, data);
+        await proxy.deployTransaction.wait();
+
+        // then
+        profileGlobalManagerProxy = profileGlobalManagerSubject.attach(proxy.address);
+        const domainSeparator = generateDomainSeparator(
+          PROFILE_GLOBAL_MANAGER_CONTRACT_NAME,
+          CONTRACTS_VERSION,
+          profileGlobalManagerProxy.address,
+          networkChainId
+        );
+
+        // and
+        expect(await profileGlobalManagerProxy.safeModeStatus()).to.be.equal(ProxySafeModeStatus.DISABLED);
+        expect(await profileGlobalManagerProxy.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(await profileGlobalManagerProxy.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
+        expect(await profileGlobalManagerProxy.contractName()).to.be.equal(PROFILE_GLOBAL_MANAGER_CONTRACT_NAME);
+        expect(await profileGlobalManagerProxy.contractVersion()).to.be.equal(CONTRACTS_VERSION);
+        expect(await profileGlobalManagerProxy.subjectAddress()).to.be.hexEqual(profileGlobalManagerSubject.address);
+        expect(await profileGlobalManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
+        expect(await profileGlobalManagerProxy.initVersion()).to.be.equal(1);
+        expect(await profileGlobalManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
+      });
+
+      it("Should ProfilePolicyManager proxy deploy success", async () => {
+        // given
+        const proxyFactory = new ACLProxy__factory(systemAdmin);
+        const iface = new ethers.utils.Interface(ProfilePolicyManager__factory.abi);
+        const data = iface.encodeFunctionData("initialize", [
+          PROFILE_POLICY_MANAGER_CONTRACT_NAME,
+          CONTRACTS_VERSION,
+          aclManagerProxy.address,
+        ]);
+
+        // when
+        const proxy = await proxyFactory.deploy(profilePolicyManagerSubject.address, data);
+        await proxy.deployTransaction.wait();
+
+        // then
+        profilePolicyManagerProxy = profilePolicyManagerSubject.attach(proxy.address);
+        const domainSeparator = generateDomainSeparator(
+          PROFILE_POLICY_MANAGER_CONTRACT_NAME,
+          CONTRACTS_VERSION,
+          profilePolicyManagerProxy.address,
+          networkChainId
+        );
+
+        // and
+        expect(await profilePolicyManagerProxy.safeModeStatus()).to.be.equal(ProxySafeModeStatus.DISABLED);
+        expect(await profilePolicyManagerProxy.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(await profilePolicyManagerProxy.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
+        expect(await profilePolicyManagerProxy.contractName()).to.be.equal(PROFILE_POLICY_MANAGER_CONTRACT_NAME);
+        expect(await profilePolicyManagerProxy.contractVersion()).to.be.equal(CONTRACTS_VERSION);
+        expect(await profilePolicyManagerProxy.subjectAddress()).to.be.hexEqual(profilePolicyManagerSubject.address);
+        expect(await profilePolicyManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
+        expect(await profilePolicyManagerProxy.initVersion()).to.be.equal(1);
+        expect(await profilePolicyManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
+      });
+
+      it("Should ProfileAccessControl proxy deploy success", async () => {
+        // given
+        const proxyFactory = new ACLProxy__factory(systemAdmin);
+        const iface = new ethers.utils.Interface(ProfileAccessControl__factory.abi);
+        const data = iface.encodeFunctionData("initialize", [
+          PROFILE_ACCESS_CONTROL_CONTRACT_NAME,
+          CONTRACTS_VERSION,
+          aclManagerProxy.address,
+        ]);
+
+        // when
+        const proxy = await proxyFactory.deploy(profileAccessControlSubject.address, data);
+        await proxy.deployTransaction.wait();
+
+        // then
+        profileAccessControlProxy = profileAccessControlSubject.attach(proxy.address);
+        const domainSeparator = generateDomainSeparator(
+          PROFILE_ACCESS_CONTROL_CONTRACT_NAME,
+          CONTRACTS_VERSION,
+          profileAccessControlProxy.address,
+          networkChainId
+        );
+
+        // and
+        expect(await profileAccessControlProxy.safeModeStatus()).to.be.equal(ProxySafeModeStatus.DISABLED);
+        expect(await profileAccessControlProxy.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(await profileAccessControlProxy.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
+        expect(await profileAccessControlProxy.contractName()).to.be.equal(PROFILE_ACCESS_CONTROL_CONTRACT_NAME);
+        expect(await profileAccessControlProxy.contractVersion()).to.be.equal(CONTRACTS_VERSION);
+        expect(await profileAccessControlProxy.subjectAddress()).to.be.hexEqual(profileAccessControlSubject.address);
+        expect(await profileAccessControlProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
+        expect(await profileAccessControlProxy.initVersion()).to.be.equal(1);
+        expect(await profileAccessControlProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
       });
     })
 
@@ -1112,7 +1892,7 @@ describe("AccessControlManager Tests",
         expect(await aclManagerProxy.getFirstInit()).to.be.equal(firstInit);
       })
 
-      it("Should facets register to ACLManager by systemAdmin success", async() => {
+      it("Should facets acl register to ACLManager by systemAdmin success", async() => {
 
         // given
         const roleIface = new ethers.utils.Interface(RoleManager__factory.abi);
@@ -1123,20 +1903,18 @@ describe("AccessControlManager Tests",
         const domainIface = new ethers.utils.Interface(DomainManager__factory.abi);
         const globalIface = new ethers.utils.Interface(GlobalManager__factory.abi);
         const policyIface = new ethers.utils.Interface(PolicyManager__factory.abi);
+        const profileIface = new ethers.utils.Interface(ProfileManager__factory.abi);
         const accessControlIface = new ethers.utils.Interface(AccessControl__factory.abi);
         const facetRequests: IACLManager.FacetRegisterRequestStruct[] = [
           {
             facetId: memberManagerProxy.address,
-            // interfaceId: "0x22253c22",
             subjectId: memberManagerSubject.address,
             selectors: [
               memberIface.getSighash("memberRegister"),
               memberIface.getSighash("memberUpdateActivityStatus"),
               memberIface.getSighash("memberUpdateAlterabilityStatus"),
               memberIface.getSighash("memberUpdateAdmin"),
-              memberIface.getSighash("memberUpdateTypeLimit"),
-              memberIface.getSighash("memberUpdateFactoryLimit"),
-              memberIface.getSighash("memberUpdateCallLimit"),
+              memberIface.getSighash("memberUpdateGeneralLimit"),
               memberIface.getSighash("memberCheckId"),
               memberIface.getSighash("memberCheckAccount"),
               memberIface.getSighash("memberCheckAdmin"),
@@ -1147,7 +1925,6 @@ describe("AccessControlManager Tests",
           },
           {
             facetId: roleManagerProxy.address,
-            // interfaceId: "0x16588498",
             subjectId: roleManagerSubject.address,
             selectors: [
               roleIface.getSighash("roleRegister"),
@@ -1167,7 +1944,6 @@ describe("AccessControlManager Tests",
           },
           {
             facetId: typeManagerProxy.address,
-            // interfaceId: "0x2e57eaef",
             subjectId: typeManagerSubject.address,
             selectors: [
               typeIface.getSighash("typeRegister"),
@@ -1187,7 +1963,6 @@ describe("AccessControlManager Tests",
           },
           {
             facetId: policyManagerProxy.address,
-            // interfaceId: "0x671c16c8",
             subjectId: policyManagerSubject.address,
             selectors: [
               policyIface.getSighash("policyRegister"),
@@ -1212,8 +1987,29 @@ describe("AccessControlManager Tests",
             ]
           },
           {
+            facetId: profileManagerProxy.address,
+            subjectId: profileManagerSubject.address,
+            selectors: [
+              profileIface.getSighash("profileRegister"),
+              profileIface.getSighash("profileUpdateLimits"),
+              profileIface.getSighash("profileUpdateExpiration"),
+              profileIface.getSighash("profileUpdateOwnerAccount"),
+              profileIface.getSighash("profileUpdateActivityStatus"),
+              profileIface.getSighash("profileUpdateAlterabilityStatus"),
+              profileIface.getSighash("profileUpdateAdmin"),
+              profileIface.getSighash("profileCheckId"),
+              profileIface.getSighash("profileCheckName"),
+              profileIface.getSighash("profileCheckOwner"),
+              profileIface.getSighash("profileCheckLivelyAdmin"),
+              profileIface.getSighash("profileCheckLivelySystemAdmin"),
+              profileIface.getSighash("profileCheckAdmin"),
+              profileIface.getSighash("profileGetProfileAccount"),
+              profileIface.getSighash("profileGetAdmins"),
+              profileIface.getSighash("profileGetInfo"),
+            ]
+          },
+          {
             facetId: functionManagerProxy.address,
-            // interfaceId: "0xc0c62eda",
             subjectId: functionManagerSubject.address,
             selectors: [
               functionIface.getSighash("functionRegister"),
@@ -1222,7 +2018,6 @@ describe("AccessControlManager Tests",
               functionIface.getSighash("functionUpdateActivityStatus"),
               functionIface.getSighash("functionUpdateAlterabilityStatus"),
               functionIface.getSighash("functionUpdatePolicyCode"),
-              functionIface.getSighash("functionUpdateAgentLimit"),
               functionIface.getSighash("functionCheckId"),
               functionIface.getSighash("functionCheckSelector"),
               functionIface.getSighash("functionCheckAdmin"),
@@ -1232,7 +2027,6 @@ describe("AccessControlManager Tests",
           },
           {
             facetId: contextManagerProxy.address,
-            // interfaceId: "0x61fafd78",
             subjectId: contextManagerSubject.address,
             selectors: [
               contextIface.getSighash("contextRegister"),
@@ -1240,7 +2034,6 @@ describe("AccessControlManager Tests",
               contextIface.getSighash("contextUpdateAlterabilityStatus"),
               contextIface.getSighash("contextUpdateAdmin"),
               contextIface.getSighash("contextUpdateFunctionLimit"),
-              contextIface.getSighash("contextUpdateAgentLimit"),
               contextIface.getSighash("contextCheckId"),
               contextIface.getSighash("contextCheckAccount"),
               contextIface.getSighash("contextCheckAdmin"),
@@ -1252,15 +2045,14 @@ describe("AccessControlManager Tests",
           },
           {
             facetId: realmManagerProxy.address,
-            // interfaceId: "0x6e7231bc",
             subjectId: realmManagerSubject.address,
             selectors: [
               realmIface.getSighash("realmRegister"),
               realmIface.getSighash("realmUpdateAdmin"),
+              realmIface.getSighash("realmMoveContext"),
               realmIface.getSighash("realmUpdateActivityStatus"),
               realmIface.getSighash("realmUpdateAlterabilityStatus"),
               realmIface.getSighash("realmUpdateContextLimit"),
-              realmIface.getSighash("realmUpdateAgentLimit"),
               realmIface.getSighash("realmCheckId"),
               realmIface.getSighash("realmCheckName"),
               realmIface.getSighash("realmCheckAdmin"),
@@ -1272,15 +2064,14 @@ describe("AccessControlManager Tests",
           },
           {
             facetId: domainManagerProxy.address,
-            // interfaceId: "0xeb2ec751",
             subjectId: domainManagerSubject.address,
             selectors: [
               domainIface.getSighash("domainRegister"),
               domainIface.getSighash("domainUpdateActivityStatus"),
               domainIface.getSighash("domainUpdateAlterabilityStatus"),
               domainIface.getSighash("domainUpdateAdmin"),
+              domainIface.getSighash("domainMoveRealm"),
               domainIface.getSighash("domainUpdateRealmLimit"),
-              domainIface.getSighash("domainUpdateAgentLimit"),
               domainIface.getSighash("domainCheckId"),
               domainIface.getSighash("domainCheckName"),
               domainIface.getSighash("domainCheckAdmin"),
@@ -1293,14 +2084,12 @@ describe("AccessControlManager Tests",
           },
           {
             facetId: globalManagerProxy.address,
-            // interfaceId: "0x7ff2fd24",
             subjectId: globalManagerSubject.address,
             selectors: [
-              // globalIface.getSighash("globalUpdateActivityStatus"),
+              globalIface.getSighash("globalUpdateActivityStatus"),
               globalIface.getSighash("globalUpdateAlterabilityStatus"),
               globalIface.getSighash("globalUpdateAdmin"),
               globalIface.getSighash("globalUpdateDomainLimit"),
-              globalIface.getSighash("globalUpdateAgentLimit"),
               globalIface.getSighash("globalCheckAdmin"),
               globalIface.getSighash("globalGetDomains"),
               globalIface.getSighash("globalGetInfo"),
@@ -1308,30 +2097,22 @@ describe("AccessControlManager Tests",
           },
           {
             facetId: accessControlProxy.address,
-            // interfaceId: "0x7cf5145b",
             subjectId: accessControlSubject.address,
             selectors: [
               accessControlIface.getSighash("hasAccess"),
               accessControlIface.getSighash("hasMemberAccess"),
               accessControlIface.getSighash("hasCSAccess"),
               accessControlIface.getSighash("hasAccountAccess"),
-              // accessControlIface.getSighash("hasAccessToAgent"),
-              // accessControlIface.getSighash("hasMemberAccessToAgent"),
-              // accessControlIface.getSighash("hasCSAccessToAgent"),
-              // accessControlIface.getSighash("hasAccountAccessToAgent"),
               accessControlIface.getSighash("getAnonymousType"),
               accessControlIface.getSighash("getAnyType"),
               accessControlIface.getSighash("getScopeMasterType"),
-              accessControlIface.getSighash("getAgentMasterType"),
+              accessControlIface.getSighash("getTypeMasterType"),
+              accessControlIface.getSighash("getMemberMasterType"),
               accessControlIface.getSighash("getSystemMasterType"),
               accessControlIface.getSighash("getLivelyMasterType"),
               accessControlIface.getSighash("getPolicyMasterType"),
+              accessControlIface.getSighash("getProfileMasterType"),
               accessControlIface.getSighash("getGlobalScope"),
-              accessControlIface.getSighash("getLivelyMasterAdminRole"),
-              accessControlIface.getSighash("getScopeMasterAdminRole"),
-              accessControlIface.getSighash("getAgentMasterAdminRole"),
-              accessControlIface.getSighash("getSystemMasterAdminRole"),
-              accessControlIface.getSighash("getPolicyMasterAdminRole"),
               accessControlIface.getSighash("isAgentExist"),
               accessControlIface.getSighash("isScopeExist"),
               accessControlIface.getSighash("getScopeBaseInfo"),
@@ -1350,6 +2131,8 @@ describe("AccessControlManager Tests",
           .withArgs(systemAdminWallet.address, typeManagerProxy.address, typeManagerSubject.address)
           .to.emit(aclManagerProxy, "ACLFacetRegistered")
           .withArgs(systemAdminWallet.address, policyManagerProxy.address, policyManagerSubject.address)
+          .to.emit(aclManagerProxy, "ACLFacetRegistered")
+          .withArgs(systemAdminWallet.address, profileManagerProxy.address, profileManagerSubject.address)
           .to.emit(aclManagerProxy, "ACLFacetRegistered")
           .withArgs(systemAdminWallet.address, functionManagerProxy.address, functionManagerSubject.address)
           .to.emit(aclManagerProxy, "ACLFacetRegistered")
@@ -1382,6 +2165,310 @@ describe("AccessControlManager Tests",
           roleManagerProxy.address,
           typeManagerProxy.address,
           policyManagerProxy.address,
+          profileManagerProxy.address,
+          functionManagerProxy.address,
+          contextManagerProxy.address,
+          realmManagerProxy.address,
+          domainManagerProxy.address,
+          globalManagerProxy.address,
+          accessControlProxy.address
+        ])
+
+        //
+        // expect(await accessControlDelegateProxy.hasAccess())
+        // expect(await accessControlDelegateProxy.hasMemberAccess())
+        // expect(await accessControlDelegateProxy.hasCSAccess())
+        // expect(await accessControlDelegateProxy.hasAccountAccess())
+        // expect(await accessControlDelegateProxy.hasAccessToAgent())
+        // expect(await accessControlDelegateProxy.hasMemberAccessToAgent())
+        // expect(await accessControlDelegateProxy.hasCSAccessToAgent())
+        // expect(await accessControlDelegateProxy.hasCSMAccessToAgent())
+        // 0x46414ba0   =>     IACLManager
+        // 0x7cf5145b   =>     IAccessControl
+        // 0x671c16c8   =>     IPolicyManagement
+        // 0xc0c62eda   =>     IFunctionManagement
+        // 0x61fafd78   =>     IContextManagement
+        // 0x6e7231bc   =>     IRealmManagement
+        // 0xeb2ec751   =>     IDomainManagement
+        // 0x7ff2fd24   =>     IGlobalManagement
+        // 0x22253c22   =>     IMemberManagement
+        // 0x16588498   =>     IRoleManagement
+        // 0x2e57eaef   =>     ITypeManagement
+      })
+
+      it("Should facets acl profile register to ACLManager by systemAdmin success", async() => {
+
+        // given
+        const profileRoleIface = new ethers.utils.Interface(ProfileRoleManager__factory.abi);
+        const profileTypeIface = new ethers.utils.Interface(ProfileTypeManager__factory.abi);
+        const profileFunctionIface = new ethers.utils.Interface(ProfileFunctionManager__factory.abi);
+        const profileContextIface = new ethers.utils.Interface(ProfileContextManager__factory.abi);
+        const profileRealmIface = new ethers.utils.Interface(ProfileRealmManager__factory.abi);
+        const profileDomainIface = new ethers.utils.Interface(ProfileDomainManager__factory.abi);
+        const profileGlobalIface = new ethers.utils.Interface(ProfileGlobalManager__factory.abi);
+        const profilePolicyIface = new ethers.utils.Interface(ProfilePolicyManager__factory.abi);
+        const profileAccessControlIface = new ethers.utils.Interface(ProfileAccessControl__factory.abi);
+        const facetRequests: IACLManager.FacetRegisterRequestStruct[] = [
+          {
+            facetId: profileMemberManagerProxy.address,
+            subjectId: profileMemberManagerSubject.address,
+            selectors: [
+              memberIface.getSighash("memberRegister"),
+              memberIface.getSighash("memberUpdateActivityStatus"),
+              memberIface.getSighash("memberUpdateAlterabilityStatus"),
+              memberIface.getSighash("memberUpdateAdmin"),
+              memberIface.getSighash("memberUpdateGeneralLimit"),
+              memberIface.getSighash("memberCheckId"),
+              memberIface.getSighash("memberCheckAccount"),
+              memberIface.getSighash("memberCheckAdmin"),
+              memberIface.getSighash("memberHasType"),
+              memberIface.getSighash("memberGetTypes"),
+              memberIface.getSighash("memberGetInfo"),
+            ]
+          },
+          {
+            facetId: roleManagerProxy.address,
+            subjectId: roleManagerSubject.address,
+            selectors: [
+              roleIface.getSighash("roleRegister"),
+              roleIface.getSighash("roleGrantMembers"),
+              roleIface.getSighash("roleRevokeMembers"),
+              roleIface.getSighash("roleUpdateAdmin"),
+              roleIface.getSighash("roleUpdateScope"),
+              roleIface.getSighash("roleUpdateActivityStatus"),
+              roleIface.getSighash("roleUpdateAlterabilityStatus"),
+              roleIface.getSighash("roleUpdateMemberLimit"),
+              roleIface.getSighash("roleCheckId"),
+              roleIface.getSighash("roleCheckName"),
+              roleIface.getSighash("roleCheckAdmin"),
+              roleIface.getSighash("roleHasAccount"),
+              roleIface.getSighash("roleGetInfo"),
+            ]
+          },
+          {
+            facetId: typeManagerProxy.address,
+            subjectId: typeManagerSubject.address,
+            selectors: [
+              typeIface.getSighash("typeRegister"),
+              typeIface.getSighash("typeUpdateAdmin"),
+              typeIface.getSighash("typeUpdateScope"),
+              typeIface.getSighash("typeUpdateActivityStatus"),
+              typeIface.getSighash("typeUpdateAlterabilityStatus"),
+              typeIface.getSighash("typeUpdateRoleLimit"),
+              typeIface.getSighash("typeCheckId"),
+              typeIface.getSighash("typeCheckName"),
+              typeIface.getSighash("typeCheckAdmin"),
+              typeIface.getSighash("typeHasAccount"),
+              typeIface.getSighash("typeHasRole"),
+              typeIface.getSighash("typeGetRoles"),
+              typeIface.getSighash("typeGetInfo"),
+            ]
+          },
+          {
+            facetId: policyManagerProxy.address,
+            subjectId: policyManagerSubject.address,
+            selectors: [
+              policyIface.getSighash("policyRegister"),
+              policyIface.getSighash("policyAddRoles"),
+              policyIface.getSighash("policyRemoveRoles"),
+              policyIface.getSighash("policyUpdateCodes"),
+              policyIface.getSighash("policyUpdateAdmin"),
+              policyIface.getSighash("policyUpdateScope"),
+              policyIface.getSighash("policyUpdateActivityStatus"),
+              policyIface.getSighash("policyUpdateAlterabilityStatus"),
+              policyIface.getSighash("policyUpdateRoleLimit"),
+              policyIface.getSighash("policyCheckId"),
+              policyIface.getSighash("policyCheckName"),
+              policyIface.getSighash("policyCheckAdmin"),
+              policyIface.getSighash("policyCheckRole"),
+              policyIface.getSighash("policyCheckAccess"),
+              policyIface.getSighash("policyCheckRoleAccess"),
+              policyIface.getSighash("policyHasRole"),
+              policyIface.getSighash("policyGetInfoByRole"),
+              policyIface.getSighash("policyGetInfo"),
+              policyIface.getSighash("policyGetRoles"),
+            ]
+          },
+          {
+            facetId: profileManagerProxy.address,
+            subjectId: profileManagerSubject.address,
+            selectors: [
+              profileIface.getSighash("profileRegister"),
+              profileIface.getSighash("profileUpdateLimits"),
+              profileIface.getSighash("profileUpdateExpiration"),
+              profileIface.getSighash("profileUpdateOwnerAccount"),
+              profileIface.getSighash("profileUpdateActivityStatus"),
+              profileIface.getSighash("profileUpdateAlterabilityStatus"),
+              profileIface.getSighash("profileUpdateAdmin"),
+              profileIface.getSighash("profileCheckId"),
+              profileIface.getSighash("profileCheckName"),
+              profileIface.getSighash("profileCheckOwner"),
+              profileIface.getSighash("profileCheckLivelyAdmin"),
+              profileIface.getSighash("profileCheckLivelySystemAdmin"),
+              profileIface.getSighash("profileCheckAdmin"),
+              profileIface.getSighash("profileGetProfileAccount"),
+              profileIface.getSighash("profileGetAdmins"),
+              profileIface.getSighash("profileGetInfo"),
+            ]
+          },
+          {
+            facetId: functionManagerProxy.address,
+            subjectId: functionManagerSubject.address,
+            selectors: [
+              functionIface.getSighash("functionRegister"),
+              functionIface.getSighash("functionUpdateAdmin"),
+              functionIface.getSighash("functionUpdateAgent"),
+              functionIface.getSighash("functionUpdateActivityStatus"),
+              functionIface.getSighash("functionUpdateAlterabilityStatus"),
+              functionIface.getSighash("functionUpdatePolicyCode"),
+              functionIface.getSighash("functionCheckId"),
+              functionIface.getSighash("functionCheckSelector"),
+              functionIface.getSighash("functionCheckAdmin"),
+              functionIface.getSighash("functionCheckAgent"),
+              functionIface.getSighash("functionGetInfo"),
+            ]
+          },
+          {
+            facetId: contextManagerProxy.address,
+            subjectId: contextManagerSubject.address,
+            selectors: [
+              contextIface.getSighash("contextRegister"),
+              contextIface.getSighash("contextUpdateActivityStatus"),
+              contextIface.getSighash("contextUpdateAlterabilityStatus"),
+              contextIface.getSighash("contextUpdateAdmin"),
+              contextIface.getSighash("contextUpdateFunctionLimit"),
+              contextIface.getSighash("contextCheckId"),
+              contextIface.getSighash("contextCheckAccount"),
+              contextIface.getSighash("contextCheckAdmin"),
+              contextIface.getSighash("contextHasFunction"),
+              contextIface.getSighash("contextHasSelector"),
+              contextIface.getSighash("contextGetFunctions"),
+              contextIface.getSighash("contextGetInfo"),
+            ]
+          },
+          {
+            facetId: realmManagerProxy.address,
+            subjectId: realmManagerSubject.address,
+            selectors: [
+              realmIface.getSighash("realmRegister"),
+              realmIface.getSighash("realmUpdateAdmin"),
+              realmIface.getSighash("realmMoveContext"),
+              realmIface.getSighash("realmUpdateActivityStatus"),
+              realmIface.getSighash("realmUpdateAlterabilityStatus"),
+              realmIface.getSighash("realmUpdateContextLimit"),
+              realmIface.getSighash("realmCheckId"),
+              realmIface.getSighash("realmCheckName"),
+              realmIface.getSighash("realmCheckAdmin"),
+              realmIface.getSighash("realmHasFunction"),
+              realmIface.getSighash("realmHasContext"),
+              realmIface.getSighash("realmGetContexts"),
+              realmIface.getSighash("realmGetInfo"),
+            ]
+          },
+          {
+            facetId: domainManagerProxy.address,
+            subjectId: domainManagerSubject.address,
+            selectors: [
+              domainIface.getSighash("domainRegister"),
+              domainIface.getSighash("domainUpdateActivityStatus"),
+              domainIface.getSighash("domainUpdateAlterabilityStatus"),
+              domainIface.getSighash("domainUpdateAdmin"),
+              domainIface.getSighash("domainMoveRealm"),
+              domainIface.getSighash("domainUpdateRealmLimit"),
+              domainIface.getSighash("domainCheckId"),
+              domainIface.getSighash("domainCheckName"),
+              domainIface.getSighash("domainCheckAdmin"),
+              domainIface.getSighash("domainHasFunction"),
+              domainIface.getSighash("domainHasContext"),
+              domainIface.getSighash("domainHasRealm"),
+              domainIface.getSighash("domainGetRealms"),
+              domainIface.getSighash("domainGetInfo"),
+            ]
+          },
+          {
+            facetId: globalManagerProxy.address,
+            subjectId: globalManagerSubject.address,
+            selectors: [
+              globalIface.getSighash("globalUpdateActivityStatus"),
+              globalIface.getSighash("globalUpdateAlterabilityStatus"),
+              globalIface.getSighash("globalUpdateAdmin"),
+              globalIface.getSighash("globalUpdateDomainLimit"),
+              globalIface.getSighash("globalCheckAdmin"),
+              globalIface.getSighash("globalGetDomains"),
+              globalIface.getSighash("globalGetInfo"),
+            ]
+          },
+          {
+            facetId: accessControlProxy.address,
+            subjectId: accessControlSubject.address,
+            selectors: [
+              accessControlIface.getSighash("hasAccess"),
+              accessControlIface.getSighash("hasMemberAccess"),
+              accessControlIface.getSighash("hasCSAccess"),
+              accessControlIface.getSighash("hasAccountAccess"),
+              accessControlIface.getSighash("getAnonymousType"),
+              accessControlIface.getSighash("getAnyType"),
+              accessControlIface.getSighash("getScopeMasterType"),
+              accessControlIface.getSighash("getTypeMasterType"),
+              accessControlIface.getSighash("getMemberMasterType"),
+              accessControlIface.getSighash("getSystemMasterType"),
+              accessControlIface.getSighash("getLivelyMasterType"),
+              accessControlIface.getSighash("getPolicyMasterType"),
+              accessControlIface.getSighash("getProfileMasterType"),
+              accessControlIface.getSighash("getGlobalScope"),
+              accessControlIface.getSighash("isAgentExist"),
+              accessControlIface.getSighash("isScopeExist"),
+              accessControlIface.getSighash("getScopeBaseInfo"),
+              accessControlIface.getSighash("getAgentBaseInfo"),
+              accessControlIface.getSighash("isScopesCompatible"),
+            ]
+          }
+        ]
+
+        await expect(aclManagerProxy.connect(systemAdmin).aclRegisterFacet(facetRequests))
+          .to.emit(aclManagerProxy, "ACLFacetRegistered")
+          .withArgs(systemAdminWallet.address, memberManagerProxy.address, memberManagerSubject.address)
+          .to.emit(aclManagerProxy, "ACLFacetRegistered")
+          .withArgs(systemAdminWallet.address, roleManagerProxy.address, roleManagerSubject.address)
+          .to.emit(aclManagerProxy, "ACLFacetRegistered")
+          .withArgs(systemAdminWallet.address, typeManagerProxy.address, typeManagerSubject.address)
+          .to.emit(aclManagerProxy, "ACLFacetRegistered")
+          .withArgs(systemAdminWallet.address, policyManagerProxy.address, policyManagerSubject.address)
+          .to.emit(aclManagerProxy, "ACLFacetRegistered")
+          .withArgs(systemAdminWallet.address, profileManagerProxy.address, profileManagerSubject.address)
+          .to.emit(aclManagerProxy, "ACLFacetRegistered")
+          .withArgs(systemAdminWallet.address, functionManagerProxy.address, functionManagerSubject.address)
+          .to.emit(aclManagerProxy, "ACLFacetRegistered")
+          .withArgs(systemAdminWallet.address, contextManagerProxy.address, contextManagerSubject.address)
+          .to.emit(aclManagerProxy, "ACLFacetRegistered")
+          .withArgs(systemAdminWallet.address, realmManagerProxy.address, realmManagerSubject.address)
+          .to.emit(aclManagerProxy, "ACLFacetRegistered")
+          .withArgs(systemAdminWallet.address, domainManagerProxy.address, domainManagerSubject.address)
+          .to.emit(aclManagerProxy, "ACLFacetRegistered")
+          .withArgs(systemAdminWallet.address, globalManagerProxy.address, globalManagerSubject.address)
+          .to.emit(aclManagerProxy, "ACLFacetRegistered")
+          .withArgs(systemAdminWallet.address, accessControlProxy.address, accessControlSubject.address)
+
+        // console.log(`aclManagerProxy => address: ${aclManagerProxy.address}, subject: ${aclManagerSubject.address}`);
+        // console.log(`memberManagerProxy => address: ${memberManagerProxy.address}, subject: ${memberManagerSubject.address}`);
+        // console.log(`roleManagerProxy => address: ${roleManagerProxy.address}, subject: ${roleManagerSubject.address}`);
+        // console.log(`typeManagerProxy => address: ${typeManagerProxy.address}, subject: ${typeManagerSubject.address}`);
+        // console.log(`policyManagerProxy => address: ${policyManagerProxy.address}, subject: ${policyManagerSubject.address}`);
+        // console.log(`functionManagerProxy => address: ${functionManagerProxy.address}, subject: ${functionManagerSubject.address}`);
+        // console.log(`contextManagerProxy => address: ${contextManagerProxy.address}, subject: ${contextManagerSubject.address}`);
+        // console.log(`realmManagerProxy => address: ${realmManagerProxy.address}, subject: ${realmManagerSubject.address}`);
+        // console.log(`domainManagerProxy => address: ${domainManagerProxy.address}, subject: ${domainManagerSubject.address}`);
+        // console.log(`globalManagerProxy => address: ${globalManagerProxy.address}, subject: ${globalManagerSubject.address}`);
+        // console.log(`accessControlProxy => address: ${accessControlProxy.address}, subject: ${accessControlSubject.address}`);
+
+        // then
+        expect(await aclManagerProxy.aclGetFacets()).to.be.eqls([
+          aclManagerProxy.address,
+          memberManagerProxy.address,
+          roleManagerProxy.address,
+          typeManagerProxy.address,
+          policyManagerProxy.address,
+          profileManagerProxy.address,
           functionManagerProxy.address,
           contextManagerProxy.address,
           realmManagerProxy.address,

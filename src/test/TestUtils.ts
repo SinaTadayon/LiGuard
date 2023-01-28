@@ -7,88 +7,66 @@ const { provider } = waffle;
 export const DOMAIN_HASH: string = ethers.utils.keccak256(
   ethers.utils.toUtf8Bytes("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)")
 );
+
 export const MESSAGE_CONTEXT_TYPE_HASH: string = ethers.utils.keccak256(
   ethers.utils.toUtf8Bytes("Context(address contractId,string name,string version,string realm)")
 );
+
 export const MESSAGE_PREDICT_CONTEXT_TYPE_HASH: string = ethers.utils.keccak256(
   ethers.utils.toUtf8Bytes("PredictContext(address deployer,address subject,string realm)")
 );
+
+export const MESSAGE_PROFILE_CONTEXT_TYPE_HASH = ethers.utils.keccak256(
+  ethers.utils.toUtf8Bytes("ProfileContext(bytes32 profileId,address contractId,string name,string version,string realm)"));
+
+export const MESSAGE_PROFILE_PREDICT_CONTEXT_TYPE_HASH = ethers.utils.keccak256(
+  ethers.utils.toUtf8Bytes("ProfilePredictContext(bytes32 profileId,address deployer,address subject,string realm)"));
+
+export const MESSAGE_PROFILE_REGISTER_TYPE_HASH = ethers.utils.keccak256(
+  ethers.utils.toUtf8Bytes("ProfileRegister(string name,address owner,uint64 expiredAt)"));
+
 export const PERMIT_TYPE_HASH: string = ethers.utils.keccak256(
   ethers.utils.toUtf8Bytes("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)")
 );
 
+// General Profile Type
+export const LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID   = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TYPE.LIVELY_PROFILE.LIVELY_MASTER"));
+export const LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID   = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TYPE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER"));
+export const LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID  = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("GLOBAL.LIVELY_PROFILE"));
+
+// General Profile Roles
+export const LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID   = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("ROLE.LIVELY_PROFILE.LIVELY_MASTER_ADMIN"));
+export const LIVELY_PROFILE_SYSTEM_MASTER_ADMIN_ROLE_ID   = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("ROLE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER_ADMIN"));
+
+
 // General Types ID
-export const LIVELY_VERSE_LIVELY_MASTER_TYPE_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes( "TYPE.LIVELY_VERSE.LIVELY_MASTER"));
-export const LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes( "TYPE.LIVELY_VERSE.LIVELY_SYSTEM_MASTER"));
-export const LIVELY_VERSE_ANONYMOUS_TYPE_ID     = ethers.utils.keccak256(ethers.utils.toUtf8Bytes( "TYPE.LIVELY_VERSE.LIVELY_ANONYMOUS"));
-export const LIVELY_VERSE_ANY_TYPE_ID           = ethers.utils.keccak256(ethers.utils.toUtf8Bytes( "TYPE.LIVELY_VERSE.LIVELY_ANY"));
-export const LIVELY_VERSE_SCOPE_MASTER_TYPE_ID  = ethers.utils.keccak256(ethers.utils.toUtf8Bytes( "TYPE.LIVELY_VERSE.LIVELY_SCOPE_MASTER"));
-export const LIVELY_VERSE_AGENT_MASTER_TYPE_ID  = ethers.utils.keccak256(ethers.utils.toUtf8Bytes( "TYPE.LIVELY_VERSE.LIVELY_AGENT_MASTER"));
-export const LIVELY_VERSE_POLICY_MASTER_TYPE_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes( "TYPE.LIVELY_VERSE.LIVELY_POLICY_MASTER"));
+export const LIVELY_VERSE_LIVELY_MASTER_TYPE_ID  = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TYPE.LIVELY_VERSE.LIVELY_MASTER"));
+export const LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID  = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TYPE.LIVELY_VERSE.LIVELY_SYSTEM_MASTER"));
+export const LIVELY_VERSE_ANONYMOUS_TYPE_ID      = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TYPE.LIVELY_VERSE.LIVELY_ANONYMOUS"));
+export const LIVELY_VERSE_ANY_TYPE_ID            = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TYPE.LIVELY_VERSE.LIVELY_ANY"));
+export const LIVELY_VERSE_SCOPE_MASTER_TYPE_ID   = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TYPE.LIVELY_VERSE.LIVELY_SCOPE_MASTER"));
+export const LIVELY_VERSE_MEMBER_MASTER_TYPE_ID  = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TYPE.LIVELY_VERSE.LIVELY_MEMBER_MASTER"));
+export const LIVELY_VERSE_TYPE_MASTER_TYPE_ID    = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TYPE.LIVELY_VERSE.LIVELY_TYPE_MASTER"));
+export const LIVELY_VERSE_POLICY_MASTER_TYPE_ID  = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TYPE.LIVELY_VERSE.LIVELY_POLICY_MASTER"));
+export const LIVELY_VERSE_PROFILE_MASTER_TYPE_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TYPE.LIVELY_VERSE.LIVELY_PROFILE_MASTER"));
 
 // General Roles ID
-export const LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("ROLE.LIVELY_VERSE.LIVELY_MASTER_ADMIN"));
-export const LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("ROLE.LIVELY_VERSE.LIVELY_SYSTEM_MASTER_ADMIN"));
-export const LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes( "ROLE.LIVELY_VERSE.LIVELY_SCOPE_MASTER_ADMIN"));
-export const LIVELY_VERSE_AGENT_MASTER_ADMIN_ROLE_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes( "ROLE.LIVELY_VERSE.LIVELY_AGENT_MASTER_ADMIN"));
-export const LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("ROLE.LIVELY_VERSE.LIVELY_POLICY_MASTER_ADMIN"));
+export const LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID  = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("ROLE.LIVELY_VERSE.LIVELY_MASTER_ADMIN"));
+export const LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID  = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("ROLE.LIVELY_VERSE.LIVELY_SYSTEM_MASTER_ADMIN"));
+export const LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID   = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("ROLE.LIVELY_VERSE.LIVELY_SCOPE_MASTER_ADMIN"));
+export const LIVELY_VERSE_TYPE_MASTER_ADMIN_ROLE_ID    = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("ROLE.LIVELY_VERSE.LIVELY_TYPE_MASTER_ADMIN"));
+export const LIVELY_VERSE_MEMBER_MASTER_ADMIN_ROLE_ID  = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("ROLE.LIVELY_VERSE.LIVELY_MEMBER_MASTER_ADMIN"));
+export const LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE_ID  = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("ROLE.LIVELY_VERSE.LIVELY_POLICY_MASTER_ADMIN"));
+export const LIVELY_VERSE_PROFILE_MASTER_ADMIN_ROLE_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("ROLE.LIVELY_VERSE.LIVELY_PROFILE_MASTER_ADMIN"));
 
 // Global Scope ID
 export const LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("GLOBAL.LIVELY_VERSE"));
 
 // ACL IDs
-export const LIVELY_VERSE_ACL_DOMAIN_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("DOMAIN.LIVELY_VERSE.VERSE_GUARD"));
-export const LIVELY_VERSE_ACL_REALM_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("REALM.LIVELY_VERSE.VERSE_GUARD.ACL"));
-export const LIVELY_VERSE_ACL_TYPE_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TYPE.LIVELY_VERSE.VERSE_GUARD.VG"));
-export const LIVELY_VERSE_ACL_ADMIN_ROLE_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("ROLE.LIVELY_VERSE.VERSE_GUARD.VG_ADMIN"));
-
-// export const LIVELY_GENERAL_REALM = ethers.utils.keccak256(
-//   ethers.utils.solidityPack(["string"], ["LIVELY_GENERAL_REALM"])
-// );
-// export const LIVELY_ASSET_REALM = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["LIVELY_ASSET_REALM"]));
-// export const LIVELY_GENERAL_GROUP = ethers.utils.keccak256(
-//   ethers.utils.solidityPack(["string"], ["LIVELY_GENERAL_GROUP"])
-// );
-// export const LIVELY_DAO_GROUP = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["LIVELY_DAO_GROUP"]));
-// export const LIVELY_ASSET_GROUP = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["LIVELY_ASSET_GROUP"]));
-// export const LIVELY_ADMIN_ROLE = ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["LIVELY_ADMIN_ROLE"]));
-// export const LIVELY_SYSTEM_ADMIN_ROLE = ethers.utils.keccak256(
-//   ethers.utils.solidityPack(["string"], ["LIVELY_SYSTEM_ADMIN_ROLE"])
-// );
-// export const LIVELY_ASSET_MANAGER_ROLE = ethers.utils.keccak256(
-//   ethers.utils.solidityPack(["string"], ["LIVELY_ASSET_MANAGER_ROLE"])
-// );
-// export const LIVELY_ASSET_ADMIN_ROLE = ethers.utils.keccak256(
-//   ethers.utils.solidityPack(["string"], ["LIVELY_ASSET_ADMIN_ROLE"])
-// );
-// export const LIVELY_COMMUNITY_DAO_ROLE = ethers.utils.keccak256(
-//   ethers.utils.solidityPack(["string"], ["LIVELY_COMMUNITY_DAO_ROLE"])
-// );
-// export const LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE = ethers.utils.keccak256(
-//   ethers.utils.solidityPack(["string"], ["LIVELY_COMMUNITY_DAO_EXECUTOR_ROLE"])
-// );
-// export const LIVELY_ANONYMOUS_ROLE = ethers.utils.keccak256(
-//   ethers.utils.solidityPack(["string"], ["LIVELY_ANONYMOUS_ROLE"])
-// );
-//
-// export const LIVELY_CROWD_FOUNDING_ASSET_ROLE = ethers.utils.keccak256(
-//   ethers.utils.solidityPack(["string"], ["LIVELY_CROWD_FOUNDING_ASSET_ROLE"])
-// );
-// export const LIVELY_VALIDATORS_REWARDS_ASSET_ROLE = ethers.utils.keccak256(
-//   ethers.utils.solidityPack(["string"], ["LIVELY_VALIDATORS_REWARDS_ASSET_ROLE"])
-// );
-// export const LIVELY_PUBLIC_SALE_ASSET_ROLE = ethers.utils.keccak256(
-//   ethers.utils.solidityPack(["string"], ["LIVELY_PUBLIC_SALE_ASSET_ROLE"])
-// );
-// export const LIVELY_TREASURY_ASSET_ROLE = ethers.utils.keccak256(
-//   ethers.utils.solidityPack(["string"], ["LIVELY_TREASURY_ASSET_ROLE"])
-// );
-// export const LIVELY_FOUNDING_TEAM_ASSET_ROLE = ethers.utils.keccak256(
-//   ethers.utils.solidityPack(["string"], ["LIVELY_FOUNDING_TEAM_ASSET_ROLE"])
-// );
-// export const LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_ROLE = ethers.utils.keccak256(
-//   ethers.utils.solidityPack(["string"], ["LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_ROLE"])
-// );
+export const LIVELY_VERSE_ACL_DOMAIN_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("DOMAIN.LIVELY_VERSE.LIVELY_GUARD"));
+export const LIVELY_VERSE_ACL_REALM_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("REALM.LIVELY_VERSE.LIVELY_GUARD.ACL"));
+export const LIVELY_VERSE_ACL_TYPE_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TYPE.LIVELY_VERSE.LIVELY_GUARD.ZERO_TYPE"));
+export const LIVELY_VERSE_ACL_ADMIN_ROLE_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("ROLE.LIVELY_VERSE.LIVELY_GUARD.ZERO_TYPE_ADMIN"));
 
 export enum ProxySafeModeStatus {
   DISABLED,
@@ -152,7 +130,6 @@ export enum LockState {
   UNLOCKED,
 }
 
-
 export enum AssetType {
   NONE,
   ERC20,
@@ -169,7 +146,6 @@ export enum AssetSafeModeStatus {
   DISABLED,
   ENABLED
 }
-
 
 export async function generateContextDomainSignatureByHardhat(
   contractAddress: Address,
@@ -198,8 +174,8 @@ export async function generateContextDomainSignatureByHardhat(
     },
     primaryType: "Context",
     domain: {
-      name: "AccessControlManager",
-      version: "1.0.0",
+      name: "ACLManager",
+      version: "3.0.0",
       chainId,
       verifyingContract,
     },
@@ -336,6 +312,136 @@ export async function generatePredictContextDomainSignatureManually(
       contractAddress,
       subjectAddress,
       ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [contractRealm])),
+    ]
+  );
+  const msgEncode = ethers.utils.keccak256(messageAbiEncode);
+  const domainMessageHash = ethers.utils.keccak256(
+    ethers.utils.solidityPack(["string", "bytes32", "bytes32"], ["\x19\x01", domainEncode, msgEncode])
+  );
+  const signature = signerAddress._signingKey().signDigest(domainMessageHash);
+  return signature.compact;
+}
+
+
+export async function generateProfileContextDomainSignatureManually(
+  profileName: string,
+  contractAddress: Address,
+  contractName: string,
+  contractVersion: string,
+  contractRealm: string,
+  verifyingContract: Address,
+  signerAddress: Wallet,
+  chainId: BigNumber
+): Promise<string> {
+  const abiCoder = ethers.utils.defaultAbiCoder;
+
+  const domainAbiEncode = abiCoder.encode(
+    ["bytes32", "bytes32", "bytes32", "uint256", "address"],
+    [
+      DOMAIN_HASH,
+      ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["ACLManager"])),
+      ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["3.0.0"])),
+      chainId,
+      verifyingContract,
+    ]
+  );
+  const domainEncode = ethers.utils.keccak256(domainAbiEncode);
+
+  const messageAbiEncode = abiCoder.encode(
+    ["bytes32", "bytes32", "address", "bytes32", "bytes32", "bytes32"],
+    [
+      MESSAGE_PROFILE_CONTEXT_TYPE_HASH,
+      ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [profileName])),
+      contractAddress,
+      ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [contractName])),
+      ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [contractVersion])),
+      ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [contractRealm])),
+    ]
+  );
+  const msgEncode = ethers.utils.keccak256(messageAbiEncode);
+  const domainMessageHash = ethers.utils.keccak256(
+    ethers.utils.solidityPack(["string", "bytes32", "bytes32"], ["\x19\x01", domainEncode, msgEncode])
+  );
+  const signature = signerAddress._signingKey().signDigest(domainMessageHash);
+
+  // console.log(`\ndomainEncode: ${domainEncode}\nmessageEnode: ${msgEncode}\ndomainMessageHash: ${domainMessageHash}\n`);
+  // console.log(`signature: r: ${signature.r}, s: ${signature.s}, v: ${signature.v}, compact: ${signature.compact}\n`);
+  // // Recover the address from signature
+  // const recoveredAddress = ethers.utils.verifyMessage(domainMessageHash, signature);
+  // console.log(`recoveredAddress: ${recoveredAddress}`);
+  return signature.compact;
+}
+
+export async function generateProfilePredictContextDomainSignatureManually(
+  profileName: string,
+  contractAddress: Address,
+  contractRealm: string,
+  verifyingContract: Address,
+  signerAddress: Wallet,
+  chainId: BigNumber,
+  subjectAddress: Address
+): Promise<string> {
+  const abiCoder = ethers.utils.defaultAbiCoder;
+
+  const domainAbiEncode = abiCoder.encode(
+    ["bytes32", "bytes32", "bytes32", "uint256", "address"],
+    [
+      DOMAIN_HASH,
+      ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["ACLManager"])),
+      ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["3.0.0"])),
+      chainId,
+      verifyingContract,
+    ]
+  );
+  const domainEncode = ethers.utils.keccak256(domainAbiEncode);
+
+  const messageAbiEncode = abiCoder.encode(
+    ["bytes32", "bytes32", "address", "address", "bytes32"],
+    [
+      MESSAGE_PROFILE_PREDICT_CONTEXT_TYPE_HASH,
+      ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [profileName])),
+      contractAddress,
+      subjectAddress,
+      ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [contractRealm])),
+    ]
+  );
+  const msgEncode = ethers.utils.keccak256(messageAbiEncode);
+  const domainMessageHash = ethers.utils.keccak256(
+    ethers.utils.solidityPack(["string", "bytes32", "bytes32"], ["\x19\x01", domainEncode, msgEncode])
+  );
+  const signature = signerAddress._signingKey().signDigest(domainMessageHash);
+  return signature.compact;
+}
+
+export async function generateProfileRegisterSignatureManually(
+  profileName: string,
+  ownerAddress: Address,
+  verifyingContract: Address,
+  signerAddress: Wallet,
+  chainId: BigNumber,
+  expiredAt: BigNumber,
+): Promise<string> {
+  const abiCoder = ethers.utils.defaultAbiCoder;
+
+  const domainAbiEncode = abiCoder.encode(
+    ["bytes32", "bytes32", "bytes32", "uint256", "address"],
+    [
+      DOMAIN_HASH,
+      ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["ACLManager"])),
+      ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["3.0.0"])),
+      chainId,
+      verifyingContract,
+    ]
+  );
+  const domainEncode = ethers.utils.keccak256(domainAbiEncode);
+
+  const messageAbiEncode = abiCoder.encode(
+    ["bytes32", "bytes32", "address", "uint64"],
+    [
+      MESSAGE_PROFILE_REGISTER_TYPE_HASH,
+      ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [profileName])),
+      ownerAddress,
+      expiredAt,
     ]
   );
   const msgEncode = ethers.utils.keccak256(messageAbiEncode);
