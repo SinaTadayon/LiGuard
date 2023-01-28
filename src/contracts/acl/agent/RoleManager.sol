@@ -281,7 +281,7 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
         adminId: bytes32(0),
         memberLimit: 0,
         memberCount: 0,
-        atype: AgentType.NONE,
+        adminType: AgentType.NONE,
         acstat: ActivityStatus.NONE,
         alstat: AlterabilityStatus.NONE,
         name: ""
@@ -293,7 +293,7 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
       adminId: roleEntity.ba.adminId,
       memberLimit: roleEntity.memberLimit,
       memberCount: roleEntity.memberCount,
-      atype: roleEntity.ba.atype,
+      adminType: _data.agents[roleEntity.ba.adminId].atype,
       acstat: roleEntity.ba.acstat,
       alstat: roleEntity.ba.alstat,
       name: roleEntity.name

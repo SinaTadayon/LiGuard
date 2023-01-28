@@ -31,7 +31,7 @@ interface ITypeManagement is IACLCommons{
     bytes32 adminId;
     uint16 roleLimit;
     uint16 roleCount;
-    AgentType atype;
+    AgentType adminType;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
     string name;

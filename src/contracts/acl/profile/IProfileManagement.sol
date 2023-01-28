@@ -47,6 +47,7 @@ interface IProfileManagement is IACLCommons {
     address owner;
     ProfileRegisterLimit registerLimits;
     ProfileLimit limits;
+    AgentType adminType;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
   }

@@ -103,10 +103,12 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IACLGenerals, IACL {
       (MemberEntity storage memberEntity, bool result0) = _data.memberTryReadSlot(memberId);
       if(!result0) return AuthorizationStatus.MEMBER_NOT_FOUND;
       if(memberEntity.ba.acstat != ActivityStatus.ENABLED) return AuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN;
-      if(memberEntity.limits.callLimit > 0) {
-        memberEntity.limits.callLimit -= 1;
-      } else {
-        return AuthorizationStatus.CALL_FORBIDDEN;
+      if(!memberEntity.types.contains(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID)) {
+        if(memberEntity.limits.callLimit > 0) {
+          memberEntity.limits.callLimit -= 1;
+        } else {
+          return AuthorizationStatus.CALL_FORBIDDEN;
+        }
       }
       
       // check role activation
@@ -140,10 +142,12 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IACLGenerals, IACL {
       (MemberEntity storage memberEntity, bool result0) = _data.memberTryReadSlot(memberId);
       if(!result0) return AuthorizationStatus.MEMBER_NOT_FOUND;
       if(memberEntity.ba.acstat != ActivityStatus.ENABLED) return AuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN;
-      if(memberEntity.limits.callLimit > 0) {
-        memberEntity.limits.callLimit -= 1;
-      } else {
-        return AuthorizationStatus.CALL_FORBIDDEN;
+      if(!memberEntity.types.contains(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID)) {
+        if(memberEntity.limits.callLimit > 0) {
+          memberEntity.limits.callLimit -= 1;
+        } else {
+          return AuthorizationStatus.CALL_FORBIDDEN;
+        }
       }
 
       } else if(agentId != _LIVELY_VERSE_ANONYMOUS_TYPE_ID) {
@@ -152,10 +156,12 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IACLGenerals, IACL {
         (MemberEntity storage memberEntity, bool result0) = _data.memberTryReadSlot(memberId);
         if(!result0) return AuthorizationStatus.MEMBER_NOT_FOUND;
         if(memberEntity.ba.acstat != ActivityStatus.ENABLED) return AuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN;
-        if(memberEntity.limits.callLimit > 0) {
-          memberEntity.limits.callLimit -= 1;
-        } else {
-          return AuthorizationStatus.CALL_FORBIDDEN;
+        if(!memberEntity.types.contains(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID)) {
+          if(memberEntity.limits.callLimit > 0) {
+            memberEntity.limits.callLimit -= 1;
+          } else {
+            return AuthorizationStatus.CALL_FORBIDDEN;
+          }
         }
         
         // check type activation

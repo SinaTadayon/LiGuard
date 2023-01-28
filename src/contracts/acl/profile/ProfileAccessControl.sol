@@ -100,7 +100,7 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
       return ProfileAuthorizationStatus.PROFILE_CALL_FORBIDDEN;
     }
 
-    AgentType atype = _data.agents[functionEntity.agentId].atype;
+    AgentType atype = profileEntity.agents[functionEntity.agentId].atype;
 
     // console.log("agentId: ");
     // console.logBytes32(agentId);
@@ -117,10 +117,12 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
       (ProfileMemberEntity storage profileMemberEntity, bool result0) = profileEntity.profileMemberTryReadSlot(memberId);
       if(!result0) return ProfileAuthorizationStatus.MEMBER_NOT_FOUND;
       if(profileMemberEntity.ba.acstat != ActivityStatus.ENABLED) return ProfileAuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN; 
-      if(profileMemberEntity.callLimit > 0) {
-        profileMemberEntity.callLimit -= 1;
-      } else {
-        return ProfileAuthorizationStatus.MEMBER_CALL_FORBIDDEN;
+      if(profileEntity.owner != profileMemberEntity.account) {
+        if(profileMemberEntity.callLimit > 0) {
+          profileMemberEntity.callLimit -= 1;
+        } else {
+          return ProfileAuthorizationStatus.MEMBER_CALL_FORBIDDEN;
+        }
       }
       
       // check role activation
@@ -154,10 +156,12 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
         (ProfileMemberEntity storage profileMemberEntity, bool result0) = profileEntity.profileMemberTryReadSlot(memberId);
         if(!result0) return ProfileAuthorizationStatus.MEMBER_NOT_FOUND;
         if(profileMemberEntity.ba.acstat != ActivityStatus.ENABLED) return ProfileAuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN;        
-        if(profileMemberEntity.callLimit > 0) {
-          profileMemberEntity.callLimit -= 1;
-        } else {
-          return ProfileAuthorizationStatus.MEMBER_CALL_FORBIDDEN;
+        if(profileEntity.owner != profileMemberEntity.account) {
+          if(profileMemberEntity.callLimit > 0) {
+            profileMemberEntity.callLimit -= 1;
+          } else {
+            return ProfileAuthorizationStatus.MEMBER_CALL_FORBIDDEN;
+          }
         }
 
       } else if(functionEntity.agentId != _LIVELY_VERSE_ANONYMOUS_TYPE_ID) {
@@ -166,10 +170,12 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
         (ProfileMemberEntity storage profileMemberEntity, bool result0) = profileEntity.profileMemberTryReadSlot(memberId);
         if(!result0) return ProfileAuthorizationStatus.MEMBER_NOT_FOUND;
         if(profileMemberEntity.ba.acstat != ActivityStatus.ENABLED) return ProfileAuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN;
-        if(profileMemberEntity.callLimit > 0) {
-          profileMemberEntity.callLimit -= 1;
-        } else {
-          return ProfileAuthorizationStatus.MEMBER_CALL_FORBIDDEN;
+        if(profileEntity.owner != profileMemberEntity.account) {
+          if(profileMemberEntity.callLimit > 0) {
+            profileMemberEntity.callLimit -= 1;
+          } else {
+            return ProfileAuthorizationStatus.MEMBER_CALL_FORBIDDEN;
+          }
         }
         
         // check type activation

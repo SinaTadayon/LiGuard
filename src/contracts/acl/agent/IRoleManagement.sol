@@ -43,7 +43,7 @@ interface IRoleManagement is IACLCommons{
     bytes32 adminId;
     uint24 memberLimit;
     uint24 memberCount;
-    AgentType atype;
+    AgentType adminType;
     ActivityStatus acstat;
     AlterabilityStatus alstat;   
     string name;    

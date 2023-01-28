@@ -219,7 +219,7 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
         adminId: bytes32(0),
         roleLimit: 0,
         roleCount: 0,    
-        atype: AgentType.NONE,
+        adminType: AgentType.NONE,
         acstat: ActivityStatus.NONE,
         alstat: AlterabilityStatus.NONE,
         name: ""
@@ -231,7 +231,7 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
       adminId: te.ba.adminId,      
       roleLimit: te.roleLimit,
       roleCount: uint16(te.roles.length()),
-      atype: te.ba.atype,
+      adminType: profileEntity.agents[te.ba.adminId].atype,
       acstat: te.ba.acstat,
       alstat: te.ba.alstat,
       name: te.name

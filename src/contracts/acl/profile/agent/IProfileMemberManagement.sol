@@ -32,7 +32,7 @@ interface IProfileMemberManagement is IACLCommons {
 
   struct ProfileMemberLimitRequest {
     bytes32 memberId;
-    uint32 limit;
+    uint16 limit;
   }
 
   struct ProfileMemberUpdateRegisterLimitRequest {
@@ -48,11 +48,11 @@ interface IProfileMemberManagement is IACLCommons {
   struct ProfileMemberInfo {
     bytes32 adminId;
     address account;
-    uint32 typeLimit;
-    uint32 typeCount;
-    uint32 callLimit;
+    uint16 typeLimit;
+    uint16 typeCount;
+    uint16 callLimit;
     ProfileRegisterLimit registerLimit;
-    AgentType atype;
+    AgentType adminType;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
   }

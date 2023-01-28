@@ -31,7 +31,7 @@ interface IMemberManagement is IACLCommons {
     bytes32 adminId;
     address account;
     GeneralLimit limits;
-    AgentType atype;
+    AgentType adminType;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
   }

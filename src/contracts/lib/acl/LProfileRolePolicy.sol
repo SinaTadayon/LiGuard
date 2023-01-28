@@ -265,7 +265,7 @@ library LProfileRolePolicy {
         adminId: bytes32(0),
         memberLimit: 0,
         memberCount: 0,
-        atype: IACLCommons.AgentType.NONE,
+        adminType: IACLCommons.AgentType.NONE,
         acstat: IACLCommons.ActivityStatus.NONE,
         alstat: IACLCommons.AlterabilityStatus.NONE,
         name: ""
@@ -277,7 +277,7 @@ library LProfileRolePolicy {
       adminId: roleEntity.ba.adminId,
       memberLimit: roleEntity.memberLimit,
       memberCount: roleEntity.memberCount,
-      atype: roleEntity.ba.atype,
+      adminType: profileEntity.agents[roleEntity.ba.adminId].atype,
       acstat: roleEntity.ba.acstat,
       alstat: roleEntity.ba.alstat,
       name: roleEntity.name
@@ -356,7 +356,7 @@ library LProfileRolePolicy {
     return _doProfileGetRoleAdmin(profileEntity, requestScopeType, requestScopeAdmin, scopeId, adminId, profileId);
   }
 
-  function _doProfileGetAndCheckRequestScope(IACLCommons.ProfileEntity storage profileEntity, bytes32 requestScopeId, bytes32 senderScopeId, IACLCommons.ScopeType senderScopeType, bytes32 profileId) internal view returns (IACLCommons.BaseScope storage){
+  function _doProfileGetAndCheckRequestScope(IACLCommons.ProfileEntity storage profileEntity, bytes32 requestScopeId, bytes32 senderScopeId, IACLCommons.ScopeType senderScopeType, bytes32 profileId) private view returns (IACLCommons.BaseScope storage){
     // checking requested type scope
     IACLCommons.BaseScope storage requestedScope = profileEntity.scopes[requestScopeId];
     require(requestedScope.stype != IACLCommons.ScopeType.NONE , "Scope Not Found");
@@ -372,7 +372,7 @@ library LProfileRolePolicy {
     return requestedScope;
   }
 
-  function _doProfileGetPolicyAndCheckAdminAccess(IACLCommons.ProfileEntity storage profileEntity, bytes32 policyId, bytes32 memberId, bytes32 functionId) internal view returns (IACLCommons.PolicyEntity storage) {
+  function _doProfileGetPolicyAndCheckAdminAccess(IACLCommons.ProfileEntity storage profileEntity, bytes32 policyId, bytes32 memberId, bytes32 functionId) private view returns (IACLCommons.PolicyEntity storage) {
     IACLCommons.PolicyEntity storage policyEntity = profileEntity.policies[policyId];
     require(policyEntity.adminId != bytes32(0), "Not Found");      
     require(policyEntity.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Updatable");
@@ -381,7 +381,7 @@ library LProfileRolePolicy {
     return policyEntity;
   }
 
-  function _doProfileGetPolicyAdmin(IACLCommons.ProfileEntity storage profileEntity, IACLCommons.ScopeType requestScopeType, bytes32 requestScopeAdmin, bytes32 scopeId, bytes32 adminId, bytes32 profileId) internal view returns (bytes32 policyAdminId) {
+  function _doProfileGetPolicyAdmin(IACLCommons.ProfileEntity storage profileEntity, IACLCommons.ScopeType requestScopeType, bytes32 requestScopeAdmin, bytes32 scopeId, bytes32 adminId, bytes32 profileId) private view returns (bytes32 policyAdminId) {
     // checking requested type admin       
     if(adminId != bytes32(0)) {
       require(profileEntity.agents[adminId].atype == IACLCommons.AgentType.ROLE, "Illegal Admin AgentType");
@@ -399,7 +399,7 @@ library LProfileRolePolicy {
     }      
   }
 
-  function _doProfileGetPolicyType(uint8 policyCode) internal pure returns (IACLCommons.PolicyType) {
+  function _doProfileGetPolicyType(uint8 policyCode) private pure returns (IACLCommons.PolicyType) {
     if(policyCode == 0) {
       return IACLCommons.PolicyType.UNLOCK;
 
@@ -420,7 +420,7 @@ library LProfileRolePolicy {
     } 
   }
 
-  function _doProfileGetRoleEntityAndCheckAdminAccess(IACLCommons.ProfileEntity storage profileEntity, bytes32 roleId, bytes32 senderId, bytes32 functionId) internal view returns (IACLCommons.RoleEntity storage) {
+  function _doProfileGetRoleEntityAndCheckAdminAccess(IACLCommons.ProfileEntity storage profileEntity, bytes32 roleId, bytes32 senderId, bytes32 functionId) private view returns (IACLCommons.RoleEntity storage) {
     IACLCommons.RoleEntity storage roleEntity = profileEntity.profileRoleReadSlot(roleId);
     require(roleEntity.ba.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Updatable");
 
@@ -430,8 +430,9 @@ library LProfileRolePolicy {
     return roleEntity;
   }
 
-  function _updateProfileAccount(ACLStorage.DataCollection storage data, IACLCommons.ProfileMemberEntity storage profileMemberEntity, bytes32 profileId, bytes32 typeId, bool isRevoke) internal {
+  function _updateProfileAccount(ACLStorage.DataCollection storage data, IACLCommons.ProfileMemberEntity storage profileMemberEntity, bytes32 profileId, bytes32 typeId, bool isRevoke) private {
     IACLCommons.ProfileAccount storage profileAccount = data.profileAccounts[profileMemberEntity.account];
+    require(profileAccount.profiles.length > 0, "ProfileAccount Not Found");
     bool findFlag = false;
     for (uint i = 0; i < profileAccount.profiles.length; i++) {
       if(profileAccount.profiles[i] == profileId) {
@@ -458,10 +459,10 @@ library LProfileRolePolicy {
       }
     }
 
-    require(!findFlag, "Profile Not Found");
+    require(!findFlag, "Illegal ProfileAccount");
   }
 
-  function _doProfileGetRoleAdmin(IACLCommons.ProfileEntity storage profileEntity, IACLCommons.ScopeType requestScopeType, bytes32 requestScopeAdmin, bytes32 scopeId, bytes32 adminId, bytes32 profileId) internal view returns (bytes32 roleAdminId) {
+  function _doProfileGetRoleAdmin(IACLCommons.ProfileEntity storage profileEntity, IACLCommons.ScopeType requestScopeType, bytes32 requestScopeAdmin, bytes32 scopeId, bytes32 adminId, bytes32 profileId) private view returns (bytes32 roleAdminId) {
     // checking requested type admin       
     if(adminId != bytes32(0)) {
       require(profileEntity.agents[adminId].atype > IACLCommons.AgentType.MEMBER, "Illegal Admin AgentType");
@@ -479,7 +480,7 @@ library LProfileRolePolicy {
     }     
   }
 
-  function _doProfileCheckRoleRequestScope(IACLCommons.ProfileEntity storage profileEntity, bytes32 requestScopeId, bytes32 typeScopeId, bytes32 profileId) internal returns(IACLCommons.ScopeType) {
+  function _doProfileCheckRoleRequestScope(IACLCommons.ProfileEntity storage profileEntity, bytes32 requestScopeId, bytes32 typeScopeId, bytes32 profileId) private returns(IACLCommons.ScopeType) {
     // checking requested role scope
     IACLCommons.BaseScope storage requestScope = profileEntity.scopes[requestScopeId];
     require(requestScope.stype != IACLCommons.ScopeType.NONE , "Scope Not Found");
@@ -501,7 +502,7 @@ library LProfileRolePolicy {
     return requestScope.stype;
   }
 
-  function _doProfileCheckAdminAccess(IACLCommons.ProfileEntity storage profileEntity, bytes32 adminId, bytes32 senderId, bytes32 functionId) internal view returns (IProfileACL.ProfileAdminAccessStatus) {
+  function _doProfileCheckAdminAccess(IACLCommons.ProfileEntity storage profileEntity, bytes32 adminId, bytes32 senderId, bytes32 functionId) private view returns (IProfileACL.ProfileAdminAccessStatus) {
     // owners always access to all entities to modify those
     if(profileEntity.admins.contains(senderId)) return IProfileACL.ProfileAdminAccessStatus.PERMITTED;
 
@@ -546,7 +547,7 @@ library LProfileRolePolicy {
     return IProfileACL.ProfileAdminAccessStatus.NOT_PERMITTED;
   }
 
-  function _doAgentGetScopeInfo(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId) internal view returns (IACLCommons.ScopeType, bytes32) {
+  function _doAgentGetScopeInfo(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId) private view returns (IACLCommons.ScopeType, bytes32) {
     IACLCommons.AgentType atype = profileEntity.agents[agentId].atype;
     if (atype == IACLCommons.AgentType.ROLE) {
       IACLCommons.RoleEntity storage roleEntity = profileEntity.profileRoleReadSlot(agentId);

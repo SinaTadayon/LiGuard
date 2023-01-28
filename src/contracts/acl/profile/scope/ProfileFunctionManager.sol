@@ -100,21 +100,7 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
         if(status != IProfileACL.ProfileAuthorizationStatus.PERMITTED) LACLUtils.generateProfileAuthorizationError(status);          
       }
           
-      // ContextEntity storage contextEntity = profileEntity.profileContextReadSlot(contextId);    
-      // require(contextEntity.bs.alstat == AlterabilityStatus.UPGRADABLE, "Illegal Upgrade");
-      // require(contextEntity.functionLimit > contextEntity.functions.length(), "Illegal Limit");
-
       LProfileCommons.profileCheckMemberForFunctionRegister(profileEntity, uint16(requests[i].functions.length), signerId);
-      // {
-      //   // check profile and type limitations and update it
-      //   ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(signerId);
-      //   require(profileMemberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
-      //   require(profileEntity.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-      //   require(profileMemberEntity.registerLimits.functionRegisterLimit - uint16(requests[i].functions.length) > 0, "Illegal FunctionRegisterLimit");
-      //   require(profileEntity.registerLimits.functionRegisterLimit - uint16(requests[i].functions.length) > 0, "Illegal RegisterLimit");
-      //   profileMemberEntity.registerLimits.functionRegisterLimit -= uint16(requests[i].functions.length); 
-      //   profileEntity.registerLimits.functionRegisterLimit -= uint16(requests[i].functions.length);
-      // }
 
       for (uint j = 0; j < requests[i].functions.length; j++) {
 
@@ -122,15 +108,6 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
         // require(_doCheckSystemScope(profileEntity, contextId, signerId, requests[i].profileId), "Forbidden");        
         bytes32 newFunctionId = LProfileCommons.profileFunctionRegistration(profileEntity, requests[i].functions[j], requests[i].profileId, signerId, contextId);
         _doEventProfileFunctionRegister(requests[i].functions[j], requests[i].profileId, contextId, newFunctionId, signer);
-        // emit ProfileFunctionRegistered(
-        //   msg.sender,
-        //   requests[i].profileId,
-        //   contextId, 
-        //   newFunctionId,
-        //   requests[i].functions[j].adminId,
-        //   requests[i].functions[j].agentId,
-        //   signer
-        // );
       }
     }
     return true;
@@ -301,8 +278,8 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
       stype: fe.bs.stype,
       acstat: fe.bs.acstat,
       alstat: fe.bs.alstat,
-      adminType: _data.agents[fe.bs.adminId].atype,
-      agentType: _data.agents[fe.agentId].atype, 
+      adminType: profileEntity.agents[fe.bs.adminId].atype,
+      agentType: profileEntity.agents[fe.agentId].atype, 
       policyCode: fe.policyCode
     });
   }
@@ -323,64 +300,8 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
     return (ScopeType.NONE, bytes32(0));  
   }
 
-  // function _doCheckSystemScope(ProfileEntity storage profileEntity, bytes32 scopeId, bytes32 memberId, bytes32 profileId) internal view returns (bool) {  
-  //   TypeEntity storage systemType = profileEntity.profileTypeReadSlot(_LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID);
-  //   bytes32 memberRoleId = systemType.members[memberId];
-  //   RoleEntity storage memberSystemRole = profileEntity.profileRoleReadSlot(memberRoleId);
-  //   if(profileEntity.scopes[memberSystemRole.scopeId].stype < ScopeType.CONTEXT) return false;
-  //   if(memberSystemRole.scopeId == scopeId) {
-  //     return true;
-  //   } 
-      
-  //   return IProfileACLGenerals(address(this)).isProfileScopesCompatible(profileId, memberSystemRole.scopeId, scopeId);    
-  // }
-
   function _doCheckAdminAccess(ProfileEntity storage profileEntity, bytes32 adminId, bytes32 senderId, bytes32 functionId) internal view returns (IProfileACL.ProfileAdminAccessStatus) {
     return LProfileCommons.profileCheckAdminAccess(profileEntity, adminId, senderId, functionId);
-    // // owners always access to all entities to modify those
-    // if(profileEntity.admins.contains(senderId)) return IProfileACL.ProfileAdminAccessStatus.PERMITTED;
-
-    // (FunctionEntity storage functionEntity, bool res) = profileEntity.profileFunctionTryReadSlot(functionId);    
-    // if (!res) return IProfileACL.ProfileAdminAccessStatus.FUNCTION_NOT_FOUND;
-
-    // // if(profileEntity.agents[senderId].acstat != ActivityStatus.ENABLED) return false;
-    
-    // AgentType adminAgentType = profileEntity.agents[adminId].atype;
-    // if(adminAgentType == AgentType.ROLE) {
-    //   (RoleEntity storage roleEntity, bool result) = profileEntity.profileRoleTryReadSlot(adminId);
-    //   if(!result) return IProfileACL.ProfileAdminAccessStatus.ROLE_NOT_FOUND;
-    //   if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAdminAccessStatus.ROLE_ACTIVITY_FORBIDDEN;
-
-    //   (TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(roleEntity.typeId);
-    //   if(!result1) return IProfileACL.ProfileAdminAccessStatus.TYPE_NOT_FOUND;
-    //   if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAdminAccessStatus.TYPE_ACTIVITY_FORBIDDEN;
-      
-    //   if (typeEntity.members[senderId] != adminId) return IProfileACL.ProfileAdminAccessStatus.NOT_PERMITTED;
-      
-    //   PolicyEntity storage policyEntity = profileEntity.policies[profileEntity.rolePolicyMap[adminId]];
-    //   if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
-    //     return IProfileACL.ProfileAdminAccessStatus.POLICY_FORBIDDEN;
-
-    //   return IProfileACL.ProfileAdminAccessStatus.PERMITTED;
-   
-    // } else if(adminAgentType == AgentType.TYPE) { 
-    //   (TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(adminId);
-    //   if(!result1) return IProfileACL.ProfileAdminAccessStatus.TYPE_NOT_FOUND;
-    //   if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAdminAccessStatus.TYPE_ACTIVITY_FORBIDDEN;
-
-    //   bytes32 roleId = typeEntity.members[senderId];
-    //   (RoleEntity storage roleEntity, bool result2) = profileEntity.profileRoleTryReadSlot(roleId);
-    //   if(!result2) return IProfileACL.ProfileAdminAccessStatus.ROLE_NOT_FOUND;
-    //   if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAdminAccessStatus.ROLE_ACTIVITY_FORBIDDEN;
-      
-    //   PolicyEntity storage policyEntity = profileEntity.policies[profileEntity.rolePolicyMap[roleId]];
-    //   if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
-    //     return IProfileACL.ProfileAdminAccessStatus.POLICY_FORBIDDEN;
-
-    //   return IProfileACL.ProfileAdminAccessStatus.PERMITTED;
-    // } 
-
-    // return IProfileACL.ProfileAdminAccessStatus.NOT_PERMITTED;
   }
 
   function _accessPermission(bytes32 profileId, bytes4 selector) internal returns (ProfileEntity storage, bytes32) {
@@ -407,62 +328,8 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
     return functionEntity;
   } 
 
-  //  function _doFunctionRegistration(
-  //     ProfileEntity storage profileEntity,
-  //     ContextEntity storage context, 
-  //     ProfileFunctionRequest calldata functionRequest, 
-  //     bytes32 profileId,
-  //     address sender,
-  //     address signer,
-  //     bytes32 contextId
-  // ) internal {
-  //   bytes32 newFunctionId = LACLUtils.functionGenerateId(context.contractId, functionRequest.selector); 
-  //   require(_data.scopes[newFunctionId].stype == ScopeType.NONE, "Already Exist");
-
-  //   _doCheckAgentId(profileEntity, functionRequest.agentId);
-  //   FunctionEntity storage functionEntity = profileEntity.profileFunctionWriteSlot(newFunctionId);
-  //   functionEntity.bs.stype = ScopeType.FUNCTION;
-  //   functionEntity.contextId = contextId;
-  //   functionEntity.agentId = functionRequest.agentId;
-  //   functionEntity.policyCode = functionRequest.policyCode;      
-  //   functionEntity.selector = functionRequest.selector;
-  //   functionEntity.bs.acstat = ActivityStatus.ENABLED;
-  //   functionEntity.bs.alstat = AlterabilityStatus.UPGRADABLE;
-  //   functionEntity.bs.adminId = _doGetAndCheckFunctionAdmin(profileEntity, context.bs.adminId, contextId, functionRequest.adminId, profileId);
-    
-  //   // add function to context
-  //   context.functions.add(newFunctionId);
-   
-  //   emit ProfileFunctionRegistered(
-  //     sender,
-  //     profileId,
-  //     contextId, 
-  //     newFunctionId,
-  //     functionRequest.adminId,
-  //     functionRequest.agentId,
-  //     signer
-  //   );
-  // }
-
   function _doGetAndCheckFunctionAdmin(ProfileEntity storage profileEntity, bytes32 contextAdminId, bytes32 contextId, bytes32 adminId, bytes32 profileId) internal view returns (bytes32 functionAdminId) {
     return LProfileCommons.profileGetAndCheckFunctionAdmin(profileEntity, contextAdminId, contextId, adminId, profileId);
-    // // checking requested functionAdmin admin 
-    // if(adminId != bytes32(0)) {
-    //   require(profileEntity.agents[adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
-
-    //   (ScopeType requestAdminFuncType, bytes32 requestAdminFuncId) = _doAgentGetScopeInfo(profileEntity, adminId);
-    //   require(ScopeType.CONTEXT <= requestAdminFuncType, "Illegal Admin ScopeType");
-    //   if(ScopeType.CONTEXT == requestAdminFuncType) {  
-    //     require(requestAdminFuncId == contextAdminId, "Illegal Amind Scope");
-      
-    //   } else {
-    //     require(IProfileACLGenerals(address(this)).isProfileScopesCompatible(profileId, requestAdminFuncId, contextId), "Illegal Admin Scope");
-    //   }
-    //   functionAdminId = adminId;
-
-    // } else {
-    //   functionAdminId = contextAdminId;
-    // }
   }
 
   function _getContextMessageHash(
@@ -512,5 +379,9 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
         )
       );
   }
+
+  function getLibrary() external pure returns (address) {
+    return address(LProfileCommons);
+  }  
 
 }

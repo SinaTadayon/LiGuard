@@ -255,7 +255,7 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
           typeLimit: 0,
           policyRoleLimit: 0
         }),
-        atype: AgentType.NONE,
+        adminType: AgentType.NONE,
         acstat: ActivityStatus.NONE,
         alstat: AlterabilityStatus.NONE
       });
@@ -283,7 +283,7 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
         typeLimit: member.limits.typeLimit,
         policyRoleLimit: member.limits.policyRoleLimit
       }),
-      atype: member.ba.atype,
+      adminType: _data.agents[member.ba.adminId].atype,
       acstat: member.ba.acstat,
       alstat: member.ba.alstat
     });

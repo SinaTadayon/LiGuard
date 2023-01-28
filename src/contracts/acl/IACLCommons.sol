@@ -242,8 +242,8 @@ interface IACLCommons{
   struct ProfileMemberEntity {
     BaseAgent ba;
     address account;    
-    uint32 callLimit;    
-    uint32 typeLimit;
+    uint16 callLimit;    
+    uint16 typeLimit;
     ProfileRegisterLimit registerLimits;
     LEnumerableSet.Bytes32Set types;
   }

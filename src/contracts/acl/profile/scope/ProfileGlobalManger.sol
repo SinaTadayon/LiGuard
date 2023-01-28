@@ -270,7 +270,7 @@ contract ProfileGlobalManager is ACLStorage, BaseUUPSProxy, IProfileGlobalManage
       return IProfileACL.ProfileAuthorizationStatus.PROFILE_CALL_FORBIDDEN;
     }
 
-    AgentType atype = _data.agents[functionEntity.agentId].atype;
+    AgentType atype = profileEntity.agents[functionEntity.agentId].atype;
 
     // console.log("agentId: ");
     // console.logBytes32(agentId);
@@ -287,10 +287,12 @@ contract ProfileGlobalManager is ACLStorage, BaseUUPSProxy, IProfileGlobalManage
       (ProfileMemberEntity storage profileMemberEntity, bool result0) = profileEntity.profileMemberTryReadSlot(memberId);
       if(!result0) return IProfileACL.ProfileAuthorizationStatus.MEMBER_NOT_FOUND;
       if(profileMemberEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN; 
-      if(profileMemberEntity.callLimit > 0) {
-        profileMemberEntity.callLimit -= 1;
-      } else {
-        return IProfileACL.ProfileAuthorizationStatus.MEMBER_CALL_FORBIDDEN;
+      if(profileEntity.owner != profileMemberEntity.account) {
+        if(profileMemberEntity.callLimit > 0) {
+          profileMemberEntity.callLimit -= 1;
+        } else {
+          return IProfileACL.ProfileAuthorizationStatus.MEMBER_CALL_FORBIDDEN;
+        }
       }
       
       // check role activation
@@ -324,10 +326,12 @@ contract ProfileGlobalManager is ACLStorage, BaseUUPSProxy, IProfileGlobalManage
         (ProfileMemberEntity storage profileMemberEntity, bool result0) = profileEntity.profileMemberTryReadSlot(memberId);
         if(!result0) return IProfileACL.ProfileAuthorizationStatus.MEMBER_NOT_FOUND;
         if(profileMemberEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN;        
-        if(profileMemberEntity.callLimit > 0) {
-          profileMemberEntity.callLimit -= 1;
-        } else {
-          return IProfileACL.ProfileAuthorizationStatus.MEMBER_CALL_FORBIDDEN;
+        if(profileEntity.owner != profileMemberEntity.account) {
+          if(profileMemberEntity.callLimit > 0) {
+            profileMemberEntity.callLimit -= 1;
+          } else {
+            return IProfileACL.ProfileAuthorizationStatus.MEMBER_CALL_FORBIDDEN;
+          }
         }
 
       } else if(functionEntity.agentId != _LIVELY_VERSE_ANONYMOUS_TYPE_ID) {
@@ -372,10 +376,12 @@ contract ProfileGlobalManager is ACLStorage, BaseUUPSProxy, IProfileGlobalManage
     (ProfileMemberEntity storage profileMemberEntity, bool result0) = profileEntity.profileMemberTryReadSlot(memberId);
     if(!result0) return IProfileACL.ProfileAuthorizationStatus.MEMBER_NOT_FOUND;
     if(profileMemberEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN;
-    if(profileMemberEntity.callLimit > 0) {
-      profileMemberEntity.callLimit -= 1;
-    } else {
-      return IProfileACL.ProfileAuthorizationStatus.MEMBER_CALL_FORBIDDEN;
+    if(profileEntity.owner != profileMemberEntity.account) {
+      if(profileMemberEntity.callLimit > 0) {
+        profileMemberEntity.callLimit -= 1;
+      } else {
+        return IProfileACL.ProfileAuthorizationStatus.MEMBER_CALL_FORBIDDEN;
+      }
     }
     
     // check type activation
@@ -401,4 +407,5 @@ contract ProfileGlobalManager is ACLStorage, BaseUUPSProxy, IProfileGlobalManage
       return IProfileACL.ProfileAuthorizationStatus.POLICY_FORBIDDEN;
     return IProfileACL.ProfileAuthorizationStatus.PERMITTED;
   }
+  
 }
