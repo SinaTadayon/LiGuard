@@ -86,9 +86,9 @@ interface IProfileMemberManagement is IACLCommons {
 
   function profileMemberUpdateTypeLimit(ProfileMemberUpdateLimitRequest[] calldata requests) external returns (bool);
 
-  function profileMemberUpdateRegsiterLimit(ProfileMemberUpdateRegisterLimitRequest[] calldata requests) external returns (bool);
+  function profileMemberUpdateRegisterLimit(ProfileMemberUpdateRegisterLimitRequest[] calldata requests) external returns (bool);
 
-  function profielMemberUpdateCallLimit(ProfileMemberUpdateLimitRequest[] calldata requests) external returns (bool);
+  function profileMemberUpdateCallLimit(ProfileMemberUpdateLimitRequest[] calldata requests) external returns (bool);
 
   function profileMemberUpdateActivityStatus(ProfileUpdateActivityRequest[] calldata requests) external returns (bool);
 

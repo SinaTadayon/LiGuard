@@ -35,7 +35,7 @@ abstract contract BaseUUPSStorage is IBaseProxy {
    */
   bytes32 internal constant _ADMIN_SLOT = 0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103;
 
-  bytes32 internal constant _TYPE_HASH =
+  bytes32 public constant TYPE_HASH =
     keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
 
   address internal immutable __self = address(this);

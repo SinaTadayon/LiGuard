@@ -59,7 +59,6 @@ library LACLManagerTest {
     data.selectors[IProxy.localAdmin.selector] = address(this);
     data.selectors[IProxy.domainSeparator.selector] = address(this);
     data.selectors[IProxy.initVersion.selector] = address(this);
-    data.selectors[IProxy.proxyInfo.selector] = address(this);
     data.selectors[IProxy.withdrawBalance.selector] = address(this);
     data.selectors[IERC165.supportsInterface.selector] = address(this);
     data.selectors[IACLManager.aclRegisterFacet.selector] = address(this);

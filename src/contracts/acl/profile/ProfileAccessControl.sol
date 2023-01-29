@@ -151,7 +151,7 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
 
     } else if(atype == AgentType.TYPE) {
       // console.log("agentId is type . . .");
-      if(functionEntity.agentId == _LIVELY_VERSE_ANY_TYPE_ID) {
+      if(functionEntity.agentId == _LIVELY_PROFILE_ANY_TYPE_ID) {
         // console.log("agentId is ANY type . . .");
         (ProfileMemberEntity storage profileMemberEntity, bool result0) = profileEntity.profileMemberTryReadSlot(memberId);
         if(!result0) return ProfileAuthorizationStatus.MEMBER_NOT_FOUND;
@@ -240,56 +240,52 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
   }
 
   // Anonymouse type
-  function getProfileAnonymousType() external pure returns (bytes32) {
+  function profileAnonymousType() external pure returns (bytes32) {
     return _LIVELY_VERSE_ANONYMOUS_TYPE_ID;
   }
 
   // Any type
-  function getProfileAnyType() external pure returns (bytes32) {
-    return _LIVELY_VERSE_ANY_TYPE_ID;
+  function profileAnyType() external pure returns (bytes32) {
+    return _LIVELY_PROFILE_ANY_TYPE_ID;
   }
 
   // system admin type
-  function getProfileSystemMasterType() external pure returns (bytes32) {
+  function profileSystemMasterType() external pure returns (bytes32) {
     return _LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID;
   }
 
   // admin type
-  function getProfileMasterType() external pure returns (bytes32) {
+  function profileMasterType() external pure returns (bytes32) {
     return _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID;
   }
 
-  function getProfileGlobalScope() external pure returns (bytes32) {
+  function profileGlobalScope() external pure returns (bytes32) {
     return _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID;
   }
 
 
   // general
-  function isProfileAgentExist(bytes32 profileId, bytes32 agentId) external view returns (bool) {
+  function profileIsAgentExist(bytes32 profileId, bytes32 agentId) external view returns (bool) {
     return _data.profiles[profileId].agents[agentId].atype != AgentType.NONE;
   }
   
-  function isProfileScopeExist(bytes32 profileId, bytes32 scopeId) external view returns (bool) {
+  function profileIsScopeExist(bytes32 profileId, bytes32 scopeId) external view returns (bool) {
     return _data.profiles[profileId].scopes[scopeId].stype != ScopeType.NONE;
   }
   
-  function getProfileScopeBaseInfo(bytes32 profileId, bytes32 scopeId) external view returns (BaseScope memory) {
+  function profileScopeBaseInfo(bytes32 profileId, bytes32 scopeId) external view returns (BaseScope memory) {
     return _data.profiles[profileId].scopes[scopeId];
   }
 
-  function getProfileAgentBaseInfo(bytes32 profileId, bytes32 agentId) external view returns (BaseAgent memory) {
+  function profileAgentBaseInfo(bytes32 profileId, bytes32 agentId) external view returns (BaseAgent memory) {
     return _data.profiles[profileId].agents[agentId];  
   }
 
-  function isProfileScopesCompatible(bytes32 profileId, bytes32 destScopeId, bytes32 srcScopeId) external view returns (bool) {
+  function profileIsScopesCompatible(bytes32 profileId, bytes32 destScopeId, bytes32 srcScopeId) external view returns (bool) {
     ProfileEntity storage profileEntity = _data.profiles[profileId];
     if(profileEntity.acstat == ActivityStatus.NONE) return false;
     return _doProfileScopesCompatible(profileEntity, destScopeId, srcScopeId);
   }
-
-  // function isProfileScopesCompatible(ProfileEntity storage profileEntity, bytes32 destScopeId, bytes32 srcScopeId) public view returns (bool) {
-  //   return _doProfileScopesCompatible(ProfileEntity, destScopeId, srcScopeId);
-  // }
 
   function _doProfileScopesCompatible(ProfileEntity storage profileEntity, bytes32 destScopeId, bytes32 srcScopeId) internal view returns (bool) {
     ScopeType destScopeType = profileEntity.scopes[destScopeId].stype;

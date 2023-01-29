@@ -63,6 +63,7 @@ library LACLCommons {
   // Profile Commons
   bytes32 public constant LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID         = keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_MASTER"));
   bytes32 public constant LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID         = keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER"));
+  bytes32 public constant LIVELY_PROFILE_ANY_TYPE_ID                   = keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_ANY"));
   bytes32 public constant LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID   = keccak256(abi.encodePacked("ROLE.LIVELY_PROFILE.LIVELY_MASTER_ADMIN"));
   bytes32 public constant LIVELY_PROFILE_SYSTEM_MASTER_ADMIN_ROLE_ID   = keccak256(abi.encodePacked("ROLE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER_ADMIN"));
   bytes32 public constant LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID        = keccak256(abi.encodePacked("GLOBAL.LIVELY_PROFILE"));
@@ -86,7 +87,6 @@ library LACLCommons {
     data.selectors[IProxy.localAdmin.selector] = address(this);
     data.selectors[IProxy.domainSeparator.selector] = address(this);
     data.selectors[IProxy.initVersion.selector] = address(this);
-    data.selectors[IProxy.proxyInfo.selector] = address(this);
     data.selectors[IProxy.withdrawBalance.selector] = address(this);
     data.selectors[IERC165.supportsInterface.selector] = address(this);
     data.selectors[IACLManager.aclRegisterFacet.selector] = address(this);
@@ -357,6 +357,16 @@ library LACLCommons {
     livelyGlobalEntity.bs.stype = IACLCommons.ScopeType.GLOBAL;
     livelyGlobalEntity.bs.adminId = LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID;
 
+    // Create Any Type
+    IACLCommons.TypeEntity storage anyType = profileEntity.profileTypeWriteSlot(LIVELY_PROFILE_ANY_TYPE_ID);
+    anyType.name = "TYPE.LIVELY_VERSE.LIVELY_ANY";
+    anyType.roleLimit = 0;
+    anyType.scopeId = LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID;
+    anyType.ba.adminId = LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID;
+    anyType.ba.atype = IACLCommons.AgentType.TYPE;
+    anyType.ba.acstat = IACLCommons.ActivityStatus.ENABLED;
+    anyType.ba.alstat = IACLCommons.AlterabilityStatus.DISABLED;
+
     // Create Lively Master Type       
     IACLCommons.TypeEntity storage livelyMasterType = profileEntity.profileTypeWriteSlot(LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID);
     livelyMasterType.name = "TYPE.LIVELY_PROFILE.LIVELY_MASTER";
@@ -412,11 +422,11 @@ library LACLCommons {
     _doInitProfileSystemMaster(profileEntity, systemAdmin);
     
     // update livelyGlobalEntity.bs.referredByAgent
-    livelyGlobalEntity.bs.referredByAgent = 4;
+    livelyGlobalEntity.bs.referredByAgent = 5;
   }
 
   function _doInitProfileSystemMaster(IACLCommons.ProfileEntity storage profileEntity, address systemAdmin) private {
-        // Create System Master Type       
+    // Create System Master Type       
     IACLCommons.TypeEntity storage systemMasterType = profileEntity.profileTypeWriteSlot(LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID);
     systemMasterType.name = "TYPE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER";
     systemMasterType.roleLimit = profileEntity.limits.typeRoleLimit;
@@ -536,6 +546,38 @@ library LACLCommons {
     livelyMasterType.members[livelyMasterAdminMemberId] = LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
 
     {
+      // Create Any Type
+      IACLCommons.TypeEntity storage profileAnyType = data.typeWriteSlot(LIVELY_PROFILE_ANY_TYPE_ID);
+      profileAnyType.name = "TYPE.LIVELY_VERSE.LIVELY_ANY";
+      profileAnyType.roleLimit = 0;
+      profileAnyType.scopeId = LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID;
+      profileAnyType.ba.adminId = LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
+      profileAnyType.ba.atype = IACLCommons.AgentType.TYPE;
+      profileAnyType.ba.acstat = IACLCommons.ActivityStatus.ENABLED;
+      profileAnyType.ba.alstat = IACLCommons.AlterabilityStatus.DISABLED;
+
+      // Create Lively Master Type       
+      IACLCommons.TypeEntity storage profileLivelyMasterType = data.typeWriteSlot(LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID);
+      profileLivelyMasterType.name = "TYPE.LIVELY_PROFILE.LIVELY_MASTER";
+      profileLivelyMasterType.roleLimit = 0;
+      profileLivelyMasterType.scopeId = LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID;
+      profileLivelyMasterType.ba.adminId = LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
+      profileLivelyMasterType.ba.atype = IACLCommons.AgentType.TYPE;
+      profileLivelyMasterType.ba.acstat = IACLCommons.ActivityStatus.ENABLED;
+      profileLivelyMasterType.ba.alstat = IACLCommons.AlterabilityStatus.DISABLED;
+
+      // Create System Master Type       
+      IACLCommons.TypeEntity storage profileSystemMasterType = data.typeWriteSlot(LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID);
+      profileSystemMasterType.name = "TYPE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER";
+      profileSystemMasterType.roleLimit = 0;
+      profileSystemMasterType.scopeId = LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID;
+      profileSystemMasterType.ba.adminId = LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
+      profileSystemMasterType.ba.atype = IACLCommons.AgentType.TYPE;
+      profileSystemMasterType.ba.acstat = IACLCommons.ActivityStatus.ENABLED;
+      profileSystemMasterType.ba.alstat = IACLCommons.AlterabilityStatus.DISABLED;
+    }
+
+    {
       // Create System Master Type       
       IACLCommons.TypeEntity storage systemMasterType = data.typeWriteSlot(LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID);
       systemMasterType.name = "TYPE.LIVELY_VERSE.LIVELY_SYSTEM_MASTER";
@@ -575,9 +617,9 @@ library LACLCommons {
         functionLimit: type(uint16).max,
         realmLimit: 0,
         domainLimit: 0,
-        callLimit: 0,
+        callLimit: type(uint16).max,
         typeRoleLimit: 0,
-        typeLimit: 0,
+        typeLimit: 3,
         policyRoleLimit: 0
       });
     
@@ -718,7 +760,7 @@ library LACLCommons {
       anonymousType.ba.adminId = LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
       anonymousType.ba.atype = IACLCommons.AgentType.TYPE;
       anonymousType.ba.acstat = IACLCommons.ActivityStatus.ENABLED;
-      anonymousType.ba.alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
+      anonymousType.ba.alstat = IACLCommons.AlterabilityStatus.DISABLED;
 
       // Create Any Type
       IACLCommons.TypeEntity storage anyType = data.typeWriteSlot(LIVELY_VERSE_ANY_TYPE_ID);
@@ -728,7 +770,7 @@ library LACLCommons {
       anyType.ba.adminId = LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
       anyType.ba.atype = IACLCommons.AgentType.TYPE;
       anyType.ba.acstat = IACLCommons.ActivityStatus.ENABLED;
-      anyType.ba.alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
+      anyType.ba.alstat = IACLCommons.AlterabilityStatus.DISABLED;
     }
 
     // update livelyGlobalEntity.bs.referredByAgent

@@ -152,7 +152,7 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
           if(ScopeType.CONTEXT == requestAdminScopeType) {
             require(requestAdminScopeId == requests[i].data[j].entityId, "Illegal Amind Scope");
           } else {
-            require(IProfileACLGenerals(address(this)).isProfileScopesCompatible(requests[i].profileId, requestAdminScopeId, requests[i].data[j].entityId), "Illegal Admin Scope");
+            require(IProfileACLGenerals(address(this)).profileIsScopesCompatible(requests[i].profileId, requestAdminScopeId, requests[i].data[j].entityId), "Illegal Admin Scope");
           }
           contextEntity.bs.adminId = requests[i].data[j].adminId;
 

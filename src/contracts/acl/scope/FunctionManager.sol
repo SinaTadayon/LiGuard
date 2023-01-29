@@ -105,10 +105,10 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
       require(contextEntity.bs.alstat == AlterabilityStatus.UPGRADABLE, "Illegal Upgrade");
       require(contextEntity.functionLimit > contextEntity.functions.length(), "Illegal Limit");
 
-      for (uint256 j = 0; j < requests[i].functions.length; j++) {
+      // check access system scope
+      require(_doCheckSystemScope(contextId, signerId), "Forbidden");       
 
-        // check access system scope
-        require(_doCheckSystemScope(contextId, signerId), "Forbidden");        
+      for (uint256 j = 0; j < requests[i].functions.length; j++) {
         _doFunctionRegistration(contextEntity, requests[i].functions[j], msg.sender, signer, contextId);
       }
     }

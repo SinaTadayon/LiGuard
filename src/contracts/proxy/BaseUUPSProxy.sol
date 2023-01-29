@@ -353,7 +353,7 @@ abstract contract BaseUUPSProxy is
 
     return keccak256(
       abi.encode(
-        _TYPE_HASH, 
+        TYPE_HASH, 
         keccak256(abi.encodePacked(_contractName)), 
         keccak256(abi.encodePacked(_contractVersion)), 
         block.chainid, 

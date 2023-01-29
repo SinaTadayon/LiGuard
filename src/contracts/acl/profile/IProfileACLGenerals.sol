@@ -14,30 +14,30 @@ import "../IACLCommons.sol";
 interface IProfileACLGenerals is IACLCommons { 
   
   // Anonymouse type
-  function getProfileAnonymousType() external pure returns (bytes32);
+  function profileAnonymousType() external pure returns (bytes32);
 
   // Any type
-  function getProfileAnyType() external pure returns (bytes32);
+  function profileAnyType() external pure returns (bytes32);
 
   // system master type
-  function getProfileSystemMasterType() external pure returns (bytes32);
+  function profileSystemMasterType() external pure returns (bytes32);
 
   // profile master type
-  function getProfileMasterType() external pure returns (bytes32);
+  function profileMasterType() external pure returns (bytes32);
 
   // Global Scope
-  function getProfileGlobalScope() external pure returns (bytes32);
+  function profileGlobalScope() external pure returns (bytes32);
 
   
   // general
-  function isProfileAgentExist(bytes32 profileId, bytes32 agentId) external view returns (bool);
+  function profileIsAgentExist(bytes32 profileId, bytes32 agentId) external view returns (bool);
 
-  function isProfileScopeExist(bytes32 profileId, bytes32 scopeId) external view returns (bool);
+  function profileIsScopeExist(bytes32 profileId, bytes32 scopeId) external view returns (bool);
 
-  function getProfileScopeBaseInfo(bytes32 profileId, bytes32 scopeId) external view returns (BaseScope memory);
+  function profileScopeBaseInfo(bytes32 profileId, bytes32 scopeId) external view returns (BaseScope memory);
 
-  function getProfileAgentBaseInfo(bytes32 profileId, bytes32 agentId) external view returns (BaseAgent memory);
+  function profileAgentBaseInfo(bytes32 profileId, bytes32 agentId) external view returns (BaseAgent memory);
 
-  function isProfileScopesCompatible(bytes32 profileId, bytes32 destScopeId, bytes32 srcScopeId) external view returns (bool);  
+  function profileIsScopesCompatible(bytes32 profileId, bytes32 destScopeId, bytes32 srcScopeId) external view returns (bool);  
 
 }

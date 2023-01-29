@@ -32,6 +32,7 @@ export const PERMIT_TYPE_HASH: string = ethers.utils.keccak256(
 // General Profile Type
 export const LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID   = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TYPE.LIVELY_PROFILE.LIVELY_MASTER"));
 export const LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID   = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TYPE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER"));
+export const LIVELY_PROFILE_ANY_TYPE_ID             = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TYPE.LIVELY_PROFILE.LIVELY_ANY"));
 export const LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID  = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("GLOBAL.LIVELY_PROFILE"));
 
 // General Profile Roles

@@ -32,7 +32,7 @@ library LProfileCommons {
   using LProfileStorage for IACLCommons.ProfileEntity;
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
 
-  string public constant LIB_NAME = "LProfileManager";
+  string public constant LIB_NAME = "LProfileCommons";
   string public constant LIB_VERSION = "3.0.0";
 
   bytes32 public constant LIVELY_VERSE_ANONYMOUS_TYPE_ID             = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_ANONYMOUS"));
@@ -354,7 +354,7 @@ library LProfileCommons {
     if(requestedScope.stype == senderScopeType) {
       require(requestScopeId == senderScopeId, "Illegal Scope");
     } else {        
-      require(IProfileACLGenerals(address(this)).isProfileScopesCompatible(profileId, senderScopeId, requestScopeId), "Illegal Scope");
+      require(IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, senderScopeId, requestScopeId), "Illegal Scope");
     }      
 
     return requestedScope;
@@ -435,7 +435,7 @@ library LProfileCommons {
         require(requestAdminScopeId == request.realmId, "Illegal Admin Scope");
     
       } else {
-        require(IProfileACLGenerals(address(this)).isProfileScopesCompatible(request.profileId, requestAdminScopeId, scopeId), "Illegal Admin Scope");
+        require(IProfileACLGenerals(address(this)).profileIsScopesCompatible(request.profileId, requestAdminScopeId, scopeId), "Illegal Admin Scope");
       }
       contextAdminId = request.adminId;
 
@@ -469,7 +469,7 @@ library LProfileCommons {
       return true;
     } 
 
-    return IProfileACLGenerals(address(this)).isProfileScopesCompatible(profileId, memberSystemRole.scopeId, scopeId);    
+    return IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, memberSystemRole.scopeId, scopeId);    
   }
 
   function _doCheckFunctionSystemScope(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId, bytes32 memberId, bytes32 profileId) private view returns (bool) {  
@@ -481,7 +481,7 @@ library LProfileCommons {
       return true;
     } 
       
-    return IProfileACLGenerals(address(this)).isProfileScopesCompatible(profileId, memberSystemRole.scopeId, scopeId);    
+    return IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, memberSystemRole.scopeId, scopeId);    
   }
 
   function _doGetAndCheckFunctionAdmin(IACLCommons.ProfileEntity storage profileEntity, bytes32 contextAdminId, bytes32 contextId, bytes32 adminId, bytes32 profileId) private view returns (bytes32 functionAdminId) {
@@ -495,7 +495,7 @@ library LProfileCommons {
         require(requestAdminFuncId == contextAdminId, "Illegal Amind Scope");
       
       } else {
-        require(IProfileACLGenerals(address(this)).isProfileScopesCompatible(profileId, requestAdminFuncId, contextId), "Illegal Admin Scope");
+        require(IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, requestAdminFuncId, contextId), "Illegal Admin Scope");
       }
       functionAdminId = adminId;
 

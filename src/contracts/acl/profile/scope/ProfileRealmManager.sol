@@ -91,7 +91,7 @@ contract ProfileRealmManager is ACLStorage, BaseUUPSProxy, IProfileRealmManageme
           if(ScopeType.REALM == requestAdminScopeType) {
             require(requestAdminScopeId == requests[i].data[j].entityId, "Illegal Amind Scope");
           } else {
-            require(IProfileACLGenerals(address(this)).isProfileScopesCompatible(requests[i].profileId, requestAdminScopeId, requests[i].data[j].entityId), "Illegal Admin Scope");
+            require(IProfileACLGenerals(address(this)).profileIsScopesCompatible(requests[i].profileId, requestAdminScopeId, requests[i].data[j].entityId), "Illegal Admin Scope");
           }
           realmEntity.bs.adminId = requests[i].data[j].adminId;
 

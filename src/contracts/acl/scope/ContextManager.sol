@@ -408,7 +408,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     return
       keccak256(
         abi.encode(
-          TYPE_HASH,          
+          TYPE_HASH,                    
           IProxy(address(this)).contractName(),
           IProxy(address(this)).contractVersion(),
           block.chainid,
@@ -457,6 +457,10 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
       newContext.bs.acstat = request.acstat;
       newContext.bs.alstat = request.alstat;  
       newContext.bs.adminId = _getContextAdmin(request.realmId, newContextId, realmEntity.bs.adminId, request.adminId);    
+    }
+
+    if(request.signature.length == 0) {
+      signer = address(0);
     }
 
     emit ContextRegistered(      

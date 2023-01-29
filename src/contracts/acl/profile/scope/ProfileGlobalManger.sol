@@ -321,7 +321,7 @@ contract ProfileGlobalManager is ACLStorage, BaseUUPSProxy, IProfileGlobalManage
 
     } else if(atype == AgentType.TYPE) {
       // console.log("agentId is type . . .");
-      if(functionEntity.agentId == _LIVELY_VERSE_ANY_TYPE_ID) {
+      if(functionEntity.agentId == _LIVELY_PROFILE_ANY_TYPE_ID) {
         // console.log("agentId is ANY type . . .");
         (ProfileMemberEntity storage profileMemberEntity, bool result0) = profileEntity.profileMemberTryReadSlot(memberId);
         if(!result0) return IProfileACL.ProfileAuthorizationStatus.MEMBER_NOT_FOUND;

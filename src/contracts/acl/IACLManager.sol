@@ -22,34 +22,29 @@ interface IACLManager is IACLCommons{
   struct FacetUpgradeRequest {
     address facetId;
     address subjectId;
-    // bytes4 interfaceId;
     FacetSelectorUpgradeRequest[] functions;
   }
 
   struct FacetRegisterRequest {
     address facetId;
     address subjectId;
-    // bytes4 interfaceId;
     bytes4[] selectors;
   }
 
   struct FacetInfo {
     address subjectId;
-    // bytes4 interfaceId;
   }
 
   event ACLFacetRegistered(
     address indexed sender, 
     address indexed facetId, 
     address indexed subjectId
-    // bytes4 interfaceId
   );
 
   event ACLFacetUpgraded(
     address indexed sender, 
     address indexed facetId, 
     address indexed subjectId
-    // bytes4 interfaceId
   );
 
   event ACLFacetFunctionUpgraded(
