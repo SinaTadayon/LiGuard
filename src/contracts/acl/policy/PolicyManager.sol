@@ -63,8 +63,8 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
 
     // check and set
     MemberEntity storage memberEntity = _data.memberReadSlot(senderId);
-    require(memberEntity.limits.policyRegisterLimit - uint16(requests.length) > 0, "Illegal RegisterLimit");
-    memberEntity.limits.policyRegisterLimit -= uint16(requests.length);
+    require(int16(uint16(memberEntity.limits.policyRegisterLimit)) - int8(uint8(requests.length)) >= 0, "Illegal RegisterLimit");
+    memberEntity.limits.policyRegisterLimit -= uint8(requests.length);     
 
     for(uint i = 0; i < requests.length; i++) {
       bytes32 newPolicyId = LACLUtils.generateId(requests[i].name);
@@ -87,7 +87,7 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
       policyEntity.alstat = requests[i].alstat;
       policyEntity.name = requests[i].name;
       policyEntity.scopeId = requests[i].scopeId;
-      policyEntity.roleLimit = memberEntity.limits.policyRoleLimit;
+      policyEntity.roleLimit = requests[i].roleLimit >= 0 ? uint16(uint24(requests[i].roleLimit)) : memberEntity.limits.policyRoleLimit;
       policyEntity.adminId = _getPolicyAdmin(requestedScope.stype, requestedScope.adminId, requests[i].scopeId, requests[i].adminId);
       emit PolicyRegistered(
         msg.sender,
@@ -414,48 +414,14 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
 
   function _getPolicyAdmin(ScopeType requestScopeType, bytes32 requestScopeAdmin, bytes32 scopeId, bytes32 adminId) internal view returns (bytes32 policyAdminId) {
     return LACLCommons.getPolicyAdmin(_data, requestScopeType, requestScopeAdmin, scopeId, adminId);
-  // // checking requested type admin       
-  //   if(adminId != bytes32(0)) {
-  //     require(_data.agents[adminId].atype == AgentType.ROLE, "Illegal Admin AgentType");
-  //     (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(adminId);
-  //     require(requestScopeType <= requestAdminScopeType, "Illegal Admin ScopeType");
-  //     if(requestScopeType == requestAdminScopeType) {
-  //       require(requestAdminScopeId == scopeId, "Illegal Admin Scope");
-  //     } else {
-  //       require(IACLGenerals(address(this)).isScopesCompatible(requestAdminScopeId, scopeId), "Illegal Admin Scope");
-  //     }
-  //     policyAdminId = adminId;
-
-  //   } else {
-  //     policyAdminId = requestScopeAdmin;
-  //   }      
   }
   
   function _doGetPolicyAndCheckAdminAccess(bytes32 policyId, bytes32 memberId, bytes32 functionId) internal view returns (PolicyEntity storage) {
     return LACLCommons.getPolicyAndCheckAdminAccess(_data, policyId, memberId, functionId);
-    // PolicyEntity storage policyEntity = _data.policies[policyId];
-    // require(policyEntity.adminId != bytes32(0), "Not Found");      
-    // require(policyEntity.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-    // IACL.AdminAccessStatus status = _doCheckAdminAccess(policyEntity.adminId, memberId, functionId);
-    // if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
-    // return policyEntity;
   }
 
   function _getAndCheckRequestScope(bytes32 requestScopeId, bytes32 senderScopeId, ScopeType senderScopeType) internal view returns (BaseScope storage){
-    return LACLCommons.getAndCheckRequestScope(_data, requestScopeId, senderScopeId, senderScopeType);
-    // checking requested type scope
-    // BaseScope storage requestedScope = _data.scopes[requestScopeId];
-    // require(requestedScope.stype != ScopeType.NONE , "Scope Not Found");
-    // require(requestedScope.acstat > ActivityStatus.DELETED , "Deleted");
-  
-    // require(requestedScope.stype <= senderScopeType, "Illegal ScopeType");
-    // if(requestedScope.stype == senderScopeType) {
-    //   require(requestScopeId == senderScopeId, "Illegal Scope");
-    // } else {        
-    //   require(IACLGenerals(address(this)).isScopesCompatible(senderScopeId, requestScopeId), "Illegal Scope");
-    // }      
-
-    // return requestedScope;
+    return LACLCommons.getAndCheckRequestScope(_data, requestScopeId, senderScopeId, senderScopeType);  
   }     
 
   function getLibrary() external pure returns (address) {

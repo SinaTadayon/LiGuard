@@ -81,8 +81,13 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
         bytes32 functionId = LACLUtils.functionGenerateId(_data.selectors[IProfileManagement.profileRegister.selector], IProfileManagement.profileRegister.selector);
         IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, signerId);
         if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status); 
+
+        // update member profile register limit
+        MemberEntity storage memberEntity = _data.memberReadSlot(signerId);
+        require(int32(uint32(memberEntity.limits.profileRegisterLimit)) - int16(uint16(requests.length)) >= 0, "Illegal RegisterLimit");
+        memberEntity.limits.profileRegisterLimit -= uint16(requests.length);          
       }
-    
+
       bytes32 profileId = LACLUtils.generateId(requests[i].name);
       require(_data.profiles[profileId].acstat == ActivityStatus.NONE, "Already Exist");
       LACLCommons.profileRegister(_data, requests[i], signerId, profileId);

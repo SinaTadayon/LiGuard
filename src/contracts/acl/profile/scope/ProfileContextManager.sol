@@ -105,7 +105,7 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
     }
 
     return true;
-  }
+  }  
 
   function profileContextUpdateActivityStatus(ProfileUpdateActivityRequest[] calldata requests) external returns (bool) {
     for (uint i = 0; i < requests.length; i++) {
@@ -260,7 +260,7 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
       name: IProxy(ce.contractId).contractName(),
       version: IProxy(ce.contractId).contractVersion(),
       contractId: ce.contractId,
-      functionCount: uint16(ce.functions.length()),
+      functionCount: uint8(ce.functions.length()),
       functionLimit: ce.functionLimit,
       referredByAgent: ce.bs.referredByAgent,
       adminType: profileEntity.agents[ce.bs.adminId].atype,

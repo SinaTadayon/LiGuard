@@ -62,8 +62,8 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
       ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(senderId);
       require(profileMemberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
       require(profileEntity.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-      require(profileMemberEntity.registerLimits.typeRegisterLimit - uint16(requests[i].types.length) > 0, "Illegal TypeRegisterLimit");
-      require(profileEntity.registerLimits.typeRegisterLimit - uint16(requests[i].types.length) > 0, "Illegal RegisterLimit");
+      require(int32(profileMemberEntity.registerLimits.typeRegisterLimit) - int16(uint16(requests[i].types.length)) >= 0, "Illegal TypeRegisterLimit");
+      require(int32(profileEntity.registerLimits.typeRegisterLimit) - int16(uint16(requests[i].types.length)) >= 0, "Illegal RegisterLimit");
       profileMemberEntity.registerLimits.typeRegisterLimit -= uint16(requests[i].types.length); 
       profileEntity.registerLimits.typeRegisterLimit -= uint16(requests[i].types.length);
 
@@ -394,7 +394,7 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
     newType.ba.acstat = ActivityStatus.ENABLED;
     newType.ba.alstat = AlterabilityStatus.UPGRADABLE;
     newType.scopeId = typeRequest.scopeId;
-    newType.roleLimit = profileEntity.limits.typeRoleLimit;
+    newType.roleLimit = typeRequest.roleLimit >= 0 ? uint16(uint24(typeRequest.roleLimit)) : profileEntity.limits.typeRoleLimit;
     newType.name = typeRequest.name;
     newType.ba.adminId = _getTypeAdmin(profileEntity, requestedScope.stype, requestedScope.adminId, typeRequest.scopeId, typeRequest.adminId, profileId);
 

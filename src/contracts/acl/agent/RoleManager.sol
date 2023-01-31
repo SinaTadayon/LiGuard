@@ -17,6 +17,7 @@ import "../../lib/acl/LACLUtils.sol";
 import "../../proxy/IProxy.sol";
 import "../../proxy/BaseUUPSProxy.sol";
 
+import "hardhat/console.sol";
 
 /**
  * @title ACL Role Manager Contract
@@ -63,8 +64,8 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
 
     // check and set
     MemberEntity storage memberEntity = _data.memberReadSlot(senderId);
-    require(memberEntity.limits.roleRegisterLimit - uint16(requests.length) > 0, "Illegal RegisterLimit");
-    memberEntity.limits.roleRegisterLimit -= uint16(requests.length);
+    require(int16(uint16(memberEntity.limits.roleRegisterLimit)) - int8(uint8(requests.length)) >= 0, "Illegal RegisterLimit");
+    memberEntity.limits.roleRegisterLimit -= uint8(requests.length);            
 
     for(uint i = 0; i < requests.length; i++) {
       bytes32 newRoleId = LACLUtils.generateId(requests[i].name);
@@ -177,12 +178,12 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
           require(memberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
           require(memberEntity.limits.typeLimit > memberEntity.types.length(), "Illegal Member Types");
 
-        if((memberEntity.types.contains(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID) || 
-            memberEntity.types.contains(_LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID)) &&
-            (roleEntity.typeId == _LIVELY_VERSE_LIVELY_MASTER_TYPE_ID || 
-            roleEntity.typeId == _LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID)) {
-          revert ("Illegal GrantMemberType");
-        }      
+          if((memberEntity.types.contains(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID) || 
+              memberEntity.types.contains(_LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID)) &&
+              (roleEntity.typeId == _LIVELY_VERSE_LIVELY_MASTER_TYPE_ID || 
+              roleEntity.typeId == _LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID)) {
+            revert ("Illegal GrantMemberType");
+          }
 
           memberEntity.types.add(roleEntity.typeId);  
         }
@@ -317,48 +318,7 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
   }
 
   function _doCheckAdminAccess(bytes32 adminId, bytes32 memberId, bytes32 functionId) internal view returns (IACL.AdminAccessStatus) {
-    return LACLCommons.checkAdminAccess(_data, adminId, memberId, functionId);
-    // (FunctionEntity storage functionEntity, bool res) = _data.functionTryReadSlot(functionId);    
-    // if (!res) return IACL.AdminAccessStatus.FUNCTION_NOT_FOUND;
-
-    // // if(_data.agents[memberId].acstat != ActivityStatus.ENABLED) return false;
-    
-    // AgentType adminAgentType = _data.agents[adminId].atype;
-    // if(adminAgentType == AgentType.ROLE) {
-    //   (RoleEntity storage roleEntity, bool result) = _data.roleTryReadSlot(adminId);
-    //   if(!result) return IACL.AdminAccessStatus.ROLE_NOT_FOUND;
-    //   if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AdminAccessStatus.ROLE_ACTIVITY_FORBIDDEN;
-
-    //   (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(roleEntity.typeId);
-    //   if(!result1) return IACL.AdminAccessStatus.TYPE_NOT_FOUND;
-    //   if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AdminAccessStatus.TYPE_ACTIVITY_FORBIDDEN;
-      
-    //   if (typeEntity.members[memberId] != adminId) return IACL.AdminAccessStatus.NOT_PERMITTED;
-      
-    //   PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[adminId]];
-    //   if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
-    //     return IACL.AdminAccessStatus.POLICY_FORBIDDEN;
-
-    //   return IACL.AdminAccessStatus.PERMITTED;
-   
-    // } else if(adminAgentType == AgentType.TYPE) { 
-    //   (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(adminId);
-    //   if(!result1) return IACL.AdminAccessStatus.TYPE_NOT_FOUND;
-    //   if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AdminAccessStatus.TYPE_ACTIVITY_FORBIDDEN;
-
-    //   bytes32 roleId = typeEntity.members[memberId];
-    //   (RoleEntity storage roleEntity, bool result2) = _data.roleTryReadSlot(roleId);
-    //   if(!result2) return IACL.AdminAccessStatus.ROLE_NOT_FOUND;
-    //   if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AdminAccessStatus.ROLE_ACTIVITY_FORBIDDEN;
-      
-    //   PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[roleId]];
-    //   if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
-    //     return IACL.AdminAccessStatus.POLICY_FORBIDDEN;
-
-    //   return IACL.AdminAccessStatus.PERMITTED;
-    // } 
-
-    // return IACL.AdminAccessStatus.NOT_PERMITTED;   
+    return LACLCommons.checkAdminAccess(_data, adminId, memberId, functionId);   
   }
 
   function _accessPermission(bytes4 selector) internal returns (bytes32) {
@@ -385,7 +345,7 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
       }
       roleAdminId = adminId;
 
-    } else {
+    } else {     
       roleAdminId = requestScopeAdmin;
     }     
   }
@@ -401,7 +361,7 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
     
     // checking requested role type scope with role scope
     ScopeType requestTypeScopeType = _data.scopes[typeScopeId].stype;
-    require(requestTypeScopeType >= requestScope.stype, "Illegal Scope Type");
+    require(requestTypeScopeType >= requestScope.stype, "Illegal ScopeType");
     if (requestTypeScopeType == requestScope.stype) {
       require(typeScopeId == requestScopeId, "Illegal Scope");
     } else {
@@ -435,7 +395,7 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
     newRole.ba.alstat = request.alstat;
     newRole.name = request.name;
     newRole.scopeId = request.scopeId;
-    newRole.memberLimit = memberEntity.limits.memberLimit;
+    newRole.memberLimit = request.memberLimit >= 0 ? uint24(uint32(request.memberLimit)) : memberEntity.limits.memberLimit;
     newRole.typeId = request.typeId;
     newRole.ba.adminId = _getRoleAdmin(requestScopeType, typeEntity.ba.adminId, request.scopeId, request.adminId);
     emit RoleRegistered(

@@ -104,6 +104,7 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
       contractId: address(0),
       subject: request.subjectId,
       deployer: request.assetManagerId,
+      functionLimit: 32,
       acstat: IACLCommons.ActivityStatus.ENABLED,
       alstat: IACLCommons.AlterabilityStatus.UPDATABLE,
       signature: request.signature

@@ -78,8 +78,6 @@ interface IFunctionManagement is IACLCommons{
 
   event FunctionPolicyUpdated(address indexed sender, bytes32 indexed functionId, uint8 policyCode);
 
-  event FunctionAgentLimitUpdated(address indexed sender, bytes32 indexed functionId, uint32 agentLimit);
-
   function functionRegister(FunctionRegisterRequest[] calldata requests) external returns (bool);
 
   function functionUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);

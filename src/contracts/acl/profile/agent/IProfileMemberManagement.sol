@@ -21,6 +21,8 @@ interface IProfileMemberManagement is IACLCommons {
   struct ProfileMemberRegisterDataRequest {        
     bytes32 adminId;
     bytes32 roleId;
+    int24 typeLimit;
+    int24 callLimit;
     address account;
     ProfileRegisterLimit registerLimit;
   }
@@ -70,11 +72,11 @@ interface IProfileMemberManagement is IACLCommons {
 
   event ProfileMemberDeleted(address indexed sender, bytes32 indexed memberId, address indexed account);
 
-  event ProfileMemberTypeLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed memberId, uint32 typeLimit);
+  event ProfileMemberTypeLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed memberId, uint16 typeLimit);
 
   event ProfileMemberRegisterLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed memberId, ProfileRegisterLimit registerLimit);
 
-  event ProfileMemberCallLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed memberId, uint32 callLimit);
+  event ProfileMemberCallLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed memberId, uint16 callLimit);
 
   event ProfileMemberAdminUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed memberId, bytes32 adminId);
 

@@ -68,6 +68,10 @@ library LACLCommons {
   bytes32 public constant LIVELY_PROFILE_SYSTEM_MASTER_ADMIN_ROLE_ID   = keccak256(abi.encodePacked("ROLE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER_ADMIN"));
   bytes32 public constant LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID        = keccak256(abi.encodePacked("GLOBAL.LIVELY_PROFILE"));
 
+  // ACL Type
+  bytes32 public constant LIVELY_VERSE_LIVELY_GUARD_MASTER_TYPE_ID      = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_GUARD.MASTER"));
+  
+
   function registerProxyFacet(ACLStorage.DataCollection storage data, address implementation) external {
     data.facetSet.add(address(this));
     IACLCommons.FacetEntity storage facetEntity = data.facets[address(this)];
@@ -251,6 +255,7 @@ library LACLCommons {
     (IACLCommons.ScopeType signerScopeType, bytes32 signerScopeId) = _doGetScopeFromType(data, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID, signerId);
     require(signerScopeType == IACLCommons.ScopeType.GLOBAL && signerScopeId == LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Scope");
     require(request.expiredAt > block.timestamp + 1 days, "Illegal Expiration");
+    require(request.limits.typeLimit >= 1, "Illegal TypeLimit");
   
     _doCreateUpdateProfileAccount(data, profileId, request.owner);
     _doCreateUpdateProfileAccount(data, profileId, request.admin);
@@ -413,7 +418,7 @@ library LACLCommons {
     livelyMasterAdminMember.ba.alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
     livelyMasterAdminMember.ba.acstat = IACLCommons.ActivityStatus.ENABLED;      
 
-    // bind Lively Master Admin Member to Admin role of Lively, Scope, Agent and Policy types
+    // bind Lively Master Admin Member to Admin role of Lively, 
     livelyMasterAdminMember.types.add(LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID);
 
     // bind Lively Master Admin Member to Admin role
@@ -468,6 +473,7 @@ library LACLCommons {
     systemMasterAdminMember.ba.atype = IACLCommons.AgentType.MEMBER;
     systemMasterAdminMember.ba.alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
     systemMasterAdminMember.ba.acstat = IACLCommons.ActivityStatus.ENABLED;
+    systemMasterAdminMember.types.add(LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID);
     
     // bind Lively Master Admin Member to Admin role
     systemMasterType.members[systemMasterAdminMemberId] = LIVELY_PROFILE_SYSTEM_MASTER_ADMIN_ROLE_ID;
@@ -511,23 +517,24 @@ library LACLCommons {
     IACLCommons.MemberEntity storage livelyMasterAdminMember = data.memberWriteSlot(livelyMasterAdminMemberId);   
     livelyMasterAdminMember.account = livelyAdmin;
     livelyMasterAdminMember.limits = IACLCommons.GeneralLimit({
-      contextLimit: type(uint32).max,
-      memberRegisterLimit: type(uint32).max,
-      roleRegisterLimit: type(uint32).max,
-      typeRegisterLimit: type(uint32).max,
-      functionRegisterLimit: type(uint32).max,
-      contextRegisterLimit: type(uint32).max,
       memberLimit: type(uint24).max,
-      realmRegisterLimit: type(uint16).max,
-      domainRegisterLimit: type(uint16).max,
-      policyRegisterLimit: type(uint16).max,
-      functionLimit: type(uint16).max,
+      memberRegisterLimit: type(uint16).max,
+      contextRegisterLimit: type(uint16).max,
+      functionRegisterLimit: type(uint16).max,
+      profileRegisterLimit: type(uint16).max,
+      contextLimit: type(uint16).max,
       realmLimit: type(uint16).max,
       domainLimit: type(uint16).max,
       callLimit: type(uint16).max,
       typeRoleLimit: type(uint16).max,
       typeLimit: type(uint16).max,
-      policyRoleLimit: type(uint16).max
+      roleRegisterLimit: type(uint8).max,
+      typeRegisterLimit: type(uint8).max,
+      realmRegisterLimit: type(uint8).max,
+      domainRegisterLimit: type(uint8).max,
+      policyRegisterLimit: type(uint8).max,
+      policyRoleLimit: type(uint8).max,
+      functionLimit: type(uint8).max
     });
       
     livelyMasterAdminMember.ba.adminId = LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
@@ -535,18 +542,20 @@ library LACLCommons {
     livelyMasterAdminMember.ba.alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
     livelyMasterAdminMember.ba.acstat = IACLCommons.ActivityStatus.ENABLED;      
 
-    // bind Lively Master Admin Member to Admin role of Lively, Scope, Agent and Policy types
+    // bind Lively Master Admin Member to Admin role of Lively, Scope, Type, Member, Profile and Policy types
     livelyMasterAdminMember.types.add(LIVELY_VERSE_LIVELY_MASTER_TYPE_ID);
     livelyMasterAdminMember.types.add(LIVELY_VERSE_SCOPE_MASTER_TYPE_ID);
     livelyMasterAdminMember.types.add(LIVELY_VERSE_TYPE_MASTER_TYPE_ID);
     livelyMasterAdminMember.types.add(LIVELY_VERSE_MEMBER_MASTER_TYPE_ID);
     livelyMasterAdminMember.types.add(LIVELY_VERSE_POLICY_MASTER_TYPE_ID);
+    livelyMasterAdminMember.types.add(LIVELY_VERSE_PROFILE_MASTER_TYPE_ID);
+    livelyMasterAdminMember.types.add(LIVELY_VERSE_LIVELY_GUARD_MASTER_TYPE_ID);
 
     // bind Lively Master Admin Member to Admin role
     livelyMasterType.members[livelyMasterAdminMemberId] = LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
 
     {
-      // Create Any Type
+      // Create Profile Any Type
       IACLCommons.TypeEntity storage profileAnyType = data.typeWriteSlot(LIVELY_PROFILE_ANY_TYPE_ID);
       profileAnyType.name = "TYPE.LIVELY_VERSE.LIVELY_ANY";
       profileAnyType.roleLimit = 0;
@@ -556,7 +565,7 @@ library LACLCommons {
       profileAnyType.ba.acstat = IACLCommons.ActivityStatus.ENABLED;
       profileAnyType.ba.alstat = IACLCommons.AlterabilityStatus.DISABLED;
 
-      // Create Lively Master Type       
+      // Create Profile Lively Master Type       
       IACLCommons.TypeEntity storage profileLivelyMasterType = data.typeWriteSlot(LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID);
       profileLivelyMasterType.name = "TYPE.LIVELY_PROFILE.LIVELY_MASTER";
       profileLivelyMasterType.roleLimit = 0;
@@ -566,7 +575,7 @@ library LACLCommons {
       profileLivelyMasterType.ba.acstat = IACLCommons.ActivityStatus.ENABLED;
       profileLivelyMasterType.ba.alstat = IACLCommons.AlterabilityStatus.DISABLED;
 
-      // Create System Master Type       
+      // Create Profile System Master Type       
       IACLCommons.TypeEntity storage profileSystemMasterType = data.typeWriteSlot(LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID);
       profileSystemMasterType.name = "TYPE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER";
       profileSystemMasterType.roleLimit = 0;
@@ -602,32 +611,35 @@ library LACLCommons {
 
       // Create System Master Admin Member
       bytes32 systemMasterAdminMemberId = LACLUtils.accountGenerateId(systemAdmin);
-      IACLCommons.MemberEntity storage systemMasterAdminMember = data.memberWriteSlot(systemMasterAdminMemberId);      
+      IACLCommons.MemberEntity storage systemMasterAdminMember = data.memberWriteSlot(systemMasterAdminMemberId);
+
       systemMasterAdminMember.limits = IACLCommons.GeneralLimit({
-        contextLimit: type(uint32).max,
-        memberRegisterLimit: 0,
-        roleRegisterLimit: 0,
-        typeRegisterLimit: 0,
-        functionRegisterLimit: type(uint32).max,
-        contextRegisterLimit: 128,
         memberLimit: 0,
-        realmRegisterLimit: 0,
-        domainRegisterLimit: 0,
-        policyRegisterLimit: 0,
-        functionLimit: type(uint16).max,
+        memberRegisterLimit: 0,
+        contextRegisterLimit: 128,
+        functionRegisterLimit: type(uint16).max,
+        profileRegisterLimit: 0,
+        contextLimit: type(uint16).max,
         realmLimit: 0,
         domainLimit: 0,
         callLimit: type(uint16).max,
         typeRoleLimit: 0,
-        typeLimit: 3,
-        policyRoleLimit: 0
+        typeLimit: 0,
+        roleRegisterLimit: 0,
+        typeRegisterLimit: 0,
+        realmRegisterLimit: 0,
+        domainRegisterLimit: 0,
+        policyRegisterLimit: 0,
+        policyRoleLimit: 0,
+        functionLimit: type(uint8).max
       });
-    
+
       systemMasterAdminMember.account = systemAdmin;      
       systemMasterAdminMember.ba.adminId = LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
       systemMasterAdminMember.ba.atype = IACLCommons.AgentType.MEMBER;
       systemMasterAdminMember.ba.alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
       systemMasterAdminMember.ba.acstat = IACLCommons.ActivityStatus.ENABLED;
+      systemMasterAdminMember.types.add(LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID);
       
       // bind Lively Master Admin Member to Admin role
       systemMasterType.members[systemMasterAdminMemberId] = LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID;

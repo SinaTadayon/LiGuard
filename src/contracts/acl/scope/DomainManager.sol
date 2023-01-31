@@ -58,8 +58,8 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
     
     // check and set
     MemberEntity storage memberEntity = _data.memberReadSlot(senderId);
-    require(memberEntity.limits.domainRegisterLimit - uint16(requests.length) > 0, "Illegal RegisterLimit");
-    memberEntity.limits.domainRegisterLimit -= uint16(requests.length);
+    require(int16(uint16(memberEntity.limits.domainRegisterLimit)) - int8(uint8(requests.length)) >= 0, "Illegal RegisterLimit");
+    memberEntity.limits.domainRegisterLimit -= uint8(requests.length);    
 
     // fetch scope type and scope id of sender
     bytes32 senderScopeId = _doGetMemberScopeInfoFromType(_LIVELY_VERSE_SCOPE_MASTER_TYPE_ID, senderId);    
@@ -92,7 +92,7 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
       newDomain.bs.acstat = requests[i].acstat;
       newDomain.bs.alstat = requests[i].alstat;      
       newDomain.name = requests[i].name;
-      newDomain.realmLimit = memberEntity.limits.realmLimit;
+      newDomain.realmLimit = requests[i].realmLimit >= 0 ? uint16(uint24(requests[i].realmLimit)) : memberEntity.limits.realmLimit;
        
       // checking requested domain admin 
       if(requests[i].adminId != bytes32(0)) {

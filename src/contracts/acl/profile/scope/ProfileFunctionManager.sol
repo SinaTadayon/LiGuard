@@ -101,28 +101,24 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
       }
           
       LProfileCommons.profileCheckMemberForFunctionRegister(profileEntity, uint16(requests[i].functions.length), signerId);
-
+      // check access system scope
+      require(_doCheckSystemScope(profileEntity, contextId, signerId, requests[i].profileId), "Forbidden");        
+  
       for (uint j = 0; j < requests[i].functions.length; j++) {
-
-        // check access system scope
-        // require(_doCheckSystemScope(profileEntity, contextId, signerId, requests[i].profileId), "Forbidden");        
-        bytes32 newFunctionId = LProfileCommons.profileFunctionRegistration(profileEntity, requests[i].functions[j], requests[i].profileId, signerId, contextId);
+        bytes32 newFunctionId = LProfileCommons.profileFunctionRegistration(profileEntity, requests[i].functions[j], requests[i].profileId, contextId);
         _doEventProfileFunctionRegister(requests[i].functions[j], requests[i].profileId, contextId, newFunctionId, signer);
+        // emit ProfileFunctionRegistered(
+        //   msg.sender,
+        //   requests[i].profileId,
+        //   contextId, 
+        //   newFunctionId,
+        //   requests[i].functions[j].adminId,
+        //   requests[i].functions[j].agentId,
+        //   signer
+        // );
       }
     }
     return true;
-  }
-
-  function _doEventProfileFunctionRegister(ProfileFunctionRequest calldata request, bytes32 profileId, bytes32 contextId, bytes32 functionId, address signer) internal {
-    emit ProfileFunctionRegistered(
-      msg.sender,
-      profileId,
-      contextId, 
-      functionId,
-      request.adminId,
-      request.agentId,
-      signer
-    );
   }
 
   function profileFunctionUpdateAdmin(ProfileUpdateAdminRequest[] calldata requests) external returns (bool) {
@@ -378,6 +374,30 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
           address(this)
         )
       );
+  }
+
+  function _doCheckSystemScope(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId, bytes32 memberId, bytes32 profileId) private view returns (bool) {
+    IACLCommons.TypeEntity storage systemType = profileEntity.profileTypeReadSlot(_LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID);
+    bytes32 memberRoleId = systemType.members[memberId];
+    IACLCommons.RoleEntity storage memberSystemRole = profileEntity.profileRoleReadSlot(memberRoleId);
+    if(profileEntity.scopes[memberSystemRole.scopeId].stype < IACLCommons.ScopeType.CONTEXT) return false;
+    if(memberSystemRole.scopeId == scopeId) {
+      return true;
+    } 
+      
+    return IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, memberSystemRole.scopeId, scopeId);    
+  }
+
+  function _doEventProfileFunctionRegister(ProfileFunctionRequest calldata request, bytes32 profileId, bytes32 contextId, bytes32 functionId, address signer) internal {
+    emit ProfileFunctionRegistered(
+      msg.sender,
+      profileId,
+      contextId, 
+      functionId,
+      request.adminId,
+      request.agentId,
+      signer
+    );
   }
 
   function getLibrary() external pure returns (address) {

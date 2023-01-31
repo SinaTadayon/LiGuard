@@ -22,6 +22,7 @@ interface IProfileRealmManagement is IACLCommons {
   struct ProfileRealmRegisterDataRequest {  
     bytes32 domainId;
     bytes32 adminId;
+    int64 contextLimit;
     string name; 
   }
 

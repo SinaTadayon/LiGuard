@@ -61,8 +61,8 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
 
     // check and set
     MemberEntity storage memberEntity = _data.memberReadSlot(senderId);
-    require(memberEntity.limits.memberRegisterLimit - uint16(requests.length) > 0, "Illegal RegisterLimit");
-    memberEntity.limits.memberRegisterLimit -= uint16(requests.length);
+    require(int32(uint32(memberEntity.limits.memberRegisterLimit)) - int16(uint16(requests.length)) >= 0, "Illegal RegisterLimit");
+    memberEntity.limits.memberRegisterLimit -= uint16(requests.length);    
 
     for (uint256 i = 0; i < requests.length; i++) {
       bytes32 newMemberId = LACLUtils.accountGenerateId(requests[i].account);
@@ -176,7 +176,7 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     for (uint256 i = 0; i < requests.length; i++) {
       MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].memberId, senderId, functionId);
-      require(requests[i].limits.typeLimit > memberEntity.types.length(), "Illegal Limit" );
+      require(requests[i].limits.typeLimit > memberEntity.types.length(), "Illegal TypeLimit" );
       memberEntity.limits = requests[i].limits;
       emit MemberGeneralLimitUpdated(msg.sender, requests[i].memberId, requests[i].limits);
     }
@@ -236,13 +236,14 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
       return MemberInfo({
         adminId: bytes32(0),
         account: address(0),
-        limits: GeneralLimit({
+        limits: GeneralLimit({          
           contextLimit: 0,
           memberRegisterLimit: 0,
           roleRegisterLimit: 0,
           typeRegisterLimit: 0,
           functionRegisterLimit: 0,
           contextRegisterLimit: 0,
+          profileRegisterLimit: 0,
           memberLimit: 0,
           realmRegisterLimit: 0,
           domainRegisterLimit: 0,
@@ -255,6 +256,7 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
           typeLimit: 0,
           policyRoleLimit: 0
         }),
+        typeCount: 0,
         adminType: AgentType.NONE,
         acstat: ActivityStatus.NONE,
         alstat: AlterabilityStatus.NONE
@@ -271,6 +273,7 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
         typeRegisterLimit: member.limits.typeRegisterLimit,
         functionRegisterLimit: member.limits.functionRegisterLimit,
         contextRegisterLimit: member.limits.contextRegisterLimit,
+        profileRegisterLimit: member.limits.profileRegisterLimit,
         memberLimit: member.limits.memberLimit,
         realmRegisterLimit: member.limits.realmRegisterLimit,
         domainRegisterLimit: member.limits.domainRegisterLimit,
@@ -283,6 +286,7 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
         typeLimit: member.limits.typeLimit,
         policyRoleLimit: member.limits.policyRoleLimit
       }),
+      typeCount: uint16(member.types.length()),
       adminType: _data.agents[member.ba.adminId].atype,
       acstat: member.ba.acstat,
       alstat: member.ba.alstat
@@ -292,8 +296,6 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
   function _doCheckAdminAccess(bytes32 adminId, bytes32 memberId, bytes32 functionId) internal view returns (IACL.AdminAccessStatus) {
     (FunctionEntity storage functionEntity, bool res) = _data.functionTryReadSlot(functionId);    
     if (!res) return IACL.AdminAccessStatus.FUNCTION_NOT_FOUND;
-
-    // if(_data.agents[memberId].acstat != ActivityStatus.ENABLED) return false;
     
     AgentType adminAgentType = _data.agents[adminId].atype;
     if(adminAgentType == AgentType.ROLE) {

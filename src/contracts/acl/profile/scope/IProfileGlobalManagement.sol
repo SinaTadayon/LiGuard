@@ -48,7 +48,7 @@ interface IProfileGlobalManagement is IACLCommons {
     
   event ProfileGlobalAdminUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed globalId, bytes32 adminId);
   
-  event ProfileGlobalDomainLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed globalId, uint32 domainLimit);  
+  event ProfileGlobalDomainLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed globalId, uint16 domainLimit);  
   
   event ProfileGlobalActivityUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed globalId, ActivityStatus acstat);
   

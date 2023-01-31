@@ -99,7 +99,7 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     GlobalEntity storage globalEntity = _doGetEntityAndCheckAdminAccess(senderId, functionId);
     require(domainLimit > globalEntity.domains.length() , "Illegal Limit");
-    globalEntity.domainLimit = domainLimit;
+    globalEntity.domainLimit = domainLimit;    
     emit GlobalDomainLimitUpdated(msg.sender, _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, domainLimit);    
     return true;
   }

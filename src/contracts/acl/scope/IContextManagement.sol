@@ -22,6 +22,7 @@ interface IContextManagement is IACLCommons{
     address contractId;
     address subject;
     address deployer;
+    int16 functionLimit;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
     bytes signature;
@@ -29,7 +30,7 @@ interface IContextManagement is IACLCommons{
 
    struct ContextUpdateFunctionLimitRequest {
     bytes32 contextId;
-    uint16 functionLimit;
+    uint8 functionLimit;
   }
 
   struct ContextInfo {
@@ -38,8 +39,8 @@ interface IContextManagement is IACLCommons{
     string name;
     string version;
     address contractId;
-    uint16 functionCount;
-    uint16 functionLimit;
+    uint8 functionCount;
+    uint8 functionLimit;
     uint32 referredByAgent;
     AgentType adminType;
     ScopeType stype;
@@ -64,9 +65,7 @@ interface IContextManagement is IACLCommons{
 
   event ContextAlterabilityUpdated(address indexed sender, bytes32 indexed contextId, AlterabilityStatus alstat);
 
-  event ContextFunctionLimitUpdated(address indexed sender, bytes32 indexed contextId, uint16 functionLimit);
-
-  event ContextAgentLimitUpdated(address indexed sender, bytes32 indexed contextId, uint32 agentLimit);
+  event ContextFunctionLimitUpdated(address indexed sender, bytes32 indexed contextId, uint8 functionLimit);
 
   function contextRegister(ContextRegisterRequest[] calldata requests) external returns (bool);
 

@@ -21,6 +21,7 @@ interface IProfileDomainManagement is IACLCommons {
 
   struct ProfileDomainRegisterDataRequest {
     bytes32 adminId;
+    int24 realmLimit;
     string name;
   }
 
@@ -68,7 +69,7 @@ interface IProfileDomainManagement is IACLCommons {
 
   event ProfileDomainAdminUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed domainId, bytes32 adminId);
   
-  event ProfileDomainRealmLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed domainId, uint32 realmLimit);
+  event ProfileDomainRealmLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed domainId, uint16 realmLimit);
   
   event ProfileDomainActivityUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed domainId, ActivityStatus acstat);
   

@@ -22,6 +22,7 @@ interface IProfileTypeManagement is IACLCommons {
     bytes32 adminId;
     bytes32 scopeId;
     string name;
+    int24 roleLimit;
   }
 
   struct ProfileTypeUpdateRoleLimitRequest {

@@ -307,7 +307,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
       name: IProxy(ce.contractId).contractName(),
       version: IProxy(ce.contractId).contractVersion(),
       contractId: ce.contractId,
-      functionCount: uint16(ce.functions.length()),
+      functionCount: uint8(ce.functions.length()),
       functionLimit: ce.functionLimit,
       referredByAgent: ce.bs.referredByAgent,
       adminType: _data.agents[ce.bs.adminId].atype,
@@ -452,7 +452,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
       ContextEntity storage newContext = _data.contextWriteSlot(newContextId);
       newContext.realmId = request.realmId;
       newContext.contractId = contractId;
-      newContext.functionLimit = memberEntity.limits.functionLimit;      
+      newContext.functionLimit = request.functionLimit >= 0 ? uint8(uint16(request.functionLimit)) : memberEntity.limits.functionLimit;      
       newContext.bs.stype = ScopeType.CONTEXT;
       newContext.bs.acstat = request.acstat;
       newContext.bs.alstat = request.alstat;  

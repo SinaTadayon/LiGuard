@@ -96,7 +96,7 @@ interface IACLCommons{
     BaseScope bs;
     bytes32 realmId;
     address contractId;
-    uint16 functionLimit;
+    uint8 functionLimit;
     LEnumerableSet.Bytes32Set functions;
   }
 
@@ -123,23 +123,24 @@ interface IACLCommons{
   }
 
   struct GeneralLimit {
-    uint32 contextLimit;
-    uint32 memberRegisterLimit;
-    uint32 roleRegisterLimit;  
-    uint32 typeRegisterLimit;
-    uint32 functionRegisterLimit;
-    uint32 contextRegisterLimit;
     uint24 memberLimit;
-    uint24 realmRegisterLimit;
-    uint16 functionLimit;  
-    uint24 domainRegisterLimit;
-    uint24 policyRegisterLimit;            
+    uint16 memberRegisterLimit;
+    uint16 contextRegisterLimit;
+    uint16 functionRegisterLimit;
+    uint16 profileRegisterLimit;
+    uint16 contextLimit;
     uint16 realmLimit;
     uint16 domainLimit;
     uint16 callLimit;
     uint16 typeRoleLimit;
-    uint16 typeLimit;    
-    uint16 policyRoleLimit;
+    uint16 typeLimit;        
+    uint8 roleRegisterLimit;  
+    uint8 typeRegisterLimit;
+    uint8 realmRegisterLimit;
+    uint8 domainRegisterLimit;
+    uint8 policyRegisterLimit;
+    uint8 policyRoleLimit;
+    uint8 functionLimit;  
   }
 
   struct MemberEntity {
@@ -210,13 +211,13 @@ interface IACLCommons{
     uint32 profileCallLimit;
     uint32 contextLimit;
     uint24 memberLimit;
-    uint16 functionLimit;  
     uint16 realmLimit;
     uint16 domainLimit;
     uint16 memberCallLimit;
     uint16 typeRoleLimit;
     uint16 typeLimit;    
     uint16 policyRoleLimit;
+    uint8 functionLimit;  
   }
 
   struct ProfileAccount {

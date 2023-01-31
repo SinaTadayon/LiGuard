@@ -23,6 +23,7 @@ interface IProfileContextManagement is IACLCommons {
     address contractId;
     address subject;
     address deployer;
+    int16 functionLimit;
     bytes signature;
   }
 
@@ -33,7 +34,7 @@ interface IProfileContextManagement is IACLCommons {
 
   struct ProfileContextFunctionLimitRequest {
     bytes32 contextId;
-    uint16 functionLimit;
+    uint8 functionLimit;
   }
 
   struct ProfileContextInfo {
@@ -42,8 +43,8 @@ interface IProfileContextManagement is IACLCommons {
     string name;
     string version;
     address contractId;
-    uint16 functionCount;
-    uint16 functionLimit;
+    uint8 functionCount;
+    uint8 functionLimit;
     uint32 referredByAgent;
     AgentType adminType;
     ScopeType stype;
@@ -69,7 +70,7 @@ interface IProfileContextManagement is IACLCommons {
 
   event ProfileContextAlterabilityUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed contextId, AlterabilityStatus alstat);
 
-  event ProfileContextFunctionLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed contextId, uint16 functionLimit);
+  event ProfileContextFunctionLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed contextId, uint8 functionLimit);
 
   function profileContextRegister(ProfileContextRegisterRequest[] calldata requests) external returns (bool);
 

@@ -16,7 +16,8 @@ interface IRoleManagement is IACLCommons{
   struct RoleRegisterRequest {
     bytes32 adminId;          
     bytes32 scopeId;          
-    bytes32 typeId;    
+    bytes32 typeId;
+    int32 memberLimit;
     ActivityStatus acstat;
     AlterabilityStatus alstat;   
     string name;
@@ -34,7 +35,7 @@ interface IRoleManagement is IACLCommons{
 
   struct RoleUpdateMemberLimitRequest {
     bytes32 roleId;
-    uint16 memberLimit;
+    uint24 memberLimit;
   }
 
   struct RoleInfo {
@@ -63,7 +64,7 @@ interface IRoleManagement is IACLCommons{
 
   event RoleMemberRevoked(address indexed sender, bytes32 indexed roleId, bytes32 indexed memberId, bytes32 typeId);  
 
-  event RoleMemberLimitUpdated(address indexed sender, bytes32 indexed roleId, uint32 memberLimit);
+  event RoleMemberLimitUpdated(address indexed sender, bytes32 indexed roleId, uint24 memberLimit);
 
   event RoleAdminUpdated(address indexed sender, bytes32 indexed roleId, bytes32 indexed adminId);
 

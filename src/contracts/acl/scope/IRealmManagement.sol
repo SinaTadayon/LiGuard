@@ -17,6 +17,7 @@ interface IRealmManagement is IACLCommons{
   struct RealmRegisterRequest {
     bytes32 domainId;
     bytes32 adminId;
+    int64 contextLimit;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
     string name; 
@@ -62,8 +63,6 @@ interface IRealmManagement is IACLCommons{
   event RealmActivityUpdated(address indexed sender, bytes32 indexed realmId, ActivityStatus acstat);
 
   event RealmAlterabilityUpdated(address indexed sender, bytes32 indexed realmId, AlterabilityStatus alstat);
-
-  event RealmAgentLimitUpdated(address indexed sender, bytes32 indexed realmId, uint32 agentLimit);
 
   function realmRegister(RealmRegisterRequest[] calldata requests) external returns (bool);
 

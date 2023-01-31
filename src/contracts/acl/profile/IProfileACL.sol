@@ -35,26 +35,26 @@ interface IProfileACL {
     PROFILE_ACTIVITY_FORBIDDEN
   }
 
-  error ProfileUnauthorized();
-  error ProfilePolicyForbidden();
-  error ProfileCallForbidden();
-  error ProfileMemberCallForbidden();
-  error ProfileMemberNotFound();
-  error ProfileRoleNotFound();
-  error ProfileTypeNotFound();
-  error ProfileFunctionNotFound();
-  error ProfileContextNotFound();
-  error ProfileRealmNotFound();
-  error ProfileDomainNotFound();
-  error ProfileMemberActivityForbidden();
-  error ProfileRoleActivityForbidden();
-  error ProfileTypeActivityForbidden();
-  error ProfileFunctionActivityForbidden();
-  error ProfileContextActivityForbidden();
-  error ProfileRealmActivityForbidden();
-  error ProfileDomainActivityForbidden();
-  error ProfileGlobalActivityForbidden();
-  error ProfileActivityForbidden();
+  error ProfileACLUnauthorized();
+  error ProfileACLPolicyForbidden();
+  error ProfileACLCallForbidden();
+  error ProfileACLMemberCallForbidden();
+  error ProfileACLMemberNotFound();
+  error ProfileACLRoleNotFound();
+  error ProfileACLTypeNotFound();
+  error ProfileACLFunctionNotFound();
+  error ProfileACLContextNotFound();
+  error ProfileACLRealmNotFound();
+  error ProfileACLDomainNotFound();
+  error ProfileACLMemberActivityForbidden();
+  error ProfileACLRoleActivityForbidden();
+  error ProfileACLTypeActivityForbidden();
+  error ProfileACLFunctionActivityForbidden();
+  error ProfileACLContextActivityForbidden();
+  error ProfileACLRealmActivityForbidden();
+  error ProfileACLDomainActivityForbidden();
+  error ProfileACLGlobalActivityForbidden();
+  error ProfileACLProfileActivityForbidden();
 
   enum ProfileAdminAccessStatus {
     PERMITTED,

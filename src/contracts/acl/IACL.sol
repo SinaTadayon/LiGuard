@@ -33,24 +33,24 @@ interface IACL {
     GLOBAL_ACTIVITY_FORBIDDEN
   }
 
-  error Unauthorized();
-  error PolicyForbidden();
-  error CallForbidden();
-  error MemberNotFound();
-  error RoleNotFound();
-  error TypeNotFound();
-  error FunctionNotFound();
-  error ContextNotFound();
-  error RealmNotFound();
-  error DomainNotFound();
-  error MemberActivityForbidden();
-  error RoleActivityForbidden();
-  error TypeActivityForbidden();
-  error FunctionActivityForbidden();
-  error ContextActivityForbidden();
-  error RealmActivityForbidden();
-  error DomainActivityForbidden();
-  error GlobalActivityForbidden();
+  error ACLUnauthorized();
+  error ACLPolicyForbidden();
+  error ACLCallForbidden();
+  error ACLMemberNotFound();
+  error ACLRoleNotFound();
+  error ACLTypeNotFound();
+  error ACLFunctionNotFound();
+  error ACLContextNotFound();
+  error ACLRealmNotFound();
+  error ACLDomainNotFound();
+  error ACLMemberActivityForbidden();
+  error ACLRoleActivityForbidden();
+  error ACLTypeActivityForbidden();
+  error ACLFunctionActivityForbidden();
+  error ACLContextActivityForbidden();
+  error ACLRealmActivityForbidden();
+  error ACLDomainActivityForbidden();
+  error ACLGlobalActivityForbidden();
 
   enum AdminAccessStatus {
     PERMITTED,

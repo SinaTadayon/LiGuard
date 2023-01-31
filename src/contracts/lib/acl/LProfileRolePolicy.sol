@@ -53,10 +53,10 @@ library LProfileRolePolicy {
     IACLCommons.ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(senderId);
     require(profileMemberEntity.ba.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
     require(profileEntity.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-    require(profileMemberEntity.registerLimits.roleRegisterLimit - uint16(requestLength) > 0, "Illegal RoleRegisterLimit");
-    require(profileEntity.registerLimits.roleRegisterLimit - uint16(requestLength) > 0, "Illegal RegisterLimit");
-    profileMemberEntity.registerLimits.roleRegisterLimit -= uint16(requestLength); 
-    profileEntity.registerLimits.roleRegisterLimit -= uint16(requestLength);
+    require(int32(profileMemberEntity.registerLimits.roleRegisterLimit) - int16(requestLength) >= 0, "Illegal RoleRegisterLimit");
+    require(int32(profileEntity.registerLimits.roleRegisterLimit) - int16(requestLength) >= 0, "Illegal RegisterLimit");
+    profileMemberEntity.registerLimits.roleRegisterLimit -= requestLength; 
+    profileEntity.registerLimits.roleRegisterLimit -= requestLength;
   }
 
   function profileCheckMemberForPolicyRegister(IACLCommons.ProfileEntity storage profileEntity, uint16 requestLength, bytes32 senderId) external {
@@ -64,8 +64,8 @@ library LProfileRolePolicy {
     IACLCommons.ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(senderId);
     require(profileMemberEntity.ba.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
     require(profileEntity.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-    require(profileMemberEntity.registerLimits.policyRegisterLimit - requestLength > 0, "Illegal TypeRegisterLimit");
-    require(profileEntity.registerLimits.policyRegisterLimit - requestLength > 0, "Illegal RegisterLimit");
+    require(int32(uint32(profileMemberEntity.registerLimits.policyRegisterLimit)) - int16(requestLength) >= 0, "Illegal TypeRegisterLimit");
+    require(int32(uint32(profileEntity.registerLimits.policyRegisterLimit)) - int16(requestLength) >= 0, "Illegal RegisterLimit");
     profileMemberEntity.registerLimits.policyRegisterLimit -= requestLength; 
     profileEntity.registerLimits.policyRegisterLimit -= requestLength;  
   }
@@ -103,7 +103,7 @@ library LProfileRolePolicy {
     newRole.ba.alstat = IACLCommons.AlterabilityStatus.UPGRADABLE;
     newRole.name = request.name;
     newRole.scopeId = request.scopeId;
-    newRole.memberLimit = profileEntity.limits.memberLimit;
+    newRole.memberLimit = request.memberLimit >= 0 ? uint24(uint32(request.memberLimit)) : profileEntity.limits.memberLimit;
     newRole.typeId = request.typeId;
     newRole.ba.adminId = _doProfileGetRoleAdmin(profileEntity, requestScopeType, typeEntity.ba.adminId, request.scopeId, request.adminId, profileId);
 
@@ -125,7 +125,7 @@ library LProfileRolePolicy {
     policyEntity.alstat = IACLCommons.AlterabilityStatus.UPGRADABLE;
     policyEntity.name = request.name;
     policyEntity.scopeId = request.scopeId;
-    policyEntity.roleLimit = profileEntity.limits.policyRoleLimit;
+    policyEntity.roleLimit = request.roleLimit >= 0 ? uint16(uint24(request.roleLimit)) : profileEntity.limits.policyRoleLimit;
     policyEntity.adminId = _doProfileGetPolicyAdmin(profileEntity, requestedScope.stype, requestedScope.adminId, request.scopeId, request.adminId, profileId);
     return newPolicyId;
   }

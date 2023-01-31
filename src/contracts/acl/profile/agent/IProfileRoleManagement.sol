@@ -21,8 +21,9 @@ interface IProfileRoleManagement is IACLCommons{
   struct ProfileRoleRegisterDataRequest {
     bytes32 adminId;
     bytes32 scopeId;          
-    bytes32 typeId; 
+    bytes32 typeId;
     string name;
+    int32 memberLimit;
   }
 
   struct ProfileRoleGrantMembersRequest {

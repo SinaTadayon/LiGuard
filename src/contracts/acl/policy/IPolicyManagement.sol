@@ -17,6 +17,7 @@ interface IPolicyManagement is IACLCommons {
     bytes32 adminId;
     bytes32 scopeId;
     uint8 policyCode;
+    int24 roleLimit;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
     string name;    
@@ -74,7 +75,7 @@ interface IPolicyManagement is IACLCommons {
 
   event PolicyCodeUpdated(address indexed sender, bytes32 indexed policyId, uint8 policyCode, PolicyType ptype);
 
-  event PolicyRoleLimitUpdated(address indexed sender, bytes32 indexed policyId, uint32 roleLimit);
+  event PolicyRoleLimitUpdated(address indexed sender, bytes32 indexed policyId, uint16 roleLimit);
 
   event PolicyAdminUpdated(address indexed sender, bytes32 indexed policyId, bytes32 indexed adminId);
 

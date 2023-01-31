@@ -22,6 +22,8 @@ import "../lib/acl/LACLCommons.sol";
 import "../proxy/Initializable.sol";
 import "../proxy/BaseUUPSProxy.sol";
 
+import "hardhat/console.sol";
+
 /**
  * @title Access Control Manager Contract
  * @author Sina Tadayon, https://github.com/SinaTadayon
@@ -180,7 +182,7 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
     bytes32 livelyMasterAdminMemberId
   ) internal {    
     // Create ACL Domain
-    bytes32 aclTypeId = LACLUtils.generateId2("TYPE.LIVELY_VERSE.LIVELY_GUARD.ZERO_TYPE");    
+    bytes32 aclTypeId = LACLUtils.generateId2("TYPE.LIVELY_VERSE.LIVELY_GUARD.MASTER");    
     bytes32 aclDomainId = LACLUtils.generateId2("DOMAIN.LIVELY_VERSE.LIVELY_GUARD");
     DomainEntity storage aclDomain = _data.domainWriteSlot(aclDomainId);
     aclDomain.name = "DOMAIN.LIVELY_VERSE.LIVELY_GUARD";
@@ -207,7 +209,7 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
       ContextEntity storage aclContextManagerEntity = _data.contextWriteSlot(aclContextManagerId);
       aclContextManagerEntity.realmId = aclRealmId;
       aclContextManagerEntity.contractId = contextManagerAddress;
-      aclContextManagerEntity.functionLimit = type(uint16).max;
+      aclContextManagerEntity.functionLimit = type(uint8).max;
       aclContextManagerEntity.bs.stype = ScopeType.CONTEXT;
       aclContextManagerEntity.bs.alstat = AlterabilityStatus.UPGRADABLE;
       aclContextManagerEntity.bs.acstat = ActivityStatus.ENABLED;
@@ -218,7 +220,7 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
       ContextEntity storage aclFunctionManagerEntity = _data.contextWriteSlot(aclFunctionManagerId);
       aclFunctionManagerEntity.realmId = aclRealmId;
       aclFunctionManagerEntity.contractId = functionManagerAddress;
-      aclFunctionManagerEntity.functionLimit = type(uint16).max;
+      aclFunctionManagerEntity.functionLimit = type(uint8).max;
       aclFunctionManagerEntity.bs.stype = ScopeType.CONTEXT;
       aclFunctionManagerEntity.bs.alstat = AlterabilityStatus.UPGRADABLE;
       aclFunctionManagerEntity.bs.acstat = ActivityStatus.ENABLED;
@@ -260,7 +262,7 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
 
     // Create ACL Type    
     TypeEntity storage aclType = _data.typeWriteSlot(aclTypeId);
-    aclType.name = "TYPE.LIVELY_VERSE.LIVELY_GUARD.ZERO_TYPE";
+    aclType.name = "TYPE.LIVELY_VERSE.LIVELY_GUARD.MASTER";
     aclType.roleLimit = type(uint16).max;
     aclType.scopeId = aclDomainId;
     aclType.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
@@ -268,10 +270,10 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
     aclType.ba.acstat = ActivityStatus.ENABLED;
     aclType.ba.alstat = AlterabilityStatus.UPDATABLE;
   
-    // Create Policy Master Admin Role
-    bytes32 aclAdminRoleId = LACLUtils.generateId2("ROLE.LIVELY_VERSE.LIVELY_GUARD.ZERO_TYPE_ADMIN");
+    // Create Admin Role
+    bytes32 aclAdminRoleId = LACLUtils.generateId2("ROLE.LIVELY_VERSE.LIVELY_GUARD.MASTER_ADMIN");
     RoleEntity storage aclAdminRole = _data.roleWriteSlot(aclAdminRoleId);
-    aclAdminRole.name = "ROLE.LIVELY_VERSE.LIVELY_GUARD.ZERO_TYPE_ADMIN";
+    aclAdminRole.name = "ROLE.LIVELY_VERSE.LIVELY_GUARD.MASTER_ADMIN";
     aclAdminRole.scopeId = aclDomainId;
     aclAdminRole.typeId = aclTypeId;
     aclAdminRole.memberLimit = type(uint24).max;

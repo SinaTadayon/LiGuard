@@ -15,6 +15,9 @@ import "../../lib/struct/LEnumerableSet.sol";
 import "../../proxy/IProxy.sol";
 import "../../proxy/BaseUUPSProxy.sol";
 
+
+import "hardhat/console.sol";
+
 /**
  * @title ACL Type Manager Contract
  * @author Sina Tadayon, https://github.com/SinaTadayon
@@ -59,15 +62,14 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
     
     // check and set
     MemberEntity storage memberEntity = _data.memberReadSlot(senderId);
-    require(memberEntity.limits.typeRegisterLimit - uint16(requests.length) > 0, "Illegal RegisterLimit");
-    memberEntity.limits.typeRegisterLimit -= uint16(requests.length);
-
+    require(int16(uint16(memberEntity.limits.typeRegisterLimit)) - int8(uint8(requests.length)) >= 0, "Illegal RegisterLimit");
+    memberEntity.limits.typeRegisterLimit -= uint8(requests.length);    
 
     // fetch scope type and scope id of sender
     (ScopeType senderScopeType, bytes32 senderScopeId) = _doGetMemberScopeInfoFromType(_LIVELY_VERSE_TYPE_MASTER_TYPE_ID, senderId);    
     
     for(uint i = 0; i < requests.length; i++) {
-      bytes32 newTypeId = LACLUtils.generateId(requests[i].name);
+      bytes32 newTypeId = LACLUtils.generateId(requests[i].name);     
       require(_data.agents[newTypeId].atype == AgentType.NONE, "Already Exist");
       require(
         requests[i].acstat > ActivityStatus.DELETED && 
@@ -85,7 +87,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
       newType.ba.alstat = requests[i].alstat;
       newType.ba.adminId = requests[i].adminId;
       newType.scopeId = requests[i].scopeId;
-      newType.roleLimit = memberEntity.limits.typeRoleLimit;
+      newType.roleLimit = requests[i].roleLimit >= 0 ? uint16(uint24(requests[i].roleLimit)) : memberEntity.limits.typeRoleLimit;
       newType.name = requests[i].name;
       newType.ba.adminId = _getTypeAdmin(requestedScope.stype, requestedScope.adminId, requests[i].scopeId, requests[i].adminId);
       emit TypeRegistered(
@@ -291,8 +293,6 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
   function _doCheckAdminAccess(bytes32 adminId, bytes32 memberId, bytes32 functionId) internal view returns (IACL.AdminAccessStatus) {
     (FunctionEntity storage functionEntity, bool res) = _data.functionTryReadSlot(functionId);    
     if (!res) return IACL.AdminAccessStatus.FUNCTION_NOT_FOUND;
-
-    // if(_data.agents[memberId].acstat != ActivityStatus.ENABLED) return false;
     
     AgentType adminAgentType = _data.agents[adminId].atype;
     if(adminAgentType == AgentType.ROLE) {

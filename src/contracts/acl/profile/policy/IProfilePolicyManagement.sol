@@ -21,6 +21,7 @@ interface IProfilePolicyManagement is IACLCommons {
   struct ProfilePolicyRegisterDataRequest {
     bytes32 adminId;
     bytes32 scopeId;
+    int24 roleLimit;
     uint8 policyCode;
     string name;    
   }
@@ -90,7 +91,7 @@ interface IProfilePolicyManagement is IACLCommons {
   
   event ProfilePolicyCodeUpdated(address indexed sender, bytes32 indexed profieId, bytes32 indexed policyId, uint8 policyCode, PolicyType ptype);
   
-  event ProfilePolicyRoleLimitUpdated(address indexed sender, bytes32 indexed profieId, bytes32 indexed policyId, uint32 roleLimit);
+  event ProfilePolicyRoleLimitUpdated(address indexed sender, bytes32 indexed profieId, bytes32 indexed policyId, uint16 roleLimit);
   
   event ProfilePolicyAdminUpdated(address indexed sender, bytes32 indexed profieId, bytes32 indexed policyId, bytes32 adminId);
   

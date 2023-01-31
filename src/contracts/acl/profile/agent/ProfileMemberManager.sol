@@ -268,7 +268,7 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
     typeEntity.members[newMemberId] = memberRequest.roleId;
 
     // add new member to role
-    roleEntity.memberCount +=1;      
+    roleEntity.memberCount +=1;     
 
     // if member already exist, it try to grant member to requested role
     if(profileEntity.agents[newMemberId].acstat != ActivityStatus.NONE) {
@@ -315,8 +315,8 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
       newMember.ba.alstat = AlterabilityStatus.UPGRADABLE;
       newMember.account = memberRequest.account;
       newMember.types.add(roleEntity.typeId);
-      newMember.typeLimit = profileEntity.limits.typeLimit;
-      newMember.callLimit = profileEntity.limits.memberCallLimit;
+      newMember.typeLimit = memberRequest.typeLimit >= 1 ? uint16(uint24(memberRequest.typeLimit)) : profileEntity.limits.typeLimit;
+      newMember.callLimit = memberRequest.callLimit >= 0 ? uint16(uint24(memberRequest.callLimit)) : profileEntity.limits.memberCallLimit;
       newMember.registerLimits = memberRequest.registerLimit;
 
       emit ProfileMemberRegistered(

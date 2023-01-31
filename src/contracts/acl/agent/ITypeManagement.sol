@@ -16,6 +16,7 @@ interface ITypeManagement is IACLCommons{
   struct TypeRegisterRequest {
     bytes32 adminId;          
     bytes32 scopeId;
+    int24 roleLimit;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
     string name;
@@ -48,7 +49,7 @@ interface ITypeManagement is IACLCommons{
 
   event TypeAlterabilityUpdated(address indexed sender, bytes32 indexed typeId, AlterabilityStatus alstat);
 
-  event TypeRoleLimitUpdated(address indexed sender, bytes32 indexed typeId, uint32 roleLimit);
+  event TypeRoleLimitUpdated(address indexed sender, bytes32 indexed typeId, uint16 roleLimit);
 
   event TypeScopeUpdated(address indexed sender, bytes32 indexed typeId, bytes32 indexed scopeId);
 
