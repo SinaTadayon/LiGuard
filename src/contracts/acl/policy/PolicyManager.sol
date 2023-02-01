@@ -117,11 +117,11 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
         RoleEntity storage roleEntity = _data.roleReadSlot(requests[i].roles[j]);
    
         ScopeType roleScopeType = _data.scopes[roleEntity.scopeId].stype;
-        require(roleScopeType <= policyScopeType, "Illegal RST");
+        require(roleScopeType <= policyScopeType, "Illegal Role ScopeType");
         if(roleScopeType == policyScopeType) {
-          require(roleEntity.scopeId == policyEntity.scopeId, "Illegal RS");
+          require(roleEntity.scopeId == policyEntity.scopeId, "Illegal Role Scope");
         } else {
-          require(IACLGenerals(address(this)).isScopesCompatible(policyEntity.scopeId, roleEntity.scopeId), "Illegal RS");
+          require(IACLGenerals(address(this)).isScopesCompatible(policyEntity.scopeId, roleEntity.scopeId), "Illegal Role Scope");
         }
 
         _data.rolePolicyMap[requests[i].roles[j]] = requests[i].policyId;
