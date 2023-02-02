@@ -139,16 +139,17 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IACLGenerals, IACL {
       // console.log("agentId is type . . .");
       if(agentId == _LIVELY_VERSE_ANY_TYPE_ID) {
         // console.log("agentId is ANY type . . .");
-      (MemberEntity storage memberEntity, bool result0) = _data.memberTryReadSlot(memberId);
-      if(!result0) return AuthorizationStatus.MEMBER_NOT_FOUND;
-      if(memberEntity.ba.acstat != ActivityStatus.ENABLED) return AuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN;
-      if(!memberEntity.types.contains(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID)) {
-        if(memberEntity.limits.callLimit > 0) {
-          memberEntity.limits.callLimit -= 1;
-        } else {
-          return AuthorizationStatus.CALL_FORBIDDEN;
+        (MemberEntity storage memberEntity, bool result0) = _data.memberTryReadSlot(memberId);
+
+        if(!result0) return AuthorizationStatus.MEMBER_NOT_FOUND;
+        if(memberEntity.ba.acstat != ActivityStatus.ENABLED) return AuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN;
+        if(!memberEntity.types.contains(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID)) {
+          if(memberEntity.limits.callLimit > 0) {
+            memberEntity.limits.callLimit -= 1;
+          } else {
+            return AuthorizationStatus.CALL_FORBIDDEN;
+          }
         }
-      }
 
       } else if(agentId != _LIVELY_VERSE_ANONYMOUS_TYPE_ID) {
         // check member activation
@@ -183,6 +184,7 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IACLGenerals, IACL {
         PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[roleId]];
         // console.log("policyEntity: ");
         // console.logBytes1(bytes1(uint8(policyEntity.acstat)));
+
         if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
           return AuthorizationStatus.POLICY_FORBIDDEN;
       } 

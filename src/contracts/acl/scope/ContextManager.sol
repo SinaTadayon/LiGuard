@@ -96,8 +96,8 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
   }
 
   function contextUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IContextManagement.contextUpdateActivityStatus.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(IContextManagement.contextUpdateActivityStatus.selector);
+    
     for(uint i = 0; i < requests.length; i++) {
       ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");    
@@ -108,8 +108,8 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
   }
 
   function contextUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IContextManagement.contextUpdateAlterabilityStatus.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(IContextManagement.contextUpdateAlterabilityStatus.selector);
+    
     for(uint i = 0; i < requests.length; i++) {      
       ContextEntity storage contextEntity = _data.contextReadSlot(requests[i].id);
       IACL.AdminAccessStatus status = _doCheckAdminAccess(contextEntity.bs.adminId, senderId, functionId);
@@ -122,8 +122,8 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
   }
 
   function contextUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IContextManagement.contextUpdateAdmin.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(IContextManagement.contextUpdateAdmin.selector);
+    
     for(uint i = 0; i < requests.length; i++) {
       ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
       
@@ -149,8 +149,8 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
   }
 
   function contextUpdateFunctionLimit(ContextUpdateFunctionLimitRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IContextManagement.contextUpdateFunctionLimit.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(IContextManagement.contextUpdateFunctionLimit.selector);
+    
     for (uint256 i = 0; i < requests.length; i++) {
       ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(requests[i].contextId, senderId, functionId);
       require(requests[i].functionLimit > contextEntity.functions.length(), "Illegal Limit");
@@ -317,7 +317,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     });
   }
 
-  function _accessPermission(bytes4 selector) internal returns (bytes32) {
+  function _accessPermission(bytes4 selector) internal returns (bytes32, bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
     address functionFacetId = _data.selectors[selector];
@@ -325,7 +325,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
     IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
     if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
-    return functionId;
+    return (functionId, senderId);
   }
 
   function _doGetEntityAndCheckAdminAccess(bytes32 contextId, bytes32 senderId, bytes32 functionId) internal view returns (ContextEntity storage) {

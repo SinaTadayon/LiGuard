@@ -52,9 +52,8 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
   }
 
   function realmRegister(RealmRegisterRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IRealmManagement.realmRegister.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
-
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(IRealmManagement.realmRegister.selector);
+    
     // check and set
     MemberEntity storage memberEntity = _data.memberReadSlot(senderId);
     require(int16(uint16(memberEntity.limits.realmRegisterLimit)) - int8(uint8(requests.length)) >= 0, "Illegal RegisterLimit");
@@ -117,9 +116,8 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
   }
 
   function realmUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IRealmManagement.realmUpdateAdmin.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
-
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(IRealmManagement.realmUpdateAdmin.selector);
+    
     for(uint i = 0; i < requests.length; i++) {
       RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
 
@@ -145,8 +143,7 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
   }
 
   function realmMoveContext(RealmMoveContextRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IRealmManagement.realmMoveContext.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(IRealmManagement.realmMoveContext.selector);
 
     for(uint i = 0; i < requests.length; i++) {
       RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].realmId, senderId, functionId);
@@ -164,8 +161,8 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
   }
 
   function realmUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IRealmManagement.realmUpdateActivityStatus.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(IRealmManagement.realmUpdateActivityStatus.selector);
+
     for(uint i = 0; i < requests.length; i++) {
       RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);      
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");  
@@ -176,8 +173,7 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
   }
 
   function realmUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IRealmManagement.realmUpdateAlterabilityStatus.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(IRealmManagement.realmUpdateAlterabilityStatus.selector);
 
     for(uint i = 0; i < requests.length; i++) {      
       RealmEntity storage realmEntity = _data.realmReadSlot(requests[i].id);
@@ -191,8 +187,8 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
   }
 
   function realmUpdateContextLimit(RealmUpdateContextLimitRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IRealmManagement.realmUpdateContextLimit.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(IRealmManagement.realmUpdateContextLimit.selector);
+
     for (uint256 i = 0; i < requests.length; i++) {
       RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].realmId, senderId, functionId);
       require(requests[i].contextLimit > realmEntity.contexts.length(), "Illegal Limit");
@@ -354,7 +350,7 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     return IACL.AdminAccessStatus.NOT_PERMITTED;   
   }
 
-  function _accessPermission(bytes4 selector) internal returns (bytes32) {
+  function _accessPermission(bytes4 selector) internal returns (bytes32, bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
     address functionFacetId = _data.selectors[selector];
@@ -362,7 +358,7 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
     IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
     if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
-    return functionId;
+    return (functionId, senderId);
   }
 
   function _doGetEntityAndCheckAdminAccess(bytes32 realmId, bytes32 senderId, bytes32 functionId) internal view returns (RealmEntity storage) {

@@ -9933,6 +9933,7 @@ describe("ACLManager Tests",
         expect(await domainManagerDelegateProxy.domainCheckId(aclDomainTestId)).to.be.true;
         expect(await domainManagerDelegateProxy.domainCheckName(ACL_DOMAIN_TEST_NAME)).to.be.true;
         expect(await domainManagerDelegateProxy.domainCheckAdmin(aclDomainTestId, livelyAdminWallet.address)).to.be.true;
+        expect(await globalManagerDelegateProxy.globalGetDomains()).to.be.eqls([LIVELY_VERSE_ACL_DOMAIN_ID, aclDomainTestId]);
       })
 
       it("Should update admin of aclDomainTest when alterability disabled failed", async() => {
@@ -10087,7 +10088,7 @@ describe("ACLManager Tests",
 
 
       // realm manager tests
-      it("Should register aclRealmTest in ACL Domain success", async() => {
+      it("Should register aclRealmTest to aclDomainTestId success", async() => {
         // given
         const memberRegisterFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
@@ -10134,7 +10135,7 @@ describe("ACLManager Tests",
 
         //
         const contexts = await realmManagerDelegateProxy.realmGetContexts(LIVELY_VERSE_ACL_REALM_ID);
-        expect(contexts.length).to.be.equal(11)
+        expect(contexts.length).to.be.equal(22)
 
       })
 
@@ -10259,7 +10260,7 @@ describe("ACLManager Tests",
         expect(realmInfo.name).to.be.equal(ACL_REALM_TEST_NAME);
         expect(realmInfo.domainId).to.be.equal(aclDomainTestId);
         expect(realmInfo.adminId).to.be.equal(aclTypeTestId);
-        expect(realmInfo.adminType).to.be.equal(AgentType.ROLE);
+        expect(realmInfo.adminType).to.be.equal(AgentType.TYPE);
         expect(realmInfo.contextLimit).to.be.equal(5);
         expect(realmInfo.contextCount).to.be.equal(0);
         expect(realmInfo.referredByAgent).to.be.equal(0);
@@ -10277,8 +10278,8 @@ describe("ACLManager Tests",
         }]
 
         // when
-        await expect(domainManagerProxy.connect(user1).domainMoveRealm(requests))
-          .to.emit(domainManagerProxy, "DomainRealmMoved")
+        await expect(domainManagerDelegateProxy.connect(user1).domainMoveRealm(requests))
+          .to.emit(domainManagerDelegateProxy, "DomainRealmMoved")
           .withArgs(userWallet1.address, aclDomainTestId, aclRealmTestId, LIVELY_VERSE_ACL_DOMAIN_ID);
 
         expect(await domainManagerDelegateProxy.domainHasRealm(LIVELY_VERSE_ACL_DOMAIN_ID, aclRealmTestId)).to.be.true;
@@ -10288,14 +10289,14 @@ describe("ACLManager Tests",
         const realmInfo: IRealmManagement.RealmInfoStruct = await realmManagerDelegateProxy.realmGetInfo(aclRealmTestId);
         expect(realmInfo.name).to.be.equal(ACL_REALM_TEST_NAME);
         expect(realmInfo.domainId).to.be.equal(LIVELY_VERSE_ACL_DOMAIN_ID);
-        expect(realmInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
-        expect(realmInfo.adminType).to.be.equal(AgentType.ROLE);
-        expect(realmInfo.contextLimit).to.be.equal(1);
+        expect(realmInfo.adminId).to.be.equal(aclTypeTestId);
+        expect(realmInfo.adminType).to.be.equal(AgentType.TYPE);
+        expect(realmInfo.contextLimit).to.be.equal(5);
         expect(realmInfo.contextCount).to.be.equal(0);
         expect(realmInfo.referredByAgent).to.be.equal(0);
         expect(realmInfo.stype).to.be.equal(ScopeType.REALM);
         expect(realmInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
-        expect(realmInfo.alstat).to.be.equal(AlterabilityStatus.DISABLED);
+        expect(realmInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
       })
 
       it("Should move context from ACLRealm to ACL aclRealmTestId success", async() => {
@@ -10308,8 +10309,8 @@ describe("ACLManager Tests",
         }]
 
         // when
-        await expect(realmManagerProxy.connect(user1).realmMoveContext(requests))
-          .to.emit(realmManagerProxy, "RealmContextMoved")
+        await expect(realmManagerDelegateProxy.connect(user1).realmMoveContext(requests))
+          .to.emit(realmManagerDelegateProxy, "RealmContextMoved")
           .withArgs(userWallet1.address, LIVELY_VERSE_ACL_REALM_ID, memberContextId, aclRealmTestId);
 
         expect(await realmManagerDelegateProxy.realmHasContext(LIVELY_VERSE_ACL_REALM_ID, memberContextId)).to.be.false;
@@ -10319,14 +10320,14 @@ describe("ACLManager Tests",
         const memberContextInfo: IContextManagement.ContextInfoStruct = await contextManagerDelegateProxy.contextGetInfo(memberContextId);
         expect(memberContextInfo.name).to.be.equal(MEMBER_MANAGER_CONTRACT_NAME);
         expect(memberContextInfo.version).to.be.equal(CONTRACTS_VERSION);
-        expect(memberContextInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
-        expect(memberContextInfo.adminType).to.be.equal(AgentType.TYPE);
+        expect(memberContextInfo.adminId).to.be.equal(aclRoleTestId);
+        expect(memberContextInfo.adminType).to.be.equal(AgentType.ROLE);
         expect(memberContextInfo.contractId).to.be.equal(memberManagerProxy.address);
         expect(memberContextInfo.realmId).to.be.equal(aclRealmTestId);
-        expect(memberContextInfo.functionLimit).to.be.equal(32);
-        expect(memberContextInfo.functionCount).to.be.equal(10);
+        expect(memberContextInfo.functionLimit).to.be.equal(25);
+        expect(memberContextInfo.functionCount).to.be.equal(11);
         expect(memberContextInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
-        expect(memberContextInfo.alstat).to.be.equal(AlterabilityStatus.UPGRADABLE);
+        expect(memberContextInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
         expect(memberContextInfo.referredByAgent).to.be.equal(0);
       })
 
@@ -10367,19 +10368,18 @@ describe("ACLManager Tests",
         // and
         const globalInfo: IGlobalManagement.GlobalInfoStruct = await globalManagerDelegateProxy.globalGetInfo();
         expect(globalInfo.id).to.be.equal(LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
-        expect(globalInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
-        expect(globalInfo.adminType).to.be.equal(AgentType.ROLE);
-        expect(globalInfo.domainLimit).to.be.equal(65525);
+        expect(globalInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_TYPE_ID);
+        expect(globalInfo.adminType).to.be.equal(AgentType.TYPE);
+        expect(globalInfo.domainLimit).to.be.equal(65535);
         expect(globalInfo.domainCount).to.be.equal(2);
         expect(globalInfo.acstat).to.be.equal(ActivityStatus.DISABLED);
         expect(globalInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
         expect(globalInfo.stype).to.be.equal(ScopeType.GLOBAL);
-        expect(globalInfo.referredByAgent).to.be.equal(16);
+        expect(globalInfo.referredByAgent).to.be.equal(18);
       })
 
-      it("Should register aclDomainTest in Global failed", async() => {
+      it("Should register aclDomainTest2 in Global failed", async() => {
         // given
-        aclDomainTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_DOMAIN_TEST_NAME_2));
         const requests: IDomainManagement.DomainRegisterRequestStruct[] = [
           {
             adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
@@ -10447,27 +10447,23 @@ describe("ACLManager Tests",
           .withArgs(livelyAdminWallet.address, LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, aclRoleGlobalAdminTestId);
 
         // then
-        expect(await globalManagerDelegateProxy.globalCheckAdmin(systemAdminWallet.address)).to.be.true;
+        expect(await globalManagerDelegateProxy.globalCheckAdmin(userWallet1.address)).to.be.true;
       })
 
       it("Should update domainLimit of global scope success", async() => {
         // when
         await expect(globalManagerDelegateProxy.connect(user1).globalUpdateDomainLimit(5))
           .to.emit(globalManagerDelegateProxy, "GlobalDomainLimitUpdated")
-          .withArgs(systemAdminWallet.address, LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, 5);
+          .withArgs(userWallet1.address, LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, 5);
       })
 
       it("Should update admin of global scope to LIVELY_MATER_ADMIN success", async() => {
         // when
         await expect(globalManagerDelegateProxy.connect(user1).globalUpdateAdmin(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID))
           .to.emit(globalManagerDelegateProxy, "GlobalAdminUpdated")
-          .withArgs(systemAdminWallet.address, LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
+          .withArgs(userWallet1.address, LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
 
         // then
-        expect(await globalManagerDelegateProxy.globalCheckAdmin(userWallet1.address)).to.be.true;
-        expect(await globalManagerDelegateProxy.globalGetDomains()).to.be.eqls([LIVELY_VERSE_ACL_DOMAIN_ID, aclDomainTestId]);
-
-        // and
         const globalInfo: IGlobalManagement.GlobalInfoStruct = await globalManagerDelegateProxy.globalGetInfo();
         expect(globalInfo.id).to.be.equal(LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
         expect(globalInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
@@ -10477,7 +10473,12 @@ describe("ACLManager Tests",
         expect(globalInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
         expect(globalInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
         expect(globalInfo.stype).to.be.equal(ScopeType.GLOBAL);
-        expect(globalInfo.referredByAgent).to.be.equal(16);
+        expect(globalInfo.referredByAgent).to.be.equal(19);
+
+        // and
+        expect(await globalManagerDelegateProxy.globalCheckAdmin(userWallet1.address)).to.be.true;
+        expect(await globalManagerDelegateProxy.globalGetDomains()).to.be.eqls([LIVELY_VERSE_ACL_DOMAIN_ID, aclDomainTestId]);
+
       })
     })
 

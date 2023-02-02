@@ -55,9 +55,7 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
 
   // Note: called by eveny admin of role
   function memberRegister(MemberRegisterRequest[] calldata requests) external returns (bool) {
-
-    bytes32 functionId = _accessPermission(IMemberManagement.memberRegister.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(IMemberManagement.memberRegister.selector);    
 
     // check and set
     MemberEntity storage memberEntity = _data.memberReadSlot(senderId);
@@ -124,10 +122,9 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
     return true;
   }
 
-  function memberUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
-    
-    bytes32 functionId = _accessPermission(IMemberManagement.memberUpdateActivityStatus.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
+  function memberUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {    
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(IMemberManagement.memberUpdateActivityStatus.selector);
+
     for(uint i = 0; i < requests.length; i++) {      
       MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
@@ -138,8 +135,8 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
   }
 
   function memberUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IMemberManagement.memberUpdateAlterabilityStatus.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(IMemberManagement.memberUpdateAlterabilityStatus.selector);
+
     for(uint i = 0; i < requests.length; i++) {      
       MemberEntity storage memberEntity = _data.memberReadSlot(requests[i].id);      
       IACL.AdminAccessStatus adminAccessStatus = _doCheckAdminAccess(memberEntity.ba.adminId, senderId, functionId);
@@ -153,8 +150,8 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
 
   // Note: member default admin is 
   function memberUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IMemberManagement.memberUpdateAdmin.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(IMemberManagement.memberUpdateAdmin.selector);
+
     for (uint256 i = 0; i < requests.length; i++) {
       MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
 
@@ -172,8 +169,8 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
   }
 
   function memberUpdateGeneralLimit(MemberUpdateGeneralLimitRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IMemberManagement.memberUpdateGeneralLimit.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(IMemberManagement.memberUpdateGeneralLimit.selector);
+
     for (uint256 i = 0; i < requests.length; i++) {
       MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].memberId, senderId, functionId);
       require(requests[i].limits.typeLimit > memberEntity.types.length(), "Illegal TypeLimit" );
@@ -335,7 +332,7 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
     return IACL.AdminAccessStatus.NOT_PERMITTED;   
   }
 
-  function _accessPermission(bytes4 selector) internal returns (bytes32) {
+  function _accessPermission(bytes4 selector) internal returns (bytes32, bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
     address functionFacetId = _data.selectors[selector];
@@ -343,7 +340,7 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
     IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
     if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
-    return functionId;
+    return (functionId, senderId);
   }
 
   function _doGetEntityAndCheckAdminAccess(bytes32 memberId, bytes32 senderId, bytes32 functionId) internal view returns (MemberEntity storage) {

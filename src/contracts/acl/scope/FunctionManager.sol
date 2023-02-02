@@ -116,8 +116,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
   }
 
   function functionUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool){
-    bytes32 functionId = _accessPermission(IFunctionManagement.functionUpdateAdmin.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(IFunctionManagement.functionUpdateAdmin.selector);
     
     for(uint i = 0; i < requests.length; i++) {
       FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
@@ -128,8 +127,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
   }
 
   function functionUpdateAgent(FunctionUpdateAgentRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IFunctionManagement.functionUpdateAgent.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(IFunctionManagement.functionUpdateAgent.selector);
 
     for(uint i = 0; i < requests.length; i++) {
       FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(requests[i].functionId, senderId, functionId);  
@@ -141,8 +139,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
   }
 
   function functionUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IFunctionManagement.functionUpdateActivityStatus.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(IFunctionManagement.functionUpdateActivityStatus.selector);
     for(uint i = 0; i < requests.length; i++) {
       FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
       require(requests[i].acstat != ActivityStatus.NONE, "Illegal Activity");
@@ -153,8 +150,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
   }
 
   function functionUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IFunctionManagement.functionUpdateAlterabilityStatus.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(IFunctionManagement.functionUpdateAlterabilityStatus.selector);
     
     for(uint i = 0; i < requests.length; i++) {      
       FunctionEntity storage functionEntity = _data.functionReadSlot(requests[i].id);
@@ -169,8 +165,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
   }
 
   function functionUpdatePolicyCode(FunctionUpdatePolicyRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IFunctionManagement.functionUpdatePolicyCode.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(IFunctionManagement.functionUpdatePolicyCode.selector);
     
     for (uint256 i = 0; i < requests.length; i++) {
       FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(requests[i].functionId, senderId, functionId);
@@ -335,7 +330,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     return IACL.AdminAccessStatus.NOT_PERMITTED;   
   }
 
-  function _accessPermission(bytes4 selector) internal returns (bytes32) {
+  function _accessPermission(bytes4 selector) internal returns (bytes32, bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
     address functionFacetId = _data.selectors[selector];
@@ -343,7 +338,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
     IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
     if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
-    return functionId;
+    return (functionId, senderId);
   }
 
   function _doGetEntityAndCheckAdminAccess(bytes32 fId, bytes32 senderId, bytes32 functionId) internal view returns (FunctionEntity storage) {

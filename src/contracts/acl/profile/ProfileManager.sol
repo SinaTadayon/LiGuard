@@ -106,8 +106,7 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
   }
 
   function profileUpdateLimits(ProfileUpdateLimitsRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IProfileManagement.profileUpdateLimits.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(IProfileManagement.profileUpdateLimits.selector);
     for(uint i = 0; i < requests.length; i++) {
       ProfileEntity storage profileEntity = _doGetEntityAndCheckAdminAccess(requests[i].profileId, senderId, functionId);
       profileEntity.limits = requests[i].limits;
@@ -118,8 +117,7 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
   }
 
   function profileUpdateExpiration(ProfileUpdateExpirationRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IProfileManagement.profileUpdateExpiration.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(IProfileManagement.profileUpdateExpiration.selector);
     for(uint i = 0; i < requests.length; i++) {
       ProfileEntity storage profileEntity = _doGetEntityAndCheckAdminAccess(requests[i].profileId, senderId, functionId);
       require(requests[i].expiredAt > block.timestamp + 1 days, "Illegal Expiration");
@@ -130,8 +128,7 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
   }
 
   function profileUpdateOwnerAccount(ProfileUpdateOwnerAccountRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IProfileManagement.profileUpdateOwnerAccount.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(IProfileManagement.profileUpdateOwnerAccount.selector);
     for(uint i = 0; i < requests.length; i++) {
       ProfileEntity storage profileEntity = _doGetEntityAndCheckAdminAccess(requests[i].profileId, senderId, functionId);
       LACLCommons.profileUpdateOwnerAccount(_data, profileEntity, requests[i]);
@@ -141,8 +138,7 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
   }
 
   function profileUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IProfileManagement.profileUpdateActivityStatus.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(IProfileManagement.profileUpdateActivityStatus.selector);
     for(uint i = 0; i < requests.length; i++) {
       ProfileEntity storage profileEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");  
@@ -153,8 +149,7 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
   }
 
   function profileUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IProfileManagement.profileUpdateAlterabilityStatus.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(IProfileManagement.profileUpdateAlterabilityStatus.selector);
     for(uint i = 0; i < requests.length; i++) {
       ProfileEntity storage profileEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
@@ -165,8 +160,7 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
   }
 
   function profileUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IProfileManagement.profileUpdateAdmin.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(IProfileManagement.profileUpdateAdmin.selector);
     for(uint i = 0; i < requests.length; i++) {
       ProfileEntity storage profileEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
       
@@ -274,7 +268,7 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
     return LACLCommons.checkAdminAccess(_data, adminId, memberId, functionId);
   }
 
-  function _accessPermission(bytes4 selector) internal returns (bytes32) {
+  function _accessPermission(bytes4 selector) internal returns (bytes32, bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
     address functionFacetId = _data.selectors[selector];
@@ -282,7 +276,7 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
     IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
     if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
-    return functionId;
+    return (functionId, senderId);
   }
 
   function _doAgentGetScopeInfo(bytes32 agentId) internal view returns (bytes32) {

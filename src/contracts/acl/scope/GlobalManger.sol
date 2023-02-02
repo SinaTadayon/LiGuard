@@ -62,8 +62,8 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
   }
 
   function globalUpdateAlterabilityStatus(AlterabilityStatus alstat) external returns (AlterabilityStatus) {
-    bytes32 functionId = _accessPermission(IGlobalManagement.globalUpdateAlterabilityStatus.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(IGlobalManagement.globalUpdateAlterabilityStatus.selector);
+    
     GlobalEntity storage globalEntity = _data.globalReadSlot(_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
     IACL.AdminAccessStatus status = _doCheckAdminAccess(globalEntity.bs.adminId, senderId, functionId);
     if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
@@ -74,8 +74,8 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
   }
 
   function globalUpdateAdmin(bytes32 newAdminId) external returns (bool) { 
-    bytes32 functionId = _accessPermission(IGlobalManagement.globalUpdateAdmin.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(IGlobalManagement.globalUpdateAdmin.selector);
+
     GlobalEntity storage globalEntity = _doGetEntityAndCheckAdminAccess(senderId, functionId);
 
     require(newAdminId != globalEntity.bs.adminId && newAdminId != bytes32(0), "Illegal AdminId");
@@ -95,8 +95,8 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
   }
 
   function globalUpdateDomainLimit(uint16 domainLimit) external returns (bool) {
-    bytes32 functionId = _accessPermission(IGlobalManagement.globalUpdateDomainLimit.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(IGlobalManagement.globalUpdateDomainLimit.selector);
+    
     GlobalEntity storage globalEntity = _doGetEntityAndCheckAdminAccess(senderId, functionId);
     require(domainLimit > globalEntity.domains.length() , "Illegal Limit");
     globalEntity.domainLimit = domainLimit;    
@@ -201,7 +201,7 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
     return functionId;
   }
 
-  function _accessPermission(bytes4 selector) internal returns (bytes32) {
+  function _accessPermission(bytes4 selector) internal returns (bytes32, bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");
     
     address functionFacetId = _data.selectors[selector];
@@ -209,7 +209,7 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
     IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
     if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
-    return functionId;
+    return (functionId, senderId);
   }
 
   function _doGetEntityAndCheckAdminAccess(bytes32 senderId, bytes32 functionId) internal view returns (GlobalEntity storage) {

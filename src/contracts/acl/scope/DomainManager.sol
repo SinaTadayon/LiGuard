@@ -13,6 +13,8 @@ import "../../lib/struct/LEnumerableSet.sol";
 import "../../proxy/IProxy.sol";
 import "../../proxy/BaseUUPSProxy.sol";
 
+import "hardhat/console.sol";
+
 /**
  * @title Domain Manager Contract
  * @author Sina Tadayon, https://github.com/SinaTadayon
@@ -53,8 +55,7 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
 
   // called by account that member of VERSE SCOPE MASTER TYPE
   function domainRegister(DomainRegisterRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IDomainManagement.domainRegister.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
+    (bytes32 functionId,bytes32 senderId) = _accessPermission(IDomainManagement.domainRegister.selector);
     
     // check and set
     MemberEntity storage memberEntity = _data.memberReadSlot(senderId);
@@ -115,8 +116,8 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
   }
  
   function domainUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
-   bytes32 functionId = _accessPermission(IDomainManagement.domainUpdateActivityStatus.selector);
-   bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
+   (bytes32 functionId, bytes32 senderId) = _accessPermission(IDomainManagement.domainUpdateActivityStatus.selector);
+
     for(uint i = 0; i < requests.length; i++) {
      DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId); 
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
@@ -127,8 +128,8 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
   }
 
   function domainUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IDomainManagement.domainUpdateAlterabilityStatus.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);      
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(IDomainManagement.domainUpdateAlterabilityStatus.selector);
+    
     for(uint i = 0; i < requests.length; i++) {
       DomainEntity storage domainEntity = _data.domainReadSlot(requests[i].id);
       IACL.AdminAccessStatus status = _doCheckAdminAccess(domainEntity.bs.adminId, senderId, functionId);
@@ -141,8 +142,7 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
   }
 
   function domainUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IDomainManagement.domainUpdateAdmin.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(IDomainManagement.domainUpdateAdmin.selector);
     
     for(uint i = 0; i < requests.length; i++) {
      DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId); 
@@ -163,12 +163,11 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
   }
 
   function domainMoveRealm(DomainMoveRealmRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IDomainManagement.domainMoveRealm.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(IDomainManagement.domainMoveRealm.selector);
 
     for(uint i = 0; i < requests.length; i++) {
       DomainEntity storage domainEntity = _doGetEntityAndCheckAdminAccess(requests[i].domainId, senderId, functionId);
-      require(domainEntity.realms.contains(requests[i].realmId), "Realm Not Found");
+      require(domainEntity.realms.contains(requests[i].realmId), "Domain Realm Not Found");
       DomainEntity storage targetDomainEntity = _doGetEntityAndCheckAdminAccess(requests[i].targetDomainId, senderId, functionId);
       RealmEntity storage realmEntity = _doGetRealmEntityAndCheckAdminAccess(requests[i].realmId, senderId, functionId);
       require(targetDomainEntity.realmLimit > targetDomainEntity.realms.length(), "Illegal Move" );
@@ -180,17 +179,8 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
     return true;
   }
 
-  function _doGetRealmEntityAndCheckAdminAccess(bytes32 realmId, bytes32 senderId, bytes32 functionId) internal view returns (RealmEntity storage) {
-    RealmEntity storage realmEntity = _data.realmReadSlot(realmId);
-    require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");    
-    IACL.AdminAccessStatus status = _doCheckAdminAccess(realmEntity.bs.adminId, senderId, functionId);
-    if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);  
-    return realmEntity;
-  }  
-
   function domainUpdateRealmLimit(DomainUpdateRealmLimitRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(IDomainManagement.domainUpdateRealmLimit.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender); 
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(IDomainManagement.domainUpdateRealmLimit.selector);
 
     for (uint256 i = 0; i < requests.length; i++) {
       DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(requests[i].domainId, senderId, functionId); 
@@ -308,8 +298,6 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
   function _doCheckAdminAccess(bytes32 adminId, bytes32 memberId, bytes32 functionId) internal view returns (IACL.AdminAccessStatus) {
     (FunctionEntity storage functionEntity, bool res) = _data.functionTryReadSlot(functionId);    
     if (!res) return IACL.AdminAccessStatus.FUNCTION_NOT_FOUND;
-
-    // if(_data.agents[memberId].acstat != ActivityStatus.ENABLED) return false;
     
     AgentType adminAgentType = _data.agents[adminId].atype;
     if(adminAgentType == AgentType.ROLE) {
@@ -363,15 +351,15 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
     return bytes32(0);  
   }
   
-  function _accessPermission(bytes4 selector) internal returns (bytes32) {
+  function _accessPermission(bytes4 selector) internal returns (bytes32, bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
-    
+
     address functionFacetId = _data.selectors[selector];
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector); 
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
+    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
     IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
     if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
-    return functionId;
+    return (functionId, senderId);
   }  
 
   function _doGetEntityAndCheckAdminAccess(bytes32 domainId, bytes32 senderId, bytes32 functionId) internal view returns (DomainEntity storage) {
@@ -381,6 +369,14 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
     if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
     return domainEntity;
   }
+
+  function _doGetRealmEntityAndCheckAdminAccess(bytes32 realmId, bytes32 senderId, bytes32 functionId) internal view returns (RealmEntity storage) {
+    RealmEntity storage realmEntity = _data.realmReadSlot(realmId);
+    require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Realm Updatable");    
+    IACL.AdminAccessStatus status = _doCheckAdminAccess(realmEntity.bs.adminId, senderId, functionId);
+    if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);  
+    return realmEntity;
+  }  
 
   function _doGetMemberScopeInfoFromType(bytes32 typeId, bytes32 senderId) internal view returns (bytes32) {
     TypeEntity storage agentAdminType = _data.typeReadSlot(typeId);

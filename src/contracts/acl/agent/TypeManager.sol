@@ -57,8 +57,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
   }
 
   function typeRegister(TypeRegisterRequest[] calldata requests) external returns (bool) {
-    _accessPermission(ITypeManagement.typeRegister.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
+    (, bytes32 senderId) =_accessPermission(ITypeManagement.typeRegister.selector);
     
     // check and set
     MemberEntity storage memberEntity = _data.memberReadSlot(senderId);
@@ -101,8 +100,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
   }
 
   function typeUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(ITypeManagement.typeUpdateAdmin.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(ITypeManagement.typeUpdateAdmin.selector);
     
     for(uint i = 0; i < requests.length; i++) {
       TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
@@ -121,8 +119,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
   }
 
   function typeUpdateScope(UpdateScopeRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(ITypeManagement.typeUpdateScope.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(ITypeManagement.typeUpdateScope.selector);
     ScopeType senderScopeType;
     bytes32 senderScopeId;
     for(uint i = 0; i < requests.length; i++) {
@@ -153,8 +150,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
   }
 
   function typeUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(ITypeManagement.typeUpdateActivityStatus.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(ITypeManagement.typeUpdateActivityStatus.selector);
     for(uint i = 0; i < requests.length; i++) {
       TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");             
@@ -165,8 +161,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
   }
 
   function typeUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(ITypeManagement.typeUpdateAlterabilityStatus.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(ITypeManagement.typeUpdateAlterabilityStatus.selector);
     for(uint i = 0; i < requests.length; i++) {      
       TypeEntity storage typeEntity = _data.typeReadSlot(requests[i].id);
       IACL.AdminAccessStatus status = _doCheckAdminAccess(typeEntity.ba.adminId, senderId, functionId);
@@ -179,8 +174,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
   }
 
   function typeUpdateRoleLimit(TypeUpdateRoleLimitRequest[] calldata requests) external returns (bool) {
-    bytes32 functionId = _accessPermission(ITypeManagement.typeUpdateRoleLimit.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(ITypeManagement.typeUpdateRoleLimit.selector);
 
     for (uint256 i = 0; i < requests.length; i++) {
       TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].typeId, senderId, functionId);
@@ -332,7 +326,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
     return IACL.AdminAccessStatus.NOT_PERMITTED;   
   }
 
-  function _accessPermission(bytes4 selector) internal returns (bytes32) {
+  function _accessPermission(bytes4 selector) internal returns (bytes32, bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
     address functionFacetId = _data.selectors[selector];
@@ -340,7 +334,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
     IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
     if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
-    return functionId;
+    return (functionId, senderId);
   }
 
   function _getTypeAdmin(ScopeType requestScopeType, bytes32 requestScopeAdmin, bytes32 scopeId, bytes32 adminId) internal view returns (bytes32 typeAdminId) {
