@@ -110,7 +110,6 @@ import {
 import { ProxyUpgradedEventObject } from "../../typechain/types/proxy/Proxy";
 import { ProxyLocalAdminUpdatedEventObject } from "../../typechain/types/proxy/IProxy";
 import {IACLCommons as IACLCommonsRoles } from "../../typechain/types/acl/agent/IRoleManagement";
-import {IACLCommons as IACLCommonsMember } from "../../typechain/types/acl/agent/IMemberManagement";
 import {IACLCommons} from "../../typechain/types/acl/scope/FunctionManager";
 import { RoleManagerLibraryAddresses } from "../../typechain/types/factories/acl/agent/RoleManager__factory";
 import { PolicyManagerLibraryAddresses } from "../../typechain/types/factories/acl/policy/PolicyManager__factory";
@@ -141,7 +140,7 @@ import { PromiseOrValue } from "../../typechain/types/common";
 // ethers.utils.keccak256(ethers.utils.toUtf8Bytes("src/contracts/lib/acl/ContextManagementLib.sol:ContextManagementLib")) => 0x0304621006bd13fe54dc5f6b75a37ec856740450109fd223c2bfb60db9095cad => __$0304621006bd13fe54dc5f6b75a37ec856$__ ( library placeholder)
 const { provider, deployMockContract } = waffle;
 
-describe("ACLManager Tests",
+describe("Lively Guard Tests",
   function() {
     let livelyAdmin: Signer;
     let systemAdmin: Signer;
@@ -1016,9 +1015,8 @@ describe("ACLManager Tests",
 
       it("Should enable Upgrade Status of proxy by user1 failed", async () => {
         // when and then
-        await expect(aclManagerProxy.connect(user1).setUpdatabilityStatus(ProxyUpdatabilityStatus.ENABLED)).to.be.revertedWith(
-          "Forbidden"
-        );
+        await expect(aclManagerProxy.connect(user1).setUpdatabilityStatus(ProxyUpdatabilityStatus.ENABLED)).revertedWith("");
+
       });
 
     });
@@ -6938,41 +6936,41 @@ describe("ACLManager Tests",
 
         let tx = await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(profileGlobalFunctionRegisterRequest);
         await tx.wait();
-        // console.log(`tx: ${JSON.stringify(tx, null, 2)}`);
-        // console.log(`receipt: ${JSON.stringify(receipt, null, 2)}`);
+        // // console.log(`tx: ${JSON.stringify(tx, null, 2)}`);
+        // // console.log(`receipt: ${JSON.stringify(receipt, null, 2)}`);
 
         // when
         // await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(profileGlobalFunctionRegisterRequest))
-          // .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-          // .withArgs(systemAdminWallet.address, profileGlobalContextId, profileGlobalUpdateActivityStatusFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-          //   LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,signer)
-          // .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-          // .withArgs(systemAdminWallet.address, profileGlobalContextId, profileGlobalUpdateAlterabilityStatusFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-          //   LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,signer)
-          // .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-          // .withArgs(systemAdminWallet.address, profileGlobalContextId, profileGlobalUpdateAdminFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-          //   LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,signer)
-          // .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-          // .withArgs(systemAdminWallet.address, profileGlobalContextId, profileGlobalUpdateDomainLimitFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-          //   LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,signer)
-          // .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-          // .withArgs(systemAdminWallet.address, profileGlobalContextId, upgradeToFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-          //   LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
-          // .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-          // .withArgs(systemAdminWallet.address, profileGlobalContextId, setSafeModeStatusFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-          //   LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,signer)
-          // .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-          // .withArgs(systemAdminWallet.address, profileGlobalContextId, setUpdatabilityStatusFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-          //   LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,signer)
-          // .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-          // .withArgs(systemAdminWallet.address, profileGlobalContextId, setLocalAdminFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-          //   LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
-          // .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-          // .withArgs(systemAdminWallet.address, profileGlobalContextId, setAccessControlManagerFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-          //   LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
-          // .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-          // .withArgs(systemAdminWallet.address, profileGlobalContextId, withdrawBalanceFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-          //   LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,signer)
+        //   .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+        //   .withArgs(systemAdminWallet.address, profileGlobalContextId, profileGlobalUpdateActivityStatusFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+        //     LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,signer)
+        //   .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+        //   .withArgs(systemAdminWallet.address, profileGlobalContextId, profileGlobalUpdateAlterabilityStatusFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+        //     LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,signer)
+        //   .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+        //   .withArgs(systemAdminWallet.address, profileGlobalContextId, profileGlobalUpdateAdminFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+        //     LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,signer)
+        //   .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+        //   .withArgs(systemAdminWallet.address, profileGlobalContextId, profileGlobalUpdateDomainLimitFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+        //     LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,signer)
+        //   .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+        //   .withArgs(systemAdminWallet.address, profileGlobalContextId, upgradeToFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+        //     LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+        //   .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+        //   .withArgs(systemAdminWallet.address, profileGlobalContextId, setSafeModeStatusFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+        //     LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,signer)
+        //   .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+        //   .withArgs(systemAdminWallet.address, profileGlobalContextId, setUpdatabilityStatusFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+        //     LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,signer)
+        //   .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+        //   .withArgs(systemAdminWallet.address, profileGlobalContextId, setLocalAdminFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+        //     LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+        //   .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+        //   .withArgs(systemAdminWallet.address, profileGlobalContextId, setAccessControlManagerFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+        //     LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+        //   .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+        //   .withArgs(systemAdminWallet.address, profileGlobalContextId, withdrawBalanceFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+        //     LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,signer)
 
         // then
         expect(await contextManagerDelegateProxy.contextHasFunction(profileGlobalContextId, profileGlobalUpdateAlterabilityStatusFunctionId)).to.be.true

@@ -16,6 +16,18 @@ import "./agent/IMemberManagement.sol";
 import "./agent/IRoleManagement.sol";
 import "./agent/ITypeManagement.sol";
 import "./policy/IPolicyManagement.sol";
+import "./profile/IProfileACL.sol";
+import "./profile/IProfileACLGenerals.sol";
+import "./profile/IProfileManagement.sol";
+import "./profile/scope/IProfileContextManagement.sol";
+import "./profile/scope/IProfileFunctionManagement.sol";
+import "./profile/scope/IProfileRealmManagement.sol";
+import "./profile/scope/IProfileDomainManagement.sol";
+import "./profile/scope/IProfileGlobalManagement.sol";
+import "./profile/agent/IProfileMemberManagement.sol";
+import "./profile/agent/IProfileRoleManagement.sol";
+import "./profile/agent/IProfileTypeManagement.sol";
+import "./profile/policy/IProfilePolicyManagement.sol";
 import "../lib/struct/LEnumerableSet.sol";
 import "../lib/acl/LACLStorage.sol";
 import "../lib/acl/LACLCommons.sol";
@@ -79,19 +91,30 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
       interfaceId == type(IGlobalManagement).interfaceId ||
       interfaceId == type(IMemberManagement).interfaceId ||
       interfaceId == type(IRoleManagement).interfaceId ||
-      interfaceId == type(ITypeManagement).interfaceId ||      
+      interfaceId == type(ITypeManagement).interfaceId ||  
+      interfaceId == type(IProfileManagement).interfaceId ||
+      interfaceId == type(IProfileACL).interfaceId ||      
+      interfaceId == type(IProfileACLGenerals).interfaceId ||
+      interfaceId == type(IProfilePolicyManagement).interfaceId ||
+      interfaceId == type(IProfileFunctionManagement).interfaceId ||
+      interfaceId == type(IProfileContextManagement).interfaceId ||
+      interfaceId == type(IProfileRealmManagement).interfaceId ||
+      interfaceId == type(IProfileDomainManagement).interfaceId ||
+      interfaceId == type(IProfileGlobalManagement).interfaceId ||
+      interfaceId == type(IProfileMemberManagement).interfaceId ||
+      interfaceId == type(IProfileRoleManagement).interfaceId ||
+      interfaceId == type(IProfileTypeManagement).interfaceId ||          
       super.supportsInterface(interfaceId);
   }
 
   function aclRegisterFacet(FacetRegisterRequest[] calldata requests) external onlyProxy returns (bool) {
+    require(_sstat == ProxySafeModeStatus.DISABLED, "Rejected");
     if(_firstInit) {
-      require(_sstat == ProxySafeModeStatus.DISABLED, "Rejected");
       require(_getLocalAdmin() == _msgSender(), "Forbidden");      
-      return _doAclRegisterFacet(requests);
     } else {
       require(_hasPermission(this.aclRegisterFacet.selector) == IACL.AuthorizationStatus.PERMITTED, "Access Denied");
-      return _doAclRegisterFacet(requests);
     }
+    return _doAclRegisterFacet(requests);
   }
 
   function _doAclRegisterFacet(FacetRegisterRequest[] calldata requests) internal returns (bool) {
@@ -109,18 +132,14 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
 
   function aclUpgradeFacet(FacetUpgradeRequest[] calldata requests) external onlyProxy aclCheck(this.aclUpgradeFacet.selector) returns (bool) {
     require(_sstat == ProxySafeModeStatus.DISABLED, "Rejected");
+    require(!_firstInit, "Illegal Init");
     for(uint i = 0; i < requests.length; i++) {      
       require(_data.facetSet.contains(requests[i].facetId), "Facet Not Found");
       
       FacetEntity storage facetEntity = _data.facets[requests[i].facetId];
       require(requests[i].subjectId != address(0) && facetEntity.subjectId != requests[i].subjectId, "Illegal Upgrade");            
 
-      facetEntity.subjectId = requests[i].subjectId;
-      // if(requests[i].interfaceId != bytes4(0) && facetEntity.interfaceId != requests[i].interfaceId) {
-      //   require(IERC165(requests[i].facetId).supportsInterface(requests[i].interfaceId), "Illegal Interface");
-      //   facetEntity.interfaceId = requests[i].interfaceId;
-      // }
-
+      facetEntity.subjectId = requests[i].subjectId;  
       for(uint j = 0; j < requests[i].functions.length; j++) {
         if (requests[i].functions[j].action == ActionType.REMOVE) {
           for(uint z = 0; z < requests[i].functions[j].selectors.length; z++) {
