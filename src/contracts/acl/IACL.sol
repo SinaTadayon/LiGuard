@@ -52,6 +52,8 @@ interface IACL {
   error ACLDomainActivityForbidden();
   error ACLGlobalActivityForbidden();
 
+  error ACLActionForbidden(AuthorizationStatus);
+
   enum AdminAccessStatus {
     PERMITTED,
     NOT_PERMITTED,
@@ -72,6 +74,7 @@ interface IACL {
   error AdminAccessTypeActivityForbidden();
 
   error SetAdminForbidden(AdminAccessStatus);
+
 
 
   function hasAccess(bytes32 functionId) external returns (AuthorizationStatus);
