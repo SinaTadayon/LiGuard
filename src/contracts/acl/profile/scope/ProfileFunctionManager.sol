@@ -123,8 +123,7 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
 
   function profileFunctionUpdateAdmin(ProfileUpdateAdminRequest[] calldata requests) external returns (bool) {
     for (uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId) = _accessPermission(requests[i].profileId, IProfileFunctionManagement.profileFunctionUpdateAdmin.selector);
-      bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);        
+      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfileFunctionManagement.profileFunctionUpdateAdmin.selector);      
       for(uint j = 0; j < requests[i].data.length; j++) {
         FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].data[j].entityId, senderId, functionId);
         functionEntity.bs.adminId = _doGetAndCheckFunctionAdmin(profileEntity, profileEntity.scopes[functionEntity.contextId].adminId, functionEntity.contextId, requests[i].data[j].adminId, requests[i].profileId);
@@ -136,11 +135,10 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
 
   function profileFunctionUpdateAgent(ProfileFunctionUpdateAgentRequest[] calldata requests) external returns (bool) {
     for (uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId) = _accessPermission(requests[i].profileId, IProfileFunctionManagement.profileFunctionUpdateAgent.selector);
-      bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);        
+      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfileFunctionManagement.profileFunctionUpdateAgent.selector);
       for(uint j = 0; j < requests[i].agents.length; j++) {
         FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].agents[j].functionId, senderId, functionId);  
-        _doCheckAgentId(profileEntity, requests[i].agents[j].agentId);
+        _doCheckAgentId(profileEntity, requests[i].profileId, requests[i].agents[j].agentId, functionEntity.contextId);
         functionEntity.agentId = requests[i].agents[j].agentId;
         emit ProfileFunctionAgentUpdated(msg.sender, requests[i].profileId, requests[i].agents[j].functionId, requests[i].agents[j].agentId);
       }
@@ -150,8 +148,7 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
 
   function profileFunctionUpdateActivityStatus(ProfileUpdateActivityRequest[] calldata requests) external returns (bool) {
     for (uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId) = _accessPermission(requests[i].profileId, IProfileFunctionManagement.profileFunctionUpdateActivityStatus.selector);
-      bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);        
+      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfileFunctionManagement.profileFunctionUpdateActivityStatus.selector);
       for(uint j = 0; j < requests[i].data.length; j++) {
         FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].data[j].entityId, senderId, functionId);        
         require(requests[i].data[j].acstat != ActivityStatus.NONE, "Illegal Activity");
@@ -164,8 +161,7 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
 
   function profileFunctionUpdateAlterabilityStatus(ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool) {
     for (uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId) = _accessPermission(requests[i].profileId, IProfileFunctionManagement.profileFunctionUpdateAlterabilityStatus.selector);
-      bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);        
+      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfileFunctionManagement.profileFunctionUpdateAlterabilityStatus.selector);
       for(uint j = 0; j < requests[i].data.length; j++) {
         FunctionEntity storage functionEntity = profileEntity.profileFunctionReadSlot(requests[i].data[j].entityId);
         require(functionEntity.bs.acstat > ActivityStatus.DELETED, "Function Deleted");
@@ -181,8 +177,7 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
 
   function profileFunctionUpdatePolicyCode(ProfileFunctionUpdatePolicyRequest[] calldata requests) external returns (bool) {
     for (uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId) = _accessPermission(requests[i].profileId, IProfileFunctionManagement.profileFunctionUpdatePolicyCode.selector);
-      bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);        
+      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfileFunctionManagement.profileFunctionUpdatePolicyCode.selector);
       for(uint j = 0; j < requests[i].codes.length; j++) {
         FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].codes[j].functionId, senderId, functionId);
         functionEntity.policyCode = requests[i].codes[j].policyCode;
@@ -280,7 +275,7 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
     });
   }
 
-  function _doAgentGetScopeInfo(ProfileEntity storage profileEntity, bytes32 agentId) internal view returns (ScopeType, bytes32) {
+  function _doGetAgentScopeInfo(ProfileEntity storage profileEntity, bytes32 agentId) internal view returns (ScopeType, bytes32) {
     AgentType atype = profileEntity.agents[agentId].atype;
     if (atype == AgentType.ROLE) {
       RoleEntity storage roleEntity = profileEntity.profileRoleReadSlot(agentId);
@@ -300,7 +295,7 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
     return LProfileCommons.profileCheckAdminAccess(profileEntity, adminId, senderId, functionId);
   }
 
-  function _accessPermission(bytes32 profileId, bytes4 selector) internal returns (ProfileEntity storage, bytes32) {
+  function _accessPermission(bytes32 profileId, bytes4 selector) internal returns (ProfileEntity storage, bytes32, bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
     ProfileEntity storage profileEntity = _data.profiles[profileId];
@@ -312,7 +307,7 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
     IProfileACL.ProfileAuthorizationStatus status = IProfileACL(address(this)).profileHasMemberAccess(profileId, functionId, senderId);
     if(status != IProfileACL.ProfileAuthorizationStatus.PERMITTED) LACLUtils.generateProfileAuthorizationError(status);
-    return (profileEntity, functionId);
+    return (profileEntity, functionId, senderId);
   }
 
   function _doGetEntityAndCheckAdminAccess(ProfileEntity storage profileEntity, bytes32 fId, bytes32 senderId, bytes32 functionId) internal view returns (FunctionEntity storage) {
@@ -338,9 +333,18 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
     return keccak256(abi.encode(PROFILE_CTX_MESSAGE_TYPEHASH, profileId, contractId, name, version, realmId));
   }
 
-  function _doCheckAgentId(ProfileEntity storage profileEntity, bytes32 agentId) internal view {
+  function _doCheckAgentId(ProfileEntity storage profileEntity, bytes32 profileId, bytes32 agentId, bytes32 contextId) internal view {
     BaseAgent storage ba = profileEntity.agents[agentId];
     require(ba.atype > AgentType.MEMBER, "Illegal AgentId");
+
+    (ScopeType requestAgentScopeType, bytes32 requestAgentScopeId) = _doGetAgentScopeInfo(profileEntity, agentId);
+    require(ScopeType.CONTEXT <= requestAgentScopeType, "Illegal Agent ScopeType");
+    if(ScopeType.CONTEXT == requestAgentScopeType) {  
+      require(requestAgentScopeId == contextId, "Illegal Agent Scope");
+    
+    } else {
+      require(IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, requestAgentScopeId, contextId), "Illegal Agent Scope");
+    }
   }
 
   function _doGetSignerAddress(bytes memory signature, bytes32 structHash) internal view returns (address) {

@@ -131,7 +131,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
 
     for(uint i = 0; i < requests.length; i++) {
       FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(requests[i].functionId, senderId, functionId);  
-      _doCheckAgentId(requests[i].agentId);
+      _doCheckAgentId(requests[i].agentId, functionEntity.contextId);
       functionEntity.agentId = requests[i].agentId;
       emit FunctionAgentUpdated(msg.sender, requests[i].functionId, requests[i].agentId);
     }
@@ -258,7 +258,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     });
   }
 
-  function _doAgentGetScopeInfo(bytes32 agentId) internal view returns (ScopeType, bytes32) {
+  function _doGetAgentScopeInfo(bytes32 agentId) internal view returns (ScopeType, bytes32) {
     AgentType atype = _data.agents[agentId].atype;
     if (atype == AgentType.ROLE) {
       RoleEntity storage roleEntity = _data.roleReadSlot(agentId);
@@ -365,7 +365,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
       "Illegal Activity/Alterability"
     );
 
-    _doCheckAgentId(functionRequest.agentId);
+    _doCheckAgentId(functionRequest.agentId, contextId);
     FunctionEntity storage functionEntity = _data.functionWriteSlot(newFunctionId);
     functionEntity.bs.stype = ScopeType.FUNCTION;
     functionEntity.contextId = contextId;
@@ -394,13 +394,13 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     if(adminId != bytes32(0)) {
       require(_data.agents[adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
 
-      (ScopeType requestAdminFuncType, bytes32 requestAdminFuncId) = _doAgentGetScopeInfo(adminId);
-      require(ScopeType.CONTEXT <= requestAdminFuncType, "Illegal Admin ScopeType");
-      if(ScopeType.CONTEXT == requestAdminFuncType) {  
-        require(requestAdminFuncId == contextAdminId, "Illegal Amind Scope");
+      (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doGetAgentScopeInfo(adminId);
+      require(ScopeType.CONTEXT <= requestAdminScopeType, "Illegal Admin ScopeType");
+      if(ScopeType.CONTEXT == requestAdminScopeType) {  
+        require(requestAdminScopeId == contextAdminId, "Illegal Amind Scope");
       
       } else {
-        require(IACLGenerals(address(this)).isScopesCompatible(requestAdminFuncId, contextId), "Illegal Admin Scope");
+        require(IACLGenerals(address(this)).isScopesCompatible(requestAdminScopeId, contextId), "Illegal Admin Scope");
       }
       functionAdminId = adminId;
 
@@ -418,9 +418,18 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     return keccak256(abi.encode(CTX_MESSAGE_TYPEHASH, contractId, name, version, realmId));
   }
 
-  function _doCheckAgentId(bytes32 agentId) internal view {
+  function _doCheckAgentId(bytes32 agentId, bytes32 contextId) internal view {
     BaseAgent storage ba = _data.agents[agentId];
     require(ba.atype > AgentType.MEMBER, "Illegal AgentId");
+
+    (ScopeType requestAgentScopeType, bytes32 requestAgentScopeId) = _doGetAgentScopeInfo(agentId);
+      require(ScopeType.CONTEXT <= requestAgentScopeType, "Illegal Agent ScopeType");
+      if(ScopeType.CONTEXT == requestAgentScopeType) {  
+        require(requestAgentScopeId == contextId, "Illegal Agent Scope");
+      
+      } else {
+        require(IACLGenerals(address(this)).isScopesCompatible(requestAgentScopeId, contextId), "Illegal Agent Scope");
+      }
   }
 
   function _doGetSignerAddress(bytes memory signature, bytes32 structHash) internal view returns (address) {

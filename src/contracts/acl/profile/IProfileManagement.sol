@@ -95,9 +95,9 @@ interface IProfileManagement is IACLCommons {
 
   function profileCheckOwner(bytes32 profileId, address account) external view returns (bool);
 
-  function profileCheckLivelyAdmin(bytes32 profileId, address account) external view returns (bool);
+  function profileCheckProfileAdmin(bytes32 profileId, address account) external view returns (bool);
 
-  function profileCheckLivelySystemAdmin(bytes32 profileId, address account) external view returns (bool);
+  function profileCheckProfileSystemAdmin(bytes32 profileId, address account) external view returns (bool);
 
   function profileCheckAdmin(bytes32 profileId, address account) external view returns (bool);
 

@@ -15,8 +15,9 @@ interface IProfileACL {
     PERMITTED,
     UNAUTHORIZED,
     POLICY_FORBIDDEN,
-    PROFILE_CALL_FORBIDDEN,
+    PROFILE_CALL_FORBIDDEN,    
     MEMBER_CALL_FORBIDDEN,
+    ROLE_SCOPE_FORBIDDEN,
     MEMBER_NOT_FOUND,
     ROLE_NOT_FOUND,
     TYPE_NOT_FOUND,
@@ -38,6 +39,7 @@ interface IProfileACL {
   error ProfileACLUnauthorized();
   error ProfileACLPolicyForbidden();
   error ProfileACLCallForbidden();
+  error ProfileACLRoleScopeForbidden();
   error ProfileACLMemberCallForbidden();
   error ProfileACLMemberNotFound();
   error ProfileACLRoleNotFound();

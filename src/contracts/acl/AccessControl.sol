@@ -114,9 +114,11 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IACLGenerals, IACL {
       // check role activation
       (RoleEntity storage roleEntity, bool result1) = _data.roleTryReadSlot(agentId);
       // console.log("roleEntity: ");
-      // console.logBytes1(bytes1(uint8(roleEntity.ba.acstat)));
-      if(!result1) return AuthorizationStatus.ROLE_NOT_FOUND;      
+      // console.logBytes1(bytes1(uint8(roleEntity.ba.acstat)));      
+      if(!result1) return AuthorizationStatus.ROLE_NOT_FOUND;   
       if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return AuthorizationStatus.ROLE_ACTIVITY_FORBIDDEN;
+      if(_data.scopes[roleEntity.scopeId].stype == ScopeType.FUNCTION && roleEntity.scopeId != agentId) 
+        return AuthorizationStatus.ROLE_SCOPE_FORBIDDEN;
 
       // check type activation
       (TypeEntity storage typeEntity, bool result2) = _data.typeTryReadSlot(roleEntity.typeId);
@@ -124,7 +126,7 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IACLGenerals, IACL {
       // console.logBytes1(bytes1(uint8(typeEntity.ba.acstat)));
       if(!result2) return AuthorizationStatus.TYPE_NOT_FOUND;
       if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return AuthorizationStatus.TYPE_ACTIVITY_FORBIDDEN;
-
+      
       // check memberId with agentId role
       if (typeEntity.members[memberId] != agentId) return AuthorizationStatus.UNAUTHORIZED;
 
@@ -179,6 +181,8 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IACLGenerals, IACL {
         // console.logBytes1(bytes1(uint8(roleEntity.ba.acstat)));
         if(!result2) return AuthorizationStatus.ROLE_NOT_FOUND;
         if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return AuthorizationStatus.ROLE_ACTIVITY_FORBIDDEN;
+        if(_data.scopes[roleEntity.scopeId].stype == ScopeType.FUNCTION && roleEntity.scopeId != agentId) 
+          return AuthorizationStatus.ROLE_SCOPE_FORBIDDEN;
         
         // check policy activation
         PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[roleId]];

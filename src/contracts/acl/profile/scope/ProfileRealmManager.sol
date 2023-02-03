@@ -54,9 +54,7 @@ contract ProfileRealmManager is ACLStorage, BaseUUPSProxy, IProfileRealmManageme
 
   function profileRealmRegister(ProfileRealmRegisterRequest[] calldata requests) external returns (bool) {
     for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId) = _accessPermission(requests[i].profileId, IProfileRealmManagement.profileRealmRegister.selector);
-      bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
-
+      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfileRealmManagement.profileRealmRegister.selector);
       LProfileCommons.profileCheckMemberForRealmRegister(profileEntity, uint16(requests[i].realms.length), senderId);
 
       // fetch scope type and scope id of sender
@@ -78,8 +76,7 @@ contract ProfileRealmManager is ACLStorage, BaseUUPSProxy, IProfileRealmManageme
 
   function profileRealmUpdateAdmin(ProfileUpdateAdminRequest[] calldata requests) external returns (bool) {
     for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId) = _accessPermission(requests[i].profileId, IProfileRealmManagement.profileRealmUpdateAdmin.selector);
-      bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
+      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfileRealmManagement.profileRealmUpdateAdmin.selector);
       for(uint j = 0; j < requests[i].data.length; j++) {
         RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].data[j].entityId, senderId, functionId);
 
@@ -107,8 +104,7 @@ contract ProfileRealmManager is ACLStorage, BaseUUPSProxy, IProfileRealmManageme
 
   function profileRealmMoveContext(ProfileRealmMoveContextRequest[] calldata requests) external returns (bool) {
     for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId) = _accessPermission(requests[i].profileId, IProfileRealmManagement.profileRealmMoveContext.selector);
-      bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
+      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfileRealmManagement.profileRealmMoveContext.selector);
       for(uint j = 0; j < requests[i].data.length; j++) {
         RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].data[j].realmId, senderId, functionId);
         require(realmEntity.contexts.contains(requests[i].data[j].contextId), "Context Not Found");
@@ -134,8 +130,7 @@ contract ProfileRealmManager is ACLStorage, BaseUUPSProxy, IProfileRealmManageme
 
   function profileRealmUpdateActivityStatus(ProfileUpdateActivityRequest[] calldata requests) external returns (bool) {
     for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId) = _accessPermission(requests[i].profileId, IProfileRealmManagement.profileRealmUpdateActivityStatus.selector);
-      bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
+      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfileRealmManagement.profileRealmUpdateActivityStatus.selector);
       for(uint j = 0; j < requests[i].data.length; j++) {
         RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].data[j].entityId, senderId, functionId);
         require(requests[i].data[j].acstat > ActivityStatus.DELETED, "Illegal Activity");  
@@ -148,8 +143,7 @@ contract ProfileRealmManager is ACLStorage, BaseUUPSProxy, IProfileRealmManageme
 
   function profileRealmUpdateAlterabilityStatus(ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool) {
     for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId) = _accessPermission(requests[i].profileId, IProfileRealmManagement.profileRealmUpdateAlterabilityStatus.selector);
-      bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
+      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfileRealmManagement.profileRealmUpdateAlterabilityStatus.selector);      
       for(uint j = 0; j < requests[i].data.length; j++) {
         RealmEntity storage realmEntity = profileEntity.profileRealmReadSlot(requests[i].data[j].entityId);        
         IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, realmEntity.bs.adminId, senderId, functionId);
@@ -164,8 +158,7 @@ contract ProfileRealmManager is ACLStorage, BaseUUPSProxy, IProfileRealmManageme
 
   function profileRealmUpdateContextLimit(ProfileRealmUpdateContextLimitRequest[] calldata requests) external returns (bool) {
     for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId) = _accessPermission(requests[i].profileId, IProfileRealmManagement.profileRealmUpdateContextLimit.selector);
-      bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
+      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfileRealmManagement.profileRealmUpdateContextLimit.selector);
       for(uint j = 0; j < requests[i].limits.length; j++) {
         RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].limits[j].realmId, senderId, functionId);
         require(requests[i].limits[j].contextLimit > realmEntity.contexts.length(), "Illegal Limit");
@@ -300,7 +293,7 @@ contract ProfileRealmManager is ACLStorage, BaseUUPSProxy, IProfileRealmManageme
     return LProfileCommons.profileCheckAdminAccess(profileEntity, adminId, senderId, functionId);
   }
 
- function _accessPermission(bytes32 profileId, bytes4 selector) internal returns (ProfileEntity storage, bytes32) {
+ function _accessPermission(bytes32 profileId, bytes4 selector) internal returns (ProfileEntity storage, bytes32, bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
     ProfileEntity storage profileEntity = _data.profiles[profileId];
@@ -312,7 +305,7 @@ contract ProfileRealmManager is ACLStorage, BaseUUPSProxy, IProfileRealmManageme
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
     IProfileACL.ProfileAuthorizationStatus status = IProfileACL(address(this)).profileHasMemberAccess(profileId, functionId, senderId);
     if(status != IProfileACL.ProfileAuthorizationStatus.PERMITTED) LACLUtils.generateProfileAuthorizationError(status);
-    return (profileEntity, functionId);
+    return (profileEntity, functionId, senderId);
   }
 
   function _doGetEntityAndCheckAdminAccess(ProfileEntity storage profileEntity, bytes32 realmId, bytes32 senderId, bytes32 functionId) internal view returns (RealmEntity storage) {

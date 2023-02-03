@@ -55,8 +55,7 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
 
   function profileTypeRegister(ProfileTypeRegisterRequest[] calldata requests) external returns (bool) {
     for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity,) = _accessPermission(requests[i].profileId, IProfileTypeManagement.profileTypeRegister.selector);
-      bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
+      (ProfileEntity storage profileEntity,,bytes32 senderId) = _accessPermission(requests[i].profileId, IProfileTypeManagement.profileTypeRegister.selector);
 
       // check profile and type limitations and update it
       ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(senderId);
@@ -80,8 +79,7 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
 
   function profileTypeUpdateAdmin(ProfileUpdateAdminRequest[] calldata requests) external returns (bool) {
     for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId) = _accessPermission(requests[i].profileId, IProfileTypeManagement.profileTypeUpdateAdmin.selector);
-      bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);        
+      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfileTypeManagement.profileTypeUpdateAdmin.selector);
       for(uint j = 0; j < requests[i].data.length; j++) {
         TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].data[j].entityId, senderId, functionId);
 
@@ -103,8 +101,7 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
 
   function profileTypeUpdateScope(ProfileUpdateScopeRequest[] calldata requests) external returns (bool) {
     for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId) = _accessPermission(requests[i].profileId, IProfileTypeManagement.profileTypeUpdateScope.selector);
-      bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);        
+      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfileTypeManagement.profileTypeUpdateScope.selector);
       for(uint j = 0; j < requests[i].data.length; j++) {
         _doTypeUpdateScope(requests[i].data[j], profileEntity, requests[i].profileId, senderId, functionId);
       }
@@ -114,8 +111,7 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
 
   function profileTypeUpdateActivityStatus(ProfileUpdateActivityRequest[] calldata requests) external returns (bool) {
     for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId) = _accessPermission(requests[i].profileId, IProfileTypeManagement.profileTypeUpdateActivityStatus.selector);
-      bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);        
+      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfileTypeManagement.profileTypeUpdateActivityStatus.selector);
       for(uint j = 0; j < requests[i].data.length; j++) {
         TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].data[j].entityId, senderId, functionId);
         require(requests[i].data[j].acstat > ActivityStatus.DELETED, "Illegal Activity");             
@@ -128,8 +124,7 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
 
   function profileTypeUpdateAlterabilityStatus(ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool) {
     for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId) = _accessPermission(requests[i].profileId, IProfileTypeManagement.profileTypeUpdateAlterabilityStatus.selector);
-      bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);        
+      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfileTypeManagement.profileTypeUpdateAlterabilityStatus.selector);
       for(uint j = 0; j < requests[i].data.length; j++) {
         TypeEntity storage typeEntity = profileEntity.profileTypeReadSlot(requests[i].data[j].entityId);
         IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, typeEntity.ba.adminId, senderId, functionId);
@@ -144,8 +139,7 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
 
   function profileTypeUpdateRoleLimit(ProfileTypeUpdateRoleLimitRequest[] calldata requests) external returns (bool) {
     for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId) = _accessPermission(requests[i].profileId, IProfileTypeManagement.profileTypeUpdateRoleLimit.selector);
-      bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);        
+      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfileTypeManagement.profileTypeUpdateRoleLimit.selector);      
       for(uint j = 0; j < requests[i].limits.length; j++) {
         TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].limits[j].typeId, senderId, functionId);
         require(requests[i].limits[j].roleLimit > typeEntity.roles.length(), "Illegal Limit");
@@ -311,7 +305,7 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
     return IProfileACL.ProfileAdminAccessStatus.NOT_PERMITTED;
   }
 
-  function _accessPermission(bytes32 profileId, bytes4 selector) internal returns (ProfileEntity storage, bytes32) {
+  function _accessPermission(bytes32 profileId, bytes4 selector) internal returns (ProfileEntity storage, bytes32, bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
     ProfileEntity storage profileEntity = _data.profiles[profileId];
@@ -323,7 +317,7 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
     IProfileACL.ProfileAuthorizationStatus status = IProfileACL(address(this)).profileHasMemberAccess(profileId, functionId, senderId);
     if(status != IProfileACL.ProfileAuthorizationStatus.PERMITTED) LACLUtils.generateProfileAuthorizationError(status);
-    return (profileEntity, functionId);
+    return (profileEntity, functionId, senderId);
   }
 
   function _getTypeAdmin(ProfileEntity storage profileEntity, ScopeType requestScopeType, bytes32 requestScopeAdmin, bytes32 scopeId, bytes32 adminId, bytes32 profileId) internal view returns (bytes32 typeAdminId) {

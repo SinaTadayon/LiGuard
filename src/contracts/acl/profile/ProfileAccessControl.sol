@@ -131,6 +131,8 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
       // console.logBytes1(bytes1(uint8(roleEntity.ba.acstat)));
       if(!result1) return ProfileAuthorizationStatus.ROLE_NOT_FOUND;      
       if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return ProfileAuthorizationStatus.ROLE_ACTIVITY_FORBIDDEN;
+      if(_data.scopes[roleEntity.scopeId].stype == ScopeType.FUNCTION && roleEntity.scopeId != functionEntity.agentId) 
+          return ProfileAuthorizationStatus.ROLE_SCOPE_FORBIDDEN;
 
       // check type activation
       (TypeEntity storage typeEntity, bool result2) = profileEntity.profileTypeTryReadSlot(roleEntity.typeId);
@@ -192,6 +194,8 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
         // console.logBytes1(bytes1(uint8(roleEntity.ba.acstat)));
         if(!result2) return ProfileAuthorizationStatus.ROLE_NOT_FOUND;
         if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return ProfileAuthorizationStatus.ROLE_ACTIVITY_FORBIDDEN;
+        if(_data.scopes[roleEntity.scopeId].stype == ScopeType.FUNCTION && roleEntity.scopeId != functionEntity.agentId) 
+          return ProfileAuthorizationStatus.ROLE_SCOPE_FORBIDDEN;
         
         // check policy activation
         PolicyEntity storage policyEntity = profileEntity.policies[profileEntity.rolePolicyMap[roleId]];

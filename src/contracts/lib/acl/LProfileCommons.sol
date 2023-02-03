@@ -47,7 +47,7 @@ library LProfileCommons {
   }
 
   function profileAgentGetScopeInfo(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId) external view returns (IACLCommons.ScopeType, bytes32) {
-    return _doAgentGetScopeInfo(profileEntity, agentId);
+    return _doGetAgentScopeInfo(profileEntity, agentId);
   }
 
   function profileGetContextAdmin(IACLCommons.ProfileEntity storage profileEntity, IProfileContextManagement.ProfileContextRegisterRequest calldata request, bytes32 scopeId, bytes32 requestScopeAdmin) external view returns (bytes32 contextAdminId) {
@@ -239,11 +239,9 @@ library LProfileCommons {
 
     bytes32 newFunctionId = LACLUtils.functionGenerateId(contextEntity.contractId, functionRequest.selector); 
 
-    require(profileEntity.scopes[newFunctionId].stype == IACLCommons.ScopeType.NONE, "Already Exist");
-    // require(_doCheckFunctionSystemScope(profileEntity, contextId, signerId, profileId), "Forbidden");        
+    require(profileEntity.scopes[newFunctionId].stype == IACLCommons.ScopeType.NONE, "Already Exist");  
     
-    IACLCommons.BaseAgent storage ba = profileEntity.agents[functionRequest.agentId];
-    require(ba.atype > IACLCommons.AgentType.MEMBER, "Illegal AgentId");
+    _doCheckAgentId(profileEntity, profileId, functionRequest.agentId, contextId);
     IACLCommons.FunctionEntity storage functionEntity = profileEntity.profileFunctionWriteSlot(newFunctionId);
     functionEntity.bs.stype = IACLCommons.ScopeType.FUNCTION;
     functionEntity.contextId = contextId;
@@ -361,7 +359,7 @@ library LProfileCommons {
     if(adminId != bytes32(0)) {
       require(profileEntity.agents[adminId].atype > IACLCommons.AgentType.MEMBER, "Illegal Admin AgentType");
 
-      (IACLCommons.ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(profileEntity, adminId);
+      (IACLCommons.ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doGetAgentScopeInfo(profileEntity, adminId);
       require(IACLCommons.ScopeType.DOMAIN <= requestAdminScopeType, "Illegal Admin ScopeType");
       if(IACLCommons.ScopeType.DOMAIN == requestAdminScopeType){
         require(requestAdminScopeId == domainId, "Illegal Amind Scope");
@@ -425,7 +423,7 @@ library LProfileCommons {
     // checking requested context admin 
     if(request.adminId != bytes32(0)) {
       require(profileEntity.agents[request.adminId].atype > IACLCommons.AgentType.MEMBER, "Illegal Admin AgentType");      
-      (IACLCommons.ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(profileEntity, request.adminId);
+      (IACLCommons.ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doGetAgentScopeInfo(profileEntity, request.adminId);
       require(IACLCommons.ScopeType.REALM <= requestAdminScopeType, "Illegal Admin ScopeType");
       if(IACLCommons.ScopeType.REALM == requestAdminScopeType) {
         require(requestAdminScopeId == request.realmId, "Illegal Admin Scope");
@@ -440,7 +438,7 @@ library LProfileCommons {
     }
   }
 
-  function _doAgentGetScopeInfo(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId) private view returns (IACLCommons.ScopeType, bytes32) {
+  function _doGetAgentScopeInfo(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId) private view returns (IACLCommons.ScopeType, bytes32) {
     IACLCommons.AgentType atype = profileEntity.agents[agentId].atype;
     if (atype == IACLCommons.AgentType.ROLE) {
       IACLCommons.RoleEntity storage roleEntity = profileEntity.profileRoleReadSlot(agentId);
@@ -468,24 +466,26 @@ library LProfileCommons {
     return IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, memberSystemRole.scopeId, scopeId);    
   }
 
-  // function _doCheckFunctionSystemScope(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId, bytes32 memberId, bytes32 profileId) private view returns (bool) {  
-  //   IACLCommons.TypeEntity storage systemType = profileEntity.profileTypeReadSlot(LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID);
-  //   bytes32 memberRoleId = systemType.members[memberId];
-  //   IACLCommons.RoleEntity storage memberSystemRole = profileEntity.profileRoleReadSlot(memberRoleId);
-  //   if(profileEntity.scopes[memberSystemRole.scopeId].stype < IACLCommons.ScopeType.CONTEXT) return false;
-  //   if(memberSystemRole.scopeId == scopeId) {
-  //     return true;
-  //   } 
-      
-  //   return IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, memberSystemRole.scopeId, scopeId);    
-  // }
+  function _doCheckAgentId(IACLCommons.ProfileEntity storage profileEntity, bytes32 profileId, bytes32 agentId, bytes32 contextId) private view {
+    IACLCommons.BaseAgent storage ba = profileEntity.agents[agentId];
+    require(ba.atype > IACLCommons.AgentType.MEMBER, "Illegal AgentId");
+
+    (IACLCommons.ScopeType requestAgentScopeType, bytes32 requestAgentScopeId) = _doGetAgentScopeInfo(profileEntity, agentId);
+    require(IACLCommons.ScopeType.CONTEXT <= requestAgentScopeType, "Illegal Agent ScopeType");
+    if(IACLCommons.ScopeType.CONTEXT == requestAgentScopeType) {  
+      require(requestAgentScopeId == contextId, "Illegal Agent Scope");
+    
+    } else {
+      require(IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, requestAgentScopeId, contextId), "Illegal Agent Scope");
+    }
+  }
 
   function _doGetAndCheckFunctionAdmin(IACLCommons.ProfileEntity storage profileEntity, bytes32 contextAdminId, bytes32 contextId, bytes32 adminId, bytes32 profileId) private view returns (bytes32 functionAdminId) {
     // checking requested functionAdmin admin 
     if(adminId != bytes32(0)) {
       require(profileEntity.agents[adminId].atype > IACLCommons.AgentType.MEMBER, "Illegal Admin AgentType");
 
-      (IACLCommons.ScopeType requestAdminFuncType, bytes32 requestAdminFuncId) = _doAgentGetScopeInfo(profileEntity, adminId);
+      (IACLCommons.ScopeType requestAdminFuncType, bytes32 requestAdminFuncId) = _doGetAgentScopeInfo(profileEntity, adminId);
       require(IACLCommons.ScopeType.CONTEXT <= requestAdminFuncType, "Illegal Admin ScopeType");
       if(IACLCommons.ScopeType.CONTEXT == requestAdminFuncType) {  
         require(requestAdminFuncId == contextAdminId, "Illegal Amind Scope");

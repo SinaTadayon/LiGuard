@@ -39,6 +39,7 @@ library LACLUtils {
     if(status == IACL.AuthorizationStatus.UNAUTHORIZED) revert IACL.ACLUnauthorized();
     else if(status == IACL.AuthorizationStatus.POLICY_FORBIDDEN) revert IACL.ACLPolicyForbidden();
     else if(status == IACL.AuthorizationStatus.CALL_FORBIDDEN) revert IACL.ACLCallForbidden();
+    else if(status == IACL.AuthorizationStatus.ROLE_SCOPE_FORBIDDEN) revert IACL.ACLRoleScopeForbidden();
     else if(status == IACL.AuthorizationStatus.MEMBER_NOT_FOUND) revert IACL.ACLMemberNotFound();
     else if(status == IACL.AuthorizationStatus.ROLE_NOT_FOUND) revert IACL.ACLRoleNotFound();
     else if(status == IACL.AuthorizationStatus.TYPE_NOT_FOUND) revert IACL.ACLTypeNotFound();
@@ -61,7 +62,8 @@ library LACLUtils {
     if(status == IProfileACL.ProfileAuthorizationStatus.UNAUTHORIZED) revert IProfileACL.ProfileACLUnauthorized();
     else if(status == IProfileACL.ProfileAuthorizationStatus.POLICY_FORBIDDEN) revert IProfileACL.ProfileACLPolicyForbidden();
     else if(status == IProfileACL.ProfileAuthorizationStatus.PROFILE_CALL_FORBIDDEN) revert IProfileACL.ProfileACLCallForbidden();
-    else if(status == IProfileACL.ProfileAuthorizationStatus.MEMBER_CALL_FORBIDDEN) revert IProfileACL.ProfileACLMemberCallForbidden();    
+    else if(status == IProfileACL.ProfileAuthorizationStatus.MEMBER_CALL_FORBIDDEN) revert IProfileACL.ProfileACLMemberCallForbidden();
+    else if(status == IProfileACL.ProfileAuthorizationStatus.ROLE_SCOPE_FORBIDDEN) revert IProfileACL.ProfileACLRoleScopeForbidden();    
     else if(status == IProfileACL.ProfileAuthorizationStatus.MEMBER_NOT_FOUND) revert IProfileACL.ProfileACLMemberNotFound();
     else if(status == IProfileACL.ProfileAuthorizationStatus.ROLE_NOT_FOUND) revert IProfileACL.ProfileACLRoleNotFound();
     else if(status == IProfileACL.ProfileAuthorizationStatus.TYPE_NOT_FOUND) revert IProfileACL.ProfileACLTypeNotFound();

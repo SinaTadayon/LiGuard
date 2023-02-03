@@ -16,6 +16,7 @@ interface IACL {
     UNAUTHORIZED,
     POLICY_FORBIDDEN,
     CALL_FORBIDDEN,
+    ROLE_SCOPE_FORBIDDEN,
     MEMBER_NOT_FOUND,
     ROLE_NOT_FOUND,
     TYPE_NOT_FOUND,
@@ -36,6 +37,7 @@ interface IACL {
   error ACLUnauthorized();
   error ACLPolicyForbidden();
   error ACLCallForbidden();
+  error ACLRoleScopeForbidden();
   error ACLMemberNotFound();
   error ACLRoleNotFound();
   error ACLTypeNotFound();

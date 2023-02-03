@@ -290,6 +290,9 @@ describe("Lively Guard Tests",
     const ACL_MANAGER_CONTRACT_NAME = "ACLManager";
     const CONTRACTS_VERSION =  "3.0.0";
 
+
+
+
     const memberIface = new ethers.utils.Interface(MemberManager__factory.abi);
     let domainManagerSubjectTest: DomainManagerTest;
     let domainManagerProxyTest: DomainManagerTest;
@@ -2007,8 +2010,8 @@ describe("Lively Guard Tests",
               profileIface.getSighash("profileCheckId"),
               profileIface.getSighash("profileCheckName"),
               profileIface.getSighash("profileCheckOwner"),
-              profileIface.getSighash("profileCheckLivelyAdmin"),
-              profileIface.getSighash("profileCheckLivelySystemAdmin"),
+              profileIface.getSighash("profileCheckProfileAdmin"),
+              profileIface.getSighash("profileCheckProfileSystemAdmin"),
               profileIface.getSighash("profileCheckAdmin"),
               profileIface.getSighash("profileGetProfileAccount"),
               profileIface.getSighash("profileGetAdmins"),

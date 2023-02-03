@@ -191,11 +191,11 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
     return _data.profiles[profileId].owner == account;
   }
 
-  function profileCheckLivelyAdmin(bytes32 profileId, address account) external view returns (bool) {
+  function profileCheckProfileAdmin(bytes32 profileId, address account) external view returns (bool) {
     return _data.profiles[profileId].admins.contains(LACLUtils.accountGenerateId(account));
   }
 
-  function profileCheckLivelySystemAdmin(bytes32 profileId, address account) external view returns (bool) {
+  function profileCheckProfileSystemAdmin(bytes32 profileId, address account) external view returns (bool) {
     ProfileEntity storage profileEntity =  _data.profiles[profileId];
     if(profileEntity.acstat == ActivityStatus.NONE) return false;
     (ProfileMemberEntity storage profileMemberEntity, bool result) = profileEntity.profileMemberTryReadSlot(LACLUtils.accountGenerateId(account));

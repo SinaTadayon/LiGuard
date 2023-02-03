@@ -262,6 +262,9 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
       // console.logBytes1(bytes1(uint8(typeEntity.ba.acstat)));
       if(!result2) return IACL.AuthorizationStatus.TYPE_NOT_FOUND;
       if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AuthorizationStatus.TYPE_ACTIVITY_FORBIDDEN;
+      if(_data.scopes[roleEntity.scopeId].stype == ScopeType.FUNCTION && roleEntity.scopeId != agentId) 
+        return IACL.AuthorizationStatus.ROLE_SCOPE_FORBIDDEN;
+
 
       // check memberId with agentId role
       if (typeEntity.members[memberId] != agentId) return IACL.AuthorizationStatus.UNAUTHORIZED;
@@ -316,6 +319,8 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
         // console.logBytes1(bytes1(uint8(roleEntity.ba.acstat)));
         if(!result2) return IACL.AuthorizationStatus.ROLE_NOT_FOUND;
         if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AuthorizationStatus.ROLE_ACTIVITY_FORBIDDEN;
+        if(_data.scopes[roleEntity.scopeId].stype == ScopeType.FUNCTION && roleEntity.scopeId != agentId) 
+          return IACL.AuthorizationStatus.ROLE_SCOPE_FORBIDDEN;
         
         // check policy activation
         PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[roleId]];
