@@ -365,7 +365,11 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
       "Illegal Activity/Alterability"
     );
 
-    _doCheckAgentId(functionRequest.agentId, contextId);
+    if(functionRequest.agentId != _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID && 
+        functionRequest.agentId != _LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID && 
+        functionRequest.agentId != _LIVELY_PROFILE_ANY_TYPE_ID) {
+      _doCheckAgentId(functionRequest.agentId, contextId);
+    }
     FunctionEntity storage functionEntity = _data.functionWriteSlot(newFunctionId);
     functionEntity.bs.stype = ScopeType.FUNCTION;
     functionEntity.contextId = contextId;

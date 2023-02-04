@@ -1003,7 +1003,7 @@ describe("Lively Guard Tests",
 
       it("Should call proxyableUUID from proxy failed", async () => {
         // when and then
-        await expect(aclManagerProxy.proxiableUUID()).to.be.revertedWith("Illegal Delegatecall");
+        await expect(aclManagerProxy.proxiableUUID()).to.be.revertedWith("Illegal Call");
       });
 
       it("Should upgrade proxy reverted", async () => {
@@ -1891,12 +1891,19 @@ describe("Lively Guard Tests",
         const firstInit = await aclManagerProxy.getFirstInit();
 
         // when
-        await aclManagerProxy.connect(systemAdmin).initACL(
+        await expect(aclManagerProxy.connect(systemAdmin).initACL(
           contextManagerProxy.address,
           functionManagerProxy.address,
           livelyAdminWallet.address,
           systemAdminWallet.address
-        );
+        )).to.emit(aclManagerProxy, "ACLInitialized")
+          .withArgs(
+            systemAdminWallet.address,
+            livelyAdminWallet.address,
+            systemAdminWallet.address,
+            contextManagerProxy.address,
+            functionManagerProxy.address,
+          )
 
         // then
         expect(await aclManagerProxy.getFirstInit()).to.be.equal(firstInit);
