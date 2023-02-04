@@ -54,6 +54,14 @@ interface IACLManager is IACLCommons{
     ActionType action
   );
 
+  event ACLInitialized(
+    address indexed sender,
+    address indexed admin,
+    address indexed systemAdmin,
+    address contextManager, 
+    address functionManager
+  );
+
   function aclRegisterFacet(FacetRegisterRequest[] calldata requests) external returns (bool);
 
   function aclUpgradeFacet(FacetUpgradeRequest[] calldata requests) external returns (bool);

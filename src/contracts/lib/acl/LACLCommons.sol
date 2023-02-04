@@ -540,10 +540,11 @@ library LACLCommons {
     livelyMasterAdminMember.ba.adminId = LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
     livelyMasterAdminMember.ba.atype = IACLCommons.AgentType.MEMBER;
     livelyMasterAdminMember.ba.alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
-    livelyMasterAdminMember.ba.acstat = IACLCommons.ActivityStatus.ENABLED;      
+    livelyMasterAdminMember.ba.acstat = IACLCommons.ActivityStatus.ENABLED;
 
     // bind Lively Master Admin Member to Admin role of Lively, Scope, Type, Member, Profile and Policy types
     livelyMasterAdminMember.types.add(LIVELY_VERSE_LIVELY_MASTER_TYPE_ID);
+
     livelyMasterAdminMember.types.add(LIVELY_VERSE_SCOPE_MASTER_TYPE_ID);
     livelyMasterAdminMember.types.add(LIVELY_VERSE_TYPE_MASTER_TYPE_ID);
     livelyMasterAdminMember.types.add(LIVELY_VERSE_MEMBER_MASTER_TYPE_ID);
@@ -691,8 +692,9 @@ library LACLCommons {
       typeMasterAdminRole.ba.acstat = IACLCommons.ActivityStatus.ENABLED;
       typeMasterAdminRole.ba.alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
       typeMasterAdminRole.ba.adminId = LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
+    }
 
-      
+    {      
       // Create Member Master Type
       IACLCommons.TypeEntity storage memberMasterType = data.typeWriteSlot(LIVELY_VERSE_MEMBER_MASTER_TYPE_ID);
       memberMasterType.name = "TYPE.LIVELY_VERSE.LIVELY_MEMBER_MASTER";
@@ -763,7 +765,8 @@ library LACLCommons {
       profileMasterAdminRole.ba.acstat = IACLCommons.ActivityStatus.ENABLED;
       profileMasterAdminRole.ba.alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
       profileMasterAdminRole.ba.adminId = LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
-
+    }
+    {
       // Create Anonymouse  Type
       IACLCommons.TypeEntity storage anonymousType = data.typeWriteSlot(LIVELY_VERSE_ANONYMOUS_TYPE_ID);
       anonymousType.name = "TYPE.LIVELY_VERSE.LIVELY_ANONYMOUS";
@@ -783,10 +786,11 @@ library LACLCommons {
       anyType.ba.atype = IACLCommons.AgentType.TYPE;
       anyType.ba.acstat = IACLCommons.ActivityStatus.ENABLED;
       anyType.ba.alstat = IACLCommons.AlterabilityStatus.DISABLED;
+
     }
 
     // update livelyGlobalEntity.bs.referredByAgent
     livelyGlobalEntity.bs.referredByAgent = 16;
-    livelyGlobalEntity.domains.add(LACLUtils.generateId2("DOMAIN.LIVELY_VERSE.LIVELY_GUARD"));
+    livelyGlobalEntity.domains.add(LACLUtils.generateId2("DOMAIN.LIVELY_VERSE.LIVELY_GUARD"));   
   }
 }

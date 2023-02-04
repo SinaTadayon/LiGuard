@@ -7294,6 +7294,18 @@ describe("Lively Guard Profile Tests", function() {
         expect(profileInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
       })
 
+      it("Should disable PROFILE_TEST_NAME profile alterability by someone failed", async() => {
+        // given
+        const requests: IACLCommonsRoles.UpdateAlterabilityRequestStruct[] = [{
+          id: profileTestId,
+          alstat: AlterabilityStatus.DISABLED
+        }]
+
+        // when
+        await expect(profileManagerDelegateProxy.connect(user1).profileUpdateAlterabilityStatus(requests))
+          .to.revertedWith("ACLUnauthorized()");
+      })
+
       it("Should disable PROFILE_TEST_NAME profile alterability success", async() => {
         // given
         const requests: IACLCommonsRoles.UpdateAlterabilityRequestStruct[] = [{
@@ -7402,6 +7414,19 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(livelyAdminWallet.address, profileTestId, AlterabilityStatus.UPDATABLE)
       })
 
+      it("Should disable PROFILE_TEST_NAME profile activity by someone failed", async() => {
+        // given
+        const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
+          id: profileTestId,
+          acstat: ActivityStatus.DISABLED
+        }]
+
+        // when
+        await expect(profileManagerDelegateProxy.connect(livelyAdmin).profileUpdateActivityStatus(requests))
+          .to.revertedWith("ACLUnauthorized()");
+
+      })
+
       it("Should disable PROFILE_TEST_NAME profile activity success", async() => {
         // given
         const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
@@ -7436,6 +7461,39 @@ describe("Lively Guard Profile Tests", function() {
         await expect(profileManagerDelegateProxy.connect(livelyAdmin).profileUpdateActivityStatus(requests))
           .to.emit(profileManagerDelegateProxy, "ProfileActivityUpdated")
           .withArgs(livelyAdminWallet.address, profileTestId, ActivityStatus.ENABLED)
+      })
+
+      it("Should update limits of PROFILE_TEST_NAME profile by someone failed", async() => {
+        // given
+        const requests: IProfileManagement.ProfileUpdateLimitsRequestStruct[] = [{
+          profileId: profileTestId,
+          registerLimits: {
+            memberRegisterLimit: 10,
+            roleRegisterLimit: 10,
+            typeRegisterLimit: 10,
+            functionRegisterLimit: 10,
+            contextRegisterLimit: 10,
+            realmRegisterLimit: 10,
+            domainRegisterLimit: 10,
+            policyRegisterLimit: 10,
+          },
+          limits: {
+            profileCallLimit: 20,
+            contextLimit: 20,
+            memberLimit: 20,
+            realmLimit: 20,
+            domainLimit: 20,
+            memberCallLimit: 20,
+            typeRoleLimit: 20,
+            typeLimit: 20,
+            policyRoleLimit: 20,
+            functionLimit: 20,
+          },
+        }]
+
+        // then
+        await expect(profileManagerDelegateProxy.connect(systemAdmin).profileUpdateLimits(requests))
+          .to.revertedWith("ACLUnauthorized()");
       })
 
       it("Should update limits of PROFILE_TEST_NAME profile success", async() => {
@@ -7473,6 +7531,18 @@ describe("Lively Guard Profile Tests", function() {
             [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], [10, 10, 10, 10, 10, 10, 10, 10])
       })
 
+      it("Should update Expiration of PROFILE_TEST_NAME profile by someone failed", async() => {
+        // given
+        const requests: IProfileManagement.ProfileUpdateExpirationRequestStruct[] = [{
+          profileId: profileTestId,
+          expiredAt: BigNumber.from(Date.now() + 30000)
+        }]
+
+        // then
+        await expect(profileManagerDelegateProxy.connect(livelyAdmin).profileUpdateExpiration(requests))
+          .to.revertedWith("ACLUnauthorized()");
+      })
+
       it("Should update Expiration of PROFILE_TEST_NAME profile success", async() => {
         // given
         const requests: IProfileManagement.ProfileUpdateExpirationRequestStruct[] = [{
@@ -7486,7 +7556,19 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(livelyAdminWallet.address, profileTestId, BigNumber.from(Date.now() + 30000))
       })
 
-      it("Should update admin of PROFILE_TEST_NAME profile  success", async() => {
+      it("Should update admin of PROFILE_TEST_NAME profile by someone failed", async() => {
+        // given
+        const requests: IACLCommonsRoles.UpdateAdminRequestStruct[] = [{
+          id: profileTestId,
+          adminId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID
+        }]
+
+        // when
+        await expect(profileManagerDelegateProxy.connect(user2).profileUpdateAdmin(requests))
+          .to.revertedWith("ACLUnauthorized()");
+      })
+
+      it("Should update admin of PROFILE_TEST_NAME profile success", async() => {
         // given
         const requests: IACLCommonsRoles.UpdateAdminRequestStruct[] = [{
           id: profileTestId,
@@ -7497,6 +7579,19 @@ describe("Lively Guard Profile Tests", function() {
         await expect(profileManagerDelegateProxy.connect(livelyAdmin).profileUpdateAdmin(requests))
           .to.emit(profileManagerDelegateProxy, "ProfileAdminUpdated")
           .withArgs(livelyAdminWallet.address, profileTestId, LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
+      })
+
+      it("Should update profile OwnerAccount by someone failed", async() => {
+        // given
+        const requests: IProfileManagement.ProfileUpdateOwnerAccountRequestStruct[] = [{
+          profileId: profileTestId,
+          owner: profileOwnerWallet.address,
+          newOwner: profileOwnerWallet2.address
+        }]
+
+        // when
+        await expect(profileManagerDelegateProxy.connect(livelyAdmin).profileUpdateOwnerAccount(requests))
+          .to.revertedWith("ACLUnauthorized()");
       })
 
       it("Should update profile OwnerAccount success", async() => {
@@ -7561,8 +7656,6 @@ describe("Lively Guard Profile Tests", function() {
         expect(profileInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
         expect(profileInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
       })
-
-
 
     })
 

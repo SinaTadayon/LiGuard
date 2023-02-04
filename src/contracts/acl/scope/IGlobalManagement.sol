@@ -12,7 +12,7 @@ pragma solidity 0.8.17;
 
 import "../IACLCommons.sol";
 
-interface IGlobalManagement is IACLCommons{
+interface IGlobalManagement is IACLCommons {
  
   struct GlobalInfo {
     bytes32 id;
@@ -24,15 +24,17 @@ interface IGlobalManagement is IACLCommons{
     AgentType adminType;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
-  }
+  }  
     
-  event GlobalAdminUpdated(address indexed sender, bytes32 globalId, bytes32 indexed adminId);
+  event GlobalRegistered(address indexed sender, bytes32 indexed globalId, bytes32 indexed adminId);
 
-  event GlobalDomainLimitUpdated(address indexed sender, bytes32 globalId, uint16 domainLimit);
+  event GlobalAdminUpdated(address indexed sender, bytes32 indexed globalId, bytes32 indexed adminId);
 
-  event GlobalActivityUpdated(address indexed sender, bytes32 globalId, ActivityStatus acstat);
+  event GlobalDomainLimitUpdated(address indexed sender, bytes32 indexed globalId, uint16 domainLimit);
 
-  event GlobalAlterabilityUpdated(address indexed sender, bytes32 globalId, AlterabilityStatus alstat);
+  event GlobalActivityUpdated(address indexed sender, bytes32 indexed globalId, ActivityStatus acstat);
+
+  event GlobalAlterabilityUpdated(address indexed sender, bytes32 indexed globalId, AlterabilityStatus alstat);
 
   function globalUpdateActivityStatus(ActivityStatus acstat) external returns (ActivityStatus);
 
