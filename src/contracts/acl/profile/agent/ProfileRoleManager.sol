@@ -154,7 +154,15 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
         require(roleEntity.memberCount < roleEntity.memberLimit, "Illegal Grant");
         ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(requests[i].members[j]);
         if(profileMemberEntity.types.contains(roleEntity.typeId)) {
-          require(typeEntity.members[requests[i].members[j]] != requests[i].roleId, "Already Exist");
+          {
+            bytes32 currentRoleId = typeEntity.members[requests[i].members[j]];          
+            require(currentRoleId != requests[i].roleId, "Already Exist");
+            RoleEntity storage currentRoleEntity = _doGetEntityAndCheckAdminAccess(profileEntity, currentRoleId, senderId, functionId);
+            require(currentRoleEntity.memberCount > 0, "Illegal MemberTotal");
+            unchecked { currentRoleEntity.memberCount -= 1; }          
+          }
+          emit ProfileRoleMemberRevoked(msg.sender, requests[i].profileId, typeEntity.members[requests[i].members[j]], requests[i].members[j], roleEntity.typeId);
+
         } else {
           require(profileMemberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
           require(profileMemberEntity.typeLimit > profileMemberEntity.types.length(), "Illegal TypeLimit");
@@ -170,7 +178,7 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
       }  
     }
     return true;
-  }
+  } 
 
   function profileRoleRevokeMembers(ProfileRoleRevokeMembersRequest[] calldata requests) external returns (bool) {
     for(uint i = 0; i < requests.length; i++) {

@@ -173,7 +173,7 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
           RoleEntity storage currentRoleEntity = _doGetEntityAndCheckAdminAccess(currentRoleId, senderId, functionId);
           require(currentRoleEntity.memberCount > 0, "Illegal MemberTotal");
           unchecked { currentRoleEntity.memberCount -= 1; }          
-          emit RoleMemberRevoked(msg.sender, currentRoleId, requests[i].members[j], roleEntity.typeId);
+          emit RoleMemberRevoked(msg.sender, currentRoleId, requests[i].members[j], currentRoleEntity.typeId);
         
         } else {
           require(memberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
