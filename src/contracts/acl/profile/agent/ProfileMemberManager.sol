@@ -295,6 +295,7 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
 
       // check adminId
       if(memberRequest.adminId != bytes32(0)) {
+        require(profileEntity.agents[memberRequest.adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
         adminAccessStatus = _doCheckAdminAccess(profileEntity, _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID, senderId, functionId);
         if(adminAccessStatus != IProfileACL.ProfileAdminAccessStatus.PERMITTED) revert IProfileACL.ProfileSetAdminForbidden(adminAccessStatus);
         newMember.ba.adminId = memberRequest.adminId;

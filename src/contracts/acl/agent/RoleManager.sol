@@ -168,7 +168,13 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
         require(roleEntity.memberCount < roleEntity.memberLimit, "Illegal Grant");
         MemberEntity storage memberEntity = _data.memberReadSlot(requests[i].members[j]);
         if(memberEntity.types.contains(roleEntity.typeId)) {
-          require(typeEntity.members[requests[i].members[j]] != requests[i].roleId, "Already Exist");
+          bytes32 currentRoleId = typeEntity.members[requests[i].members[j]];
+          require(currentRoleId != requests[i].roleId, "Already Exist");
+          RoleEntity storage currentRoleEntity = _doGetEntityAndCheckAdminAccess(currentRoleId, senderId, functionId);
+          require(currentRoleEntity.memberCount > 0, "Illegal MemberTotal");
+          unchecked { currentRoleEntity.memberCount -= 1; }          
+          emit RoleMemberRevoked(msg.sender, currentRoleId, requests[i].members[j], roleEntity.typeId);
+        
         } else {
           require(memberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
           require(memberEntity.limits.typeLimit > memberEntity.types.length(), "Illegal Member Types");
@@ -333,7 +339,7 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
       (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(adminId);
       require(requestScopeType <= requestAdminScopeType, "Illegal Admin ScopeType");
       if(requestScopeType == requestAdminScopeType) {
-        require(requestAdminScopeId == scopeId, "Illegal Amind Scope");
+        require(requestAdminScopeId == scopeId, "Illegal Admin Scope");
       } else {
         require(IACLGenerals(address(this)).isScopesCompatible(requestAdminScopeId, scopeId), "Illegal Admin Scope");
       }

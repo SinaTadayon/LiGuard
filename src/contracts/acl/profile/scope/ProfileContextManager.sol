@@ -147,7 +147,7 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
           (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(profileEntity, requests[i].data[j].adminId);
           require(ScopeType.CONTEXT <= requestAdminScopeType, "Illegal Admin ScopeType");
           if(ScopeType.CONTEXT == requestAdminScopeType) {
-            require(requestAdminScopeId == requests[i].data[j].entityId, "Illegal Amind Scope");
+            require(requestAdminScopeId == requests[i].data[j].entityId, "Illegal Admin Scope");
           } else {
             require(IProfileACLGenerals(address(this)).profileIsScopesCompatible(requests[i].profileId, requestAdminScopeId, requests[i].data[j].entityId), "Illegal Admin Scope");
           }
@@ -345,20 +345,7 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
   }
 
   function _hashTypedDataV4(bytes32 structHash) internal view returns (bytes32) {
-    return LECDSA.toTypedDataHash(_contractDomainSeparatorV4(), structHash);
-  }
-
-  function _contractDomainSeparatorV4() internal view returns (bytes32) {
-    return
-      keccak256(
-        abi.encode(
-          TYPE_HASH,          
-          IProxy(address(this)).contractName(),
-          IProxy(address(this)).contractVersion(),
-          block.chainid,
-          address(this)
-        )
-      );
+    return LECDSA.toTypedDataHash(IProxy(address(this)).domainSeparator(), structHash);
   }
 
   function getLibrary() external pure returns (address) {

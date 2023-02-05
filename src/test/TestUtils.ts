@@ -23,7 +23,7 @@ export const MESSAGE_PROFILE_PREDICT_CONTEXT_TYPE_HASH = ethers.utils.keccak256(
   ethers.utils.toUtf8Bytes("ProfilePredictContext(bytes32 profileId,address deployer,address subject,string realm)"));
 
 export const MESSAGE_PROFILE_REGISTER_TYPE_HASH = ethers.utils.keccak256(
-  ethers.utils.toUtf8Bytes("ProfileRegister(string name,address owner,uint64 expiredAt)"));
+  ethers.utils.toUtf8Bytes("ProfileRegister(string name,address owner,uint256 expiredAt)"));
 
 export const PERMIT_TYPE_HASH: string = ethers.utils.keccak256(
   ethers.utils.toUtf8Bytes("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)")
@@ -503,9 +503,8 @@ export async function generateProfileRegisterSignatureManually(
     ]
   );
   const domainEncode = ethers.utils.keccak256(domainAbiEncode);
-
   const messageAbiEncode = abiCoder.encode(
-    ["bytes32", "bytes32", "address", "uint64"],
+    ["bytes32", "bytes32", "address", "uint256"],
     [
       MESSAGE_PROFILE_REGISTER_TYPE_HASH,
       ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [profileName])),
@@ -520,6 +519,47 @@ export async function generateProfileRegisterSignatureManually(
   const signature = signerAddress._signingKey().signDigest(domainMessageHash);
   return signature.compact;
 }
+
+export async function generateProfilePredictContextDomainByHardHat(
+  profileName: string,
+  ownerAddress: Address,
+  verifyingContract: Address,
+  signerAddress: Address,
+  chainId: string,
+  expiredAt: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): Promise<string> {
+  const messageParams = JSON.stringify({
+    types: {
+      EIP712Domain: [
+        { name: "name", type: "string" },
+        { name: "version", type: "string" },
+        { name: "chainId", type: "uint256" },
+        { name: "verifyingContract", type: "address" },
+      ],
+      ProfileRegister: [
+        { name: "name", type: "string" },
+        { name: "owner", type: "address" },
+        { name: "expiredAt", type: "uint256" },
+      ],
+    },
+    primaryType: "ProfileRegister",
+    domain: {
+      name: "ACLManager",
+      version: "3.0.0",
+      chainId,
+      verifyingContract,
+    },
+    message: {
+      name: profileName,
+      owner: ownerAddress,
+      expiredAt: expiredAt,
+    },
+  });
+
+  return await provider.send("eth_signTypedData_v4", [signerAddress, messageParams]);
+}
+
 
 export function generateDomainSeparator(
   contractName: string,

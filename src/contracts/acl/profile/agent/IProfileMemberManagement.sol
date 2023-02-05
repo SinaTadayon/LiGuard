@@ -70,7 +70,7 @@ interface IProfileMemberManagement is IACLCommons {
 
   event ProfileMemberRoleGranted(address indexed sender, bytes32 indexed profileId, bytes32 indexed roleId, bytes32 memberId, bytes32 typeId);
 
-  event ProfileMemberDeleted(address indexed sender, bytes32 indexed memberId, address indexed account);
+  // event ProfileMemberDeleted(address indexed sender, bytes32 indexed memberId, address indexed account);
 
   event ProfileMemberTypeLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed memberId, uint16 typeLimit);
 

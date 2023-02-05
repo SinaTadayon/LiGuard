@@ -133,7 +133,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
         (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(requests[i].adminId);
         require(ScopeType.CONTEXT <= requestAdminScopeType, "Illegal Admin ScopeType");
         if(ScopeType.CONTEXT == requestAdminScopeType) {
-          require(requestAdminScopeId == requests[i].id, "Illegal Amind Scope");
+          require(requestAdminScopeId == requests[i].id, "Illegal Admin Scope");
         } else {
           require(IACLGenerals(address(this)).isScopesCompatible(requestAdminScopeId, requests[i].id), "Illegal Admin Scope");
         }
@@ -401,20 +401,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
   }
 
   function _hashTypedDataV4(bytes32 structHash) internal view returns (bytes32) {
-    return LECDSA.toTypedDataHash(_contractDomainSeparatorV4(), structHash);
-  }
-
-  function _contractDomainSeparatorV4() internal view returns (bytes32) {
-    return
-      keccak256(
-        abi.encode(
-          TYPE_HASH,                    
-          IProxy(address(this)).contractName(),
-          IProxy(address(this)).contractVersion(),
-          block.chainid,
-          address(this)
-        )
-      );
+    return LECDSA.toTypedDataHash(IProxy(address(this)).domainSeparator(), structHash);
   }
 
   function _doRegisterContext(ContextRegisterRequest calldata request, address contractId, address signer) internal {

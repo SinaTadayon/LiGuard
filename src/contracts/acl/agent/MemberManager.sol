@@ -96,6 +96,7 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
 
       // check adminId
       if(requests[i].adminId != bytes32(0)) {
+        require(_data.agents[requests[i].adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
         adminAccessStatus = _doCheckAdminAccess(_LIVELY_VERSE_MEMBER_MASTER_TYPE_ID, senderId, functionId);        
         if(adminAccessStatus != IACL.AdminAccessStatus.PERMITTED) revert IACL.SetAdminForbidden(adminAccessStatus);
         newMember.ba.adminId = requests[i].adminId;

@@ -247,6 +247,7 @@ describe("Lively Guard Tests",
     let networkChainId: BigNumber;
     let aclRoleTestId: string;
     let aclRoleTestId2: string;
+    let aclRoleTestId3: string;
     let aclRoleGlobalAdminTestId: string;
     let aclTypeTestId: string;
     let aclPolicyTestId: string;
@@ -255,6 +256,7 @@ describe("Lively Guard Tests",
     let aclRealmTestId: string;
     const ACL_ROLE_TEST_NAME = "ACL_ROLE_TEST";
     const ACL_ROLE_TEST_NAME_2 = "ACL_ROLE_TEST_2";
+    const ACL_ROLE_TEST_NAME_3 = "ACL_ROLE_TEST_3";
     const ACL_ROLE_GLOBAL_ADMIN_TEST_NAME = "ACL_ROLE_GLOBAL_ADMIN_TEST";
     const ACL_TYPE_TEST_NAME = "ACL_TYPE_TEST";
     const ACL_POLICY_TEST_NAME = "ACL_POLICY_TEST";
@@ -289,8 +291,6 @@ describe("Lively Guard Tests",
 
     const ACL_MANAGER_CONTRACT_NAME = "ACLManager";
     const CONTRACTS_VERSION =  "3.0.0";
-
-
 
 
     const memberIface = new ethers.utils.Interface(MemberManager__factory.abi);
@@ -8158,6 +8158,43 @@ describe("Lively Guard Tests",
           .withArgs(systemAdminWallet.address, aclRoleTestId2, LIVELY_VERSE_ACL_REALM_ID)
       })
 
+      it("Should register aclRoleTest3 in ACL type success", async() => {
+        // given
+        const memberUpdateAdminFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [memberManagerProxy.address,  memberIface.getSighash("memberUpdateAdmin")]));
+        aclRoleTestId3 = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_TEST_NAME_3));
+        const roleRegisterRequests: IRoleManagement.RoleRegisterRequestStruct[] = [
+          {
+            adminId: ethers.constants.HashZero,
+            scopeId: memberUpdateAdminFunctionId,
+            typeId: aclTypeTestId,
+            memberLimit: -1,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE,
+            name: ACL_ROLE_TEST_NAME_3
+          }
+        ]
+
+        // when
+        await expect(roleManagerDelegateProxy.connect(systemAdmin).roleRegister(roleRegisterRequests))
+          .to.emit(roleManagerDelegateProxy, "RoleRegistered")
+          .withArgs(systemAdminWallet.address, aclRoleTestId3, aclTypeTestId,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, memberUpdateAdminFunctionId);
+
+        // and
+        const roleInfo: IRoleManagement.RoleInfoStruct = await roleManagerDelegateProxy.roleGetInfo(aclRoleTestId3);
+        expect(roleInfo.name).to.be.equal(ACL_ROLE_TEST_NAME_3);
+        expect(roleInfo.adminId).to.be.equal(LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID);
+        expect(roleInfo.scopeId).to.be.equal(memberUpdateAdminFunctionId);
+        expect(roleInfo.typeId).to.be.equal(aclTypeTestId);
+        expect(roleInfo.memberLimit).to.be.equal(5);
+        expect(roleInfo.memberCount).to.be.equal(0);
+        expect(roleInfo.adminType).to.be.equal(AgentType.ROLE);
+        expect(roleInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(roleInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+      })
+
       it("Should update admin of aclRoleTest when alterability disabled failed", async() => {
         // given
         const updateAdminRequests: IACLCommonsRoles.UpdateAdminRequestStruct[] = [{
@@ -8268,6 +8305,44 @@ describe("Lively Guard Tests",
         await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleUpdateAlterabilityStatus(requests))
           .to.emit(roleManagerDelegateProxy, "RoleAlterabilityUpdated")
           .withArgs(livelyAdminWallet.address, aclRoleTestId, AlterabilityStatus.UPDATABLE)
+      })
+
+      it("Should aclRoleTest register user1 with illegal admin failed", async() => {
+        // given
+        const roleMemberUserId1 =  ethers.utils.keccak256(userWallet1.address);
+        const memberRegisterRequests: IMemberManagement.MemberRegisterRequestStruct[] = [
+          {
+            adminId: ethers.utils.keccak256(livelyAdminWallet.address),
+            roleId: aclRoleTestId,
+            account: userWallet1.address,
+            limits: {
+              memberLimit: 32,
+              memberRegisterLimit: 32,
+              contextRegisterLimit: 32,
+              functionRegisterLimit: 32,
+              profileRegisterLimit: 32,
+              contextLimit: 32,
+              realmLimit: 32,
+              domainLimit: 32,
+              callLimit: 1,
+              typeRoleLimit: 32,
+              typeLimit: 2,
+              roleRegisterLimit: 32,
+              typeRegisterLimit: 32,
+              realmRegisterLimit: 32,
+              domainRegisterLimit: 32,
+              policyRegisterLimit: 32,
+              policyRoleLimit: 32,
+              functionLimit: 32,
+            },
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          }
+        ]
+
+        // when
+        await expect(memberManagerDelegateProxy.connect(livelyAdmin).memberRegister(memberRegisterRequests))
+          .to.revertedWith("Illegal Admin AgentType");
       })
 
       it("Should aclRoleTest register user1 success", async() => {
@@ -8871,10 +8946,12 @@ describe("Lively Guard Tests",
         // given
         const userId1 = ethers.utils.keccak256(userWallet1.address)
         const userId2 = ethers.utils.keccak256(userWallet2.address)
-        const requests: IRoleManagement.RoleGrantMembersRequestStruct[] = [{
-          roleId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-          members: [userId1, userId2]
-        }]
+        const requests: IRoleManagement.RoleGrantMembersRequestStruct[] = [
+          {
+            roleId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            members: [userId1, userId2]
+          },
+        ]
 
         // when
         await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleGrantMembers(requests))
@@ -8905,7 +8982,7 @@ describe("Lively Guard Tests",
 
         // and
         expect(await typeManagerDelegateProxy.typeGetRoles(LIVELY_VERSE_ACL_TYPE_ID)).to.be.eqls([LIVELY_VERSE_ACL_ADMIN_ROLE_ID]);
-        expect(await typeManagerDelegateProxy.typeGetRoles(aclTypeTestId)).to.be.eqls([aclRoleTestId, aclRoleTestId2]);
+        expect(await typeManagerDelegateProxy.typeGetRoles(aclTypeTestId)).to.be.eqls([aclRoleTestId, aclRoleTestId2, aclRoleTestId3]);
       })
 
       it("Should revoke user1 from aclAdminRole success", async() => {
@@ -9481,7 +9558,7 @@ describe("Lively Guard Tests",
         expect(await policyManagerDelegateProxy.policyGetRoles(aclPolicyTestId)).to.be.eqls([aclRoleTestId2, aclRoleTestId])
       })
 
-      it("Should remove roles aclRoleTestId to aclPolicyTest success", async() => {
+      it("Should remove roles aclRoleTestId2 to aclPolicyTest success", async() => {
         // given
         const requests: IPolicyManagement.PolicyAddRolesRequestStruct[] = [{
           policyId: aclPolicyTestId,
@@ -9498,7 +9575,7 @@ describe("Lively Guard Tests",
         expect(await policyManagerDelegateProxy.policyHasRole(aclPolicyTestId, aclRoleTestId2)).to.be.false;
       })
 
-      it("Should update policyCode of aclPolicyTest to LOCK success", async() => {
+      it("Should update policyCode of aclPolicyTest to UNLOCK success", async() => {
         // given
         const memberRegisterFunctionId = ethers.utils.keccak256(
               ethers.utils.solidityPack(["address", "bytes4"],
@@ -9507,19 +9584,19 @@ describe("Lively Guard Tests",
         const isRoleAccess = await policyManagerDelegateProxy.policyCheckRoleAccess(aclRoleTestId, memberRegisterFunctionId);
         const requests: IPolicyManagement.PolicyUpdateCodeRequestStruct[] = [{
           policyId: aclPolicyTestId,
-          policyCode: 255
+          policyCode: 0
         }]
 
         // when
         await expect(policyManagerDelegateProxy.connect(systemAdmin).policyUpdateCodes(requests))
           .to.emit(policyManagerDelegateProxy, "PolicyCodeUpdated")
-          .withArgs(systemAdminWallet.address, aclPolicyTestId, 255, PolicyType.LOCK);
+          .withArgs(systemAdminWallet.address, aclPolicyTestId, 0, PolicyType.UNLOCK);
 
         // and
         expect(isPolicyAccess).to.be.true;
         expect(isRoleAccess).to.be.true;
-        expect(await policyManagerDelegateProxy.policyCheckAccess(aclPolicyTestId, memberRegisterFunctionId)).to.be.false;
-        expect(await policyManagerDelegateProxy.policyCheckRoleAccess(aclRoleTestId, memberRegisterFunctionId)).to.be.false;
+        expect(await policyManagerDelegateProxy.policyCheckAccess(aclPolicyTestId, memberRegisterFunctionId)).to.be.true;
+        expect(await policyManagerDelegateProxy.policyCheckRoleAccess(aclRoleTestId, memberRegisterFunctionId)).to.be.true;
       })
     })
 
@@ -9666,7 +9743,83 @@ describe("Lively Guard Tests",
         expect(await functionManagerDelegateProxy.functionCheckSelector(memberManagerProxy.address, memberIface.getSighash("memberRegister"))).to.be.true;
       })
 
-      it("Should update agent of memberRegisterFunction success", async() => {
+      it("Should update agent of memberRegisterFunction to aclTypeTest success", async() => {
+        // given
+        const memberRegisterFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
+        const requests: IFunctionManagement.FunctionUpdateAgentRequestStruct[] = [{
+          functionId: memberRegisterFunctionId,
+          agentId: aclTypeTestId
+        }]
+
+        // when
+        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateAgent(requests))
+          .to.emit(functionManagerDelegateProxy, "FunctionAgentUpdated")
+          .withArgs(livelyAdminWallet.address, memberRegisterFunctionId, aclTypeTestId);
+
+        // then
+        expect(await functionManagerDelegateProxy.functionCheckAgent(memberRegisterFunctionId,  userWallet2.address)).to.be.true;
+        expect(await functionManagerDelegateProxy.functionCheckAgent(memberRegisterFunctionId,  userWallet3.address)).to.be.false;
+        expect(await functionManagerDelegateProxy.functionCheckAgent(memberRegisterFunctionId,  livelyAdminWallet.address)).to.be.false;
+      })
+
+      it("Should grant user2 to aclRoleTest3 success", async() => {
+        // given
+        const userId2 = ethers.utils.keccak256(userWallet2.address)
+        const requests: IRoleManagement.RoleGrantMembersRequestStruct[] = [
+          {
+            roleId: aclRoleTestId3,
+            members: [userId2]
+          },
+        ]
+
+        // when
+        await expect(roleManagerDelegateProxy.connect(systemAdmin).roleGrantMembers(requests))
+          .to.emit(roleManagerDelegateProxy, "RoleMemberRevoked")
+          .withArgs(systemAdminWallet.address, aclRoleTestId, userId2, aclTypeTestId)
+          .to.emit(roleManagerDelegateProxy, "RoleMemberGranted")
+          .withArgs(systemAdminWallet.address, aclRoleTestId3, userId2, aclTypeTestId)
+      })
+
+      it("Should aclRoleTest3 register user3 with Illegal role scope failed", async() => {
+        // given
+        const memberRegisterRequests: IMemberManagement.MemberRegisterRequestStruct[] = [
+          {
+            adminId: ethers.constants.HashZero,
+            roleId: aclRoleTestId,
+            account: userWallet3.address,
+            limits: {
+              memberLimit: 32,
+              memberRegisterLimit: 32,
+              contextRegisterLimit: 32,
+              functionRegisterLimit: 32,
+              profileRegisterLimit: 32,
+              contextLimit: 32,
+              realmLimit: 32,
+              domainLimit: 32,
+              callLimit: 1,
+              typeRoleLimit: 32,
+              typeLimit: 2,
+              roleRegisterLimit: 32,
+              typeRegisterLimit: 32,
+              realmRegisterLimit: 32,
+              domainRegisterLimit: 32,
+              policyRegisterLimit: 32,
+              policyRoleLimit: 32,
+              functionLimit: 32,
+            },
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE
+          }
+        ]
+
+        // when
+        await expect(memberManagerDelegateProxy.connect(user2).memberRegister(memberRegisterRequests))
+          .to.revertedWith("ACLRoleScopeForbidden()");
+      })
+
+      it("Should update agent of memberRegisterFunction to aclRoleTest success", async() => {
         // given
         const memberRegisterFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
@@ -9704,6 +9857,30 @@ describe("Lively Guard Tests",
 
         // then
         expect(await functionManagerDelegateProxy.functionCheckAdmin(memberRegisterFunctionId,  userWallet2.address)).to.be.true;
+      })
+
+      it("Should update policyCode of aclPolicyTest to LOCK success", async() => {
+        // given
+        const memberRegisterFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
+        const isPolicyAccess = await policyManagerDelegateProxy.policyCheckAccess(aclPolicyTestId, memberRegisterFunctionId);
+        const isRoleAccess = await policyManagerDelegateProxy.policyCheckRoleAccess(aclRoleTestId, memberRegisterFunctionId);
+        const requests: IPolicyManagement.PolicyUpdateCodeRequestStruct[] = [{
+          policyId: aclPolicyTestId,
+          policyCode: 255
+        }]
+
+        // when
+        await expect(policyManagerDelegateProxy.connect(systemAdmin).policyUpdateCodes(requests))
+          .to.emit(policyManagerDelegateProxy, "PolicyCodeUpdated")
+          .withArgs(systemAdminWallet.address, aclPolicyTestId, 255, PolicyType.LOCK);
+
+        // and
+        expect(isPolicyAccess).to.be.true;
+        expect(isRoleAccess).to.be.true;
+        expect(await policyManagerDelegateProxy.policyCheckAccess(aclPolicyTestId, memberRegisterFunctionId)).to.be.false;
+        expect(await policyManagerDelegateProxy.policyCheckRoleAccess(aclRoleTestId, memberRegisterFunctionId)).to.be.false;
       })
 
       it("Should aclRoleTest register user3 member with policy LOCK failed", async() => {
@@ -10207,24 +10384,24 @@ describe("Lively Guard Tests",
 
       it("Should grant user1 to scope master and aclAdminRole success", async() => {
         // given
-        const user1Id = ethers.utils.keccak256(userWallet1.address)
+        const userId1 = ethers.utils.keccak256(userWallet1.address)
         const requests: IRoleManagement.RoleGrantMembersRequestStruct[] = [
           {
             roleId: LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID,
-            members: [user1Id]
+            members: [userId1]
           },
           {
             roleId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            members: [user1Id]
+            members: [userId1]
           },
         ]
 
         // when
         await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleGrantMembers(requests))
           .to.emit(roleManagerDelegateProxy, "RoleMemberGranted")
-          .withArgs(livelyAdminWallet.address, LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID, user1Id, LIVELY_VERSE_SCOPE_MASTER_TYPE_ID)
+          .withArgs(livelyAdminWallet.address, LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID, userId1, LIVELY_VERSE_SCOPE_MASTER_TYPE_ID)
           .to.emit(roleManagerDelegateProxy, "RoleMemberGranted")
-          .withArgs(livelyAdminWallet.address, LIVELY_VERSE_ACL_ADMIN_ROLE_ID, user1Id, LIVELY_VERSE_ACL_TYPE_ID)
+          .withArgs(livelyAdminWallet.address, LIVELY_VERSE_ACL_ADMIN_ROLE_ID, userId1, LIVELY_VERSE_ACL_TYPE_ID)
       })
 
 

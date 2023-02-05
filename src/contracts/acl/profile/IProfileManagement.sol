@@ -17,9 +17,10 @@ interface IProfileManagement is IACLCommons {
     uint64 expiredAt;  
     ProfileRegisterLimit registerLimits;
     ProfileLimit limits;
-    address owner;
-    address admin;
-    address systemAdmin;
+    address profileOwner;
+    address profileAdmin;
+    address profileSystemAdmin;
+    bytes32 adminId;
     bytes signature;
   }
 
@@ -59,8 +60,8 @@ interface IProfileManagement is IACLCommons {
     address signer,
     address profileAdmin,
     address profileSystemAdmin,
-    ProfileRegisterLimit registerlimits,
-    ProfileLimit limits
+    bytes32 adminId,
+    ProfileRegisterLimit registerlimits
   );
 
   event ProfileAdminUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed adminId);

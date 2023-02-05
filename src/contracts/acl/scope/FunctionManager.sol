@@ -401,7 +401,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
       (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doGetAgentScopeInfo(adminId);
       require(ScopeType.CONTEXT <= requestAdminScopeType, "Illegal Admin ScopeType");
       if(ScopeType.CONTEXT == requestAdminScopeType) {  
-        require(requestAdminScopeId == contextAdminId, "Illegal Amind Scope");
+        require(requestAdminScopeId == contextAdminId, "Illegal Admin Scope");
       
       } else {
         require(IACLGenerals(address(this)).isScopesCompatible(requestAdminScopeId, contextId), "Illegal Admin Scope");
@@ -452,20 +452,6 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
   }
 
   function _hashTypedDataV4(bytes32 structHash) internal view returns (bytes32) {
-    return LECDSA.toTypedDataHash(_contractDomainSeparatorV4(), structHash);
+    return LECDSA.toTypedDataHash(IProxy(address(this)).domainSeparator(), structHash);
   }
-
-  function _contractDomainSeparatorV4() internal view returns (bytes32) {
-    return
-      keccak256(
-        abi.encode(
-          TYPE_HASH,          
-          IProxy(address(this)).contractName(),
-          IProxy(address(this)).contractVersion(),
-          block.chainid,
-          address(this)
-        )
-      );
-  }
-
 }

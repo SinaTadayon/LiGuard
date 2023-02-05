@@ -344,7 +344,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
       (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(adminId);
       require(requestScopeType <= requestAdminScopeType, "Illegal Admin ScopeType");
       if(requestScopeType == requestAdminScopeType) {
-        require(requestAdminScopeId == scopeId, "Illegal Amind Scope");
+        require(requestAdminScopeId == scopeId, "Illegal Admin Scope");
       } else {
         require(IACLGenerals(address(this)).isScopesCompatible(requestAdminScopeId, scopeId), "Illegal Admin Scope");
       }

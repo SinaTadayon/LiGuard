@@ -61,46 +61,22 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
   }
   
   function profileRegister(ProfileRegisterRequest[] calldata requests) external returns (bool) {
+    bytes32 functionId = LACLUtils.functionGenerateId(_data.selectors[IProfileManagement.profileRegister.selector], IProfileManagement.profileRegister.selector);
     for (uint i = 0; i < requests.length; i++) {
-      bytes32 signerId;
       address signer;
       if(requests[i].signature.length > 0) {
-        bytes32 structHash = _getContextMessageHash(           
-          LACLUtils.generateHash(requests[i].name), 
-          requests[i].owner,
+        bytes32 structHash = _getContextMessageHash(
+          LACLUtils.generateHash(requests[i].name),
+          requests[i].profileOwner,
           requests[i].expiredAt
         );
+
         signer = _doGetSignerAddress(requests[i].signature, structHash);
       } else {
         signer = msg.sender;
       }
 
-      signerId = LACLUtils.accountGenerateId(signer);
-      
-      {
-        bytes32 functionId = LACLUtils.functionGenerateId(_data.selectors[IProfileManagement.profileRegister.selector], IProfileManagement.profileRegister.selector);
-        IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, signerId);
-        if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status); 
-
-        // update member profile register limit
-        MemberEntity storage memberEntity = _data.memberReadSlot(signerId);
-        require(int32(uint32(memberEntity.limits.profileRegisterLimit)) - int16(uint16(requests.length)) >= 0, "Illegal RegisterLimit");
-        memberEntity.limits.profileRegisterLimit -= uint16(requests.length);          
-      }
-
-      bytes32 profileId = LACLUtils.generateId(requests[i].name);
-      require(_data.profiles[profileId].acstat == ActivityStatus.NONE, "Already Exist");
-      LACLCommons.profileRegister(_data, requests[i], signerId, profileId);
-      emit ProfileRegistered (
-        msg.sender,
-        profileId,
-        requests[i].owner,
-        signer,
-        requests[i].admin,
-        requests[i].systemAdmin,        
-        requests[i].registerLimits,
-        requests[i].limits
-      );
+      _doProfileRegister(requests[i], signer, functionId, uint16(requests.length));    
     }
     return true;
   }
@@ -151,7 +127,9 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
   function profileUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
     (bytes32 functionId, bytes32 senderId) = _accessPermission(IProfileManagement.profileUpdateAlterabilityStatus.selector);
     for(uint i = 0; i < requests.length; i++) {
-      ProfileEntity storage profileEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
+      ProfileEntity storage profileEntity = _data.profiles[requests[i].id];   
+      IACL.AdminAccessStatus status = _doCheckAdminAccess(profileEntity.adminId, senderId, functionId);
+      if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);  
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       profileEntity.alstat = requests[i].alstat;
       emit ProfileAlterabilityUpdated(msg.sender, requests[i].id, requests[i].alstat);
@@ -168,7 +146,7 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
       if(requests[i].adminId != bytes32(0)) {
         require(_data.agents[requests[i].adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
         bytes32 requestAdminScopeId = _doAgentGetScopeInfo(requests[i].adminId);
-        require(requestAdminScopeId == _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Amind Scope");
+        require(requestAdminScopeId == _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Admin Scope");
         profileEntity.adminId = requests[i].adminId;
       } else {
         profileEntity.adminId = _LIVELY_VERSE_PROFILE_MASTER_TYPE_ID;
@@ -304,7 +282,7 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
   function _getContextMessageHash(
     bytes32 name,
     address owner,
-    uint64 expiredAt
+    uint256 expiredAt
   ) internal pure returns (bytes32) {
     return keccak256(abi.encode(PROFILE_REGISTER_MESSAGE_TYPEHASH, name, owner, expiredAt));
   }
@@ -317,27 +295,46 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
   }
 
   function _hashTypedDataV4(bytes32 structHash) internal view returns (bytes32) {
-    return LECDSA.toTypedDataHash(_contractDomainSeparatorV4(), structHash);
-  }
-
-  function _contractDomainSeparatorV4() internal view returns (bytes32) {
-    return
-      keccak256(
-        abi.encode(
-          TYPE_HASH,          
-          IProxy(address(this)).contractName(),
-          IProxy(address(this)).contractVersion(),
-          block.chainid,
-          address(this)
-        )
-      );
+    return LECDSA.toTypedDataHash(IProxy(address(this)).domainSeparator(), structHash);
   }
 
   function _createUpdateProfileAccount(bytes32 profileId, address memberAddress) internal {
     LACLCommons.createUpdateProfileAccount(_data, profileId, memberAddress);
   }
 
+  function _doProfileRegister(ProfileRegisterRequest calldata request, address signer, bytes32 functionId, uint16 requestLength) internal {
+    bytes32 signerId = LACLUtils.accountGenerateId(signer);
+    
+    {
+      IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, signerId);
+      if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status); 
+
+      // update member profile register limit
+      MemberEntity storage memberEntity = _data.memberReadSlot(signerId);
+      require(int32(uint32(memberEntity.limits.profileRegisterLimit)) - int16(requestLength) >= 0, "Illegal RegisterLimit");
+      memberEntity.limits.profileRegisterLimit -= requestLength;
+    }
+
+    bytes32 profileId = LACLUtils.generateId(request.name);
+    require(_data.profiles[profileId].acstat == ActivityStatus.NONE, "Already Exist");
+    bytes32 adminId = LACLCommons.profileRegister(_data, request, signerId, profileId, functionId);      
+    if(request.signature.length == 0) {
+      signer = address(0);
+    }
+    emit ProfileRegistered (
+      msg.sender,
+      profileId,
+      request.profileOwner,
+      signer,
+      request.profileAdmin,
+      request.profileSystemAdmin,
+      adminId,     
+      request.registerLimits
+    );
+  }
+
   function getLibrary() external pure returns (address) {
     return address(LACLCommons);
   }
+
 }

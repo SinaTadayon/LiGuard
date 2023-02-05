@@ -327,7 +327,7 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
       (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(profileEntity, adminId);
       require(requestScopeType <= requestAdminScopeType, "Illegal Admin ScopeType");
       if(requestScopeType == requestAdminScopeType) {
-        require(requestAdminScopeId == scopeId, "Illegal Amind Scope");
+        require(requestAdminScopeId == scopeId, "Illegal Admin Scope");
       } else {
         require(IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, requestAdminScopeId, scopeId), "Illegal Admin Scope");
       }

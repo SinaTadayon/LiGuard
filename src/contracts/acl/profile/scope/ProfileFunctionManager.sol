@@ -364,20 +364,7 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
   }
 
   function _hashTypedDataV4(bytes32 structHash) internal view returns (bytes32) {
-    return LECDSA.toTypedDataHash(_contractDomainSeparatorV4(), structHash);
-  }
-
-  function _contractDomainSeparatorV4() internal view returns (bytes32) {
-    return
-      keccak256(
-        abi.encode(
-          TYPE_HASH,          
-          IProxy(address(this)).contractName(),
-          IProxy(address(this)).contractVersion(),
-          block.chainid,
-          address(this)
-        )
-      );
+    return LECDSA.toTypedDataHash(IProxy(address(this)).domainSeparator(), structHash);
   }
 
   function _doCheckSystemScope(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId, bytes32 memberId, bytes32 profileId) private view returns (bool) {

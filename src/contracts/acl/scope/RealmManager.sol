@@ -127,7 +127,7 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
         (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(requests[i].adminId);
         require(ScopeType.REALM <= requestAdminScopeType, "Illegal Admin ScopeType");
         if(ScopeType.REALM == requestAdminScopeType) {
-          require(requestAdminScopeId == requests[i].id, "Illegal Amind Scope");
+          require(requestAdminScopeId == requests[i].id, "Illegal Admin Scope");
         } else {
           require(IACLGenerals(address(this)).isScopesCompatible(requestAdminScopeId, requests[i].id), "Illegal Admin Scope");
         }
@@ -392,10 +392,10 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
       (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(adminId);
       require(ScopeType.DOMAIN <= requestAdminScopeType, "Illegal Admin ScopeType");
       if(ScopeType.DOMAIN == requestAdminScopeType){
-        require(requestAdminScopeId == domainId, "Illegal Amind Scope");
+        require(requestAdminScopeId == domainId, "Illegal Admin Scope");
 
       } else {
-        require(requestAdminScopeId == _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Amind Scope");
+        require(requestAdminScopeId == _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Admin Scope");
       }
       realmAdminId = adminId;
 

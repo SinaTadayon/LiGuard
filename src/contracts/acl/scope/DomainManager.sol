@@ -99,7 +99,7 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
       if(requests[i].adminId != bytes32(0)) {
         require(_data.agents[requests[i].adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
         bytes32 requestAdminScopeId = _doAgentGetScopeInfo(requests[i].adminId);
-        require(requestAdminScopeId == _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Amind Scope");
+        require(requestAdminScopeId == _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Admin Scope");
         newDomain.bs.adminId = requests[i].adminId;
       } else {
         newDomain.bs.adminId = livelyGlobalEntity.bs.adminId;
@@ -151,7 +151,7 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
       if(requests[i].adminId != bytes32(0)) {
         require(_data.agents[requests[i].adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
         bytes32 requestAdminScopeId = _doAgentGetScopeInfo(requests[i].adminId);
-        require(requestAdminScopeId == _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Amind Scope");
+        require(requestAdminScopeId == _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Admin Scope");
         domainEntity.bs.adminId = requests[i].adminId;
       } else {
         domainEntity.bs.adminId = _data.scopes[_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID].adminId;

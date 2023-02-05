@@ -116,7 +116,7 @@ contract ProfileDomainManager is ACLStorage, BaseUUPSProxy, IProfileDomainManage
         if(requests[i].data[j].adminId != bytes32(0)) {
           require(profileEntity.agents[requests[i].data[j].adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
           bytes32 requestAdminScopeId = _doAgentGetScopeInfo(profileEntity, requests[i].data[j].adminId);
-          require(requestAdminScopeId == _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Amind Scope");
+          require(requestAdminScopeId == _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Admin Scope");
           domainEntity.bs.adminId = requests[i].data[j].adminId;
         } else {
           domainEntity.bs.adminId = profileEntity.scopes[_LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID].adminId;

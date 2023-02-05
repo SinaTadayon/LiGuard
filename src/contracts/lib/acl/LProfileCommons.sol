@@ -174,7 +174,7 @@ library LProfileCommons {
     if(request.adminId != bytes32(0)) {
       require(profileEntity.agents[request.adminId].atype > IACLCommons.AgentType.MEMBER, "Illegal Admin AgentType");
       bytes32 requestAdminScopeId = _doDomainAgentGetScopeInfo(profileEntity, request.adminId);
-      require(requestAdminScopeId == LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Amind Scope");
+      require(requestAdminScopeId == LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Admin Scope");
       newDomain.bs.adminId = request.adminId;
     } else {
       newDomain.bs.adminId = livelyGlobalEntity.bs.adminId;
@@ -362,10 +362,10 @@ library LProfileCommons {
       (IACLCommons.ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doGetAgentScopeInfo(profileEntity, adminId);
       require(IACLCommons.ScopeType.DOMAIN <= requestAdminScopeType, "Illegal Admin ScopeType");
       if(IACLCommons.ScopeType.DOMAIN == requestAdminScopeType){
-        require(requestAdminScopeId == domainId, "Illegal Amind Scope");
+        require(requestAdminScopeId == domainId, "Illegal Admin Scope");
 
       } else {
-        require(requestAdminScopeId == LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Amind Scope");
+        require(requestAdminScopeId == LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Admin Scope");
       }
       realmAdminId = adminId;
 
@@ -488,7 +488,7 @@ library LProfileCommons {
       (IACLCommons.ScopeType requestAdminFuncType, bytes32 requestAdminFuncId) = _doGetAgentScopeInfo(profileEntity, adminId);
       require(IACLCommons.ScopeType.CONTEXT <= requestAdminFuncType, "Illegal Admin ScopeType");
       if(IACLCommons.ScopeType.CONTEXT == requestAdminFuncType) {  
-        require(requestAdminFuncId == contextAdminId, "Illegal Amind Scope");
+        require(requestAdminFuncId == contextAdminId, "Illegal Admin Scope");
       
       } else {
         require(IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, requestAdminFuncId, contextId), "Illegal Admin Scope");
