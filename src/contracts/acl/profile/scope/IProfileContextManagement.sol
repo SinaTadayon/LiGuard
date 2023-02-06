@@ -27,12 +27,7 @@ interface IProfileContextManagement is IACLCommons {
     bytes signature;
   }
 
-   struct ProfileContextUpdateFunctionLimitRequest {
-    bytes32 profileId;
-    ProfileContextFunctionLimitRequest[] limits;
-  }
-
-  struct ProfileContextFunctionLimitRequest {
+  struct ProfileContextUpdateFunctionLimitRequest {
     bytes32 contextId;
     uint8 functionLimit;
   }
@@ -74,13 +69,13 @@ interface IProfileContextManagement is IACLCommons {
 
   function profileContextRegister(ProfileContextRegisterRequest[] calldata requests) external returns (bool);
 
-  function profileContextUpdateActivityStatus(ProfileUpdateActivityRequest[] calldata requests) external returns (bool);
+  function profileContextUpdateActivityStatus(bytes32 profileId, ProfileUpdateActivityRequest[] calldata requests) external returns (bool);
 
-  function profileContextUpdateAlterabilityStatus(ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool);
+  function profileContextUpdateAlterabilityStatus(bytes32 profileId, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
-  function profileContextUpdateAdmin(ProfileUpdateAdminRequest[] calldata requests) external returns (bool);
+  function profileContextUpdateAdmin(bytes32 profileId, ProfileUpdateAdminRequest[] calldata requests) external returns (bool);
 
-  function profileContextUpdateFunctionLimit(ProfileContextUpdateFunctionLimitRequest[] calldata requests) external returns (bool);
+  function profileContextUpdateFunctionLimit(bytes32 profileId, ProfileContextUpdateFunctionLimitRequest[] calldata requests) external returns (bool);
 
   function profileContextCheckId(bytes32 profileId, bytes32 contextId) external view returns (bool);
 

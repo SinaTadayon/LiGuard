@@ -14,12 +14,7 @@ import "../../IACLCommons.sol";
 
 interface IProfileRealmManagement is IACLCommons {
 
-  struct ProfileRealmRegisterRequest {
-    bytes32 profileId;
-    ProfileRealmRegisterDataRequest[] realms;
-  }
-
-  struct ProfileRealmRegisterDataRequest {  
+  struct ProfileRealmRegisterRequest {  
     bytes32 domainId;
     bytes32 adminId;
     int64 contextLimit;
@@ -27,26 +22,15 @@ interface IProfileRealmManagement is IACLCommons {
   }
 
   struct ProfileRealmMoveContextRequest {
-    bytes32 profileId;
-    ProfileRealmMoveContextDataRequest[] data;
-  }
-
-  struct ProfileRealmMoveContextDataRequest {
     bytes32 realmId;
     bytes32 targetRealmId;
     bytes32 contextId;
   }
 
   struct ProfileRealmUpdateContextLimitRequest {
-    bytes32 profileId;
-    ProfileRealmContextLimitRequest[] limits;
-  }
-
-  struct ProfileRealmContextLimitRequest {
     bytes32 realmId;
     uint32 contextLimit;
   }
-
 
   struct ProfileRealmInfo {
     bytes32 domainId;
@@ -79,17 +63,17 @@ interface IProfileRealmManagement is IACLCommons {
   
   event ProfileRealmAlterabilityUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed realmId, AlterabilityStatus alstat);
 
-  function profileRealmRegister(ProfileRealmRegisterRequest[] calldata requests) external returns (bool);
+  function profileRealmRegister(bytes32 profileId, ProfileRealmRegisterRequest[] calldata requests) external returns (bool);
 
-  function profileRealmUpdateAdmin(ProfileUpdateAdminRequest[] calldata requests) external returns (bool);
+  function profileRealmUpdateAdmin(bytes32 profileId, ProfileUpdateAdminRequest[] calldata requests) external returns (bool);
 
-  function profileRealmMoveContext(ProfileRealmMoveContextRequest[] calldata requests) external returns (bool);
+  function profileRealmMoveContext(bytes32 profileId, ProfileRealmMoveContextRequest[] calldata requests) external returns (bool);
 
-  function profileRealmUpdateActivityStatus(ProfileUpdateActivityRequest[] calldata requests) external returns (bool);
+  function profileRealmUpdateActivityStatus(bytes32 profileId, ProfileUpdateActivityRequest[] calldata requests) external returns (bool);
 
-  function profileRealmUpdateAlterabilityStatus(ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool);
+  function profileRealmUpdateAlterabilityStatus(bytes32 profileId, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
-  function profileRealmUpdateContextLimit(ProfileRealmUpdateContextLimitRequest[] calldata requests) external returns (bool);
+  function profileRealmUpdateContextLimit(bytes32 profileId, ProfileRealmUpdateContextLimitRequest[] calldata requests) external returns (bool);
 
   function profileRealmCheckId(bytes32 profileId, bytes32 realmId) external view returns (bool);
 

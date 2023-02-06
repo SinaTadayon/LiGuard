@@ -14,11 +14,6 @@ import "../../IACLCommons.sol";
 interface IProfileTypeManagement is IACLCommons {
 
   struct ProfileTypeRegisterRequest {
-    bytes32 profileId;
-    ProfileTypeRegisterDataRequest[] types;
-  }
-
-  struct ProfileTypeRegisterDataRequest {
     bytes32 adminId;
     bytes32 scopeId;
     string name;
@@ -26,11 +21,6 @@ interface IProfileTypeManagement is IACLCommons {
   }
 
   struct ProfileTypeUpdateRoleLimitRequest {
-    bytes32 profileId;
-    ProfileTypeRoleLimitRequest[] limits;
-  }
-
-  struct ProfileTypeRoleLimitRequest {
     bytes32 typeId;
     uint16 roleLimit;
   }
@@ -64,17 +54,17 @@ interface IProfileTypeManagement is IACLCommons {
 
   event ProfileTypeAdminUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed typeId, bytes32 adminId);
 
-  function profileTypeRegister(ProfileTypeRegisterRequest[] calldata requests) external returns (bool);
+  function profileTypeRegister(bytes32 profileId, ProfileTypeRegisterRequest[] calldata requests) external returns (bool);
 
-  function profileTypeUpdateAdmin(ProfileUpdateAdminRequest[] calldata requests) external returns (bool);
+  function profileTypeUpdateAdmin(bytes32 profileId, ProfileUpdateAdminRequest[] calldata requests) external returns (bool);
 
-  function profileTypeUpdateScope(ProfileUpdateScopeRequest[] calldata requests) external returns (bool);
+  function profileTypeUpdateScope(bytes32 profileId, ProfileUpdateScopeRequest[] calldata requests) external returns (bool);
 
-  function profileTypeUpdateActivityStatus(ProfileUpdateActivityRequest[] calldata requests) external returns (bool);
+  function profileTypeUpdateActivityStatus(bytes32 profileId, ProfileUpdateActivityRequest[] calldata requests) external returns (bool);
 
-  function profileTypeUpdateAlterabilityStatus(ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool);
+  function profileTypeUpdateAlterabilityStatus(bytes32 profileId, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
-  function profileTypeUpdateRoleLimit(ProfileTypeUpdateRoleLimitRequest[] calldata requests) external returns (bool);
+  function profileTypeUpdateRoleLimit(bytes32 profileId, ProfileTypeUpdateRoleLimitRequest[] calldata requests) external returns (bool);
 
   function profileTypeCheckId(bytes32 profileId, bytes32 typeId) external view returns (bool);
 

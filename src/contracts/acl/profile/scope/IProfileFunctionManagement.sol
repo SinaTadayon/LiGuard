@@ -35,21 +35,11 @@ interface IProfileFunctionManagement is IACLCommons {
   }
 
   struct ProfileFunctionUpdatePolicyRequest {
-    bytes32 profileId;
-    ProfileFunctionPolicyRequest[] codes;
-  }
-
-  struct ProfileFunctionPolicyRequest {
     bytes32 functionId;
     uint8 policyCode;
   }
 
   struct ProfileFunctionUpdateAgentRequest {
-    bytes32 profileId;
-    ProfileFunctionAgentRequest[] agents;
-  }
-
-  struct ProfileFunctionAgentRequest {
     bytes32 functionId;
     bytes32 agentId;
   }
@@ -90,15 +80,15 @@ interface IProfileFunctionManagement is IACLCommons {
 
   function profileFunctionRegister(ProfileFunctionRegisterRequest[] calldata requests) external returns (bool);
 
-  function profileFunctionUpdateAdmin(ProfileUpdateAdminRequest[] calldata requests) external returns (bool);
+  function profileFunctionUpdateAdmin(bytes32 profileId, ProfileUpdateAdminRequest[] calldata requests) external returns (bool);
 
-  function profileFunctionUpdateAgent(ProfileFunctionUpdateAgentRequest[] calldata requests) external returns (bool);
+  function profileFunctionUpdateAgent(bytes32 profileId, ProfileFunctionUpdateAgentRequest[] calldata requests) external returns (bool);
 
-  function profileFunctionUpdateActivityStatus(ProfileUpdateActivityRequest[] calldata requests) external returns (bool);
+  function profileFunctionUpdateActivityStatus(bytes32 profileId, ProfileUpdateActivityRequest[] calldata requests) external returns (bool);
 
-  function profileFunctionUpdateAlterabilityStatus(ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool);
+  function profileFunctionUpdateAlterabilityStatus(bytes32 profileId, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
-  function profileFunctionUpdatePolicyCode(ProfileFunctionUpdatePolicyRequest[] calldata requests) external returns (bool); 
+  function profileFunctionUpdatePolicyCode(bytes32 profileId, ProfileFunctionUpdatePolicyRequest[] calldata requests) external returns (bool); 
 
   function profileFunctionCheckId(bytes32 profileId, bytes32 functionId) external view returns (bool);
 

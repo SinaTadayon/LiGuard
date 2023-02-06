@@ -91,6 +91,9 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
       }      
 
       bytes32 newContextId = LProfileCommons.profileRegisterContext(_data, requests[i], contractId, signer);
+      if(requests[i].signature.length == 0) {
+        signer = address(0);
+      }
       emit ProfileContextRegistered(      
         msg.sender,
         requests[i].profileId,
@@ -107,71 +110,64 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
     return true;
   }  
 
-  function profileContextUpdateActivityStatus(ProfileUpdateActivityRequest[] calldata requests) external returns (bool) {
+  function profileContextUpdateActivityStatus(bytes32 profileId, ProfileUpdateActivityRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(profileId, IProfileContextManagement.profileContextUpdateActivityStatus.selector);
     for (uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfileContextManagement.profileContextUpdateActivityStatus.selector);
-      for(uint j = 0; j < requests[i].data.length; j++) {
-        ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].data[j].entityId, senderId, functionId);
-        require(requests[i].data[j].acstat > ActivityStatus.DELETED, "Illegal Activity");    
-        contextEntity.bs.acstat = requests[i].data[j].acstat;
-        emit ProfileContextActivityUpdated(msg.sender, requests[i].profileId, requests[i].data[j].entityId, requests[i].data[j].acstat);
-      }
+      ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].entityId, senderId, functionId);
+      require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");    
+      contextEntity.bs.acstat = requests[i].acstat;
+      emit ProfileContextActivityUpdated(msg.sender, profileId, requests[i].entityId, requests[i].acstat);
     }
     return true;
   }
 
-  function profileContextUpdateAlterabilityStatus(ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool) {
+  function profileContextUpdateAlterabilityStatus(bytes32 profileId, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(profileId, IProfileContextManagement.profileContextUpdateAlterabilityStatus.selector);
     for (uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfileContextManagement.profileContextUpdateAlterabilityStatus.selector);
-      for(uint j = 0; j < requests[i].data.length; j++) {
-        ContextEntity storage contextEntity = profileEntity.profileContextReadSlot(requests[i].data[j].entityId);
-        IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, contextEntity.bs.adminId, senderId, functionId);
-        if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
-        require(requests[i].data[j].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
-        contextEntity.bs.alstat = requests[i].data[j].alstat;
-        emit ProfileContextAlterabilityUpdated(msg.sender, requests[i].profileId, requests[i].data[j].entityId, requests[i].data[j].alstat);
-      }
+      ContextEntity storage contextEntity = profileEntity.profileContextReadSlot(requests[i].entityId);
+      IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, contextEntity.bs.adminId, senderId, functionId);
+      if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
+      require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
+      contextEntity.bs.alstat = requests[i].alstat;
+      emit ProfileContextAlterabilityUpdated(msg.sender, profileId, requests[i].entityId, requests[i].alstat);
     }
     return true;
   }
 
-  function profileContextUpdateAdmin(ProfileUpdateAdminRequest[] calldata requests) external returns (bool) {
+  function profileContextUpdateAdmin(bytes32 profileId, ProfileUpdateAdminRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(profileId, IProfileContextManagement.profileContextUpdateAdmin.selector);
     for (uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfileContextManagement.profileContextUpdateAdmin.selector);
-      for(uint j = 0; j < requests[i].data.length; j++) {
-        ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].data[j].entityId, senderId, functionId);
-        
-        // checking requested type admin 
-        if(requests[i].data[j].adminId != bytes32(0)) {
-          require( profileEntity.agents[requests[i].data[j].adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");        
-          (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(profileEntity, requests[i].data[j].adminId);
-          require(ScopeType.CONTEXT <= requestAdminScopeType, "Illegal Admin ScopeType");
-          if(ScopeType.CONTEXT == requestAdminScopeType) {
-            require(requestAdminScopeId == requests[i].data[j].entityId, "Illegal Admin Scope");
-          } else {
-            require(IProfileACLGenerals(address(this)).profileIsScopesCompatible(requests[i].profileId, requestAdminScopeId, requests[i].data[j].entityId), "Illegal Admin Scope");
-          }
-          contextEntity.bs.adminId = requests[i].data[j].adminId;
-
+      ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].entityId, senderId, functionId);
+      
+      // checking requested type admin 
+      if(requests[i].adminId != bytes32(0)) {
+        require( profileEntity.agents[requests[i].adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");        
+        (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(profileEntity, requests[i].adminId);
+        require(ScopeType.CONTEXT <= requestAdminScopeType, "Illegal Admin ScopeType");
+        if(ScopeType.CONTEXT == requestAdminScopeType) {
+          require(requestAdminScopeId == requests[i].entityId, "Illegal Admin Scope");
         } else {
-          contextEntity.bs.adminId = profileEntity.scopes[contextEntity.realmId].adminId;
+          require(IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, requestAdminScopeId, requests[i].entityId), "Illegal Admin Scope");
         }
+        contextEntity.bs.adminId = requests[i].adminId;
 
-        emit ProfileContextAdminUpdated(msg.sender, requests[i].profileId, requests[i].data[j].entityId, requests[i].data[j].adminId);
+      } else {
+        contextEntity.bs.adminId = profileEntity.scopes[contextEntity.realmId].adminId;
       }
+
+      emit ProfileContextAdminUpdated(msg.sender, profileId, requests[i].entityId, requests[i].adminId);
+    
     }
     return true;
   }
 
-  function profileContextUpdateFunctionLimit(ProfileContextUpdateFunctionLimitRequest[] calldata requests) external returns (bool) {
-    for (uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfileContextManagement.profileContextUpdateFunctionLimit.selector);     
-      for(uint j = 0; j < requests[i].limits.length; j++) {
-        ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].limits[j].contextId, senderId, functionId);
-        require(requests[i].limits[j].functionLimit > contextEntity.functions.length(), "Illegal Limit");
-        contextEntity.functionLimit = requests[i].limits[j].functionLimit;      
-        emit ProfileContextFunctionLimitUpdated(msg.sender, requests[i].profileId, requests[i].limits[j].contextId, requests[i].limits[j].functionLimit);
-      }
+  function profileContextUpdateFunctionLimit(bytes32 profileId, ProfileContextUpdateFunctionLimitRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(profileId, IProfileContextManagement.profileContextUpdateFunctionLimit.selector);     
+    for (uint i = 0; i < requests.length; i++) {    
+      ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].contextId, senderId, functionId);
+      require(requests[i].functionLimit > contextEntity.functions.length(), "Illegal Limit");
+      contextEntity.functionLimit = requests[i].functionLimit;      
+      emit ProfileContextFunctionLimitUpdated(msg.sender, profileId, requests[i].contextId, requests[i].functionLimit);
     }
     return true;    
   }

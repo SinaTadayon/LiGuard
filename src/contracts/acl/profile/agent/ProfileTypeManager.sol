@@ -53,99 +53,85 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
       super.supportsInterface(interfaceId);
   }
 
-  function profileTypeRegister(ProfileTypeRegisterRequest[] calldata requests) external returns (bool) {
-    for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity,,bytes32 senderId) = _accessPermission(requests[i].profileId, IProfileTypeManagement.profileTypeRegister.selector);
+  function profileTypeRegister(bytes32 profileId, ProfileTypeRegisterRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity,,bytes32 senderId) = _accessPermission(profileId, IProfileTypeManagement.profileTypeRegister.selector);
 
-      // check profile and type limitations and update it
-      ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(senderId);
-      require(profileMemberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
-      require(profileEntity.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-      require(int32(profileMemberEntity.registerLimits.typeRegisterLimit) - int16(uint16(requests[i].types.length)) >= 0, "Illegal TypeRegisterLimit");
-      require(int32(profileEntity.registerLimits.typeRegisterLimit) - int16(uint16(requests[i].types.length)) >= 0, "Illegal RegisterLimit");
-      profileMemberEntity.registerLimits.typeRegisterLimit -= uint16(requests[i].types.length); 
-      profileEntity.registerLimits.typeRegisterLimit -= uint16(requests[i].types.length);
+    // check profile and type limitations and update it
+    ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(senderId);
+    require(profileMemberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
+    require(profileEntity.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
+    require(int32(profileMemberEntity.registerLimits.typeRegisterLimit) - int16(uint16(requests.length)) >= 0, "Illegal TypeRegisterLimit");
+    require(int32(profileEntity.registerLimits.typeRegisterLimit) - int16(uint16(requests.length)) >= 0, "Illegal RegisterLimit");
+    profileMemberEntity.registerLimits.typeRegisterLimit -= uint16(requests.length); 
+    profileEntity.registerLimits.typeRegisterLimit -= uint16(requests.length);
 
-
-      // fetch scope type and scope id of sender
-      (ScopeType senderScopeType, bytes32 senderScopeId) = _doGetMemberScopeInfoFromType(profileEntity, _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID, senderId);
-      
-      for(uint j = 0; j < requests[i].types.length; j++) {
-        _doProfileTypeRegister(requests[i].types[j], profileEntity, requests[i].profileId, senderScopeType, senderScopeId);    
-      }
+    // fetch scope type and scope id of sender
+    (ScopeType senderScopeType, bytes32 senderScopeId) = _doGetMemberScopeInfoFromType(profileEntity, _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID, senderId);
+    for(uint i = 0; i < requests.length; i++) {    
+      _doProfileTypeRegister(requests[i], profileEntity, profileId, senderScopeType, senderScopeId);
     }
     return true;
   }
 
-  function profileTypeUpdateAdmin(ProfileUpdateAdminRequest[] calldata requests) external returns (bool) {
-    for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfileTypeManagement.profileTypeUpdateAdmin.selector);
-      for(uint j = 0; j < requests[i].data.length; j++) {
-        TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].data[j].entityId, senderId, functionId);
+  function profileTypeUpdateAdmin(bytes32 profileId, ProfileUpdateAdminRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(profileId, IProfileTypeManagement.profileTypeUpdateAdmin.selector);
+    for(uint i = 0; i < requests.length; i++) {    
+      TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].entityId, senderId, functionId);
 
-        // checking requested type admin   
-        typeEntity.ba.adminId = _getTypeAdmin(
-          profileEntity,
-          profileEntity.scopes[typeEntity.scopeId].stype, 
-          profileEntity.scopes[typeEntity.scopeId].adminId, 
-          typeEntity.scopeId, 
-          requests[i].data[j].adminId,
-          requests[i].profileId
-        );
+      // checking requested type admin   
+      typeEntity.ba.adminId = _getTypeAdmin(
+        profileEntity,
+        profileEntity.scopes[typeEntity.scopeId].stype, 
+        profileEntity.scopes[typeEntity.scopeId].adminId, 
+        typeEntity.scopeId, 
+        requests[i].adminId,
+        profileId
+      );
 
-        emit ProfileTypeAdminUpdated(msg.sender, requests[i].profileId, requests[i].data[j].entityId, requests[i].data[j].adminId);
-      }
+      emit ProfileTypeAdminUpdated(msg.sender, profileId, requests[i].entityId, requests[i].adminId);
     }
     return true;
   }
 
-  function profileTypeUpdateScope(ProfileUpdateScopeRequest[] calldata requests) external returns (bool) {
+  function profileTypeUpdateScope(bytes32 profileId, ProfileUpdateScopeRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(profileId, IProfileTypeManagement.profileTypeUpdateScope.selector);
     for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfileTypeManagement.profileTypeUpdateScope.selector);
-      for(uint j = 0; j < requests[i].data.length; j++) {
-        _doTypeUpdateScope(requests[i].data[j], profileEntity, requests[i].profileId, senderId, functionId);
-      }
+      _doTypeUpdateScope(requests[i], profileEntity, profileId, senderId, functionId);
     }
     return true;
   }
 
-  function profileTypeUpdateActivityStatus(ProfileUpdateActivityRequest[] calldata requests) external returns (bool) {
+  function profileTypeUpdateActivityStatus(bytes32 profileId, ProfileUpdateActivityRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(profileId, IProfileTypeManagement.profileTypeUpdateActivityStatus.selector);
     for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfileTypeManagement.profileTypeUpdateActivityStatus.selector);
-      for(uint j = 0; j < requests[i].data.length; j++) {
-        TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].data[j].entityId, senderId, functionId);
-        require(requests[i].data[j].acstat > ActivityStatus.DELETED, "Illegal Activity");             
-        typeEntity.ba.acstat = requests[i].data[j].acstat;
-        emit ProfileTypeActivityUpdated(msg.sender, requests[i].profileId, requests[i].data[j].entityId, requests[i].data[j].acstat);
-      }
+      TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].entityId, senderId, functionId);
+      require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");             
+      typeEntity.ba.acstat = requests[i].acstat;
+      emit ProfileTypeActivityUpdated(msg.sender, profileId, requests[i].entityId, requests[i].acstat);
     }
     return true;
   }
 
-  function profileTypeUpdateAlterabilityStatus(ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool) {
+  function profileTypeUpdateAlterabilityStatus(bytes32 profileId, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(profileId, IProfileTypeManagement.profileTypeUpdateAlterabilityStatus.selector);
     for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfileTypeManagement.profileTypeUpdateAlterabilityStatus.selector);
-      for(uint j = 0; j < requests[i].data.length; j++) {
-        TypeEntity storage typeEntity = profileEntity.profileTypeReadSlot(requests[i].data[j].entityId);
-        IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, typeEntity.ba.adminId, senderId, functionId);
-        if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
-        require(requests[i].data[j].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
-        typeEntity.ba.alstat = requests[i].data[j].alstat;
-        emit ProfileTypeAlterabilityUpdated(msg.sender, requests[i].profileId, requests[i].data[j].entityId, requests[i].data[j].alstat);
-      }
+      TypeEntity storage typeEntity = profileEntity.profileTypeReadSlot(requests[i].entityId);
+      IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, typeEntity.ba.adminId, senderId, functionId);
+      if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
+      require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
+      typeEntity.ba.alstat = requests[i].alstat;
+      emit ProfileTypeAlterabilityUpdated(msg.sender, profileId, requests[i].entityId, requests[i].alstat);
     }
     return true;
   }
 
-  function profileTypeUpdateRoleLimit(ProfileTypeUpdateRoleLimitRequest[] calldata requests) external returns (bool) {
+  function profileTypeUpdateRoleLimit(bytes32 profileId, ProfileTypeUpdateRoleLimitRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(profileId, IProfileTypeManagement.profileTypeUpdateRoleLimit.selector);      
     for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfileTypeManagement.profileTypeUpdateRoleLimit.selector);      
-      for(uint j = 0; j < requests[i].limits.length; j++) {
-        TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].limits[j].typeId, senderId, functionId);
-        require(requests[i].limits[j].roleLimit > typeEntity.roles.length(), "Illegal Limit");
-        typeEntity.roleLimit = requests[i].limits[j].roleLimit;        
-        emit ProfileTypeRoleLimitUpdated(msg.sender, requests[i].profileId, requests[i].limits[j].typeId, requests[i].limits[j].roleLimit);
-      }
+      TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].typeId, senderId, functionId);
+      require(requests[i].roleLimit > typeEntity.roles.length(), "Illegal Limit");
+      typeEntity.roleLimit = requests[i].roleLimit;        
+      emit ProfileTypeRoleLimitUpdated(msg.sender, profileId, requests[i].typeId, requests[i].roleLimit);
     }
     return true;
   }
@@ -374,7 +360,7 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
     return requestedScope;
   }     
 
-  function _doProfileTypeRegister(ProfileTypeRegisterDataRequest calldata typeRequest, ProfileEntity storage profileEntity, bytes32 profileId, ScopeType senderScopeType, bytes32 senderScopeId) internal {
+  function _doProfileTypeRegister(ProfileTypeRegisterRequest calldata typeRequest, ProfileEntity storage profileEntity, bytes32 profileId, ScopeType senderScopeType, bytes32 senderScopeId) internal {
 
     bytes32 newTypeId = LACLUtils.generateId(typeRequest.name);
     require(profileEntity.agents[newTypeId].atype == AgentType.NONE, "Already Exist");    
@@ -401,7 +387,7 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
     );
   }
 
-  function _doTypeUpdateScope(ProfileScopeRequest calldata request, ProfileEntity storage profileEntity, bytes32 profileId, bytes32 senderId, bytes32 functionId) internal {
+  function _doTypeUpdateScope(ProfileUpdateScopeRequest calldata request, ProfileEntity storage profileEntity, bytes32 profileId, bytes32 senderId, bytes32 functionId) internal {
     ScopeType senderScopeType;
     bytes32 senderScopeId;
 

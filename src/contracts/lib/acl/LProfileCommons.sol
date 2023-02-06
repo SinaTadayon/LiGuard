@@ -145,7 +145,7 @@ library LProfileCommons {
     profileEntity.registerLimits.memberRegisterLimit -= requestLength;
   }
 
-  function profileDomainRegister(IACLCommons.ProfileEntity storage profileEntity, IProfileDomainManagement.ProfileDomainRegisterDataRequest calldata request, bytes32 senderId, bytes32 functionId) external returns (bytes32) {
+  function profileDomainRegister(IACLCommons.ProfileEntity storage profileEntity, IProfileDomainManagement.ProfileDomainRegisterRequest calldata request, bytes32 senderId, bytes32 functionId) external returns (bytes32) {
     bytes32 newDomainId = LACLUtils.generateId(request.name);
     require(profileEntity.scopes[newDomainId].stype == IACLCommons.ScopeType.NONE, "Already Exist");
 
@@ -183,7 +183,7 @@ library LProfileCommons {
     return newDomainId;
   }
 
-  function profileRealmRegister(IProfileRealmManagement.ProfileRealmRegisterDataRequest calldata request, IACLCommons.ProfileEntity storage profileEntity, bytes32 senderId, bytes32 functionId, IACLCommons.ScopeType memberScopeType, bytes32 memberScopeId) external returns(bytes32) {
+  function profileRealmRegister(IProfileRealmManagement.ProfileRealmRegisterRequest calldata request, IACLCommons.ProfileEntity storage profileEntity, bytes32 senderId, bytes32 functionId, IACLCommons.ScopeType memberScopeType, bytes32 memberScopeId) external returns(bytes32) {
     bytes32 newRealmId = LACLUtils.generateId(request.name);
     require(profileEntity.scopes[newRealmId].stype == IACLCommons.ScopeType.NONE, "Already Exist");
 

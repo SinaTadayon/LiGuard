@@ -13,12 +13,7 @@ import "../../IACLCommons.sol";
  */
 interface IProfileMemberManagement is IACLCommons {
 
-  struct ProfileMemberRegisterRequest {
-    bytes32 profileId;
-    ProfileMemberRegisterDataRequest[] members;
-  }
-
-  struct ProfileMemberRegisterDataRequest {        
+  struct ProfileMemberRegisterRequest {        
     bytes32 adminId;
     bytes32 roleId;
     int24 typeLimit;
@@ -28,21 +23,11 @@ interface IProfileMemberManagement is IACLCommons {
   }
 
   struct ProfileMemberUpdateLimitRequest {
-    bytes32 profileId;
-    ProfileMemberLimitRequest[] limits;
-  }
-
-  struct ProfileMemberLimitRequest {
     bytes32 memberId;
     uint16 limit;
   }
 
   struct ProfileMemberUpdateRegisterLimitRequest {
-    bytes32 profileId;
-    ProfileMemberRegisterLimitRequest[] registerLimits;
-  }
-
-  struct ProfileMemberRegisterLimitRequest {
     bytes32 memberId;
     ProfileRegisterLimit registerLimit;
   }
@@ -68,10 +53,6 @@ interface IProfileMemberManagement is IACLCommons {
     bytes32 adminId 
   );
 
-  // event ProfileMemberRoleGranted(address indexed sender, bytes32 indexed profileId, bytes32 indexed roleId, bytes32 memberId, bytes32 typeId);
-
-  // event ProfileMemberDeleted(address indexed sender, bytes32 indexed memberId, address indexed account);
-
   event ProfileMemberTypeLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed memberId, uint16 typeLimit);
 
   event ProfileMemberRegisterLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed memberId, ProfileRegisterLimit registerLimit);
@@ -84,19 +65,19 @@ interface IProfileMemberManagement is IACLCommons {
 
   event ProfileMemberAlterabilityUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed memberId, AlterabilityStatus alstat);
 
-  function profileMemberRegister(ProfileMemberRegisterRequest[] calldata requests) external returns (bool);
+  function profileMemberRegister(bytes32 profileId, ProfileMemberRegisterRequest[] calldata requests) external returns (bool);
 
-  function profileMemberUpdateTypeLimit(ProfileMemberUpdateLimitRequest[] calldata requests) external returns (bool);
+  function profileMemberUpdateTypeLimit(bytes32 profileId, ProfileMemberUpdateLimitRequest[] calldata requests) external returns (bool);
 
-  function profileMemberUpdateRegisterLimit(ProfileMemberUpdateRegisterLimitRequest[] calldata requests) external returns (bool);
+  function profileMemberUpdateRegisterLimit(bytes32 profileId, ProfileMemberUpdateRegisterLimitRequest[] calldata requests) external returns (bool);
 
-  function profileMemberUpdateCallLimit(ProfileMemberUpdateLimitRequest[] calldata requests) external returns (bool);
+  function profileMemberUpdateCallLimit(bytes32 profileId, ProfileMemberUpdateLimitRequest[] calldata requests) external returns (bool);
 
-  function profileMemberUpdateActivityStatus(ProfileUpdateActivityRequest[] calldata requests) external returns (bool);
+  function profileMemberUpdateActivityStatus(bytes32 profileId, ProfileUpdateActivityRequest[] calldata requests) external returns (bool);
 
-  function profileMemberUpdateAlterabilityStatus(ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool);
+  function profileMemberUpdateAlterabilityStatus(bytes32 profileId, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
-  function profileMemberUpdateAdmin(ProfileUpdateAdminRequest[] calldata requests) external returns (bool);
+  function profileMemberUpdateAdmin(bytes32 profileId, ProfileUpdateAdminRequest[] calldata requests) external returns (bool);
 
   function profileMemberCheckId(bytes32 profileId, bytes32 memberId) external view returns (bool);
 

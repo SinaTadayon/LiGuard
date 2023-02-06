@@ -84,7 +84,7 @@ import {
   generateDomainSeparator,
   generateProfilePredictContextDomainByHardHat,
   generateProfileRegisterSignatureManually,
-  LIVELY_PROFILE_ANY_TYPE_ID,
+  LIVELY_PROFILE_ANY_TYPE_ID, LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID,
   LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,
   LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID,
   LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -113,6 +113,7 @@ import { ProxyUpgradedEventObject } from "../../typechain/types/proxy/Proxy";
 import { ProxyLocalAdminUpdatedEventObject } from "../../typechain/types/proxy/IProxy";
 import {IACLCommons as IACLCommonsRoles } from "../../typechain/types/acl/agent/IRoleManagement";
 import {IACLCommons} from "../../typechain/types/acl/scope/FunctionManager";
+import {IACLCommons as IProfileACLCommons} from "../../typechain/types/acl/profile/scope/ProfileFunctionManager";
 import { RoleManagerLibraryAddresses } from "../../typechain/types/factories/acl/agent/RoleManager__factory";
 import { PolicyManagerLibraryAddresses } from "../../typechain/types/factories/acl/policy/PolicyManager__factory";
 import { ProfileManagerLibraryAddresses } from "../../typechain/types/factories/acl/profile/ProfileManager__factory";
@@ -7727,7 +7728,7 @@ describe("Lively Guard Profile Tests", function() {
             profileId: profileTestId,
             types: [
               {
-                adminId: LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,
+                adminId: LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID,
                 scopeId: realmContextId,
                 roleLimit: 1,
                 name: ACL_TYPE_TEST_NAME,
@@ -7743,12 +7744,12 @@ describe("Lively Guard Profile Tests", function() {
             LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID)
 
         // then
-        expect(await typeManagerDelegateProxy.typeCheckId(aclTypeTestId)).to.be.true
+        expect(await profileTypeManagerDelegateProxy.profileTypeCheckId(profileTestId, aclTypeTestId)).to.be.true
 
         // and
-        const typeInfo: ITypeManagement.TypeInfoStruct = await typeManagerDelegateProxy.typeGetInfo(aclTypeTestId);
+        const typeInfo: IProfileTypeManagement.ProfileTypeInfoStruct = await profileTypeManagerDelegateProxy.profileTypeGetInfo(profileTestId, aclTypeTestId);
         expect(typeInfo.name).to.be.equal(ACL_TYPE_TEST_NAME);
-        expect(typeInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_ADMIN_ROLE_ID);
+        expect(typeInfo.adminId).to.be.equal(LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID);
         expect(typeInfo.scopeId).to.be.equal(realmContextId);
         expect(typeInfo.roleLimit).to.be.equal(1);
         expect(typeInfo.roleCount).to.be.equal(0);
@@ -7757,17 +7758,19 @@ describe("Lively Guard Profile Tests", function() {
         expect(typeInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
 
         // and
-        expect(await typeManagerDelegateProxy.typeCheckId(aclTypeTestId)).to.be.true;
-        expect(await typeManagerDelegateProxy.typeCheckName(ACL_TYPE_TEST_NAME)).to.be.true;
-        expect(await typeManagerDelegateProxy.typeCheckAdmin(aclTypeTestId, livelyAdminWallet.address)).to.be.true;
+        expect(await profileTypeManagerDelegateProxy.profileTypeCheckId(profileTestId, aclTypeTestId)).to.be.true;
+        expect(await profileTypeManagerDelegateProxy.profileTypeCheckName(profileTestId, ACL_TYPE_TEST_NAME)).to.be.true;
+        expect(await profileTypeManagerDelegateProxy.profileTypeCheckAdmin(profileTestId, aclTypeTestId, profileAdminWallet.address)).to.be.true;
       })
 
       it("Should disable type alterability of ACL_TYPE_TEST success", async() => {
         // given
-        const requests: IACLCommonsRoles.UpdateAlterabilityRequestStruct[] = [{
+        const requests: IProfileACLCommons.ProfileUpdateAlterabilityRequestStruct[] = [
+          {
           id: aclTypeTestId,
           alstat: AlterabilityStatus.DISABLED
-        }]
+          }
+        ]
 
         // when
         await expect(typeManagerDelegateProxy.connect(livelyAdmin).typeUpdateAlterabilityStatus(requests))

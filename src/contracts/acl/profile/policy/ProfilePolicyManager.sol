@@ -56,131 +56,115 @@ contract ProfilePolicyManager is ACLStorage, BaseUUPSProxy, IProfilePolicyManage
   }
  
   // called by members of Policy Master type
-  function profilePolicyRegister(ProfilePolicyRegisterRequest[] calldata requests) external returns (bool) {
-    for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity,,bytes32 senderId) = _accessPermission(requests[i].profileId, IProfilePolicyManagement.profilePolicyRegister.selector);
+  function profilePolicyRegister(bytes32 profileId, ProfilePolicyRegisterRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity,,bytes32 senderId) = _accessPermission(profileId, IProfilePolicyManagement.profilePolicyRegister.selector);
 
-      // check profile and type limitations and update it
-      LProfileRolePolicy.profileCheckMemberForPolicyRegister(profileEntity, uint16(requests[i].policies.length), senderId);
+    // check profile and type limitations and update it
+    LProfileRolePolicy.profileCheckMemberForPolicyRegister(profileEntity, uint16(requests.length), senderId);
       
-      (ScopeType senderScopeType, bytes32 senderScopeId) = _getMemberPolicyScopeInfo(profileEntity, msg.sender);
+    (ScopeType senderScopeType, bytes32 senderScopeId) = _getMemberPolicyScopeInfo(profileEntity, msg.sender);
 
-      for(uint j = 0; j < requests[i].policies.length; j++) {
-        bytes32 newPolicyId = LProfileRolePolicy.profilePolicyRegister(profileEntity, requests[i].policies[j], requests[i].profileId, senderScopeType, senderScopeId);
-        emit ProfilePolicyRegistered(
-          msg.sender,
-          requests[i].profileId,
-          newPolicyId,
-          requests[i].policies[j].scopeId,
-          requests[i].policies[j].adminId,
-          requests[i].policies[j].policyCode
-        );
-      }
+    for(uint i = 0; i < requests.length; i++) {    
+      bytes32 newPolicyId = LProfileRolePolicy.profilePolicyRegister(profileEntity, requests[i], profileId, senderScopeType, senderScopeId);
+      emit ProfilePolicyRegistered(
+        msg.sender,
+        profileId,
+        newPolicyId,
+        requests[i].scopeId,
+        requests[i].adminId,
+        requests[i].policyCode
+      );
     }
     return true;
   }
 
   // called by policy admin
-  function profilePolicyAddRoles(ProfilePolicyAddRolesRequest[] calldata requests) external returns (bool) {
+  function profilePolicyAddRoles(bytes32 profileId, ProfilePolicyAddRolesRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(profileId, IProfilePolicyManagement.profilePolicyAddRoles.selector);
     for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfilePolicyManagement.profilePolicyAddRoles.selector);
-      
       PolicyEntity storage policyEntity = _doGetPolicyAndCheckAdminAccess(profileEntity, requests[i].policyId, senderId, functionId);      
       ScopeType policyScopeType = profileEntity.scopes[policyEntity.scopeId].stype;
-
       for (uint j = 0; j < requests[i].roles.length; j++) {
-        LProfileRolePolicy.profilePolicyAddRoles(profileEntity, policyEntity, requests[i].profileId, requests[i].policyId, requests[i].roles[j], policyScopeType);
-        emit ProfilePolicyRoleAdded(msg.sender, requests[i].profileId, requests[i].policyId, requests[i].roles[j]);
+        LProfileRolePolicy.profilePolicyAddRoles(profileEntity, policyEntity, profileId, requests[i].policyId, requests[i].roles[j], policyScopeType);
+        emit ProfilePolicyRoleAdded(msg.sender, profileId, requests[i].policyId, requests[i].roles[j]);
       }            
     }
     return true;
   }
 
   // called by policy admin
-  function profilePolicyRemoveRoles(ProfilePolicyRemoveRolesRequest[] calldata requests) external returns (bool) {
+  function profilePolicyRemoveRoles(bytes32 profileId, ProfilePolicyRemoveRolesRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(profileId, IProfilePolicyManagement.profilePolicyRemoveRoles.selector);
     for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfilePolicyManagement.profilePolicyRemoveRoles.selector);
       PolicyEntity storage policyEntity = _doGetPolicyAndCheckAdminAccess(profileEntity, requests[i].policyId, senderId, functionId);
       for (uint j = 0; j < requests[i].roles.length && j < 32; j++) {
         require(policyEntity.roles.contains(requests[i].roles[j]), "Not Found");    
         delete profileEntity.rolePolicyMap[requests[i].roles[j]];
         policyEntity.roles.remove(requests[i].roles[j]);
-        emit ProfilePolicyRoleRemoved(msg.sender, requests[i].profileId, requests[i].policyId, requests[i].roles[j]);
+        emit ProfilePolicyRoleRemoved(msg.sender, profileId, requests[i].policyId, requests[i].roles[j]);
       }      
     }
     return true;
   }
 
-  function profilePolicyUpdateCodes(ProfilePolicyUpdateCodeRequest[] calldata requests) external returns (bool) {
-    for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfilePolicyManagement.profilePolicyUpdateCodes.selector);
-      for(uint j = 0; j < requests[i].policies.length; j++) {
-        PolicyEntity storage policyEntity = _doGetPolicyAndCheckAdminAccess(profileEntity, requests[i].policies[j].policyId, senderId, functionId);
-        policyEntity.policyCode = requests[i].policies[j].policyCode;
-        policyEntity.ptype = _doGetPolicyType(requests[i].policies[j].policyCode);
-        emit ProfilePolicyCodeUpdated(msg.sender, requests[i].profileId, requests[i].policies[j].policyId, requests[i].policies[j].policyCode, policyEntity.ptype);
-      }
+  function profilePolicyUpdateCodes(bytes32 profileId, ProfilePolicyUpdateCodeRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(profileId, IProfilePolicyManagement.profilePolicyUpdateCodes.selector);
+    for(uint i = 0; i < requests.length; i++) {    
+      PolicyEntity storage policyEntity = _doGetPolicyAndCheckAdminAccess(profileEntity, requests[i].policyId, senderId, functionId);
+      policyEntity.policyCode = requests[i].policyCode;
+      policyEntity.ptype = _doGetPolicyType(requests[i].policyCode);
+      emit ProfilePolicyCodeUpdated(msg.sender, profileId, requests[i].policyId, requests[i].policyCode, policyEntity.ptype);
     }
     return true;
   }
 
-  function profilePolicyUpdateAdmin(ProfileUpdateAdminRequest[] calldata requests) external returns (bool) {
-    for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfilePolicyManagement.profilePolicyUpdateAdmin.selector);
-      for(uint j = 0; j < requests[i].data.length; j++) {
-        PolicyEntity storage policyEntity = _doGetPolicyAndCheckAdminAccess(profileEntity, requests[i].data[j].entityId, senderId, functionId);    
-        policyEntity.adminId = _getPolicyAdmin(profileEntity, profileEntity.scopes[policyEntity.scopeId].stype, profileEntity.scopes[policyEntity.scopeId].adminId, policyEntity.scopeId, requests[i].data[j].adminId, requests[i].profileId);
-        require(!policyEntity.roles.contains(policyEntity.adminId), "Illegal Admin Id");
-        emit ProfilePolicyAdminUpdated(msg.sender, requests[i].profileId, requests[i].data[j].entityId, requests[i].data[j].adminId);
-      }
+  function profilePolicyUpdateAdmin(bytes32 profileId, ProfileUpdateAdminRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(profileId, IProfilePolicyManagement.profilePolicyUpdateAdmin.selector);
+    for(uint i = 0; i < requests.length; i++) {    
+      PolicyEntity storage policyEntity = _doGetPolicyAndCheckAdminAccess(profileEntity, requests[i].entityId, senderId, functionId);    
+      policyEntity.adminId = _getPolicyAdmin(profileEntity, profileEntity.scopes[policyEntity.scopeId].stype, profileEntity.scopes[policyEntity.scopeId].adminId, policyEntity.scopeId, requests[i].adminId, profileId);
+      require(!policyEntity.roles.contains(policyEntity.adminId), "Illegal Admin Id");
+      emit ProfilePolicyAdminUpdated(msg.sender, profileId, requests[i].entityId, requests[i].adminId);
     }
     return true;
   }
 
-  function profilePolicyUpdateScope(ProfileUpdateScopeRequest[] calldata requests) external returns (bool) {
+  function profilePolicyUpdateScope(bytes32 profileId, ProfileUpdateScopeRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(profileId, IProfilePolicyManagement.profilePolicyUpdateScope.selector);
     for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfilePolicyManagement.profilePolicyUpdateScope.selector);
-      for(uint j = 0; j < requests[i].data.length; j++) {
-        LProfileRolePolicy.profilePolicyUpdateScope(profileEntity, requests[i].data[j], requests[i].profileId, senderId, functionId);
-        emit ProfilePolicyScopeUpdated(msg.sender, requests[i].profileId, requests[i].data[j].entityId, requests[i].data[j].scopeId);
-      }
+      LProfileRolePolicy.profilePolicyUpdateScope(profileEntity, requests[i], profileId, senderId, functionId);
+      emit ProfilePolicyScopeUpdated(msg.sender, profileId, requests[i].entityId, requests[i].scopeId);
     }
     return true;
   }
 
-  function profilePolicyUpdateActivityStatus(ProfileUpdateActivityRequest[] calldata requests) external returns (bool) {
+  function profilePolicyUpdateActivityStatus(bytes32 profileId, ProfileUpdateActivityRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(profileId, IProfilePolicyManagement.profilePolicyUpdateActivityStatus.selector);
     for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfilePolicyManagement.profilePolicyUpdateActivityStatus.selector);
-      for(uint j = 0; j < requests[i].data.length; j++) {
-        PolicyEntity storage policyEntity = _doGetPolicyAndCheckAdminAccess(profileEntity, requests[i].data[j].entityId, senderId, functionId);
-        require(requests[i].data[j].acstat > ActivityStatus.DELETED, "Illegal Activity");       
-        policyEntity.acstat = requests[i].data[j].acstat;
-        emit ProfilePolicyActivityUpdated(msg.sender,requests[i].profileId, requests[i].data[j].entityId, requests[i].data[j].acstat);
-      }
+      PolicyEntity storage policyEntity = _doGetPolicyAndCheckAdminAccess(profileEntity, requests[i].entityId, senderId, functionId);
+      require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");       
+      policyEntity.acstat = requests[i].acstat;
+      emit ProfilePolicyActivityUpdated(msg.sender, profileId, requests[i].entityId, requests[i].acstat);
     }
     return true;
   }
 
-  function profilePolicyUpdateAlterabilityStatus(ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool) {
+  function profilePolicyUpdateAlterabilityStatus(bytes32 profileId, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(profileId, IProfilePolicyManagement.profilePolicyUpdateAlterabilityStatus.selector);
     for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfilePolicyManagement.profilePolicyUpdateAlterabilityStatus.selector);
-      for(uint j = 0; j < requests[i].data.length; j++) {
-        LProfileRolePolicy.profilePolicyUpdateAlterabilityStatus(profileEntity, requests[i].data[j], senderId, functionId);
-        emit ProfilePolicyAlterabilityUpdated(msg.sender, requests[i].profileId, requests[i].data[j].entityId, requests[i].data[j].alstat);
-      }
+      LProfileRolePolicy.profilePolicyUpdateAlterabilityStatus(profileEntity, requests[i], senderId, functionId);
+      emit ProfilePolicyAlterabilityUpdated(msg.sender, profileId, requests[i].entityId, requests[i].alstat);
     }
     return true;  
   }
 
-  function profilePolicyUpdateRoleLimit(ProfilePolicyUpdateRoleLimitRequest[] calldata requests) external returns (bool) {
+  function profilePolicyUpdateRoleLimit(bytes32 profileId, ProfilePolicyUpdateRoleLimitRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(profileId, IProfilePolicyManagement.profilePolicyUpdateRoleLimit.selector);
     for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfilePolicyManagement.profilePolicyUpdateRoleLimit.selector);
-      for(uint j = 0; j < requests[i].limits.length; j++) {
-        PolicyEntity storage policyEntity = _doGetPolicyAndCheckAdminAccess(profileEntity, requests[i].limits[j].policyId, senderId, functionId);
-        require(requests[i].limits[j].roleLimit > policyEntity.roles.length(), "Illegal Limit");
-        policyEntity.roleLimit = requests[i].limits[j].roleLimit;            
-        emit ProfilePolicyRoleLimitUpdated(msg.sender, requests[i].profileId, requests[i].limits[j].policyId, requests[i].limits[j].roleLimit);
-      }
+      PolicyEntity storage policyEntity = _doGetPolicyAndCheckAdminAccess(profileEntity, requests[i].policyId, senderId, functionId);
+      require(requests[i].roleLimit > policyEntity.roles.length(), "Illegal Limit");
+      policyEntity.roleLimit = requests[i].roleLimit;            
+      emit ProfilePolicyRoleLimitUpdated(msg.sender, profileId, requests[i].policyId, requests[i].roleLimit);
     }
     return true;
   }

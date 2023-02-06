@@ -51,59 +51,53 @@ contract ProfileGlobalManager is ACLStorage, BaseUUPSProxy, IProfileGlobalManage
       super.supportsInterface(interfaceId);
   }
 
-  function profileGlobalUpdateActivityStatus(ProfileGlobalUpdateActivityRequest[] calldata requests) external returns (bool) {
-    for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermissionActivity(requests[i].profileId, IProfileGlobalManagement.profileGlobalUpdateActivityStatus.selector);
-      GlobalEntity storage globalEntity = _doGetEntityAndCheckAdminAccess(profileEntity, senderId, functionId);
-      require(requests[i].acstat > ActivityStatus.ENABLED, "Illegal Activity");
-      globalEntity.bs.acstat = requests[i].acstat;
-      emit ProfileGlobalActivityUpdated(msg.sender, requests[i].profileId, _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, requests[i].acstat);
-    }    
+  function profileGlobalUpdateActivityStatus(bytes32 profileId, ActivityStatus acstat) external returns (bool) {
+
+    (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermissionActivity(profileId, IProfileGlobalManagement.profileGlobalUpdateActivityStatus.selector);
+    GlobalEntity storage globalEntity = _doGetEntityAndCheckAdminAccess(profileEntity, senderId, functionId);
+    require(acstat > ActivityStatus.ENABLED, "Illegal Activity");
+    globalEntity.bs.acstat = acstat;
+    emit ProfileGlobalActivityUpdated(msg.sender, profileId, _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, acstat);
     return true;
   }
 
 
-  function profileGlobalUpdateAlterabilityStatus(ProfileGlobalUpdateAlterabilityRequest[] calldata requests) external returns (bool) {
-    for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfileGlobalManagement.profileGlobalUpdateAlterabilityStatus.selector);
-      GlobalEntity storage globalEntity = profileEntity.profileGlobalReadSlot(_LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID);
-      IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, globalEntity.bs.adminId, senderId, functionId);
-      if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
-      require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
-      globalEntity.bs.alstat = requests[i].alstat;
-      emit ProfileGlobalAlterabilityUpdated(msg.sender, requests[i].profileId, _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, requests[i].alstat);    
-    }
+  function profileGlobalUpdateAlterabilityStatus(bytes32 profileId, AlterabilityStatus alstat) external returns (bool) {
+    (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(profileId, IProfileGlobalManagement.profileGlobalUpdateAlterabilityStatus.selector);
+    GlobalEntity storage globalEntity = profileEntity.profileGlobalReadSlot(_LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID);
+    IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, globalEntity.bs.adminId, senderId, functionId);
+    if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
+    require(alstat != AlterabilityStatus.NONE, "Illegal Alterability");
+    globalEntity.bs.alstat = alstat;
+    emit ProfileGlobalAlterabilityUpdated(msg.sender, profileId, _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, alstat);    
     return true;
   }
 
-  function profileGlobalUpdateAdmin(ProfileGlobalUpdateAdminRequest[] calldata requests) external returns (bool) { 
-    for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfileGlobalManagement.profileGlobalUpdateAdmin.selector);
-      GlobalEntity storage globalEntity = _doGetEntityAndCheckAdminAccess(profileEntity, senderId, functionId);
-      require(requests[i].adminId != globalEntity.bs.adminId && requests[i].adminId != bytes32(0), "Illegal AdminId");    
-      BaseAgent storage adminBaseAgent = profileEntity.agents[requests[i].adminId];
-      require(adminBaseAgent.atype > AgentType.MEMBER, "Illegal Admin AgentType");
-      if (adminBaseAgent.atype == AgentType.ROLE) {
-        TypeEntity storage profileAdminType = profileEntity.profileTypeReadSlot(_LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID);
-        require(profileAdminType.roles.contains(requests[i].adminId), "Not Found");
-      } else {
-        require(_LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID == requests[i].adminId, "Illegal Admin");
-      }
-      
-      globalEntity.bs.adminId = requests[i].adminId;
-      emit ProfileGlobalAdminUpdated(msg.sender, requests[i].profileId, _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, requests[i].adminId);
+  function profileGlobalUpdateAdmin(bytes32 profileId, bytes32 adminId) external returns (bool) { 
+    (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(profileId, IProfileGlobalManagement.profileGlobalUpdateAdmin.selector);
+    GlobalEntity storage globalEntity = _doGetEntityAndCheckAdminAccess(profileEntity, senderId, functionId);
+    require(adminId != globalEntity.bs.adminId && adminId != bytes32(0), "Illegal AdminId");    
+    BaseAgent storage adminBaseAgent = profileEntity.agents[adminId];
+    require(adminBaseAgent.atype > AgentType.MEMBER, "Illegal Admin AgentType");
+    if (adminBaseAgent.atype == AgentType.ROLE) {
+      TypeEntity storage profileAdminType = profileEntity.profileTypeReadSlot(_LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID);
+      require(profileAdminType.roles.contains(adminId), "Not Found");
+    } else {
+      require(_LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID == adminId, "Illegal Admin");
     }
+    
+    globalEntity.bs.adminId = adminId;
+    emit ProfileGlobalAdminUpdated(msg.sender, profileId, _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, adminId);
+  
     return true;
   }
 
-  function profileGlobalUpdateDomainLimit(ProfileGlobalUpdateDomainLimitRequest[] calldata requests) external returns (bool) {
-    for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfileGlobalManagement.profileGlobalUpdateDomainLimit.selector);
-      GlobalEntity storage globalEntity = _doGetEntityAndCheckAdminAccess(profileEntity, senderId, functionId);
-      require(requests[i].domainLimit > globalEntity.domains.length() , "Illegal Limit");
-      globalEntity.domainLimit = requests[i].domainLimit;      
-      emit ProfileGlobalDomainLimitUpdated(msg.sender, requests[i].profileId, _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, requests[i].domainLimit);    
-    }
+  function profileGlobalUpdateDomainLimit(bytes32 profileId, uint16 domainLimit) external returns (bool) {
+    (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(profileId, IProfileGlobalManagement.profileGlobalUpdateDomainLimit.selector);
+    GlobalEntity storage globalEntity = _doGetEntityAndCheckAdminAccess(profileEntity, senderId, functionId);
+    require(domainLimit > globalEntity.domains.length() , "Illegal Limit");
+    globalEntity.domainLimit = domainLimit;      
+    emit ProfileGlobalDomainLimitUpdated(msg.sender, profileId, _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, domainLimit);    
     return true;
   }
 

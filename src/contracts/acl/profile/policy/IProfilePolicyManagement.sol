@@ -13,12 +13,8 @@ import "../../IACLCommons.sol";
  */
 
 interface IProfilePolicyManagement is IACLCommons {
-  struct ProfilePolicyRegisterRequest {
-    bytes32 profileId;
-    ProfilePolicyRegisterDataRequest[] policies;
-  }
 
-  struct ProfilePolicyRegisterDataRequest {
+  struct ProfilePolicyRegisterRequest {
     bytes32 adminId;
     bytes32 scopeId;
     int24 roleLimit;
@@ -27,33 +23,21 @@ interface IProfilePolicyManagement is IACLCommons {
   }
 
   struct ProfilePolicyAddRolesRequest {
-    bytes32 profileId;
     bytes32 policyId;
     bytes32[] roles;
   }
 
   struct ProfilePolicyRemoveRolesRequest {
-    bytes32 profileId;
     bytes32 policyId;
     bytes32[] roles;
   }
 
-  struct ProfilePolicyUpdateCodeRequest { 
-    bytes32 profileId;
-    ProfilePolicyCodeRequest[] policies;
-  }
-
-  struct ProfilePolicyCodeRequest {   
+  struct ProfilePolicyUpdateCodeRequest {   
     bytes32 policyId;
     uint8 policyCode;
   }
   
   struct ProfilePolicyUpdateRoleLimitRequest {
-    bytes32 profileId;
-    ProfilePolicyRoleLimitRequest[] limits;
-  }
-
-  struct ProfilePolicyRoleLimitRequest {
     bytes32 policyId;
     uint16 roleLimit;
   }
@@ -97,23 +81,23 @@ interface IProfilePolicyManagement is IACLCommons {
   
   event ProfilePolicyScopeUpdated(address indexed sender, bytes32 indexed profieId, bytes32 indexed policyId, bytes32 scopeId);
 
-  function profilePolicyRegister(ProfilePolicyRegisterRequest[] calldata requests) external returns (bool);
+  function profilePolicyRegister(bytes32 profileId, ProfilePolicyRegisterRequest[] calldata requests) external returns (bool);
 
-  function profilePolicyAddRoles(ProfilePolicyAddRolesRequest[] calldata requests) external returns (bool);
+  function profilePolicyAddRoles(bytes32 profileId, ProfilePolicyAddRolesRequest[] calldata requests) external returns (bool);
 
-  function profilePolicyRemoveRoles(ProfilePolicyRemoveRolesRequest[] calldata requests) external returns (bool);
+  function profilePolicyRemoveRoles(bytes32 profileId, ProfilePolicyRemoveRolesRequest[] calldata requests) external returns (bool);
 
-  function profilePolicyUpdateCodes(ProfilePolicyUpdateCodeRequest[] calldata requests) external returns (bool);
+  function profilePolicyUpdateCodes(bytes32 profileId, ProfilePolicyUpdateCodeRequest[] calldata requests) external returns (bool);
 
-  function profilePolicyUpdateAdmin(ProfileUpdateAdminRequest[] calldata requests) external returns (bool); 
+  function profilePolicyUpdateAdmin(bytes32 profileId, ProfileUpdateAdminRequest[] calldata requests) external returns (bool); 
 
-  function profilePolicyUpdateScope(ProfileUpdateScopeRequest[] calldata requests) external returns (bool);  
+  function profilePolicyUpdateScope(bytes32 profileId, ProfileUpdateScopeRequest[] calldata requests) external returns (bool);  
 
-  function profilePolicyUpdateActivityStatus(ProfileUpdateActivityRequest[] calldata requests) external returns (bool);
+  function profilePolicyUpdateActivityStatus(bytes32 profileId, ProfileUpdateActivityRequest[] calldata requests) external returns (bool);
 
-  function profilePolicyUpdateAlterabilityStatus(ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool);
+  function profilePolicyUpdateAlterabilityStatus(bytes32 profileId, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
-  function profilePolicyUpdateRoleLimit(ProfilePolicyUpdateRoleLimitRequest[] calldata requests) external returns (bool);
+  function profilePolicyUpdateRoleLimit(bytes32 profileId, ProfilePolicyUpdateRoleLimitRequest[] calldata requests) external returns (bool);
 
   function profilePolicyCheckId(bytes32 profileId, bytes32 policyId) external view returns (bool);
 

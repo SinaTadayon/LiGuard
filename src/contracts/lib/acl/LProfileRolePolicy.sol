@@ -70,7 +70,7 @@ library LProfileRolePolicy {
     profileEntity.registerLimits.policyRegisterLimit -= requestLength;  
   }
 
-  function profileRoleRegister(IProfileRoleManagement.ProfileRoleRegisterDataRequest calldata request, IACLCommons.ProfileEntity storage profileEntity, bytes32 profileId, bytes32 senderId, bytes32 functionId) external returns (bytes32, bytes32) {
+  function profileRoleRegister(IProfileRoleManagement.ProfileRoleRegisterRequest calldata request, IACLCommons.ProfileEntity storage profileEntity, bytes32 profileId, bytes32 senderId, bytes32 functionId) external returns (bytes32, bytes32) {
     bytes32 newRoleId = LACLUtils.generateId(request.name);
     require(profileEntity.agents[newRoleId].atype == IACLCommons.AgentType.NONE, "Role Already Exist");   
     require(
@@ -110,7 +110,7 @@ library LProfileRolePolicy {
     return (newRoleId, newRole.ba.adminId);
   }
 
-  function profilePolicyRegister(IACLCommons.ProfileEntity storage profileEntity, IProfilePolicyManagement.ProfilePolicyRegisterDataRequest calldata request, bytes32 profileId, IACLCommons.ScopeType senderScopeType, bytes32 senderScopeId) external returns (bytes32){
+  function profilePolicyRegister(IACLCommons.ProfileEntity storage profileEntity, IProfilePolicyManagement.ProfilePolicyRegisterRequest calldata request, bytes32 profileId, IACLCommons.ScopeType senderScopeType, bytes32 senderScopeId) external returns (bytes32){
     bytes32 newPolicyId = LACLUtils.generateId(request.name);
     require(profileEntity.policies[newPolicyId].acstat == IACLCommons.ActivityStatus.NONE , "Already Exist");
     
@@ -138,7 +138,7 @@ library LProfileRolePolicy {
     return _doProfileGetPolicyAdmin(profileEntity, requestScopeType, requestScopeAdmin, scopeId, adminId, profileId);
   }
 
-  function profilePolicyUpdateScope(IACLCommons.ProfileEntity storage profileEntity, IProfilePolicyManagement.ProfileScopeRequest calldata request, bytes32 profileId, bytes32 senderId, bytes32 functionId) external {
+  function profilePolicyUpdateScope(IACLCommons.ProfileEntity storage profileEntity, IProfilePolicyManagement.ProfileUpdateScopeRequest calldata request, bytes32 profileId, bytes32 senderId, bytes32 functionId) external {
     IACLCommons.ScopeType senderScopeType;
     bytes32 senderScopeId;
     IACLCommons.PolicyEntity storage policyEntity = _doProfileGetPolicyAndCheckAdminAccess(profileEntity, request.entityId, senderId, functionId);    
@@ -242,7 +242,7 @@ library LProfileRolePolicy {
     });
   }
 
-  function profilePolicyUpdateAlterabilityStatus(IACLCommons.ProfileEntity storage profileEntity, IProfilePolicyManagement.ProfileAlterabilityRequest calldata request, bytes32 senderId, bytes32 functionId) external {
+  function profilePolicyUpdateAlterabilityStatus(IACLCommons.ProfileEntity storage profileEntity, IProfilePolicyManagement.ProfileUpdateAlterabilityRequest calldata request, bytes32 senderId, bytes32 functionId) external {
       IACLCommons.PolicyEntity storage policyEntity = profileEntity.policies[request.entityId];
       require(policyEntity.adminId != bytes32(0), "Not Found");      
       IProfileACL.ProfileAdminAccessStatus status = _doProfileCheckAdminAccess(profileEntity, policyEntity.adminId, senderId, functionId);
@@ -328,7 +328,7 @@ library LProfileRolePolicy {
     return false;
   }
 
-  function profileRoleUpdateScope(IProfileRoleManagement.ProfileScopeRequest calldata request, IACLCommons.ProfileEntity storage profileEntity, bytes32 profileId, bytes32 senderId, bytes32 functionId) external returns (bool) {    
+  function profileRoleUpdateScope(IProfileRoleManagement.ProfileUpdateScopeRequest calldata request, IACLCommons.ProfileEntity storage profileEntity, bytes32 profileId, bytes32 senderId, bytes32 functionId) external returns (bool) {    
 
     IACLCommons.RoleEntity storage roleEntity = _doProfileGetRoleEntityAndCheckAdminAccess(profileEntity, request.entityId, senderId, functionId);
     IACLCommons.TypeEntity storage typeEntity = profileEntity.profileTypeReadSlot(roleEntity.typeId);

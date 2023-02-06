@@ -14,26 +14,6 @@ import "../../IACLCommons.sol";
 
 interface IProfileGlobalManagement is IACLCommons {
  
-  struct ProfileGlobalUpdateDomainLimitRequest {
-    bytes32 profileId;
-    uint16 domainLimit;
-  }
-
-  struct ProfileGlobalUpdateActivityRequest {
-    bytes32 profileId;
-    ActivityStatus acstat;
-  }
-
-  struct ProfileGlobalUpdateAlterabilityRequest {
-    bytes32 profileId;
-    AlterabilityStatus alstat;
-  }
-
-  struct ProfileGlobalUpdateAdminRequest {
-    bytes32 profileId;
-    bytes32 adminId;
-  }
-
   struct ProfileGlobalInfo {
     bytes32 id;
     bytes32 adminId;
@@ -56,13 +36,13 @@ interface IProfileGlobalManagement is IACLCommons {
   
   event ProfileGlobalAlterabilityUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed globalId, AlterabilityStatus alstat);
 
-  function profileGlobalUpdateActivityStatus(ProfileGlobalUpdateActivityRequest[] calldata requests) external returns (bool);
+  function profileGlobalUpdateActivityStatus(bytes32 profileId, ActivityStatus acstat) external returns (bool);
 
-  function profileGlobalUpdateAlterabilityStatus(ProfileGlobalUpdateAlterabilityRequest[] calldata requests) external returns (bool);
+  function profileGlobalUpdateAlterabilityStatus(bytes32 profileId, AlterabilityStatus alstat) external returns (bool);
 
-  function profileGlobalUpdateAdmin(ProfileGlobalUpdateAdminRequest[] calldata requests) external returns (bool);
+  function profileGlobalUpdateAdmin(bytes32 profileId, bytes32 adminId) external returns (bool);
 
-  function profileGlobalUpdateDomainLimit(ProfileGlobalUpdateDomainLimitRequest[] calldata requests) external returns (bool);
+  function profileGlobalUpdateDomainLimit(bytes32 profileId, uint16 domainLimit) external returns (bool);
 
   function profileGlobalCheckAdmin(bytes32 profileId, address account) external view returns (bool);
 

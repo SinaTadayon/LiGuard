@@ -250,42 +250,21 @@ interface IACLCommons{
   }
 
   struct ProfileUpdateActivityRequest {
-    bytes32 profileId;
-    ProfileActivityRequest[] data;
-  }
-
-  struct ProfileActivityRequest {
     bytes32 entityId;
     ActivityStatus acstat;
   }
 
   struct ProfileUpdateAlterabilityRequest {
-    bytes32 profileId;
-    ProfileAlterabilityRequest[] data;
-  }
-
-  struct ProfileAlterabilityRequest {
     bytes32 entityId;
     AlterabilityStatus alstat;
   }
 
   struct ProfileUpdateAdminRequest {
-    bytes32 profileId;
-    ProfileAdminRequest[] data;
-  }
-
-  struct ProfileAdminRequest {
     bytes32 entityId;
     bytes32 adminId;
   }
 
-
   struct ProfileUpdateScopeRequest {
-    bytes32 profileId;
-    ProfileScopeRequest[] data;
-  }
-
-  struct ProfileScopeRequest {
     bytes32 entityId;
     bytes32 scopeId;
   }

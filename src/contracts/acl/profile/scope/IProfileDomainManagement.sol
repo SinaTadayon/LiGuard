@@ -15,33 +15,18 @@ import "../../IACLCommons.sol";
 interface IProfileDomainManagement is IACLCommons {
 
   struct ProfileDomainRegisterRequest {
-    bytes32 profileId;
-    ProfileDomainRegisterDataRequest[] domains;
-  }
-
-  struct ProfileDomainRegisterDataRequest {
     bytes32 adminId;
     int24 realmLimit;
     string name;
   }
 
   struct ProfileDomainMoveRealmRequest {
-    bytes32 profileId;
-    ProfileDomainMoveRealmDataRequest[] data;
-  }
-
-  struct ProfileDomainMoveRealmDataRequest {
     bytes32 domainId;
     bytes32 targetDomainId;
     bytes32 realmId;
   }
 
-  struct ProfileDomainUpdateRealmLimitRequest {
-    bytes32 profileId;
-    ProfileDomainRealmLimitRequest[] limits;
-  }
-
-  struct ProfileDomainRealmLimitRequest {   
+  struct ProfileDomainUpdateRealmLimitRequest {   
     bytes32 domainId;
     uint16 realmLimit;
   }
@@ -75,17 +60,17 @@ interface IProfileDomainManagement is IACLCommons {
   
   event ProfileDomainAlterabilityUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed domainId, AlterabilityStatus alstat);
 
-  function profileDomainRegister(ProfileDomainRegisterRequest[] calldata requests) external returns (bool);
+  function profileDomainRegister(bytes32 profileId, ProfileDomainRegisterRequest[] calldata requests) external returns (bool);
 
-  function profileDomainUpdateActivityStatus(ProfileUpdateActivityRequest[] calldata requests) external returns (bool);
+  function profileDomainUpdateActivityStatus(bytes32 profileId, ProfileUpdateActivityRequest[] calldata requests) external returns (bool);
 
-  function profileDomainUpdateAlterabilityStatus(ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool);
+  function profileDomainUpdateAlterabilityStatus(bytes32 profileId, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
-  function profileDomainUpdateAdmin(ProfileUpdateAdminRequest[] calldata requests) external returns (bool);
+  function profileDomainUpdateAdmin(bytes32 profileId, ProfileUpdateAdminRequest[] calldata requests) external returns (bool);
 
-  function profileDomainMoveRealm(ProfileDomainMoveRealmRequest[] calldata requests) external returns (bool);
+  function profileDomainMoveRealm(bytes32 profileId, ProfileDomainMoveRealmRequest[] calldata requests) external returns (bool);
 
-  function profileDomainUpdateRealmLimit(ProfileDomainUpdateRealmLimitRequest[] calldata requests) external returns (bool);
+  function profileDomainUpdateRealmLimit(bytes32 profileId, ProfileDomainUpdateRealmLimitRequest[] calldata requests) external returns (bool);
 
   function profileDomainCheckId(bytes32 profileId, bytes32 domainId) external view returns (bool);
 

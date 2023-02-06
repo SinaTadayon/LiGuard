@@ -53,108 +53,96 @@ contract ProfileDomainManager is ACLStorage, BaseUUPSProxy, IProfileDomainManage
   }
 
   // called by account that member of VERSE SCOPE MASTER TYPE
-  function profileDomainRegister(ProfileDomainRegisterRequest[] calldata requests) external returns (bool) {
-    for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfileDomainManagement.profileDomainRegister.selector);
+  function profileDomainRegister(bytes32 profileId, ProfileDomainRegisterRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(profileId, IProfileDomainManagement.profileDomainRegister.selector);
     
-      // check profile and domain limitations and update it
-      LProfileCommons.profileCheckMemberForDomainRegister(profileEntity, uint16(requests[i].domains.length), senderId);
-      
+    // check profile and domain limitations and update it
+    LProfileCommons.profileCheckMemberForDomainRegister(profileEntity, uint16(requests.length), senderId);
+  
       // fetch scope type and scope id of sender
-      bytes32 senderScopeId = _doGetMemberScopeInfoFromType(profileEntity, _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID, senderId);    
-      require(senderScopeId == _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Global Scope");
+    bytes32 senderScopeId = _doGetMemberScopeInfoFromType(profileEntity, _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID, senderId);    
+    require(senderScopeId == _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Global Scope");
     
-      for(uint j = 0; j < requests[i].domains.length; j++) {        
-        bytes32 newDomainId = LProfileCommons.profileDomainRegister(profileEntity, requests[i].domains[j], senderId, functionId);
-        emit ProfileDomainRegistered(
-          msg.sender,
-          requests[i].profileId,
-          newDomainId,
-          requests[i].domains[j].adminId
-        );
-      }
+    for(uint i = 0; i < requests.length; i++) {          
+      bytes32 newDomainId = LProfileCommons.profileDomainRegister(profileEntity, requests[i], senderId, functionId);
+      emit ProfileDomainRegistered(
+        msg.sender,
+        profileId,
+        newDomainId,
+        requests[i].adminId
+      );    
     }
 
     return true;
   }
  
-  function profileDomainUpdateActivityStatus(ProfileUpdateActivityRequest[] calldata requests) external returns (bool) {
-    for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfileDomainManagement.profileDomainUpdateActivityStatus.selector);
-      for(uint j = 0; j < requests[i].data.length; j++) {
-        DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].data[j].entityId, senderId, functionId); 
-        require(requests[i].data[j].acstat > ActivityStatus.DELETED, "Illegal Activity");
-        domainEntity.bs.acstat = requests[i].data[j].acstat;
-        emit ProfileDomainActivityUpdated(msg.sender, requests[i].profileId, requests[i].data[j].entityId, requests[i].data[j].acstat);
-      }
+  function profileDomainUpdateActivityStatus(bytes32 profileId, ProfileUpdateActivityRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(profileId, IProfileDomainManagement.profileDomainUpdateActivityStatus.selector);
+    for(uint i = 0; i < requests.length; i++) {    
+      DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].entityId, senderId, functionId); 
+      require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
+      domainEntity.bs.acstat = requests[i].acstat;
+      emit ProfileDomainActivityUpdated(msg.sender, profileId, requests[i].entityId, requests[i].acstat);
     }
     return true;
   }
 
-  function profileDomainUpdateAlterabilityStatus(ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool) {
-    for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfileDomainManagement.profileDomainUpdateAlterabilityStatus.selector);
-      for(uint j = 0; j < requests[i].data.length; j++) {
-        DomainEntity storage domainEntity = profileEntity.profileDomainReadSlot(requests[i].data[j].entityId);
-        IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, domainEntity.bs.adminId, senderId, functionId);
-        if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
-        require(requests[i].data[j].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
-        domainEntity.bs.alstat = requests[i].data[j].alstat;
-        emit ProfileDomainAlterabilityUpdated(msg.sender, requests[i].profileId, requests[i].data[j].entityId, requests[i].data[j].alstat);
-      }
+  function profileDomainUpdateAlterabilityStatus(bytes32 profileId, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(profileId, IProfileDomainManagement.profileDomainUpdateAlterabilityStatus.selector);
+    for(uint i = 0; i < requests.length; i++) {    
+      DomainEntity storage domainEntity = profileEntity.profileDomainReadSlot(requests[i].entityId);
+      IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, domainEntity.bs.adminId, senderId, functionId);
+      if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
+      require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
+      domainEntity.bs.alstat = requests[i].alstat;
+      emit ProfileDomainAlterabilityUpdated(msg.sender, profileId, requests[i].entityId, requests[i].alstat);    
     }
     return true;  
   }
 
-  function profileDomainUpdateAdmin(ProfileUpdateAdminRequest[] calldata requests) external returns (bool) {
-    for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfileDomainManagement.profileDomainUpdateAdmin.selector);
-      for(uint j = 0; j < requests[i].data.length; j++) {
-        DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].data[j].entityId, senderId, functionId); 
-    
-        // checking requested domain admin 
-        if(requests[i].data[j].adminId != bytes32(0)) {
-          require(profileEntity.agents[requests[i].data[j].adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
-          bytes32 requestAdminScopeId = _doAgentGetScopeInfo(profileEntity, requests[i].data[j].adminId);
-          require(requestAdminScopeId == _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Admin Scope");
-          domainEntity.bs.adminId = requests[i].data[j].adminId;
-        } else {
-          domainEntity.bs.adminId = profileEntity.scopes[_LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID].adminId;
-        }
-
-        emit ProfileDomainAdminUpdated(msg.sender, requests[i].profileId, requests[i].data[j].entityId, requests[i].data[j].adminId);
+  function profileDomainUpdateAdmin(bytes32 profileId, ProfileUpdateAdminRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(profileId, IProfileDomainManagement.profileDomainUpdateAdmin.selector);
+    for(uint i = 0; i < requests.length; i++) {  
+      DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].entityId, senderId, functionId); 
+  
+      // checking requested domain admin 
+      if(requests[i].adminId != bytes32(0)) {
+        require(profileEntity.agents[requests[i].adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
+        bytes32 requestAdminScopeId = _doAgentGetScopeInfo(profileEntity, requests[i].adminId);
+        require(requestAdminScopeId == _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Admin Scope");
+        domainEntity.bs.adminId = requests[i].adminId;
+      } else {
+        domainEntity.bs.adminId = profileEntity.scopes[_LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID].adminId;
       }
+
+      emit ProfileDomainAdminUpdated(msg.sender, profileId, requests[i].entityId, requests[i].adminId);
+    }    
+    return true;
+  }
+
+  function profileDomainMoveRealm(bytes32 profileId, ProfileDomainMoveRealmRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(profileId, IProfileDomainManagement.profileDomainMoveRealm.selector);
+    for(uint i = 0; i < requests.length; i++) {  
+      DomainEntity storage domainEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].domainId, senderId, functionId);
+      require(domainEntity.realms.contains(requests[i].realmId), "Realm Not Found");
+      DomainEntity storage targetDomainEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].targetDomainId, senderId, functionId);
+      RealmEntity storage realmEntity = _doGetRealmEntityAndCheckAdminAccess(profileEntity, requests[i].realmId, senderId, functionId);
+      require(targetDomainEntity.realmLimit > targetDomainEntity.realms.length(), "Illegal Move" );
+      domainEntity.realms.remove(requests[i].realmId);
+      targetDomainEntity.realms.add(requests[i].realmId);
+      realmEntity.domainId = requests[i].targetDomainId;
+      emit ProfileDomainRealmMoved(msg.sender, profileId, requests[i].domainId, requests[i].realmId, requests[i].targetDomainId);            
     }
     return true;
   }
 
-  function profileDomainMoveRealm(ProfileDomainMoveRealmRequest[] calldata requests) external returns (bool) {
-    for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfileDomainManagement.profileDomainMoveRealm.selector);
-      for(uint j = 0; j < requests[i].data.length; j++) {
-        DomainEntity storage domainEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].data[j].domainId, senderId, functionId);
-        require(domainEntity.realms.contains(requests[i].data[j].realmId), "Realm Not Found");
-        DomainEntity storage targetDomainEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].data[j].targetDomainId, senderId, functionId);
-        RealmEntity storage realmEntity = _doGetRealmEntityAndCheckAdminAccess(profileEntity, requests[i].data[j].realmId, senderId, functionId);
-        require(targetDomainEntity.realmLimit > targetDomainEntity.realms.length(), "Illegal Move" );
-        domainEntity.realms.remove(requests[i].data[j].realmId);
-        targetDomainEntity.realms.add(requests[i].data[j].realmId);
-        realmEntity.domainId = requests[i].data[j].targetDomainId;
-        emit ProfileDomainRealmMoved(msg.sender, requests[i].profileId, requests[i].data[j].domainId, requests[i].data[j].realmId, requests[i].data[j].targetDomainId);        
-      }
-    }
-    return true;
-  }
-
-  function profileDomainUpdateRealmLimit(ProfileDomainUpdateRealmLimitRequest[] calldata requests) external returns (bool) {
-    for(uint i = 0; i < requests.length; i++) {
-      (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(requests[i].profileId, IProfileDomainManagement.profileDomainUpdateRealmLimit.selector);
-      for(uint j = 0; j < requests[i].limits.length; j++) {
-        DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].limits[j].domainId, senderId, functionId); 
-        require(requests[i].limits[j].realmLimit > domainEntity.realms.length(), "Illegal Limit");
-        domainEntity.realmLimit = requests[i].limits[j].realmLimit;           
-        emit ProfileDomainRealmLimitUpdated(msg.sender, requests[i].profileId, requests[i].limits[j].domainId, requests[i].limits[j].realmLimit);
-      }
+  function profileDomainUpdateRealmLimit(bytes32 profileId, ProfileDomainUpdateRealmLimitRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(profileId, IProfileDomainManagement.profileDomainUpdateRealmLimit.selector);
+    for(uint i = 0; i < requests.length; i++) {    
+      DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].domainId, senderId, functionId); 
+      require(requests[i].realmLimit > domainEntity.realms.length(), "Illegal Limit");
+      domainEntity.realmLimit = requests[i].realmLimit;           
+      emit ProfileDomainRealmLimitUpdated(msg.sender, profileId, requests[i].domainId, requests[i].realmLimit);
     }
     return true;
   }
