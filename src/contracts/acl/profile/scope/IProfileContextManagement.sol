@@ -14,7 +14,6 @@ import "../../IACLCommons.sol";
 interface IProfileContextManagement is IACLCommons {
 
   struct ProfileContextRegisterRequest {
-    bytes32 profileId;
     bytes32 realmId;
     bytes32 adminId;
     bytes32 salt;
@@ -67,7 +66,7 @@ interface IProfileContextManagement is IACLCommons {
 
   event ProfileContextFunctionLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed contextId, uint8 functionLimit);
 
-  function profileContextRegister(ProfileContextRegisterRequest[] calldata requests) external returns (bool);
+  function profileContextRegister(bytes32 profileId, ProfileContextRegisterRequest[] calldata requests) external returns (bool);
 
   function profileContextUpdateActivityStatus(bytes32 profileId, ProfileUpdateActivityRequest[] calldata requests) external returns (bool);
 

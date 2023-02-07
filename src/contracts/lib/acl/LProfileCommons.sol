@@ -50,19 +50,19 @@ library LProfileCommons {
     return _doGetAgentScopeInfo(profileEntity, agentId);
   }
 
-  function profileGetContextAdmin(IACLCommons.ProfileEntity storage profileEntity, IProfileContextManagement.ProfileContextRegisterRequest calldata request, bytes32 scopeId, bytes32 requestScopeAdmin) external view returns (bytes32 contextAdminId) {
-    return _doGetContextAdmin(profileEntity, request, scopeId, requestScopeAdmin);
-  }
+  // function profileGetContextAdmin(IACLCommons.ProfileEntity storage profileEntity, IProfileContextManagement.ProfileContextRegisterRequest calldata request, bytes32 profileId, bytes32 scopeId, bytes32 requestScopeAdmin) external view returns (bytes32 contextAdminId) {
+  //   return _doGetContextAdmin(profileEntity, request, profileId, scopeId, requestScopeAdmin);
+  // }
 
-  function profileRegisterContext(ACLStorage.DataCollection storage data, IProfileContextManagement.ProfileContextRegisterRequest calldata request, address contractId, address signer) external returns (bytes32){
+  function profileRegisterContext(ACLStorage.DataCollection storage data, IProfileContextManagement.ProfileContextRegisterRequest calldata request, bytes32 profileId, address contractId, address signer) external returns (bytes32){
     
     bytes32 functionId = LACLUtils.functionGenerateId(data.selectors[IProfileContextManagement.profileContextRegister.selector], IProfileContextManagement.profileContextRegister.selector);
     bytes32 signerId = LACLUtils.accountGenerateId(signer);  
     bytes32 newContextId = LACLUtils.accountGenerateId(contractId);
 
     {
-      IACLCommons.ProfileEntity storage profileEntity = data.profiles[request.profileId];    
-      IProfileACL.ProfileAuthorizationStatus status = IProfileACL(address(this)).profileHasMemberAccess(request.profileId, functionId, signerId);
+      IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];    
+      IProfileACL.ProfileAuthorizationStatus status = IProfileACL(address(this)).profileHasMemberAccess(profileId, functionId, signerId);
       if(status != IProfileACL.ProfileAuthorizationStatus.PERMITTED) LACLUtils.generateProfileAuthorizationError(status);          
       require(profileEntity.scopes[newContextId].stype == IACLCommons.ScopeType.NONE, "Already Exist");
 
@@ -82,7 +82,7 @@ library LProfileCommons {
       require(realmEntity.contextLimit > realmEntity.contexts.length(), "Illegal Register");
 
       // check system scope
-      require(_doCheckContextSystemScope(data, profileEntity, request.realmId, signerId, request.profileId), "Forbidden");
+      require(_doCheckContextSystemScope(data, profileEntity, request.realmId, signerId, profileId), "Forbidden");
 
       // add context to realm
       realmEntity.contexts.add(newContextId);
@@ -95,7 +95,7 @@ library LProfileCommons {
       newContext.bs.stype = IACLCommons.ScopeType.CONTEXT;
       newContext.bs.acstat = IACLCommons.ActivityStatus.ENABLED;
       newContext.bs.alstat = IACLCommons.AlterabilityStatus.UPGRADABLE;
-      newContext.bs.adminId = _doGetContextAdmin(profileEntity, request, newContextId, realmEntity.bs.adminId);
+      newContext.bs.adminId = _doGetContextAdmin(profileEntity, request, profileId, newContextId, realmEntity.bs.adminId);
     }       
 
     return newContextId;
@@ -419,7 +419,7 @@ library LProfileCommons {
     return IProfileACL.ProfileAdminAccessStatus.NOT_PERMITTED;
   }
 
-  function _doGetContextAdmin(IACLCommons.ProfileEntity storage profileEntity, IProfileContextManagement.ProfileContextRegisterRequest calldata request, bytes32 scopeId, bytes32 requestScopeAdmin) private view returns (bytes32 contextAdminId) {
+  function _doGetContextAdmin(IACLCommons.ProfileEntity storage profileEntity, IProfileContextManagement.ProfileContextRegisterRequest calldata request, bytes32 profileId, bytes32 scopeId, bytes32 requestScopeAdmin) private view returns (bytes32 contextAdminId) {
     // checking requested context admin 
     if(request.adminId != bytes32(0)) {
       require(profileEntity.agents[request.adminId].atype > IACLCommons.AgentType.MEMBER, "Illegal Admin AgentType");      
@@ -429,7 +429,7 @@ library LProfileCommons {
         require(requestAdminScopeId == request.realmId, "Illegal Admin Scope");
     
       } else {
-        require(IProfileACLGenerals(address(this)).profileIsScopesCompatible(request.profileId, requestAdminScopeId, scopeId), "Illegal Admin Scope");
+        require(IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, requestAdminScopeId, scopeId), "Illegal Admin Scope");
       }
       contextAdminId = request.adminId;
 

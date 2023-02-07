@@ -56,7 +56,7 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
   }
 
   // called by system admin
-  function profileContextRegister(ProfileContextRegisterRequest[] calldata requests) external returns (bool) {
+  function profileContextRegister(bytes32 profileId, ProfileContextRegisterRequest[] calldata requests) external returns (bool) {
     
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");   
     for (uint256 i = 0; i < requests.length; i++) {
@@ -66,7 +66,7 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
         if(requests[i].signature.length > 0) {
           signer = _doGetSignerAddress(
             requests[i].signature, 
-            _getPredictContextMessageHash(requests[i].profileId, requests[i].deployer, requests[i].subject, requests[i].realmId)
+            _getPredictContextMessageHash(profileId, requests[i].deployer, requests[i].subject, requests[i].realmId)
           );
         } else {
           signer = msg.sender;
@@ -77,7 +77,7 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
       } else {
         if(requests[i].signature.length > 0) {
           bytes32 structHash = _getContextMessageHash(
-            requests[i].profileId,
+            profileId,
             requests[i].contractId, 
             LACLUtils.generateHash(requests[i].name), 
             LACLUtils.generateHash(requests[i].version),
@@ -90,13 +90,13 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
         contractId = requests[i].contractId;
       }      
 
-      bytes32 newContextId = LProfileCommons.profileRegisterContext(_data, requests[i], contractId, signer);
+      bytes32 newContextId = LProfileCommons.profileRegisterContext(_data, requests[i], profileId, contractId, signer);
       if(requests[i].signature.length == 0) {
         signer = address(0);
       }
       emit ProfileContextRegistered(      
         msg.sender,
-        requests[i].profileId,
+        profileId,
         newContextId, 
         requests[i].realmId,
         requests[i].adminId,
@@ -310,9 +310,9 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
     return contextEntity;
   }
 
-  function _getContextAdmin(ProfileEntity storage profileEntity, ProfileContextRegisterRequest calldata request, bytes32 scopeId, bytes32 requestScopeAdmin) internal view returns (bytes32 contextAdminId) {
-    return LProfileCommons.profileGetContextAdmin(profileEntity, request, scopeId, requestScopeAdmin);
-  }
+  // function _getContextAdmin(ProfileEntity storage profileEntity, ProfileContextRegisterRequest calldata request, bytes32 scopeId, bytes32 requestScopeAdmin) internal view returns (bytes32 contextAdminId) {
+  //   return LProfileCommons.profileGetContextAdmin(profileEntity, request, scopeId, requestScopeAdmin);
+  // }
 
   function _doGetSignerAddress(bytes memory signature, bytes32 structHash) internal view returns (address) {
     bytes32 msgDigest = _hashTypedDataV4(structHash);

@@ -17,10 +17,10 @@ export const MESSAGE_PREDICT_CONTEXT_TYPE_HASH: string = ethers.utils.keccak256(
 );
 
 export const MESSAGE_PROFILE_CONTEXT_TYPE_HASH = ethers.utils.keccak256(
-  ethers.utils.toUtf8Bytes("ProfileContext(bytes32 profileId,address contractId,string name,string version,string realm)"));
+  ethers.utils.toUtf8Bytes("ProfileContext(string profile,address contractId,string name,string version,string realm)"));
 
 export const MESSAGE_PROFILE_PREDICT_CONTEXT_TYPE_HASH = ethers.utils.keccak256(
-  ethers.utils.toUtf8Bytes("ProfilePredictContext(bytes32 profileId,address deployer,address subject,string realm)"));
+  ethers.utils.toUtf8Bytes("ProfilePredictContext(string profile,address deployer,address subject,string realm)"));
 
 export const MESSAGE_PROFILE_REGISTER_TYPE_HASH = ethers.utils.keccak256(
   ethers.utils.toUtf8Bytes("ProfileRegister(string name,address owner,uint256 expiredAt)"));

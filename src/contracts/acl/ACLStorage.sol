@@ -35,10 +35,10 @@ abstract contract ACLStorage is BaseUUPSStorage, IACLCommons {
     keccak256("PredictContext(address deployer,address subject,string realm)");
 
   bytes32 public constant PROFILE_CTX_MESSAGE_TYPEHASH =
-    keccak256("ProfileContext(bytes32 profileId,address contractId,string name,string version,string realm)");
+    keccak256("ProfileContext(string profile,address contractId,string name,string version,string realm)");
 
   bytes32 public constant PROFILE_PREDICT_CTX_MESSAGE_TYPEHASH =
-    keccak256("ProfilePredictContext(bytes32 profileId,address deployer,address subject,string realm)");
+    keccak256("ProfilePredictContext(string profile,address deployer,address subject,string realm)");
 
   bytes32 public constant PROFILE_REGISTER_MESSAGE_TYPEHASH =
     keccak256("ProfileRegister(string name,address owner,uint256 expiredAt)");

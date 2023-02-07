@@ -56,7 +56,7 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
       super.supportsInterface(interfaceId);
   }
 
-  function profileFunctionRegister(ProfileFunctionRegisterRequest[] calldata requests) external returns (bool) {
+  function profileFunctionRegister(bytes32 profileId, ProfileFunctionRegisterRequest[] calldata requests) external returns (bool) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");
     for (uint i = 0; i < requests.length; i++) {
       address signer;
@@ -65,7 +65,7 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
         if(requests[i].signature.length > 0) {
           signer = _doGetSignerAddress(
             requests[i].signature, 
-            _getPredictContextMessageHash(requests[i].profileId, requests[i].deployer, requests[i].subject, requests[i].realmId)
+            _getPredictContextMessageHash(profileId, requests[i].deployer, requests[i].subject, requests[i].realmId)
           );
         } else {
           signer = msg.sender;
@@ -76,7 +76,7 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
       } else {
         if(requests[i].signature.length > 0) {
           bytes32 structHash = _getContextMessageHash(
-            requests[i].profileId,
+            profileId,
             requests[i].contractId, 
             LACLUtils.generateHash(requests[i].name), 
             LACLUtils.generateHash(requests[i].version),
@@ -92,11 +92,11 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
       bytes32 contextId = LACLUtils.accountGenerateId(contractId);  
       bytes32 signerId = LACLUtils.accountGenerateId(signer);
     
-      ProfileEntity storage profileEntity = _data.profiles[requests[i].profileId];      
+      ProfileEntity storage profileEntity = _data.profiles[profileId];      
       {
         address functionFacetId = _data.selectors[IProfileFunctionManagement.profileFunctionRegister.selector];
         bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, IProfileFunctionManagement.profileFunctionRegister.selector); 
-        IProfileACL.ProfileAuthorizationStatus status = IProfileACL(address(this)).profileHasMemberAccess(requests[i].profileId, functionId, signerId);
+        IProfileACL.ProfileAuthorizationStatus status = IProfileACL(address(this)).profileHasMemberAccess(profileId, functionId, signerId);
         if(status != IProfileACL.ProfileAuthorizationStatus.PERMITTED) LACLUtils.generateProfileAuthorizationError(status);          
       }
           
@@ -104,13 +104,13 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
       LProfileCommons.profileCheckMemberForFunctionRegister(profileEntity, uint16(requests[i].functions.length), signerId);
 
       // check access system scope
-      require(_doCheckSystemScope(profileEntity, contextId, signerId, requests[i].profileId), "Forbidden");        
+      require(_doCheckSystemScope(profileEntity, contextId, signerId, profileId), "Forbidden");        
 
       if(requests[i].signature.length == 0) {
         signer = address(0);
       }
 
-      _doProfileFunctionRegister(profileEntity, requests[i], contextId, signer);
+      _doProfileFunctionRegister(profileEntity, requests[i], profileId, contextId, signer);
        
     }
     return true;
@@ -364,13 +364,13 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
     return IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, memberSystemRole.scopeId, scopeId);    
   }
 
-  function _doProfileFunctionRegister(ProfileEntity storage profileEntity, ProfileFunctionRegisterRequest calldata request, bytes32 contextId, address signer) internal {
+  function _doProfileFunctionRegister(ProfileEntity storage profileEntity, ProfileFunctionRegisterRequest calldata request, bytes32 profileId, bytes32 contextId, address signer) internal {
   
     for (uint j = 0; j < request.functions.length; j++) {
-      bytes32 functionId = LProfileCommons.profileFunctionRegistration(profileEntity, request.functions[j], request.profileId, contextId);
+      bytes32 functionId = LProfileCommons.profileFunctionRegistration(profileEntity, request.functions[j], profileId, contextId);
       emit ProfileFunctionRegistered(
         msg.sender,
-        request.profileId,
+        profileId,
         contextId, 
         functionId,
         request.functions[j].adminId,

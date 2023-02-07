@@ -16,7 +16,6 @@ interface IProfileFunctionManagement is IACLCommons {
 
   struct ProfileFunctionRegisterRequest {
     bytes signature;
-    bytes32 profileId;
     bytes32 realmId;
     bytes32 salt;
     string name;
@@ -78,7 +77,7 @@ interface IProfileFunctionManagement is IACLCommons {
 
   event ProfileFunctionPolicyUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed functionId, uint8 policyCode);
 
-  function profileFunctionRegister(ProfileFunctionRegisterRequest[] calldata requests) external returns (bool);
+  function profileFunctionRegister(bytes32 profileId, ProfileFunctionRegisterRequest[] calldata requests) external returns (bool);
 
   function profileFunctionUpdateAdmin(bytes32 profileId, ProfileUpdateAdminRequest[] calldata requests) external returns (bool);
 
