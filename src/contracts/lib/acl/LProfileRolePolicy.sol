@@ -486,14 +486,13 @@ library LProfileRolePolicy {
     IACLCommons.BaseScope storage requestScope = profileEntity.scopes[requestScopeId];
     require(requestScope.stype != IACLCommons.ScopeType.NONE , "Scope Not Found");
     require(requestScope.acstat > IACLCommons.ActivityStatus.DELETED , "Scope Deleted");
-    // require(requestScope.agentLimit > requestScope.referredByAgent, "Illegal Referred");
 
     // increase referred count to target scope
     requestScope.referredByAgent +=1;
     
     // checking requested role type scope with role scope
     IACLCommons.ScopeType requestTypeScopeType = profileEntity.scopes[typeScopeId].stype;
-    require(requestTypeScopeType >= requestScope.stype, "Illegal Scope Type");
+    require(requestTypeScopeType >= requestScope.stype, "Illegal ScopeType");
     if (requestTypeScopeType == requestScope.stype) {
       require(typeScopeId == requestScopeId, "Illegal Scope");
     } else {

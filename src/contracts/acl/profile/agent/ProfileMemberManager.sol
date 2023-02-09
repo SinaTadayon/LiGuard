@@ -127,6 +127,7 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
     (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(profileId, IProfileMemberManagement.profileMemberUpdateRegisterLimit.selector);
     for(uint i = 0; i < requests.length; i++) {
       ProfileMemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].memberId, senderId, functionId);
+      _doCheckRegisterLimit(profileEntity, requests[i].registerLimit);
       memberEntity.registerLimits = requests[i].registerLimit;
       emit ProfileMemberRegisterLimitUpdated(msg.sender, profileId, requests[i].memberId, requests[i].registerLimit);
     }
@@ -228,6 +229,9 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
   function _doProfileMemberRegister(ProfileEntity storage profileEntity, ProfileMemberRegisterRequest calldata memberRequest, bytes32 senderId, bytes32 profileId, bytes32 functionId) internal {
     bytes32 newMemberId = LACLUtils.accountGenerateId(memberRequest.account);  
     require(profileEntity.agents[newMemberId].acstat == ActivityStatus.NONE, "Already Exist");
+
+    // check register limits
+    _doCheckRegisterLimit(profileEntity, memberRequest.registerLimit);
           
     // check role
     RoleEntity storage roleEntity = profileEntity.profileRoleReadSlot(memberRequest.roleId);
@@ -273,7 +277,7 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
     newMember.types.add(roleEntity.typeId);
     newMember.typeLimit = memberRequest.typeLimit >= 1 ? uint16(uint24(memberRequest.typeLimit)) : profileEntity.limits.typeLimit;
     newMember.callLimit = memberRequest.callLimit >= 0 ? uint16(uint24(memberRequest.callLimit)) : profileEntity.limits.memberCallLimit;
-    newMember.registerLimits = memberRequest.registerLimit;
+    newMember.registerLimits = memberRequest.registerLimit; 
 
     emit ProfileMemberRegistered(
       msg.sender,
@@ -283,6 +287,17 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
       memberRequest.roleId,
       newMember.ba.adminId
     );
+  }
+
+  function _doCheckRegisterLimit(ProfileEntity storage profileEntity, ProfileRegisterLimit calldata registerLimitRequest) internal view {
+    require(profileEntity.registerLimits.memberRegisterLimit >= registerLimitRequest.memberRegisterLimit, "Illegal MemberRegister");
+    require(profileEntity.registerLimits.roleRegisterLimit >= registerLimitRequest.roleRegisterLimit , "Illegal RoleRegister");
+    require(profileEntity.registerLimits.typeRegisterLimit >= registerLimitRequest.typeRegisterLimit, "Illegal TypeRegister");
+    require(profileEntity.registerLimits.functionRegisterLimit >= registerLimitRequest.functionRegisterLimit, "Illegal FunctionRegister");
+    require(profileEntity.registerLimits.contextRegisterLimit >= registerLimitRequest.contextRegisterLimit, "Illegal ContextRegister");
+    require(profileEntity.registerLimits.realmRegisterLimit >= registerLimitRequest.realmRegisterLimit, "Illegal RealmRegister");
+    require(profileEntity.registerLimits.domainRegisterLimit >= registerLimitRequest.domainRegisterLimit, "Illegal DomainRegister");
+    require(profileEntity.registerLimits.policyRegisterLimit >= registerLimitRequest.policyRegisterLimit, "Illegal PolicyRegister");
   }
 
   function getLibrary() external pure returns (address) {
