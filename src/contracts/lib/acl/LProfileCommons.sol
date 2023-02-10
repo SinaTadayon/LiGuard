@@ -7,6 +7,7 @@ import "./LACLUtils.sol";
 import "./LProfileStorage.sol";
 import "../struct/LEnumerableSet.sol";
 import "../../acl/IACLCommons.sol";
+import "../../acl/profile/ProfileAccessControl.sol";
 import "../../acl/profile/IProfileACLGenerals.sol";
 import "../../acl/profile/IProfileManagement.sol";
 import "../../acl/ACLStorage.sol";
@@ -41,9 +42,12 @@ library LProfileCommons {
   bytes32 public constant LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID         = keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_MASTER"));
   bytes32 public constant LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID         = keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER"));
   bytes32 public constant LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID        = keccak256(abi.encodePacked("GLOBAL.LIVELY_PROFILE"));
+  bytes32 public constant LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID   = keccak256(abi.encodePacked("ROLE.LIVELY_PROFILE.LIVELY_MASTER_ADMIN"));
+  bytes32 public constant LIVELY_PROFILE_SYSTEM_MASTER_ADMIN_ROLE_ID   = keccak256(abi.encodePacked("ROLE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER_ADMIN"));
 
-  function profileCheckAdminAccess(IACLCommons.ProfileEntity storage profileEntity, bytes32 adminId, bytes32 senderId, bytes32 functionId) external view returns (IProfileACL.ProfileAdminAccessStatus) {
-    return _doProfileCheckAdminAccess(profileEntity, adminId, senderId, functionId);
+
+  function profileCheckAdminAccess(IACLCommons.ProfileEntity storage profileEntity, IACLCommons.FunctionEntity storage functionEntity, bytes32 adminId, bytes32 senderId) external view returns (IProfileACL.ProfileAdminAccessStatus) {
+    return _doProfileCheckAdminAccess(profileEntity, functionEntity, adminId, senderId);
   }
 
   function profileAgentGetScopeInfo(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId) external view returns (IACLCommons.ScopeType, bytes32) {
@@ -62,8 +66,7 @@ library LProfileCommons {
 
     {
       IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];    
-      IProfileACL.ProfileAuthorizationStatus status = IProfileACL(address(this)).profileHasMemberAccess(profileId, functionId, signerId);
-      if(status != IProfileACL.ProfileAuthorizationStatus.PERMITTED) LACLUtils.generateProfileAuthorizationError(status);          
+      ProfileAccessControl(payable(address(this))).profileAclHasMemberAccess(profileId, functionId, signerId);         
       require(profileEntity.scopes[newContextId].stype == IACLCommons.ScopeType.NONE, "Already Exist");
 
       // check profile and type limitations and update it
@@ -73,7 +76,6 @@ library LProfileCommons {
       require(profileMemberEntity.registerLimits.contextRegisterLimit > 0, "Illegal ContextRegisterLimit");
       require(profileEntity.registerLimits.contextRegisterLimit > 0, "Illegal RegisterLimit");
       profileMemberEntity.registerLimits.contextRegisterLimit -= 1;
-      profileMemberEntity.registerLimits.contextRegisterLimit -= 1;
       profileEntity.registerLimits.contextRegisterLimit -= 1;
 
       // check realm 
@@ -82,7 +84,7 @@ library LProfileCommons {
       require(realmEntity.contextLimit > realmEntity.contexts.length(), "Illegal Register");
 
       // check system scope
-      require(_doCheckContextSystemScope(data, profileEntity, request.realmId, signerId, profileId), "Forbidden");
+      require(_doCheckContextSystemScope(profileEntity, request.realmId, signerId, profileId), "Forbidden");
 
       // add context to realm
       realmEntity.contexts.add(newContextId);
@@ -94,7 +96,7 @@ library LProfileCommons {
       newContext.functionLimit = request.functionLimit >= 0 ? uint8(uint16(request.functionLimit)) : profileEntity.limits.functionLimit;
       newContext.bs.stype = IACLCommons.ScopeType.CONTEXT;
       newContext.bs.acstat = IACLCommons.ActivityStatus.ENABLED;
-      newContext.bs.alstat = IACLCommons.AlterabilityStatus.UPGRADABLE;
+      newContext.bs.alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
       newContext.bs.adminId = _doGetContextAdmin(profileEntity, request, profileId, newContextId, realmEntity.bs.adminId);
     }       
 
@@ -145,7 +147,7 @@ library LProfileCommons {
     profileEntity.registerLimits.memberRegisterLimit -= requestLength;
   }
 
-  function profileDomainRegister(IACLCommons.ProfileEntity storage profileEntity, IProfileDomainManagement.ProfileDomainRegisterRequest calldata request, bytes32 senderId, bytes32 functionId) external returns (bytes32) {
+  function profileDomainRegister(IACLCommons.ProfileEntity storage profileEntity, IProfileDomainManagement.ProfileDomainRegisterRequest calldata request, IACLCommons.FunctionEntity storage functionEntity, bytes32 senderId) external returns (bytes32) {
     bytes32 newDomainId = LACLUtils.generateId(request.name);
     require(profileEntity.scopes[newDomainId].stype == IACLCommons.ScopeType.NONE, "Already Exist");
 
@@ -156,7 +158,7 @@ library LProfileCommons {
     require(livelyGlobalEntity.domainLimit > livelyGlobalEntity.domains.length(), "Illegal Register");
 
     // check access admin global
-    IProfileACL.ProfileAdminAccessStatus status = _doProfileCheckAdminAccess(profileEntity, livelyGlobalEntity.bs.adminId, senderId, functionId);
+    IProfileACL.ProfileAdminAccessStatus status = _doProfileCheckAdminAccess(profileEntity, functionEntity, livelyGlobalEntity.bs.adminId, senderId);
     if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
 
     // add domain to global
@@ -166,7 +168,7 @@ library LProfileCommons {
     IACLCommons.DomainEntity storage newDomain = profileEntity.profileDomainWriteSlot(newDomainId);
     newDomain.bs.stype = IACLCommons.ScopeType.DOMAIN;
     newDomain.bs.acstat = IACLCommons.ActivityStatus.ENABLED;
-    newDomain.bs.alstat = IACLCommons.AlterabilityStatus.UPGRADABLE;      
+    newDomain.bs.alstat = IACLCommons.AlterabilityStatus.UPDATABLE;      
     newDomain.name = request.name;
     newDomain.realmLimit = request.realmLimit >= 0 ? uint16(uint24(request.realmLimit)) : profileEntity.limits.realmLimit;
     
@@ -183,7 +185,7 @@ library LProfileCommons {
     return newDomainId;
   }
 
-  function profileRealmRegister(IProfileRealmManagement.ProfileRealmRegisterRequest calldata request, IACLCommons.ProfileEntity storage profileEntity, bytes32 senderId, bytes32 functionId, IACLCommons.ScopeType memberScopeType, bytes32 memberScopeId) external returns(bytes32) {
+  function profileRealmRegister(IProfileRealmManagement.ProfileRealmRegisterRequest calldata request, IACLCommons.ProfileEntity storage profileEntity, IACLCommons.FunctionEntity storage functionEntity, bytes32 senderId, IACLCommons.ScopeType memberScopeType, bytes32 memberScopeId) external returns(bytes32) {
     bytes32 newRealmId = LACLUtils.generateId(request.name);
     require(profileEntity.scopes[newRealmId].stype == IACLCommons.ScopeType.NONE, "Already Exist");
 
@@ -202,7 +204,7 @@ library LProfileCommons {
     require(domainEntity.realmLimit > domainEntity.realms.length(), "Illegal Register");
 
     // check access admin realm
-    IProfileACL.ProfileAdminAccessStatus status = _doProfileCheckAdminAccess(profileEntity, domainEntity.bs.adminId, senderId, functionId);
+    IProfileACL.ProfileAdminAccessStatus status = _doProfileCheckAdminAccess(profileEntity, functionEntity, domainEntity.bs.adminId, senderId);
     if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
 
     // add to domain
@@ -212,7 +214,7 @@ library LProfileCommons {
     IACLCommons.RealmEntity storage newRealm = profileEntity.profileRealmWriteSlot(newRealmId);
     newRealm.bs.stype = IACLCommons.ScopeType.REALM;
     newRealm.bs.acstat = IACLCommons.ActivityStatus.ENABLED;
-    newRealm.bs.alstat = IACLCommons.AlterabilityStatus.UPGRADABLE;
+    newRealm.bs.alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
     newRealm.name = request.name;
     newRealm.domainId = request.domainId;
     newRealm.contextLimit = request.contextLimit >= 0 ? uint32(uint64(request.contextLimit)) : profileEntity.limits.contextLimit;
@@ -249,7 +251,7 @@ library LProfileCommons {
     functionEntity.policyCode = functionRequest.policyCode;      
     functionEntity.selector = functionRequest.selector;
     functionEntity.bs.acstat = IACLCommons.ActivityStatus.ENABLED;
-    functionEntity.bs.alstat =IACLCommons.AlterabilityStatus.UPGRADABLE;
+    functionEntity.bs.alstat =IACLCommons.AlterabilityStatus.UPDATABLE;
     functionEntity.bs.adminId = _doGetAndCheckFunctionAdmin(profileEntity, contextEntity.bs.adminId, contextId, functionRequest.adminId, profileId);
     
     // add function to context
@@ -374,12 +376,9 @@ library LProfileCommons {
     }
   }
 
-  function _doProfileCheckAdminAccess(IACLCommons.ProfileEntity storage profileEntity, bytes32 adminId, bytes32 senderId, bytes32 functionId) private view returns (IProfileACL.ProfileAdminAccessStatus) {
+  function _doProfileCheckAdminAccess(IACLCommons.ProfileEntity storage profileEntity, IACLCommons.FunctionEntity storage functionEntity, bytes32 adminId, bytes32 senderId) private view returns (IProfileACL.ProfileAdminAccessStatus) {
     // owners always access to all entities to modify those
     if(profileEntity.admins.contains(senderId)) return IProfileACL.ProfileAdminAccessStatus.PERMITTED;
-
-    (IACLCommons.FunctionEntity storage functionEntity, bool res) = profileEntity.profileFunctionTryReadSlot(functionId);    
-    if (!res) return IProfileACL.ProfileAdminAccessStatus.FUNCTION_NOT_FOUND;
    
     IACLCommons.AgentType adminAgentType = profileEntity.agents[adminId].atype;
     if(adminAgentType == IACLCommons.AgentType.ROLE) {
@@ -454,11 +453,11 @@ library LProfileCommons {
     return (IACLCommons.ScopeType.NONE, bytes32(0));  
   }
 
-  function _doCheckContextSystemScope(ACLStorage.DataCollection storage data, IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId, bytes32 memberId, bytes32 profileId) private view returns (bool) {  
+  function _doCheckContextSystemScope(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId, bytes32 memberId, bytes32 profileId) private view returns (bool) {  
     IACLCommons.TypeEntity storage systemType = profileEntity.profileTypeReadSlot(LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID);
     bytes32 memberRoleId = systemType.members[memberId];
     IACLCommons.RoleEntity storage memberSystemRole = profileEntity.profileRoleReadSlot(memberRoleId);
-    if(data.scopes[memberSystemRole.scopeId].stype < IACLCommons.ScopeType.REALM) return false;
+    if(profileEntity.scopes[memberSystemRole.scopeId].stype < IACLCommons.ScopeType.REALM) return false;
     if(memberSystemRole.scopeId == scopeId) {
       return true;
     } 

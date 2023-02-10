@@ -8,6 +8,7 @@ import "../IACL.sol";
 import "../IACLGenerals.sol";
 import "../ACLStorage.sol";
 import "../../lib/acl/LACLStorage.sol";
+import "../../lib/acl/LACLCommons.sol";
 import "../../lib/cryptography/LECDSA.sol";
 import "../../lib/struct/LEnumerableSet.sol";
 import "../../lib/acl/LACLUtils.sol";
@@ -287,47 +288,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
   }
 
   function _doCheckAdminAccess(bytes32 adminId, bytes32 memberId, bytes32 functionId) internal view returns (IACL.AdminAccessStatus) {
-    (FunctionEntity storage functionEntity, bool res) = _data.functionTryReadSlot(functionId);    
-    if (!res) return IACL.AdminAccessStatus.FUNCTION_NOT_FOUND;
-
-    // if(_data.agents[memberId].acstat != ActivityStatus.ENABLED) return false;
-    
-    AgentType adminAgentType = _data.agents[adminId].atype;
-    if(adminAgentType == AgentType.ROLE) {
-      (RoleEntity storage roleEntity, bool result) = _data.roleTryReadSlot(adminId);
-      if(!result) return IACL.AdminAccessStatus.ROLE_NOT_FOUND;
-      if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AdminAccessStatus.ROLE_ACTIVITY_FORBIDDEN;
-
-      (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(roleEntity.typeId);
-      if(!result1) return IACL.AdminAccessStatus.TYPE_NOT_FOUND;
-      if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AdminAccessStatus.TYPE_ACTIVITY_FORBIDDEN;
-      
-      if (typeEntity.members[memberId] != adminId) return IACL.AdminAccessStatus.NOT_PERMITTED;
-      
-      PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[adminId]];
-      if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
-        return IACL.AdminAccessStatus.POLICY_FORBIDDEN;
-
-      return IACL.AdminAccessStatus.PERMITTED;
-   
-    } else if(adminAgentType == AgentType.TYPE) { 
-      (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(adminId);
-      if(!result1) return IACL.AdminAccessStatus.TYPE_NOT_FOUND;
-      if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AdminAccessStatus.TYPE_ACTIVITY_FORBIDDEN;
-
-      bytes32 roleId = typeEntity.members[memberId];
-      (RoleEntity storage roleEntity, bool result2) = _data.roleTryReadSlot(roleId);
-      if(!result2) return IACL.AdminAccessStatus.ROLE_NOT_FOUND;
-      if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AdminAccessStatus.ROLE_ACTIVITY_FORBIDDEN;
-      
-      PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[roleId]];
-      if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
-        return IACL.AdminAccessStatus.POLICY_FORBIDDEN;
-
-      return IACL.AdminAccessStatus.PERMITTED;
-    } 
-
-    return IACL.AdminAccessStatus.NOT_PERMITTED;   
+    return LACLCommons.checkAdminAccess(_data, adminId, memberId, functionId);
   }
 
   function _accessPermission(bytes4 selector) internal returns (bytes32, bytes32) {
@@ -453,5 +414,9 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
 
   function _hashTypedDataV4(bytes32 structHash) internal view returns (bytes32) {
     return LECDSA.toTypedDataHash(IProxy(address(this)).domainSeparator(), structHash);
+  }
+
+  function getLibrary() external pure returns (address) {
+    return address(LACLCommons);
   }
 }

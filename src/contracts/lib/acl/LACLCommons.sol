@@ -206,11 +206,14 @@ library LACLCommons {
     require(profileEntity.owner == request.owner, "Illegal Owner");
     bytes32 ownerId = LACLUtils.accountGenerateId(request.owner);  
     bytes32 newOwnerId = LACLUtils.accountGenerateId(request.newOwner);
+ 
+    // check new ownerId
     require(profileEntity.agents[newOwnerId].acstat == IACLCommons.ActivityStatus.NONE, "Already Exists");
     IACLCommons.ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(ownerId);
     profileMemberEntity.ba.acstat = IACLCommons.ActivityStatus.DISABLED;
     profileMemberEntity.ba.alstat = IACLCommons.AlterabilityStatus.DISABLED;
     profileEntity.admins.remove(ownerId);
+  
     IACLCommons.ProfileAccount storage profileAccount = data.profileAccounts[request.owner];
     for(uint j = 0; j < profileAccount.profiles.length; j++) {
       if(profileAccount.profiles[j] == request.profileId) {
@@ -228,21 +231,27 @@ library LACLCommons {
     
     // add profile's new owner    
     _doCreateUpdateProfileAccount(data, request.profileId, request.newOwner);
-    bytes32 newOwnerMemberId = LACLUtils.accountGenerateId(request.newOwner); 
     
     // Create Owner Member      
-    IACLCommons.ProfileMemberEntity storage ownerMember = profileEntity.profileMemberWriteSlot(newOwnerMemberId);   
+    IACLCommons.ProfileMemberEntity storage ownerMember = profileEntity.profileMemberWriteSlot(newOwnerId);   
     ownerMember.account = request.newOwner;
     ownerMember.typeLimit = profileEntity.limits.typeLimit;
     ownerMember.callLimit = uint16(profileEntity.limits.profileCallLimit);
     ownerMember.registerLimits = profileEntity.registerLimits;          
-    ownerMember.ba.adminId = keccak256(abi.encodePacked("ROLE.LIVELY_PROFILE.LIVELY_MASTER_ADMIN"));      
+    ownerMember.ba.adminId = LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID;      
     ownerMember.ba.atype = IACLCommons.AgentType.MEMBER;
     ownerMember.ba.alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
     ownerMember.ba.acstat = IACLCommons.ActivityStatus.ENABLED;
+    ownerMember.types.add(LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID);
 
     profileEntity.owner = request.newOwner;
     profileEntity.admins.add(newOwnerId);  
+
+    // update profile lively master type
+    IACLCommons.TypeEntity storage livelyMasterType = profileEntity.profileTypeReadSlot(LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID);
+    delete livelyMasterType.members[ownerId];    
+    livelyMasterType.members[newOwnerId] = LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID;
+
     return true;
   }
 
@@ -352,7 +361,7 @@ library LACLCommons {
       IACLCommons.ProfileAccount storage newProfileAccount = data.profileAccounts[memberAddress];
       newProfileAccount.profiles.push(profileId);  
     } else {   
-      require(profileAccount.profiles.length < 7, "Illegal ProfileAccountLimit");
+      require(profileAccount.profiles.length < 16, "Illegal ProfileAccountLimit");
       profileAccount.profiles.push(profileId);
     }
   }
@@ -387,7 +396,7 @@ library LACLCommons {
     // Create Lively Master Type       
     IACLCommons.TypeEntity storage livelyMasterType = profileEntity.profileTypeWriteSlot(LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID);
     livelyMasterType.name = "TYPE.LIVELY_PROFILE.LIVELY_MASTER";
-    livelyMasterType.roleLimit = profileEntity.limits.typeRoleLimit;
+    livelyMasterType.roleLimit = profileEntity.limits.typeRoleLimit > 1 ? profileEntity.limits.typeRoleLimit : 1;
     livelyMasterType.scopeId = LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID;
     livelyMasterType.ba.adminId = LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID;
     livelyMasterType.ba.atype = IACLCommons.AgentType.TYPE;
@@ -400,11 +409,13 @@ library LACLCommons {
     livelyMasterAdminRole.name = "ROLE.LIVELY_PROFILE.LIVELY_MASTER_ADMIN";
     livelyMasterAdminRole.scopeId = LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID;
     livelyMasterAdminRole.typeId = LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID;
-    livelyMasterAdminRole.memberLimit = profileEntity.limits.memberLimit;
+    livelyMasterAdminRole.memberLimit = profileEntity.limits.memberLimit > 2 ? profileEntity.limits.memberLimit : 2;
+    livelyMasterAdminRole.memberCount = 2;
     livelyMasterAdminRole.ba.atype = IACLCommons.AgentType.ROLE;
     livelyMasterAdminRole.ba.acstat = IACLCommons.ActivityStatus.ENABLED;
     livelyMasterAdminRole.ba.alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
     livelyMasterAdminRole.ba.adminId = LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID;
+
 
     // Create Owner Member
     bytes32 ownerMemberId = LACLUtils.accountGenerateId(profileOwner);
@@ -447,7 +458,7 @@ library LACLCommons {
     // Create System Master Type       
     IACLCommons.TypeEntity storage systemMasterType = profileEntity.profileTypeWriteSlot(LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID);
     systemMasterType.name = "TYPE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER";
-    systemMasterType.roleLimit = profileEntity.limits.typeRoleLimit;
+    systemMasterType.roleLimit = profileEntity.limits.typeRoleLimit > 1 ? profileEntity.limits.typeRoleLimit : 1;
     systemMasterType.scopeId = LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID;
     systemMasterType.ba.adminId = LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID;
     systemMasterType.ba.atype = IACLCommons.AgentType.TYPE;
@@ -460,7 +471,8 @@ library LACLCommons {
     systemMasterAdminRole.name = "ROLE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER_ADMIN";
     systemMasterAdminRole.scopeId = LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID;
     systemMasterAdminRole.typeId = LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID;
-    systemMasterAdminRole.memberLimit = profileEntity.limits.memberLimit;
+    systemMasterAdminRole.memberLimit = profileEntity.limits.memberLimit > 1 ? profileEntity.limits.memberLimit : 1;
+    systemMasterAdminRole.memberCount = 1;
     systemMasterAdminRole.ba.atype = IACLCommons.AgentType.ROLE;
     systemMasterAdminRole.ba.acstat = IACLCommons.ActivityStatus.ENABLED;
     systemMasterAdminRole.ba.alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
@@ -520,6 +532,7 @@ library LACLCommons {
     livelyMasterAdminRole.scopeId = LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
     livelyMasterAdminRole.typeId = LIVELY_VERSE_LIVELY_MASTER_TYPE_ID;
     livelyMasterAdminRole.memberLimit = type(uint24).max;
+    livelyMasterAdminRole.memberCount = 1;
     livelyMasterAdminRole.ba.atype = IACLCommons.AgentType.ROLE;
     livelyMasterAdminRole.ba.acstat = IACLCommons.ActivityStatus.ENABLED;
     livelyMasterAdminRole.ba.alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
@@ -618,6 +631,7 @@ library LACLCommons {
       systemMasterAdminRole.scopeId = LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
       systemMasterAdminRole.typeId = LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID;
       systemMasterAdminRole.memberLimit = type(uint24).max;
+      systemMasterAdminRole.memberCount = 1;
       systemMasterAdminRole.ba.atype = IACLCommons.AgentType.ROLE;
       systemMasterAdminRole.ba.acstat = IACLCommons.ActivityStatus.ENABLED;
       systemMasterAdminRole.ba.alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
@@ -628,7 +642,7 @@ library LACLCommons {
       IACLCommons.MemberEntity storage systemMasterAdminMember = data.memberWriteSlot(systemMasterAdminMemberId);
 
       systemMasterAdminMember.limits = IACLCommons.GeneralLimit({
-        memberLimit: 0,
+        memberLimit: 1024,
         memberRegisterLimit: 0,
         contextRegisterLimit: 128,
         functionRegisterLimit: type(uint16).max,
@@ -637,14 +651,14 @@ library LACLCommons {
         realmLimit: 0,
         domainLimit: 0,
         callLimit: type(uint16).max,
-        typeRoleLimit: 0,
-        typeLimit: 0,
+        typeRoleLimit: type(uint8).max,
+        typeLimit: type(uint8).max,
         roleRegisterLimit: 0,
         typeRegisterLimit: 0,
         realmRegisterLimit: 0,
         domainRegisterLimit: 0,
         policyRegisterLimit: 0,
-        policyRoleLimit: 0,
+        policyRoleLimit: type(uint8).max,
         functionLimit: type(uint8).max
       });
 
@@ -678,6 +692,7 @@ library LACLCommons {
       scopeMasterAdminRole.scopeId = LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
       scopeMasterAdminRole.typeId = LIVELY_VERSE_SCOPE_MASTER_TYPE_ID;
       scopeMasterAdminRole.memberLimit = type(uint24).max;
+      scopeMasterAdminRole.memberCount = 1;
       scopeMasterAdminRole.ba.atype = IACLCommons.AgentType.ROLE;
       scopeMasterAdminRole.ba.acstat = IACLCommons.ActivityStatus.ENABLED;
       scopeMasterAdminRole.ba.alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
@@ -701,6 +716,7 @@ library LACLCommons {
       typeMasterAdminRole.scopeId = LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
       typeMasterAdminRole.typeId = LIVELY_VERSE_TYPE_MASTER_TYPE_ID;
       typeMasterAdminRole.memberLimit = type(uint24).max;
+      typeMasterAdminRole.memberCount = 1;
       typeMasterAdminRole.ba.atype = IACLCommons.AgentType.ROLE;
       typeMasterAdminRole.ba.acstat = IACLCommons.ActivityStatus.ENABLED;
       typeMasterAdminRole.ba.alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
@@ -726,6 +742,7 @@ library LACLCommons {
       memberMasterAdminRole.scopeId = LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
       memberMasterAdminRole.typeId = LIVELY_VERSE_TYPE_MASTER_TYPE_ID;
       memberMasterAdminRole.memberLimit = type(uint24).max;
+      memberMasterAdminRole.memberCount = 1;
       memberMasterAdminRole.ba.atype = IACLCommons.AgentType.ROLE;
       memberMasterAdminRole.ba.acstat = IACLCommons.ActivityStatus.ENABLED;
       memberMasterAdminRole.ba.alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
@@ -751,6 +768,7 @@ library LACLCommons {
       policyMasterAdminRole.scopeId = LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
       policyMasterAdminRole.typeId = LIVELY_VERSE_POLICY_MASTER_TYPE_ID;
       policyMasterAdminRole.memberLimit = type(uint24).max;
+      policyMasterAdminRole.memberCount = 1;
       policyMasterAdminRole.ba.atype = IACLCommons.AgentType.ROLE;
       policyMasterAdminRole.ba.acstat = IACLCommons.ActivityStatus.ENABLED;
       policyMasterAdminRole.ba.alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
@@ -774,6 +792,7 @@ library LACLCommons {
       profileMasterAdminRole.scopeId = LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
       profileMasterAdminRole.typeId = LIVELY_VERSE_PROFILE_MASTER_TYPE_ID;
       profileMasterAdminRole.memberLimit = type(uint24).max;
+      profileMasterAdminRole.memberCount = 1;
       profileMasterAdminRole.ba.atype = IACLCommons.AgentType.ROLE;
       profileMasterAdminRole.ba.acstat = IACLCommons.ActivityStatus.ENABLED;
       profileMasterAdminRole.ba.alstat = IACLCommons.AlterabilityStatus.UPDATABLE;

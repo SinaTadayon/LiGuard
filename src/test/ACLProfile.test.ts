@@ -152,6 +152,21 @@ import {
 } from "../../typechain/types/factories/acl/profile/scope/ProfileDomainManager__factory";
 import { waitForTx } from "hardhat-deploy/dist/src/helpers";
 import { PromiseOrValue } from "../../typechain/types/common";
+import { MemberManagerLibraryAddresses } from "../../typechain/types/factories/acl/agent/MemberManager__factory";
+import { TypeManagerLibraryAddresses } from "../../typechain/types/factories/acl/agent/TypeManager__factory";
+import { FunctionManagerLibraryAddresses } from "../../typechain/types/factories/acl/scope/FunctionManager__factory";
+import { ContextManagerLibraryAddresses } from "../../typechain/types/factories/acl/scope/ContextManager__factory";
+import { RealmManagerLibraryAddresses } from "../../typechain/types/factories/acl/scope/RealmManager__factory";
+import { DomainManagerLibraryAddresses } from "../../typechain/types/factories/acl/scope/DomainManager__factory";
+import {
+  GlobalManagerLibraryAddresses
+} from "../../typechain/types/factories/acl/scope/GlobalManger.sol/GlobalManager__factory";
+import {
+  ProfileTypeManagerLibraryAddresses
+} from "../../typechain/types/factories/acl/profile/agent/ProfileTypeManager__factory";
+import {
+  ProfileGlobalManagerLibraryAddresses
+} from "../../typechain/types/factories/acl/profile/scope/ProfileGlobalManger.sol/ProfileGlobalManager__factory";
 // ethers.utils.keccak256(ethers.utils.toUtf8Bytes("src/contracts/lib/acl/ContextManagementLib.sol:ContextManagementLib")) => 0x0304621006bd13fe54dc5f6b75a37ec856740450109fd223c2bfb60db9095cad => __$0304621006bd13fe54dc5f6b75a37ec856$__ ( library placeholder)
 const { provider, deployMockContract } = waffle;
 
@@ -184,22 +199,12 @@ describe("Lively Guard Profile Tests", function() {
     let lProfileCommons: LProfileCommons;
     let lProfileRolePolicy: LProfileRolePolicy;
 
-
-
     // acl libraries
-    let linkAclLibraryAddresses: ACLManagerLibraryAddresses;
-    let linkRoleLibraryAddresses: RoleManagerLibraryAddresses;
-    let linkPolicyLibraryAddresses: PolicyManagerLibraryAddresses;
-    let linkProfileManagerLibraryAddresses: ProfileManagerLibraryAddresses;
+    let linkCommonLibraryAddresses: unknown;
 
     // profiles libraries
-    let linkProfileMemberLibraryAddresses: ProfileMemberManagerLibraryAddresses;
-    let linkProfileRoleLibraryAddresses: ProfileRoleManagerLibraryAddresses;
-    let linkProfilePolicyLibraryAddresses: ProfilePolicyManagerLibraryAddresses;
-    let linkProfileFunctionLibraryAddresses: ProfileFunctionManagerLibraryAddresses;
-    let linkProfileContextLibraryAddresses: ProfileContextManagerLibraryAddresses;
-    let linkProfileRealmLibraryAddresses: ProfileRealmManagerLibraryAddresses;
-    let linkProfileDomainLibraryAddresses: ProfileDomainManagerLibraryAddresses;
+    let linkProfileCommonLibraryAddresses: unknown;
+    let linkProfileRolePolicyLibraryAddresses: unknown;
 
     // main acl contracts
     let profileManagerSubject: ProfileManager;
@@ -423,22 +428,14 @@ describe("Lively Guard Profile Tests", function() {
     describe("ACL Modules Subject Tests", function() {
       this.beforeAll( async() => {
         // acl libraries
-        linkRoleLibraryAddresses = {
-          "src/contracts/lib/acl/LACLCommons.sol:LACLCommons": lACLCommons.address
-        }
-
-        linkPolicyLibraryAddresses = {
-          "src/contracts/lib/acl/LACLCommons.sol:LACLCommons": lACLCommons.address
-        }
-
-        linkProfileManagerLibraryAddresses = {
+        linkCommonLibraryAddresses = {
           "src/contracts/lib/acl/LACLCommons.sol:LACLCommons": lACLCommons.address
         }
       })
 
       it("Should MemberManager subject deploy success", async() => {
         // given
-        const memberManagerFactory = new MemberManager__factory(systemAdmin);
+        const memberManagerFactory = new MemberManager__factory(<MemberManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
 
         // when
         memberManagerSubject = await memberManagerFactory.deploy();
@@ -454,7 +451,7 @@ describe("Lively Guard Profile Tests", function() {
 
       it("Should RoleManager subject deploy success", async() => {
         // given
-        const roleManagerFactory = new RoleManager__factory(linkRoleLibraryAddresses, systemAdmin);
+        const roleManagerFactory = new RoleManager__factory(<RoleManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
 
         // when
         roleManagerSubject = await roleManagerFactory.deploy();
@@ -470,7 +467,7 @@ describe("Lively Guard Profile Tests", function() {
 
       it("Should TypeManager subject deploy success", async() => {
         // given
-        const typeManagerFactory = new TypeManager__factory(systemAdmin);
+        const typeManagerFactory = new TypeManager__factory(<TypeManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
 
         // when
         typeManagerSubject = await typeManagerFactory.deploy();
@@ -486,7 +483,7 @@ describe("Lively Guard Profile Tests", function() {
 
       it("Should FunctionManager subject deploy success", async() => {
         // given
-        const functionManagerFactory = new FunctionManager__factory(systemAdmin);
+        const functionManagerFactory = new FunctionManager__factory(<FunctionManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
 
         // when
         functionManagerSubject = await functionManagerFactory.deploy();
@@ -502,7 +499,7 @@ describe("Lively Guard Profile Tests", function() {
 
       it("Should ContextManager subject deploy success", async() => {
         // given
-        const contextManagerFactory = new ContextManager__factory(systemAdmin);
+        const contextManagerFactory = new ContextManager__factory(<ContextManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
 
         // when
         contextManagerSubject = await contextManagerFactory.deploy();
@@ -518,7 +515,7 @@ describe("Lively Guard Profile Tests", function() {
 
       it("Should RealmManager subject deploy success", async() => {
         // given
-        const realmManagerFactory = new RealmManager__factory(systemAdmin);
+        const realmManagerFactory = new RealmManager__factory(<RealmManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
 
         // when
         realmManagerSubject = await realmManagerFactory.deploy();
@@ -534,7 +531,7 @@ describe("Lively Guard Profile Tests", function() {
 
       it("Should DomainManager subject deploy success", async() => {
         // given
-        const domainManagerFactory = new DomainManager__factory(systemAdmin);
+        const domainManagerFactory = new DomainManager__factory(<DomainManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
 
         // when
         domainManagerSubject = await domainManagerFactory.deploy();
@@ -550,7 +547,7 @@ describe("Lively Guard Profile Tests", function() {
 
       it("Should GlobalManager subject deploy success", async() => {
         // given
-        const globalManagerFactory = new GlobalManager__factory(systemAdmin);
+        const globalManagerFactory = new GlobalManager__factory(<GlobalManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
 
         // when
         globalManagerSubject = await globalManagerFactory.deploy();
@@ -566,7 +563,7 @@ describe("Lively Guard Profile Tests", function() {
 
       it("Should PolicyManager subject deploy success", async() => {
         // given
-        const policyManagerFactory = new PolicyManager__factory(linkPolicyLibraryAddresses, systemAdmin);
+        const policyManagerFactory = new PolicyManager__factory(<PolicyManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
 
         // when
         policyManagerSubject = await policyManagerFactory.deploy();
@@ -582,7 +579,7 @@ describe("Lively Guard Profile Tests", function() {
 
       it("Should ProfileManager subject deploy success", async() => {
         // given
-        const profileManagerFactory = new ProfileManager__factory(linkProfileManagerLibraryAddresses, systemAdmin);
+        const profileManagerFactory = new ProfileManager__factory(<ProfileManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
 
         // when
         profileManagerSubject = await profileManagerFactory.deploy();
@@ -616,37 +613,18 @@ describe("Lively Guard Profile Tests", function() {
     describe("ACL Profile Modules Subject Tests", function() {
       this.beforeAll( async() => {
         // profiles libraries
-        linkProfileMemberLibraryAddresses = {
+        linkProfileCommonLibraryAddresses = {
           "src/contracts/lib/acl/LProfileCommons.sol:LProfileCommons": lProfileCommons.address
         }
 
-        linkProfileRoleLibraryAddresses = {
+        linkProfileRolePolicyLibraryAddresses = {
           "src/contracts/lib/acl/LProfileRolePolicy.sol:LProfileRolePolicy": lProfileRolePolicy.address
-        }
-
-        linkProfilePolicyLibraryAddresses = {
-          "src/contracts/lib/acl/LProfileRolePolicy.sol:LProfileRolePolicy": lProfileRolePolicy.address
-        }
-
-        linkProfileFunctionLibraryAddresses = {
-          "src/contracts/lib/acl/LProfileCommons.sol:LProfileCommons": lProfileCommons.address
-        }
-
-        linkProfileContextLibraryAddresses = {
-          "src/contracts/lib/acl/LProfileCommons.sol:LProfileCommons": lProfileCommons.address
-        }
-
-        linkProfileRealmLibraryAddresses = {
-          "src/contracts/lib/acl/LProfileCommons.sol:LProfileCommons": lProfileCommons.address
-        }
-        linkProfileDomainLibraryAddresses = {
-          "src/contracts/lib/acl/LProfileCommons.sol:LProfileCommons": lProfileCommons.address
         }
       })
 
       it("Should ProfileMemberManager subject deploy success", async() => {
         // given
-        const profileMemberManagerFactory = new ProfileMemberManager__factory(linkProfileMemberLibraryAddresses, systemAdmin);
+        const profileMemberManagerFactory = new ProfileMemberManager__factory(<ProfileMemberManagerLibraryAddresses>linkProfileCommonLibraryAddresses, systemAdmin);
 
         // when
         profileMemberManagerSubject = await profileMemberManagerFactory.deploy();
@@ -662,7 +640,7 @@ describe("Lively Guard Profile Tests", function() {
 
       it("Should ProfileRoleManager subject deploy success", async() => {
         // given
-        const profileRoleManagerFactory = new ProfileRoleManager__factory(linkProfileRoleLibraryAddresses, systemAdmin);
+        const profileRoleManagerFactory = new ProfileRoleManager__factory(<ProfileRoleManagerLibraryAddresses>linkProfileRolePolicyLibraryAddresses, systemAdmin);
 
         // when
         profileRoleManagerSubject = await profileRoleManagerFactory.deploy();
@@ -678,7 +656,7 @@ describe("Lively Guard Profile Tests", function() {
 
       it("Should ProfileTypeManager subject deploy success", async() => {
         // given
-        const profileTypeManagerFactory = new ProfileTypeManager__factory(systemAdmin);
+        const profileTypeManagerFactory = new ProfileTypeManager__factory(<ProfileTypeManagerLibraryAddresses>linkProfileCommonLibraryAddresses, systemAdmin);
 
         // when
         profileTypeManagerSubject = await profileTypeManagerFactory.deploy();
@@ -694,7 +672,7 @@ describe("Lively Guard Profile Tests", function() {
 
       it("Should ProfileFunctionManager subject deploy success", async() => {
         // given
-        const profileFunctionManagerFactory = new ProfileFunctionManager__factory(linkProfileFunctionLibraryAddresses, systemAdmin);
+        const profileFunctionManagerFactory = new ProfileFunctionManager__factory(<ProfileFunctionManagerLibraryAddresses>linkProfileCommonLibraryAddresses, systemAdmin);
 
         // when
         profileFunctionManagerSubject = await profileFunctionManagerFactory.deploy();
@@ -710,7 +688,7 @@ describe("Lively Guard Profile Tests", function() {
 
       it("Should ProfileContextManager subject deploy success", async() => {
         // given
-        const profileContextManagerFactory = new ProfileContextManager__factory(linkProfileContextLibraryAddresses, systemAdmin);
+        const profileContextManagerFactory = new ProfileContextManager__factory(<ProfileContextManagerLibraryAddresses>linkProfileCommonLibraryAddresses, systemAdmin);
 
         // when
         profileContextManagerSubject = await profileContextManagerFactory.deploy();
@@ -726,7 +704,7 @@ describe("Lively Guard Profile Tests", function() {
 
       it("Should ProfileRealmManager subject deploy success", async() => {
         // given
-        const profileRealmManagerFactory = new ProfileRealmManager__factory(linkProfileRealmLibraryAddresses, systemAdmin);
+        const profileRealmManagerFactory = new ProfileRealmManager__factory(<ProfileRealmManagerLibraryAddresses>linkProfileCommonLibraryAddresses, systemAdmin);
 
         // when
         profileRealmManagerSubject = await profileRealmManagerFactory.deploy();
@@ -742,7 +720,7 @@ describe("Lively Guard Profile Tests", function() {
 
       it("Should ProfileDomainManager subject deploy success", async() => {
         // given
-        const profileDomainManagerFactory = new ProfileDomainManager__factory(linkProfileDomainLibraryAddresses, systemAdmin);
+        const profileDomainManagerFactory = new ProfileDomainManager__factory(<ProfileDomainManagerLibraryAddresses>linkProfileCommonLibraryAddresses, systemAdmin);
 
         // when
         profileDomainManagerSubject = await profileDomainManagerFactory.deploy();
@@ -758,7 +736,7 @@ describe("Lively Guard Profile Tests", function() {
 
       it("Should ProfileGlobalManager subject deploy success", async() => {
         // given
-        const profileGlobalManagerFactory = new ProfileGlobalManager__factory(systemAdmin);
+        const profileGlobalManagerFactory = new ProfileGlobalManager__factory(<ProfileGlobalManagerLibraryAddresses>linkProfileCommonLibraryAddresses, systemAdmin);
 
         // when
         profileGlobalManagerSubject = await profileGlobalManagerFactory.deploy();
@@ -774,7 +752,7 @@ describe("Lively Guard Profile Tests", function() {
 
       it("Should ProfilePolicyManager subject deploy success", async() => {
         // given
-        const profilePolicyManagerFactory = new ProfilePolicyManager__factory(linkProfilePolicyLibraryAddresses, systemAdmin);
+        const profilePolicyManagerFactory = new ProfilePolicyManager__factory(<ProfilePolicyManagerLibraryAddresses>linkProfileRolePolicyLibraryAddresses, systemAdmin);
 
         // when
         profilePolicyManagerSubject = await profilePolicyManagerFactory.deploy();
@@ -806,15 +784,9 @@ describe("Lively Guard Profile Tests", function() {
     })
 
     describe("ACLManager Subject Tests", function() {
-      this.beforeAll(() => {
-        linkAclLibraryAddresses = {
-          "src/contracts/lib/acl/LACLCommons.sol:LACLCommons": lACLCommons.address
-        };
-      });
-
       it("Should ACLManager subject deploy success", async () => {
         // given
-        const aclManagerFactory = new ACLManager__factory(linkAclLibraryAddresses, systemAdmin);
+        const aclManagerFactory = new ACLManager__factory(<ACLManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
 
         // when
         aclManagerSubject = await aclManagerFactory.deploy();
@@ -931,6 +903,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await memberManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
         expect(await memberManagerProxy.initVersion()).to.be.equal(1);
         expect(await memberManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
+        expect(await memberManagerProxy.getLibrary()).to.be.equal(lACLCommons.address);
       });
 
       it("Should RoleManager proxy deploy success", async () => {
@@ -965,6 +938,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await roleManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
         expect(await roleManagerProxy.initVersion()).to.be.equal(1);
         expect(await roleManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
+        expect(await roleManagerProxy.getLibrary()).to.be.equal(lACLCommons.address);
       });
 
       it("Should TypeManager proxy deploy success", async () => {
@@ -1000,6 +974,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await typeManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
         expect(await typeManagerProxy.initVersion()).to.be.equal(1);
         expect(await typeManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
+        expect(await typeManagerProxy.getLibrary()).to.be.equal(lACLCommons.address);
       });
 
       it("Should FunctionManager proxy deploy success", async () => {
@@ -1035,6 +1010,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await functionManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
         expect(await functionManagerProxy.initVersion()).to.be.equal(1);
         expect(await functionManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
+        expect(await functionManagerProxy.getLibrary()).to.be.equal(lACLCommons.address);
       });
 
       it("Should ContextManager proxy deploy success", async () => {
@@ -1070,6 +1046,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await contextManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
         expect(await contextManagerProxy.initVersion()).to.be.equal(1);
         expect(await contextManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
+        expect(await contextManagerProxy.getLibrary()).to.be.equal(lACLCommons.address);
       });
 
       it("Should RealmManager proxy deploy success", async () => {
@@ -1105,6 +1082,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await realmManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
         expect(await realmManagerProxy.initVersion()).to.be.equal(1);
         expect(await realmManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
+        expect(await realmManagerProxy.getLibrary()).to.be.equal(lACLCommons.address);
       });
 
       it("Should DomainManager proxy deploy success", async () => {
@@ -1140,6 +1118,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await domainManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
         expect(await domainManagerProxy.initVersion()).to.be.equal(1);
         expect(await domainManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
+        expect(await domainManagerProxy.getLibrary()).to.be.equal(lACLCommons.address);
       });
 
       it("Should GlobalManager proxy deploy success", async () => {
@@ -1175,6 +1154,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await globalManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
         expect(await globalManagerProxy.initVersion()).to.be.equal(1);
         expect(await globalManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
+        expect(await globalManagerProxy.getLibrary()).to.be.equal(lACLCommons.address);
       });
 
       it("Should PolicyManager proxy deploy success", async () => {
@@ -1210,6 +1190,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await policyManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
         expect(await policyManagerProxy.initVersion()).to.be.equal(1);
         expect(await policyManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
+        expect(await policyManagerProxy.getLibrary()).to.be.equal(lACLCommons.address);
       });
 
       it("Should ProfileManager proxy deploy success", async () => {
@@ -1245,6 +1226,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
         expect(await profileManagerProxy.initVersion()).to.be.equal(1);
         expect(await profileManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
+        expect(await profileManagerProxy.getLibrary()).to.be.equal(lACLCommons.address);
       });
 
       it("Should AccessControl proxy deploy success", async () => {
@@ -1341,6 +1323,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileMemberManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
         expect(await profileMemberManagerProxy.initVersion()).to.be.equal(1);
         expect(await profileMemberManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
+        expect(await profileMemberManagerProxy.getLibrary()).to.be.equal(lProfileCommons.address);
       });
 
       it("Should ProfileRoleManager proxy deploy success", async () => {
@@ -1375,6 +1358,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileRoleManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
         expect(await profileRoleManagerProxy.initVersion()).to.be.equal(1);
         expect(await profileRoleManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
+        expect(await profileRoleManagerProxy.getLibrary()).to.be.equal(lProfileRolePolicy.address);
       });
 
       it("Should ProfileTypeManager proxy deploy success", async () => {
@@ -1410,6 +1394,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileTypeManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
         expect(await profileTypeManagerProxy.initVersion()).to.be.equal(1);
         expect(await profileTypeManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
+        expect(await profileTypeManagerProxy.getLibrary()).to.be.equal(lProfileCommons.address);
       });
 
       it("Should ProfileFunctionManager proxy deploy success", async () => {
@@ -1445,6 +1430,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileFunctionManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
         expect(await profileFunctionManagerProxy.initVersion()).to.be.equal(1);
         expect(await profileFunctionManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
+        expect(await profileFunctionManagerProxy.getLibrary()).to.be.equal(lProfileCommons.address);
       });
 
       it("Should ProfileContextManager proxy deploy success", async () => {
@@ -1480,6 +1466,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileContextManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
         expect(await profileContextManagerProxy.initVersion()).to.be.equal(1);
         expect(await profileContextManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
+        expect(await profileContextManagerProxy.getLibrary()).to.be.equal(lProfileCommons.address);
       });
 
       it("Should ProfileRealmManager proxy deploy success", async () => {
@@ -1515,6 +1502,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileRealmManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
         expect(await profileRealmManagerProxy.initVersion()).to.be.equal(1);
         expect(await profileRealmManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
+        expect(await profileRealmManagerProxy.getLibrary()).to.be.equal(lProfileCommons.address);
       });
 
       it("Should ProfileDomainManager proxy deploy success", async () => {
@@ -1550,6 +1538,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileDomainManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
         expect(await profileDomainManagerProxy.initVersion()).to.be.equal(1);
         expect(await profileDomainManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
+        expect(await profileDomainManagerProxy.getLibrary()).to.be.equal(lProfileCommons.address);
       });
 
       it("Should ProfileGlobalManager proxy deploy success", async () => {
@@ -1585,6 +1574,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileGlobalManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
         expect(await profileGlobalManagerProxy.initVersion()).to.be.equal(1);
         expect(await profileGlobalManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
+        expect(await profileGlobalManagerProxy.getLibrary()).to.be.equal(lProfileCommons.address);
       });
 
       it("Should ProfilePolicyManager proxy deploy success", async () => {
@@ -1620,6 +1610,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profilePolicyManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
         expect(await profilePolicyManagerProxy.initVersion()).to.be.equal(1);
         expect(await profilePolicyManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
+        expect(await profilePolicyManagerProxy.getLibrary()).to.be.equal(lProfileRolePolicy.address);
       });
 
       it("Should ProfileAccessControl proxy deploy success", async () => {
@@ -1673,6 +1664,7 @@ describe("Lively Guard Profile Tests", function() {
 
         // then
         expect(await aclManagerProxy.getFirstInit()).to.be.equal(firstInit);
+        expect(await aclManagerProxy.getLibrary()).to.be.equal(lACLCommons.address);
       })
 
       it("Should facets acl register to ACLManager by systemAdmin success", async() => {
@@ -2135,6 +2127,7 @@ describe("Lively Guard Profile Tests", function() {
             selectors: [
               profileAccessControlIface.getSighash("profileHasAccess"),
               profileAccessControlIface.getSighash("profileHasMemberAccess"),
+              profileAccessControlIface.getSighash("profileAclHasMemberAccess"),
               profileAccessControlIface.getSighash("profileHasCSAccess"),
               profileAccessControlIface.getSighash("profileHasAccountAccess"),
               profileAccessControlIface.getSighash("profileAnonymousType"),
@@ -7161,26 +7154,26 @@ describe("Lively Guard Profile Tests", function() {
           name: PROFILE_TEST_NAME,
           expiredAt: profileExpiredAt,
           registerLimits: {
-            memberRegisterLimit: 1,
-            roleRegisterLimit: 1,
-            typeRegisterLimit: 1,
-            functionRegisterLimit: 1,
-            contextRegisterLimit: 1,
-            realmRegisterLimit: 1,
-            domainRegisterLimit: 1,
-            policyRegisterLimit: 1,
+            memberRegisterLimit: 10,
+            roleRegisterLimit: 10,
+            typeRegisterLimit: 10,
+            functionRegisterLimit: 10,
+            contextRegisterLimit: 10,
+            realmRegisterLimit: 10,
+            domainRegisterLimit: 10,
+            policyRegisterLimit: 10,
           },
           limits: {
-            profileCallLimit: 1,
-            contextLimit: 1,
-            memberLimit: 1,
-            realmLimit: 1,
-            domainLimit: 1,
-            memberCallLimit: 1,
-            typeRoleLimit: 1,
-            typeLimit: 1,
-            policyRoleLimit: 1,
-            functionLimit: 1,
+            profileCallLimit: 10,
+            contextLimit: 10,
+            memberLimit: 10,
+            realmLimit: 10,
+            domainLimit: 10,
+            memberCallLimit: 10,
+            typeRoleLimit: 10,
+            typeLimit: 10,
+            policyRoleLimit: 10,
+            functionLimit: 10,
           },
           profileOwner: profileOwnerWallet.address,
           profileAdmin: profileAdminWallet.address,
@@ -7194,7 +7187,7 @@ describe("Lively Guard Profile Tests", function() {
           .to.emit(profileManagerDelegateProxy, "ProfileRegistered")
           .withArgs(livelyAdminWallet.address, profileTestId, profileOwnerWallet.address,
             ethers.constants.AddressZero, profileAdminWallet.address, profileSystemAdminWallet.address,
-            LIVELY_VERSE_PROFILE_MASTER_TYPE_ID, [1,1,1,1,1,1,1,1]);
+            LIVELY_VERSE_PROFILE_MASTER_TYPE_ID, [10,10,10,10,10,10,10,10]);
 
         // then
         expect(await profileManagerDelegateProxy.profileCheckId(profileTestId)).to.be.true;
@@ -7217,11 +7210,42 @@ describe("Lively Guard Profile Tests", function() {
         expect(profileInfo.expiredAt).to.be.equal(profileExpiredAt);
         expect(profileInfo.adminId).to.be.equal(LIVELY_VERSE_PROFILE_MASTER_TYPE_ID);
         expect(profileInfo.owner).to.be.equal(profileOwnerWallet.address);
-        expect(profileInfo.registerLimits).to.be.eql([1,1,1,1,1,1,1,1]);
-        expect(profileInfo.limits).to.be.eql([1,1,1,1,1,1,1,1,1,1]);
+        expect(profileInfo.registerLimits).to.be.eql([10,10,10,10,10,10,10,10]);
+        expect(profileInfo.limits).to.be.eql([10,10,10,10,10,10,10,10,10,10]);
         expect(profileInfo.adminType).to.be.equal(AgentType.TYPE);
         expect(profileInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
         expect(profileInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+      })
+
+      it("Should profile invariants check success", async() => {
+        // when and then profile admin
+        const profileAdminRole = await profileRoleManagerDelegateProxy.profileRoleGetInfo(profileTestId, LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID);
+        expect(profileAdminRole.name).to.be.equal("ROLE.LIVELY_PROFILE.LIVELY_MASTER_ADMIN");
+        expect(profileAdminRole.scopeId).to.be.equal(LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID);
+        expect(profileAdminRole.adminId).to.be.equal(LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID);
+        expect(profileAdminRole.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(profileAdminRole.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+        expect(profileAdminRole.adminType).to.be.equal(AgentType.ROLE);
+        expect(profileAdminRole.memberLimit).to.be.equal(10);
+        expect(profileAdminRole.memberCount).to.be.equal(2);
+
+        // and
+        expect(await profileRoleManagerDelegateProxy.profileRoleHasAccount(profileTestId, LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID, profileOwnerWallet.address)).to.be.true;
+        expect(await profileRoleManagerDelegateProxy.profileRoleHasAccount(profileTestId, LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID, profileAdminWallet.address)).to.be.true;
+
+        // and profile SystemAdmin
+        const profileSystemAdminRole = await profileRoleManagerDelegateProxy.profileRoleGetInfo(profileTestId, LIVELY_PROFILE_SYSTEM_MASTER_ADMIN_ROLE_ID);
+        expect(profileSystemAdminRole.name).to.be.equal("ROLE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER_ADMIN");
+        expect(profileSystemAdminRole.scopeId).to.be.equal(LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID);
+        expect(profileSystemAdminRole.adminId).to.be.equal(LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID);
+        expect(profileSystemAdminRole.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(profileSystemAdminRole.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+        expect(profileSystemAdminRole.adminType).to.be.equal(AgentType.ROLE);
+        expect(profileSystemAdminRole.memberLimit).to.be.equal(10);
+        expect(profileSystemAdminRole.memberCount).to.be.equal(1);
+
+        // and
+        expect(await profileRoleManagerDelegateProxy.profileRoleHasAccount(profileTestId, LIVELY_PROFILE_SYSTEM_MASTER_ADMIN_ROLE_ID, profileSystemAdminWallet.address)).to.be.true;
       })
 
       it("Should register PROFILE_TEST_NAME_2 with signature profile by anyone failed", async() => {
@@ -7569,14 +7593,14 @@ describe("Lively Guard Profile Tests", function() {
         const requests: IProfileManagement.ProfileUpdateLimitsRequestStruct[] = [{
           profileId: profileTestId,
           registerLimits: {
-            memberRegisterLimit: 10,
-            roleRegisterLimit: 10,
-            typeRegisterLimit: 10,
-            functionRegisterLimit: 10,
-            contextRegisterLimit: 10,
-            realmRegisterLimit: 10,
-            domainRegisterLimit: 10,
-            policyRegisterLimit: 10,
+            memberRegisterLimit: 13,
+            roleRegisterLimit: 13,
+            typeRegisterLimit: 13,
+            functionRegisterLimit: 13,
+            contextRegisterLimit: 13,
+            realmRegisterLimit: 13,
+            domainRegisterLimit: 13,
+            policyRegisterLimit: 13,
           },
           limits: {
             profileCallLimit: 20,
@@ -7596,7 +7620,7 @@ describe("Lively Guard Profile Tests", function() {
         await expect(profileManagerDelegateProxy.connect(livelyAdmin).profileUpdateLimits(requests))
           .to.emit(profileManagerDelegateProxy, "ProfileLimitsUpdated")
           .withArgs(livelyAdminWallet.address, profileTestId,
-            [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], [10, 10, 10, 10, 10, 10, 10, 10])
+            [20, 20, 20, 20, 20, 20, 20, 20, 20, 20], [13, 13, 13, 13, 13, 13, 13, 13])
       })
 
       it("Should update Expiration of PROFILE_TEST_NAME profile by someone failed", async() => {
@@ -7694,12 +7718,18 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileManagerDelegateProxy.profileGetAdmins(profileTestId)).to.be.eql([profileAdminId, profileOwnerId2]);
 
         // and
+        expect(await profileRoleManagerDelegateProxy.profileRoleHasAccount(profileTestId, LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID, profileOwnerWallet.address)).to.be.false;
+        expect(await profileRoleManagerDelegateProxy.profileRoleHasAccount(profileTestId, LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID, profileOwnerWallet2.address)).to.be.true;
+        expect(await profileRoleManagerDelegateProxy.profileRoleHasAccount(profileTestId, LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID, profileAdminWallet.address)).to.be.true;
+        expect(await profileRoleManagerDelegateProxy.profileRoleHasAccount(profileTestId, LIVELY_PROFILE_SYSTEM_MASTER_ADMIN_ROLE_ID, profileSystemAdminWallet.address)).to.be.true;
+
+        // and
         const profileInfo: IProfileManagement.ProfileInfoStruct = await profileManagerDelegateProxy.profileGetInfo(profileTestId);
         expect(profileInfo.name).to.be.equal(PROFILE_TEST_NAME);
         expect(profileInfo.expiredAt).to.be.equal(profileExpiredAt);
         expect(profileInfo.adminId).to.be.equal(LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID);
         expect(profileInfo.owner).to.be.equal(profileOwnerWallet2.address);
-        expect(profileInfo.registerLimits).to.be.eql([10, 10, 10, 10, 10, 10, 10, 10]);
+        expect(profileInfo.registerLimits).to.be.eql([13, 13, 13, 13, 13, 13, 13, 13]);
         expect(profileInfo.limits).to.be.eql([20, 20, 20, 20, 20, 20, 20, 20, 20, 20]);
         expect(profileInfo.adminType).to.be.equal(AgentType.ROLE);
         expect(profileInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
@@ -7722,7 +7752,7 @@ describe("Lively Guard Profile Tests", function() {
         // when
         await expect(profileDomainManagerDelegateProxy.connect(profileOwner2).profileDomainRegister(profileTestId, requests)).
         to.emit(profileDomainManagerDelegateProxy, "ProfileDomainRegistered")
-          .withArgs(profileOwnerWallet2.address, profileDomainTestId ,LIVELY_VERSE_PROFILE_MASTER_ADMIN_ROLE_ID)
+          .withArgs(profileOwnerWallet2.address, profileTestId, profileDomainTestId ,LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID)
 
         // then
         expect(await profileDomainManagerDelegateProxy.profileDomainCheckId(profileTestId, profileDomainTestId)).to.be.true
@@ -7737,7 +7767,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(domainInfo.referredByAgent).to.be.equal(0);
         expect(domainInfo.stype).to.be.equal(ScopeType.DOMAIN);
         expect(domainInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
-        expect(domainInfo.alstat).to.be.equal(AlterabilityStatus.DISABLED);
+        expect(domainInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
 
         // and
         expect(await profileDomainManagerDelegateProxy.profileDomainCheckId(profileTestId, profileDomainTestId)).to.be.true;
@@ -7746,231 +7776,264 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileGlobalManagerDelegateProxy.profileGlobalGetDomains(profileTestId)).to.be.eqls([profileDomainTestId]);
       })
 
-      // it("Should register profileRealmTest to profileDomainTest success", async() => {
-      //   // given
-      //   profileRealmTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(PROFILE_REALM_TEST_NAME));
-      //   const memberRegisterFunctionId = ethers.utils.keccak256(
-      //     ethers.utils.solidityPack(["address", "bytes4"],
-      //       [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
-      //   const requests: IProfileRealmManagement.ProfileRealmRegisterRequestStruct[] = [
-      //     {
-      //       domainId: profileDomainTestId,
-      //       adminId: LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID,
-      //       contextLimit: 1,
-      //       name: PROFILE_REALM_TEST_NAME
-      //     }
-      //   ]
-      //
-      //   // when
-      //   await expect(profileRealmManagerDelegateProxy.connect(profileAdmin).profileRealmRegister(profileTestId, requests)).
-      //   to.emit(profileRealmManagerDelegateProxy, "ProfileRealmRegistered")
-      //     .withArgs(profileAdminWallet.address, profileRealmTestId , profileDomainTestId, LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID)
-      //
-      //   // then
-      //   expect(await profileRealmManagerDelegateProxy.profileRealmCheckId(profileTestId, profileRealmTestId)).to.be.true
-      //
-      //   // and
-      //   const realmInfo: IProfileRealmManagement.ProfileRealmInfoStruct = await profileRealmManagerDelegateProxy.profileRealmGetInfo(profileTestId, aclRealmTestId);
-      //   expect(realmInfo.name).to.be.equal(PROFILE_REALM_TEST_NAME);
-      //   expect(realmInfo.domainId).to.be.equal(profileDomainTestId);
-      //   expect(realmInfo.adminId).to.be.equal(LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID);
-      //   expect(realmInfo.adminType).to.be.equal(AgentType.ROLE);
-      //   expect(realmInfo.contextLimit).to.be.equal(1);
-      //   expect(realmInfo.contextCount).to.be.equal(0);
-      //   expect(realmInfo.referredByAgent).to.be.equal(0);
-      //   expect(realmInfo.stype).to.be.equal(ScopeType.REALM);
-      //   expect(realmInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
-      //   expect(realmInfo.alstat).to.be.equal(AlterabilityStatus.DISABLED);
-      //
-      //   // and
-      //   expect(await profileRealmManagerDelegateProxy.profileRealmCheckId(profileTestId, profileRealmTestId)).to.be.true;
-      //   expect(await profileRealmManagerDelegateProxy.profileRealmCheckName(profileTestId, PROFILE_REALM_TEST_NAME)).to.be.true;
-      //   expect(await profileRealmManagerDelegateProxy.profileRealmCheckAdmin(profileTestId, profileRealmTestId, profileAdminWallet.address)).to.be.true;
-      //   expect(await profileRealmManagerDelegateProxy.profileRealmHasFunction(profileTestId, profileRealmTestId, memberRegisterFunctionId)).to.be.false;
-      //   expect(await profileRealmManagerDelegateProxy.profileRealmHasContext(profileTestId, profileRealmTestId, ethers.utils.keccak256(memberManagerProxy.address))).to.be.false;
-      // })
-      //
-      // it("Should register profileMemberContextTest by profileSystemAdmin success", async() => {
-      //   // given
-      //   profileMemberContextTestId = ethers.utils.keccak256(memberManagerProxy.address);
-      //   const contextRequests: IProfileContextManagement.ProfileContextRegisterRequestStruct[] = [
-      //     {
-      //       realmId: profileRealmTestId,
-      //       adminId: LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID,
-      //       salt: ethers.constants.HashZero,
-      //       name: MEMBER_MANAGER_CONTRACT_NAME,
-      //       version: CONTRACTS_VERSION,
-      //       contractId: memberManagerProxy.address,
-      //       subject: ethers.constants.AddressZero,
-      //       deployer: ethers.constants.AddressZero,
-      //       functionLimit: 32,
-      //       signature: new Int8Array(0)
-      //     },
-      //   ];
-      //
-      //   // when
-      //   await expect(profileContextManagerDelegateProxy.connect(profileSystemAdmin).profileContextRegister(profileTestId, contextRequests))
-      //     .to.emit(profileContextManagerDelegateProxy, "ProfileContextRegistered")
-      //     .withArgs(systemAdminWallet.address, profileMemberContextTestId, memberManagerProxy.address, profileRealmTestId,
-      //       ethers.constants.AddressZero, ethers.constants.AddressZero, ethers.constants.AddressZero,
-      //       LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID)
-      // })
-      //
-      // it("Should register profileRoleContextTestId by profileAdmin success", async() => {
-      //   // given
-      //   profileRoleContextTestId = ethers.utils.keccak256(roleManagerProxy.address);
-      //   const signature = generateProfileContextDomainSignatureManually(
-      //     PROFILE_TEST_NAME,
-      //     roleManagerProxy.address,
-      //     ROLE_MANAGER_CONTRACT_NAME,
-      //     CONTRACTS_VERSION,
-      //     PROFILE_REALM_TEST_NAME,
-      //     aclManagerProxy.address,
-      //     profileSystemAdminWallet,
-      //     networkChainId
-      //   );
-      //   const contextRequests: IProfileContextManagement.ProfileContextRegisterRequestStruct[] = [
-      //     {
-      //       realmId: profileRealmTestId,
-      //       adminId: LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID,
-      //       salt: ethers.constants.HashZero,
-      //       name: ROLE_MANAGER_CONTRACT_NAME,
-      //       version: CONTRACTS_VERSION,
-      //       contractId: roleManagerProxy.address,
-      //       subject: ethers.constants.AddressZero,
-      //       deployer: ethers.constants.AddressZero,
-      //       functionLimit: 16,
-      //       signature: signature
-      //     },
-      //   ];
-      //
-      //   // when
-      //   await expect(profileContextManagerDelegateProxy.connect(profileAdmin).profileContextRegister(profileTestId, contextRequests))
-      //     .to.emit(profileContextManagerDelegateProxy, "ProfileContextRegistered")
-      //     .withArgs(profileAdminWallet.address, profileRoleContextTestId, roleManagerProxy.address, profileRealmTestId,
-      //       profileSystemAdminWallet.address, ethers.constants.AddressZero, ethers.constants.AddressZero,
-      //       LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID)
-      // })
-      //
-      // it("Should register memberRegister function by profileSystemAdmin success", async() => {
-      //   // given
-      //   const signer = new Int8Array(0);
-      //   const memberRegisterFunctionId = ethers.utils.keccak256(
-      //     ethers.utils.solidityPack(["address", "bytes4"],
-      //       [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
-      //
-      //   const memberFunctionRequests: IProfileFunctionManagement.ProfileFunctionRequestStruct[] = [
-      //     {
-      //       adminId: LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_PROFILE_ANY_TYPE_ID,
-      //       selector: memberIface.getSighash("memberRegister"),
-      //       policyCode: 250,
-      //     },
-      //   ]
-      //
-      //   const memberFunctionRegisterRequest: IProfileFunctionManagement.ProfileFunctionRegisterRequestStruct[] = [
-      //     {
-      //       signature: new Int8Array(0),
-      //       realmId: ethers.constants.HashZero,
-      //       salt: ethers.constants.HashZero,
-      //       name: "",
-      //       version: "",
-      //       subject: ethers.constants.AddressZero,
-      //       deployer: ethers.constants.AddressZero,
-      //       contractId: memberManagerProxy.address,
-      //       functions: memberFunctionRequests
-      //     }
-      //   ]
-      //
-      //   // when
-      //   await expect(profileFunctionManagerDelegateProxy.connect(profileSystemAdmin).profileFunctionRegister(profileTestId, memberFunctionRegisterRequest))
-      //     .to.emit(functionManagerDelegateProxy, "ProfileFunctionRegistered")
-      //     .withArgs(profileSystemAdminWallet.address, profileMemberContextTestId, memberRegisterFunctionId, LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID,
-      //       LIVELY_PROFILE_ANY_TYPE_ID, signer)
-      //
-      //   // then
-      //   expect(await profileContextManagerDelegateProxy.profileContextHasFunction(profileTestId, profileMemberContextTestId, memberRegisterFunctionId)).to.be.true
-      //
-      //   // and
-      //   const functionInfo: IProfileFunctionManagement.ProfileFunctionInfoStruct = await profileFunctionManagerDelegateProxy.profileFunctionGetInfo(profileTestId, memberRegisterFunctionId);
-      //   expect(functionInfo.adminId).to.be.equal(LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID);
-      //   expect(functionInfo.agentId).to.be.equal(LIVELY_PROFILE_ANY_TYPE_ID);
-      //   expect(functionInfo.contextId).to.be.equal(profileMemberContextTestId);
-      //   expect(functionInfo.adminType).to.be.equal(AgentType.TYPE);
-      //   expect(functionInfo.agentType).to.be.equal(AgentType.TYPE);
-      //   expect(functionInfo.policyCode).to.be.equal(250);
-      //   expect(functionInfo.selector).to.be.equal(memberIface.getSighash("memberRegister"));
-      //   expect(functionInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
-      //   expect(functionInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
-      //   expect(functionInfo.referredByAgent).to.be.equal(0);
-      //
-      //   // and
-      //   expect(await profileRealmManagerDelegateProxy.profileRealmHasFunction(profileTestId, profileRealmTestId, memberRegisterFunctionId)).to.be.true;
-      //   expect(await profileRealmManagerDelegateProxy.profileRealmHasContext(profileTestId, profileRealmTestId, ethers.utils.keccak256(memberManagerProxy.address))).to.be.true;
-      // })
-      //
-      // it("Should register roleRegister function by profileOwner2 success", async() => {
-      //   // given
-      //   const roleIface = new ethers.utils.Interface(RoleManager__factory.abi);
-      //   const signature = generateProfileContextDomainSignatureManually(
-      //     PROFILE_TEST_NAME,
-      //     roleManagerProxy.address,
-      //     ROLE_MANAGER_CONTRACT_NAME,
-      //     CONTRACTS_VERSION,
-      //     PROFILE_REALM_TEST_NAME,
-      //     aclManagerProxy.address,
-      //     profileSystemAdminWallet,
-      //     networkChainId
-      //   );
-      //   const roleRegisterFunctionId = ethers.utils.keccak256(
-      //     ethers.utils.solidityPack(["address", "bytes4"],
-      //       [roleManagerProxy.address,  roleIface.getSighash("roleRegister")]));
-      //
-      //   const roleFunctionRequests: IProfileFunctionManagement.ProfileFunctionRequestStruct[] = [
-      //     {
-      //       adminId: LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID,
-      //       agentId: LIVELY_PROFILE_ANY_TYPE_ID,
-      //       selector: roleIface.getSighash("memberRegister"),
-      //       policyCode: 250,
-      //     },
-      //   ]
-      //
-      //   const roleFunctionRegisterRequest: IProfileFunctionManagement.ProfileFunctionRegisterRequestStruct[] = [
-      //     {
-      //       signature: signature,
-      //       realmId: profileRealmTestId,
-      //       salt: ethers.constants.HashZero,
-      //       name: ROLE_MANAGER_CONTRACT_NAME,
-      //       version: CONTRACTS_VERSION,
-      //       subject: ethers.constants.AddressZero,
-      //       deployer: ethers.constants.AddressZero,
-      //       contractId: roleManagerProxy.address,
-      //       functions: roleFunctionRequests
-      //     }
-      //   ]
-      //
-      //   // when
-      //   await expect(profileFunctionManagerDelegateProxy.connect(profileOwner2).profileFunctionRegister(profileTestId, roleFunctionRegisterRequest))
-      //     .to.emit(functionManagerDelegateProxy, "ProfileFunctionRegistered")
-      //     .withArgs(profileOwnerWallet2.address, profileMemberContextTestId, roleRegisterFunctionId, LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID,
-      //       LIVELY_PROFILE_ANY_TYPE_ID, profileSystemAdminWallet.address)
-      //
-      //   // then
-      //   expect(await profileContextManagerDelegateProxy.profileContextHasFunction(profileTestId, profileMemberContextTestId, roleRegisterFunctionId)).to.be.true
-      //
-      //   // and
-      //   const functionInfo: IProfileFunctionManagement.ProfileFunctionInfoStruct = await profileFunctionManagerDelegateProxy.profileFunctionGetInfo(profileTestId, roleRegisterFunctionId);
-      //   expect(functionInfo.adminId).to.be.equal(LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID);
-      //   expect(functionInfo.agentId).to.be.equal(LIVELY_PROFILE_ANY_TYPE_ID);
-      //   expect(functionInfo.contextId).to.be.equal(profileMemberContextTestId);
-      //   expect(functionInfo.adminType).to.be.equal(AgentType.TYPE);
-      //   expect(functionInfo.agentType).to.be.equal(AgentType.TYPE);
-      //   expect(functionInfo.policyCode).to.be.equal(250);
-      //   expect(functionInfo.selector).to.be.equal(roleIface.getSighash("roleRegister"));
-      //   expect(functionInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
-      //   expect(functionInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
-      //   expect(functionInfo.referredByAgent).to.be.equal(0);
-      // })
+      it("Should register profileRealmTest to profileDomainTest success", async() => {
+        // given
+        profileRealmTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(PROFILE_REALM_TEST_NAME));
+        const memberRegisterFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
+        const requests: IProfileRealmManagement.ProfileRealmRegisterRequestStruct[] = [
+          {
+            domainId: profileDomainTestId,
+            adminId: LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            contextLimit: 2,
+            name: PROFILE_REALM_TEST_NAME
+          }
+        ]
+
+        // when
+        await expect(profileRealmManagerDelegateProxy.connect(profileAdmin).profileRealmRegister(profileTestId, requests)).
+        to.emit(profileRealmManagerDelegateProxy, "ProfileRealmRegistered")
+          .withArgs(profileAdminWallet.address, profileTestId, profileRealmTestId , profileDomainTestId, LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID)
+
+        // then
+        expect(await profileRealmManagerDelegateProxy.profileRealmCheckId(profileTestId, profileRealmTestId)).to.be.true
+
+        // and
+        const realmInfo: IProfileRealmManagement.ProfileRealmInfoStruct = await profileRealmManagerDelegateProxy.profileRealmGetInfo(profileTestId, profileRealmTestId);
+        expect(realmInfo.name).to.be.equal(PROFILE_REALM_TEST_NAME);
+        expect(realmInfo.domainId).to.be.equal(profileDomainTestId);
+        expect(realmInfo.adminId).to.be.equal(LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID);
+        expect(realmInfo.adminType).to.be.equal(AgentType.ROLE);
+        expect(realmInfo.contextLimit).to.be.equal(2);
+        expect(realmInfo.contextCount).to.be.equal(0);
+        expect(realmInfo.referredByAgent).to.be.equal(0);
+        expect(realmInfo.stype).to.be.equal(ScopeType.REALM);
+        expect(realmInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(realmInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+
+        // and
+        expect(await profileRealmManagerDelegateProxy.profileRealmCheckId(profileTestId, profileRealmTestId)).to.be.true;
+        expect(await profileRealmManagerDelegateProxy.profileRealmCheckName(profileTestId, PROFILE_REALM_TEST_NAME)).to.be.true;
+        expect(await profileRealmManagerDelegateProxy.profileRealmCheckAdmin(profileTestId, profileRealmTestId, profileAdminWallet.address)).to.be.true;
+        expect(await profileRealmManagerDelegateProxy.profileRealmHasFunction(profileTestId, profileRealmTestId, memberRegisterFunctionId)).to.be.false;
+        expect(await profileRealmManagerDelegateProxy.profileRealmHasContext(profileTestId, profileRealmTestId, ethers.utils.keccak256(memberManagerProxy.address))).to.be.false;
+      })
+
+      it("Should register profileMemberContextTest by profileSystemAdmin success", async() => {
+        // given
+        profileMemberContextTestId = ethers.utils.keccak256(memberManagerProxy.address);
+
+        // const profileSystemAdminInfo: IProfileMemberManagement.ProfileMemberInfoStruct = await profileMemberManagerDelegateProxy.profileMemberGetInfo(profileTestId, ethers.utils.keccak256(profileSystemAdminWallet.address));
+        // console.log(`systemAdminInfo: ${JSON.stringify(profileSystemAdminInfo, null, 2)}`)
+        const contextRequests: IProfileContextManagement.ProfileContextRegisterRequestStruct[] = [
+          {
+            realmId: profileRealmTestId,
+            adminId: LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            salt: ethers.constants.HashZero,
+            name: MEMBER_MANAGER_CONTRACT_NAME,
+            version: CONTRACTS_VERSION,
+            contractId: memberManagerProxy.address,
+            subject: ethers.constants.AddressZero,
+            deployer: ethers.constants.AddressZero,
+            functionLimit: 32,
+            signature: new Int8Array(0)
+          },
+        ];
+
+        // when
+        await expect(profileContextManagerDelegateProxy.connect(profileSystemAdmin).profileContextRegister(profileTestId, contextRequests))
+          .to.emit(profileContextManagerDelegateProxy, "ProfileContextRegistered")
+          .withArgs(profileSystemAdminWallet.address, profileTestId, profileMemberContextTestId, profileRealmTestId,
+            LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID, memberManagerProxy.address,
+            ethers.constants.AddressZero, ethers.constants.AddressZero, ethers.constants.AddressZero)
+
+        // and
+        const profileContextInfo: IProfileContextManagement.ProfileContextInfoStruct = await profileContextManagerDelegateProxy.profileContextGetInfo(profileTestId, profileMemberContextTestId);
+        expect(profileContextInfo.realmId).to.be.equal(profileRealmTestId);
+        expect(profileContextInfo.adminId).to.be.equal(LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID);
+        expect(profileContextInfo.name).to.be.equal(MEMBER_MANAGER_CONTRACT_NAME);
+        expect(profileContextInfo.version).to.be.equal(CONTRACTS_VERSION);
+        expect(profileContextInfo.contractId).to.be.equal(memberManagerProxy.address);
+        expect(profileContextInfo.functionCount).to.be.equal(0);
+        expect(profileContextInfo.functionLimit).to.be.equal(32);
+        expect(profileContextInfo.referredByAgent).to.be.equal(0);
+        expect(profileContextInfo.adminType).to.be.equal(AgentType.ROLE);
+        expect(profileContextInfo.stype).to.be.equal(ScopeType.CONTEXT);
+        expect(profileContextInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(profileContextInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+      })
+
+      it("Should register profileRoleContextTestId by profileAdmin success", async() => {
+        // given
+        profileRoleContextTestId = ethers.utils.keccak256(roleManagerProxy.address);
+        const signature = generateProfileContextDomainSignatureManually(
+          PROFILE_TEST_NAME,
+          roleManagerProxy.address,
+          ROLE_MANAGER_CONTRACT_NAME,
+          CONTRACTS_VERSION,
+          PROFILE_REALM_TEST_NAME,
+          aclManagerProxy.address,
+          profileSystemAdminWallet,
+          networkChainId
+        );
+        const contextRequests: IProfileContextManagement.ProfileContextRegisterRequestStruct[] = [
+          {
+            realmId: profileRealmTestId,
+            adminId: LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            salt: ethers.constants.HashZero,
+            name: ROLE_MANAGER_CONTRACT_NAME,
+            version: CONTRACTS_VERSION,
+            contractId: roleManagerProxy.address,
+            subject: ethers.constants.AddressZero,
+            deployer: ethers.constants.AddressZero,
+            functionLimit: -1,
+            signature: signature
+          },
+        ];
+
+        // when
+        await expect(profileContextManagerDelegateProxy.connect(profileAdmin).profileContextRegister(profileTestId, contextRequests))
+          .to.emit(profileContextManagerDelegateProxy, "ProfileContextRegistered")
+          .withArgs(profileAdminWallet.address, profileTestId, profileRoleContextTestId, profileRealmTestId,
+            LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID, roleManagerProxy.address,
+            profileSystemAdminWallet.address, ethers.constants.AddressZero, ethers.constants.AddressZero)
+
+        // and
+        const profileContextInfo: IProfileContextManagement.ProfileContextInfoStruct = await profileContextManagerDelegateProxy.profileContextGetInfo(profileTestId, profileRoleContextTestId);
+        expect(profileContextInfo.realmId).to.be.equal(profileRealmTestId);
+        expect(profileContextInfo.adminId).to.be.equal(LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID);
+        expect(profileContextInfo.name).to.be.equal(ROLE_MANAGER_CONTRACT_NAME);
+        expect(profileContextInfo.version).to.be.equal(CONTRACTS_VERSION);
+        expect(profileContextInfo.contractId).to.be.equal(roleManagerProxy.address);
+        expect(profileContextInfo.functionCount).to.be.equal(0);
+        expect(profileContextInfo.functionLimit).to.be.equal(20);
+        expect(profileContextInfo.referredByAgent).to.be.equal(0);
+        expect(profileContextInfo.adminType).to.be.equal(AgentType.ROLE);
+        expect(profileContextInfo.stype).to.be.equal(ScopeType.CONTEXT);
+        expect(profileContextInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(profileContextInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+      })
+
+      it("Should register memberRegister function by profileSystemAdmin success", async() => {
+        // given
+        const signer = new Int8Array(0);
+        const memberRegisterFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
+
+        const memberFunctionRequests: IProfileFunctionManagement.ProfileFunctionRequestStruct[] = [
+          {
+            adminId: LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            agentId: LIVELY_PROFILE_ANY_TYPE_ID,
+            selector: memberIface.getSighash("memberRegister"),
+            policyCode: 250,
+          },
+        ]
+
+        const memberFunctionRegisterRequest: IProfileFunctionManagement.ProfileFunctionRegisterRequestStruct[] = [
+          {
+            signature: new Int8Array(0),
+            realmId: ethers.constants.HashZero,
+            salt: ethers.constants.HashZero,
+            name: "",
+            version: "",
+            subject: ethers.constants.AddressZero,
+            deployer: ethers.constants.AddressZero,
+            contractId: memberManagerProxy.address,
+            functions: memberFunctionRequests
+          }
+        ]
+
+        // when
+        await expect(profileFunctionManagerDelegateProxy.connect(profileSystemAdmin).profileFunctionRegister(profileTestId, memberFunctionRegisterRequest))
+          .to.emit(functionManagerDelegateProxy, "ProfileFunctionRegistered")
+          .withArgs(profileSystemAdminWallet.address, profileMemberContextTestId, memberRegisterFunctionId, LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            LIVELY_PROFILE_ANY_TYPE_ID, signer)
+
+        // then
+        expect(await profileContextManagerDelegateProxy.profileContextHasFunction(profileTestId, profileMemberContextTestId, memberRegisterFunctionId)).to.be.true
+
+        // and
+        const functionInfo: IProfileFunctionManagement.ProfileFunctionInfoStruct = await profileFunctionManagerDelegateProxy.profileFunctionGetInfo(profileTestId, memberRegisterFunctionId);
+        expect(functionInfo.adminId).to.be.equal(LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID);
+        expect(functionInfo.agentId).to.be.equal(LIVELY_PROFILE_ANY_TYPE_ID);
+        expect(functionInfo.contextId).to.be.equal(profileMemberContextTestId);
+        expect(functionInfo.adminType).to.be.equal(AgentType.TYPE);
+        expect(functionInfo.agentType).to.be.equal(AgentType.TYPE);
+        expect(functionInfo.policyCode).to.be.equal(250);
+        expect(functionInfo.selector).to.be.equal(memberIface.getSighash("memberRegister"));
+        expect(functionInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(functionInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+        expect(functionInfo.referredByAgent).to.be.equal(0);
+
+        // and
+        expect(await profileRealmManagerDelegateProxy.profileRealmHasFunction(profileTestId, profileRealmTestId, memberRegisterFunctionId)).to.be.true;
+        expect(await profileRealmManagerDelegateProxy.profileRealmHasContext(profileTestId, profileRealmTestId, ethers.utils.keccak256(memberManagerProxy.address))).to.be.true;
+      })
+
+      it("Should register roleRegister function by profileOwner2 success", async() => {
+        // given
+        const roleIface = new ethers.utils.Interface(RoleManager__factory.abi);
+        const signature = generateProfileContextDomainSignatureManually(
+          PROFILE_TEST_NAME,
+          roleManagerProxy.address,
+          ROLE_MANAGER_CONTRACT_NAME,
+          CONTRACTS_VERSION,
+          PROFILE_REALM_TEST_NAME,
+          aclManagerProxy.address,
+          profileSystemAdminWallet,
+          networkChainId
+        );
+        const roleRegisterFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [roleManagerProxy.address,  roleIface.getSighash("roleRegister")]));
+
+        const roleFunctionRequests: IProfileFunctionManagement.ProfileFunctionRequestStruct[] = [
+          {
+            adminId: LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            agentId: LIVELY_PROFILE_ANY_TYPE_ID,
+            selector: roleIface.getSighash("memberRegister"),
+            policyCode: 250,
+          },
+        ]
+
+        const roleFunctionRegisterRequest: IProfileFunctionManagement.ProfileFunctionRegisterRequestStruct[] = [
+          {
+            signature: signature,
+            realmId: profileRealmTestId,
+            salt: ethers.constants.HashZero,
+            name: ROLE_MANAGER_CONTRACT_NAME,
+            version: CONTRACTS_VERSION,
+            subject: ethers.constants.AddressZero,
+            deployer: ethers.constants.AddressZero,
+            contractId: roleManagerProxy.address,
+            functions: roleFunctionRequests
+          }
+        ]
+
+        // when
+        await expect(profileFunctionManagerDelegateProxy.connect(profileOwner2).profileFunctionRegister(profileTestId, roleFunctionRegisterRequest))
+          .to.emit(functionManagerDelegateProxy, "ProfileFunctionRegistered")
+          .withArgs(profileOwnerWallet2.address, profileMemberContextTestId, roleRegisterFunctionId, LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            LIVELY_PROFILE_ANY_TYPE_ID, profileSystemAdminWallet.address)
+
+        // then
+        expect(await profileContextManagerDelegateProxy.profileContextHasFunction(profileTestId, profileMemberContextTestId, roleRegisterFunctionId)).to.be.true
+
+        // and
+        const functionInfo: IProfileFunctionManagement.ProfileFunctionInfoStruct = await profileFunctionManagerDelegateProxy.profileFunctionGetInfo(profileTestId, roleRegisterFunctionId);
+        expect(functionInfo.adminId).to.be.equal(LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID);
+        expect(functionInfo.agentId).to.be.equal(LIVELY_PROFILE_ANY_TYPE_ID);
+        expect(functionInfo.contextId).to.be.equal(profileMemberContextTestId);
+        expect(functionInfo.adminType).to.be.equal(AgentType.TYPE);
+        expect(functionInfo.agentType).to.be.equal(AgentType.TYPE);
+        expect(functionInfo.policyCode).to.be.equal(250);
+        expect(functionInfo.selector).to.be.equal(roleIface.getSighash("roleRegister"));
+        expect(functionInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(functionInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+        expect(functionInfo.referredByAgent).to.be.equal(0);
+      })
     })
 
     // describe("Profile Agent Tests", function() {

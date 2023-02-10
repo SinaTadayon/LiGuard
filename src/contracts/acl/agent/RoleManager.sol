@@ -170,6 +170,9 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
         if(memberEntity.types.contains(roleEntity.typeId)) {
           bytes32 currentRoleId = typeEntity.members[requests[i].members[j]];
           require(currentRoleId != requests[i].roleId, "Already Exist");
+          if(requests[i].roleId == LACLCommons.LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID) {
+            require(roleEntity.memberCount > 1, "Illegal Admin Revoke");
+          }
           RoleEntity storage currentRoleEntity = _doGetEntityAndCheckAdminAccess(currentRoleId, senderId, functionId);
           require(currentRoleEntity.memberCount > 0, "Illegal MemberTotal");
           unchecked { currentRoleEntity.memberCount -= 1; }          
@@ -208,8 +211,10 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
       for (uint256 j = 0; j < requests[i].members.length; j++) {
         MemberEntity storage memberEntity = _data.memberReadSlot(requests[i].members[j]);
         require(memberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
-        // require(memberEntity.types.length() > 1, "Illegal Member");
-
+        if(requests[i].roleId == LACLCommons.LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID) {
+          require(roleEntity.memberCount > 1, "Illegal Admin Revoke");
+        } 
+        
         require(typeEntity.members[requests[i].members[j]] != bytes32(0), "Not Found");
         require(roleEntity.memberCount > 0, "Illegal MemberTotal");
         delete typeEntity.members[requests[i].members[j]];

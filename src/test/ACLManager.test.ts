@@ -93,14 +93,14 @@ import {
   LIVELY_VERSE_ANY_TYPE_ID,
   LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID,
   LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-  LIVELY_VERSE_LIVELY_MASTER_TYPE_ID, LIVELY_VERSE_MEMBER_MASTER_TYPE_ID,
+  LIVELY_VERSE_LIVELY_MASTER_TYPE_ID, LIVELY_VERSE_MEMBER_MASTER_ADMIN_ROLE_ID, LIVELY_VERSE_MEMBER_MASTER_TYPE_ID,
   LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE_ID,
   LIVELY_VERSE_POLICY_MASTER_TYPE_ID,
   LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
   LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID,
   LIVELY_VERSE_SCOPE_MASTER_TYPE_ID,
   LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-  LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID,
+  LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID, LIVELY_VERSE_TYPE_MASTER_ADMIN_ROLE_ID,
   LIVELY_VERSE_TYPE_MASTER_TYPE_ID,
   PolicyType,
   ProxySafeModeStatus,
@@ -137,6 +137,21 @@ import {
 } from "../../typechain/types/factories/acl/profile/scope/ProfileDomainManager__factory";
 import { waitForTx } from "hardhat-deploy/dist/src/helpers";
 import { PromiseOrValue } from "../../typechain/types/common";
+import { MemberManagerLibraryAddresses } from "../../typechain/types/factories/acl/agent/MemberManager__factory";
+import { TypeManagerLibraryAddresses } from "../../typechain/types/factories/acl/agent/TypeManager__factory";
+import { FunctionManagerLibraryAddresses } from "../../typechain/types/factories/acl/scope/FunctionManager__factory";
+import { ContextManagerLibraryAddresses } from "../../typechain/types/factories/acl/scope/ContextManager__factory";
+import { DomainManagerLibraryAddresses } from "../../typechain/types/factories/acl/scope/DomainManager__factory";
+import { RealmManagerLibraryAddresses } from "../../typechain/types/factories/acl/scope/RealmManager__factory";
+import {
+  GlobalManagerLibraryAddresses
+} from "../../typechain/types/factories/acl/scope/GlobalManger.sol/GlobalManager__factory";
+import {
+  ProfileGlobalManagerLibraryAddresses
+} from "../../typechain/types/factories/acl/profile/scope/ProfileGlobalManger.sol/ProfileGlobalManager__factory";
+import {
+  ProfileTypeManagerLibraryAddresses
+} from "../../typechain/types/factories/acl/profile/agent/ProfileTypeManager__factory";
 // ethers.utils.keccak256(ethers.utils.toUtf8Bytes("src/contracts/lib/acl/ContextManagementLib.sol:ContextManagementLib")) => 0x0304621006bd13fe54dc5f6b75a37ec856740450109fd223c2bfb60db9095cad => __$0304621006bd13fe54dc5f6b75a37ec856$__ ( library placeholder)
 const { provider, deployMockContract } = waffle;
 
@@ -159,19 +174,11 @@ describe("Lively Guard Tests",
     let lProfileRolePolicy: LProfileRolePolicy;
 
     // acl libraries
-    let linkAclLibraryAddresses: ACLManagerLibraryAddresses;
-    let linkRoleLibraryAddresses: RoleManagerLibraryAddresses;
-    let linkPolicyLibraryAddresses: PolicyManagerLibraryAddresses;
-    let linkProfileManagerLibraryAddresses: ProfileManagerLibraryAddresses;
+    let linkCommonLibraryAddresses: unknown;
 
     // profiles libraries
-    let linkProfileMemberLibraryAddresses: ProfileMemberManagerLibraryAddresses;
-    let linkProfileRoleLibraryAddresses: ProfileRoleManagerLibraryAddresses;
-    let linkProfilePolicyLibraryAddresses: ProfilePolicyManagerLibraryAddresses;
-    let linkProfileFunctionLibraryAddresses: ProfileFunctionManagerLibraryAddresses;
-    let linkProfileContextLibraryAddresses: ProfileContextManagerLibraryAddresses;
-    let linkProfileRealmLibraryAddresses: ProfileRealmManagerLibraryAddresses;
-    let linkProfileDomainLibraryAddresses: ProfileDomainManagerLibraryAddresses;
+    let linkProfileCommonLibraryAddresses: unknown;
+    let linkProfileRolePolicyLibraryAddresses: unknown;
 
     // main acl contracts
     let profileManagerSubject: ProfileManager;
@@ -360,22 +367,14 @@ describe("Lively Guard Tests",
     describe("ACL Modules Subject Tests", function() {
       this.beforeAll( async() => {
         // acl libraries
-        linkRoleLibraryAddresses = {
-          "src/contracts/lib/acl/LACLCommons.sol:LACLCommons": lACLCommons.address
-        }
-
-        linkPolicyLibraryAddresses = {
-          "src/contracts/lib/acl/LACLCommons.sol:LACLCommons": lACLCommons.address
-        }
-
-        linkProfileManagerLibraryAddresses = {
+        linkCommonLibraryAddresses = {
           "src/contracts/lib/acl/LACLCommons.sol:LACLCommons": lACLCommons.address
         }
       })
 
       it("Should MemberManager subject deploy success", async() => {
         // given
-        const memberManagerFactory = new MemberManager__factory(systemAdmin);
+        const memberManagerFactory = new MemberManager__factory(<MemberManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
 
         // when
         memberManagerSubject = await memberManagerFactory.deploy();
@@ -391,7 +390,7 @@ describe("Lively Guard Tests",
 
       it("Should RoleManager subject deploy success", async() => {
         // given
-        const roleManagerFactory = new RoleManager__factory(linkRoleLibraryAddresses, systemAdmin);
+        const roleManagerFactory = new RoleManager__factory(<RoleManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
 
         // when
         roleManagerSubject = await roleManagerFactory.deploy();
@@ -407,7 +406,7 @@ describe("Lively Guard Tests",
 
       it("Should TypeManager subject deploy success", async() => {
         // given
-        const typeManagerFactory = new TypeManager__factory(systemAdmin);
+        const typeManagerFactory = new TypeManager__factory(<TypeManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
 
         // when
         typeManagerSubject = await typeManagerFactory.deploy();
@@ -423,7 +422,7 @@ describe("Lively Guard Tests",
 
       it("Should FunctionManager subject deploy success", async() => {
         // given
-        const functionManagerFactory = new FunctionManager__factory(systemAdmin);
+        const functionManagerFactory = new FunctionManager__factory(<FunctionManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
 
         // when
         functionManagerSubject = await functionManagerFactory.deploy();
@@ -439,7 +438,7 @@ describe("Lively Guard Tests",
 
       it("Should ContextManager subject deploy success", async() => {
         // given
-        const contextManagerFactory = new ContextManager__factory(systemAdmin);
+        const contextManagerFactory = new ContextManager__factory(<ContextManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
 
         // when
         contextManagerSubject = await contextManagerFactory.deploy();
@@ -455,7 +454,7 @@ describe("Lively Guard Tests",
 
       it("Should RealmManager subject deploy success", async() => {
         // given
-        const realmManagerFactory = new RealmManager__factory(systemAdmin);
+        const realmManagerFactory = new RealmManager__factory(<RealmManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
 
         // when
         realmManagerSubject = await realmManagerFactory.deploy();
@@ -471,7 +470,7 @@ describe("Lively Guard Tests",
 
       it("Should DomainManager subject deploy success", async() => {
         // given
-        const domainManagerFactory = new DomainManager__factory(systemAdmin);
+        const domainManagerFactory = new DomainManager__factory(<DomainManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
 
         // when
         domainManagerSubject = await domainManagerFactory.deploy();
@@ -487,7 +486,7 @@ describe("Lively Guard Tests",
 
       it("Should GlobalManager subject deploy success", async() => {
         // given
-        const globalManagerFactory = new GlobalManager__factory(systemAdmin);
+        const globalManagerFactory = new GlobalManager__factory(<GlobalManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
 
         // when
         globalManagerSubject = await globalManagerFactory.deploy();
@@ -503,7 +502,7 @@ describe("Lively Guard Tests",
 
       it("Should PolicyManager subject deploy success", async() => {
         // given
-        const policyManagerFactory = new PolicyManager__factory(linkPolicyLibraryAddresses, systemAdmin);
+        const policyManagerFactory = new PolicyManager__factory(<PolicyManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
 
         // when
         policyManagerSubject = await policyManagerFactory.deploy();
@@ -519,7 +518,7 @@ describe("Lively Guard Tests",
 
       it("Should ProfileManager subject deploy success", async() => {
         // given
-        const profileManagerFactory = new ProfileManager__factory(linkProfileManagerLibraryAddresses, systemAdmin);
+        const profileManagerFactory = new ProfileManager__factory(<ProfileManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
 
         // when
         profileManagerSubject = await profileManagerFactory.deploy();
@@ -553,37 +552,18 @@ describe("Lively Guard Tests",
     describe("ACL Profile Modules Subject Tests", function() {
       this.beforeAll( async() => {
         // profiles libraries
-        linkProfileMemberLibraryAddresses = {
+        linkProfileCommonLibraryAddresses = {
           "src/contracts/lib/acl/LProfileCommons.sol:LProfileCommons": lProfileCommons.address
         }
 
-        linkProfileRoleLibraryAddresses = {
+        linkProfileRolePolicyLibraryAddresses = {
           "src/contracts/lib/acl/LProfileRolePolicy.sol:LProfileRolePolicy": lProfileRolePolicy.address
-        }
-
-        linkProfilePolicyLibraryAddresses = {
-          "src/contracts/lib/acl/LProfileRolePolicy.sol:LProfileRolePolicy": lProfileRolePolicy.address
-        }
-
-        linkProfileFunctionLibraryAddresses = {
-          "src/contracts/lib/acl/LProfileCommons.sol:LProfileCommons": lProfileCommons.address
-        }
-
-        linkProfileContextLibraryAddresses = {
-          "src/contracts/lib/acl/LProfileCommons.sol:LProfileCommons": lProfileCommons.address
-        }
-
-        linkProfileRealmLibraryAddresses = {
-          "src/contracts/lib/acl/LProfileCommons.sol:LProfileCommons": lProfileCommons.address
-        }
-        linkProfileDomainLibraryAddresses = {
-          "src/contracts/lib/acl/LProfileCommons.sol:LProfileCommons": lProfileCommons.address
         }
       })
 
       it("Should ProfileMemberManager subject deploy success", async() => {
         // given
-        const profileMemberManagerFactory = new ProfileMemberManager__factory(linkProfileMemberLibraryAddresses, systemAdmin);
+        const profileMemberManagerFactory = new ProfileMemberManager__factory(<ProfileMemberManagerLibraryAddresses>linkProfileCommonLibraryAddresses, systemAdmin);
 
         // when
         profileMemberManagerSubject = await profileMemberManagerFactory.deploy();
@@ -599,7 +579,7 @@ describe("Lively Guard Tests",
 
       it("Should ProfileRoleManager subject deploy success", async() => {
         // given
-        const profileRoleManagerFactory = new ProfileRoleManager__factory(linkProfileRoleLibraryAddresses, systemAdmin);
+        const profileRoleManagerFactory = new ProfileRoleManager__factory(<ProfileRoleManagerLibraryAddresses>linkProfileRolePolicyLibraryAddresses, systemAdmin);
 
         // when
         profileRoleManagerSubject = await profileRoleManagerFactory.deploy();
@@ -615,7 +595,7 @@ describe("Lively Guard Tests",
 
       it("Should ProfileTypeManager subject deploy success", async() => {
         // given
-        const profileTypeManagerFactory = new ProfileTypeManager__factory(systemAdmin);
+        const profileTypeManagerFactory = new ProfileTypeManager__factory(<ProfileTypeManagerLibraryAddresses>linkProfileCommonLibraryAddresses, systemAdmin);
 
         // when
         profileTypeManagerSubject = await profileTypeManagerFactory.deploy();
@@ -631,7 +611,7 @@ describe("Lively Guard Tests",
 
       it("Should ProfileFunctionManager subject deploy success", async() => {
         // given
-        const profileFunctionManagerFactory = new ProfileFunctionManager__factory(linkProfileFunctionLibraryAddresses, systemAdmin);
+        const profileFunctionManagerFactory = new ProfileFunctionManager__factory(<ProfileFunctionManagerLibraryAddresses>linkProfileCommonLibraryAddresses, systemAdmin);
 
         // when
         profileFunctionManagerSubject = await profileFunctionManagerFactory.deploy();
@@ -647,7 +627,7 @@ describe("Lively Guard Tests",
 
       it("Should ProfileContextManager subject deploy success", async() => {
         // given
-        const profileContextManagerFactory = new ProfileContextManager__factory(linkProfileContextLibraryAddresses, systemAdmin);
+        const profileContextManagerFactory = new ProfileContextManager__factory(<ProfileContextManagerLibraryAddresses>linkProfileCommonLibraryAddresses, systemAdmin);
 
         // when
         profileContextManagerSubject = await profileContextManagerFactory.deploy();
@@ -663,7 +643,7 @@ describe("Lively Guard Tests",
 
       it("Should ProfileRealmManager subject deploy success", async() => {
         // given
-        const profileRealmManagerFactory = new ProfileRealmManager__factory(linkProfileRealmLibraryAddresses, systemAdmin);
+        const profileRealmManagerFactory = new ProfileRealmManager__factory(<ProfileRealmManagerLibraryAddresses>linkProfileCommonLibraryAddresses, systemAdmin);
 
         // when
         profileRealmManagerSubject = await profileRealmManagerFactory.deploy();
@@ -679,7 +659,7 @@ describe("Lively Guard Tests",
 
       it("Should ProfileDomainManager subject deploy success", async() => {
         // given
-        const profileDomainManagerFactory = new ProfileDomainManager__factory(linkProfileDomainLibraryAddresses, systemAdmin);
+        const profileDomainManagerFactory = new ProfileDomainManager__factory(<ProfileDomainManagerLibraryAddresses>linkProfileCommonLibraryAddresses, systemAdmin);
 
         // when
         profileDomainManagerSubject = await profileDomainManagerFactory.deploy();
@@ -695,7 +675,7 @@ describe("Lively Guard Tests",
 
       it("Should ProfileGlobalManager subject deploy success", async() => {
         // given
-        const profileGlobalManagerFactory = new ProfileGlobalManager__factory(systemAdmin);
+        const profileGlobalManagerFactory = new ProfileGlobalManager__factory(<ProfileGlobalManagerLibraryAddresses>linkProfileCommonLibraryAddresses, systemAdmin);
 
         // when
         profileGlobalManagerSubject = await profileGlobalManagerFactory.deploy();
@@ -711,7 +691,7 @@ describe("Lively Guard Tests",
 
       it("Should ProfilePolicyManager subject deploy success", async() => {
         // given
-        const profilePolicyManagerFactory = new ProfilePolicyManager__factory(linkProfilePolicyLibraryAddresses, systemAdmin);
+        const profilePolicyManagerFactory = new ProfilePolicyManager__factory(<ProfilePolicyManagerLibraryAddresses>linkProfileRolePolicyLibraryAddresses, systemAdmin);
 
         // when
         profilePolicyManagerSubject = await profilePolicyManagerFactory.deploy();
@@ -743,15 +723,9 @@ describe("Lively Guard Tests",
     })
 
     describe("ACLManager Subject Tests", function() {
-      this.beforeAll(() => {
-        linkAclLibraryAddresses = {
-          "src/contracts/lib/acl/LACLCommons.sol:LACLCommons": lACLCommons.address
-        };
-      });
-
       it("Should ACLManager subject deploy success", async () => {
         // given
-        const aclManagerFactory = new ACLManager__factory(linkAclLibraryAddresses, systemAdmin);
+        const aclManagerFactory = new ACLManager__factory(<ACLManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
 
         // when
         aclManagerSubject = await aclManagerFactory.deploy();
@@ -2163,18 +2137,6 @@ describe("Lively Guard Tests",
           .to.emit(aclManagerProxy, "ACLFacetRegistered")
           .withArgs(systemAdminWallet.address, accessControlProxy.address, accessControlSubject.address)
 
-        // console.log(`aclManagerProxy => address: ${aclManagerProxy.address}, subject: ${aclManagerSubject.address}`);
-        // console.log(`memberManagerProxy => address: ${memberManagerProxy.address}, subject: ${memberManagerSubject.address}`);
-        // console.log(`roleManagerProxy => address: ${roleManagerProxy.address}, subject: ${roleManagerSubject.address}`);
-        // console.log(`typeManagerProxy => address: ${typeManagerProxy.address}, subject: ${typeManagerSubject.address}`);
-        // console.log(`policyManagerProxy => address: ${policyManagerProxy.address}, subject: ${policyManagerSubject.address}`);
-        // console.log(`functionManagerProxy => address: ${functionManagerProxy.address}, subject: ${functionManagerSubject.address}`);
-        // console.log(`contextManagerProxy => address: ${contextManagerProxy.address}, subject: ${contextManagerSubject.address}`);
-        // console.log(`realmManagerProxy => address: ${realmManagerProxy.address}, subject: ${realmManagerSubject.address}`);
-        // console.log(`domainManagerProxy => address: ${domainManagerProxy.address}, subject: ${domainManagerSubject.address}`);
-        // console.log(`globalManagerProxy => address: ${globalManagerProxy.address}, subject: ${globalManagerSubject.address}`);
-        // console.log(`accessControlProxy => address: ${accessControlProxy.address}, subject: ${accessControlSubject.address}`);
-
         // then
         expect(await aclManagerProxy.aclGetFacets()).to.be.eqls([
           aclManagerProxy.address,
@@ -2190,27 +2152,6 @@ describe("Lively Guard Tests",
           globalManagerProxy.address,
           accessControlProxy.address
         ])
-
-        //
-        // expect(await accessControlDelegateProxy.hasAccess())
-        // expect(await accessControlDelegateProxy.hasMemberAccess())
-        // expect(await accessControlDelegateProxy.hasCSAccess())
-        // expect(await accessControlDelegateProxy.hasAccountAccess())
-        // expect(await accessControlDelegateProxy.hasAccessToAgent())
-        // expect(await accessControlDelegateProxy.hasMemberAccessToAgent())
-        // expect(await accessControlDelegateProxy.hasCSAccessToAgent())
-        // expect(await accessControlDelegateProxy.hasCSMAccessToAgent())
-        // 0x46414ba0   =>     IACLManager
-        // 0x7cf5145b   =>     IAccessControl
-        // 0x671c16c8   =>     IPolicyManagement
-        // 0xc0c62eda   =>     IFunctionManagement
-        // 0x61fafd78   =>     IContextManagement
-        // 0x6e7231bc   =>     IRealmManagement
-        // 0xeb2ec751   =>     IDomainManagement
-        // 0x7ff2fd24   =>     IGlobalManagement
-        // 0x22253c22   =>     IMemberManagement
-        // 0x16588498   =>     IRoleManagement
-        // 0x2e57eaef   =>     ITypeManagement
       })
 
       it("Should facets acl profile register to ACLManager by systemAdmin success", async() => {
@@ -2402,6 +2343,7 @@ describe("Lively Guard Tests",
             selectors: [
               profileAccessControlIface.getSighash("profileHasAccess"),
               profileAccessControlIface.getSighash("profileHasMemberAccess"),
+              profileAccessControlIface.getSighash("profileAclHasMemberAccess"),
               profileAccessControlIface.getSighash("profileHasCSAccess"),
               profileAccessControlIface.getSighash("profileHasAccountAccess"),
               profileAccessControlIface.getSighash("profileAnonymousType"),
@@ -7415,7 +7357,7 @@ describe("Lively Guard Tests",
 
       it("Should upgrade proxy by common user1 failed", async () => {
         // given
-        const aclManagerSubjectFactory = new ACLManager__factory(linkAclLibraryAddresses, systemAdmin);
+        const aclManagerSubjectFactory = new ACLManager__factory(<ACLManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
         const aclManagerSubject1 = await aclManagerSubjectFactory.deploy();
         const typedArray1 = new Int8Array(0);
 
@@ -7458,7 +7400,7 @@ describe("Lively Guard Tests",
 
       it("Should upgrade proxy by livelyAdmin success", async () => {
         // given
-        const aclManagerSubjectFactory = new ACLManager__factory(linkAclLibraryAddresses, systemAdmin);
+        const aclManagerSubjectFactory = new ACLManager__factory(<ACLManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
         aclManagerSubject = await aclManagerSubjectFactory.deploy();
         const typedArray1 = new Int8Array(0);
 
@@ -7590,6 +7532,80 @@ describe("Lively Guard Tests",
     })
 
     describe("Agent Tests", function() {
+      it("Should ACL invariants check success", async() => {
+        // Lively Master
+        const livelyAdminRoleInfo = await roleManagerDelegateProxy.roleGetInfo(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
+        expect(livelyAdminRoleInfo.scopeId).to.be.equal(LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
+        expect(livelyAdminRoleInfo.typeId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_TYPE_ID);
+        expect(livelyAdminRoleInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
+        expect(livelyAdminRoleInfo.memberLimit).to.be.equal(16777215);
+        expect(livelyAdminRoleInfo.memberCount).to.be.equal(1);
+        expect(livelyAdminRoleInfo.adminType).to.be.equal(AgentType.ROLE);
+        expect(livelyAdminRoleInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(livelyAdminRoleInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+        expect(livelyAdminRoleInfo.name).to.be.equal("ROLE.LIVELY_VERSE.LIVELY_MASTER_ADMIN");
+
+        // Lively System Master
+        const livelySystemRoleInfo = await roleManagerDelegateProxy.roleGetInfo(LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID);
+        expect(livelySystemRoleInfo.scopeId).to.be.equal(LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
+        expect(livelySystemRoleInfo.typeId).to.be.equal(LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID);
+        expect(livelySystemRoleInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
+        expect(livelySystemRoleInfo.memberLimit).to.be.equal(16777215);
+        expect(livelySystemRoleInfo.memberCount).to.be.equal(1);
+        expect(livelySystemRoleInfo.adminType).to.be.equal(AgentType.ROLE);
+        expect(livelySystemRoleInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(livelySystemRoleInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+        expect(livelySystemRoleInfo.name).to.be.equal("ROLE.LIVELY_VERSE.SYSTEM_MASTER_ADMIN");
+
+        // Lively Scope Master
+        const livelyScopeRoleInfo = await roleManagerDelegateProxy.roleGetInfo(LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID);
+        expect(livelyScopeRoleInfo.scopeId).to.be.equal(LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
+        expect(livelyScopeRoleInfo.typeId).to.be.equal(LIVELY_VERSE_SCOPE_MASTER_TYPE_ID);
+        expect(livelyScopeRoleInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
+        expect(livelyScopeRoleInfo.memberLimit).to.be.equal(16777215);
+        expect(livelyScopeRoleInfo.memberCount).to.be.equal(1);
+        expect(livelyScopeRoleInfo.adminType).to.be.equal(AgentType.ROLE);
+        expect(livelyScopeRoleInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(livelyScopeRoleInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+        expect(livelyScopeRoleInfo.name).to.be.equal("ROLE.LIVELY_VERSE.SCOPE_MASTER_ADMIN");
+
+        // Lively Member Master
+        const livelyMemberRoleInfo = await roleManagerDelegateProxy.roleGetInfo(LIVELY_VERSE_MEMBER_MASTER_ADMIN_ROLE_ID);
+        expect(livelyMemberRoleInfo.scopeId).to.be.equal(LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
+        expect(livelyMemberRoleInfo.typeId).to.be.equal(LIVELY_VERSE_MEMBER_MASTER_TYPE_ID);
+        expect(livelyMemberRoleInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
+        expect(livelyMemberRoleInfo.memberLimit).to.be.equal(16777215);
+        expect(livelyMemberRoleInfo.memberCount).to.be.equal(1);
+        expect(livelyMemberRoleInfo.adminType).to.be.equal(AgentType.ROLE);
+        expect(livelyMemberRoleInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(livelyMemberRoleInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+        expect(livelyMemberRoleInfo.name).to.be.equal("ROLE.LIVELY_VERSE.MEMBER_MASTER_ADMIN");
+
+        // Lively Type Master
+        const livelyTypeRoleInfo = await roleManagerDelegateProxy.roleGetInfo(LIVELY_VERSE_TYPE_MASTER_ADMIN_ROLE_ID);
+        expect(livelyTypeRoleInfo.scopeId).to.be.equal(LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
+        expect(livelyTypeRoleInfo.typeId).to.be.equal(LIVELY_VERSE_TYPE_MASTER_TYPE_ID);
+        expect(livelyTypeRoleInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
+        expect(livelyTypeRoleInfo.memberLimit).to.be.equal(16777215);
+        expect(livelyTypeRoleInfo.memberCount).to.be.equal(1);
+        expect(livelyTypeRoleInfo.adminType).to.be.equal(AgentType.ROLE);
+        expect(livelyTypeRoleInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(livelyTypeRoleInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+        expect(livelyTypeRoleInfo.name).to.be.equal("ROLE.LIVELY_VERSE.TYPE_MASTER_ADMIN");
+
+        // Lively Policy Master
+        const livelyPolicyRoleInfo = await roleManagerDelegateProxy.roleGetInfo(LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE_ID);
+        expect(livelyPolicyRoleInfo.scopeId).to.be.equal(LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
+        expect(livelyPolicyRoleInfo.typeId).to.be.equal(LIVELY_VERSE_POLICY_MASTER_TYPE_ID);
+        expect(livelyPolicyRoleInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
+        expect(livelyPolicyRoleInfo.memberLimit).to.be.equal(16777215);
+        expect(livelyPolicyRoleInfo.memberCount).to.be.equal(1);
+        expect(livelyPolicyRoleInfo.adminType).to.be.equal(AgentType.ROLE);
+        expect(livelyPolicyRoleInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(livelyPolicyRoleInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+        expect(livelyPolicyRoleInfo.name).to.be.equal("ROLE.LIVELY_VERSE.POLICY_MASTER_ADMIN");
+      })
+
       it("Should register ACL_TYPE_TEST success", async() => {
         // given
         const realmContextId = ethers.utils.keccak256(realmManagerProxy.address);

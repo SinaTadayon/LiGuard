@@ -10,6 +10,7 @@ import "../IACL.sol";
 import "../IACLGenerals.sol";
 import "../scope/IFunctionManagement.sol";
 import "../../lib/acl/LACLStorage.sol";
+import "../../lib/acl/LACLCommons.sol";
 import "../../lib/struct/LEnumerableSet.sol";
 import "../../lib/acl/LACLUtils.sol";
 import "../../proxy/IProxy.sol";
@@ -72,6 +73,13 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
         "Illegal Activity/Alterability"
       );     
 
+      if(
+        !memberEntity.types.contains(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID) &&
+        !memberEntity.types.contains(_LIVELY_VERSE_MEMBER_MASTER_TYPE_ID)
+      ) {
+        _doCheckMemberRegisterLimits(memberEntity, requests[i].limits);
+      }
+
       // check role
       RoleEntity storage roleEntity = _data.roleReadSlot(requests[i].roleId);
       require(roleEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Role Updatable");
@@ -92,7 +100,7 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
       roleEntity.memberCount +=1;      
 
       // create new member
-      MemberEntity storage newMember = _data.memberWriteSlot(newMemberId);
+      MemberEntity storage newMember = _data.memberWriteSlot(newMemberId);      
 
       // check adminId
       if(requests[i].adminId != bytes32(0)) {
@@ -121,6 +129,27 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
     }
 
     return true;
+  }
+
+  function _doCheckMemberRegisterLimits(MemberEntity storage memberEntity, GeneralLimit calldata limits) internal view {
+    require(memberEntity.limits.memberRegisterLimit >= limits.memberRegisterLimit, "Illegal MemberRegister");
+    require(memberEntity.limits.contextRegisterLimit >= limits.contextRegisterLimit, "Illegal ContextRegister");
+    require(memberEntity.limits.functionRegisterLimit >= limits.functionRegisterLimit, "Illegal FunctionRegister");
+    require(memberEntity.limits.profileRegisterLimit >= limits.profileRegisterLimit, "Illegal ProfileRegister");
+    require(memberEntity.limits.roleRegisterLimit >= limits.roleRegisterLimit, "Illegal RoleRegister");
+    require(memberEntity.limits.typeRegisterLimit >= limits.typeRegisterLimit, "Illegal TypeRegister");
+    require(memberEntity.limits.realmRegisterLimit >= limits.realmRegisterLimit, "Illegal RealmRegister");
+    require(memberEntity.limits.domainRegisterLimit >= limits.domainRegisterLimit, "Illegal DomainRegister");
+    require(memberEntity.limits.policyRegisterLimit >= limits.policyRegisterLimit, "Illegal PolicyRegister");
+    require(memberEntity.limits.memberLimit >= limits.memberLimit, "Illegal MemberLimit");
+    require(memberEntity.limits.contextLimit >= limits.contextLimit, "Illegal ContextLimit");
+    require(memberEntity.limits.realmLimit >= limits.realmLimit, "Illegal RealmLimit");
+    require(memberEntity.limits.domainLimit >= limits.domainLimit, "Illegal DomainLimit");
+    require(memberEntity.limits.callLimit >= limits.callLimit, "Illegal CallLimit");
+    require(memberEntity.limits.typeRoleLimit >= limits.typeRoleLimit, "Illegal TypeRoleLimit");
+    require(memberEntity.limits.typeLimit >= limits.typeLimit, "Illegal TypeLimit");
+    require(memberEntity.limits.policyRoleLimit >= limits.policyRoleLimit, "Illegal PolicyRoleLimit");
+    require(memberEntity.limits.functionLimit >= limits.functionLimit, "Illegal FunctionLimit");
   }
 
   function memberUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {    
@@ -292,45 +321,47 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
   }
 
   function _doCheckAdminAccess(bytes32 adminId, bytes32 memberId, bytes32 functionId) internal view returns (IACL.AdminAccessStatus) {
-    (FunctionEntity storage functionEntity, bool res) = _data.functionTryReadSlot(functionId);    
-    if (!res) return IACL.AdminAccessStatus.FUNCTION_NOT_FOUND;
+    return LACLCommons.checkAdminAccess(_data, adminId, memberId, functionId);   
+  // }
+    // (FunctionEntity storage functionEntity, bool res) = _data.functionTryReadSlot(functionId);    
+    // if (!res) return IACL.AdminAccessStatus.FUNCTION_NOT_FOUND;
     
-    AgentType adminAgentType = _data.agents[adminId].atype;
-    if(adminAgentType == AgentType.ROLE) {
-      (RoleEntity storage roleEntity, bool result) = _data.roleTryReadSlot(adminId);
-      if(!result) return IACL.AdminAccessStatus.ROLE_NOT_FOUND;
-      if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AdminAccessStatus.ROLE_ACTIVITY_FORBIDDEN;
+    // AgentType adminAgentType = _data.agents[adminId].atype;
+    // if(adminAgentType == AgentType.ROLE) {
+    //   (RoleEntity storage roleEntity, bool result) = _data.roleTryReadSlot(adminId);
+    //   if(!result) return IACL.AdminAccessStatus.ROLE_NOT_FOUND;
+    //   if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AdminAccessStatus.ROLE_ACTIVITY_FORBIDDEN;
 
-      (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(roleEntity.typeId);
-      if(!result1) return IACL.AdminAccessStatus.TYPE_NOT_FOUND;
-      if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AdminAccessStatus.TYPE_ACTIVITY_FORBIDDEN;
+    //   (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(roleEntity.typeId);
+    //   if(!result1) return IACL.AdminAccessStatus.TYPE_NOT_FOUND;
+    //   if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AdminAccessStatus.TYPE_ACTIVITY_FORBIDDEN;
       
-      if (typeEntity.members[memberId] != adminId) return IACL.AdminAccessStatus.NOT_PERMITTED;
+    //   if (typeEntity.members[memberId] != adminId) return IACL.AdminAccessStatus.NOT_PERMITTED;
       
-      PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[adminId]];
-      if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
-        return IACL.AdminAccessStatus.POLICY_FORBIDDEN;
+    //   PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[adminId]];
+    //   if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
+    //     return IACL.AdminAccessStatus.POLICY_FORBIDDEN;
 
-      return IACL.AdminAccessStatus.PERMITTED;
+    //   return IACL.AdminAccessStatus.PERMITTED;
    
-    } else if(adminAgentType == AgentType.TYPE) { 
-      (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(adminId);
-      if(!result1) return IACL.AdminAccessStatus.TYPE_NOT_FOUND;
-      if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AdminAccessStatus.TYPE_ACTIVITY_FORBIDDEN;
+    // } else if(adminAgentType == AgentType.TYPE) { 
+    //   (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(adminId);
+    //   if(!result1) return IACL.AdminAccessStatus.TYPE_NOT_FOUND;
+    //   if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AdminAccessStatus.TYPE_ACTIVITY_FORBIDDEN;
 
-      bytes32 roleId = typeEntity.members[memberId];
-      (RoleEntity storage roleEntity, bool result2) = _data.roleTryReadSlot(roleId);
-      if(!result2) return IACL.AdminAccessStatus.ROLE_NOT_FOUND;
-      if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AdminAccessStatus.ROLE_ACTIVITY_FORBIDDEN;
+    //   bytes32 roleId = typeEntity.members[memberId];
+    //   (RoleEntity storage roleEntity, bool result2) = _data.roleTryReadSlot(roleId);
+    //   if(!result2) return IACL.AdminAccessStatus.ROLE_NOT_FOUND;
+    //   if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AdminAccessStatus.ROLE_ACTIVITY_FORBIDDEN;
       
-      PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[roleId]];
-      if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
-        return IACL.AdminAccessStatus.POLICY_FORBIDDEN;
+    //   PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[roleId]];
+    //   if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
+    //     return IACL.AdminAccessStatus.POLICY_FORBIDDEN;
 
-      return IACL.AdminAccessStatus.PERMITTED;
-    } 
+    //   return IACL.AdminAccessStatus.PERMITTED;
+    // } 
 
-    return IACL.AdminAccessStatus.NOT_PERMITTED;   
+    // return IACL.AdminAccessStatus.NOT_PERMITTED;   
   }
 
   function _accessPermission(bytes4 selector) internal returns (bytes32, bytes32) {
@@ -352,4 +383,7 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
     return memberEntity;
   }
 
+  function getLibrary() external pure returns (address) {
+    return address(LACLCommons);
+  }
 }

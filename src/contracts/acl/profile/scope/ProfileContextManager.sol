@@ -6,8 +6,10 @@ pragma solidity 0.8.17;
 import "./IProfileContextManagement.sol";
 import "../IProfileACL.sol";
 import "../IProfileACLGenerals.sol";
+import "../ProfileAccessControl.sol";
 import "../../ACLStorage.sol";
 import "../../../lib/acl/LProfileStorage.sol";
+import "../../../lib/acl/LACLStorage.sol";
 import "../../../lib/proxy/LClones.sol";
 import "../../../lib/cryptography/LECDSA.sol";
 import "../../../lib/acl/LACLUtils.sol";
@@ -23,6 +25,7 @@ import "../../../proxy/BaseUUPSProxy.sol";
  *
  */
 contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextManagement {
+  using LACLStorage for DataCollection;
   using LProfileStorage for ProfileEntity;
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
   using LClones for address;  
@@ -111,9 +114,9 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
   }  
 
   function profileContextUpdateActivityStatus(bytes32 profileId, ProfileUpdateActivityRequest[] calldata requests) external returns (bool) {
-    (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(profileId, IProfileContextManagement.profileContextUpdateActivityStatus.selector);
+    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 senderId) = _accessPermission(profileId, IProfileContextManagement.profileContextUpdateActivityStatus.selector);
     for (uint i = 0; i < requests.length; i++) {
-      ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].entityId, senderId, functionId);
+      ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(profileEntity, functionEntity, requests[i].entityId, senderId);
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");    
       contextEntity.bs.acstat = requests[i].acstat;
       emit ProfileContextActivityUpdated(msg.sender, profileId, requests[i].entityId, requests[i].acstat);
@@ -122,10 +125,10 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
   }
 
   function profileContextUpdateAlterabilityStatus(bytes32 profileId, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool) {
-    (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(profileId, IProfileContextManagement.profileContextUpdateAlterabilityStatus.selector);
+    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 senderId) = _accessPermission(profileId, IProfileContextManagement.profileContextUpdateAlterabilityStatus.selector);
     for (uint i = 0; i < requests.length; i++) {
       ContextEntity storage contextEntity = profileEntity.profileContextReadSlot(requests[i].entityId);
-      IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, contextEntity.bs.adminId, senderId, functionId);
+      IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, functionEntity, contextEntity.bs.adminId, senderId);
       if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       contextEntity.bs.alstat = requests[i].alstat;
@@ -135,9 +138,9 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
   }
 
   function profileContextUpdateAdmin(bytes32 profileId, ProfileUpdateAdminRequest[] calldata requests) external returns (bool) {
-    (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(profileId, IProfileContextManagement.profileContextUpdateAdmin.selector);
+    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 senderId) = _accessPermission(profileId, IProfileContextManagement.profileContextUpdateAdmin.selector);
     for (uint i = 0; i < requests.length; i++) {
-      ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].entityId, senderId, functionId);
+      ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(profileEntity, functionEntity, requests[i].entityId, senderId);
       
       // checking requested type admin 
       if(requests[i].adminId != bytes32(0)) {
@@ -162,9 +165,9 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
   }
 
   function profileContextUpdateFunctionLimit(bytes32 profileId, ProfileContextUpdateFunctionLimitRequest[] calldata requests) external returns (bool) {
-    (ProfileEntity storage profileEntity, bytes32 functionId, bytes32 senderId) = _accessPermission(profileId, IProfileContextManagement.profileContextUpdateFunctionLimit.selector);     
+    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 senderId) = _accessPermission(profileId, IProfileContextManagement.profileContextUpdateFunctionLimit.selector);     
     for (uint i = 0; i < requests.length; i++) {    
-      ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(profileEntity, requests[i].contextId, senderId, functionId);
+      ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(profileEntity, functionEntity, requests[i].contextId, senderId);
       require(requests[i].functionLimit > contextEntity.functions.length(), "Illegal Limit");
       contextEntity.functionLimit = requests[i].functionLimit;      
       emit ProfileContextFunctionLimitUpdated(msg.sender, profileId, requests[i].contextId, requests[i].functionLimit);
@@ -279,15 +282,15 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
     return typeEntity.members[memberId] != bytes32(0);
   }
 
-  function _doCheckAdminAccess(ProfileEntity storage profileEntity, bytes32 adminId, bytes32 senderId, bytes32 functionId) internal view returns (IProfileACL.ProfileAdminAccessStatus) {
-    return LProfileCommons.profileCheckAdminAccess(profileEntity, adminId, senderId, functionId);
+  function _doCheckAdminAccess(ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 adminId, bytes32 senderId) internal view returns (IProfileACL.ProfileAdminAccessStatus) {
+    return LProfileCommons.profileCheckAdminAccess(profileEntity, functionEntity, adminId, senderId);
   }
 
   function _doAgentGetScopeInfo(ProfileEntity storage profileEntity, bytes32 agentId) internal view returns (ScopeType, bytes32) {
     return LProfileCommons.profileAgentGetScopeInfo(profileEntity, agentId);
   }
 
-  function _accessPermission(bytes32 profileId, bytes4 selector) internal returns (ProfileEntity storage, bytes32, bytes32) {
+   function _accessPermission(bytes32 profileId, bytes4 selector) internal returns (ProfileEntity storage, FunctionEntity storage, bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
     ProfileEntity storage profileEntity = _data.profiles[profileId];
@@ -297,22 +300,22 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
     address functionFacetId = _data.selectors[selector];
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector); 
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
-    IProfileACL.ProfileAuthorizationStatus status = IProfileACL(address(this)).profileHasMemberAccess(profileId, functionId, senderId);
-    if(status != IProfileACL.ProfileAuthorizationStatus.PERMITTED) LACLUtils.generateProfileAuthorizationError(status);
-    return (profileEntity, functionId, senderId);
+
+    (FunctionEntity storage functionEntity, bool res) = _data.functionTryReadSlot(functionId);
+    if (!res) LACLUtils.generateProfileAdminAccessError(IProfileACL.ProfileAdminAccessStatus.FUNCTION_NOT_FOUND);
+
+    ProfileAccessControl(payable(address(this))).profileAclHasMemberAccess(profileId, functionId, senderId);    
+    return (profileEntity, functionEntity, senderId);
   }
 
-  function _doGetEntityAndCheckAdminAccess(ProfileEntity storage profileEntity, bytes32 contextId, bytes32 senderId, bytes32 functionId) internal view returns (ContextEntity storage) {
+
+  function _doGetEntityAndCheckAdminAccess(ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 contextId, bytes32 senderId) internal view returns (ContextEntity storage) {
     ContextEntity storage contextEntity = profileEntity.profileContextReadSlot(contextId);
     require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-    IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, contextEntity.bs.adminId, senderId, functionId);
+    IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, functionEntity, contextEntity.bs.adminId, senderId);
     if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
     return contextEntity;
   }
-
-  // function _getContextAdmin(ProfileEntity storage profileEntity, ProfileContextRegisterRequest calldata request, bytes32 scopeId, bytes32 requestScopeAdmin) internal view returns (bytes32 contextAdminId) {
-  //   return LProfileCommons.profileGetContextAdmin(profileEntity, request, scopeId, requestScopeAdmin);
-  // }
 
   function _doGetSignerAddress(bytes memory signature, bytes32 structHash) internal view returns (address) {
     bytes32 msgDigest = _hashTypedDataV4(structHash);

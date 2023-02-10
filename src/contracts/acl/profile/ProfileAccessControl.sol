@@ -10,9 +10,12 @@ import "./scope/IProfileFunctionManagement.sol";
 import "./agent/IProfileRoleManagement.sol";
 import "./agent/IProfileTypeManagement.sol";
 import "../ACLStorage.sol";
+import "../IACL.sol";
 import "../../proxy/IProxy.sol";
+
 import "../../lib/acl/LACLUtils.sol";
 import "../../lib/acl/LProfileStorage.sol";
+import "../../lib/acl/LACLStorage.sol";
 import "../../lib/struct/LEnumerableSet.sol";
 import "../../proxy/BaseUUPSProxy.sol";
 
@@ -25,6 +28,7 @@ import "hardhat/console.sol";
  *
  */
 contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals, IProfileACL {
+  using LACLStorage for DataCollection;
   using LProfileStorage for ProfileEntity;
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
 
@@ -62,7 +66,7 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
     if(profileEntity.acstat != ActivityStatus.ENABLED) return ProfileAuthorizationStatus.PROFILE_ACTIVITY_FORBIDDEN;
     (FunctionEntity storage functionEntity, bool result) = profileEntity.profileFunctionTryReadSlot(functionId);   
     if (!result) return ProfileAuthorizationStatus.FUNCTION_NOT_FOUND;
-    return _doHasAccess(profileEntity, LACLUtils.accountGenerateId(msg.sender), functionEntity);
+    return _doProfileHasAccess(profileEntity, LACLUtils.accountGenerateId(msg.sender), functionEntity);
   }
 
   function profileHasMemberAccess(bytes32 profileId, bytes32 functionId, bytes32 memberId) external returns (ProfileAuthorizationStatus) {
@@ -70,7 +74,7 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
     if(profileEntity.acstat != ActivityStatus.ENABLED) return ProfileAuthorizationStatus.PROFILE_ACTIVITY_FORBIDDEN;
     (FunctionEntity storage functionEntity, bool result) = profileEntity.profileFunctionTryReadSlot(functionId);
     if (!result) return ProfileAuthorizationStatus.FUNCTION_NOT_FOUND;
-    return _doHasAccess(profileEntity, memberId, functionEntity);
+    return _doProfileHasAccess(profileEntity, memberId, functionEntity);
   }
 
   function profileHasCSAccess(bytes32 profileId, address contractId, bytes4 selector) external returns (ProfileAuthorizationStatus) {
@@ -79,7 +83,7 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
     bytes32 functionId = LACLUtils.functionGenerateId(contractId, selector);
     (FunctionEntity storage functionEntity, bool result) = profileEntity.profileFunctionTryReadSlot(functionId);
     if (!result) return ProfileAuthorizationStatus.FUNCTION_NOT_FOUND;
-    return _doHasAccess(profileEntity, LACLUtils.accountGenerateId(msg.sender), functionEntity);
+    return _doProfileHasAccess(profileEntity, LACLUtils.accountGenerateId(msg.sender), functionEntity);
   }
 
   function profileHasAccountAccess(bytes32 profileId, address contractId, bytes4 selector, address accountId) external returns (ProfileAuthorizationStatus) {
@@ -89,10 +93,18 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
     bytes32 memberId = LACLUtils.accountGenerateId(accountId);
     (FunctionEntity storage functionEntity, bool result) = profileEntity.profileFunctionTryReadSlot(functionId);
     if (!result) return ProfileAuthorizationStatus.FUNCTION_NOT_FOUND;
-    return _doHasAccess(profileEntity, memberId, functionEntity);
+    return _doProfileHasAccess(profileEntity, memberId, functionEntity);
   }
 
-  function _doHasAccess(ProfileEntity storage profileEntity, bytes32 memberId, FunctionEntity storage functionEntity) internal returns (ProfileAuthorizationStatus) {
+  function profileAclHasMemberAccess(bytes32 profileId, bytes32 functionId, bytes32 memberId) public {
+    ProfileEntity storage profileEntity = _data.profiles[profileId];
+    if(profileEntity.acstat != ActivityStatus.ENABLED) LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.PROFILE_ACTIVITY_FORBIDDEN);
+    (FunctionEntity storage functionEntity, bool result) = _data.functionTryReadSlot(functionId);
+    if (!result) LACLUtils.generateAuthorizationError(IACL.AuthorizationStatus.FUNCTION_NOT_FOUND);
+    _doAclHasAccess(profileEntity, memberId, functionEntity);
+  }
+
+  function _doProfileHasAccess(ProfileEntity storage profileEntity, bytes32 memberId, FunctionEntity storage functionEntity) internal returns (ProfileAuthorizationStatus) {
     
     if(profileEntity.limits.profileCallLimit > 0) {
       profileEntity.limits.profileCallLimit -= 1;
@@ -103,13 +115,13 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
     AgentType atype = profileEntity.agents[functionEntity.agentId].atype;
 
     // console.log("agentId: ");
-    // console.logBytes32(agentId);
+    // console.logBytes32(functionEntity.agentId);
     // console.log("atype: ");
     // console.logBytes1(bytes1(uint8(atype)));
     // console.log("memberId: ");
     // console.logBytes32(memberId);
     // console.log("member acstat: ");
-    // console.logBytes1(bytes1(uint8(_data.agents[memberId].acstat)));
+    // console.logBytes1(bytes1(uint8(profileEntity.agents[memberId].acstat)));
     // console.log("address(this): %s", address(this));
     if(atype == AgentType.ROLE) {
       // check member activation
@@ -241,6 +253,155 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
     if(globalEntity.bs.acstat != ActivityStatus.ENABLED) return ProfileAuthorizationStatus.GLOBAL_ACTIVITY_FORBIDDEN;
     
     return ProfileAuthorizationStatus.PERMITTED;
+  }
+
+   function _doAclHasAccess(ProfileEntity storage profileEntity, bytes32 memberId, FunctionEntity storage functionEntity) internal {
+    
+    if(profileEntity.limits.profileCallLimit > 0) {
+      profileEntity.limits.profileCallLimit -= 1;
+    } else {
+      LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.PROFILE_CALL_FORBIDDEN);
+    }
+
+    AgentType atype = profileEntity.agents[functionEntity.agentId].atype;
+
+    // console.log("agentId: ");
+    // console.logBytes32(functionEntity.agentId);
+    // console.log("atype: ");
+    // console.logBytes1(bytes1(uint8(atype)));
+    // console.log("memberId: ");
+    // console.logBytes32(memberId);
+    // console.log("member acstat: ");
+    // console.logBytes1(bytes1(uint8(profileEntity.agents[memberId].acstat)));
+    // console.log("address(this): %s", address(this));
+    if(atype == AgentType.ROLE) {
+      // check member activation
+      // console.log("agentId type is role");
+      (ProfileMemberEntity storage profileMemberEntity, bool result0) = profileEntity.profileMemberTryReadSlot(memberId);
+      if(!result0) LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.MEMBER_NOT_FOUND);
+      if(profileMemberEntity.ba.acstat != ActivityStatus.ENABLED) LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN); 
+      if(profileEntity.owner != profileMemberEntity.account) {
+        if(profileMemberEntity.callLimit > 0) {
+          profileMemberEntity.callLimit -= 1;
+        } else {
+          LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.MEMBER_CALL_FORBIDDEN);
+        }
+      }
+      
+      // check role activation
+      (RoleEntity storage roleEntity, bool result1) = profileEntity.profileRoleTryReadSlot(functionEntity.agentId);
+      // console.log("roleEntity: ");
+      // console.logBytes1(bytes1(uint8(roleEntity.ba.acstat)));
+      if(!result1) LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.ROLE_NOT_FOUND);      
+      if(roleEntity.ba.acstat != ActivityStatus.ENABLED) LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.ROLE_ACTIVITY_FORBIDDEN);
+      if(_data.scopes[roleEntity.scopeId].stype == ScopeType.FUNCTION && roleEntity.scopeId != functionEntity.agentId) 
+        LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.ROLE_SCOPE_FORBIDDEN);
+
+      // check type activation
+      (TypeEntity storage typeEntity, bool result2) = profileEntity.profileTypeTryReadSlot(roleEntity.typeId);
+      // console.log("typeEntity: ");
+      // console.logBytes1(bytes1(uint8(typeEntity.ba.acstat)));
+      if(!result2) LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.TYPE_NOT_FOUND);
+      if(typeEntity.ba.acstat != ActivityStatus.ENABLED) LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.TYPE_ACTIVITY_FORBIDDEN);
+
+      // check memberId with agentId role
+      if (typeEntity.members[memberId] != functionEntity.agentId) LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.UNAUTHORIZED);
+
+      // check policy activation
+      PolicyEntity storage policyEntity = profileEntity.policies[profileEntity.rolePolicyMap[functionEntity.agentId]];
+      // console.log("policyEntity: ");
+      // console.logBytes1(bytes1(uint8(policyEntity.acstat)));
+      if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
+        LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.POLICY_FORBIDDEN);
+
+    } else if(atype == AgentType.TYPE) {
+      // console.log("agentId is type . . .");
+      if(functionEntity.agentId == _LIVELY_PROFILE_ANY_TYPE_ID) {
+        // console.log("agentId is ANY type . . .");
+        (ProfileMemberEntity storage profileMemberEntity, bool result0) = profileEntity.profileMemberTryReadSlot(memberId);
+        if(!result0) LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.MEMBER_NOT_FOUND);
+        if(profileMemberEntity.ba.acstat != ActivityStatus.ENABLED) LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN);        
+        if(profileEntity.owner != profileMemberEntity.account) {
+          if(profileMemberEntity.callLimit > 0) {
+            profileMemberEntity.callLimit -= 1;
+          } else {
+            LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.MEMBER_CALL_FORBIDDEN);
+          }
+        }
+
+      } else if(functionEntity.agentId != _LIVELY_VERSE_ANONYMOUS_TYPE_ID) {
+        // check member activation
+        // console.log("agentId is Anonymous type . . .");
+        (ProfileMemberEntity storage profileMemberEntity, bool result0) = profileEntity.profileMemberTryReadSlot(memberId);
+        if(!result0) LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.MEMBER_NOT_FOUND);
+        if(profileMemberEntity.ba.acstat != ActivityStatus.ENABLED) LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN);
+        if(profileEntity.owner != profileMemberEntity.account) {
+          if(profileMemberEntity.callLimit > 0) {
+            profileMemberEntity.callLimit -= 1;
+          } else {
+            LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.MEMBER_CALL_FORBIDDEN);
+          }
+        }
+        
+        // check type activation
+        (TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(functionEntity.agentId);
+        // console.log("typeEntity: ");
+        // console.logBytes1(bytes1(uint8(typeEntity.ba.acstat)));
+        if(!result1) LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.TYPE_NOT_FOUND);
+        if(typeEntity.ba.acstat != ActivityStatus.ENABLED) LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.TYPE_ACTIVITY_FORBIDDEN);
+
+        // check role activation
+        bytes32 roleId = typeEntity.members[memberId];
+        (RoleEntity storage roleEntity, bool result2) = profileEntity.profileRoleTryReadSlot(roleId);
+        // console.log("roleEntity: ");
+        // console.logBytes1(bytes1(uint8(roleEntity.ba.acstat)));
+        if(!result2) LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.ROLE_NOT_FOUND);
+        if(roleEntity.ba.acstat != ActivityStatus.ENABLED) LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.ROLE_ACTIVITY_FORBIDDEN);
+        if(_data.scopes[roleEntity.scopeId].stype == ScopeType.FUNCTION && roleEntity.scopeId != functionEntity.agentId) 
+          LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.ROLE_SCOPE_FORBIDDEN);
+        
+        // check policy activation
+        PolicyEntity storage policyEntity = profileEntity.policies[profileEntity.rolePolicyMap[roleId]];
+        // console.log("policyEntity: ");
+        // console.logBytes1(bytes1(uint8(policyEntity.acstat)));
+        if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
+          LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.POLICY_FORBIDDEN);
+      } 
+    } else if(atype <= AgentType.MEMBER) {
+      LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.UNAUTHORIZED);
+    }
+
+    // check function activity
+    // console.log("functionEntity: ");
+    // console.logBytes1(bytes1(uint8(functionEntity.bs.acstat)));
+    if(functionEntity.bs.acstat != ActivityStatus.ENABLED) LACLUtils.generateAuthorizationError(IACL.AuthorizationStatus.FUNCTION_ACTIVITY_FORBIDDEN);
+
+    // check context activity
+    (ContextEntity storage contextEntity, bool res1) = _data.contextTryReadSlot(functionEntity.contextId);
+    // console.log("contextEntity: ");
+    // console.logBytes1(bytes1(uint8(contextEntity.bs.acstat)));
+    if(!res1) LACLUtils.generateAuthorizationError(IACL.AuthorizationStatus.CONTEXT_NOT_FOUND);
+    if(contextEntity.bs.acstat != ActivityStatus.ENABLED) LACLUtils.generateAuthorizationError(IACL.AuthorizationStatus.CONTEXT_ACTIVITY_FORBIDDEN);
+
+    // check realm activity
+    (RealmEntity storage realmEntity, bool res2) = _data.realmTryReadSlot(contextEntity.realmId);
+    // console.log("realmEntity: ");
+    // console.logBytes1(bytes1(uint8(contextEntity.bs.acstat)));
+    if(!res2) LACLUtils.generateAuthorizationError(IACL.AuthorizationStatus.REALM_NOT_FOUND);
+    if(realmEntity.bs.acstat != ActivityStatus.ENABLED) LACLUtils.generateAuthorizationError(IACL.AuthorizationStatus.REALM_ACTIVITY_FORBIDDEN);
+
+    // check domain activity
+    (DomainEntity storage domainEntity, bool res3) = _data.domainTryReadSlot(realmEntity.domainId);
+    // console.log("domainEntity: ");
+    // console.logBytes1(bytes1(uint8(domainEntity.bs.acstat)));
+    if(!res3) LACLUtils.generateAuthorizationError(IACL.AuthorizationStatus.DOMAIN_NOT_FOUND);
+    if(domainEntity.bs.acstat != ActivityStatus.ENABLED) LACLUtils.generateAuthorizationError(IACL.AuthorizationStatus.DOMAIN_ACTIVITY_FORBIDDEN);
+
+    // check global activity
+    // console.log("global: ");
+    // console.logBytes1(bytes1(uint8(_data.scopes[_LIVELY_VERSE_PROFILE_GLOBAL_SCOPE_ID].acstat)));
+    GlobalEntity storage globalEntity = _data.globalReadSlot(_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
+    if(globalEntity.bs.acstat != ActivityStatus.ENABLED) LACLUtils.generateAuthorizationError(IACL.AuthorizationStatus.GLOBAL_ACTIVITY_FORBIDDEN);    
   }
 
   // Anonymouse type
