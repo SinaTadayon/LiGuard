@@ -113,7 +113,6 @@ contract ProfileGlobalManager is ACLStorage, BaseUUPSProxy, IProfileGlobalManage
     return profileAdminType.members[memberId] != bytes32(0);  
   }
 
-
   function profileGlobalGetDomains(bytes32 profileId) external view returns (bytes32[] memory) {
     ProfileEntity storage profileEntity = _data.profiles[profileId];
     if(profileEntity.acstat == ActivityStatus.NONE) return new bytes32[](0);

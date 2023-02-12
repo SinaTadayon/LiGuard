@@ -182,13 +182,13 @@ library LACLCommons {
     bytes32 memberId = LACLUtils.accountGenerateId(account);
 
     if(agentType == IACLCommons.AgentType.ROLE) {
-       (IACLCommons.RoleEntity storage roleEntity, bool result) = data.roleTryReadSlot(profileAdminId);
+      (IACLCommons.RoleEntity storage roleEntity, bool result) = data.roleTryReadSlot(profileAdminId);
       if(!result) return false;
 
       (IACLCommons.TypeEntity storage typeEntity, bool result1) = data.typeTryReadSlot(roleEntity.typeId);
       if(!result1) return false;  
 
-      return typeEntity.members[memberId] != bytes32(0);
+      return typeEntity.members[memberId] == profileAdminId;
     
     } else if(agentType == IACLCommons.AgentType.TYPE) {
       (IACLCommons.TypeEntity storage typeEntity, bool result1) = data.typeTryReadSlot(profileAdminId);
@@ -209,6 +209,8 @@ library LACLCommons {
  
     // check new ownerId
     require(profileEntity.agents[newOwnerId].acstat == IACLCommons.ActivityStatus.NONE, "Already Exists");
+
+    // remove old owner
     IACLCommons.ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(ownerId);
     profileMemberEntity.ba.acstat = IACLCommons.ActivityStatus.DISABLED;
     profileMemberEntity.ba.alstat = IACLCommons.AlterabilityStatus.DISABLED;
@@ -217,7 +219,7 @@ library LACLCommons {
     IACLCommons.ProfileAccount storage profileAccount = data.profileAccounts[request.owner];
     for(uint j = 0; j < profileAccount.profiles.length; j++) {
       if(profileAccount.profiles[j] == request.profileId) {
-          if(profileAccount.profiles.length > 1) {
+        if(profileAccount.profiles.length > 1) {
           if(j < profileAccount.profiles.length - 1)
             profileAccount.profiles[j] = profileAccount.profiles[profileAccount.profiles.length - 1];
           profileAccount.profiles.pop();

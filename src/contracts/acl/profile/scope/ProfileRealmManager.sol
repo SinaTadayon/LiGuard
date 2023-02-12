@@ -175,7 +175,13 @@ contract ProfileRealmManager is ACLStorage, BaseUUPSProxy, IProfileRealmManageme
     bytes32 memberId = LACLUtils.accountGenerateId(account);
 
     if(agentType == AgentType.ROLE) {
-      return _doRoleHasMember(profileEntity, realmAdminId, memberId);
+      (RoleEntity storage roleEntity, bool result0) = profileEntity.profileRoleTryReadSlot(realmAdminId);
+      if(!result0) return false;
+
+      (TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(roleEntity.typeId);
+      if(!result1) return false;  
+
+      return typeEntity.members[memberId] == realmAdminId;
 
     } else if(agentType == AgentType.TYPE) {
       (TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(realmAdminId);
@@ -186,16 +192,6 @@ contract ProfileRealmManager is ACLStorage, BaseUUPSProxy, IProfileRealmManageme
 
     return false;
   } 
-
-  function _doRoleHasMember(ProfileEntity storage profileEntity, bytes32 roleId, bytes32 memberId) internal view returns (bool) {
-    (RoleEntity storage roleEntity, bool result) = profileEntity.profileRoleTryReadSlot(roleId);
-    if(!result) return false;
-
-    (TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(roleEntity.typeId);
-    if(!result1) return false;  
-
-    return typeEntity.members[memberId] != bytes32(0);
-  }
 
   function profileRealmHasFunction(bytes32 profileId, bytes32 realmId, bytes32 functionId) external view returns (bool) {
     ProfileEntity storage profileEntity = _data.profiles[profileId];

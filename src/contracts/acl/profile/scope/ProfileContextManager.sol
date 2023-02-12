@@ -195,7 +195,13 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
     bytes32 memberId = LACLUtils.accountGenerateId(account);
 
     if(agentType == AgentType.ROLE) {
-      return _doRoleHasMember(profileEntity, contextAdminId, memberId);
+      (RoleEntity storage roleEntity, bool result0) = profileEntity.profileRoleTryReadSlot(contextAdminId);
+      if(!result0) return false;
+
+      (TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(roleEntity.typeId);
+      if(!result1) return false;  
+
+      return typeEntity.members[memberId] == contextAdminId;
     
     } else if(agentType == AgentType.TYPE) {
       (TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(contextAdminId);
@@ -270,16 +276,6 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
     (ContextEntity storage ce, bool result) = profileEntity.profileContextTryReadSlot(contextId);
     if(!result) return false;
     return ce.functions.contains(functionId);    
-  }
-
-  function _doRoleHasMember(ProfileEntity storage profileEntity, bytes32 roleId, bytes32 memberId) internal view returns (bool) {
-    (RoleEntity storage roleEntity, bool result) = profileEntity.profileRoleTryReadSlot(roleId);
-    if(!result) return false;
-
-    (TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(roleEntity.typeId);
-    if(!result1) return false;  
-
-    return typeEntity.members[memberId] != bytes32(0);
   }
 
   function _doCheckAdminAccess(ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 adminId, bytes32 senderId) internal view returns (IProfileACL.ProfileAdminAccessStatus) {

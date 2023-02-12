@@ -216,7 +216,13 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     bytes32 memberId = LACLUtils.accountGenerateId(account);
 
     if(agentType == AgentType.ROLE) {
-      return _doRoleHasMember(realmAdminId, memberId);
+      (RoleEntity storage roleEntity, bool result0) = _data.roleTryReadSlot(realmAdminId);
+      if(!result0) return false;
+
+      (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(roleEntity.typeId);
+      if(!result1) return false;  
+
+      return typeEntity.members[memberId] == realmAdminId;
     
     } else if(agentType == AgentType.TYPE) {
       (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(realmAdminId);
@@ -227,16 +233,6 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
   
     return false;
   } 
-
-  function _doRoleHasMember(bytes32 roleId, bytes32 memberId) internal view returns (bool) {
-    (RoleEntity storage roleEntity, bool result) = _data.roleTryReadSlot(roleId);
-    if(!result) return false;
-
-    (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(roleEntity.typeId);
-    if(!result1) return false;  
-
-    return typeEntity.members[memberId] != bytes32(0);
-  }
 
   function realmHasFunction(bytes32 realmId, bytes32 functionId) external view returns (bool) {
     (FunctionEntity storage fe, bool result) = _data.functionTryReadSlot(functionId);

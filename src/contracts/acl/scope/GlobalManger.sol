@@ -135,22 +135,6 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
     });
   }
 
-  // function _doAgentGetScopeInfo(bytes32 agentId) internal view returns (ScopeType, bytes32) {
-  //   AgentType atype = _data.agents[agentId].atype;
-  //   if (atype == AgentType.ROLE) {
-  //     RoleEntity storage roleEntity = _data.roleReadSlot(agentId);
-  //     BaseScope storage baseScope = _data.scopes[roleEntity.scopeId];
-  //     return (baseScope.stype, roleEntity.scopeId);
-
-  //   } else if(atype == AgentType.TYPE) {
-  //     TypeEntity storage typeEntity = _data.typeReadSlot(agentId);
-  //     BaseScope storage baseScope = _data.scopes[typeEntity.scopeId];
-  //     return (baseScope.stype, typeEntity.scopeId);
-  //   }
-
-  //   return (ScopeType.NONE, bytes32(0));  
-  // }
-
   function _accessPermissionActivity(bytes4 selector) internal returns (bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     

@@ -63,9 +63,9 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
     // check profile and type limitations and update it
     ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(senderId);
     require(profileMemberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
-    require(profileEntity.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-    require(int32(profileMemberEntity.registerLimits.typeRegisterLimit) - int16(uint16(requests.length)) >= 0, "Illegal TypeRegisterLimit");
-    require(int32(profileEntity.registerLimits.typeRegisterLimit) - int16(uint16(requests.length)) >= 0, "Illegal RegisterLimit");
+    require(profileEntity.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Profile Updatable");
+    require(int32(profileMemberEntity.registerLimits.typeRegisterLimit) - int16(uint16(requests.length)) >= 0, "Illegal Member TypeRegisterLimit");
+    require(int32(profileEntity.registerLimits.typeRegisterLimit) - int16(uint16(requests.length)) >= 0, "Illegal Profile TypeRegisterLimit");
     profileMemberEntity.registerLimits.typeRegisterLimit -= uint16(requests.length); 
     profileEntity.registerLimits.typeRegisterLimit -= uint16(requests.length);
 
@@ -158,7 +158,13 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
     bytes32 memberId = LACLUtils.accountGenerateId(account);
 
     if(adminAgentType == AgentType.ROLE) {
-      return _doRoleHasMember(profileEntity, typeAdminId, memberId);
+      (RoleEntity storage roleEntity, bool result) = profileEntity.profileRoleTryReadSlot(typeAdminId);
+      if(!result) return false;
+
+      (TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(roleEntity.typeId);
+      if(!result1) return false;  
+
+      return typeEntity.members[memberId] == typeAdminId;
     
     } else if(adminAgentType == AgentType.TYPE) {
       (TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(typeAdminId);
@@ -220,16 +226,6 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
       alstat: te.ba.alstat,
       name: te.name
     });
-  }
-
-  function _doRoleHasMember(ProfileEntity storage profileEntity, bytes32 roleId, bytes32 memberId) internal view returns (bool) {
-    (RoleEntity storage roleEntity, bool result) = profileEntity.profileRoleTryReadSlot(roleId);
-    if(!result) return false;
-
-    (TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(roleEntity.typeId);
-    if(!result1) return false;  
-
-    return typeEntity.members[memberId] != bytes32(0);
   }
 
   function _doAgentGetScopeInfo(ProfileEntity storage profileEntity, bytes32 agentId) internal view returns (ScopeType, bytes32) {

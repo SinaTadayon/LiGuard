@@ -17,7 +17,7 @@ import "../../proxy/IProxy.sol";
 import "../../proxy/BaseUUPSProxy.sol";
 
 /**
- * @title ACL Memeber Manager Contract
+ * @title ACL Member Manager Contract
  * @author Sina Tadayon, https://github.com/SinaTadayon
  * @dev
  *
@@ -64,83 +64,151 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
     memberEntity.limits.memberRegisterLimit -= uint16(requests.length);    
 
     for (uint256 i = 0; i < requests.length; i++) {
-      bytes32 newMemberId = LACLUtils.accountGenerateId(requests[i].account);
-      require(_data.agents[newMemberId].acstat == ActivityStatus.NONE, "Already Exist");
-      require(requests[i].limits.typeLimit >= 1, "Illegal TypeLimit");
-      require(
-        requests[i].acstat > ActivityStatus.DELETED && 
-        requests[i].alstat > AlterabilityStatus.NONE,
-        "Illegal Activity/Alterability"
-      );     
+      _doMemberRegister(requests[i], memberEntity, functionId, senderId);
+      // bytes32 newMemberId = LACLUtils.accountGenerateId(requests[i].account);
+      // require(_data.agents[newMemberId].acstat == ActivityStatus.NONE, "Already Exist");
+      // require(requests[i].limits.typeLimit >= 1, "Illegal TypeLimit");
+      // require(
+      //   requests[i].acstat > ActivityStatus.DELETED && 
+      //   requests[i].alstat > AlterabilityStatus.NONE,
+      //   "Illegal Activity/Alterability"
+      // );     
 
-      if(
-        !memberEntity.types.contains(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID) &&
-        !memberEntity.types.contains(_LIVELY_VERSE_MEMBER_MASTER_TYPE_ID)
-      ) {
-        _doCheckMemberRegisterLimits(memberEntity, requests[i].limits);
-      }
+      // if(
+      //   !memberEntity.types.contains(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID) &&
+      //   !memberEntity.types.contains(_LIVELY_VERSE_MEMBER_MASTER_TYPE_ID)
+      // ) {
+      //   _doCheckMemberRegisterLimits(memberEntity, requests[i].limits);
+      // }
 
-      // check role
-      RoleEntity storage roleEntity = _data.roleReadSlot(requests[i].roleId);
-      require(roleEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Role Updatable");
-      require(roleEntity.memberLimit > roleEntity.memberCount, "Illegal Register");      
+      // // check role
+      // RoleEntity storage roleEntity = _data.roleReadSlot(requests[i].roleId);
+      // require(roleEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Role Updatable");
+      // require(roleEntity.memberLimit > roleEntity.memberCount, "Illegal Register");      
 
-      // check type 
-      TypeEntity storage typeEntity = _data.typeReadSlot(roleEntity.typeId);
-      require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Type Updatable");
+      // // check type 
+      // TypeEntity storage typeEntity = _data.typeReadSlot(roleEntity.typeId);
+      // require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Type Updatable");
 
-      // check access
-      IACL.AdminAccessStatus adminAccessStatus = _doCheckAdminAccess(roleEntity.ba.adminId, senderId, functionId);
-      if(adminAccessStatus != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(adminAccessStatus);
+      // // check access
+      // IACL.AdminAccessStatus adminAccessStatus = _doCheckAdminAccess(roleEntity.ba.adminId, senderId, functionId);
+      // if(adminAccessStatus != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(adminAccessStatus);
 
-      // add new member to type
-      typeEntity.members[newMemberId] = requests[i].roleId;
+      // // add new member to type
+      // typeEntity.members[newMemberId] = requests[i].roleId;
 
-      // add new member to role
-      roleEntity.memberCount +=1;      
+      // // add new member to role
+      // roleEntity.memberCount +=1;      
 
-      // create new member
-      MemberEntity storage newMember = _data.memberWriteSlot(newMemberId);      
+      // // create new member
+      // MemberEntity storage newMember = _data.memberWriteSlot(newMemberId);      
 
-      // check adminId
-      if(requests[i].adminId != bytes32(0)) {
-        require(_data.agents[requests[i].adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
-        adminAccessStatus = _doCheckAdminAccess(_LIVELY_VERSE_MEMBER_MASTER_TYPE_ID, senderId, functionId);        
-        if(adminAccessStatus != IACL.AdminAccessStatus.PERMITTED) revert IACL.SetAdminForbidden(adminAccessStatus);
-        newMember.ba.adminId = requests[i].adminId;
-      } else {
-        newMember.ba.adminId = _LIVELY_VERSE_MEMBER_MASTER_TYPE_ID;
-      }
+      // // check adminId
+      // if(requests[i].adminId != bytes32(0)) {
+      //   require(_data.agents[requests[i].adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
+      //   adminAccessStatus = _doCheckAdminAccess(_LIVELY_VERSE_MEMBER_MASTER_TYPE_ID, senderId, functionId);        
+      //   if(adminAccessStatus != IACL.AdminAccessStatus.PERMITTED) revert IACL.SetAdminForbidden(adminAccessStatus);
+      //   newMember.ba.adminId = requests[i].adminId;
+      // } else {
+      //   newMember.ba.adminId = _LIVELY_VERSE_MEMBER_MASTER_TYPE_ID;
+      // }
       
-      newMember.ba.atype = AgentType.MEMBER;
-      newMember.ba.acstat = requests[i].acstat;
-      newMember.ba.alstat = requests[i].alstat;
-      newMember.account = requests[i].account;
-      newMember.types.add(roleEntity.typeId);
-      newMember.limits = requests[i].limits;
+      // newMember.ba.atype = AgentType.MEMBER;
+      // newMember.ba.acstat = requests[i].acstat;
+      // newMember.ba.alstat = requests[i].alstat;
+      // newMember.account = requests[i].account;
+      // newMember.types.add(roleEntity.typeId);
+      // newMember.limits = requests[i].limits;
 
-      emit MemberRegistered(
-        msg.sender,
-        newMemberId,
-        requests[i].account,
-        requests[i].roleId,
-        newMember.ba.adminId
-      );
+      // emit MemberRegistered(
+      //   msg.sender,
+      //   newMemberId,
+      //   requests[i].account,
+      //   requests[i].roleId,
+      //   newMember.ba.adminId,
+      //   requests[i].limits
+      // );
     }
 
     return true;
   }
 
+  function _doMemberRegister(MemberRegisterRequest calldata request, MemberEntity storage memberEntity, bytes32 functionId, bytes32 senderId) internal {
+  bytes32 newMemberId = LACLUtils.accountGenerateId(request.account);
+    require(_data.agents[newMemberId].acstat == ActivityStatus.NONE, "Already Exist");
+    require(request.limits.typeLimit >= 1, "Illegal TypeLimit");
+    require(
+      request.acstat > ActivityStatus.DELETED && 
+      request.alstat > AlterabilityStatus.NONE,
+      "Illegal Activity/Alterability"
+    );     
+
+    if(
+      !memberEntity.types.contains(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID) &&
+      !memberEntity.types.contains(_LIVELY_VERSE_MEMBER_MASTER_TYPE_ID)
+    ) {
+      _doCheckMemberRegisterLimits(memberEntity, request.limits);
+    }
+
+    // check role
+    RoleEntity storage roleEntity = _data.roleReadSlot(request.roleId);
+    require(roleEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Role Updatable");
+    require(roleEntity.memberLimit > roleEntity.memberCount, "Illegal Register");      
+
+    // check type 
+    TypeEntity storage typeEntity = _data.typeReadSlot(roleEntity.typeId);
+    require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Type Updatable");
+
+    // check access
+    IACL.AdminAccessStatus adminAccessStatus = _doCheckAdminAccess(roleEntity.ba.adminId, senderId, functionId);
+    if(adminAccessStatus != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(adminAccessStatus);
+
+    // add new member to type
+    typeEntity.members[newMemberId] = request.roleId;
+
+    // add new member to role
+    roleEntity.memberCount +=1;      
+
+    // create new member
+    MemberEntity storage newMember = _data.memberWriteSlot(newMemberId);      
+
+    // check adminId
+    if(request.adminId != bytes32(0)) {
+      require(_data.agents[request.adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
+      adminAccessStatus = _doCheckAdminAccess(_LIVELY_VERSE_MEMBER_MASTER_TYPE_ID, senderId, functionId);        
+      if(adminAccessStatus != IACL.AdminAccessStatus.PERMITTED) revert IACL.SetAdminForbidden(adminAccessStatus);
+      newMember.ba.adminId = request.adminId;
+    } else {
+      newMember.ba.adminId = _LIVELY_VERSE_MEMBER_MASTER_TYPE_ID;
+    }
+    
+    newMember.ba.atype = AgentType.MEMBER;
+    newMember.ba.acstat = request.acstat;
+    newMember.ba.alstat = request.alstat;
+    newMember.account = request.account;
+    newMember.types.add(roleEntity.typeId);
+    newMember.limits = request.limits;
+
+    emit MemberRegistered(
+      msg.sender,
+      newMemberId,
+      request.account,
+      request.roleId,
+      newMember.ba.adminId,
+      request.limits
+    );
+  }
+
   function _doCheckMemberRegisterLimits(MemberEntity storage memberEntity, GeneralLimit calldata limits) internal view {
-    require(memberEntity.limits.memberRegisterLimit >= limits.memberRegisterLimit, "Illegal MemberRegister");
-    require(memberEntity.limits.contextRegisterLimit >= limits.contextRegisterLimit, "Illegal ContextRegister");
-    require(memberEntity.limits.functionRegisterLimit >= limits.functionRegisterLimit, "Illegal FunctionRegister");
-    require(memberEntity.limits.profileRegisterLimit >= limits.profileRegisterLimit, "Illegal ProfileRegister");
-    require(memberEntity.limits.roleRegisterLimit >= limits.roleRegisterLimit, "Illegal RoleRegister");
-    require(memberEntity.limits.typeRegisterLimit >= limits.typeRegisterLimit, "Illegal TypeRegister");
-    require(memberEntity.limits.realmRegisterLimit >= limits.realmRegisterLimit, "Illegal RealmRegister");
-    require(memberEntity.limits.domainRegisterLimit >= limits.domainRegisterLimit, "Illegal DomainRegister");
-    require(memberEntity.limits.policyRegisterLimit >= limits.policyRegisterLimit, "Illegal PolicyRegister");
+    require(memberEntity.limits.memberRegisterLimit >= limits.memberRegisterLimit, "Illegal MemberRegisterLimit");
+    require(memberEntity.limits.contextRegisterLimit >= limits.contextRegisterLimit, "Illegal ContextRegisterLimit");
+    require(memberEntity.limits.functionRegisterLimit >= limits.functionRegisterLimit, "Illegal FunctionRegisterLimit");
+    require(memberEntity.limits.profileRegisterLimit >= limits.profileRegisterLimit, "Illegal ProfileRegisterLimit");
+    require(memberEntity.limits.roleRegisterLimit >= limits.roleRegisterLimit, "Illegal RoleRegisterLimit");
+    require(memberEntity.limits.typeRegisterLimit >= limits.typeRegisterLimit, "Illegal TypeRegisterLimit");
+    require(memberEntity.limits.realmRegisterLimit >= limits.realmRegisterLimit, "Illegal RealmRegisterLimit");
+    require(memberEntity.limits.domainRegisterLimit >= limits.domainRegisterLimit, "Illegal DomainRegisterLimit");
+    require(memberEntity.limits.policyRegisterLimit >= limits.policyRegisterLimit, "Illegal PolicyRegisterLimit");
     require(memberEntity.limits.memberLimit >= limits.memberLimit, "Illegal MemberLimit");
     require(memberEntity.limits.contextLimit >= limits.contextLimit, "Illegal ContextLimit");
     require(memberEntity.limits.realmLimit >= limits.realmLimit, "Illegal RealmLimit");
@@ -200,10 +268,17 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
 
   function memberUpdateGeneralLimit(MemberUpdateGeneralLimitRequest[] calldata requests) external returns (bool) {
     (bytes32 functionId, bytes32 senderId) = _accessPermission(IMemberManagement.memberUpdateGeneralLimit.selector);
-
+    MemberEntity storage senderMemberEntity = _data.memberReadSlot(senderId);
     for (uint256 i = 0; i < requests.length; i++) {
       MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].memberId, senderId, functionId);
       require(requests[i].limits.typeLimit > memberEntity.types.length(), "Illegal TypeLimit" );
+
+      if(
+        !memberEntity.types.contains(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID) &&
+        !memberEntity.types.contains(_LIVELY_VERSE_MEMBER_MASTER_TYPE_ID)
+      ) {
+        _doCheckMemberRegisterLimits(senderMemberEntity, requests[i].limits);
+      }
       memberEntity.limits = requests[i].limits;
       emit MemberGeneralLimitUpdated(msg.sender, requests[i].memberId, requests[i].limits);
     }
@@ -232,7 +307,7 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
       (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(roleEntity.typeId);
       if(!result1) return false;  
 
-      return typeEntity.members[accountId] != bytes32(0);
+      return typeEntity.members[accountId] == memberAdminId;
     
     } else if(adminAgenType == AgentType.TYPE) {
       (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(memberAdminId);

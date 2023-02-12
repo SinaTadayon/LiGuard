@@ -253,13 +253,13 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
     bytes32 memberId = LACLUtils.accountGenerateId(account);
 
     if(agentType == AgentType.ROLE) {
-      (RoleEntity storage roleEntity, bool result) = _data.roleTryReadSlot(policyEntity.adminId);
+      (RoleEntity storage roleEntity, bool result) = _data.roleTryReadSlot(policyAdminId);
       if(!result) return false;
 
       (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(roleEntity.typeId);
       if(!result1) return false;  
 
-      return typeEntity.members[memberId] != bytes32(0);
+      return typeEntity.members[memberId] == policyAdminId;
     
     } else if(agentType == AgentType.TYPE) {
       (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(policyAdminId);

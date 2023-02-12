@@ -209,7 +209,13 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
     bytes32 memberId = LACLUtils.accountGenerateId(account);
 
     if(agentType == AgentType.ROLE) {
-      return _doRoleHasMember(domainAdminId, memberId);
+      (RoleEntity storage roleEntity, bool result0) = _data.roleTryReadSlot(domainAdminId);
+      if(!result0) return false;
+
+      (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(roleEntity.typeId);
+      if(!result1) return false;  
+
+      return typeEntity.members[memberId] == domainAdminId;
     
     } else if(agentType == AgentType.TYPE) {
       (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(domainAdminId);
@@ -220,17 +226,6 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
   
     return false;
   }
-
-  function _doRoleHasMember(bytes32 roleId, bytes32 memberId) internal view returns (bool) {
-    (RoleEntity storage roleEntity, bool result) = _data.roleTryReadSlot(roleId);
-    if(!result) return false;
-
-    (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(roleEntity.typeId);
-    if(!result1) return false;  
-
-    return typeEntity.members[memberId] != bytes32(0);
-  }
-
 
   function domainHasFunction(bytes32 domainId, bytes32 functionId) external view returns (bool) {
     (FunctionEntity storage fe, bool result) = _data.functionTryReadSlot(functionId);

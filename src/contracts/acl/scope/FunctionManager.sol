@@ -204,7 +204,13 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     bytes32 memberId = LACLUtils.accountGenerateId(account);
 
     if(agentType == AgentType.ROLE) {
-      return _doRoleHasMember(agentId, memberId);
+      (RoleEntity storage roleEntity, bool result) = _data.roleTryReadSlot(agentId);
+      if(!result) return false;
+
+      (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(roleEntity.typeId);
+      if(!result1) return false;  
+
+      return typeEntity.members[memberId] == agentId;
     
     } else if(agentType == AgentType.TYPE) {
       (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(agentId);
@@ -214,16 +220,6 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     }
   
     return false;
-  }
-
-  function _doRoleHasMember(bytes32 roleId, bytes32 memberId) internal view returns (bool) {
-    (RoleEntity storage roleEntity, bool result) = _data.roleTryReadSlot(roleId);
-    if(!result) return false;
-
-    (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(roleEntity.typeId);
-    if(!result1) return false;  
-
-    return typeEntity.members[memberId] != bytes32(0);
   }
  
   function functionGetInfo(bytes32 functionId) external view returns (FunctionInfo memory) {

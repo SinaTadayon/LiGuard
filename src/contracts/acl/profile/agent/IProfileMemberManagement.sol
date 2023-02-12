@@ -48,9 +48,9 @@ interface IProfileMemberManagement is IACLCommons {
     address indexed sender, 
     bytes32 indexed profileId,
     bytes32 indexed memberId, 
-    address account,    
     bytes32 roleId,
-    bytes32 adminId 
+    bytes32 adminId,
+    ProfileRegisterLimit registerLimit 
   );
 
   event ProfileMemberTypeLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed memberId, uint16 typeLimit);

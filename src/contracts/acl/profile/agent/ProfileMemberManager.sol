@@ -20,7 +20,7 @@ import "../../../proxy/IProxy.sol";
 import "../../../proxy/BaseUUPSProxy.sol";
 
 /**
- * @title ACL Profile Memeber Manager Contract
+ * @title ACL Profile Member Manager Contract
  * @author Sina Tadayon, https://github.com/SinaTadayon
  * @dev
  *
@@ -62,8 +62,15 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
   function profileMemberRegister(bytes32 profileId, ProfileMemberRegisterRequest[] calldata requests) external returns (bool) {
 
     (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 senderId) = _accessPermission(profileId, IProfileMemberManagement.profileMemberRegister.selector);
-    LProfileCommons.profileCheckMemberForMemberRegister(profileEntity, uint16(requests.length), senderId);
-    for (uint256 i = 0; i < requests.length; i++) {            
+    ProfileMemberEntity storage profileMemberEntity = LProfileCommons.profileCheckMemberForMemberRegister(profileEntity, uint16(requests.length), senderId);
+    for (uint256 i = 0; i < requests.length; i++) {
+      // check register limits
+      if(profileMemberEntity.types.contains(_LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID)) {
+        _doCheckRegisterLimit(profileEntity.registerLimits, requests[i].registerLimit);
+      } else {
+        _doCheckRegisterLimit(profileMemberEntity.registerLimits, requests[i].registerLimit);
+      }
+                   
       _doProfileMemberRegister(profileEntity, requests[i], functionEntity, senderId, profileId);
     }
 
@@ -127,9 +134,16 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
 
   function profileMemberUpdateRegisterLimit(bytes32 profileId, ProfileMemberUpdateRegisterLimitRequest[] calldata requests) external returns (bool) {
     (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 senderId) = _accessPermission(profileId, IProfileMemberManagement.profileMemberUpdateRegisterLimit.selector);
+    ProfileMemberEntity storage senderMemberEntity = profileEntity.profileMemberReadSlot(senderId);
     for(uint i = 0; i < requests.length; i++) {
       ProfileMemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(profileEntity, functionEntity, requests[i].memberId, senderId);
-      _doCheckRegisterLimit(profileEntity, requests[i].registerLimit);
+     
+      // check register limits
+      if(memberEntity.types.contains(_LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID)) {
+        _doCheckRegisterLimit(profileEntity.registerLimits, requests[i].registerLimit);
+      } else {
+        _doCheckRegisterLimit(senderMemberEntity.registerLimits, requests[i].registerLimit);
+      }
       memberEntity.registerLimits = requests[i].registerLimit;
       emit ProfileMemberRegisterLimitUpdated(msg.sender, profileId, requests[i].memberId, requests[i].registerLimit);
     }
@@ -235,9 +249,6 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
     bytes32 newMemberId = LACLUtils.accountGenerateId(memberRequest.account);  
     require(profileEntity.agents[newMemberId].acstat == ActivityStatus.NONE, "Already Exist");
 
-    // check register limits
-    _doCheckRegisterLimit(profileEntity, memberRequest.registerLimit);
-          
     // check role
     RoleEntity storage roleEntity = profileEntity.profileRoleReadSlot(memberRequest.roleId);
     require(roleEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Role Updatable");
@@ -288,21 +299,21 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
       msg.sender,
       profileId,
       newMemberId,
-      memberRequest.account,
       memberRequest.roleId,
-      newMember.ba.adminId
+      newMember.ba.adminId,
+      memberRequest.registerLimit      
     );
   }
 
-  function _doCheckRegisterLimit(ProfileEntity storage profileEntity, ProfileRegisterLimit calldata registerLimitRequest) internal view {
-    require(profileEntity.registerLimits.memberRegisterLimit >= registerLimitRequest.memberRegisterLimit, "Illegal MemberRegister");
-    require(profileEntity.registerLimits.roleRegisterLimit >= registerLimitRequest.roleRegisterLimit , "Illegal RoleRegister");
-    require(profileEntity.registerLimits.typeRegisterLimit >= registerLimitRequest.typeRegisterLimit, "Illegal TypeRegister");
-    require(profileEntity.registerLimits.functionRegisterLimit >= registerLimitRequest.functionRegisterLimit, "Illegal FunctionRegister");
-    require(profileEntity.registerLimits.contextRegisterLimit >= registerLimitRequest.contextRegisterLimit, "Illegal ContextRegister");
-    require(profileEntity.registerLimits.realmRegisterLimit >= registerLimitRequest.realmRegisterLimit, "Illegal RealmRegister");
-    require(profileEntity.registerLimits.domainRegisterLimit >= registerLimitRequest.domainRegisterLimit, "Illegal DomainRegister");
-    require(profileEntity.registerLimits.policyRegisterLimit >= registerLimitRequest.policyRegisterLimit, "Illegal PolicyRegister");
+  function _doCheckRegisterLimit(ProfileRegisterLimit storage registerLimits, ProfileRegisterLimit calldata registerLimitRequest) internal view {
+    require(registerLimits.memberRegisterLimit >= registerLimitRequest.memberRegisterLimit, "Illegal MemberRegisterLimit");
+    require(registerLimits.roleRegisterLimit >= registerLimitRequest.roleRegisterLimit , "Illegal RoleRegisterLimit");
+    require(registerLimits.typeRegisterLimit >= registerLimitRequest.typeRegisterLimit, "Illegal TypeRegisterLimit");
+    require(registerLimits.functionRegisterLimit >= registerLimitRequest.functionRegisterLimit, "Illegal FunctionRegisterLimit");
+    require(registerLimits.contextRegisterLimit >= registerLimitRequest.contextRegisterLimit, "Illegal ContextRegisterLimit");
+    require(registerLimits.realmRegisterLimit >= registerLimitRequest.realmRegisterLimit, "Illegal RealmRegisterLimit");
+    require(registerLimits.domainRegisterLimit >= registerLimitRequest.domainRegisterLimit, "Illegal DomainRegisterLimit");
+    require(registerLimits.policyRegisterLimit >= registerLimitRequest.policyRegisterLimit, "Illegal PolicyRegisterLimit");
   }
 
   function getLibrary() external pure returns (address) {

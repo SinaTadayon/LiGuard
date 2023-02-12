@@ -217,7 +217,7 @@ contract ProfilePolicyManager is ACLStorage, BaseUUPSProxy, IProfilePolicyManage
   }
 
   function profilePolicyGetInfoByRole(bytes32 profileId, bytes32 roleId) external view returns (ProfilePolicyInfo memory) {
-    return _doPolicyGetInfo(_data.profiles[profileId].rolePolicyMap[roleId], roleId);
+    return _doPolicyGetInfo(profileId, _data.profiles[profileId].rolePolicyMap[roleId]);
   }
 
   function profilePolicyGetInfo(bytes32 profileId, bytes32 policyId) external view returns (ProfilePolicyInfo memory) {
@@ -279,10 +279,6 @@ contract ProfilePolicyManager is ACLStorage, BaseUUPSProxy, IProfilePolicyManage
     if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
     return policyEntity;
   }
-
-  // function _getAndCheckRequestScope(ProfileEntity storage profileEntity, bytes32 requestScopeId, bytes32 senderScopeId, ScopeType senderScopeType, bytes32 profileId) internal view returns (BaseScope storage){
-  //   return LProfileRolePolicy.profileGetAndCheckRequestScope(profileEntity, requestScopeId, senderScopeId, senderScopeType, profileId);
-  // }     
 
   function getLibrary() external pure returns (address) {
     return address(LProfileRolePolicy);

@@ -180,7 +180,7 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
         
         } else {
           require(memberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
-          require(memberEntity.limits.typeLimit > memberEntity.types.length(), "Illegal Member Types");
+          require(memberEntity.limits.typeLimit > memberEntity.types.length(), "Illegal Member TypeLimit");
 
           if((memberEntity.types.contains(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID) || 
               memberEntity.types.contains(_LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID)) &&
@@ -275,7 +275,7 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
     (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(roleEntity.typeId);
     if(!result1) return false;  
 
-    return typeEntity.members[memberId] != bytes32(0);
+    return typeEntity.members[memberId] == roleId;
   }
 
   function roleGetInfo(bytes32 roleId) external view returns (RoleInfo memory) {

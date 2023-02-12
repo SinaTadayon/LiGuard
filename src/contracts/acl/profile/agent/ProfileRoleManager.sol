@@ -156,11 +156,13 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
 
         } else {
           require(profileMemberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
-          require(profileMemberEntity.typeLimit > profileMemberEntity.types.length(), "Illegal TypeLimit");
+          require(profileMemberEntity.typeLimit > profileMemberEntity.types.length(), "Illegal Member TypeLimit");
           _updateProfileAccount(profileId, roleEntity.typeId, profileMemberEntity, false);
           // check and add member from admin
           if(roleEntity.typeId == _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID) 
-            profileEntity.admins.add(requests[i].members[j]);          
+            profileEntity.admins.add(requests[i].members[j]);
+
+          profileMemberEntity.types.add(roleEntity.typeId);
         }
 
         typeEntity.members[requests[i].members[j]] = requests[i].roleId;
@@ -262,10 +264,6 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
   function _getRoleAdmin(ProfileEntity storage profileEntity, ScopeType requestScopeType, bytes32 requestScopeAdmin, bytes32 scopeId, bytes32 adminId, bytes32 profileId) internal view returns (bytes32 roleAdminId) {
     return LProfileRolePolicy.profileGetRoleAdmin(profileEntity, requestScopeType, requestScopeAdmin, scopeId, adminId, profileId);
   }
-
-  // function _getAndCheckRequestScope(ProfileEntity storage profileEntity, bytes32 requestScopeId, bytes32 typeScopeId, bytes32 profileId) internal returns(ScopeType) {
-  //   return LProfileRolePolicy.profileCheckRoleRequestScope(profileEntity, requestScopeId, typeScopeId, profileId);
-  // }
 
   function _doGetEntityAndCheckAdminAccess(ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 roleId, bytes32 senderId) internal view returns (RoleEntity storage) {
     return LProfileRolePolicy.profileGetRoleEntityAndCheckAdminAccess(profileEntity, functionEntity, roleId, senderId);

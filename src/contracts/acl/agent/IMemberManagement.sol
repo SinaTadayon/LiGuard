@@ -42,7 +42,8 @@ interface IMemberManagement is IACLCommons {
     bytes32 indexed memberId, 
     address indexed account,
     bytes32 roleId,
-    bytes32 adminId 
+    bytes32 adminId,
+    GeneralLimit limits 
   );
 
   event MemberGeneralLimitUpdated(address indexed sender, bytes32 indexed memberId, GeneralLimit limits);

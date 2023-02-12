@@ -202,7 +202,13 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
     bytes32 memberId = LACLUtils.accountGenerateId(account);
 
     if(adminAgentType == AgentType.ROLE) {
-      return _doRoleHasMember(typeAdminId, memberId);
+      (RoleEntity storage roleEntity, bool result) = _data.roleTryReadSlot(typeAdminId);
+      if(!result) return false;
+
+      (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(roleEntity.typeId);
+      if(!result1) return false;  
+
+      return typeEntity.members[memberId] != typeAdminId;
     
     } else if(adminAgentType == AgentType.TYPE) {
       (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(typeAdminId);
@@ -257,16 +263,6 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
       alstat: te.ba.alstat,
       name: te.name
     });
-  }
-
-  function _doRoleHasMember(bytes32 roleId, bytes32 memberId) internal view returns (bool) {
-    (RoleEntity storage roleEntity, bool result) = _data.roleTryReadSlot(roleId);
-    if(!result) return false;
-
-    (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(roleEntity.typeId);
-    if(!result1) return false;  
-
-    return typeEntity.members[memberId] != bytes32(0);
   }
 
   function _doAgentGetScopeInfo(bytes32 agentId) internal view returns (ScopeType, bytes32) {

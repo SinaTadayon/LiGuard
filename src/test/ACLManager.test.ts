@@ -8932,7 +8932,7 @@ describe("Lively Guard Tests",
 
         // when
         await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleGrantMembers(requests))
-          .revertedWith("Illegal Member Types")
+          .revertedWith("Illegal Member TypeLimit")
       })
 
       it("Should revoke member from aclRoleTest and delete user3 success", async() => {
