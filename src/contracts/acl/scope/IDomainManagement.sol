@@ -35,8 +35,9 @@ interface IDomainManagement is IACLCommons {
 
   struct DomainInfo {
     bytes32 adminId;
+    bytes32 globalId;
     uint16 realmLimit;
-    uint16 realmCount;
+    uint16 realmCount;    
     uint32 referredByAgent;
     ScopeType stype;
     AgentType adminType;

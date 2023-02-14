@@ -110,6 +110,7 @@ interface IACLCommons{
 
   struct DomainEntity {
     BaseScope bs;
+    bytes32 globalId;
     uint16 realmLimit;
     string name;
     LEnumerableSet.Bytes32Set realms;

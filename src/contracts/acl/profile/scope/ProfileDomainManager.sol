@@ -236,6 +236,7 @@ contract ProfileDomainManager is ACLStorage, BaseUUPSProxy, IProfileDomainManage
     if(!result || profileEntity.acstat == ActivityStatus.NONE) {
       return ProfileDomainInfo ({
         adminId: bytes32(0),
+        globalId: bytes32(0),
         realmLimit: 0,
         realmCount: 0,
         referredByAgent: 0,
@@ -249,6 +250,7 @@ contract ProfileDomainManager is ACLStorage, BaseUUPSProxy, IProfileDomainManage
 
     return ProfileDomainInfo ({
       adminId: de.bs.adminId,
+      globalId: de.globalId,
       realmLimit: de.realmLimit,
       realmCount: uint16(de.realms.length()),
       referredByAgent: de.bs.referredByAgent,
@@ -281,18 +283,14 @@ contract ProfileDomainManager is ACLStorage, BaseUUPSProxy, IProfileDomainManage
   function _accessPermission(bytes32 profileId, bytes4 selector) internal returns (ProfileEntity storage, FunctionEntity storage, bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
-    ProfileEntity storage profileEntity = _data.profiles[profileId];
-    if(profileEntity.acstat != ActivityStatus.ENABLED) {
-      LACLUtils.generateProfileAuthorizationError(IProfileACL.ProfileAuthorizationStatus.PROFILE_ACTIVITY_FORBIDDEN);
-    }
     address functionFacetId = _data.selectors[selector];
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector); 
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
 
-    (FunctionEntity storage functionEntity, bool res) = _data.functionTryReadSlot(functionId);
-    if (!res) LACLUtils.generateProfileAdminAccessError(IProfileACL.ProfileAdminAccessStatus.FUNCTION_NOT_FOUND);
-
     ProfileAccessControl(payable(address(this))).profileAclHasMemberAccess(profileId, functionId, senderId);    
+    
+    ProfileEntity storage profileEntity = _data.profiles[profileId];
+    FunctionEntity storage functionEntity = _data.functionReadSlot(functionId);      
     return (profileEntity, functionEntity, senderId);
   }
 

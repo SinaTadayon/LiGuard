@@ -248,8 +248,6 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
       return ContextInfo ({
         realmId: bytes32(0),
         adminId: bytes32(0),
-        name: "",
-        version: "",
         contractId: address(0),
         functionCount: 0,
         functionLimit: 0,
@@ -264,8 +262,6 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     return ContextInfo ({
       realmId: ce.realmId,
       adminId: ce.bs.adminId,
-      name: IProxy(ce.contractId).contractName(),
-      version: IProxy(ce.contractId).contractVersion(),
       contractId: ce.contractId,
       functionCount: uint8(ce.functions.length()),
       functionLimit: ce.functionLimit,

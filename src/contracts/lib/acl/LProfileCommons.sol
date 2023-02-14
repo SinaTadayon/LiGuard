@@ -54,10 +54,6 @@ library LProfileCommons {
     return _doGetAgentScopeInfo(profileEntity, agentId);
   }
 
-  // function profileGetContextAdmin(IACLCommons.ProfileEntity storage profileEntity, IProfileContextManagement.ProfileContextRegisterRequest calldata request, bytes32 profileId, bytes32 scopeId, bytes32 requestScopeAdmin) external view returns (bytes32 contextAdminId) {
-  //   return _doGetContextAdmin(profileEntity, request, profileId, scopeId, requestScopeAdmin);
-  // }
-
   function profileRegisterContext(ACLStorage.DataCollection storage data, IProfileContextManagement.ProfileContextRegisterRequest calldata request, bytes32 profileId, address contractId, address signer) external returns (bytes32){
     
     bytes32 functionId = LACLUtils.functionGenerateId(data.selectors[IProfileContextManagement.profileContextRegister.selector], IProfileContextManagement.profileContextRegister.selector);
@@ -136,7 +132,7 @@ library LProfileCommons {
     profileEntity.registerLimits.realmRegisterLimit -= requestLength;
   }
 
-  function profileCheckMemberForMemberRegister(IACLCommons.ProfileEntity storage profileEntity, uint16 requestLength, bytes32 senderId) external returns (IACLCommons.ProfileMemberEntity storage){
+  function profileCheckMemberForMemberRegister(IACLCommons.ProfileEntity storage profileEntity, IACLCommons.ProfileMemberEntity storage, uint16 requestLength, bytes32 senderId) external {
     // check profile and member limitations and update it
     IACLCommons.ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(senderId);
     require(profileMemberEntity.ba.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
@@ -144,8 +140,7 @@ library LProfileCommons {
     require(int32(profileMemberEntity.registerLimits.memberRegisterLimit) - int16(requestLength) >= 0, "Illegal Member MemberRegisterLimit");
     require(int32(profileEntity.registerLimits.memberRegisterLimit) - int16(requestLength) >= 0, "Illegal Profile MemberRegisterLimit");
     profileMemberEntity.registerLimits.memberRegisterLimit -= requestLength;
-    profileEntity.registerLimits.memberRegisterLimit -= requestLength;
-    return profileMemberEntity;
+    profileEntity.registerLimits.memberRegisterLimit -= requestLength;  
   }
 
   function profileDomainRegister(IACLCommons.ProfileEntity storage profileEntity, IProfileDomainManagement.ProfileDomainRegisterRequest calldata request, IACLCommons.FunctionEntity storage functionEntity, bytes32 senderId) external returns (bytes32) {
@@ -171,6 +166,7 @@ library LProfileCommons {
     newDomain.bs.acstat = IACLCommons.ActivityStatus.ENABLED;
     newDomain.bs.alstat = IACLCommons.AlterabilityStatus.UPDATABLE;      
     newDomain.name = request.name;
+    newDomain.globalId = LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID;
     newDomain.realmLimit = request.realmLimit >= 0 ? uint16(uint24(request.realmLimit)) : profileEntity.limits.realmLimit;
     
     // checking requested domain admin 
@@ -487,6 +483,7 @@ library LProfileCommons {
 
       (IACLCommons.ScopeType requestAdminFuncType, bytes32 requestAdminFuncId) = _doGetAgentScopeInfo(profileEntity, adminId);
       require(IACLCommons.ScopeType.CONTEXT <= requestAdminFuncType, "Illegal Admin ScopeType");
+            
       if(IACLCommons.ScopeType.CONTEXT == requestAdminFuncType) {  
         require(requestAdminFuncId == contextAdminId, "Illegal Admin Scope");
       

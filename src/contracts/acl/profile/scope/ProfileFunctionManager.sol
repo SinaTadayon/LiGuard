@@ -122,7 +122,7 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
     (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 senderId) = _accessPermission(profileId, IProfileFunctionManagement.profileFunctionUpdateAdmin.selector);      
     for (uint i = 0; i < requests.length; i++) {    
       FunctionEntity storage functionData = _doGetEntityAndCheckAdminAccess(profileEntity, functionEntity, requests[i].entityId, senderId);
-      functionData.bs.adminId = _doGetAndCheckFunctionAdmin(profileEntity, profileEntity.scopes[functionEntity.contextId].adminId, functionEntity.contextId, requests[i].adminId, profileId);
+      functionData.bs.adminId = _doGetAndCheckFunctionAdmin(profileEntity, profileEntity.scopes[functionEntity.contextId].adminId, functionData.contextId, requests[i].adminId, profileId);
       emit ProfileFunctionAdminUpdated(msg.sender, profileId, requests[i].entityId, requests[i].adminId);
     }
     return true;  
@@ -155,7 +155,7 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
     for (uint i = 0; i < requests.length; i++) {  
       FunctionEntity storage functionData = profileEntity.profileFunctionReadSlot(requests[i].entityId);
       require(functionData.bs.acstat > ActivityStatus.DELETED, "Function Deleted");
-      IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, functionEntity, functionEntity.bs.adminId, senderId);
+      IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, functionEntity, functionData.bs.adminId, senderId);
       if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);        
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       functionData.bs.alstat = requests[i].alstat;
@@ -282,27 +282,22 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
   function _accessPermission(bytes32 profileId, bytes4 selector) internal returns (ProfileEntity storage, FunctionEntity storage, bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
-    ProfileEntity storage profileEntity = _data.profiles[profileId];
-    if(profileEntity.acstat != ActivityStatus.ENABLED) {
-      LACLUtils.generateProfileAuthorizationError(IProfileACL.ProfileAuthorizationStatus.PROFILE_ACTIVITY_FORBIDDEN);
-    }
     address functionFacetId = _data.selectors[selector];
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector); 
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
 
-    (FunctionEntity storage functionEntity, bool res) = _data.functionTryReadSlot(functionId);
-    if (!res) LACLUtils.generateProfileAdminAccessError(IProfileACL.ProfileAdminAccessStatus.FUNCTION_NOT_FOUND);
-
     ProfileAccessControl(payable(address(this))).profileAclHasMemberAccess(profileId, functionId, senderId);    
+    
+    ProfileEntity storage profileEntity = _data.profiles[profileId];
+    FunctionEntity storage functionEntity = _data.functionReadSlot(functionId);      
     return (profileEntity, functionEntity, senderId);
   }
-
 
   function _doGetEntityAndCheckAdminAccess(ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 fId, bytes32 senderId) internal view returns (FunctionEntity storage) {
     FunctionEntity storage functionEntityData = profileEntity.profileFunctionReadSlot(fId);
     require(functionEntityData.bs.acstat > ActivityStatus.DELETED, "Function Deleted");
     require(functionEntityData.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-    IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, functionEntity, functionEntity.bs.adminId, senderId);
+    IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, functionEntity, functionEntityData.bs.adminId, senderId);
     if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
     return functionEntityData;
   } 

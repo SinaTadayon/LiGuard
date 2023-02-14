@@ -19,6 +19,8 @@ import "../../../lib/acl/LProfileCommons.sol";
 import "../../../proxy/IProxy.sol";
 import "../../../proxy/BaseUUPSProxy.sol";
 
+import "hardhat/console.sol";
+
 /**
  * @title ACL Profile Member Manager Contract
  * @author Sina Tadayon, https://github.com/SinaTadayon
@@ -62,13 +64,15 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
   function profileMemberRegister(bytes32 profileId, ProfileMemberRegisterRequest[] calldata requests) external returns (bool) {
 
     (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 senderId) = _accessPermission(profileId, IProfileMemberManagement.profileMemberRegister.selector);
-    ProfileMemberEntity storage profileMemberEntity = LProfileCommons.profileCheckMemberForMemberRegister(profileEntity, uint16(requests.length), senderId);
+    ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(senderId);
+    uint32 memberRegisterLimit = profileMemberEntity.registerLimits.memberRegisterLimit;
+    LProfileCommons.profileCheckMemberForMemberRegister(profileEntity, profileMemberEntity, uint16(requests.length), senderId);
     for (uint256 i = 0; i < requests.length; i++) {
       // check register limits
       if(profileMemberEntity.types.contains(_LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID)) {
-        _doCheckRegisterLimit(profileEntity.registerLimits, requests[i].registerLimit);
+        _doCheckRegisterLimit(profileEntity.registerLimits, requests[i].registerLimit, memberRegisterLimit, true);
       } else {
-        _doCheckRegisterLimit(profileMemberEntity.registerLimits, requests[i].registerLimit);
+        _doCheckRegisterLimit(profileMemberEntity.registerLimits, requests[i].registerLimit, memberRegisterLimit, true);
       }
                    
       _doProfileMemberRegister(profileEntity, requests[i], functionEntity, senderId, profileId);
@@ -140,9 +144,9 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
      
       // check register limits
       if(memberEntity.types.contains(_LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID)) {
-        _doCheckRegisterLimit(profileEntity.registerLimits, requests[i].registerLimit);
+        _doCheckRegisterLimit(profileEntity.registerLimits, requests[i].registerLimit, 0, false);
       } else {
-        _doCheckRegisterLimit(senderMemberEntity.registerLimits, requests[i].registerLimit);
+        _doCheckRegisterLimit(senderMemberEntity.registerLimits, requests[i].registerLimit, 0, false);
       }
       memberEntity.registerLimits = requests[i].registerLimit;
       emit ProfileMemberRegisterLimitUpdated(msg.sender, profileId, requests[i].memberId, requests[i].registerLimit);
@@ -200,18 +204,14 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
   function _accessPermission(bytes32 profileId, bytes4 selector) internal returns (ProfileEntity storage, FunctionEntity storage, bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
-    ProfileEntity storage profileEntity = _data.profiles[profileId];
-    if(profileEntity.acstat != ActivityStatus.ENABLED) {
-      LACLUtils.generateProfileAuthorizationError(IProfileACL.ProfileAuthorizationStatus.PROFILE_ACTIVITY_FORBIDDEN);
-    }
     address functionFacetId = _data.selectors[selector];
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector); 
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
 
-    (FunctionEntity storage functionEntity, bool res) = _data.functionTryReadSlot(functionId);
-    if (!res) LACLUtils.generateProfileAdminAccessError(IProfileACL.ProfileAdminAccessStatus.FUNCTION_NOT_FOUND);
-
     ProfileAccessControl(payable(address(this))).profileAclHasMemberAccess(profileId, functionId, senderId);    
+    
+    ProfileEntity storage profileEntity = _data.profiles[profileId];
+    FunctionEntity storage functionEntity = _data.functionReadSlot(functionId);      
     return (profileEntity, functionEntity, senderId);
   }
 
@@ -305,8 +305,13 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
     );
   }
 
-  function _doCheckRegisterLimit(ProfileRegisterLimit storage registerLimits, ProfileRegisterLimit calldata registerLimitRequest) internal view {
-    require(registerLimits.memberRegisterLimit >= registerLimitRequest.memberRegisterLimit, "Illegal MemberRegisterLimit");
+  function _doCheckRegisterLimit(ProfileRegisterLimit storage registerLimits, ProfileRegisterLimit calldata registerLimitRequest, uint32 memberRegisterLimit, bool isMemberRegister) internal view {
+  
+    if(isMemberRegister) {
+      require(memberRegisterLimit >= registerLimitRequest.memberRegisterLimit, "Illegal MemberRegisterLimit");
+    } else {
+      require(registerLimits.memberRegisterLimit >= registerLimitRequest.memberRegisterLimit, "Illegal MemberRegisterLimit");
+    }
     require(registerLimits.roleRegisterLimit >= registerLimitRequest.roleRegisterLimit , "Illegal RoleRegisterLimit");
     require(registerLimits.typeRegisterLimit >= registerLimitRequest.typeRegisterLimit, "Illegal TypeRegisterLimit");
     require(registerLimits.functionRegisterLimit >= registerLimitRequest.functionRegisterLimit, "Illegal FunctionRegisterLimit");

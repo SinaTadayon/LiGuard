@@ -36,8 +36,6 @@ interface IContextManagement is IACLCommons{
   struct ContextInfo {
     bytes32 realmId;
     bytes32 adminId;
-    string name;
-    string version;
     address contractId;
     uint8 functionCount;
     uint8 functionLimit;

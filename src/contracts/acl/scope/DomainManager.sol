@@ -92,7 +92,8 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
       DomainEntity storage newDomain = _data.domainWriteSlot(newDomainId);
       newDomain.bs.stype = ScopeType.DOMAIN;
       newDomain.bs.acstat = requests[i].acstat;
-      newDomain.bs.alstat = requests[i].alstat;      
+      newDomain.bs.alstat = requests[i].alstat;
+      newDomain.globalId = _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
       newDomain.name = requests[i].name;
       newDomain.realmLimit = requests[i].realmLimit >= 0 ? uint16(uint24(requests[i].realmLimit)) : memberEntity.limits.realmLimit;
        
@@ -109,6 +110,7 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
       emit DomainRegistered(
         msg.sender,
         newDomainId,
+
         requests[i].adminId
       );
     }
@@ -267,6 +269,7 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
     if(!result) {
       return DomainInfo ({
         adminId: bytes32(0),
+        globalId: bytes32(0),
         realmLimit: 0,
         realmCount: 0,
         referredByAgent: 0,
@@ -280,6 +283,7 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
 
     return DomainInfo ({
       adminId: de.bs.adminId,
+      globalId: de.globalId,
       realmLimit: de.realmLimit,
       realmCount: uint16(de.realms.length()),
       referredByAgent: de.bs.referredByAgent,

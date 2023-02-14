@@ -242,8 +242,6 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
       return ProfileContextInfo ({
         realmId: bytes32(0),
         adminId: bytes32(0),
-        name: "",
-        version: "",
         contractId: address(0),
         functionCount: 0,
         functionLimit: 0,
@@ -258,8 +256,6 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
     return ProfileContextInfo ({
       realmId: ce.realmId,
       adminId: ce.bs.adminId,
-      name: IProxy(ce.contractId).contractName(),
-      version: IProxy(ce.contractId).contractVersion(),
       contractId: ce.contractId,
       functionCount: uint8(ce.functions.length()),
       functionLimit: ce.functionLimit,
@@ -286,24 +282,19 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
     return LProfileCommons.profileAgentGetScopeInfo(profileEntity, agentId);
   }
 
-   function _accessPermission(bytes32 profileId, bytes4 selector) internal returns (ProfileEntity storage, FunctionEntity storage, bytes32) {
+  function _accessPermission(bytes32 profileId, bytes4 selector) internal returns (ProfileEntity storage, FunctionEntity storage, bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
-    ProfileEntity storage profileEntity = _data.profiles[profileId];
-    if(profileEntity.acstat != ActivityStatus.ENABLED) {
-      LACLUtils.generateProfileAuthorizationError(IProfileACL.ProfileAuthorizationStatus.PROFILE_ACTIVITY_FORBIDDEN);
-    }
     address functionFacetId = _data.selectors[selector];
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector); 
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
 
-    (FunctionEntity storage functionEntity, bool res) = _data.functionTryReadSlot(functionId);
-    if (!res) LACLUtils.generateProfileAdminAccessError(IProfileACL.ProfileAdminAccessStatus.FUNCTION_NOT_FOUND);
-
     ProfileAccessControl(payable(address(this))).profileAclHasMemberAccess(profileId, functionId, senderId);    
+    
+    ProfileEntity storage profileEntity = _data.profiles[profileId];
+    FunctionEntity storage functionEntity = _data.functionReadSlot(functionId);      
     return (profileEntity, functionEntity, senderId);
   }
-
 
   function _doGetEntityAndCheckAdminAccess(ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 contextId, bytes32 senderId) internal view returns (ContextEntity storage) {
     ContextEntity storage contextEntity = profileEntity.profileContextReadSlot(contextId);

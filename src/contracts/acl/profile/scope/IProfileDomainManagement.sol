@@ -33,6 +33,7 @@ interface IProfileDomainManagement is IACLCommons {
 
   struct ProfileDomainInfo {
     bytes32 adminId;
+    bytes32 globalId;
     uint16 realmLimit;
     uint16 realmCount;
     uint32 referredByAgent;

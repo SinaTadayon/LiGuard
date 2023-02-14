@@ -60,8 +60,7 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
 
     // check and set
     MemberEntity storage memberEntity = _data.memberReadSlot(senderId);
-    require(int32(uint32(memberEntity.limits.memberRegisterLimit)) - int16(uint16(requests.length)) >= 0, "Illegal RegisterLimit");
-    memberEntity.limits.memberRegisterLimit -= uint16(requests.length);    
+    require(int32(uint32(memberEntity.limits.memberRegisterLimit)) - int16(uint16(requests.length)) >= 0, "Illegal RegisterLimit");  
 
     for (uint256 i = 0; i < requests.length; i++) {
       _doMemberRegister(requests[i], memberEntity, functionId, senderId);
@@ -129,7 +128,8 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
       //   requests[i].limits
       // );
     }
-
+    
+    memberEntity.limits.memberRegisterLimit -= uint16(requests.length);
     return true;
   }
 

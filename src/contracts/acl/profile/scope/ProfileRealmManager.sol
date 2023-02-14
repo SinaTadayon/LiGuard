@@ -288,18 +288,14 @@ contract ProfileRealmManager is ACLStorage, BaseUUPSProxy, IProfileRealmManageme
   function _accessPermission(bytes32 profileId, bytes4 selector) internal returns (ProfileEntity storage, FunctionEntity storage, bytes32) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
     
-    ProfileEntity storage profileEntity = _data.profiles[profileId];
-    if(profileEntity.acstat != ActivityStatus.ENABLED) {
-      LACLUtils.generateProfileAuthorizationError(IProfileACL.ProfileAuthorizationStatus.PROFILE_ACTIVITY_FORBIDDEN);
-    }
     address functionFacetId = _data.selectors[selector];
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector); 
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
 
-    (FunctionEntity storage functionEntity, bool res) = _data.functionTryReadSlot(functionId);
-    if (!res) LACLUtils.generateProfileAdminAccessError(IProfileACL.ProfileAdminAccessStatus.FUNCTION_NOT_FOUND);
-
     ProfileAccessControl(payable(address(this))).profileAclHasMemberAccess(profileId, functionId, senderId);    
+    
+    ProfileEntity storage profileEntity = _data.profiles[profileId];
+    FunctionEntity storage functionEntity = _data.functionReadSlot(functionId);      
     return (profileEntity, functionEntity, senderId);
   }
 

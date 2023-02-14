@@ -34,8 +34,6 @@ interface IProfileContextManagement is IACLCommons {
   struct ProfileContextInfo {
     bytes32 realmId;
     bytes32 adminId;
-    string name;
-    string version;
     address contractId;
     uint8 functionCount;
     uint8 functionLimit;
