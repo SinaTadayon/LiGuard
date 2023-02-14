@@ -201,7 +201,7 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
           profileEntity.admins.remove(requests[i].members[j]);
         }
         
-        if(profileMemberEntity.types.length() == 0) {
+        if(profileMemberEntity.types.length() == 0) {          
           _updateProfileAccount(profileId, roleEntity.typeId, profileMemberEntity, true);
           delete profileMemberEntity.ba;
           delete profileMemberEntity.callLimit;

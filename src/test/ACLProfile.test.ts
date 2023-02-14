@@ -7467,7 +7467,6 @@ describe("Lively Guard Profile Tests", function() {
         // given
         const requests: IProfileManagement.ProfileUpdateOwnerAccountRequestStruct[] = [{
           profileId: profileTestId,
-          owner: profileOwnerWallet.address,
           newOwner: profileOwnerWallet2.address
         }]
 
@@ -7681,11 +7680,10 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(livelyAdminWallet.address, profileTestId, LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
       })
 
-      it("Should update profile OwnerAccount by someone failed", async() => {
+      it("Should update profile OwnerAccount of profileTestId by someone failed", async() => {
         // given
         const requests: IProfileManagement.ProfileUpdateOwnerAccountRequestStruct[] = [{
           profileId: profileTestId,
-          owner: profileOwnerWallet.address,
           newOwner: profileOwnerWallet2.address
         }]
 
@@ -7694,11 +7692,10 @@ describe("Lively Guard Profile Tests", function() {
           .to.revertedWith("ACLMemberNotFound()");
       })
 
-      it("Should update profile OwnerAccount success", async() => {
+      it("Should update profile OwnerAccount of profileTestId success", async() => {
         // given
         const requests: IProfileManagement.ProfileUpdateOwnerAccountRequestStruct[] = [{
           profileId: profileTestId,
-          owner: profileOwnerWallet.address,
           newOwner: profileOwnerWallet2.address
         }]
 
@@ -7739,6 +7736,54 @@ describe("Lively Guard Profile Tests", function() {
         expect(profileInfo.registerLimits).to.be.eql([13, 13, 13, 13, 13, 13, 13, 13]);
         expect(profileInfo.limits).to.be.eql([512, 20, 20, 20, 20, 20, 20, 20, 20, 20]);
         expect(profileInfo.adminType).to.be.equal(AgentType.ROLE);
+        expect(profileInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(profileInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+      })
+
+      it("Should update profile OwnerAccount of profileTestId2 success", async() => {
+        // given
+        const requests: IProfileManagement.ProfileUpdateOwnerAccountRequestStruct[] = [{
+          profileId: profileTestId2,
+          newOwner: profileOwnerWallet.address
+        }]
+
+        // when
+        await expect(profileManagerDelegateProxy.connect(livelyAdmin).profileUpdateOwnerAccount(requests))
+          .to.emit(profileManagerDelegateProxy, "ProfileOwnerAccountUpdated")
+          .withArgs(livelyAdminWallet.address, profileTestId2, profileOwnerWallet2.address, profileOwnerWallet.address)
+
+        // then
+        expect(await profileManagerDelegateProxy.profileCheckId(profileTestId2)).to.be.true;
+        expect(await profileManagerDelegateProxy.profileCheckName(PROFILE_TEST_NAME_2)).to.be.true;
+        expect(await profileManagerDelegateProxy.profileCheckOwner(profileTestId2, profileOwnerWallet.address)).to.be.true;
+        expect(await profileManagerDelegateProxy.profileCheckOwner(profileTestId2, profileOwnerWallet2.address)).to.be.false;
+        expect(await profileManagerDelegateProxy.profileCheckProfileAdmin(profileTestId2, profileOwnerWallet.address)).to.be.true;
+        expect(await profileManagerDelegateProxy.profileCheckProfileAdmin(profileTestId2, profileOwnerWallet2.address)).to.be.false;
+        expect(await profileManagerDelegateProxy.profileCheckProfileAdmin(profileTestId2, profileAdminWallet2.address)).to.be.true;
+        expect(await profileManagerDelegateProxy.profileCheckProfileSystemAdmin(profileTestId2, profileSystemAdminWallet2.address)).to.be.true;
+
+        // and
+        expect(await profileManagerDelegateProxy.profileGetProfileAccount(profileOwnerWallet.address)).to.be.eql([profileTestId2]);
+        expect(await profileManagerDelegateProxy.profileGetProfileAccount(profileOwnerWallet2.address)).to.be.eql([profileTestId]);
+        expect(await profileManagerDelegateProxy.profileGetProfileAccount(profileAdminWallet2.address)).to.be.eql([profileTestId2]);
+        expect(await profileManagerDelegateProxy.profileGetProfileAccount(profileSystemAdminWallet2.address)).to.be.eql([profileTestId2]);
+        expect(await profileManagerDelegateProxy.profileGetAdmins(profileTestId2)).to.be.eql([profileAdminId2, profileOwnerId]);
+
+        // and
+        expect(await profileRoleManagerDelegateProxy.profileRoleHasAccount(profileTestId2, LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID, profileOwnerWallet.address)).to.be.true;
+        expect(await profileRoleManagerDelegateProxy.profileRoleHasAccount(profileTestId2, LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID, profileOwnerWallet2.address)).to.be.false;
+        expect(await profileRoleManagerDelegateProxy.profileRoleHasAccount(profileTestId2, LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID, profileAdminWallet2.address)).to.be.true;
+        expect(await profileRoleManagerDelegateProxy.profileRoleHasAccount(profileTestId2, LIVELY_PROFILE_SYSTEM_MASTER_ADMIN_ROLE_ID, profileSystemAdminWallet2.address)).to.be.true;
+
+        // and
+        const profileInfo: IProfileManagement.ProfileInfoStruct = await profileManagerDelegateProxy.profileGetInfo(profileTestId2);
+        expect(profileInfo.name).to.be.equal(PROFILE_TEST_NAME_2);
+        // expect(profileInfo.expiredAt).to.be.equal(profileExpiredAt2);
+        expect(profileInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_TYPE_ID);
+        expect(profileInfo.owner).to.be.equal(profileOwnerWallet.address);
+        expect(profileInfo.registerLimits).to.be.eql([2,2,2,2,2,2,2,2]);
+        expect(profileInfo.limits).to.be.eql([3,3,3,3,3,3,3,3,3,3]);
+        expect(profileInfo.adminType).to.be.equal(AgentType.TYPE);
         expect(profileInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
         expect(profileInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
       })

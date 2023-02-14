@@ -107,8 +107,9 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
     (bytes32 functionId, bytes32 senderId) = _accessPermission(IProfileManagement.profileUpdateOwnerAccount.selector);
     for(uint i = 0; i < requests.length; i++) {
       ProfileEntity storage profileEntity = _doGetEntityAndCheckAdminAccess(requests[i].profileId, senderId, functionId);
+      address profileOwner = profileEntity.owner;
       LACLCommons.profileUpdateOwnerAccount(_data, profileEntity, requests[i]);
-      emit ProfileOwnerAccountUpdated(msg.sender, requests[i].profileId, requests[i].owner, requests[i].newOwner);
+      emit ProfileOwnerAccountUpdated(msg.sender, requests[i].profileId, profileOwner, requests[i].newOwner);
     }
     return true;
   }

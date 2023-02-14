@@ -203,8 +203,8 @@ library LACLCommons {
   function profileUpdateOwnerAccount(ACLStorage.DataCollection storage data, IACLCommons.ProfileEntity storage profileEntity, IProfileManagement.ProfileUpdateOwnerAccountRequest calldata request) external returns (bool) {
 
     // disable profile owner 
-    require(profileEntity.owner == request.owner, "Illegal Owner");
-    bytes32 ownerId = LACLUtils.accountGenerateId(request.owner);  
+    // require(profileEntity.owner == request.owner, "Illegal Owner");
+    bytes32 ownerId = LACLUtils.accountGenerateId(profileEntity.owner);
     bytes32 newOwnerId = LACLUtils.accountGenerateId(request.newOwner);
  
     // check new ownerId
@@ -216,7 +216,7 @@ library LACLCommons {
     profileMemberEntity.ba.alstat = IACLCommons.AlterabilityStatus.DISABLED;
     profileEntity.admins.remove(ownerId);
   
-    IACLCommons.ProfileAccount storage profileAccount = data.profileAccounts[request.owner];
+    IACLCommons.ProfileAccount storage profileAccount = data.profileAccounts[profileEntity.owner];
     for(uint j = 0; j < profileAccount.profiles.length; j++) {
       if(profileAccount.profiles[j] == request.profileId) {
         if(profileAccount.profiles.length > 1) {

@@ -26,7 +26,6 @@ interface IProfileManagement is IACLCommons {
 
   struct ProfileUpdateOwnerAccountRequest {
     bytes32 profileId;
-    address owner;
     address newOwner;
   }
 
