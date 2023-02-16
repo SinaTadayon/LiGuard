@@ -21,7 +21,6 @@ abstract contract AssetManagerStorageERC20 is BaseUUPSStorage {
     LEnumerableSet.AddressSet assets;
     address assetSubjectId;
     bytes assetSignature;
-    IAssetManagerERC20.TokenSafeModeStatus status;
   }
 
   struct DataCollection {

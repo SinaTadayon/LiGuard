@@ -110,7 +110,6 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
       emit DomainRegistered(
         msg.sender,
         newDomainId,
-
         requests[i].adminId
       );
     }

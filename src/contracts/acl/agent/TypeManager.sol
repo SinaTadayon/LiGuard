@@ -141,7 +141,9 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
       
       BaseScope storage requestScope = _getAndCheckRequestScope(requests[i].scopeId, senderScopeId, senderScopeType);
       BaseScope storage oldScope = _data.scopes[typeEntity.scopeId];
-      require(requestScope.stype > oldScope.stype, "Illegal ScopeType");
+      if(typeEntity.roles.length() > 0) {
+        require(requestScope.stype > oldScope.stype, "Illegal ScopeType");
+      }
       require(oldScope.referredByAgent > 0, "Illeagl ReferredByAgent");
       oldScope.referredByAgent -= 1;
       typeEntity.scopeId = requests[i].scopeId;
@@ -208,7 +210,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
       (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(roleEntity.typeId);
       if(!result1) return false;  
 
-      return typeEntity.members[memberId] != typeAdminId;
+      return typeEntity.members[memberId] == typeAdminId;
     
     } else if(adminAgentType == AgentType.TYPE) {
       (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(typeAdminId);

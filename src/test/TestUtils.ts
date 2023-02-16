@@ -138,12 +138,13 @@ export enum AssetType {
   ERC1155,
 }
 
-export enum TokenSafeModeStatus {
-  DISABLED,
-  ENABLED
-}
+// export enum TokenSafeModeStatus {
+//   DISABLED,
+//   ENABLED
+// }
 
 export enum AssetSafeModeStatus {
+  NONE,
   DISABLED,
   ENABLED
 }

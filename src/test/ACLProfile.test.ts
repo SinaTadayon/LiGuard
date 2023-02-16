@@ -327,7 +327,7 @@ describe("Lively Guard Profile Tests", function() {
     const DOMAIN_MANAGER_CONTRACT_NAME = "DomainManager";
     const GLOBAL_MANAGER_CONTRACT_NAME = "GlobalManager";
     const POLICY_MANAGER_CONTRACT_NAME = "PolicyManager";
-    const PROFILE_MANAGER_CONTRACT_NAME = "PolicyManager";
+    const PROFILE_MANAGER_CONTRACT_NAME = "ProfileManager";
     const ACCESS_CONTROL_CONTRACT_NAME = "AccessControl";
 
     // profile acl contracts name
@@ -350,11 +350,8 @@ describe("Lively Guard Profile Tests", function() {
     const PROFILE_DOMAIN_TEST_NAME = "ProfileDomainTest";
     const PROFILE_REALM_TEST_NAME = "ProfileRealmTest";
     const PROFILE_MEMBER_MANAGER_CONTRACT_NAME_TEST = "ProfileMemberManagerTest";
-    // const PROFILE_ROLE_MANAGER_CONTRACT_NAME_TEST = "ProfileRoleManagerTest";
-
-
+    
     const memberIface = new ethers.utils.Interface(MemberManager__factory.abi);
-    const profileMemberIface = new ethers.utils.Interface(ProfileMemberManager__factory.abi);
     const profileTestMemberIface = new ethers.utils.Interface(ProfileMemberManagerTest__factory.abi);
 
     this.beforeAll(async () => {
@@ -392,7 +389,7 @@ describe("Lively Guard Profile Tests", function() {
     });
 
     describe("ACL Libraries Deployments Test", function() {
-      it("Should LACLCommons deploy success", async () => {
+      it("Should profile LACLCommons deploy success", async () => {
         // given
         const aclFactory = new LACLCommons__factory(systemAdmin);
 
@@ -405,7 +402,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await lACLCommons.LIB_VERSION()).to.be.equal("3.0.0");
       });
 
-      it("Should LProfileCommons deploy success", async () => {
+      it("Should profile LProfileCommons deploy success", async () => {
         // given
         const aclFactory = new LProfileCommons__factory(systemAdmin);
 
@@ -418,7 +415,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await lProfileCommons.LIB_VERSION()).to.be.equal("3.0.0");
       });
 
-      it("Should LProfileRolePolicy deploy success", async () => {
+      it("Should profile LProfileRolePolicy deploy success", async () => {
         // given
         const aclFactory = new LProfileRolePolicy__factory(systemAdmin);
 
@@ -440,7 +437,7 @@ describe("Lively Guard Profile Tests", function() {
         }
       })
 
-      it("Should MemberManager subject deploy success", async() => {
+      it("Should profile profile MemberManager subject deploy success", async() => {
         // given
         const memberManagerFactory = new MemberManager__factory(<MemberManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
 
@@ -456,7 +453,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await memberManagerSubject.initVersion()).to.be.equal(0);
       })
 
-      it("Should RoleManager subject deploy success", async() => {
+      it("Should profile profile RoleManager subject deploy success", async() => {
         // given
         const roleManagerFactory = new RoleManager__factory(<RoleManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
 
@@ -472,7 +469,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await roleManagerSubject.initVersion()).to.be.equal(0);
       })
 
-      it("Should TypeManager subject deploy success", async() => {
+      it("Should profile TypeManager subject deploy success", async() => {
         // given
         const typeManagerFactory = new TypeManager__factory(<TypeManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
 
@@ -488,7 +485,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await typeManagerSubject.initVersion()).to.be.equal(0);
       })
 
-      it("Should FunctionManager subject deploy success", async() => {
+      it("Should profile FunctionManager subject deploy success", async() => {
         // given
         const functionManagerFactory = new FunctionManager__factory(<FunctionManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
 
@@ -504,7 +501,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await functionManagerSubject.initVersion()).to.be.equal(0);
       })
 
-      it("Should ContextManager subject deploy success", async() => {
+      it("Should profile ContextManager subject deploy success", async() => {
         // given
         const contextManagerFactory = new ContextManager__factory(<ContextManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
 
@@ -520,7 +517,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await contextManagerSubject.initVersion()).to.be.equal(0);
       })
 
-      it("Should RealmManager subject deploy success", async() => {
+      it("Should profile RealmManager subject deploy success", async() => {
         // given
         const realmManagerFactory = new RealmManager__factory(<RealmManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
 
@@ -536,7 +533,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await realmManagerSubject.initVersion()).to.be.equal(0);
       })
 
-      it("Should DomainManager subject deploy success", async() => {
+      it("Should profile DomainManager subject deploy success", async() => {
         // given
         const domainManagerFactory = new DomainManager__factory(<DomainManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
 
@@ -552,7 +549,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await domainManagerSubject.initVersion()).to.be.equal(0);
       })
 
-      it("Should GlobalManager subject deploy success", async() => {
+      it("Should profile GlobalManager subject deploy success", async() => {
         // given
         const globalManagerFactory = new GlobalManager__factory(<GlobalManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
 
@@ -568,7 +565,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await globalManagerSubject.initVersion()).to.be.equal(0);
       })
 
-      it("Should PolicyManager subject deploy success", async() => {
+      it("Should profile PolicyManager subject deploy success", async() => {
         // given
         const policyManagerFactory = new PolicyManager__factory(<PolicyManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
 
@@ -584,7 +581,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await policyManagerSubject.initVersion()).to.be.equal(0);
       })
 
-      it("Should ProfileManager subject deploy success", async() => {
+      it("Should profile ProfileManager subject deploy success", async() => {
         // given
         const profileManagerFactory = new ProfileManager__factory(<ProfileManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
 
@@ -600,7 +597,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileManagerSubject.initVersion()).to.be.equal(0);
       })
 
-      it("Should AccessControl subject deploy success", async() => {
+      it("Should profile AccessControl subject deploy success", async() => {
         // given
         const accessControlFactory = new AccessControl__factory(systemAdmin);
 
@@ -629,7 +626,7 @@ describe("Lively Guard Profile Tests", function() {
         }
       })
 
-      it("Should ProfileMemberManager subject deploy success", async() => {
+      it("Should profile ProfileMemberManager subject deploy success", async() => {
         // given
         const profileMemberManagerFactory = new ProfileMemberManager__factory(<ProfileMemberManagerLibraryAddresses>linkProfileCommonLibraryAddresses, systemAdmin);
 
@@ -645,7 +642,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileMemberManagerSubject.initVersion()).to.be.equal(0);
       })
 
-      it("Should ProfileRoleManager subject deploy success", async() => {
+      it("Should profile ProfileRoleManager subject deploy success", async() => {
         // given
         const profileRoleManagerFactory = new ProfileRoleManager__factory(<ProfileRoleManagerLibraryAddresses>linkProfileRolePolicyLibraryAddresses, systemAdmin);
 
@@ -661,7 +658,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileRoleManagerSubject.initVersion()).to.be.equal(0);
       })
 
-      it("Should ProfileTypeManager subject deploy success", async() => {
+      it("Should profile ProfileTypeManager subject deploy success", async() => {
         // given
         const profileTypeManagerFactory = new ProfileTypeManager__factory(<ProfileTypeManagerLibraryAddresses>linkProfileCommonLibraryAddresses, systemAdmin);
 
@@ -677,7 +674,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileTypeManagerSubject.initVersion()).to.be.equal(0);
       })
 
-      it("Should ProfileFunctionManager subject deploy success", async() => {
+      it("Should profile ProfileFunctionManager subject deploy success", async() => {
         // given
         const profileFunctionManagerFactory = new ProfileFunctionManager__factory(<ProfileFunctionManagerLibraryAddresses>linkProfileCommonLibraryAddresses, systemAdmin);
 
@@ -693,7 +690,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileFunctionManagerSubject.initVersion()).to.be.equal(0);
       })
 
-      it("Should ProfileContextManager subject deploy success", async() => {
+      it("Should profile ProfileContextManager subject deploy success", async() => {
         // given
         const profileContextManagerFactory = new ProfileContextManager__factory(<ProfileContextManagerLibraryAddresses>linkProfileCommonLibraryAddresses, systemAdmin);
 
@@ -709,7 +706,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileContextManagerSubject.initVersion()).to.be.equal(0);
       })
 
-      it("Should ProfileRealmManager subject deploy success", async() => {
+      it("Should profile ProfileRealmManager subject deploy success", async() => {
         // given
         const profileRealmManagerFactory = new ProfileRealmManager__factory(<ProfileRealmManagerLibraryAddresses>linkProfileCommonLibraryAddresses, systemAdmin);
 
@@ -725,7 +722,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileRealmManagerSubject.initVersion()).to.be.equal(0);
       })
 
-      it("Should ProfileDomainManager subject deploy success", async() => {
+      it("Should profile ProfileDomainManager subject deploy success", async() => {
         // given
         const profileDomainManagerFactory = new ProfileDomainManager__factory(<ProfileDomainManagerLibraryAddresses>linkProfileCommonLibraryAddresses, systemAdmin);
 
@@ -741,7 +738,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileDomainManagerSubject.initVersion()).to.be.equal(0);
       })
 
-      it("Should ProfileGlobalManager subject deploy success", async() => {
+      it("Should profile ProfileGlobalManager subject deploy success", async() => {
         // given
         const profileGlobalManagerFactory = new ProfileGlobalManager__factory(<ProfileGlobalManagerLibraryAddresses>linkProfileCommonLibraryAddresses, systemAdmin);
 
@@ -757,7 +754,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileGlobalManagerSubject.initVersion()).to.be.equal(0);
       })
 
-      it("Should ProfilePolicyManager subject deploy success", async() => {
+      it("Should profile ProfilePolicyManager subject deploy success", async() => {
         // given
         const profilePolicyManagerFactory = new ProfilePolicyManager__factory(<ProfilePolicyManagerLibraryAddresses>linkProfileRolePolicyLibraryAddresses, systemAdmin);
 
@@ -773,7 +770,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profilePolicyManagerSubject.initVersion()).to.be.equal(0);
       })
 
-      it("Should ProfileAccessControl subject deploy success", async() => {
+      it("Should profile ProfileAccessControl subject deploy success", async() => {
         // given
         const profileAccessControlFactory = new ProfileAccessControl__factory(systemAdmin);
 
@@ -791,7 +788,7 @@ describe("Lively Guard Profile Tests", function() {
     })
 
     describe("ACLManager Subject Tests", function() {
-      it("Should ACLManager subject deploy success", async () => {
+      it("Should profile ACLManager subject deploy success", async () => {
         // given
         const aclManagerFactory = new ACLManager__factory(<ACLManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
 
@@ -810,7 +807,7 @@ describe("Lively Guard Profile Tests", function() {
     });
 
     describe("ACL Manager Proxy (UUPS Proxy Implementation) Tests", function() {
-      it("Should proxy raised events when deployment and initialization were successful", async () => {
+      it("Should profile proxy raised events when deployment and initialization were successful", async () => {
         // given
         const proxyFactory = new ACLManagerProxy__factory(systemAdmin);
         const iface = new ethers.utils.Interface(ACLManager__factory.abi);
@@ -853,7 +850,7 @@ describe("Lively Guard Profile Tests", function() {
     });
 
     describe("ACL Modules Proxies Tests", function() {
-      it("Should MemberManager proxy deploy success", async () => {
+      it("Should profile MemberManager proxy deploy success", async () => {
         // given
         const proxyFactory = new ACLProxy__factory(systemAdmin);
         const iface = new ethers.utils.Interface(MemberManager__factory.abi);
@@ -913,7 +910,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await memberManagerProxy.getLibrary()).to.be.equal(lACLCommons.address);
       });
 
-      it("Should RoleManager proxy deploy success", async () => {
+      it("Should profile RoleManager proxy deploy success", async () => {
         // given
         const proxyFactory = new ACLProxy__factory(systemAdmin);
         const iface = new ethers.utils.Interface(RoleManager__factory.abi);
@@ -948,7 +945,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await roleManagerProxy.getLibrary()).to.be.equal(lACLCommons.address);
       });
 
-      it("Should TypeManager proxy deploy success", async () => {
+      it("Should profile TypeManager proxy deploy success", async () => {
         // given
         const proxyFactory = new ACLProxy__factory(systemAdmin);
         const iface = new ethers.utils.Interface(TypeManager__factory.abi);
@@ -984,7 +981,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await typeManagerProxy.getLibrary()).to.be.equal(lACLCommons.address);
       });
 
-      it("Should FunctionManager proxy deploy success", async () => {
+      it("Should profile FunctionManager proxy deploy success", async () => {
         // given
         const proxyFactory = new ACLProxy__factory(systemAdmin);
         const iface = new ethers.utils.Interface(FunctionManager__factory.abi);
@@ -1020,7 +1017,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await functionManagerProxy.getLibrary()).to.be.equal(lACLCommons.address);
       });
 
-      it("Should ContextManager proxy deploy success", async () => {
+      it("Should profile ContextManager proxy deploy success", async () => {
         // given
         const proxyFactory = new ACLProxy__factory(systemAdmin);
         const iface = new ethers.utils.Interface(ContextManager__factory.abi);
@@ -1056,7 +1053,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await contextManagerProxy.getLibrary()).to.be.equal(lACLCommons.address);
       });
 
-      it("Should RealmManager proxy deploy success", async () => {
+      it("Should profile RealmManager proxy deploy success", async () => {
         // given
         const proxyFactory = new ACLProxy__factory(systemAdmin);
         const iface = new ethers.utils.Interface(RealmManager__factory.abi);
@@ -1092,7 +1089,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await realmManagerProxy.getLibrary()).to.be.equal(lACLCommons.address);
       });
 
-      it("Should DomainManager proxy deploy success", async () => {
+      it("Should profile DomainManager proxy deploy success", async () => {
         // given
         const proxyFactory = new ACLProxy__factory(systemAdmin);
         const iface = new ethers.utils.Interface(DomainManager__factory.abi);
@@ -1128,7 +1125,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await domainManagerProxy.getLibrary()).to.be.equal(lACLCommons.address);
       });
 
-      it("Should GlobalManager proxy deploy success", async () => {
+      it("Should profile GlobalManager proxy deploy success", async () => {
         // given
         const proxyFactory = new ACLProxy__factory(systemAdmin);
         const iface = new ethers.utils.Interface(GlobalManager__factory.abi);
@@ -1164,7 +1161,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await globalManagerProxy.getLibrary()).to.be.equal(lACLCommons.address);
       });
 
-      it("Should PolicyManager proxy deploy success", async () => {
+      it("Should profile PolicyManager proxy deploy success", async () => {
         // given
         const proxyFactory = new ACLProxy__factory(systemAdmin);
         const iface = new ethers.utils.Interface(ProfilePolicyManager__factory.abi);
@@ -1200,7 +1197,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await policyManagerProxy.getLibrary()).to.be.equal(lACLCommons.address);
       });
 
-      it("Should ProfileManager proxy deploy success", async () => {
+      it("Should profile ProfileManager proxy deploy success", async () => {
         // given
         const proxyFactory = new ACLProxy__factory(systemAdmin);
         const iface = new ethers.utils.Interface(ProfileManager__factory.abi);
@@ -1236,7 +1233,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileManagerProxy.getLibrary()).to.be.equal(lACLCommons.address);
       });
 
-      it("Should AccessControl proxy deploy success", async () => {
+      it("Should profile AccessControl proxy deploy success", async () => {
         // given
         const proxyFactory = new ACLProxy__factory(systemAdmin);
         const iface = new ethers.utils.Interface(AccessControl__factory.abi);
@@ -1273,7 +1270,7 @@ describe("Lively Guard Profile Tests", function() {
     })
 
     describe("ACL Profiles Modules Proxies Tests", function() {
-      it("Should ProfileMemberManager proxy deploy success", async () => {
+      it("Should profile ProfileMemberManager proxy deploy success", async () => {
         // given
         const proxyFactory = new ACLProxy__factory(systemAdmin);
         const iface = new ethers.utils.Interface(ProfileMemberManager__factory.abi);
@@ -1333,7 +1330,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileMemberManagerProxy.getLibrary()).to.be.equal(lProfileCommons.address);
       });
 
-      it("Should ProfileRoleManager proxy deploy success", async () => {
+      it("Should profile ProfileRoleManager proxy deploy success", async () => {
         // given
         const proxyFactory = new ACLProxy__factory(systemAdmin);
         const iface = new ethers.utils.Interface(ProfileRoleManager__factory.abi);
@@ -1368,7 +1365,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileRoleManagerProxy.getLibrary()).to.be.equal(lProfileRolePolicy.address);
       });
 
-      it("Should ProfileTypeManager proxy deploy success", async () => {
+      it("Should profile ProfileTypeManager proxy deploy success", async () => {
         // given
         const proxyFactory = new ACLProxy__factory(systemAdmin);
         const iface = new ethers.utils.Interface(ProfileTypeManager__factory.abi);
@@ -1404,7 +1401,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileTypeManagerProxy.getLibrary()).to.be.equal(lProfileCommons.address);
       });
 
-      it("Should ProfileFunctionManager proxy deploy success", async () => {
+      it("Should profile ProfileFunctionManager proxy deploy success", async () => {
         // given
         const proxyFactory = new ACLProxy__factory(systemAdmin);
         const iface = new ethers.utils.Interface(ProfileFunctionManager__factory.abi);
@@ -1440,7 +1437,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileFunctionManagerProxy.getLibrary()).to.be.equal(lProfileCommons.address);
       });
 
-      it("Should ProfileContextManager proxy deploy success", async () => {
+      it("Should profile ProfileContextManager proxy deploy success", async () => {
         // given
         const proxyFactory = new ACLProxy__factory(systemAdmin);
         const iface = new ethers.utils.Interface(ProfileContextManager__factory.abi);
@@ -1476,7 +1473,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileContextManagerProxy.getLibrary()).to.be.equal(lProfileCommons.address);
       });
 
-      it("Should ProfileRealmManager proxy deploy success", async () => {
+      it("Should profile ProfileRealmManager proxy deploy success", async () => {
         // given
         const proxyFactory = new ACLProxy__factory(systemAdmin);
         const iface = new ethers.utils.Interface(ProfileRealmManager__factory.abi);
@@ -1512,7 +1509,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileRealmManagerProxy.getLibrary()).to.be.equal(lProfileCommons.address);
       });
 
-      it("Should ProfileDomainManager proxy deploy success", async () => {
+      it("Should profile ProfileDomainManager proxy deploy success", async () => {
         // given
         const proxyFactory = new ACLProxy__factory(systemAdmin);
         const iface = new ethers.utils.Interface(ProfileDomainManager__factory.abi);
@@ -1548,7 +1545,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileDomainManagerProxy.getLibrary()).to.be.equal(lProfileCommons.address);
       });
 
-      it("Should ProfileGlobalManager proxy deploy success", async () => {
+      it("Should profile ProfileGlobalManager proxy deploy success", async () => {
         // given
         const proxyFactory = new ACLProxy__factory(systemAdmin);
         const iface = new ethers.utils.Interface(ProfileGlobalManager__factory.abi);
@@ -1584,7 +1581,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileGlobalManagerProxy.getLibrary()).to.be.equal(lProfileCommons.address);
       });
 
-      it("Should ProfilePolicyManager proxy deploy success", async () => {
+      it("Should profile ProfilePolicyManager proxy deploy success", async () => {
         // given
         const proxyFactory = new ACLProxy__factory(systemAdmin);
         const iface = new ethers.utils.Interface(ProfilePolicyManager__factory.abi);
@@ -1620,7 +1617,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profilePolicyManagerProxy.getLibrary()).to.be.equal(lProfileRolePolicy.address);
       });
 
-      it("Should ProfileAccessControl proxy deploy success", async () => {
+      it("Should profile ProfileAccessControl proxy deploy success", async () => {
         // given
         const proxyFactory = new ACLProxy__factory(systemAdmin);
         const iface = new ethers.utils.Interface(ProfileAccessControl__factory.abi);
@@ -1657,7 +1654,7 @@ describe("Lively Guard Profile Tests", function() {
     })
 
     describe("Initialize ACL Manager Tests", function() {
-      it("Should call aclInit of ACLManager by systemAdmin success", async() => {
+      it("Should profile call aclInit of ACLManager by systemAdmin success", async() => {
         // given
         const firstInit = await aclManagerProxy.getFirstInit();
 
@@ -1674,7 +1671,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await aclManagerProxy.getLibrary()).to.be.equal(lACLCommons.address);
       })
 
-      it("Should facets acl register to ACLManager by systemAdmin success", async() => {
+      it("Should profile facets acl register to ACLManager by systemAdmin success", async() => {
 
         // given
         const roleIface = new ethers.utils.Interface(RoleManager__factory.abi);
@@ -1945,7 +1942,7 @@ describe("Lively Guard Profile Tests", function() {
         ])
       })
 
-      it("Should facets acl profile register to ACLManager by systemAdmin success", async() => {
+      it("Should profile facets acl profile register to ACLManager by systemAdmin success", async() => {
 
         // given
         const profileMemberIface = new ethers.utils.Interface(ProfileMemberManager__factory.abi);
@@ -2200,7 +2197,7 @@ describe("Lively Guard Profile Tests", function() {
         ])
       })
 
-      it("Should register ACL contexts by systemAdmin success", async() => {
+      it("Should profile register ACL contexts by systemAdmin success", async() => {
         // given
         const memberContextId = ethers.utils.keccak256(memberManagerProxy.address);
         const roleContextId = ethers.utils.keccak256(roleManagerProxy.address);
@@ -2434,7 +2431,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(memberContextInfo.referredByAgent).to.be.equal(0);
       })
 
-      it("Should register ACL Profile contexts by systemAdmin success", async() => {
+      it("Should profile register ACL Profile contexts by systemAdmin success", async() => {
         // given
         const profileMemberContextId = ethers.utils.keccak256(profileMemberManagerProxy.address);
         const profileRoleContextId = ethers.utils.keccak256(profileRoleManagerProxy.address);
@@ -2670,7 +2667,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(profileRoleContextInfo.referredByAgent).to.be.equal(0);
       })
 
-      it("Should register MemberManger functions by systemAdmin success", async() => {
+      it("Should profile register MemberManger functions by systemAdmin success", async() => {
         // given
         // const memberIface = new ethers.utils.Interface(MemberManager__factory.abi);
         const signer = new Int8Array(0);
@@ -2867,7 +2864,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(functionInfo.referredByAgent).to.be.equal(0);
       })
 
-      it("Should register RoleManager functions by systemAdmin success", async() => {
+      it("Should profile register RoleManager functions by systemAdmin success", async() => {
         const roleIface = new ethers.utils.Interface(RoleManager__factory.abi);
         const roleContextId = ethers.utils.keccak256(roleManagerProxy.address);
         const signer = new Int8Array(0);
@@ -3105,7 +3102,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(functionInfo.referredByAgent).to.be.equal(0);
       })
 
-      it("Should register TypeManager functions by systemAdmin success", async() => {
+      it("Should profile register TypeManager functions by systemAdmin success", async() => {
         const typeIface = new ethers.utils.Interface(TypeManager__factory.abi);
         const typeContextId = ethers.utils.keccak256(typeManagerProxy.address);
         const signer = new Int8Array(0);
@@ -3314,7 +3311,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(functionInfo.referredByAgent).to.be.equal(0);
       })
 
-      it("Should register FunctionManager functions by systemAdmin success", async() => {
+      it("Should profile register FunctionManager functions by systemAdmin success", async() => {
         const functionIface = new ethers.utils.Interface(FunctionManager__factory.abi);
         const functionContextId = ethers.utils.keccak256(functionManagerProxy.address);
         const signer = new Int8Array(0);
@@ -3442,7 +3439,7 @@ describe("Lively Guard Profile Tests", function() {
             alstat: AlterabilityStatus.UPDATABLE
           },
         ]
-        const roleFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
+        const functionFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
           {
             signature: new Int8Array(0),
             realmId: ethers.constants.HashZero,
@@ -3457,7 +3454,7 @@ describe("Lively Guard Profile Tests", function() {
         ]
 
         // when
-        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(roleFunctionRegisterRequest))
+        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(functionFunctionRegisterRequest))
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, functionContextId, functionUpdateAdminFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
             LIVELY_VERSE_ANY_TYPE_ID,signer)
@@ -3509,7 +3506,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(functionInfo.referredByAgent).to.be.equal(0);
       })
 
-      it("Should register ContextManager functions by systemAdmin success", async() => {
+      it("Should profile register ContextManager functions by systemAdmin success", async() => {
         const contextIface = new ethers.utils.Interface(ContextManager__factory.abi);
         const contextContextId = ethers.utils.keccak256(contextManagerProxy.address);
         const signer = new Int8Array(0);
@@ -3690,7 +3687,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(functionInfo.referredByAgent).to.be.equal(0);
       })
 
-      it("Should register RealmManager functions by systemAdmin success", async() => {
+      it("Should profile register RealmManager functions by systemAdmin success", async() => {
         const realmIface = new ethers.utils.Interface(RealmManager__factory.abi);
         const realmContextId = ethers.utils.keccak256(realmManagerProxy.address);
         const signer = new Int8Array(0);
@@ -3899,7 +3896,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(functionInfo.referredByAgent).to.be.equal(0);
       })
 
-      it("Should register DomainManager functions by systemAdmin success", async() => {
+      it("Should profile register DomainManager functions by systemAdmin success", async() => {
         const domainIface = new ethers.utils.Interface(DomainManager__factory.abi);
         const domainContextId = ethers.utils.keccak256(domainManagerProxy.address);
         const signer = new Int8Array(0);
@@ -4038,7 +4035,7 @@ describe("Lively Guard Profile Tests", function() {
             alstat: AlterabilityStatus.UPDATABLE
           },
         ]
-        const roleFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
+        const domainFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
           {
             signature: new Int8Array(0),
             realmId: ethers.constants.HashZero,
@@ -4053,7 +4050,7 @@ describe("Lively Guard Profile Tests", function() {
         ]
 
         // when
-        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(roleFunctionRegisterRequest))
+        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(domainFunctionRegisterRequest))
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, domainContextId, domainRegisterFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
             LIVELY_VERSE_SCOPE_MASTER_TYPE_ID,signer)
@@ -4114,7 +4111,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await domainManagerDelegateProxy.domainGetRealms(LIVELY_VERSE_ACL_DOMAIN_ID)).to.be.eqls([LIVELY_VERSE_ACL_REALM_ID]);
       })
 
-      it("Should register GlobalManager functions by systemAdmin success", async() => {
+      it("Should profile register GlobalManager functions by systemAdmin success", async() => {
         const globalIface = new ethers.utils.Interface(GlobalManager__factory.abi);
         const globalContextId = ethers.utils.keccak256(globalManagerProxy.address);
         const signer = new Int8Array(0);
@@ -4295,7 +4292,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(functionInfo.referredByAgent).to.be.equal(0);
       })
 
-      it("Should register ACLManager functions by systemAdmin success", async() => {
+      it("Should profile register ACLManager functions by systemAdmin success", async() => {
         const aclManagerIface = new ethers.utils.Interface(ACLManager__factory.abi);
         const aclContextId = ethers.utils.keccak256(aclManagerProxy.address);
         const signer = new Int8Array(0);
@@ -4448,7 +4445,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(functionInfo.referredByAgent).to.be.equal(0);
       })
 
-      it("Should register AccessControl functions by systemAdmin success", async() => {
+      it("Should profile register AccessControl functions by systemAdmin success", async() => {
         const accessControlIface = new ethers.utils.Interface(AccessControl__factory.abi);
         const accessControlContextId = ethers.utils.keccak256(accessControlProxy.address);
         const signer = new Int8Array(0);
@@ -4573,7 +4570,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(functionInfo.referredByAgent).to.be.equal(0);
       })
 
-      it("Should register PolicyManager functions by systemAdmin success", async() => {
+      it("Should profile register PolicyManager functions by systemAdmin success", async() => {
         const policyIface = new ethers.utils.Interface(PolicyManager__factory.abi);
         const policyContextId = ethers.utils.keccak256(policyManagerProxy.address);
         const signer = new Int8Array(0);
@@ -4823,7 +4820,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(functionInfo.referredByAgent).to.be.equal(0);
       })
 
-      it("Should register ProfileManager functions by systemAdmin success", async() => {
+      it("Should profile register ProfileManager functions by systemAdmin success", async() => {
         const profileIface = new ethers.utils.Interface(ProfileManager__factory.abi);
         const profileContextId = ethers.utils.keccak256(profileManagerProxy.address);
         const signer = new Int8Array(0);
@@ -5045,8 +5042,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(functionInfo.referredByAgent).to.be.equal(0);
       })
 
-
-      it("Should register ProfileMemberManger functions by systemAdmin success", async() => {
+      it("Should profile register ProfileMemberManger functions by systemAdmin success", async() => {
         // given
         const profileMemberIface = new ethers.utils.Interface(ProfileMemberManager__factory.abi);
         const profileMemberContextId = ethers.utils.keccak256(profileMemberManagerProxy.address);
@@ -5271,7 +5267,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(functionInfo.referredByAgent).to.be.equal(0);
       })
 
-      it("Should register ProfileRoleManager functions by systemAdmin success", async() => {
+      it("Should profile register ProfileRoleManager functions by systemAdmin success", async() => {
         const profileRoleIface = new ethers.utils.Interface(ProfileRoleManager__factory.abi);
         const profileRoleContextId = ethers.utils.keccak256(profileRoleManagerProxy.address);
         const signer = new Int8Array(0);
@@ -5509,7 +5505,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(functionInfo.referredByAgent).to.be.equal(0);
       })
 
-      it("Should register ProfileTypeManager functions by systemAdmin success", async() => {
+      it("Should profile register ProfileTypeManager functions by systemAdmin success", async() => {
         const profileTypeIface = new ethers.utils.Interface(ProfileTypeManager__factory.abi);
         const profileTypeContextId = ethers.utils.keccak256(profileTypeManagerProxy.address);
         const signer = new Int8Array(0);
@@ -5718,7 +5714,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(functionInfo.referredByAgent).to.be.equal(0);
       })
 
-      it("Should register ProfileFunctionManager functions by systemAdmin success", async() => {
+      it("Should profile register ProfileFunctionManager functions by systemAdmin success", async() => {
         const profileFunctionIface = new ethers.utils.Interface(ProfileFunctionManager__factory.abi);
         const profileFunctionContextId = ethers.utils.keccak256(profileFunctionManagerProxy.address);
         const signer = new Int8Array(0);
@@ -5927,7 +5923,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(functionInfo.referredByAgent).to.be.equal(0);
       })
 
-      it("Should register ProfileContextManager functions by systemAdmin success", async() => {
+      it("Should profile register ProfileContextManager functions by systemAdmin success", async() => {
         const profileContextIface = new ethers.utils.Interface(ProfileContextManager__factory.abi);
         const profileContextContextId = ethers.utils.keccak256(profileContextManagerProxy.address);
         const signer = new Int8Array(0);
@@ -6122,7 +6118,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(functionInfo.referredByAgent).to.be.equal(0);
       })
 
-      it("Should register ProfileRealmManager functions by systemAdmin success", async() => {
+      it("Should profile register ProfileRealmManager functions by systemAdmin success", async() => {
         const profileRealmIface = new ethers.utils.Interface(ProfileRealmManager__factory.abi);
         const profileRealmContextId = ethers.utils.keccak256(profileRealmManagerProxy.address);
         const signer = new Int8Array(0);
@@ -6331,7 +6327,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(functionInfo.referredByAgent).to.be.equal(0);
       })
 
-      it("Should register ProfileDomainManager functions by systemAdmin success", async() => {
+      it("Should profile register ProfileDomainManager functions by systemAdmin success", async() => {
         const profileDomainIface = new ethers.utils.Interface(ProfileDomainManager__factory.abi);
         const profileDomainContextId = ethers.utils.keccak256(profileDomainManagerProxy.address);
         const signer = new Int8Array(0);
@@ -6546,7 +6542,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await domainManagerDelegateProxy.domainGetRealms(LIVELY_VERSE_ACL_DOMAIN_ID)).to.be.eqls([LIVELY_VERSE_ACL_REALM_ID]);
       })
 
-      it("Should register ProfileGlobalManager functions by systemAdmin success", async() => {
+      it("Should profile register ProfileGlobalManager functions by systemAdmin success", async() => {
         const profileGlobalIface = new ethers.utils.Interface(ProfileGlobalManager__factory.abi);
         const profileGlobalContextId = ethers.utils.keccak256(profileGlobalManagerProxy.address);
         const signer = new Int8Array(0);
@@ -6732,7 +6728,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(functionInfo.referredByAgent).to.be.equal(0);
       })
 
-      it("Should register ProfileAccessControl functions by systemAdmin success", async() => {
+      it("Should profile register ProfileAccessControl functions by systemAdmin success", async() => {
         const profileAccessControlIface = new ethers.utils.Interface(ProfileAccessControl__factory.abi);
         const profileAccessControlContextId = ethers.utils.keccak256(profileAccessControlProxy.address);
         const signer = new Int8Array(0);
@@ -6857,7 +6853,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(functionInfo.referredByAgent).to.be.equal(0);
       })
 
-      it("Should register ProfilePolicyManager functions by systemAdmin success", async() => {
+      it("Should profile register ProfilePolicyManager functions by systemAdmin success", async() => {
         const profilePolicyIface = new ethers.utils.Interface(ProfilePolicyManager__factory.abi);
         const profilePolicyContextId = ethers.utils.keccak256(profilePolicyManagerProxy.address);
         const signer = new Int8Array(0);
@@ -7109,7 +7105,7 @@ describe("Lively Guard Profile Tests", function() {
     })
 
     describe("Profile ACL Tests", function() {
-      it("Should register PROFILE_TEST_NAME profile with someone failed", async() => {
+      it("Should profile register PROFILE_TEST_NAME profile with someone failed", async() => {
         // given
         profileTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(PROFILE_TEST_NAME));
         const requests: IProfileManagement.ProfileRegisterRequestStruct[] = [{
@@ -7150,7 +7146,7 @@ describe("Lively Guard Profile Tests", function() {
 
       })
 
-      it("Should register PROFILE_TEST_NAME profile success", async() => {
+      it("Should profile register PROFILE_TEST_NAME profile success", async() => {
         // given
         profileTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(PROFILE_TEST_NAME));
         profileExpiredAt = BigNumber.from(Date.now() + 10000);
@@ -7224,7 +7220,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(profileInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
       })
 
-      it("Should profile invariants check success", async() => {
+      it("Should profile profile invariants check success", async() => {
         // when and then profile admin
         const profileAdminRole = await profileRoleManagerDelegateProxy.profileRoleGetInfo(profileTestId, LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID);
         expect(profileAdminRole.name).to.be.equal("ROLE.LIVELY_PROFILE.LIVELY_MASTER_ADMIN");
@@ -7255,7 +7251,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileRoleManagerDelegateProxy.profileRoleHasAccount(profileTestId, LIVELY_PROFILE_SYSTEM_MASTER_ADMIN_ROLE_ID, profileSystemAdminWallet.address)).to.be.true;
       })
 
-      it("Should register PROFILE_TEST_NAME_2 with signature profile by anyone failed", async() => {
+      it("Should profile register PROFILE_TEST_NAME_2 with signature profile by anyone failed", async() => {
         // given
         profileTestId2 = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(PROFILE_TEST_NAME_2));
         const profileExpiredAt2 = BigNumber.from(Date.now() + 20000);
@@ -7309,7 +7305,7 @@ describe("Lively Guard Profile Tests", function() {
           .to.revertedWith("ACLRoleNotFound()")
       })
 
-      it("Should register PROFILE_TEST_NAME_2 with signature profile success", async() => {
+      it("Should profile register PROFILE_TEST_NAME_2 with signature profile success", async() => {
         // given
         profileTestId2 = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(PROFILE_TEST_NAME_2));
         const profileExpiredAt2 = BigNumber.from(Date.now() + 20000);
@@ -7393,7 +7389,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(profileInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
       })
 
-      it("Should disable PROFILE_TEST_NAME profile alterability by someone failed", async() => {
+      it("Should profile disable PROFILE_TEST_NAME profile alterability by someone failed", async() => {
         // given
         const requests: IACLCommonsRoles.UpdateAlterabilityRequestStruct[] = [{
           id: profileTestId,
@@ -7405,7 +7401,7 @@ describe("Lively Guard Profile Tests", function() {
           .to.revertedWith("ACLMemberNotFound()");
       })
 
-      it("Should disable PROFILE_TEST_NAME profile alterability success", async() => {
+      it("Should profile disable PROFILE_TEST_NAME profile alterability success", async() => {
         // given
         const requests: IACLCommonsRoles.UpdateAlterabilityRequestStruct[] = [{
           id: profileTestId,
@@ -7418,7 +7414,7 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(livelyAdminWallet.address, profileTestId, AlterabilityStatus.DISABLED)
       })
 
-      it("Should update limits of PROFILE_TEST_NAME profile when alterability disabled failed", async() => {
+      it("Should profile update limits of PROFILE_TEST_NAME profile when alterability disabled failed", async() => {
         // given
         const requests: IProfileManagement.ProfileUpdateLimitsRequestStruct[] = [{
           profileId: profileTestId,
@@ -7451,7 +7447,7 @@ describe("Lively Guard Profile Tests", function() {
           .to.revertedWith("Illegal Updatable")
       })
 
-      it("Should update Expiration of PROFILE_TEST_NAME profile when alterability disabled failed", async() => {
+      it("Should profile update Expiration of PROFILE_TEST_NAME profile when alterability disabled failed", async() => {
         // given
         const requests: IProfileManagement.ProfileUpdateExpirationRequestStruct[] = [{
           profileId: profileTestId,
@@ -7463,7 +7459,7 @@ describe("Lively Guard Profile Tests", function() {
           .to.revertedWith("Illegal Updatable")
       })
 
-      it("Should update OwnerAccount of PROFILE_TEST_NAME profile when alterability disabled failed", async() => {
+      it("Should profile update OwnerAccount of PROFILE_TEST_NAME profile when alterability disabled failed", async() => {
         // given
         const requests: IProfileManagement.ProfileUpdateOwnerAccountRequestStruct[] = [{
           profileId: profileTestId,
@@ -7475,7 +7471,7 @@ describe("Lively Guard Profile Tests", function() {
           .to.revertedWith("Illegal Updatable")
       })
 
-      it("Should update ActivityStatus of PROFILE_TEST_NAME profile when alterability disabled failed", async() => {
+      it("Should profile update ActivityStatus of PROFILE_TEST_NAME profile when alterability disabled failed", async() => {
         // given
         const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
           id: profileTestId,
@@ -7487,7 +7483,7 @@ describe("Lively Guard Profile Tests", function() {
           .to.revertedWith("Illegal Updatable")
       })
 
-      it("Should update Admin of PROFILE_TEST_NAME profile when alterability disabled failed", async() => {
+      it("Should profile update Admin of PROFILE_TEST_NAME profile when alterability disabled failed", async() => {
         // given
         const requests: IACLCommonsRoles.UpdateAdminRequestStruct[] = [{
           id: profileTestId,
@@ -7499,7 +7495,7 @@ describe("Lively Guard Profile Tests", function() {
           .to.revertedWith("Illegal Updatable")
       })
 
-      it("Should enable PROFILE_TEST_NAME profile alterability success", async() => {
+      it("Should profile enable PROFILE_TEST_NAME profile alterability success", async() => {
         // given
         const requests: IACLCommonsRoles.UpdateAlterabilityRequestStruct[] = [{
           id: profileTestId,
@@ -7512,7 +7508,7 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(livelyAdminWallet.address, profileTestId, AlterabilityStatus.UPDATABLE)
       })
 
-      it("Should disable PROFILE_TEST_NAME profile activity by someone failed", async() => {
+      it("Should profile disable PROFILE_TEST_NAME profile activity by someone failed", async() => {
         // given
         const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
           id: profileTestId,
@@ -7525,7 +7521,7 @@ describe("Lively Guard Profile Tests", function() {
 
       })
 
-      it("Should disable PROFILE_TEST_NAME profile activity success", async() => {
+      it("Should profile disable PROFILE_TEST_NAME profile activity success", async() => {
         // given
         const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
           id: profileTestId,
@@ -7548,7 +7544,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(profileInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
       })
 
-      it("Should enable PROFILE_TEST_NAME profile activity success", async() => {
+      it("Should profile enable PROFILE_TEST_NAME profile activity success", async() => {
         // given
         const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [{
           id: profileTestId,
@@ -7561,7 +7557,7 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(livelyAdminWallet.address, profileTestId, ActivityStatus.ENABLED)
       })
 
-      it("Should update limits of PROFILE_TEST_NAME profile by someone failed", async() => {
+      it("Should profile update limits of PROFILE_TEST_NAME profile by someone failed", async() => {
         // given
         const requests: IProfileManagement.ProfileUpdateLimitsRequestStruct[] = [{
           profileId: profileTestId,
@@ -7594,7 +7590,7 @@ describe("Lively Guard Profile Tests", function() {
           .to.revertedWith("AdminAccessRoleNotFound()");
       })
 
-      it("Should update limits of PROFILE_TEST_NAME profile success", async() => {
+      it("Should profile update limits of PROFILE_TEST_NAME profile success", async() => {
         // given
         const requests: IProfileManagement.ProfileUpdateLimitsRequestStruct[] = [{
           profileId: profileTestId,
@@ -7629,7 +7625,7 @@ describe("Lively Guard Profile Tests", function() {
             [512, 20, 20, 20, 20, 20, 20, 20, 20, 20], [13, 13, 13, 13, 13, 13, 13, 13])
       })
 
-      it("Should update Expiration of PROFILE_TEST_NAME profile by someone failed", async() => {
+      it("Should profile update Expiration of PROFILE_TEST_NAME profile by someone failed", async() => {
         // given
         const requests: IProfileManagement.ProfileUpdateExpirationRequestStruct[] = [{
           profileId: profileTestId,
@@ -7641,7 +7637,7 @@ describe("Lively Guard Profile Tests", function() {
           .to.revertedWith("ACLMemberNotFound()");
       })
 
-      it("Should update Expiration of PROFILE_TEST_NAME profile success", async() => {
+      it("Should profile update Expiration of PROFILE_TEST_NAME profile success", async() => {
         // given
         profileExpiredAt = BigNumber.from(Date.now() + 30000);
         const requests: IProfileManagement.ProfileUpdateExpirationRequestStruct[] = [{
@@ -7655,7 +7651,7 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(livelyAdminWallet.address, profileTestId, profileExpiredAt)
       })
 
-      it("Should update admin of PROFILE_TEST_NAME profile by someone failed", async() => {
+      it("Should profile update admin of PROFILE_TEST_NAME profile by someone failed", async() => {
         // given
         const requests: IACLCommonsRoles.UpdateAdminRequestStruct[] = [{
           id: profileTestId,
@@ -7667,7 +7663,7 @@ describe("Lively Guard Profile Tests", function() {
           .to.revertedWith("ACLMemberNotFound()");
       })
 
-      it("Should update admin of PROFILE_TEST_NAME profile success", async() => {
+      it("Should profile update admin of PROFILE_TEST_NAME profile success", async() => {
         // given
         const requests: IACLCommonsRoles.UpdateAdminRequestStruct[] = [{
           id: profileTestId,
@@ -7680,7 +7676,7 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(livelyAdminWallet.address, profileTestId, LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
       })
 
-      it("Should update profile OwnerAccount of profileTestId by someone failed", async() => {
+      it("Should profile update profile OwnerAccount of profileTestId by someone failed", async() => {
         // given
         const requests: IProfileManagement.ProfileUpdateOwnerAccountRequestStruct[] = [{
           profileId: profileTestId,
@@ -7692,7 +7688,7 @@ describe("Lively Guard Profile Tests", function() {
           .to.revertedWith("ACLMemberNotFound()");
       })
 
-      it("Should update profile OwnerAccount of profileTestId success", async() => {
+      it("Should profile update profile OwnerAccount of profileTestId success", async() => {
         // given
         const requests: IProfileManagement.ProfileUpdateOwnerAccountRequestStruct[] = [{
           profileId: profileTestId,
@@ -7740,7 +7736,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(profileInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
       })
 
-      it("Should update profile OwnerAccount of profileTestId2 success", async() => {
+      it("Should profile update profile OwnerAccount of profileTestId2 success", async() => {
         // given
         const requests: IProfileManagement.ProfileUpdateOwnerAccountRequestStruct[] = [{
           profileId: profileTestId2,
@@ -7790,7 +7786,7 @@ describe("Lively Guard Profile Tests", function() {
     })
 
     describe("Profile Post Init Tests", function() {
-      it("Should register profileDomainTest to Global success", async() => {
+      it("Should profile register profileDomainTest to Global success", async() => {
         // given
         profileDomainTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(PROFILE_DOMAIN_TEST_NAME));
         const requests: IProfileDomainManagement.ProfileDomainRegisterRequestStruct[] = [
@@ -7828,7 +7824,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileGlobalManagerDelegateProxy.profileGlobalGetDomains(profileTestId)).to.be.eqls([profileDomainTestId]);
       })
 
-      it("Should register profileRealmTest to profileDomainTest success", async() => {
+      it("Should profile register profileRealmTest to profileDomainTest success", async() => {
         // given
         profileRealmTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(PROFILE_REALM_TEST_NAME));
         // const memberRegisterFunctionId = ethers.utils.keccak256(
@@ -7870,7 +7866,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileRealmManagerDelegateProxy.profileRealmCheckAdmin(profileTestId, profileRealmTestId, profileAdminWallet.address)).to.be.true;
       })
 
-      it("Should register profileMemberContextTest by profileSystemAdmin success", async() => {
+      it("Should profile register profileMemberContextTest by profileSystemAdmin success", async() => {
         // given
         const profileMemberManagerTestFactory = new ProfileMemberManagerTest__factory(profileSystemAdmin);
 
@@ -7919,7 +7915,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileRealmManagerDelegateProxy.profileRealmHasContext(profileTestId, profileRealmTestId, ethers.utils.keccak256(profileMemberManagerTest.address))).to.be.true;
       })
 
-      it("Should register profileRoleContextTestId by profileAdmin success", async() => {
+      it("Should profile register profileRoleContextTestId by profileAdmin success", async() => {
         // given
         const proxyFactory = new ACLProxy__factory(systemAdmin);
         const iface = new ethers.utils.Interface(ProfileRoleManager__factory.abi);
@@ -7982,7 +7978,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(profileContextInfo.alstat).to.be.equal(AlterabilityStatus.UPGRADABLE);
       })
 
-      it("Should register profileMemberRegister function by profileSystemAdmin success", async() => {
+      it("Should profile register profileMemberRegister function by profileSystemAdmin success", async() => {
         // given
         const signer = new Int8Array(0);
         const memberRegisterFunctionId = ethers.utils.keccak256(
@@ -8040,7 +8036,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileRealmManagerDelegateProxy.profileRealmHasContext(profileTestId, profileRealmTestId, ethers.utils.keccak256(profileMemberManagerTest.address))).to.be.true;
       })
 
-      it("Should register profileRoleRegister function by profileOwner2 success", async() => {
+      it("Should profile register profileRoleRegister function by profileOwner2 success", async() => {
         // given
         const roleIface = new ethers.utils.Interface(ProfileRoleManager__factory.abi);
         const signature = generateProfileContextDomainSignatureManually(
@@ -8105,7 +8101,7 @@ describe("Lively Guard Profile Tests", function() {
     })
 
     describe("Profile Agent Tests", function() {
-      it("Should register aclTypeTest success", async() => {
+      it("Should profile register aclTypeTest success", async() => {
         // given
         aclTypeTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_TYPE_TEST_NAME));
         const profileTypeRegisterRequests: IProfileTypeManagement.ProfileTypeRegisterRequestStruct[] = [
@@ -8143,7 +8139,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileTypeManagerDelegateProxy.profileTypeCheckAdmin(profileTestId, aclTypeTestId, profileAdminWallet.address)).to.be.true;
       })
 
-      it("Should disable type alterability of aclTypeTestId success", async() => {
+      it("Should profile disable type alterability of aclTypeTestId success", async() => {
         // given
         const requests: IProfileACLCommons.ProfileUpdateAlterabilityRequestStruct[] = [
           {
@@ -8158,7 +8154,7 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(profileOwnerWallet2.address, profileTestId, aclTypeTestId, AlterabilityStatus.DISABLED)
       })
 
-      it("Should update admin of ACL_TYPE_TEST when alterability disabled failed", async() => {
+      it("Should profile update admin of ACL_TYPE_TEST when alterability disabled failed", async() => {
         // given
         const requests: IProfileACLCommons.ProfileUpdateAdminRequestStruct[] = [{
           entityId: aclTypeTestId,
@@ -8170,7 +8166,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Updatable")
       })
 
-      it("Should update roleLimit of aclTypeTestId when alterability disabled failed", async() => {
+      it("Should profile update roleLimit of aclTypeTestId when alterability disabled failed", async() => {
         // given
         const requests: IProfileTypeManagement.ProfileTypeUpdateRoleLimitRequestStruct[] = [{
           typeId: aclTypeTestId,
@@ -8182,7 +8178,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Updatable")
       })
 
-      it("Should update activity of aclTypeTestId when alterability disabled failed", async() => {
+      it("Should profile update activity of aclTypeTestId when alterability disabled failed", async() => {
         // given
         const requests: IProfileACLCommons.ProfileUpdateActivityRequestStruct[] = [{
           entityId: aclTypeTestId,
@@ -8194,7 +8190,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Updatable")
       })
 
-      it("Should update scope of aclTypeTestId when alterability disabled failed", async() => {
+      it("Should profile update scope of aclTypeTestId when alterability disabled failed", async() => {
         // given
         const memberRegisterFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
@@ -8212,7 +8208,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Updatable")
       })
 
-      it("Should update type alterability of aclTypeTest success", async() => {
+      it("Should profile update type alterability of aclTypeTest success", async() => {
         // given
         const requests: IProfileACLCommonsRoles.ProfileUpdateAlterabilityRequestStruct[] = [{
           entityId: aclTypeTestId,
@@ -8225,7 +8221,7 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(profileOwnerWallet2.address, profileTestId, aclTypeTestId, AlterabilityStatus.UPDATABLE)
       })
 
-      it("Should disable activity of aclTypeTest by anonymous failed", async() => {
+      it("Should profile disable activity of aclTypeTest by anonymous failed", async() => {
         // given
         const requests: IProfileACLCommonsRoles.ProfileUpdateActivityRequestStruct[] = [{
           entityId: aclTypeTestId,
@@ -8237,7 +8233,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("ProfileACLMemberNotFound()")
       })
 
-      it("Should disable activity of aclTypeTest by anyone failed", async() => {
+      it("Should profile disable activity of aclTypeTest by anyone failed", async() => {
         // given
         const requests: IProfileACLCommonsRoles.ProfileUpdateActivityRequestStruct[] = [{
           entityId: aclTypeTestId,
@@ -8249,7 +8245,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("'ProfileAdminAccessNotPermitted()")
       })
 
-      it("Should disable activity of aclTypeTest success", async() => {
+      it("Should profile disable activity of aclTypeTest success", async() => {
         // given
         const requests: IProfileACLCommonsRoles.ProfileUpdateActivityRequestStruct[] = [{
           entityId: aclTypeTestId,
@@ -8273,7 +8269,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(typeInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
       })
 
-      it("Should enable activity of aclTypeTest success", async() => {
+      it("Should profile enable activity of aclTypeTest success", async() => {
         // given
         const requests: IProfileACLCommonsRoles.ProfileUpdateActivityRequestStruct[] = [{
           entityId: aclTypeTestId,
@@ -8287,7 +8283,7 @@ describe("Lively Guard Profile Tests", function() {
 
       })
 
-      it("Should register aclRoleTest in aclTypeTest with illegal scope failed", async() => {
+      it("Should profile register aclRoleTest in aclTypeTest with illegal scope failed", async() => {
         // given
         aclRoleTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_TEST_NAME));
         const roleRegisterRequests: IProfileRoleManagement.ProfileRoleRegisterRequestStruct[] = [
@@ -8305,7 +8301,7 @@ describe("Lively Guard Profile Tests", function() {
           .to.revertedWith("Illegal ScopeType")
       })
 
-      it("Should aclTypeTest update admin to ProfileSystemAdmin success", async() => {
+      it("Should profile aclTypeTest update admin to ProfileSystemAdmin success", async() => {
         // given
         const updateAdminRequests: IProfileACLCommonsRoles.ProfileUpdateAdminRequestStruct[] = [{
           entityId: aclTypeTestId,
@@ -8321,7 +8317,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileTypeManagerDelegateProxy.profileTypeCheckAdmin(profileTestId, aclTypeTestId, profileSystemAdminWallet.address)).to.be.true;
       })
 
-      it("Should update scope aclTypeTest failed", async() => {
+      it("Should profile update scope aclTypeTest failed", async() => {
         // given
         const memberRegisterFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
@@ -8339,7 +8335,7 @@ describe("Lively Guard Profile Tests", function() {
           .to.revertedWith("Illegal ScopeType");
       })
 
-      it("Should update scope aclTypeTest success", async() => {
+      it("Should profile update scope aclTypeTest success", async() => {
         // given
         const requests: IProfileACLCommonsRoles.ProfileUpdateScopeRequestStruct[] = [
           {
@@ -8365,7 +8361,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(typeInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
       })
 
-      it("Should aclTypeTest update admin by anyone failed", async() => {
+      it("Should profile aclTypeTest update admin by anyone failed", async() => {
         // given
         const updateAdminRequests: IProfileACLCommonsRoles.ProfileUpdateAdminRequestStruct[] = [{
           entityId: aclTypeTestId,
@@ -8377,7 +8373,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("ProfileACLMemberNotFound()");
       })
 
-      it("Should update profileSystemAdmin registerLimit by any member failed", async() => {
+      it("Should profile update profileSystemAdmin registerLimit by any member failed", async() => {
         // given
         const requests: IProfileMemberManagement.ProfileMemberUpdateRegisterLimitRequestStruct[] = [{
           memberId: profileSystemAdminId,
@@ -8398,7 +8394,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("ProfileAdminAccessNotPermitted()");
       })
 
-      it("Should update profileSystemAdmin typeLimit with Illegal Limit failed", async() => {
+      it("Should profile update profileSystemAdmin typeLimit with Illegal Limit failed", async() => {
         // given
         const requests: IProfileMemberManagement.ProfileMemberUpdateLimitRequestStruct[] = [{
           memberId: profileSystemAdminId,
@@ -8410,7 +8406,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Limit");
       })
 
-      it("Should update profileSystemAdmin registerLimit success", async() => {
+      it("Should profile update profileSystemAdmin registerLimit success", async() => {
         // given
         const requests: IProfileMemberManagement.ProfileMemberUpdateRegisterLimitRequestStruct[] = [{
           memberId: profileSystemAdminId,
@@ -8451,7 +8447,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(memberInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
       })
 
-      it("Should register aclRoleTest by profileSystemAdmin success", async() => {
+      it("Should profile register aclRoleTest by profileSystemAdmin success", async() => {
         // given
         aclRoleTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_TEST_NAME));
         const roleRegisterRequests: IProfileRoleManagement.ProfileRoleRegisterRequestStruct[] = [
@@ -8491,7 +8487,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileRoleManagerDelegateProxy.profileRoleCheckAdmin(profileTestId, aclRoleTestId, profileAdminWallet.address)).to.be.true;
       })
 
-      it("Should register aclRoleTest2 to aclTypeTest failed", async() => {
+      it("Should profile register aclRoleTest2 to aclTypeTest failed", async() => {
         // given
         aclRoleTestId2 = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_TEST_NAME_2));
         const roleRegisterRequests: IProfileRoleManagement.ProfileRoleRegisterRequestStruct[] = [
@@ -8509,7 +8505,7 @@ describe("Lively Guard Profile Tests", function() {
           .to.revertedWith("Illegal Register");
       })
 
-      it("Should update roleLimit of ACL_TYPE_TEST failed", async() => {
+      it("Should profile update roleLimit of ACL_TYPE_TEST failed", async() => {
         // given
         const requests: IProfileTypeManagement.ProfileTypeUpdateRoleLimitRequestStruct[] = [{
           typeId: aclTypeTestId,
@@ -8522,7 +8518,7 @@ describe("Lively Guard Profile Tests", function() {
 
       })
 
-      it("Should update roleLimit of ACL_TYPE_TEST success", async() => {
+      it("Should profile update roleLimit of ACL_TYPE_TEST success", async() => {
         // given
         const requests: IProfileTypeManagement.ProfileTypeUpdateRoleLimitRequestStruct[] = [{
           typeId: aclTypeTestId,
@@ -8535,7 +8531,7 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(profileSystemAdminWallet.address, profileTestId, aclTypeTestId, 5)
       })
 
-      it("Should register aclRoleTest2 in aclTypeTest success", async() => {
+      it("Should profile register aclRoleTest2 in aclTypeTest success", async() => {
         // given
         // const typeContextId = ethers.utils.keccak256(typeManagerProxy.address);
         // aclRoleTestId2 = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_TEST_NAME_2));
@@ -8568,7 +8564,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(roleInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
       })
 
-      it("Should update scope aclRoleTest2 in aclTypeTest success", async() => {
+      it("Should profile update scope aclRoleTest2 in aclTypeTest success", async() => {
         // given
         // aclRoleTestId2 = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_TEST_NAME_2));
         const roleRegisterRequests: IProfileACLCommonsRoles.ProfileUpdateScopeRequestStruct[] = [
@@ -8584,7 +8580,7 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(profileSystemAdminWallet.address, profileTestId, aclRoleTestId2, profileRealmTestId)
       })
 
-      it("Should register aclRoleTest3 in aclTypeTest success", async() => {
+      it("Should profile register aclRoleTest3 in aclTypeTest success", async() => {
         // given
         const roleIface = new ethers.utils.Interface(ProfileRoleManager__factory.abi);
         const roleRegisterFunctionId = ethers.utils.keccak256(
@@ -8620,7 +8616,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(roleInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
       })
 
-      it("Should disable alterability of aclRoleTest success", async() => {
+      it("Should profile disable alterability of aclRoleTest success", async() => {
         // given
         const requests: IProfileACLCommonsRoles.ProfileUpdateAlterabilityRequestStruct[] = [{
           entityId: aclRoleTestId,
@@ -8633,7 +8629,7 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(profileAdminWallet.address, profileTestId, aclRoleTestId, AlterabilityStatus.DISABLED)
       })
 
-      it("Should update admin of aclRoleTest when alterability disabled failed", async() => {
+      it("Should profile update admin of aclRoleTest when alterability disabled failed", async() => {
         // given
         const updateAdminRequests: IProfileACLCommonsRoles.ProfileUpdateAdminRequestStruct[] = [{
           entityId: aclRoleTestId,
@@ -8645,7 +8641,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Updatable")
       })
 
-      it("Should update activity of aclRoleTest when alterability disabled failed", async() => {
+      it("Should profile update activity of aclRoleTest when alterability disabled failed", async() => {
         // given
         const requests: IProfileACLCommonsRoles.ProfileUpdateActivityRequestStruct[] = [{
           entityId: aclRoleTestId,
@@ -8657,7 +8653,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Updatable")
       })
 
-      it("Should update memberLimit of aclRoleTest when alterability disabled failed", async() => {
+      it("Should profile update memberLimit of aclRoleTest when alterability disabled failed", async() => {
         // given
         const memberLimitRequests: IProfileRoleManagement.ProfileRoleUpdateMemberLimitRequestStruct[] = [{
           roleId: aclRoleTestId,
@@ -8669,7 +8665,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Updatable")
       })
 
-      it("Should grant member to aclRoleTest when alterability disabled failed", async() => {
+      it("Should profile grant member to aclRoleTest when alterability disabled failed", async() => {
         // given
         const userId1 = ethers.utils.keccak256(userWallet1.address)
         const requests: IProfileRoleManagement.ProfileRoleGrantMembersRequestStruct[] = [{
@@ -8682,7 +8678,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Updatable")
       })
 
-      it("Should revoke member to aclRoleTest when alterability disabled failed", async() => {
+      it("Should profile revoke member to aclRoleTest when alterability disabled failed", async() => {
         // given
         const userId1 = ethers.utils.keccak256(userWallet1.address)
         const requests: IProfileRoleManagement.ProfileRoleRevokeMembersRequestStruct[] = [{
@@ -8695,7 +8691,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Updatable")
       })
 
-      it("Should register new member to aclRoleTest when alterability disabled failed", async() => {
+      it("Should profile register new member to aclRoleTest when alterability disabled failed", async() => {
         // given
         const memberRegisterRequests: IProfileMemberManagement.ProfileMemberRegisterRequestStruct[] = [
           {
@@ -8722,7 +8718,7 @@ describe("Lively Guard Profile Tests", function() {
           .to.revertedWith("Illegal Role Updatable");
       })
 
-      it("Should update alterability of aclRoleTest success", async() => {
+      it("Should profile update alterability of aclRoleTest success", async() => {
         // given
         const requests: IProfileACLCommonsRoles.ProfileUpdateAlterabilityRequestStruct[] = [{
           entityId: aclRoleTestId,
@@ -8735,7 +8731,7 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(profileAdminWallet.address, profileTestId, aclRoleTestId, AlterabilityStatus.UPDATABLE)
       })
 
-      it("Should aclRoleTest register user1 with illegal admin failed", async() => {
+      it("Should profile aclRoleTest register user1 with illegal admin failed", async() => {
         // given
         const memberRegisterRequests: IProfileMemberManagement.ProfileMemberRegisterRequestStruct[] = [
           {
@@ -8762,7 +8758,7 @@ describe("Lively Guard Profile Tests", function() {
           .to.revertedWith("ProfileAdminAccessNotPermitted()");
       })
 
-      it("Should aclRoleTest register user1 success", async() => {
+      it("Should profile aclRoleTest register user1 success", async() => {
         // given
         const roleMemberUserId1 =  ethers.utils.keccak256(userWallet1.address);
         const memberRegisterRequests: IProfileMemberManagement.ProfileMemberRegisterRequestStruct[] = [
@@ -8815,7 +8811,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(memberInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
       })
 
-      it("Should aclRoleTest register same member failed", async() => {
+      it("Should profile aclRoleTest register same member failed", async() => {
         // given
         // const roleMemberUserId1 =  ethers.utils.keccak256(userWallet1.address);
         const memberRegisterRequests: IProfileMemberManagement.ProfileMemberRegisterRequestStruct[] = [
@@ -8843,7 +8839,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Already Exist")
       })
 
-      it("Should grant profileSystemAdmin to profileAdmin role failed", async() => {
+      it("Should profile grant profileSystemAdmin to profileAdmin role failed", async() => {
         // given
         const profileSystemAdminId = ethers.utils.keccak256(profileSystemAdminWallet.address)
         const requests: IProfileRoleManagement.ProfileRoleGrantMembersRequestStruct[] = [
@@ -8858,7 +8854,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal GrantMemberType")
       })
 
-      it("Should aclRoleTest grant profileSystemAdmin to aclRoleTestId role success", async() => {
+      it("Should profile aclRoleTest grant profileSystemAdmin to aclRoleTestId role success", async() => {
         // given
         const requests: IProfileRoleManagement.ProfileRoleGrantMembersRequestStruct[] = [
           {
@@ -8874,7 +8870,7 @@ describe("Lively Guard Profile Tests", function() {
 
       })
 
-      it("Should aclRoleTest register member with set Admin failed", async() => {
+      it("Should profile aclRoleTest register member with set Admin failed", async() => {
         // given
         const memberRegisterRequests: IProfileMemberManagement.ProfileMemberRegisterRequestStruct[] = [
           {
@@ -8901,7 +8897,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("ProfileAdminAccessNotPermitted()")
       })
 
-      it("Should aclRoleTest activity disabled with someone failed", async() => {
+      it("Should profile aclRoleTest activity disabled with someone failed", async() => {
         // given
         const requests: IProfileACLCommonsRoles.ProfileUpdateActivityRequestStruct[] = [{
           entityId: aclRoleTestId,
@@ -8913,7 +8909,7 @@ describe("Lively Guard Profile Tests", function() {
           .to.revertedWith("ProfileAdminAccessNotPermitted()")
       })
 
-      it("Should aclRoleTest activity disabled success", async() => {
+      it("Should profile aclRoleTest activity disabled success", async() => {
         // given
         const requests: IProfileACLCommonsRoles.ProfileUpdateActivityRequestStruct[] = [{
           entityId: aclRoleTestId,
@@ -8938,7 +8934,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(roleInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
       })
 
-      it("Should aclRoleTest activity enabled success", async() => {
+      it("Should profile aclRoleTest activity enabled success", async() => {
         // given
         const requests: IProfileACLCommonsRoles.ProfileUpdateActivityRequestStruct[] = [{
           entityId: aclRoleTestId,
@@ -8963,7 +8959,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(roleInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
       })
 
-      it("Should register user2 to aclRoleTest success", async() => {
+      it("Should profile register user2 to aclRoleTest success", async() => {
         // given
         const roleMemberUserId2 =  ethers.utils.keccak256(userWallet2.address);
         const requests: IProfileMemberManagement.ProfileMemberRegisterRequestStruct[] = [
@@ -9014,7 +9010,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(memberInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
       })
 
-      it("Should update admin user2 member success", async() => {
+      it("Should profile update admin user2 member success", async() => {
         // given
         const roleMemberUserId2 =  ethers.utils.keccak256(userWallet2.address);
         const requests: IProfileACLCommons.ProfileUpdateAdminRequestStruct[] = [
@@ -9030,7 +9026,7 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(profileSystemAdminWallet.address, profileTestId, roleMemberUserId2, LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID)
       })
 
-      it("Should update admin of aclRoleTest success", async() => {
+      it("Should profile update admin of aclRoleTest success", async() => {
         // given
         const updateAdminRequests: IProfileACLCommonsRoles.ProfileUpdateAdminRequestStruct[] = [{
           entityId: aclRoleTestId,
@@ -9047,7 +9043,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileRoleManagerDelegateProxy.profileRoleCheckAdmin(profileTestId, aclRoleTestId, userWallet2.address)).to.be.true;
       })
 
-      it("Should register role in aclTypeTest by user2 failed", async() => {
+      it("Should profile register role in aclTypeTest by user2 failed", async() => {
         // given
         const roleRegisterRequests: IProfileRoleManagement.ProfileRoleRegisterRequestStruct[] = [
           {
@@ -9064,7 +9060,7 @@ describe("Lively Guard Profile Tests", function() {
         to.revertedWith("Illegal Member RoleRegisterLimit")
       })
 
-      it("Should aclRoleTest register another member when meet limitation failed", async() => {
+      it("Should profile aclRoleTest register another member when meet limitation failed", async() => {
         // given
         const requests: IProfileMemberManagement.ProfileMemberRegisterRequestStruct[] = [
           {
@@ -9091,7 +9087,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Register")
       })
 
-      it("Should aclRoleTest update member limit by someone failed", async() => {
+      it("Should profile aclRoleTest update member limit by someone failed", async() => {
         // given
         const requests: IProfileRoleManagement.ProfileRoleUpdateMemberLimitRequestStruct[] = [{
           roleId: aclRoleTestId,
@@ -9103,7 +9099,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Limit")
       })
 
-      it("Should aclRoleTest update member limit by anyone failed", async() => {
+      it("Should profile aclRoleTest update member limit by anyone failed", async() => {
         // given
         const requests: IProfileRoleManagement.ProfileRoleUpdateMemberLimitRequestStruct[] = [{
           roleId: aclRoleTestId,
@@ -9115,7 +9111,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("ProfileACLMemberNotFound()")
       })
 
-      it("Should aclRoleTest update member limit success", async() => {
+      it("Should profile aclRoleTest update member limit success", async() => {
         // given
         const requests: IProfileRoleManagement.ProfileRoleUpdateMemberLimitRequestStruct[] = [{
           roleId: aclRoleTestId,
@@ -9128,7 +9124,7 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(userWallet1.address, profileTestId, aclRoleTestId, 5)
       })
 
-      it("Should register user3 member to aclRoleTest failed", async() => {
+      it("Should profile register user3 member to aclRoleTest failed", async() => {
         // given
         const requests: IProfileMemberManagement.ProfileMemberRegisterRequestStruct[] = [
           {
@@ -9155,7 +9151,7 @@ describe("Lively Guard Profile Tests", function() {
           .to.revertedWith("CallForbidden()")
       })
 
-      it("Should update callLimit of user1 success", async() => {
+      it("Should profile update callLimit of user1 success", async() => {
         // given
         const userId1 =  ethers.utils.keccak256(userWallet1.address);
         const requests: IProfileMemberManagement.ProfileMemberUpdateLimitRequestStruct[] = [{
@@ -9169,7 +9165,7 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(profileAdminWallet.address, profileTestId, userId1, 64)
       })
 
-      it("Should register user3 member to aclRoleTest success", async() => {
+      it("Should profile register user3 member to aclRoleTest success", async() => {
         // given
         const roleMemberUserId3 = ethers.utils.keccak256(userWallet3.address);
         const requests: IProfileMemberManagement.ProfileMemberRegisterRequestStruct[] = [
@@ -9224,7 +9220,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileManagerDelegateProxy.profileGetProfileAccount(userWallet3.address)).to.be.eql([profileTestId]);
       })
 
-      it("Should grant user3 to system admin role failed", async() => {
+      it("Should profile grant user3 to system admin role failed", async() => {
         // given
         const userId3 = ethers.utils.keccak256(userWallet3.address);
         const requests: IProfileRoleManagement.ProfileRoleGrantMembersRequestStruct[] = [{
@@ -9237,7 +9233,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Member TypeLimit")
       })
 
-      it("Should revoke member from aclRoleTest and delete user3 success", async() => {
+      it("Should profile revoke member from aclRoleTest and delete user3 success", async() => {
         // given
         const userId3 =  ethers.utils.keccak256(userWallet3.address);
         const requests: IProfileRoleManagement.ProfileRoleRevokeMembersRequestStruct[] = [{
@@ -9263,7 +9259,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileManagerDelegateProxy.profileGetProfileAccount(userWallet3.address)).to.be.empty;
       })
 
-      it("Should grant members to profileAdmin success", async() => {
+      it("Should profile grant members to profileAdmin success", async() => {
         // given
         const userId1 = ethers.utils.keccak256(userWallet1.address)
         const userId2 = ethers.utils.keccak256(userWallet2.address)
@@ -9309,7 +9305,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileManagerDelegateProxy.profileGetAdmins(profileTestId)).to.be.eql([profileAdminId, profileOwnerId2, userId1, userId2]);
       })
 
-      it("Should revoke user1 from profile LivelyMasterAdminRole success", async() => {
+      it("Should profile revoke user1 from profile LivelyMasterAdminRole success", async() => {
         // given
         const userId1 = ethers.utils.keccak256(userWallet1.address)
         const requests: IProfileRoleManagement.ProfileRoleRevokeMembersRequestStruct[] = [{
@@ -9329,7 +9325,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileMemberManagerDelegateProxy.profileMemberHasType(profileTestId, userId1, LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID)).to.be.false;
       })
 
-      it("Should update member alterability of user1 failed", async() => {
+      it("Should profile update member alterability of user1 failed", async() => {
         // given
         const userId1 =  ethers.utils.keccak256(userWallet1.address);
         const requests: IProfileACLCommonsRoles.ProfileUpdateAlterabilityRequestStruct[] = [{
@@ -9342,7 +9338,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("ProfileAdminAccessRoleNotFound()")
       })
 
-      it("Should disable member alterability of user1 success", async() => {
+      it("Should profile disable member alterability of user1 success", async() => {
         // given
         const userId1 =  ethers.utils.keccak256(userWallet1.address);
         const requests: IProfileACLCommonsRoles.ProfileUpdateAlterabilityRequestStruct[] = [{
@@ -9356,7 +9352,7 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(profileAdminWallet.address, profileTestId, userId1, AlterabilityStatus.DISABLED)
       })
 
-      it("Should update admin of user1 when alterability disabled failed", async() => {
+      it("Should profile update admin of user1 when alterability disabled failed", async() => {
         // given
         const userId1 =  ethers.utils.keccak256(userWallet1.address);
         const updateAdminRequests: IProfileACLCommonsRoles.ProfileUpdateAdminRequestStruct[] = [{
@@ -9369,7 +9365,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Updatable")
       })
 
-      it("Should update activity of user1 when alterability disabled failed", async() => {
+      it("Should profile update activity of user1 when alterability disabled failed", async() => {
         // given
         const userId1 =  ethers.utils.keccak256(userWallet1.address);
         const requests: IProfileACLCommonsRoles.ProfileUpdateActivityRequestStruct[] = [{
@@ -9382,7 +9378,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Updatable")
       })
 
-      it("Should update registerLimit of user1 when alterability disabled failed", async() => {
+      it("Should profile update registerLimit of user1 when alterability disabled failed", async() => {
         // given
         const userId1 =  ethers.utils.keccak256(userWallet1.address);
         const requests: IProfileMemberManagement.ProfileMemberUpdateRegisterLimitRequestStruct[] = [{
@@ -9404,7 +9400,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Updatable")
       })
 
-      it("Should updatable member alterability of user1 success", async() => {
+      it("Should profile updatable member alterability of user1 success", async() => {
         // given
         const userId1 =  ethers.utils.keccak256(userWallet1.address);
         const requests: IProfileACLCommonsRoles.ProfileUpdateAlterabilityRequestStruct[] = [{
@@ -9418,7 +9414,7 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(profileAdminWallet.address, profileTestId, userId1, AlterabilityStatus.UPDATABLE)
       })
 
-      it("Should user1 activity disabled success", async() => {
+      it("Should profile user1 activity disabled success", async() => {
         // given
         const userId1 =  ethers.utils.keccak256(userWallet1.address);
         const requests: IProfileACLCommonsRoles.ProfileUpdateActivityRequestStruct[] = [{
@@ -9451,7 +9447,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(memberInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
       })
 
-      it("Should user1 update admin success", async() => {
+      it("Should profile user1 update admin success", async() => {
         // given
         const userId1 =  ethers.utils.keccak256(userWallet1.address);
         const updateAdminRequests: IProfileACLCommonsRoles.ProfileUpdateAdminRequestStruct[] = [{
@@ -9468,7 +9464,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileMemberManagerDelegateProxy.profileMemberCheckAdmin(profileTestId, userId1, userWallet2.address)).to.be.true;
       })
 
-      it("Should user1 activity enable by itself failed", async() => {
+      it("Should profile user1 activity enable by itself failed", async() => {
         // given
         const userId1 =  ethers.utils.keccak256(userWallet1.address);
         const requests: IProfileACLCommonsRoles.ProfileUpdateActivityRequestStruct[] = [{
@@ -9481,7 +9477,7 @@ describe("Lively Guard Profile Tests", function() {
           .to.revertedWith("ProfileACLMemberActivityForbidden()")
       })
 
-      it("Should user1 activity enable with user2 success", async() => {
+      it("Should profile user1 activity enable with user2 success", async() => {
         // given
         const userId1 =  ethers.utils.keccak256(userWallet1.address);
         const requests: IProfileACLCommonsRoles.ProfileUpdateActivityRequestStruct[] = [{
@@ -9495,7 +9491,7 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(userWallet2.address, profileTestId, userId1, ActivityStatus.ENABLED)
       })
 
-      it("Should update scope aclRoleTest to Global success", async() => {
+      it("Should profile update scope aclRoleTest to Global success", async() => {
         // given
         aclRoleTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_TEST_NAME));
         const roleRegisterRequests: IProfileACLCommonsRoles.ProfileUpdateScopeRequestStruct[] = [
@@ -9525,7 +9521,7 @@ describe("Lively Guard Profile Tests", function() {
     })
 
     describe("Profile Policy Test", function() {
-      it("Should register aclPolicyTest in ACL policy success", async() => {
+      it("Should profile register aclPolicyTest in ACL policy success", async() => {
         // given
         aclPolicyTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_POLICY_TEST_NAME));
         const requests: IProfilePolicyManagement.ProfilePolicyRegisterRequestStruct[] = [
@@ -9565,7 +9561,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profilePolicyManagerDelegateProxy.profilePolicyCheckAdmin(profileTestId, aclPolicyTestId, profileAdminWallet.address)).to.be.true;
       })
 
-      it("Should update scope aclPolicyTest in profileTest failed", async() => {
+      it("Should profile update scope aclPolicyTest in profileTest failed", async() => {
         // given
         const roleIface = new ethers.utils.Interface(ProfileRoleManager__factory.abi);
         const roleRegisterFunctionId = ethers.utils.keccak256(
@@ -9584,7 +9580,7 @@ describe("Lively Guard Profile Tests", function() {
         to.revertedWith("Illegal ScopeType")
       })
 
-      it("Should update scope aclPolicyTest in profileTest success", async() => {
+      it("Should profile update scope aclPolicyTest in profileTest success", async() => {
         // given
         aclPolicyTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_POLICY_TEST_NAME));
         const requests: IProfileACLCommonsRoles.ProfileUpdateScopeRequestStruct[] = [
@@ -9600,7 +9596,7 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(profileAdminWallet.address, profileTestId, aclPolicyTestId, LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID)
       })
 
-      it("Should disable alterability of aclPolicyTest success", async() => {
+      it("Should profile disable alterability of aclPolicyTest success", async() => {
         // given
         const requests: IProfileACLCommonsRoles.ProfileUpdateAlterabilityRequestStruct[] = [{
           entityId: aclPolicyTestId,
@@ -9613,7 +9609,7 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(profileOwnerWallet2.address, profileTestId, aclPolicyTestId, AlterabilityStatus.DISABLED)
       })
 
-      it("Should update admin of aclPolicyTest when alterability disabled failed", async() => {
+      it("Should profile update admin of aclPolicyTest when alterability disabled failed", async() => {
         // given
         const updateAdminRequests: IProfileACLCommonsRoles.ProfileUpdateAdminRequestStruct[] = [{
           entityId: aclPolicyTestId,
@@ -9625,7 +9621,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Updatable")
       })
 
-      it("Should update policyCode of aclPolicyTest when alterability disabled failed", async() => {
+      it("Should profile update policyCode of aclPolicyTest when alterability disabled failed", async() => {
         // given
         const requests: IProfilePolicyManagement.ProfilePolicyUpdateCodeRequestStruct[] = [{
           policyId: aclPolicyTestId,
@@ -9637,7 +9633,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Updatable")
       })
 
-      it("Should update activity of aclPolicyTest when alterability disabled failed", async() => {
+      it("Should profile update activity of aclPolicyTest when alterability disabled failed", async() => {
         // given
         const requests: IProfileACLCommonsRoles.ProfileUpdateActivityRequestStruct[] = [{
           entityId: aclPolicyTestId,
@@ -9649,7 +9645,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Updatable")
       })
 
-      it("Should update roleLimit of aclPolicyTest when alterability disabled failed", async() => {
+      it("Should profile update roleLimit of aclPolicyTest when alterability disabled failed", async() => {
         // given
         const requests: IProfilePolicyManagement.ProfilePolicyUpdateRoleLimitRequestStruct[] = [{
           policyId: aclPolicyTestId,
@@ -9661,7 +9657,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Updatable")
       })
 
-      it("Should add roles to aclPolicyTest when alterability disabled failed", async() => {
+      it("Should profile add roles to aclPolicyTest when alterability disabled failed", async() => {
         // given
         const requests: IProfilePolicyManagement.ProfilePolicyAddRolesRequestStruct[] = [{
           policyId: aclPolicyTestId,
@@ -9673,7 +9669,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Updatable")
       })
 
-      it("Should remove roles to aclPolicyTest when alterability disabled failed", async() => {
+      it("Should profile remove roles to aclPolicyTest when alterability disabled failed", async() => {
         // given
         const requests: IProfilePolicyManagement.ProfilePolicyAddRolesRequestStruct[] = [{
           policyId: aclPolicyTestId,
@@ -9685,7 +9681,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Updatable")
       })
 
-      it("Should update alterability of aclPolicyTest success", async() => {
+      it("Should profile update alterability of aclPolicyTest success", async() => {
         // given
         const requests: IProfileACLCommonsRoles.ProfileUpdateAlterabilityRequestStruct[] = [{
           entityId: aclPolicyTestId,
@@ -9698,7 +9694,7 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(profileAdminWallet.address, profileTestId, aclPolicyTestId, AlterabilityStatus.UPDATABLE)
       })
 
-      it("Should aclPolicyTest activity disabled success", async() => {
+      it("Should profile aclPolicyTest activity disabled success", async() => {
         // given
         const requests: IProfileACLCommonsRoles.ProfileUpdateActivityRequestStruct[] = [{
           entityId: aclPolicyTestId,
@@ -9724,7 +9720,7 @@ describe("Lively Guard Profile Tests", function() {
 
       })
 
-      it("Should aclPolicyTest activity enabled success", async() => {
+      it("Should profile aclPolicyTest activity enabled success", async() => {
         // given
         const requests: IProfileACLCommonsRoles.ProfileUpdateActivityRequestStruct[] = [{
           entityId: aclPolicyTestId,
@@ -9737,7 +9733,7 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(userWallet2.address, profileTestId, aclPolicyTestId, ActivityStatus.ENABLED)
       })
 
-      it("Should add adminId to aclPolicyTest self failed", async() => {
+      it("Should profile add adminId to aclPolicyTest self failed", async() => {
         // given
         const requests: IProfilePolicyManagement.ProfilePolicyAddRolesRequestStruct[] = [{
           policyId: aclPolicyTestId,
@@ -9749,7 +9745,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Role")
       })
 
-      it("Should update admin of aclPolicyTest success", async() => {
+      it("Should profile update admin of aclPolicyTest success", async() => {
         // given
         const updateAdminRequests: IProfileACLCommonsRoles.ProfileUpdateAdminRequestStruct[] = [{
           entityId: aclPolicyTestId,
@@ -9762,7 +9758,7 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(profileAdminWallet.address, profileTestId, aclPolicyTestId, aclRoleTestId);
       })
 
-      it("Should add aclRoleTestId2 to aclPolicyTest success", async() => {
+      it("Should profile add aclRoleTestId2 to aclPolicyTest success", async() => {
         // given
         const requests: IProfilePolicyManagement.ProfilePolicyAddRolesRequestStruct[] = [{
           policyId: aclPolicyTestId,
@@ -9791,7 +9787,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(policyInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
       })
 
-      it("Should add roles to aclPolicyTest for illegal role failed", async() => {
+      it("Should profile add roles to aclPolicyTest for illegal role failed", async() => {
         // given
         const requests: IProfilePolicyManagement.ProfilePolicyAddRolesRequestStruct[] = [{
           policyId: aclPolicyTestId,
@@ -9803,7 +9799,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Role")
       })
 
-      it("Should update admin of aclPolicyTest to SYSTEM_MASTER_ADMIN_ROLE success", async() => {
+      it("Should profile update admin of aclPolicyTest to SYSTEM_MASTER_ADMIN_ROLE success", async() => {
         // given
         const updateAdminRequests: IProfileACLCommonsRoles.ProfileUpdateAdminRequestStruct[] = [{
           entityId: aclPolicyTestId,
@@ -9816,7 +9812,7 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(userWallet1.address, profileTestId, aclPolicyTestId, LIVELY_PROFILE_SYSTEM_MASTER_ADMIN_ROLE_ID);
       })
 
-      it("Should add roles to aclPolicyTest for limitation failed", async() => {
+      it("Should profile add roles to aclPolicyTest for limitation failed", async() => {
         // given
         const requests: IProfilePolicyManagement.ProfilePolicyAddRolesRequestStruct[] = [{
           policyId: aclPolicyTestId,
@@ -9828,7 +9824,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Limit")
       })
 
-      it("Should update role limit of aclPolicyTest by anyone failed", async() => {
+      it("Should profile update role limit of aclPolicyTest by anyone failed", async() => {
         // given
         const requests: IProfilePolicyManagement.ProfilePolicyUpdateRoleLimitRequestStruct[] = [{
           policyId: aclPolicyTestId,
@@ -9840,7 +9836,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("ProfileAdminAccessNotPermitted()")
       })
 
-      it("Should update role limit of aclPolicyTest success", async() => {
+      it("Should profile update role limit of aclPolicyTest success", async() => {
         // given
         const requests: IProfilePolicyManagement.ProfilePolicyUpdateRoleLimitRequestStruct[] = [{
           policyId: aclPolicyTestId,
@@ -9853,7 +9849,7 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(profileSystemAdminWallet.address, profileTestId, aclPolicyTestId, 5)
       })
 
-      it("Should add aclRoleTestId to aclPolicyTest success", async() => {
+      it("Should profile add aclRoleTestId to aclPolicyTest success", async() => {
         // given
         const requests: IProfilePolicyManagement.ProfilePolicyAddRolesRequestStruct[] = [{
           policyId: aclPolicyTestId,
@@ -9871,7 +9867,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profilePolicyManagerDelegateProxy.profilePolicyGetRoles(profileTestId, aclPolicyTestId)).to.be.eqls([aclRoleTestId2, aclRoleTestId])
       })
 
-      it("Should remove roles aclRoleTestId2 to aclPolicyTest success", async() => {
+      it("Should profile remove roles aclRoleTestId2 to aclPolicyTest success", async() => {
         // given
         const requests: IProfilePolicyManagement.ProfilePolicyAddRolesRequestStruct[] = [{
           policyId: aclPolicyTestId,
@@ -9888,7 +9884,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profilePolicyManagerDelegateProxy.profilePolicyHasRole(profileTestId, aclPolicyTestId, aclRoleTestId2)).to.be.false;
       })
 
-      it("Should update policyCode of aclPolicyTest to UNLOCK success", async() => {
+      it("Should profile update policyCode of aclPolicyTest to UNLOCK success", async() => {
         // given
         const memberRegisterFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
@@ -9915,7 +9911,7 @@ describe("Lively Guard Profile Tests", function() {
 
     describe("Profile Scope Test", function() {
       // function manager tests
-      it("Should disable alterability of memberRegisterFunction success", async() => {
+      it("Should profile disable alterability of memberRegisterFunction success", async() => {
         // given
         const memberRegisterFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
@@ -9931,7 +9927,7 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(profileAdminWallet.address, profileTestId, memberRegisterFunctionId, AlterabilityStatus.DISABLED);
       })
 
-      it("Should update admin of memberRegisterFunction when alterability disabled failed", async() => {
+      it("Should profile update admin of memberRegisterFunction when alterability disabled failed", async() => {
         // given
         const memberRegisterFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
@@ -9946,7 +9942,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Updatable")
       })
 
-      it("Should update agent of memberRegisterFunction when alterability disabled failed", async() => {
+      it("Should profile update agent of memberRegisterFunction when alterability disabled failed", async() => {
         // given
         const memberRegisterFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
@@ -9961,7 +9957,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Updatable")
       })
 
-      it("Should update policyCode of memberRegisterFunction when alterability disabled failed", async() => {
+      it("Should profile update policyCode of memberRegisterFunction when alterability disabled failed", async() => {
         // given
         const memberRegisterFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
@@ -9976,7 +9972,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Updatable")
       })
 
-      it("Should update activity of memberRegisterFunction when alterability disabled failed", async() => {
+      it("Should profile update activity of memberRegisterFunction when alterability disabled failed", async() => {
         // given
         const memberRegisterFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
@@ -9991,7 +9987,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Updatable")
       })
 
-      it("Should update alterability of memberRegisterFunction success", async() => {
+      it("Should profile update alterability of memberRegisterFunction success", async() => {
         // given
         const memberRegisterFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
@@ -10007,7 +10003,7 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(profileAdminWallet.address, profileTestId, memberRegisterFunctionId, AlterabilityStatus.UPDATABLE)
       })
 
-      it("Should disable activity of memberRegisterFunction success", async() => {
+      it("Should profile disable activity of memberRegisterFunction success", async() => {
         // given
         const memberContextId = ethers.utils.keccak256(profileMemberManagerTest.address);
         const memberRegisterFunctionId = ethers.utils.keccak256(
@@ -10037,7 +10033,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(functionInfo.referredByAgent).to.be.equal(0);
       })
 
-      it("Should enable activity of memberRegisterFunction success", async() => {
+      it("Should profile enable activity of memberRegisterFunction success", async() => {
         // given
         const memberRegisterFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
@@ -10056,7 +10052,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileFunctionManagerDelegateProxy.profileFunctionCheckSelector(profileTestId, profileMemberManagerTest.address, profileTestMemberIface.getSighash("profileMemberRegisterTest"))).to.be.true;
       })
 
-      it("Should update agent of memberRegisterFunction to aclTypeTest success", async() => {
+      it("Should profile update agent of memberRegisterFunction to aclTypeTest success", async() => {
         // given
         const memberRegisterFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
@@ -10077,7 +10073,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileFunctionManagerDelegateProxy.profileFunctionCheckAgent(profileTestId, memberRegisterFunctionId,  profileSystemAdminWallet.address)).to.be.true;
       })
 
-      it("Should revoke user2 from profile ProfileMasterAdminRole success", async() => {
+      it("Should profile revoke user2 from profile ProfileMasterAdminRole success", async() => {
         // given
         const userId2 = ethers.utils.keccak256(userWallet2.address)
         const requests: IProfileRoleManagement.ProfileRoleRevokeMembersRequestStruct[] = [{
@@ -10097,7 +10093,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileMemberManagerDelegateProxy.profileMemberHasType(profileTestId, userId2, LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID)).to.be.false;
       })
 
-      it("Should update user2 registerLimit success", async() => {
+      it("Should profile update user2 registerLimit success", async() => {
         // given
         const userId2 = ethers.utils.keccak256(userWallet2.address)
         const requests: IProfileMemberManagement.ProfileMemberUpdateRegisterLimitRequestStruct[] = [{
@@ -10139,7 +10135,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(memberInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
       })
 
-      it("Should grant user2 to aclRoleTest3 success", async() => {
+      it("Should profile grant user2 to aclRoleTest3 success", async() => {
         // given
         const userId2 = ethers.utils.keccak256(userWallet2.address)
         const requests: IProfileRoleManagement.ProfileRoleGrantMembersRequestStruct[] = [
@@ -10157,14 +10153,14 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(profileSystemAdminWallet.address, profileTestId, aclRoleTestId3, userId2, aclTypeTestId)
       })
 
-      it("Should aclRoleTest3 register user3 with Illegal role scope failed", async() => {
+      it("Should profile aclRoleTest3 register user3 with Illegal role scope failed", async() => {
 
         // when
         await expect(profileMemberManagerTest.connect(user2).profileMemberRegisterTest(profileTestId))
           .to.revertedWith("ProfileACLRoleScopeForbidden()");
       })
 
-      it("Should update agent of memberRegisterFunction to aclRoleTest success", async() => {
+      it("Should profile update agent of memberRegisterFunction to aclRoleTest success", async() => {
         // given
         const memberRegisterFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
@@ -10185,7 +10181,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileFunctionManagerDelegateProxy.profileFunctionCheckAgent(profileTestId, memberRegisterFunctionId,  livelyAdminWallet.address)).to.be.false;
       })
 
-      it("Should update admin of memberRegisterFunction success", async() => {
+      it("Should profile update admin of memberRegisterFunction success", async() => {
         // given
         const profileMemberRegisterFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
@@ -10206,7 +10202,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileFunctionManagerDelegateProxy.profileFunctionCheckAdmin(profileTestId, profileMemberRegisterFunctionId, userWallet1.address)).to.be.true;
       })
 
-      it("Should update policyCode of aclPolicyTest to LOCK success", async() => {
+      it("Should profile update policyCode of aclPolicyTest to LOCK success", async() => {
         // given
         const memberRegisterFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
@@ -10230,13 +10226,13 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profilePolicyManagerDelegateProxy.profilePolicyCheckRoleAccess(profileTestId, aclRoleTestId, memberRegisterFunctionId)).to.be.false;
       })
 
-      it("Should aclRoleTest register user3 member with policy LOCK failed", async() => {
+      it("Should profile aclRoleTest register user3 member with policy LOCK failed", async() => {
         // when
         await expect(profileMemberManagerTest.connect(user1).profileMemberRegisterTest(profileTestId))
           .to.revertedWith("ProfileACLPolicyForbidden()")
       })
 
-      it("Should update policyCode of memberRegisterFunction to RLOCK failed", async() => {
+      it("Should profile update policyCode of memberRegisterFunction to RLOCK failed", async() => {
         // given
         const profileMemberRegisterFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
@@ -10253,7 +10249,7 @@ describe("Lively Guard Profile Tests", function() {
           .to.revertedWith("ProfileAdminAccessPolicyForbidden()");
       })
 
-      it("Should update policyCode of aclPolicyTest to UNLOCK success", async() => {
+      it("Should profile update policyCode of aclPolicyTest to UNLOCK success", async() => {
         // given
         const requests: IProfilePolicyManagement.ProfilePolicyUpdateCodeRequestStruct[] = [{
           policyId: aclPolicyTestId,
@@ -10266,7 +10262,7 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(profileSystemAdminWallet.address, profileTestId, aclPolicyTestId, 0, PolicyType.UNLOCK);
       })
 
-      it("Should update policyCode of memberRegisterFunction to RLOCK success", async() => {
+      it("Should profile update policyCode of memberRegisterFunction to RLOCK success", async() => {
         // given
         const memberContextId = ethers.utils.keccak256(profileMemberManagerTest.address);
         const profileMemberRegisterFunctionId = ethers.utils.keccak256(
@@ -10298,7 +10294,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(functionInfo.referredByAgent).to.be.equal(0);
       })
 
-      it("Should aclRoleTest register user3 member with policy UNLOCK success", async() => {
+      it("Should profile aclRoleTest register user3 member with policy UNLOCK success", async() => {
         // given
         const roleMemberUserId3 =  ethers.utils.keccak256(userWallet3.address);
         const memberRegisterRequests: IProfileMemberManagement.ProfileMemberRegisterRequestStruct[] = [
@@ -10353,7 +10349,7 @@ describe("Lively Guard Profile Tests", function() {
       })
 
       // context manager test
-      it("Should disable alterability of profileMemberContextTest success", async() => {
+      it("Should profile disable alterability of profileMemberContextTest success", async() => {
         // given
         const memberContextId = ethers.utils.keccak256(profileMemberManagerTest.address);
         const requests: IProfileACLCommonsRoles.ProfileUpdateAlterabilityRequestStruct[] = [{
@@ -10367,7 +10363,7 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(profileAdminWallet.address, profileTestId, memberContextId, AlterabilityStatus.DISABLED);
       })
 
-      it("Should update admin of profileMemberContextTest when alterability disabled failed", async() => {
+      it("Should profile update admin of profileMemberContextTest when alterability disabled failed", async() => {
         // given
         const memberContextId = ethers.utils.keccak256(profileMemberManagerTest.address);
         const requests: IProfileACLCommonsRoles.ProfileUpdateAdminRequestStruct[] = [{
@@ -10380,7 +10376,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Updatable")
       })
 
-      it("Should update activity of profileMemberContextTest when alterability disabled failed", async() => {
+      it("Should profile update activity of profileMemberContextTest when alterability disabled failed", async() => {
         // given
         const memberContextId = ethers.utils.keccak256(profileMemberManagerTest.address);
         const requests: IProfileACLCommonsRoles.ProfileUpdateActivityRequestStruct[] = [{
@@ -10393,7 +10389,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Updatable")
       })
 
-      it("Should update functionLimit of profileMemberContextTest when alterability disabled failed", async() => {
+      it("Should profile update functionLimit of profileMemberContextTest when alterability disabled failed", async() => {
         // given
         const memberContextId = ethers.utils.keccak256(profileMemberManagerTest.address);
         const requests: IProfileContextManagement.ProfileContextUpdateFunctionLimitRequestStruct[] = [{
@@ -10406,7 +10402,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Updatable")
       })
 
-      it("Should update alterability of profileMemberContextTest success", async() => {
+      it("Should profile update alterability of profileMemberContextTest success", async() => {
         // given
         const memberContextId = ethers.utils.keccak256(profileMemberManagerTest.address);
         const requests: IProfileACLCommonsRoles.ProfileUpdateAlterabilityRequestStruct[] = [{
@@ -10420,7 +10416,7 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(profileAdminWallet.address, profileTestId, memberContextId, AlterabilityStatus.UPDATABLE)
       })
 
-      it("Should disable activity of profileMemberContextTest success", async() => {
+      it("Should profile disable activity of profileMemberContextTest success", async() => {
         // given
         const memberContextId = ethers.utils.keccak256(profileMemberManagerTest.address);
         const requests: IProfileACLCommonsRoles.ProfileUpdateActivityRequestStruct[] = [{
@@ -10445,7 +10441,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(memberContextInfo.referredByAgent).to.be.equal(0);
       })
 
-      it("Should enable activity of profileMemberContextTest success", async() => {
+      it("Should profile enable activity of profileMemberContextTest success", async() => {
         // given
         const memberRegisterFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
@@ -10470,7 +10466,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(functionIds.length).to.be.equal(1)
       })
 
-      it("Should update admin of profileMemberContextTest success", async() => {
+      it("Should profile update admin of profileMemberContextTest success", async() => {
         // given
         const memberContextId = ethers.utils.keccak256(profileMemberManagerTest.address);
         const updateAdminRequests: IProfileACLCommonsRoles.ProfileUpdateAdminRequestStruct[] = [{
@@ -10487,7 +10483,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileContextManagerDelegateProxy.profileContextCheckAdmin(profileTestId, memberContextId, userWallet1.address)).to.be.true;
       })
 
-      it("Should update functionLimit of profileMemberContextTest success", async() => {
+      it("Should profile update functionLimit of profileMemberContextTest success", async() => {
         // given
         const memberContextId = ethers.utils.keccak256(profileMemberManagerTest.address);
         const requests: IProfileContextManagement.ProfileContextUpdateFunctionLimitRequestStruct[] = [{
@@ -10516,7 +10512,7 @@ describe("Lively Guard Profile Tests", function() {
 
 
       // domain manager test
-      it("Should register aclDomainTest in Profile Global success", async() => {
+      it("Should profile register aclDomainTest in Profile Global success", async() => {
         // given
         aclDomainTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_DOMAIN_TEST_NAME));
         const requests: IProfileDomainManagement.ProfileDomainRegisterRequestStruct[] = [
@@ -10554,7 +10550,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileGlobalManagerDelegateProxy.profileGlobalGetDomains(profileTestId)).to.be.eqls([profileDomainTestId, aclDomainTestId]);
       })
 
-      it("Should disable of aclDomainTest success", async() => {
+      it("Should profile disable of aclDomainTest success", async() => {
         // given
         const requests: IProfileACLCommonsRoles.ProfileUpdateAlterabilityRequestStruct[] = [{
           entityId: aclDomainTestId,
@@ -10567,7 +10563,7 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(profileAdminWallet.address, profileTestId, aclDomainTestId, AlterabilityStatus.DISABLED)
       })
 
-      it("Should update admin of aclDomainTest when alterability disabled failed", async() => {
+      it("Should profile update admin of aclDomainTest when alterability disabled failed", async() => {
         // given
         const requests: IProfileACLCommonsRoles.ProfileUpdateAdminRequestStruct[] = [{
           entityId: aclDomainTestId,
@@ -10579,7 +10575,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Updatable")
       })
 
-      it("Should update activity of aclDomainTest when alterability disabled failed", async() => {
+      it("Should profile update activity of aclDomainTest when alterability disabled failed", async() => {
         // given
         const requests: IProfileACLCommonsRoles.ProfileUpdateActivityRequestStruct[] = [{
           entityId: aclDomainTestId,
@@ -10591,7 +10587,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Updatable")
       })
 
-      it("Should update roleLimit of aclDomainTest when alterability disabled failed", async() => {
+      it("Should profile update roleLimit of aclDomainTest when alterability disabled failed", async() => {
         // given
         const requests: IProfileDomainManagement.ProfileDomainUpdateRealmLimitRequestStruct[] = [{
           domainId: aclDomainTestId,
@@ -10603,7 +10599,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Updatable")
       })
 
-      it("Should update alterability of aclDomainTest success", async() => {
+      it("Should profile update alterability of aclDomainTest success", async() => {
         // given
         const requests: IProfileACLCommonsRoles.ProfileUpdateAlterabilityRequestStruct[] = [{
           entityId: aclDomainTestId,
@@ -10616,7 +10612,7 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(profileAdminWallet.address, profileTestId, aclDomainTestId, AlterabilityStatus.UPDATABLE)
       })
 
-      it("Should disable activity of aclDomainTest success", async() => {
+      it("Should profile disable activity of aclDomainTest success", async() => {
         // given
         const requests: IProfileACLCommonsRoles.ProfileUpdateActivityRequestStruct[] = [{
           entityId: aclDomainTestId,
@@ -10641,7 +10637,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(domainInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
       })
 
-      it("Should enable activity of aclDomainTest success", async() => {
+      it("Should profile enable activity of aclDomainTest success", async() => {
         // given
         const requests: IProfileACLCommonsRoles.ProfileUpdateActivityRequestStruct[] = [{
           entityId: aclDomainTestId,
@@ -10654,7 +10650,7 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(profileAdminWallet.address, profileTestId, aclDomainTestId, ActivityStatus.ENABLED)
       })
 
-      it("Should update admin of aclDomainTest success", async() => {
+      it("Should profile update admin of aclDomainTest success", async() => {
         // given
         const updateAdminRequests: IProfileACLCommonsRoles.ProfileUpdateAdminRequestStruct[] = [{
           entityId: aclDomainTestId,
@@ -10670,7 +10666,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileDomainManagerDelegateProxy.profileDomainCheckAdmin(profileTestId, aclDomainTestId, profileSystemAdminWallet.address)).to.be.true;
       })
 
-      it("Should update realmLimit of aclDomainTest success", async() => {
+      it("Should profile update realmLimit of aclDomainTest success", async() => {
         // given
         const requests: IProfileDomainManagement.ProfileDomainUpdateRealmLimitRequestStruct[] = [{
           domainId: aclDomainTestId,
@@ -10695,7 +10691,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(domainInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
       })
 
-      it("Should grant user1 to aclAdminRole success", async() => {
+      it("Should profile grant user1 to aclAdminRole success", async() => {
         // given
         const userId1 = ethers.utils.keccak256(userWallet1.address)
         const requests: IProfileRoleManagement.ProfileRoleGrantMembersRequestStruct[] = [
@@ -10713,7 +10709,7 @@ describe("Lively Guard Profile Tests", function() {
 
 
       // realm manager tests
-      it("Should register aclRealmTest to aclDomainTestId success", async() => {
+      it("Should profile register aclRealmTest to aclDomainTestId success", async() => {
         // given
         const memberRegisterFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
@@ -10761,7 +10757,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(contexts.length).to.be.equal(2);
       })
 
-      it("Should disable of aclRealmTest success", async() => {
+      it("Should profile disable of aclRealmTest success", async() => {
         // given
         const requests: IProfileACLCommonsRoles.ProfileUpdateAlterabilityRequestStruct[] = [{
           entityId: aclRealmTestId,
@@ -10774,7 +10770,7 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(profileAdminWallet.address, profileTestId, aclRealmTestId, AlterabilityStatus.DISABLED)
       })
 
-      it("Should update admin of aclRealmTest when alterability disabled failed", async() => {
+      it("Should profile update admin of aclRealmTest when alterability disabled failed", async() => {
         // given
         const requests: IProfileACLCommonsRoles.ProfileUpdateAdminRequestStruct[] = [{
           entityId: aclRealmTestId,
@@ -10786,7 +10782,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Updatable")
       })
 
-      it("Should update activity of aclRealmTest when alterability disabled failed", async() => {
+      it("Should profile update activity of aclRealmTest when alterability disabled failed", async() => {
         // given
         const requests: IProfileACLCommonsRoles.ProfileUpdateActivityRequestStruct[] = [{
           entityId: aclRealmTestId,
@@ -10798,7 +10794,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Updatable")
       })
 
-      it("Should update contextLimit of aclRealmTest when alterability disabled failed", async() => {
+      it("Should profile update contextLimit of aclRealmTest when alterability disabled failed", async() => {
         // given
         const requests: IProfileRealmManagement.ProfileRealmUpdateContextLimitRequestStruct[] = [{
           realmId: aclRealmTestId,
@@ -10810,7 +10806,7 @@ describe("Lively Guard Profile Tests", function() {
           .revertedWith("Illegal Updatable")
       })
 
-      it("Should update alterability of aclRealmTest success", async() => {
+      it("Should profile update alterability of aclRealmTest success", async() => {
         // given
         const requests: IProfileACLCommonsRoles.ProfileUpdateAlterabilityRequestStruct[] = [{
           entityId: aclRealmTestId,
@@ -10823,7 +10819,7 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(profileAdminWallet.address, profileTestId, aclRealmTestId, AlterabilityStatus.UPDATABLE)
       })
 
-      it("Should disable activity of aclRealmTest success", async() => {
+      it("Should profile disable activity of aclRealmTest success", async() => {
         // given
         const requests: IProfileACLCommonsRoles.ProfileUpdateActivityRequestStruct[] = [{
           entityId: aclRealmTestId,
@@ -10849,7 +10845,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(realmInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
       })
 
-      it("Should enable activity of aclRealmTest success", async() => {
+      it("Should profile enable activity of aclRealmTest success", async() => {
         // given
         const requests: IProfileACLCommonsRoles.ProfileUpdateActivityRequestStruct[] = [{
           entityId: aclRealmTestId,
@@ -10862,7 +10858,7 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(profileAdminWallet.address, profileTestId, aclRealmTestId, ActivityStatus.ENABLED)
       })
 
-      it("Should update admin of aclRealmTest success", async() => {
+      it("Should profile update admin of aclRealmTest success", async() => {
         // given
         const updateAdminRequests: IProfileACLCommonsRoles.ProfileUpdateAdminRequestStruct[] = [{
           entityId: aclRealmTestId,
@@ -10878,7 +10874,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileRealmManagerDelegateProxy.profileRealmCheckAdmin(profileTestId, aclRealmTestId, userWallet1.address)).to.be.true;
       })
 
-      it("Should update contextLimit of aclRealmTest success", async() => {
+      it("Should profile update contextLimit of aclRealmTest success", async() => {
         // given
         const requests: IProfileRealmManagement.ProfileRealmUpdateContextLimitRequestStruct[] = [{
           realmId: aclRealmTestId,
@@ -10904,7 +10900,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(realmInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
       })
 
-      it("Should move realm from aclDomainTestId to profileDomainTestId success", async() => {
+      it("Should profile move realm from aclDomainTestId to profileDomainTestId success", async() => {
         // given
         const requests: IProfileDomainManagement.ProfileDomainMoveRealmRequestStruct[] = [{
           domainId: aclDomainTestId,
@@ -10934,7 +10930,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(realmInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
       })
 
-      it("Should move context from ACLRealm to ACL aclRealmTestId success", async() => {
+      it("Should profile move context from ACLRealm to ACL aclRealmTestId success", async() => {
         // given
         const memberContextId = ethers.utils.keccak256(profileMemberManagerTest.address);
         const requests: IProfileRealmManagement.ProfileRealmMoveContextRequestStruct[] = [{
@@ -10965,34 +10961,34 @@ describe("Lively Guard Profile Tests", function() {
       })
 
       // global manager tests
-      it("Should disable alterability of global scope success", async() => {
+      it("Should profile disable alterability of global scope success", async() => {
         // when
         await expect(profileGlobalManagerDelegateProxy.connect(profileAdmin).profileGlobalUpdateAlterabilityStatus(profileTestId, AlterabilityStatus.DISABLED))
           .to.emit(profileGlobalManagerDelegateProxy, "ProfileGlobalAlterabilityUpdated")
           .withArgs(profileAdminWallet.address, profileTestId, LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, AlterabilityStatus.DISABLED);
       })
 
-      it("Should update admin of global scope when alterability disabled failed", async() => {
+      it("Should profile update admin of global scope when alterability disabled failed", async() => {
 
         // when
         await expect(profileGlobalManagerDelegateProxy.connect(profileAdmin).profileGlobalUpdateAdmin(profileTestId, aclRoleTestId))
           .revertedWith("Illegal Updatable")
       })
 
-      it("Should update activity of global scope when alterability disabled failed", async() => {
+      it("Should profile update activity of global scope when alterability disabled failed", async() => {
         // when
         await expect(profileGlobalManagerDelegateProxy.connect(profileAdmin).profileGlobalUpdateActivityStatus(profileTestId, ActivityStatus.DISABLED))
           .revertedWith("Illegal Updatable")
       })
 
-      it("Should update alterability of global scope success", async() => {
+      it("Should profile update alterability of global scope success", async() => {
         // when
         await expect(profileGlobalManagerDelegateProxy.connect(profileAdmin).profileGlobalUpdateAlterabilityStatus(profileTestId, AlterabilityStatus.UPDATABLE))
           .to.emit(profileGlobalManagerDelegateProxy, "ProfileGlobalAlterabilityUpdated")
           .withArgs(profileAdminWallet.address, profileTestId, LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, AlterabilityStatus.UPDATABLE)
       })
 
-      it("Should disable activity of global scope success", async() => {
+      it("Should profile disable activity of global scope success", async() => {
         // when
         await expect(profileGlobalManagerDelegateProxy.connect(profileAdmin).profileGlobalUpdateActivityStatus(profileTestId, ActivityStatus.DISABLED))
           .to.emit(profileGlobalManagerDelegateProxy, "ProfileGlobalActivityUpdated")
@@ -11011,21 +11007,21 @@ describe("Lively Guard Profile Tests", function() {
         expect(globalInfo.referredByAgent).to.be.equal(7);
       })
 
-      it("Should call profileMemberRegisterTest when global disable failed", async() => {
+      it("Should profile call profileMemberRegisterTest when global disable failed", async() => {
 
         // when and then
         await expect(profileMemberManagerTest.connect(user1).profileMemberRegisterTest(profileTestId))
           .revertedWith("ProfileACLGlobalActivityForbidden()")
       })
 
-      it("Should enable activity of global scope success", async() => {
+      it("Should profile enable activity of global scope success", async() => {
         // when
         await expect(profileGlobalManagerDelegateProxy.connect(profileAdmin).profileGlobalUpdateActivityStatus(profileTestId, ActivityStatus.ENABLED))
           .to.emit(profileGlobalManagerDelegateProxy, "ProfileGlobalActivityUpdated")
           .withArgs(profileAdminWallet.address, profileTestId, LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, ActivityStatus.ENABLED)
       })
 
-      it("Should register aclRoleGlobalAdminTest in LivelyMaster type success", async() => {
+      it("Should profile register aclRoleGlobalAdminTest in LivelyMaster type success", async() => {
         // given
         aclRoleGlobalAdminTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_GLOBAL_ADMIN_TEST_NAME));
         const roleRegisterRequests: IProfileRoleManagement.ProfileRoleRegisterRequestStruct[] = [
@@ -11046,7 +11042,7 @@ describe("Lively Guard Profile Tests", function() {
 
       })
 
-      it("Should grant user3 to aclRoleGlobalAdminTest role success", async() => {
+      it("Should profile grant user3 to aclRoleGlobalAdminTest role success", async() => {
         // given
         const userId3 = ethers.utils.keccak256(userWallet3.address)
         const requests: IProfileRoleManagement.ProfileRoleGrantMembersRequestStruct[] = [{
@@ -11060,7 +11056,7 @@ describe("Lively Guard Profile Tests", function() {
           .withArgs(profileAdminWallet.address, profileTestId, aclRoleGlobalAdminTestId, userId3, LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID)
       })
 
-      it("Should update admin of global scope to aclRoleGlobalAdminTestId success", async() => {
+      it("Should profile update admin of global scope to aclRoleGlobalAdminTestId success", async() => {
         // when
         await expect(profileGlobalManagerDelegateProxy.connect(profileAdmin).profileGlobalUpdateAdmin(profileTestId, aclRoleGlobalAdminTestId))
           .to.emit(profileGlobalManagerDelegateProxy, "ProfileGlobalAdminUpdated")
@@ -11070,14 +11066,14 @@ describe("Lively Guard Profile Tests", function() {
         expect(await profileGlobalManagerDelegateProxy.profileGlobalCheckAdmin(profileTestId, userWallet3.address)).to.be.true;
       })
 
-      it("Should update domainLimit of global scope success", async() => {
+      it("Should profile update domainLimit of global scope success", async() => {
         // when
         await expect(profileGlobalManagerDelegateProxy.connect(user3).profileGlobalUpdateDomainLimit(profileTestId,5))
           .to.emit(profileGlobalManagerDelegateProxy, "ProfileGlobalDomainLimitUpdated")
           .withArgs(userWallet3.address, profileTestId, LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, 5);
       })
 
-      it("Should update admin of profile global scope to PROFILE_MASTER_ADMIN success", async() => {
+      it("Should profile update admin of profile global scope to PROFILE_MASTER_ADMIN success", async() => {
         // when
         await expect(profileGlobalManagerDelegateProxy.connect(user3).profileGlobalUpdateAdmin(profileTestId, LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID))
           .to.emit(profileGlobalManagerDelegateProxy, "ProfileGlobalAdminUpdated")
@@ -11102,7 +11098,7 @@ describe("Lively Guard Profile Tests", function() {
 
       })
 
-      it("Should revoke user1 from aclAdminRole success", async() => {
+      it("Should profile revoke user1 from aclAdminRole success", async() => {
         // given
         const userId1 = ethers.utils.keccak256(userWallet1.address)
         const requests: IProfileRoleManagement.ProfileRoleRevokeMembersRequestStruct[] = [{

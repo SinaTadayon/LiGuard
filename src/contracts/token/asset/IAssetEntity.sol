@@ -11,6 +11,7 @@ pragma solidity 0.8.17;
  */
 interface IAssetEntity {
   enum AssetSafeModeStatus {
+    NONE,
     DISABLED,
     ENABLED
   }
@@ -22,7 +23,23 @@ interface IAssetEntity {
     ERC1155
   }
 
+  struct AssetInitRequest {
+    bytes32 realmId;
+    bytes32 adminId;
+    bytes32 agentId;
+    bytes32 salt;
+    address subjectId;
+    address erc20TokenId;
+    address accessControlId;
+    address assetManagerId;
+    address assetContractId;
+    string contractName;
+    string contractVersion;
+    bytes signature;
+  }
+
   struct AssetInfo {
+    uint256 balance;
     string name;
     string version;
     address token;
@@ -42,6 +59,8 @@ interface IAssetEntity {
 
   event AssetSafeModeUpdated(address indexed sender, address indexed assetId, AssetSafeModeStatus status);
 
+  function assetInitialize(AssetInitRequest calldata request) external returns (bool);
+
   function assetSetSafeMode(AssetSafeModeStatus status) external returns (bool);
 
   function assetSafeMode() external view returns (AssetSafeModeStatus);
@@ -57,6 +76,8 @@ interface IAssetEntity {
   function assetAccessControl() external view returns (address);
 
   function assetInitVersion() external view returns (uint16); 
+
+  function assetBalance() external view returns (uint256); 
 
   function assetInfo() external view returns (AssetInfo memory); 
 }

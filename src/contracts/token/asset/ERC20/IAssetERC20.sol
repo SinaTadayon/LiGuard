@@ -17,8 +17,6 @@ interface IAssetERC20 {
 
   function tokenLock(IERC20Lock.LockTokenRequest[] calldata lockRequests) external returns (bytes32[] memory);
 
-  // function tokenBatchLock(IERC20Lock.LockTokenRequest[] calldata lockRequests) external returns (bytes32[] memory);
-
   function tokenTransfer(address to, uint256 amount) external returns (bool);
 
   function tokenBatchTransfer(IERC20Extra.BatchTransferRequest[] calldata request) external returns (bool);
@@ -37,7 +35,4 @@ interface IAssetERC20 {
 
   function tokenDecreaseAllowance(address spender, uint256 amount) external returns (uint256);
 
-  function tokenBalance() external view returns (uint256);
-
-  function assetBalance() external view returns (uint256);
 }

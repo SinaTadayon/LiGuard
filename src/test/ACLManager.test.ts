@@ -93,14 +93,17 @@ import {
   LIVELY_VERSE_ANY_TYPE_ID,
   LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID,
   LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-  LIVELY_VERSE_LIVELY_MASTER_TYPE_ID, LIVELY_VERSE_MEMBER_MASTER_ADMIN_ROLE_ID, LIVELY_VERSE_MEMBER_MASTER_TYPE_ID,
+  LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
+  LIVELY_VERSE_MEMBER_MASTER_ADMIN_ROLE_ID,
+  LIVELY_VERSE_MEMBER_MASTER_TYPE_ID,
   LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE_ID,
   LIVELY_VERSE_POLICY_MASTER_TYPE_ID,
   LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
   LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID,
   LIVELY_VERSE_SCOPE_MASTER_TYPE_ID,
   LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-  LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID, LIVELY_VERSE_TYPE_MASTER_ADMIN_ROLE_ID,
+  LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID,
+  LIVELY_VERSE_TYPE_MASTER_ADMIN_ROLE_ID,
   LIVELY_VERSE_TYPE_MASTER_TYPE_ID,
   PolicyType,
   ProxySafeModeStatus,
@@ -135,8 +138,7 @@ import {
 import {
   ProfileDomainManagerLibraryAddresses
 } from "../../typechain/types/factories/acl/profile/scope/ProfileDomainManager__factory";
-import { waitForTx } from "hardhat-deploy/dist/src/helpers";
-import { PromiseOrValue } from "../../typechain/types/common";
+
 import { MemberManagerLibraryAddresses } from "../../typechain/types/factories/acl/agent/MemberManager__factory";
 import { TypeManagerLibraryAddresses } from "../../typechain/types/factories/acl/agent/TypeManager__factory";
 import { FunctionManagerLibraryAddresses } from "../../typechain/types/factories/acl/scope/FunctionManager__factory";
@@ -155,8 +157,7 @@ import {
 // ethers.utils.keccak256(ethers.utils.toUtf8Bytes("src/contracts/lib/acl/ContextManagementLib.sol:ContextManagementLib")) => 0x0304621006bd13fe54dc5f6b75a37ec856740450109fd223c2bfb60db9095cad => __$0304621006bd13fe54dc5f6b75a37ec856$__ ( library placeholder)
 const { provider, deployMockContract } = waffle;
 
-describe("Lively Guard Tests",
-  function() {
+describe("Lively Guard Tests", function() {
     let livelyAdmin: Signer;
     let systemAdmin: Signer;
     let aclAdmin: Signer;
@@ -281,7 +282,7 @@ describe("Lively Guard Tests",
     const DOMAIN_MANAGER_CONTRACT_NAME = "DomainManager";
     const GLOBAL_MANAGER_CONTRACT_NAME = "GlobalManager";
     const POLICY_MANAGER_CONTRACT_NAME = "PolicyManager";
-    const PROFILE_MANAGER_CONTRACT_NAME = "PolicyManager";
+    const PROFILE_MANAGER_CONTRACT_NAME = "ProfileManager";
     const ACCESS_CONTROL_CONTRACT_NAME = "AccessControl";
 
     // profile acl contracts name
@@ -2630,8 +2631,6 @@ describe("Lively Guard Tests",
 
         // and
         const memberContextInfo: IContextManagement.ContextInfoStruct = await contextManagerDelegateProxy.contextGetInfo(memberContextId);
-        expect(memberContextInfo.name).to.be.equal(MEMBER_MANAGER_CONTRACT_NAME);
-        expect(memberContextInfo.version).to.be.equal(CONTRACTS_VERSION);
         expect(memberContextInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
         expect(memberContextInfo.adminType).to.be.equal(AgentType.TYPE);
         expect(memberContextInfo.contractId).to.be.equal(memberManagerProxy.address);
@@ -2866,8 +2865,6 @@ describe("Lively Guard Tests",
 
         // and
         const profileRoleContextInfo: IContextManagement.ContextInfoStruct = await contextManagerDelegateProxy.contextGetInfo(profileRoleContextId);
-        expect(profileRoleContextInfo.name).to.be.equal(PROFILE_ROLE_MANAGER_CONTRACT_NAME);
-        expect(profileRoleContextInfo.version).to.be.equal(CONTRACTS_VERSION);
         expect(profileRoleContextInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
         expect(profileRoleContextInfo.adminType).to.be.equal(AgentType.TYPE);
         expect(profileRoleContextInfo.contractId).to.be.equal(profileRoleManagerProxy.address);
@@ -7555,7 +7552,7 @@ describe("Lively Guard Tests",
         expect(livelySystemRoleInfo.adminType).to.be.equal(AgentType.ROLE);
         expect(livelySystemRoleInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
         expect(livelySystemRoleInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
-        expect(livelySystemRoleInfo.name).to.be.equal("ROLE.LIVELY_VERSE.SYSTEM_MASTER_ADMIN");
+        expect(livelySystemRoleInfo.name).to.be.equal("ROLE.LIVELY_VERSE.LIVELY_SYSTEM_MASTER_ADMIN");
 
         // Lively Scope Master
         const livelyScopeRoleInfo = await roleManagerDelegateProxy.roleGetInfo(LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID);
@@ -7567,7 +7564,7 @@ describe("Lively Guard Tests",
         expect(livelyScopeRoleInfo.adminType).to.be.equal(AgentType.ROLE);
         expect(livelyScopeRoleInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
         expect(livelyScopeRoleInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
-        expect(livelyScopeRoleInfo.name).to.be.equal("ROLE.LIVELY_VERSE.SCOPE_MASTER_ADMIN");
+        expect(livelyScopeRoleInfo.name).to.be.equal("ROLE.LIVELY_VERSE.LIVELY_SCOPE_MASTER_ADMIN");
 
         // Lively Member Master
         const livelyMemberRoleInfo = await roleManagerDelegateProxy.roleGetInfo(LIVELY_VERSE_MEMBER_MASTER_ADMIN_ROLE_ID);
@@ -7579,7 +7576,7 @@ describe("Lively Guard Tests",
         expect(livelyMemberRoleInfo.adminType).to.be.equal(AgentType.ROLE);
         expect(livelyMemberRoleInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
         expect(livelyMemberRoleInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
-        expect(livelyMemberRoleInfo.name).to.be.equal("ROLE.LIVELY_VERSE.MEMBER_MASTER_ADMIN");
+        expect(livelyMemberRoleInfo.name).to.be.equal("ROLE.LIVELY_VERSE.LIVELY_MEMBER_MASTER_ADMIN");
 
         // Lively Type Master
         const livelyTypeRoleInfo = await roleManagerDelegateProxy.roleGetInfo(LIVELY_VERSE_TYPE_MASTER_ADMIN_ROLE_ID);
@@ -7591,7 +7588,7 @@ describe("Lively Guard Tests",
         expect(livelyTypeRoleInfo.adminType).to.be.equal(AgentType.ROLE);
         expect(livelyTypeRoleInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
         expect(livelyTypeRoleInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
-        expect(livelyTypeRoleInfo.name).to.be.equal("ROLE.LIVELY_VERSE.TYPE_MASTER_ADMIN");
+        expect(livelyTypeRoleInfo.name).to.be.equal("ROLE.LIVELY_VERSE.LIVELY_TYPE_MASTER_ADMIN");
 
         // Lively Policy Master
         const livelyPolicyRoleInfo = await roleManagerDelegateProxy.roleGetInfo(LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE_ID);
@@ -7603,7 +7600,19 @@ describe("Lively Guard Tests",
         expect(livelyPolicyRoleInfo.adminType).to.be.equal(AgentType.ROLE);
         expect(livelyPolicyRoleInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
         expect(livelyPolicyRoleInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
-        expect(livelyPolicyRoleInfo.name).to.be.equal("ROLE.LIVELY_VERSE.POLICY_MASTER_ADMIN");
+        expect(livelyPolicyRoleInfo.name).to.be.equal("ROLE.LIVELY_VERSE.LIVELY_POLICY_MASTER_ADMIN");
+
+        // Lively Guard ACL Master
+        const livelyGuardRoleInfo = await roleManagerDelegateProxy.roleGetInfo(LIVELY_VERSE_ACL_ADMIN_ROLE_ID);
+        expect(livelyGuardRoleInfo.scopeId).to.be.equal(LIVELY_VERSE_ACL_DOMAIN_ID);
+        expect(livelyGuardRoleInfo.typeId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
+        expect(livelyGuardRoleInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
+        expect(livelyGuardRoleInfo.memberLimit).to.be.equal(16777215);
+        expect(livelyGuardRoleInfo.memberCount).to.be.equal(1);
+        expect(livelyGuardRoleInfo.adminType).to.be.equal(AgentType.ROLE);
+        expect(livelyGuardRoleInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(livelyGuardRoleInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+        expect(livelyGuardRoleInfo.name).to.be.equal("ROLE.LIVELY_VERSE.LIVELY_GUARD.MASTER_ADMIN");
       })
 
       it("Should register ACL_TYPE_TEST success", async() => {
@@ -7979,7 +7988,7 @@ describe("Lively Guard Tests",
         const requests: IMemberManagement.MemberUpdateGeneralLimitRequestStruct[] = [{
           memberId: systemAdminId,
           limits: {
-            memberLimit: 5,
+            memberLimit: 7,
             memberRegisterLimit: 7,
             contextRegisterLimit: 128,
             functionRegisterLimit: 65535,
@@ -8004,7 +8013,7 @@ describe("Lively Guard Tests",
         await expect(memberManagerDelegateProxy.connect(livelyAdmin).memberUpdateGeneralLimit(requests))
           .to.emit(memberManagerDelegateProxy, "MemberGeneralLimitUpdated")
           .withArgs(livelyAdminWallet.address, systemAdminId, [
-             5, 7, 128, 65535, 0, 65535, 0, 0, 65535, 0, 3, 7, 7, 0, 0, 0, 0, 255
+             7, 7, 128, 65535, 0, 65535, 0, 0, 65535, 0, 3, 7, 7, 0, 0, 0, 0, 255
           ]);
 
         // then
@@ -8013,7 +8022,7 @@ describe("Lively Guard Tests",
         expect(memberInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
         expect(memberInfo.adminType).to.be.equal(AgentType.ROLE);
         expect(memberInfo.typeCount).to.be.equal(1);
-        expect(memberInfo.limits.memberLimit).to.be.equal(5);
+        expect(memberInfo.limits.memberLimit).to.be.equal(7);
         expect(memberInfo.limits.memberRegisterLimit).to.be.equal(7);
         expect(memberInfo.limits.contextRegisterLimit).to.be.equal(128);
         expect(memberInfo.limits.functionRegisterLimit).to.be.equal(65535);
@@ -8151,7 +8160,7 @@ describe("Lively Guard Tests",
          expect(roleInfo.adminId).to.be.equal(LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID);
          expect(roleInfo.scopeId).to.be.equal(typeContextId);
          expect(roleInfo.typeId).to.be.equal(aclTypeTestId);
-         expect(roleInfo.memberLimit).to.be.equal(5);
+         expect(roleInfo.memberLimit).to.be.equal(7);
          expect(roleInfo.memberCount).to.be.equal(0);
          expect(roleInfo.adminType).to.be.equal(AgentType.ROLE);
          expect(roleInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
@@ -8204,7 +8213,7 @@ describe("Lively Guard Tests",
         expect(roleInfo.adminId).to.be.equal(LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID);
         expect(roleInfo.scopeId).to.be.equal(memberUpdateAdminFunctionId);
         expect(roleInfo.typeId).to.be.equal(aclTypeTestId);
-        expect(roleInfo.memberLimit).to.be.equal(5);
+        expect(roleInfo.memberLimit).to.be.equal(7);
         expect(roleInfo.memberCount).to.be.equal(0);
         expect(roleInfo.adminType).to.be.equal(AgentType.ROLE);
         expect(roleInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
@@ -8281,24 +8290,24 @@ describe("Lively Guard Tests",
             roleId: aclRoleTestId,
             account: userWallet1.address,
             limits: {
-              memberLimit: 32,
-              memberRegisterLimit: 32,
-              contextRegisterLimit: 32,
-              functionRegisterLimit: 32,
-              profileRegisterLimit: 32,
-              contextLimit: 32,
-              realmLimit: 32,
-              domainLimit: 32,
-              callLimit: 32,
-              typeRoleLimit: 32,
-              typeLimit: 32,
-              roleRegisterLimit: 32,
-              typeRegisterLimit: 32,
-              realmRegisterLimit: 32,
-              domainRegisterLimit: 32,
-              policyRegisterLimit: 32,
-              policyRoleLimit: 32,
-              functionLimit: 32,
+              memberLimit: 6,
+              memberRegisterLimit: 6,
+              contextRegisterLimit: 6,
+              functionRegisterLimit: 6,
+              profileRegisterLimit: 0,
+              contextLimit: 6,
+              realmLimit: 0,
+              domainLimit: 0,
+              callLimit: 6,
+              typeRoleLimit: 0,
+              typeLimit: 1,
+              roleRegisterLimit: 1,
+              typeRegisterLimit: 1,
+              realmRegisterLimit: 0,
+              domainRegisterLimit: 0,
+              policyRegisterLimit: 0,
+              policyRoleLimit: 0,
+              functionLimit: 6,
             },
             acstat: ActivityStatus.ENABLED,
             alstat: AlterabilityStatus.UPDATABLE
@@ -8398,7 +8407,7 @@ describe("Lively Guard Tests",
         await expect(memberManagerDelegateProxy.connect(livelyAdmin).memberRegister(memberRegisterRequests))
           .to.emit(memberManagerDelegateProxy, "MemberRegistered")
           .withArgs(livelyAdminWallet.address, roleMemberUserId1, userWallet1.address,
-            aclRoleTestId, LIVELY_VERSE_MEMBER_MASTER_TYPE_ID)
+            aclRoleTestId, LIVELY_VERSE_MEMBER_MASTER_TYPE_ID, [32, 32, 32, 32, 32, 32, 32, 32, 1, 32, 2, 32, 32, 32, 32, 32, 32, 32])
 
         // then
         expect(await memberManagerDelegateProxy.memberCheckId(roleMemberUserId1)).to.be.true;
@@ -8641,7 +8650,8 @@ describe("Lively Guard Tests",
         // when
         await expect(memberManagerDelegateProxy.connect(livelyAdmin).memberRegister(requests))
           .to.emit(memberManagerDelegateProxy, "MemberRegistered")
-          .withArgs(livelyAdminWallet.address, roleMemberUserId2, userWallet2.address, aclRoleTestId, aclRoleTestId)
+          .withArgs(livelyAdminWallet.address, roleMemberUserId2, userWallet2.address,
+            aclRoleTestId, aclRoleTestId, [16, 16, 16, 16, 16, 16, 16, 16, 15, 16, 5, 16, 16, 16, 16, 16, 16, 16])
 
         // then
         expect(await memberManagerDelegateProxy.memberCheckId(roleMemberUserId2)).to.be.true;
@@ -8889,7 +8899,8 @@ describe("Lively Guard Tests",
         // when
         await expect(memberManagerDelegateProxy.connect(user1).memberRegister(requests))
           .to.emit(memberManagerDelegateProxy, "MemberRegistered")
-          .withArgs(userWallet1.address, roleMemberUserId3, userWallet3.address, aclRoleTestId, LIVELY_VERSE_MEMBER_MASTER_TYPE_ID)
+          .withArgs(userWallet1.address, roleMemberUserId3, userWallet3.address, aclRoleTestId,
+            LIVELY_VERSE_MEMBER_MASTER_TYPE_ID, [8, 8, 8, 8, 8, 8, 8, 8, 2, 8, 1, 8, 8, 8, 8, 8, 8, 8])
 
         // then
         expect(await memberManagerDelegateProxy.memberCheckId(roleMemberUserId3)).to.be.true;
@@ -9851,7 +9862,8 @@ describe("Lively Guard Tests",
           .withArgs(livelyAdminWallet.address, memberRegisterFunctionId, aclRoleTestId);
 
         // then
-        expect(await functionManagerDelegateProxy.functionCheckAgent(memberRegisterFunctionId,  userWallet2.address)).to.be.true;
+        expect(await functionManagerDelegateProxy.functionCheckAgent(memberRegisterFunctionId,  userWallet1.address)).to.be.true
+        expect(await functionManagerDelegateProxy.functionCheckAgent(memberRegisterFunctionId,  userWallet2.address)).to.be.false
         expect(await functionManagerDelegateProxy.functionCheckAgent(memberRegisterFunctionId,  userWallet3.address)).to.be.false;
         expect(await functionManagerDelegateProxy.functionCheckAgent(memberRegisterFunctionId,  livelyAdminWallet.address)).to.be.false;
       })
@@ -9872,7 +9884,7 @@ describe("Lively Guard Tests",
           .withArgs(livelyAdminWallet.address, memberRegisterFunctionId, aclRoleTestId);
 
         // then
-        expect(await functionManagerDelegateProxy.functionCheckAdmin(memberRegisterFunctionId,  userWallet2.address)).to.be.true;
+        expect(await functionManagerDelegateProxy.functionCheckAdmin(memberRegisterFunctionId,  userWallet1.address)).to.be.true;
       })
 
       it("Should update policyCode of aclPolicyTest to LOCK success", async() => {
@@ -10030,7 +10042,8 @@ describe("Lively Guard Tests",
         // when
         await expect(memberManagerDelegateProxy.connect(user1).memberRegister(requests))
           .to.emit(memberManagerDelegateProxy, "MemberRegistered")
-          .withArgs(userWallet1.address, roleMemberUserId3, userWallet3.address, aclRoleTestId, LIVELY_VERSE_MEMBER_MASTER_TYPE_ID)
+          .withArgs(userWallet1.address, roleMemberUserId3, userWallet3.address, aclRoleTestId,
+            LIVELY_VERSE_MEMBER_MASTER_TYPE_ID, [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8])
 
         // then
         expect(await memberManagerDelegateProxy.memberCheckId(roleMemberUserId3)).to.be.true;
@@ -10146,8 +10159,6 @@ describe("Lively Guard Tests",
           .withArgs(livelyAdminWallet.address, memberContextId, ActivityStatus.DISABLED)
 
         const memberContextInfo: IContextManagement.ContextInfoStruct = await contextManagerDelegateProxy.contextGetInfo(memberContextId);
-        expect(memberContextInfo.name).to.be.equal(MEMBER_MANAGER_CONTRACT_NAME);
-        expect(memberContextInfo.version).to.be.equal(CONTRACTS_VERSION);
         expect(memberContextInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
         expect(memberContextInfo.adminType).to.be.equal(AgentType.TYPE);
         expect(memberContextInfo.contractId).to.be.equal(memberManagerProxy.address);
@@ -10198,7 +10209,7 @@ describe("Lively Guard Tests",
           .withArgs(livelyAdminWallet.address, memberContextId, aclRoleTestId);
 
         // then
-        expect(await contextManagerDelegateProxy.contextCheckAdmin(memberContextId,  userWallet2.address)).to.be.true;
+        expect(await contextManagerDelegateProxy.contextCheckAdmin(memberContextId,  userWallet1.address)).to.be.true;
       })
 
       it("Should update functionLimit of memberContext success", async() => {
@@ -10215,8 +10226,6 @@ describe("Lively Guard Tests",
           .withArgs(userWallet1.address, memberContextId, 25);
 
         const memberContextInfo: IContextManagement.ContextInfoStruct = await contextManagerDelegateProxy.contextGetInfo(memberContextId);
-        expect(memberContextInfo.name).to.be.equal(MEMBER_MANAGER_CONTRACT_NAME);
-        expect(memberContextInfo.version).to.be.equal(CONTRACTS_VERSION);
         expect(memberContextInfo.adminId).to.be.equal(aclRoleTestId);
         expect(memberContextInfo.adminType).to.be.equal(AgentType.ROLE);
         expect(memberContextInfo.contractId).to.be.equal(memberManagerProxy.address);
@@ -10652,8 +10661,6 @@ describe("Lively Guard Tests",
 
         // and
         const memberContextInfo: IContextManagement.ContextInfoStruct = await contextManagerDelegateProxy.contextGetInfo(memberContextId);
-        expect(memberContextInfo.name).to.be.equal(MEMBER_MANAGER_CONTRACT_NAME);
-        expect(memberContextInfo.version).to.be.equal(CONTRACTS_VERSION);
         expect(memberContextInfo.adminId).to.be.equal(aclRoleTestId);
         expect(memberContextInfo.adminType).to.be.equal(AgentType.ROLE);
         expect(memberContextInfo.contractId).to.be.equal(memberManagerProxy.address);

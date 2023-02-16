@@ -365,9 +365,9 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
     requestScope.referredByAgent +=1;
     
     // checking requested role type scope with role scope
-    ScopeType requestTypeScopeType = _data.scopes[typeScopeId].stype;
-    require(requestTypeScopeType >= requestScope.stype, "Illegal ScopeType");
-    if (requestTypeScopeType == requestScope.stype) {
+    ScopeType typeScopeType = _data.scopes[typeScopeId].stype;
+    require(typeScopeType >= requestScope.stype, "Illegal ScopeType");
+    if (typeScopeType == requestScope.stype) {
       require(typeScopeId == requestScopeId, "Illegal Scope");
     } else {
       require(IACLGenerals(address(this)).isScopesCompatible(typeScopeId, requestScopeId), "Illegal Scope");

@@ -15,7 +15,6 @@ import "../../proxy/IProxy.sol";
 import "../../proxy/IERC1822.sol";
 import "../../utils/IERC165.sol";
 import "../../acl/IACL.sol";
-
 import "../../acl/profile/IProfileACL.sol";
 import "../../acl/profile/IProfileACLGenerals.sol";
 import "../../acl/profile/IProfileManagement.sol";
@@ -203,7 +202,6 @@ library LACLCommons {
   function profileUpdateOwnerAccount(ACLStorage.DataCollection storage data, IACLCommons.ProfileEntity storage profileEntity, IProfileManagement.ProfileUpdateOwnerAccountRequest calldata request) external returns (bool) {
 
     // disable profile owner 
-    // require(profileEntity.owner == request.owner, "Illegal Owner");
     bytes32 ownerId = LACLUtils.accountGenerateId(profileEntity.owner);
     bytes32 newOwnerId = LACLUtils.accountGenerateId(request.newOwner);
  
@@ -742,7 +740,7 @@ library LACLCommons {
       IACLCommons.RoleEntity storage memberMasterAdminRole = data.roleWriteSlot(LIVELY_VERSE_MEMBER_MASTER_ADMIN_ROLE_ID);
       memberMasterAdminRole.name = "ROLE.LIVELY_VERSE.LIVELY_MEMBER_MASTER_ADMIN";
       memberMasterAdminRole.scopeId = LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
-      memberMasterAdminRole.typeId = LIVELY_VERSE_TYPE_MASTER_TYPE_ID;
+      memberMasterAdminRole.typeId = LIVELY_VERSE_MEMBER_MASTER_TYPE_ID;
       memberMasterAdminRole.memberLimit = type(uint24).max;
       memberMasterAdminRole.memberCount = 1;
       memberMasterAdminRole.ba.atype = IACLCommons.AgentType.ROLE;
@@ -766,7 +764,7 @@ library LACLCommons {
 
       // Create Policy Master Admin Role
       IACLCommons.RoleEntity storage policyMasterAdminRole = data.roleWriteSlot(LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE_ID);
-      policyMasterAdminRole.name = "TYPE.LIVELY_VERSE.LIVELY_POLICY_MASTER_ADMIN";
+      policyMasterAdminRole.name = "ROLE.LIVELY_VERSE.LIVELY_POLICY_MASTER_ADMIN";
       policyMasterAdminRole.scopeId = LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
       policyMasterAdminRole.typeId = LIVELY_VERSE_POLICY_MASTER_TYPE_ID;
       policyMasterAdminRole.memberLimit = type(uint24).max;
@@ -790,7 +788,7 @@ library LACLCommons {
 
       // Create Profile Master Admin Role
       IACLCommons.RoleEntity storage profileMasterAdminRole = data.roleWriteSlot(LIVELY_VERSE_PROFILE_MASTER_ADMIN_ROLE_ID);
-      profileMasterAdminRole.name = "TYPE.LIVELY_VERSE.LIVELY_PROFILE_MASTER_ADMIN";
+      profileMasterAdminRole.name = "ROLE.LIVELY_VERSE.LIVELY_PROFILE_MASTER_ADMIN";
       profileMasterAdminRole.scopeId = LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
       profileMasterAdminRole.typeId = LIVELY_VERSE_PROFILE_MASTER_TYPE_ID;
       profileMasterAdminRole.memberLimit = type(uint24).max;

@@ -364,7 +364,9 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
 
     BaseScope storage requestScope = _getAndCheckRequestScope(profileEntity, request.scopeId, senderScopeId, senderScopeType, profileId);
     BaseScope storage oldScope = profileEntity.scopes[typeEntity.scopeId];
-    require(requestScope.stype > oldScope.stype, "Illegal ScopeType");
+    if(typeEntity.roles.length() > 0) {
+      require(requestScope.stype > oldScope.stype, "Illegal ScopeType");
+    }    
     require(oldScope.referredByAgent > 0, "Illeagl ReferredByAgent");
     oldScope.referredByAgent -= 1;
     typeEntity.scopeId = request.scopeId;
