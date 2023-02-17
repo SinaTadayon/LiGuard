@@ -20,7 +20,7 @@ interface IERC20Lock {
   struct LockTokenRequest {
     address source;
     address dest;
-    uint256 timestamp;
+    uint256 claimAt;
     uint256 amount;
   }
 
@@ -43,7 +43,7 @@ interface IERC20Lock {
     address indexed sender,
     address indexed src,
     address account,
-    uint256 timestamp,
+    uint256 claimAt,
     uint256 amount
   );
 

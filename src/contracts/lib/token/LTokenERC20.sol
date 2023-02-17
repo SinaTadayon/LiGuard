@@ -112,11 +112,11 @@ library LTokenERC20 {
       lockRequest.source != lockRequest.dest, 
       "Illegal Source/Dest Address"
     );    
-    require(lockRequest.timestamp > block.timestamp + 1 days, "Illegal Timestamp");
+    require(lockRequest.claimAt > block.timestamp + 1 days, "Illegal Timestamp");
     require(lockRequest.amount > 0, "Illegal amount");
 
     bytes32 lockId = keccak256(
-      abi.encodePacked(lockRequest.source, lockRequest.dest, lockRequest.timestamp, lockRequest.amount)
+      abi.encodePacked(lockRequest.source, lockRequest.dest, lockRequest.claimAt, lockRequest.amount)
     );
     require(data.locks[lockRequest.dest][lockId].source == address(0), "Already Exists");
 
@@ -129,7 +129,7 @@ library LTokenERC20 {
 
     LivelyStorage.AssetLock storage assetLock = data.locks[lockRequest.dest][lockId];
     assetLock.lockedAt = uint128(block.timestamp);
-    assetLock.claimedAt = uint128(lockRequest.timestamp);
+    assetLock.claimedAt = uint128(lockRequest.claimAt);
     assetLock.source = lockRequest.source;
     assetLock.amount = lockRequest.amount;
     assetLock.status = IERC20Lock.LockState.LOCKED;

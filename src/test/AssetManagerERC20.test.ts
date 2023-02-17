@@ -184,19 +184,6 @@ describe("Asset Manager ERC20 Token Tests", function () {
   let userWallet2: Wallet;
   let userWallet3: Wallet;
 
-  // let adminAddress: Address;
-  // let systemAdminAddress: Address;
-  // let user1Address: Address;
-  // let user2Address: Address;
-  // let assetAdminAddress: Address;
-  // let crowdFoundingManagerAddress: Address;
-  // let validatorsRewardsManagerAddress: Address;
-  // let publicSaleManagerAddress: Address;
-  // let treasuryManagerAddress: Address;
-  // let foundingTeamManagerAddress: Address;
-  // let audioVideoProgramManagerAddress: Address;
-  // let taxTreasuryManagerAddress: Address;
-
   let livelyToken: LivelyToken;
   let assetManagerSubject: AssetManagerERC20;
   let assetManagerProxy: AssetManagerERC20;
@@ -4360,87 +4347,218 @@ describe("Asset Manager ERC20 Token Tests", function () {
         .withArgs(livelyAdminWallet.address, aclRoleLivelyTaxTreasuryAssetAdminId, assetAdminId, aclRoleLivelyTokenAssetManagerAdminId)
     })
 
-    // it("Should registers members to related roles success", async() => {
-    //   // given
-    //   const assetAdminId = ethers.utils.keccak256(tokenAdminWallet.address);
-    //   const requests: IMemberManagement.MemberRegisterRequestStruct[] = [
-    //     {
-    //       roleId: aclRoleLivelyAudioVideoProgramAssetAdminId,
-    //       account: audioVideoProgramManagerWallet.address,
-    //       typeLimit: 32,
-    //       factoryLimit: 0,
-    //       acstat: ActivityStatus.ENABLED,
-    //       alstat: AlterabilityStatus.UPDATABLE
-    //     },
-    //     {
-    //       roleId: aclRoleLivelyPublicSaleAssetAdminId,
-    //       account: publicSaleManagerWallet.address,
-    //       typeLimit: 32,
-    //       factoryLimit: 0,
-    //       acstat: ActivityStatus.ENABLED,
-    //       alstat: AlterabilityStatus.UPDATABLE
-    //     },
-    //     {
-    //       roleId: aclRoleLivelyTreasuryAssetAdminId,
-    //       account: treasuryManagerWallet.address,
-    //       typeLimit: 32,
-    //       factoryLimit: 0,
-    //       acstat: ActivityStatus.ENABLED,
-    //       alstat: AlterabilityStatus.UPDATABLE
-    //     },
-    //     {
-    //       roleId: aclRoleLivelyValidatorRewardsAssetAdminId,
-    //       account: validatorsRewardsManagerWallet.address,
-    //       typeLimit: 32,
-    //       factoryLimit: 0,
-    //       acstat: ActivityStatus.ENABLED,
-    //       alstat: AlterabilityStatus.UPDATABLE
-    //     },
-    //     {
-    //       roleId: aclRoleLivelyCrowdFoundingAssetAdminId,
-    //       account: crowdFoundingManagerWallet.address,
-    //       typeLimit: 32,
-    //       factoryLimit: 0,
-    //       acstat: ActivityStatus.ENABLED,
-    //       alstat: AlterabilityStatus.UPDATABLE
-    //     },
-    //     {
-    //       roleId: aclRoleLivelyFoundingTeamAssetAdminId,
-    //       account: foundingTeamManagerWallet.address,
-    //       typeLimit: 32,
-    //       factoryLimit: 0,
-    //       acstat: ActivityStatus.ENABLED,
-    //       alstat: AlterabilityStatus.UPDATABLE
-    //     },
-    //     {
-    //       roleId: aclRoleLivelyTaxTreasuryAssetAdminId,
-    //       account: taxTreasuryManagerWallet.address,
-    //       typeLimit: 32,
-    //       factoryLimit: 0,
-    //       acstat: ActivityStatus.ENABLED,
-    //       alstat: AlterabilityStatus.UPDATABLE
-    //     },
-    //   ]
-    //
-    //   // when
-    //   await expect(memberManagerDelegateProxy.connect(assetAdmin).memberRegister(requests))
-    //     .to.emit(memberManagerDelegateProxy, "MemberRegistered")
-    //     .withArgs(tokenAdminWallet.address, assetAdminId, tokenAdminWallet.address, aclRoleLivelyTokenErc20MasterAdminId)
-    //     .to.emit(memberManagerDelegateProxy, "MemberRegistered")
-    //     .withArgs(tokenAdminWallet.address, assetAdminId, audioVideoProgramManagerWallet.address, aclRoleLivelyAudioVideoProgramAssetAdminId)
-    //     .to.emit(memberManagerDelegateProxy, "MemberRegistered")
-    //     .withArgs(tokenAdminWallet.address, assetAdminId, publicSaleManagerWallet.address, aclRoleLivelyPublicSaleAssetAdminId)
-    //     .to.emit(memberManagerDelegateProxy, "MemberRegistered")
-    //     .withArgs(tokenAdminWallet.address, assetAdminId, treasuryManagerWallet.address, aclRoleLivelyTreasuryAssetAdminId)
-    //     .to.emit(memberManagerDelegateProxy, "MemberRegistered")
-    //     .withArgs(tokenAdminWallet.address, assetAdminId, validatorsRewardsManagerWallet.address, aclRoleLivelyValidatorRewardsAssetAdminId)
-    //     .to.emit(memberManagerDelegateProxy, "MemberRegistered")
-    //     .withArgs(tokenAdminWallet.address, assetAdminId, crowdFoundingManagerWallet.address, aclRoleLivelyCrowdFoundingAssetAdminId)
-    //     .to.emit(memberManagerDelegateProxy, "MemberRegistered")
-    //     .withArgs(tokenAdminWallet.address, assetAdminId, foundingTeamManagerWallet.address, aclRoleLivelyFoundingTeamAssetAdminId)
-    //     .to.emit(memberManagerDelegateProxy, "MemberRegistered")
-    //     .withArgs(tokenAdminWallet.address, assetAdminId, taxTreasuryManagerWallet.address, aclRoleLivelyTaxTreasuryAssetAdminId)
-    // })
+    it("Should registers members to related roles success", async() => {
+      // given
+      const assetAdminId = ethers.utils.keccak256(assetAdminWallet.address);
+      const requests: IMemberManagement.MemberRegisterRequestStruct[] = [
+        {
+          roleId: aclRoleLivelyAudioVideoProgramAssetAdminId,
+          account: audioVideoProgramManagerWallet.address,
+          adminId: ethers.constants.HashZero,
+          limits: {
+            memberLimit: 0,
+            memberRegisterLimit: 0,
+            contextRegisterLimit: 0,
+            functionRegisterLimit: 0,
+            profileRegisterLimit: 0,
+            contextLimit: 0,
+            realmLimit: 0,
+            domainLimit: 0,
+            callLimit: 128,
+            typeRoleLimit: 0,
+            typeLimit: 2,
+            roleRegisterLimit: 0,
+            typeRegisterLimit: 0,
+            realmRegisterLimit: 0,
+            domainRegisterLimit: 0,
+            policyRegisterLimit: 0,
+            policyRoleLimit: 0,
+            functionLimit: 0,
+          },
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE
+        },
+        {
+          roleId: aclRoleLivelyPublicSaleAssetAdminId,
+          account: publicSaleManagerWallet.address,
+          adminId: ethers.constants.HashZero,
+          limits: {
+            memberLimit: 0,
+            memberRegisterLimit: 0,
+            contextRegisterLimit: 0,
+            functionRegisterLimit: 0,
+            profileRegisterLimit: 0,
+            contextLimit: 0,
+            realmLimit: 0,
+            domainLimit: 0,
+            callLimit: 128,
+            typeRoleLimit: 0,
+            typeLimit: 2,
+            roleRegisterLimit: 0,
+            typeRegisterLimit: 0,
+            realmRegisterLimit: 0,
+            domainRegisterLimit: 0,
+            policyRegisterLimit: 0,
+            policyRoleLimit: 0,
+            functionLimit: 0,
+          },
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE
+        },
+        {
+          roleId: aclRoleLivelyTreasuryAssetAdminId,
+          account: treasuryManagerWallet.address,
+          adminId: ethers.constants.HashZero,
+          limits: {
+            memberLimit: 0,
+            memberRegisterLimit: 0,
+            contextRegisterLimit: 0,
+            functionRegisterLimit: 0,
+            profileRegisterLimit: 0,
+            contextLimit: 0,
+            realmLimit: 0,
+            domainLimit: 0,
+            callLimit: 128,
+            typeRoleLimit: 0,
+            typeLimit: 2,
+            roleRegisterLimit: 0,
+            typeRegisterLimit: 0,
+            realmRegisterLimit: 0,
+            domainRegisterLimit: 0,
+            policyRegisterLimit: 0,
+            policyRoleLimit: 0,
+            functionLimit: 0,
+          },
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE
+        },
+        {
+          roleId: aclRoleLivelyValidatorRewardsAssetAdminId,
+          account: validatorsRewardsManagerWallet.address,
+          adminId: ethers.constants.HashZero,
+          limits: {
+            memberLimit: 0,
+            memberRegisterLimit: 0,
+            contextRegisterLimit: 0,
+            functionRegisterLimit: 0,
+            profileRegisterLimit: 0,
+            contextLimit: 0,
+            realmLimit: 0,
+            domainLimit: 0,
+            callLimit: 128,
+            typeRoleLimit: 0,
+            typeLimit: 2,
+            roleRegisterLimit: 0,
+            typeRegisterLimit: 0,
+            realmRegisterLimit: 0,
+            domainRegisterLimit: 0,
+            policyRegisterLimit: 0,
+            policyRoleLimit: 0,
+            functionLimit: 0,
+          },
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE
+        },
+        {
+          roleId: aclRoleLivelyCrowdFoundingAssetAdminId,
+          account: crowdFoundingManagerWallet.address,
+          adminId: ethers.constants.HashZero,
+          limits: {
+            memberLimit: 0,
+            memberRegisterLimit: 0,
+            contextRegisterLimit: 0,
+            functionRegisterLimit: 0,
+            profileRegisterLimit: 0,
+            contextLimit: 0,
+            realmLimit: 0,
+            domainLimit: 0,
+            callLimit: 128,
+            typeRoleLimit: 0,
+            typeLimit: 2,
+            roleRegisterLimit: 0,
+            typeRegisterLimit: 0,
+            realmRegisterLimit: 0,
+            domainRegisterLimit: 0,
+            policyRegisterLimit: 0,
+            policyRoleLimit: 0,
+            functionLimit: 0,
+          },
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE
+        },
+        {
+          roleId: aclRoleLivelyFoundingTeamAssetAdminId,
+          account: foundingTeamManagerWallet.address,
+          adminId: ethers.constants.HashZero,
+          limits: {
+            memberLimit: 0,
+            memberRegisterLimit: 0,
+            contextRegisterLimit: 0,
+            functionRegisterLimit: 0,
+            profileRegisterLimit: 0,
+            contextLimit: 0,
+            realmLimit: 0,
+            domainLimit: 0,
+            callLimit: 128,
+            typeRoleLimit: 0,
+            typeLimit: 2,
+            roleRegisterLimit: 0,
+            typeRegisterLimit: 0,
+            realmRegisterLimit: 0,
+            domainRegisterLimit: 0,
+            policyRegisterLimit: 0,
+            policyRoleLimit: 0,
+            functionLimit: 0,
+          },
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE
+        },
+        {
+          roleId: aclRoleLivelyTaxTreasuryAssetAdminId,
+          account: taxTreasuryManagerWallet.address,
+          adminId: ethers.constants.HashZero,
+          limits: {
+            memberLimit: 0,
+            memberRegisterLimit: 0,
+            contextRegisterLimit: 0,
+            functionRegisterLimit: 0,
+            profileRegisterLimit: 0,
+            contextLimit: 0,
+            realmLimit: 0,
+            domainLimit: 0,
+            callLimit: 128,
+            typeRoleLimit: 0,
+            typeLimit: 2,
+            roleRegisterLimit: 0,
+            typeRegisterLimit: 0,
+            realmRegisterLimit: 0,
+            domainRegisterLimit: 0,
+            policyRegisterLimit: 0,
+            policyRoleLimit: 0,
+            functionLimit: 0,
+          },
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE
+        },
+      ]
+
+      // when
+      await expect(memberManagerDelegateProxy.connect(assetAdmin).memberRegister(requests))
+        .to.emit(memberManagerDelegateProxy, "MemberRegistered")
+        .withArgs(assetAdminWallet.address, assetAdminId, audioVideoProgramManagerWallet.address, aclRoleLivelyAudioVideoProgramAssetAdminId)
+        .to.emit(memberManagerDelegateProxy, "MemberRegistered")
+        .withArgs(assetAdminWallet.address, assetAdminId, publicSaleManagerWallet.address, aclRoleLivelyPublicSaleAssetAdminId)
+        .to.emit(memberManagerDelegateProxy, "MemberRegistered")
+        .withArgs(assetAdminWallet.address, assetAdminId, treasuryManagerWallet.address, aclRoleLivelyTreasuryAssetAdminId)
+        .to.emit(memberManagerDelegateProxy, "MemberRegistered")
+        .withArgs(assetAdminWallet.address, assetAdminId, validatorsRewardsManagerWallet.address, aclRoleLivelyValidatorRewardsAssetAdminId)
+        .to.emit(memberManagerDelegateProxy, "MemberRegistered")
+        .withArgs(assetAdminWallet.address, assetAdminId, crowdFoundingManagerWallet.address, aclRoleLivelyCrowdFoundingAssetAdminId)
+        .to.emit(memberManagerDelegateProxy, "MemberRegistered")
+        .withArgs(assetAdminWallet.address, assetAdminId, foundingTeamManagerWallet.address, aclRoleLivelyFoundingTeamAssetAdminId)
+        .to.emit(memberManagerDelegateProxy, "MemberRegistered")
+        .withArgs(assetAdminWallet.address, assetAdminId, taxTreasuryManagerWallet.address, aclRoleLivelyTaxTreasuryAssetAdminId)
+    })
 
   })
 
@@ -6373,12 +6491,11 @@ describe("Asset Manager ERC20 Token Tests", function () {
     it("Should enable asset safeMode of assetFoundingTeam by assetAdmin success", async () => {
       // given
       const safeMode = await assetFoundingTeam.assetSafeMode();
-      // const realm = await assetFoundingTeam.assetRealm();
 
       // when and then
       await expect(assetFoundingTeam.connect(assetAdmin).assetSetSafeMode(AssetSafeModeStatus.ENABLED))
         .to.emit(assetFoundingTeam, "AssetSafeModeChanged")
-        .withArgs(assetAdminAddress, assetFoundingTeam.address, AssetSafeModeStatus.ENABLED);
+        .withArgs(assetAdminWallet.address, assetFoundingTeam.address, AssetSafeModeStatus.ENABLED);
 
       // and
       expect(safeMode).to.be.false;
@@ -6390,20 +6507,20 @@ describe("Asset Manager ERC20 Token Tests", function () {
     it("Should call any methods by anyone when assetSafeMode enabled failed", async () => {
       // given
       const lockRequest: IERC20Lock.LockTokenRequestStruct = {
-        source: assetAdminAddress,
-        dest: user2Address,
+        source: assetAdminWallet.address,
+        dest: userWallet2.address,
         amount: dummyAmount,
-        timestamp: BigNumber.from(((Date.now() / 1000) | 0) + 24 * 60 * 60),
+        claimAt: BigNumber.from(((Date.now() / 1000) | 0) + 24 * 60 * 60),
       };
 
       const batchTransfer: IERC20Extra.BatchTransferRequestStruct = {
         amount: dummyAmount,
-        to: user2Address,
+        to: userWallet2.address,
       };
 
       const batchTransferFrom: IERC20Extra.BatchTransferFromRequestStruct = {
-        from: user1Address,
-        to: user2Address,
+        from: userWallet1.address,
+        to: userWallet2.address,
         amount: dummyAmount,
       };
 
@@ -6423,16 +6540,16 @@ describe("Asset Manager ERC20 Token Tests", function () {
 
       // and
       await expect(
-        assetFoundingTeam.connect(user1).tokenTransfer(assetAdminAddress, BigNumber.from(0))
+        assetFoundingTeam.connect(user1).tokenTransfer(assetAdminWallet.address, BigNumber.from(0))
       ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
       await expect(
-        assetFoundingTeam.connect(livelyAdmin).tokenTransfer(assetAdminAddress, BigNumber.from(0))
+        assetFoundingTeam.connect(livelyAdmin).tokenTransfer(assetAdminWallet.address, BigNumber.from(0))
       ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
       await expect(
-        assetFoundingTeam.connect(systemAdmin).tokenTransfer(assetAdminAddress, BigNumber.from(0))
+        assetFoundingTeam.connect(systemAdmin).tokenTransfer(assetAdminWallet.address, BigNumber.from(0))
       ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
       await expect(
-        assetFoundingTeam.connect(foundingTeamManager).tokenTransfer(assetAdminAddress, BigNumber.from(0))
+        assetFoundingTeam.connect(foundingTeamManager).tokenTransfer(assetAdminWallet.address, BigNumber.from(0))
       ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
 
       // and
@@ -6451,20 +6568,20 @@ describe("Asset Manager ERC20 Token Tests", function () {
 
       // and
       await expect(
-        assetFoundingTeam.connect(user1).tokenTransferFrom(assetAdminAddress, assetAdminAddress, BigNumber.from(0))
+        assetFoundingTeam.connect(user1).tokenTransferFrom(assetAdminWallet.address, assetAdminWallet.address, BigNumber.from(0))
       ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
       await expect(
-        assetFoundingTeam.connect(livelyAdmin).tokenTransferFrom(assetAdminAddress, assetAdminAddress, BigNumber.from(0))
+        assetFoundingTeam.connect(livelyAdmin).tokenTransferFrom(assetAdminWallet.address, assetAdminWallet.address, BigNumber.from(0))
       ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
       await expect(
         assetFoundingTeam
           .connect(systemAdmin)
-          .tokenTransferFrom(assetAdminAddress, assetAdminAddress, BigNumber.from(0))
+          .tokenTransferFrom(assetAdminWallet.address, assetAdminWallet.address, BigNumber.from(0))
       ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
       await expect(
         assetFoundingTeam
           .connect(foundingTeamManager)
-          .tokenTransferFrom(assetAdminAddress, assetAdminAddress, BigNumber.from(0))
+          .tokenTransferFrom(assetAdminWallet.address, assetAdminWallet.address, BigNumber.from(0))
       ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
 
       // and
@@ -6482,45 +6599,45 @@ describe("Asset Manager ERC20 Token Tests", function () {
       ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
 
       // and
-      await expect(assetFoundingTeam.connect(user1).tokenApprove(assetAdminAddress, BigNumber.from(0))).to.revertedWith(
+      await expect(assetFoundingTeam.connect(user1).tokenApprove(assetAdminWallet.address, BigNumber.from(0))).to.revertedWith(
         "SafeMode: AssetERC20 Call Rejected"
       );
-      await expect(assetFoundingTeam.connect(livelyAdmin).tokenApprove(assetAdminAddress, BigNumber.from(0))).to.revertedWith(
+      await expect(assetFoundingTeam.connect(livelyAdmin).tokenApprove(assetAdminWallet.address, BigNumber.from(0))).to.revertedWith(
         "SafeMode: AssetERC20 Call Rejected"
       );
       await expect(
-        assetFoundingTeam.connect(systemAdmin).tokenApprove(assetAdminAddress, BigNumber.from(0))
+        assetFoundingTeam.connect(systemAdmin).tokenApprove(assetAdminWallet.address, BigNumber.from(0))
       ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
       await expect(
-        assetFoundingTeam.connect(foundingTeamManager).tokenApprove(assetAdminAddress, BigNumber.from(0))
+        assetFoundingTeam.connect(foundingTeamManager).tokenApprove(assetAdminWallet.address, BigNumber.from(0))
       ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
 
       // and
       await expect(
-        assetFoundingTeam.connect(user1).tokenIncreaseAllowance(assetAdminAddress, BigNumber.from(0))
+        assetFoundingTeam.connect(user1).tokenIncreaseAllowance(assetAdminWallet.address, BigNumber.from(0))
       ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
       await expect(
-        assetFoundingTeam.connect(livelyAdmin).tokenIncreaseAllowance(assetAdminAddress, BigNumber.from(0))
+        assetFoundingTeam.connect(livelyAdmin).tokenIncreaseAllowance(assetAdminWallet.address, BigNumber.from(0))
       ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
       await expect(
-        assetFoundingTeam.connect(systemAdmin).tokenIncreaseAllowance(assetAdminAddress, BigNumber.from(0))
+        assetFoundingTeam.connect(systemAdmin).tokenIncreaseAllowance(assetAdminWallet.address, BigNumber.from(0))
       ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
       await expect(
-        assetFoundingTeam.connect(foundingTeamManager).tokenIncreaseAllowance(assetAdminAddress, BigNumber.from(0))
+        assetFoundingTeam.connect(foundingTeamManager).tokenIncreaseAllowance(assetAdminWallet.address, BigNumber.from(0))
       ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
 
       // and
       await expect(
-        assetFoundingTeam.connect(user1).tokenDecreaseAllowance(assetAdminAddress, BigNumber.from(0))
+        assetFoundingTeam.connect(user1).tokenDecreaseAllowance(assetAdminWallet.address, BigNumber.from(0))
       ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
       await expect(
-        assetFoundingTeam.connect(livelyAdmin).tokenDecreaseAllowance(assetAdminAddress, BigNumber.from(0))
+        assetFoundingTeam.connect(livelyAdmin).tokenDecreaseAllowance(assetAdminWallet.address, BigNumber.from(0))
       ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
       await expect(
-        assetFoundingTeam.connect(systemAdmin).tokenDecreaseAllowance(assetAdminAddress, BigNumber.from(0))
+        assetFoundingTeam.connect(systemAdmin).tokenDecreaseAllowance(assetAdminWallet.address, BigNumber.from(0))
       ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
       await expect(
-        assetFoundingTeam.connect(foundingTeamManager).tokenDecreaseAllowance(assetAdminAddress, BigNumber.from(0))
+        assetFoundingTeam.connect(foundingTeamManager).tokenDecreaseAllowance(assetAdminWallet.address, BigNumber.from(0))
       ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
     });
 
@@ -6532,22 +6649,22 @@ describe("Asset Manager ERC20 Token Tests", function () {
       // when and then
       await expect(assetFoundingTeam.connect(assetAdmin).assetSetSafeMode(AssetSafeModeStatus.DISABLED))
         .to.emit(assetFoundingTeam, "AssetSafeModeUpdated")
-        .withArgs(assetAdminAddress, assetFoundingTeam.address, AssetSafeModeStatus.DISABLED);
+        .withArgs(assetAdminWallet.address, assetFoundingTeam.address, AssetSafeModeStatus.DISABLED);
     });
 
     it("Should tokenLock of LIVELY_FOUNDING_TEAM_ASSET by anyone failed", async () => {
       const lockRequests: IERC20Lock.LockTokenRequestStruct[] = [
         {
           source: assetFoundingTeam.address,
-          dest: user2Address,
+          dest: userWallet2.address,
           amount: dummyAmount,
-          timestamp: BigNumber.from(((Date.now() / 1000) | 0) + 60 * 60 * 60),
+          claimAt: BigNumber.from(((Date.now() / 1000) | 0) + 60 * 60 * 60),
         },
         {
           source: assetFoundingTeam.address,
-          dest: user1Address,
+          dest: userWallet1.address,
           amount: dummyAmount,
-          timestamp: BigNumber.from(((Date.now() / 1000) | 0) + 60 * 60 * 60),
+          claimAt: BigNumber.from(((Date.now() / 1000) | 0) + 60 * 60 * 60),
         },
       ];
 
@@ -6566,36 +6683,36 @@ describe("Asset Manager ERC20 Token Tests", function () {
 
     it("Should tokenLock of LIVELY_FOUNDING_TEAM_ASSET by foundingTeamManager success", async () => {
       // given
-      const assetFoundingTeamBalanceBefore = await assetFoundingTeam.tokenBalance();
-      const user2LockBalanceBefore = await livelyToken.lockBalanceOf(user2Address);
-      const user2TotalBalanceBefore = await livelyToken.totalBalanceOf(user2Address);
-      const user1LockBalanceBefore = await livelyToken.lockBalanceOf(user1Address);
-      const user1TotalBalanceBefore = await livelyToken.totalBalanceOf(user1Address);
+      const assetFoundingTeamBalanceBefore = await assetFoundingTeam.assetBalance();
+      const user2LockBalanceBefore = await livelyToken.lockBalanceOf(userWallet2.address);
+      const user2TotalBalanceBefore = await livelyToken.totalBalanceOf(userWallet2.address);
+      const user1LockBalanceBefore = await livelyToken.lockBalanceOf(userWallet1.address);
+      const user1TotalBalanceBefore = await livelyToken.totalBalanceOf(userWallet1.address);
       const lockRequests: IERC20Lock.LockTokenRequestStruct[] = [
         {
           source: assetFoundingTeam.address,
-          dest: user2Address,
+          dest: userWallet2.address,
           amount: dummyAmount,
-          timestamp: BigNumber.from(((Date.now() / 1000) | 0) + 60 * 60 * 60),
+          claimAt: BigNumber.from(((Date.now() / 1000) | 0) + 60 * 60 * 60),
         },
         {
           source: assetFoundingTeam.address,
-          dest: user1Address,
+          dest: userWallet1.address,
           amount: dummyAmount,
-          timestamp: BigNumber.from(((Date.now() / 1000) | 0) + 60 * 60 * 60),
+          claimAt: BigNumber.from(((Date.now() / 1000) | 0) + 60 * 60 * 60),
         },
       ];
 
       const user2LockId = ethers.utils.keccak256(
         ethers.utils.solidityPack(
           ["address", "address", "uint256", "uint256"],
-          [lockRequests[0].source, lockRequests[0].dest, lockRequests[0].timestamp, lockRequests[0].amount]
+          [lockRequests[0].source, lockRequests[0].dest, lockRequests[0].claimAt, lockRequests[0].amount]
         )
       );
       const user1LockId = ethers.utils.keccak256(
         ethers.utils.solidityPack(
           ["address", "address", "uint256", "uint256"],
-          [lockRequests[1].source, lockRequests[1].dest, lockRequests[1].timestamp, lockRequests[1].amount]
+          [lockRequests[1].source, lockRequests[1].dest, lockRequests[1].claimAt, lockRequests[1].amount]
         )
       );
 
@@ -6606,8 +6723,8 @@ describe("Asset Manager ERC20 Token Tests", function () {
           user2LockId,
           assetFoundingTeam.address,
           assetFoundingTeam.address,
-          user2Address,
-          lockRequests[0].timestamp,
+          userWallet2.address,
+          lockRequests[0].claimAt,
           lockRequests[0].amount
         )
         .to.emit(livelyToken, "TokenLocked")
@@ -6615,15 +6732,15 @@ describe("Asset Manager ERC20 Token Tests", function () {
           user1LockId,
           assetFoundingTeam.address,
           assetFoundingTeam.address,
-          user2Address,
-          lockRequests[1].timestamp,
+          userWallet2.address,
+          lockRequests[1].claimAt,
           lockRequests[1].amount
         )
         .to.emit(livelyToken, "TokenLocked")
         .withArgs(assetFoundingTeam.address, dummyAmount.mul(2))
         .to.emit(assetFoundingTeam, "AssetERC20Called")
         .withArgs(
-          foundingTeamManagerAddress,
+          foundingTeamManagerWallet.address,
           assetFoundingTeam.address,
           assetFoundingTeam.interface.getSighash(
             assetFoundingTeam.interface.functions["tokenLock((address,address,uint256,uint256)[])"]
@@ -6631,13 +6748,13 @@ describe("Asset Manager ERC20 Token Tests", function () {
         );
 
       // then
-      const [amount1, lockedAt1, claimedAt1, source1, status1] = await livelyToken.lockInfo(user2LockId, user2Address);
-      const [amount2, lockedAt2, claimedAt2, source2, status2] = await livelyToken.lockInfo(user1LockId, user1Address);
-      const assetFoundingTeamBalanceAfter = await assetFoundingTeam.tokenBalance();
-      const user2LockBalanceAfter = await livelyToken.lockBalanceOf(user2Address);
-      const user2TotalBalanceAfter = await livelyToken.totalBalanceOf(user2Address);
-      const user1LockBalanceAfter = await livelyToken.lockBalanceOf(user1Address);
-      const user1TotalBalanceAfter = await livelyToken.totalBalanceOf(user1Address);
+      const [amount1, lockedAt1, claimedAt1, source1, status1] = await livelyToken.lockInfo(user2LockId, userWallet2.address);
+      const [amount2, lockedAt2, claimedAt2, source2, status2] = await livelyToken.lockInfo(user1LockId, userWallet1.address);
+      const assetFoundingTeamBalanceAfter = await assetFoundingTeam.assetBalance();
+      const user2LockBalanceAfter = await livelyToken.lockBalanceOf(userWallet2.address);
+      const user2TotalBalanceAfter = await livelyToken.totalBalanceOf(userWallet2.address);
+      const user1LockBalanceAfter = await livelyToken.lockBalanceOf(userWallet1.address);
+      const user1TotalBalanceAfter = await livelyToken.totalBalanceOf(userWallet1.address);
       const latestBlockNumber = await provider.getBlockNumber();
       const block = await provider.getBlock(latestBlockNumber);
 
@@ -6648,7 +6765,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
       expect(user2TotalBalanceAfter.toString()).to.be.equal(user2TotalBalanceBefore.add(dummyAmount).toString());
       expect(amount1.toString()).to.be.equal(lockRequests[0].amount.toString());
       expect(lockedAt1.toString()).to.be.equal(block.timestamp.toString());
-      expect(claimedAt1.toString()).to.be.equal(lockRequests[0].timestamp.toString());
+      expect(claimedAt1.toString()).to.be.equal(lockRequests[0].claimAt.toString());
       expect(source1).to.be.hexEqual(assetFoundingTeam.address);
       expect(<LockState>status1).to.be.equal(LockState.LOCKED);
 
@@ -6656,38 +6773,38 @@ describe("Asset Manager ERC20 Token Tests", function () {
       expect(user1TotalBalanceAfter.toString()).to.be.equal(user1TotalBalanceBefore.add(dummyAmount).toString());
       expect(amount2.toString()).to.be.equal(lockRequests[1].amount.toString());
       expect(lockedAt2.toString()).to.be.equal(block.timestamp.toString());
-      expect(claimedAt2.toString()).to.be.equal(lockRequests[1].timestamp.toString());
+      expect(claimedAt2.toString()).to.be.equal(lockRequests[1].claimAt.toString());
       expect(source2).to.be.hexEqual(assetFoundingTeam.address);
       expect(<LockState>status2).to.be.equal(LockState.LOCKED);
     });
 
     it("Should tokenTransfer of LIVELY_PUBLIC_SALE_ASSET by anyone failed", async () => {
       // when and then
-      await expect(assetPublicSale.connect(livelyAdmin).tokenTransfer(user1Address, dummyAmount)).to.revertedWith(
+      await expect(assetPublicSale.connect(livelyAdmin).tokenTransfer(userWallet1.address, dummyAmount)).to.revertedWith(
         "AssetERC20 Access Denied"
       );
 
-      await expect(assetPublicSale.connect(systemAdmin).tokenTransfer(user1Address, dummyAmount)).to.revertedWith(
+      await expect(assetPublicSale.connect(systemAdmin).tokenTransfer(userWallet1.address, dummyAmount)).to.revertedWith(
         "AssetERC20 Access Denied"
       );
 
-      await expect(assetPublicSale.connect(assetAdmin).tokenTransfer(user1Address, dummyAmount)).to.revertedWith(
+      await expect(assetPublicSale.connect(assetAdmin).tokenTransfer(userWallet1.address, dummyAmount)).to.revertedWith(
         "AssetERC20 Access Denied"
       );
     });
 
     it("Should tokenTransfer of LIVELY_PUBLIC_SALE_ASSET by publicSaleManager success", async () => {
       // given
-      const assetPublicSaleBalanceBefore = await assetPublicSale.tokenBalance();
-      const user1BalanceBefore = await livelyToken.balanceOf(user1Address);
+      const assetPublicSaleBalanceBefore = await assetPublicSale.assetBalance();
+      const user1BalanceBefore = await livelyToken.balanceOf(userWallet1.address);
 
       // when
-      await expect(assetPublicSale.connect(publicSaleManager).tokenTransfer(user1Address, dummyAmount))
+      await expect(assetPublicSale.connect(publicSaleManager).tokenTransfer(userWallet1.address, dummyAmount))
         .to.emit(livelyToken, "Transfer")
-        .withArgs(assetPublicSale.address, user1Address, dummyAmount)
+        .withArgs(assetPublicSale.address, userWallet1.address, dummyAmount)
         .to.emit(assetPublicSale, "AssetERC20Called")
         .withArgs(
-          publicSaleManagerAddress,
+          publicSaleManagerWallet.address,
           assetPublicSale.address,
           assetAudioVideoProgram.interface.getSighash(
             assetAudioVideoProgram.interface.functions["tokenTransfer(address,uint256)"]
@@ -6695,8 +6812,8 @@ describe("Asset Manager ERC20 Token Tests", function () {
         );
 
       // then
-      const assetPublicSaleBalanceAfter = await assetPublicSale.tokenBalance();
-      const user1BalanceAfter = await livelyToken.balanceOf(user1Address);
+      const assetPublicSaleBalanceAfter = await assetPublicSale.assetBalance();
+      const user1BalanceAfter = await livelyToken.balanceOf(userWallet1.address);
       expect(assetPublicSaleBalanceAfter.toString()).to.be.equal(
         assetPublicSaleBalanceBefore.sub(dummyAmount).toString()
       );
@@ -6706,7 +6823,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
     it("Should tokenBatchTransfer of LIVELY_TREASURY_ASSET by anyone failed", async () => {
       const batchTransfer: IERC20Extra.BatchTransferRequestStruct = {
         amount: dummyAmount,
-        to: user2Address,
+        to: userWallet2.address,
       };
 
       await expect(assetTreasury.connect(livelyAdmin).tokenBatchTransfer([batchTransfer])).to.revertedWith(
@@ -6724,22 +6841,22 @@ describe("Asset Manager ERC20 Token Tests", function () {
 
     it("Should tokenBatchTransfer of LIVELY_TREASURY_ASSET by treasuryManager success", async () => {
       // given
-      const assetTreasuryBalanceBefore = await assetTreasury.tokenBalance();
-      const user2BalanceBefore = await livelyToken.balanceOf(user2Address);
+      const assetTreasuryBalanceBefore = await assetTreasury.assetBalance();
+      const user2BalanceBefore = await livelyToken.balanceOf(userWallet2.address);
       const batchTransfer: IERC20Extra.BatchTransferRequestStruct = {
         amount: dummyAmount,
-        to: user2Address,
+        to: userWallet2.address,
       };
 
       // when
       await expect(assetTreasury.connect(treasuryManager).tokenBatchTransfer([batchTransfer]))
         .to.emit(livelyToken, "Transfer")
-        .withArgs(assetTreasury.address, user2Address, batchTransfer.amount)
+        .withArgs(assetTreasury.address, userWallet2.address, batchTransfer.amount)
         .to.emit(livelyToken, "BatchTransfer")
-        .withArgs(user1Address, batchTransfer.amount)
+        .withArgs(userWallet1.address, batchTransfer.amount)
         .to.emit(assetTreasury, "AssetERC20Called")
         .withArgs(
-          treasuryManagerAddress,
+          treasuryManagerWallet.address,
           assetTreasury.address,
           assetTreasury.interface.getSighash(
             assetTreasury.interface.functions["tokenBatchTransfer((address,uint256)[])"]
@@ -6747,8 +6864,8 @@ describe("Asset Manager ERC20 Token Tests", function () {
         );
 
       // then
-      const assetTreasuryBalanceAfter = await assetTreasury.tokenBalance();
-      const user2BalanceAfter = await livelyToken.balanceOf(user2Address);
+      const assetTreasuryBalanceAfter = await assetTreasury.assetBalance();
+      const user2BalanceAfter = await livelyToken.balanceOf(userWallet2.address);
 
       expect(assetTreasuryBalanceAfter).to.be.equal(assetTreasuryBalanceBefore.sub(dummyAmount).toString());
       expect(user2BalanceAfter).to.be.equal(user2BalanceBefore.add(dummyAmount).toString());
@@ -6756,15 +6873,15 @@ describe("Asset Manager ERC20 Token Tests", function () {
 
     it("Should tokenApprove of LIVELY_VALIDATORS_REWARDS_ASSET by anyone failed", async () => {
       // when and then
-      await expect(assetValidatorsRewards.connect(livelyAdmin).tokenApprove(user1Address, dummyAmount)).to.revertedWith(
+      await expect(assetValidatorsRewards.connect(livelyAdmin).tokenApprove(userWallet1.address, dummyAmount)).to.revertedWith(
         "AssetERC20 Access Denied"
       );
 
-      await expect(assetValidatorsRewards.connect(systemAdmin).tokenApprove(user1Address, dummyAmount)).to.revertedWith(
+      await expect(assetValidatorsRewards.connect(systemAdmin).tokenApprove(userWallet1.address, dummyAmount)).to.revertedWith(
         "AssetERC20 Access Denied"
       );
 
-      await expect(assetValidatorsRewards.connect(assetAdmin).tokenApprove(user1Address, dummyAmount)).to.revertedWith(
+      await expect(assetValidatorsRewards.connect(assetAdmin).tokenApprove(userWallet1.address, dummyAmount)).to.revertedWith(
         "AssetERC20 Access Denied"
       );
     });
@@ -6786,7 +6903,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
         .withArgs(assetValidatorsRewards.address, assetTreasury.address, dummyAmount.mul(2))
         .to.emit(assetValidatorsRewards, "AssetERC20Called")
         .withArgs(
-          validatorsRewardsManagerAddress,
+          validatorsRewardsManagerWallet.address,
           assetValidatorsRewards.address,
           assetValidatorsRewards.interface.getSighash(
             assetValidatorsRewards.interface.functions["tokenApprove(address,uint256)"]
@@ -6806,19 +6923,19 @@ describe("Asset Manager ERC20 Token Tests", function () {
     it("Should tokenTransferFrom of LIVELY_TREASURY_ASSET by anyone failed", async () => {
       // when
       await expect(
-        assetTaxTreasury.connect(livelyAdmin).tokenTransferFrom(assetValidatorsRewards.address, user1Address, dummyAmount)
+        assetTaxTreasury.connect(livelyAdmin).tokenTransferFrom(assetValidatorsRewards.address, userWallet1.address, dummyAmount)
       ).to.revertedWith("AssetERC20 Access Denied");
 
       await expect(
         assetTaxTreasury
           .connect(systemAdmin)
-          .tokenTransferFrom(assetValidatorsRewards.address, user1Address, dummyAmount)
+          .tokenTransferFrom(assetValidatorsRewards.address, userWallet1.address, dummyAmount)
       ).to.revertedWith("AssetERC20 Access Denied");
 
       await expect(
         assetTaxTreasury
           .connect(treasuryManager)
-          .tokenTransferFrom(assetValidatorsRewards.address, user1Address, dummyAmount)
+          .tokenTransferFrom(assetValidatorsRewards.address, userWallet1.address, dummyAmount)
       ).to.revertedWith("AssetERC20 Access Denied");
     });
 
@@ -6828,19 +6945,19 @@ describe("Asset Manager ERC20 Token Tests", function () {
         assetValidatorsRewards.address,
         assetTaxTreasury.address
       );
-      const assetValidatorsRewardsBalanceBefore = await assetValidatorsRewards.tokenBalance();
-      const user1BalanceBefore = await livelyToken.balanceOf(user1Address);
+      const assetValidatorsRewardsBalanceBefore = await assetValidatorsRewards.assetBalance();
+      const user1BalanceBefore = await livelyToken.balanceOf(userWallet1.address);
 
       // when
       await expect(
         assetTaxTreasury
           .connect(assetAdmin)
-          .tokenTransferFrom(assetValidatorsRewards.address, user1Address, dummyAmount)
+          .tokenTransferFrom(assetValidatorsRewards.address, userWallet1.address, dummyAmount)
       )
         .to.emit(livelyToken, "Transfer")
-        .withArgs(assetValidatorsRewards.address, user1Address, dummyAmount)
+        .withArgs(assetValidatorsRewards.address, userWallet1.address, dummyAmount)
         .to.emit(livelyToken, "TransferFrom")
-        .withArgs(assetTaxTreasury.address, assetValidatorsRewards.address, user1Address, dummyAmount)
+        .withArgs(assetTaxTreasury.address, assetValidatorsRewards.address, userWallet1.address, dummyAmount)
         .to.emit(livelyToken, "Approval")
         .withArgs(
           assetValidatorsRewards.address,
@@ -6849,7 +6966,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
         )
         .to.emit(assetTaxTreasury, "AssetERC20Called")
         .withArgs(
-          assetAdminAddress,
+          assetAdminWallet.address,
           assetTaxTreasury.address,
           assetTaxTreasury.interface.getSighash(
             assetTaxTreasury.interface.functions["tokenTransferFrom(address,address,uint256)"]
@@ -6861,8 +6978,8 @@ describe("Asset Manager ERC20 Token Tests", function () {
         assetValidatorsRewards.address,
         assetTaxTreasury.address
       );
-      const assetValidatorsRewardsBalanceAfter = await assetValidatorsRewards.tokenBalance();
-      const user1BalanceAfter = await livelyToken.balanceOf(user1Address);
+      const assetValidatorsRewardsBalanceAfter = await assetValidatorsRewards.assetBalance();
+      const user1BalanceAfter = await livelyToken.balanceOf(userWallet1.address);
       expect(assetTaxTreasuryAllowanceAfter).to.be.equal(assetTaxTreasuryAllowanceBefore.sub(dummyAmount).toString());
       expect(assetValidatorsRewardsBalanceAfter).to.be.equal(
         assetValidatorsRewardsBalanceBefore.sub(dummyAmount).toString()
@@ -6874,7 +6991,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
       // given
       const batchTransferFrom: IERC20Extra.BatchTransferFromRequestStruct = {
         from: assetValidatorsRewards.address,
-        to: user1Address,
+        to: userWallet1.address,
         amount: dummyAmount,
       };
 
@@ -6898,22 +7015,22 @@ describe("Asset Manager ERC20 Token Tests", function () {
         assetValidatorsRewards.address,
         assetTaxTreasury.address
       );
-      const assetValidatorsRewardsBalanceBefore = await assetValidatorsRewards.tokenBalance();
-      const user1BalanceBefore = await livelyToken.balanceOf(user1Address);
+      const assetValidatorsRewardsBalanceBefore = await assetValidatorsRewards.assetBalance();
+      const user1BalanceBefore = await livelyToken.balanceOf(userWallet1.address);
       const batchTransferFrom: IERC20Extra.BatchTransferFromRequestStruct = {
         from: assetValidatorsRewards.address,
-        to: user1Address,
+        to: userWallet1.address,
         amount: dummyAmount,
       };
 
       // when
       await expect(assetTaxTreasury.connect(assetAdmin).tokenBatchTransferFrom([batchTransferFrom]))
         .to.emit(livelyToken, "Transfer")
-        .withArgs(assetValidatorsRewards.address, user1Address, dummyAmount)
+        .withArgs(assetValidatorsRewards.address, userWallet1.address, dummyAmount)
         .to.emit(livelyToken, "BatchTransferFrom")
         .withArgs(assetTaxTreasury.address, dummyAmount)
         .to.emit(livelyToken, "TransferFrom")
-        .withArgs(assetTaxTreasury.address, assetValidatorsRewards.address, user1Address, dummyAmount)
+        .withArgs(assetTaxTreasury.address, assetValidatorsRewards.address, userWallet1.address, dummyAmount)
         .to.emit(livelyToken, "Approval")
         .withArgs(
           assetValidatorsRewards.address,
@@ -6922,7 +7039,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
         )
         .to.emit(assetTaxTreasury, "AssetERC20Called")
         .withArgs(
-          assetAdminAddress,
+          assetAdminWallet.address,
           assetTaxTreasury.address,
           assetTaxTreasury.interface.getSighash(
             assetTaxTreasury.interface.functions["tokenBatchTransferFrom((address,address,uint256)[])"]
@@ -6934,8 +7051,8 @@ describe("Asset Manager ERC20 Token Tests", function () {
         assetValidatorsRewards.address,
         assetTaxTreasury.address
       );
-      const assetValidatorsRewardsBalanceAfter = await assetValidatorsRewards.tokenBalance();
-      const user1BalanceAfter = await livelyToken.balanceOf(user1Address);
+      const assetValidatorsRewardsBalanceAfter = await assetValidatorsRewards.assetBalance();
+      const user1BalanceAfter = await livelyToken.balanceOf(userWallet1.address);
       expect(assetTaxTreasuryAllowanceAfter).to.be.equal(assetTaxTreasuryAllowanceBefore.sub(dummyAmount).toString());
       expect(assetValidatorsRewardsBalanceAfter).to.be.equal(
         assetValidatorsRewardsBalanceBefore.sub(dummyAmount).toString()
@@ -6945,32 +7062,32 @@ describe("Asset Manager ERC20 Token Tests", function () {
 
     it("Should tokenIncreaseAllowance of LIVELY_CROWD_FOUNDING_ASSET by anyone failed", async () => {
       // when
-      await expect(assetCrowdFounding.connect(livelyAdmin).tokenIncreaseAllowance(user2Address, dummyAmount)).to.revertedWith(
+      await expect(assetCrowdFounding.connect(livelyAdmin).tokenIncreaseAllowance(userWallet2.address, dummyAmount)).to.revertedWith(
         "AssetERC20 Access Denied"
       );
 
       await expect(
-        assetCrowdFounding.connect(systemAdmin).tokenIncreaseAllowance(user2Address, dummyAmount)
+        assetCrowdFounding.connect(systemAdmin).tokenIncreaseAllowance(userWallet2.address, dummyAmount)
       ).to.revertedWith("AssetERC20 Access Denied");
 
       await expect(
-        assetCrowdFounding.connect(assetAdmin).tokenIncreaseAllowance(user2Address, dummyAmount)
+        assetCrowdFounding.connect(assetAdmin).tokenIncreaseAllowance(userWallet2.address, dummyAmount)
       ).to.revertedWith("AssetERC20 Access Denied");
     });
 
     it("Should tokenIncreaseAllowance of LIVELY_CROWD_FOUNDING_ASSET by crowdFoundingManager success", async () => {
       // given
-      const user2AllowanceBefore = await livelyToken.allowance(assetCrowdFounding.address, user2Address);
+      const user2AllowanceBefore = await livelyToken.allowance(assetCrowdFounding.address, userWallet2.address);
 
       // when
-      await expect(assetCrowdFounding.connect(crowdFoundingManager).tokenIncreaseAllowance(user2Address, dummyAmount))
+      await expect(assetCrowdFounding.connect(crowdFoundingManager).tokenIncreaseAllowance(userWallet2.address, dummyAmount))
         .to.emit(livelyToken, "Approval")
-        .withArgs(assetCrowdFounding.address, user2Address, dummyAmount)
+        .withArgs(assetCrowdFounding.address, userWallet2.address, dummyAmount)
         .to.emit(livelyToken, "ApprovalIncreased")
-        .withArgs(assetCrowdFounding.address, user2Address, dummyAmount)
+        .withArgs(assetCrowdFounding.address, userWallet2.address, dummyAmount)
         .to.emit(assetCrowdFounding, "AssetERC20Called")
         .withArgs(
-          crowdFoundingManagerAddress,
+          crowdFoundingManagerWallet.address,
           assetCrowdFounding.address,
           assetCrowdFounding.interface.getSighash(
             assetCrowdFounding.interface.functions["tokenIncreaseAllowance(address,uint256)"]
@@ -6978,38 +7095,38 @@ describe("Asset Manager ERC20 Token Tests", function () {
         );
 
       // then
-      const user2AllowanceAfter = await livelyToken.allowance(assetCrowdFounding.address, user2Address);
+      const user2AllowanceAfter = await livelyToken.allowance(assetCrowdFounding.address, userWallet2.address);
       expect(user2AllowanceAfter.toString()).to.be.equal(user2AllowanceBefore.add(dummyAmount).toString());
     });
 
     it("Should tokenDecreaseAllowance of LIVELY_CROWD_FOUNDING_ASSET by anyone failed", async () => {
       // when
-      await expect(assetCrowdFounding.connect(livelyAdmin).tokenDecreaseAllowance(user2Address, dummyAmount)).to.revertedWith(
+      await expect(assetCrowdFounding.connect(livelyAdmin).tokenDecreaseAllowance(userWallet2.address, dummyAmount)).to.revertedWith(
         "AssetERC20 Access Denied"
       );
 
       await expect(
-        assetCrowdFounding.connect(systemAdmin).tokenDecreaseAllowance(user2Address, dummyAmount)
+        assetCrowdFounding.connect(systemAdmin).tokenDecreaseAllowance(userWallet2.address, dummyAmount)
       ).to.revertedWith("AssetERC20 Access Denied");
 
       await expect(
-        assetCrowdFounding.connect(assetAdmin).tokenDecreaseAllowance(user2Address, dummyAmount)
+        assetCrowdFounding.connect(assetAdmin).tokenDecreaseAllowance(userWallet2.address, dummyAmount)
       ).to.revertedWith("AssetERC20 Access Denied");
     });
 
     it("Should tokenDecreaseAllowance of LIVELY_CROWD_FOUNDING_ASSET by crowdFoundingManager success", async () => {
       // given
-      const user2AllowanceBefore = await livelyToken.allowance(assetCrowdFounding.address, user2Address);
+      const user2AllowanceBefore = await livelyToken.allowance(assetCrowdFounding.address, userWallet2.address);
 
       // when
-      await expect(assetCrowdFounding.connect(crowdFoundingManager).tokenDecreaseAllowance(user2Address, dummyAmount))
+      await expect(assetCrowdFounding.connect(crowdFoundingManager).tokenDecreaseAllowance(userWallet2.address, dummyAmount))
         .to.emit(livelyToken, "Approval")
-        .withArgs(assetCrowdFounding.address, user2Address, dummyAmount)
+        .withArgs(assetCrowdFounding.address, userWallet2.address, dummyAmount)
         .to.emit(livelyToken, "ApprovalDecrease")
-        .withArgs(assetCrowdFounding.address, user2Address, dummyAmount)
+        .withArgs(assetCrowdFounding.address, userWallet2.address, dummyAmount)
         .to.emit(assetCrowdFounding, "AssetERC20Called")
         .withArgs(
-          crowdFoundingManagerAddress,
+          crowdFoundingManagerWallet.address,
           assetCrowdFounding.address,
           assetSubjectERC20.interface.getSighash(
             assetSubjectERC20.interface.functions["tokenDecreaseAllowance(address,uint256)"]
@@ -7017,7 +7134,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
         );
 
       // then
-      const user2AllowanceAfter = await livelyToken.allowance(assetCrowdFounding.address, user2Address);
+      const user2AllowanceAfter = await livelyToken.allowance(assetCrowdFounding.address, userWallet2.address);
       expect(user2AllowanceAfter.toString()).to.be.equal(user2AllowanceBefore.sub(dummyAmount).toString());
     });
 
@@ -7025,7 +7142,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
       // given
       // const assetAudioVideoProgramBalanceBefore = await provider.getBalance(assetAudioVideoProgram.address);
       const assetAudioVideoProgramBalanceBefore = await assetAudioVideoProgram.assetBalance();
-      const user1BalanceBefore = await provider.getBalance(user1Address);
+      const user1BalanceBefore = await provider.getBalance(userWallet1.address);
       const transaction: TransactionRequest = {
         to: assetAudioVideoProgram.address,
         value: ethers.utils.parseEther("10"),
@@ -7038,7 +7155,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
       const receiptTx = await provider.getTransactionReceipt(response.hash);
       // const assetAudioVideoProgramBalanceAfter = await provider.getBalance(assetAudioVideoProgram.address);
       const assetAudioVideoProgramBalanceAfter = await assetAudioVideoProgram.assetBalance();
-      const user1BalanceAfter = await provider.getBalance(user1Address);
+      const user1BalanceAfter = await provider.getBalance(userWallet1.address);
       expect(assetAudioVideoProgramBalanceAfter.toString()).to.be.equal(
         assetAudioVideoProgramBalanceBefore.add(BigNumber.from(10).mul(tokenDecimal)).toString()
       );
@@ -7055,15 +7172,15 @@ describe("Asset Manager ERC20 Token Tests", function () {
       const assetAudioVideoProgramBalanceBefore = await provider.getBalance(assetAudioVideoProgram.address);
 
       // when
-      await expect(assetAudioVideoProgram.connect(user1).withdrawBalance(user1Address)).to.revertedWith(
+      await expect(assetAudioVideoProgram.connect(user1).withdrawBalance(userWallet1.address)).to.revertedWith(
         "AssetERC20 Access Denied"
       );
 
-      await expect(assetAudioVideoProgram.connect(systemAdmin).withdrawBalance(systemAdminAddress)).to.revertedWith(
+      await expect(assetAudioVideoProgram.connect(systemAdmin).withdrawBalance(systemAdminWallet.address)).to.revertedWith(
         "AssetERC20 Access Denied"
       );
 
-      await expect(assetAudioVideoProgram.connect(livelyAdmin).withdrawBalance(adminAddress)).to.revertedWith(
+      await expect(assetAudioVideoProgram.connect(livelyAdmin).withdrawBalance(assetAdminWallet.address)).to.revertedWith(
         "AssetERC20 Access Denied"
       );
 
@@ -7075,13 +7192,13 @@ describe("Asset Manager ERC20 Token Tests", function () {
     it("Should withdraw eth coin from LIVELY_AUDIO_VIDEO_PROGRAM_ASSET by audioVideoProgramManager success", async () => {
       // given
       const assetAudioVideoProgramBalanceBefore = await provider.getBalance(assetAudioVideoProgram.address);
-      const user1BalanceBefore = await provider.getBalance(user1Address);
+      const user1BalanceBefore = await provider.getBalance(userWallet1.address);
 
       // when
-      await assetAudioVideoProgram.connect(audioVideoProgramManager).withdrawBalance(user1Address);
+      await assetAudioVideoProgram.connect(audioVideoProgramManager).withdrawBalance(userWallet1.address);
 
       // then
-      const user1BalanceAfter = await provider.getBalance(user1Address);
+      const user1BalanceAfter = await provider.getBalance(userWallet1.address);
       const assetAudioVideoProgramBalanceAfter = await provider.getBalance(assetAudioVideoProgram.address);
       expect(assetAudioVideoProgramBalanceAfter.toString()).to.be.equal(
         assetAudioVideoProgramBalanceBefore.sub(BigNumber.from(10).mul(tokenDecimal)).toString()

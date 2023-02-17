@@ -490,9 +490,9 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
     emit TokenLocked(
       lockId,
       _msgSender(),
-      lockRequest.source,
+      lockRequest.source,      
       lockRequest.dest,
-      lockRequest.timestamp,
+      lockRequest.claimAt,
       lockRequest.amount
     );
     return lockId;
