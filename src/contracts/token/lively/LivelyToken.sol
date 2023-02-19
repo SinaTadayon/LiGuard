@@ -329,10 +329,10 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
   {
     require(!_isTokenDistributed, "Token Already Distributed");
 
-    // if(!IERC165(assetManager).supportsInterface(type(IAssetManagerERC20).interfaceId))
-    //   revert("Illegal IAssetManagerERC20");
+    if(!IERC165(assetManager).supportsInterface(type(IAssetManagerERC20).interfaceId))
+      revert("Illegal IAssetManagerERC20");
 
-    _mint(assetManager, 5_000_000_000 * 10**18); // 5 billion tokens according to tokenomics
+    _mint(_msgSender(), 5_000_000_000 * 10**18); // 5 billion tokens according to tokenomics
 
     for (uint256 i = 0; i < 7; i++) {
       if(!IERC165(assets[i]).supportsInterface(type(IAssetEntity).interfaceId))

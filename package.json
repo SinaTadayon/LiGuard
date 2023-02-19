@@ -1,7 +1,7 @@
 {
   "name": "@livelyverse/lively-core-onchain",
   "version": "3.0.0",
-  "description": "Lively ACL On-Chain Contracts and Utilities",
+  "description": "Lively Guard Contracts and Utilities",
   "scripts": {
     "accounts": "yarn run hardhat accounts",
     "compile": "yarn run hardhat compile && tsc",

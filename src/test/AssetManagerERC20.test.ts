@@ -306,12 +306,8 @@ describe("Asset Manager ERC20 Token Tests", function () {
 
   const ACL_DOMAIN_TOKENS_NAME = "DOMAIN.LIVELY_VERSE.TOKENS";
   const ACL_REALM_LIVELY_TOKEN_ERC20_NAME = "REALM.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20";
-  // const ACL_TYPE_TOKENS_MASTER_NAME = "TYPE.LIVELY_VERSE.TOKENS.MASTER"
-  // const ACL_ROLE_TOKENS_MASTER_DOMAIN_ADMIN_NAME = "ROLE.LIVELY_VERSE.TOKENS.MASTER_ADMIN";
-  // const ACL_TYPE_LIVELY_TOKEN_ERC20_NAME = "TYPE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.MASTER"
-  // const ACL_ROLE_LIVELY_TOKEN_ERC20_REALM_ADMIN_NAME = "TYPE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.MASTER_ADMIN";
   const ACL_TYPE_LIVELY_TOKEN_ERC20_MANAGER_NAME = "TYPE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.MANAGER";
-  const ACL_ROLE_LIVELY_TOKEN_MANAGER_ADMIN_NAME = "ROLE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.MANAGER_ADMIN";
+  const ACL_ROLE_LIVELY_TOKEN_ERC20_MANAGER_ADMIN_NAME = "ROLE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.MANAGER_ADMIN";
   const ACL_TYPE_LIVELY_TOKEN_ERC20_ASSET_MANAGER_NAME = "TYPE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.ASSET_MANAGER";
   const ACL_ROLE_LIVELY_TOKEN_ERC20_ASSET_MANAGER_ADMIN_NAME = "ROLE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.ASSET_MANAGER_ADMIN";
   const ACL_ROLE_LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_NAME = "ROLE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.AUDIO_VIDEO_PROGRAM_ASSET_ADMIN";
@@ -324,10 +320,6 @@ describe("Asset Manager ERC20 Token Tests", function () {
 
   let aclDomainTokensId: string;
   let aclRealmLivelyTokenErc20Id: string;
-  // let aclTypeTokensMasterId: string;
-  // let aclRoleTokensMasterAdminId: string;
-  // let aclTypeLivelyTokenErc20MasterId: string;
-  // let aclRoleLivelyTokenErc20MasterAdminId: string;
   let aclTypeLivelyTokenManagerId: string;
   let aclRoleLivelyTokenManagerAdminId: string;
   let aclTypeLivelyTokenAssetManagerId: string;
@@ -403,6 +395,8 @@ describe("Asset Manager ERC20 Token Tests", function () {
     // aclRoleTokensMasterAdminId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_TOKENS_MASTER_DOMAIN_ADMIN_NAME));
     // aclTypeLivelyTokenErc20MasterId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_TYPE_LIVELY_TOKEN_ERC20_NAME));
     // aclRoleLivelyTokenErc20MasterAdminId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_LIVELY_TOKEN_ERC20_REALM_ADMIN_NAME));
+    aclTypeLivelyTokenManagerId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_TYPE_LIVELY_TOKEN_ERC20_MANAGER_NAME));
+    aclRoleLivelyTokenManagerAdminId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_LIVELY_TOKEN_ERC20_MANAGER_ADMIN_NAME));
     aclTypeLivelyTokenAssetManagerId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_TYPE_LIVELY_TOKEN_ERC20_ASSET_MANAGER_NAME));
     aclRoleLivelyTokenAssetManagerAdminId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_LIVELY_TOKEN_ERC20_ASSET_MANAGER_ADMIN_NAME));
     aclRoleLivelyAudioVideoProgramAssetAdminId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_NAME));
@@ -498,24 +492,25 @@ describe("Asset Manager ERC20 Token Tests", function () {
     })
 
     it("ACL Deploy Proxies", async() => {
-      const proxyFactory = new ACLManagerProxy__factory(systemAdmin);
+      const aclManagerProxyFactory = new ACLManagerProxy__factory(systemAdmin);
       let iface = new ethers.utils.Interface(ACLManager__factory.abi);
       let data = iface.encodeFunctionData("initialize", [
         ACL_MANAGER_CONTRACT_NAME,
         CONTRACTS_VERSION,
       ]);
-      const aclProxy = await proxyFactory.deploy(aclManagerSubject.address, data);
+      const aclProxy = await aclManagerProxyFactory.deploy(aclManagerSubject.address, data);
       await aclProxy.deployTransaction.wait();
       aclManagerProxy = aclManagerSubject.attach(aclProxy.address);
 
       // Member Manager
+      const aclProxyFactory = new ACLProxy__factory(systemAdmin);
       iface = new ethers.utils.Interface(MemberManager__factory.abi);
       data = iface.encodeFunctionData("initialize", [
         MEMBER_MANAGER_CONTRACT_NAME,
         CONTRACTS_VERSION,
         aclManagerProxy.address,
       ]);
-      let proxy = await proxyFactory.deploy(memberManagerSubject.address, data);
+      let proxy = await aclProxyFactory.deploy(memberManagerSubject.address, data);
       await proxy.deployTransaction.wait();
       memberManagerProxy = memberManagerSubject.attach(proxy.address);
 
@@ -526,7 +521,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
         CONTRACTS_VERSION,
         aclManagerProxy.address,
       ]);
-      proxy = await proxyFactory.deploy(roleManagerSubject.address, data);
+      proxy = await aclProxyFactory.deploy(roleManagerSubject.address, data);
       roleManagerProxy = roleManagerSubject.attach(proxy.address);
 
       // Type Manager
@@ -536,7 +531,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
         CONTRACTS_VERSION,
         aclManagerProxy.address,
       ]);
-      proxy = await proxyFactory.deploy(typeManagerSubject.address, data);
+      proxy = await aclProxyFactory.deploy(typeManagerSubject.address, data);
       await proxy.deployTransaction.wait();
       typeManagerProxy = typeManagerSubject.attach(proxy.address);
 
@@ -547,7 +542,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
         CONTRACTS_VERSION,
         aclManagerProxy.address,
       ]);
-      proxy = await proxyFactory.deploy(functionManagerSubject.address, data);
+      proxy = await aclProxyFactory.deploy(functionManagerSubject.address, data);
       await proxy.deployTransaction.wait();
       functionManagerProxy = functionManagerSubject.attach(proxy.address);
 
@@ -558,7 +553,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
         CONTRACTS_VERSION,
         aclManagerProxy.address,
       ]);
-      proxy = await proxyFactory.deploy(contextManagerSubject.address, data);
+      proxy = await aclProxyFactory.deploy(contextManagerSubject.address, data);
       await proxy.deployTransaction.wait();
       contextManagerProxy = contextManagerSubject.attach(proxy.address);
 
@@ -569,7 +564,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
         CONTRACTS_VERSION,
         aclManagerProxy.address,
       ]);
-      proxy = await proxyFactory.deploy(realmManagerSubject.address, data);
+      proxy = await aclProxyFactory.deploy(realmManagerSubject.address, data);
       await proxy.deployTransaction.wait();
       realmManagerProxy = realmManagerSubject.attach(proxy.address);
 
@@ -580,7 +575,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
         CONTRACTS_VERSION,
         aclManagerProxy.address,
       ]);
-      proxy = await proxyFactory.deploy(domainManagerSubject.address, data);
+      proxy = await aclProxyFactory.deploy(domainManagerSubject.address, data);
       await proxy.deployTransaction.wait();
       domainManagerProxy = domainManagerSubject.attach(proxy.address);
 
@@ -591,18 +586,18 @@ describe("Asset Manager ERC20 Token Tests", function () {
         CONTRACTS_VERSION,
         aclManagerProxy.address,
       ]);
-      proxy = await proxyFactory.deploy(globalManagerSubject.address, data);
+      proxy = await aclProxyFactory.deploy(globalManagerSubject.address, data);
       await proxy.deployTransaction.wait();
       globalManagerProxy = globalManagerSubject.attach(proxy.address);
 
       // Policy Manager
-      iface = new ethers.utils.Interface(ProfilePolicyManager__factory.abi);
+      iface = new ethers.utils.Interface(PolicyManager__factory.abi);
       data = iface.encodeFunctionData("initialize", [
         POLICY_MANAGER_CONTRACT_NAME,
         CONTRACTS_VERSION,
         aclManagerProxy.address,
       ]);
-      proxy = await proxyFactory.deploy(policyManagerSubject.address, data);
+      proxy = await aclProxyFactory.deploy(policyManagerSubject.address, data);
       await proxy.deployTransaction.wait();
       policyManagerProxy = policyManagerSubject.attach(proxy.address);
 
@@ -613,7 +608,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
         CONTRACTS_VERSION,
         aclManagerProxy.address,
       ]);
-      proxy = await proxyFactory.deploy(profileManagerSubject.address, data);
+      proxy = await aclProxyFactory.deploy(profileManagerSubject.address, data);
       await proxy.deployTransaction.wait();
       profileManagerProxy = profileManagerSubject.attach(proxy.address);
 
@@ -624,7 +619,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
         CONTRACTS_VERSION,
         aclManagerProxy.address,
       ]);
-      proxy = await proxyFactory.deploy(accessControlSubject.address, data);
+      proxy = await aclProxyFactory.deploy(accessControlSubject.address, data);
       await proxy.deployTransaction.wait();
       accessControlProxy = accessControlSubject.attach(proxy.address);
 
@@ -635,7 +630,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
         CONTRACTS_VERSION,
         aclManagerProxy.address,
       ]);
-      proxy = await proxyFactory.deploy(profileMemberManagerSubject.address, data);
+      proxy = await aclProxyFactory.deploy(profileMemberManagerSubject.address, data);
       await proxy.deployTransaction.wait();
       profileMemberManagerProxy = profileMemberManagerSubject.attach(proxy.address);
 
@@ -646,7 +641,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
         CONTRACTS_VERSION,
         aclManagerProxy.address,
       ]);
-      proxy = await proxyFactory.deploy(profileRoleManagerSubject.address, data);
+      proxy = await aclProxyFactory.deploy(profileRoleManagerSubject.address, data);
       await proxy.deployTransaction.wait();
       profileRoleManagerProxy = profileRoleManagerSubject.attach(proxy.address);
 
@@ -657,7 +652,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
         CONTRACTS_VERSION,
         aclManagerProxy.address,
       ]);
-      proxy = await proxyFactory.deploy(profileTypeManagerSubject.address, data);
+      proxy = await aclProxyFactory.deploy(profileTypeManagerSubject.address, data);
       await proxy.deployTransaction.wait();
       profileTypeManagerProxy = profileTypeManagerSubject.attach(proxy.address);
 
@@ -668,7 +663,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
         CONTRACTS_VERSION,
         aclManagerProxy.address,
       ]);
-      proxy = await proxyFactory.deploy(profileFunctionManagerSubject.address, data);
+      proxy = await aclProxyFactory.deploy(profileFunctionManagerSubject.address, data);
       await proxy.deployTransaction.wait();
       profileFunctionManagerProxy = profileFunctionManagerSubject.attach(proxy.address);
 
@@ -679,7 +674,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
         CONTRACTS_VERSION,
         aclManagerProxy.address,
       ]);
-      proxy = await proxyFactory.deploy(profileContextManagerSubject.address, data);
+      proxy = await aclProxyFactory.deploy(profileContextManagerSubject.address, data);
       await proxy.deployTransaction.wait();
       profileContextManagerProxy = profileContextManagerSubject.attach(proxy.address);
 
@@ -690,7 +685,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
         CONTRACTS_VERSION,
         aclManagerProxy.address,
       ]);
-      proxy = await proxyFactory.deploy(profileRealmManagerSubject.address, data);
+      proxy = await aclProxyFactory.deploy(profileRealmManagerSubject.address, data);
       await proxy.deployTransaction.wait();
       profileRealmManagerProxy = profileRealmManagerSubject.attach(proxy.address);
 
@@ -701,7 +696,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
         CONTRACTS_VERSION,
         aclManagerProxy.address,
       ]);
-      proxy = await proxyFactory.deploy(profileDomainManagerSubject.address, data);
+      proxy = await aclProxyFactory.deploy(profileDomainManagerSubject.address, data);
       await proxy.deployTransaction.wait();
       profileDomainManagerProxy = profileDomainManagerSubject.attach(proxy.address);
 
@@ -712,7 +707,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
         CONTRACTS_VERSION,
         aclManagerProxy.address,
       ]);
-      proxy = await proxyFactory.deploy(profileGlobalManagerSubject.address, data);
+      proxy = await aclProxyFactory.deploy(profileGlobalManagerSubject.address, data);
       await proxy.deployTransaction.wait();
       profileGlobalManagerProxy = profileGlobalManagerSubject.attach(proxy.address);
 
@@ -723,7 +718,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
         CONTRACTS_VERSION,
         aclManagerProxy.address,
       ]);
-      proxy = await proxyFactory.deploy(profilePolicyManagerSubject.address, data);
+      proxy = await aclProxyFactory.deploy(profilePolicyManagerSubject.address, data);
       await proxy.deployTransaction.wait();
       profilePolicyManagerProxy = profilePolicyManagerSubject.attach(proxy.address);
 
@@ -734,7 +729,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
         CONTRACTS_VERSION,
         aclManagerProxy.address,
       ]);
-      proxy = await proxyFactory.deploy(profileAccessControlSubject.address, data);
+      proxy = await aclProxyFactory.deploy(profileAccessControlSubject.address, data);
       await proxy.deployTransaction.wait();
       profileAccessControlProxy = profileAccessControlSubject.attach(proxy.address);
     })
@@ -1331,7 +1326,6 @@ describe("Asset Manager ERC20 Token Tests", function () {
           signature: new Int8Array(0)
         },
       ];
-      await contextManagerDelegateProxy.connect(systemAdmin).contextRegister(contextRequests)
 
       // attach proxies to aclManager
       functionManagerDelegateProxy = functionManagerProxy.attach(aclManagerProxy.address);
@@ -1345,6 +1339,8 @@ describe("Asset Manager ERC20 Token Tests", function () {
       memberManagerDelegateProxy = memberManagerProxy.attach(aclManagerProxy.address);
       roleManagerDelegateProxy = roleManagerProxy.attach(aclManagerProxy.address);
       typeManagerDelegateProxy = typeManagerProxy.attach(aclManagerProxy.address);
+
+      await contextManagerDelegateProxy.connect(systemAdmin).contextRegister(contextRequests)
 
       // acl profile contexts
       const profileContextRequests: IContextManagement.ContextRegisterRequestStruct[] = [
@@ -1493,7 +1489,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
 
     })
 
-    it("ACL Functions Register ", async() => {
+    it("ACL Agents Functions Register ", async() => {
       // Member functions
       const memberIface = new ethers.utils.Interface(MemberManager__factory.abi);
       const memberFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
@@ -1508,7 +1504,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
         {
           adminId: LIVELY_VERSE_ACL_TYPE_ID,
           agentId: LIVELY_VERSE_ANY_TYPE_ID,
-          selector:  memberIface.getSighash("memberUpdateActivityStatus"),
+          selector: memberIface.getSighash("memberUpdateActivityStatus"),
           policyCode: 96,
           acstat: ActivityStatus.ENABLED,
           alstat: AlterabilityStatus.UPDATABLE
@@ -1516,7 +1512,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
         {
           adminId: LIVELY_VERSE_ACL_TYPE_ID,
           agentId: LIVELY_VERSE_ANY_TYPE_ID,
-          selector:  memberIface.getSighash("memberUpdateAlterabilityStatus"),
+          selector: memberIface.getSighash("memberUpdateAlterabilityStatus"),
           policyCode: 130,
           acstat: ActivityStatus.ENABLED,
           alstat: AlterabilityStatus.UPDATABLE
@@ -1524,7 +1520,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
         {
           adminId: LIVELY_VERSE_ACL_TYPE_ID,
           agentId: LIVELY_VERSE_ANY_TYPE_ID,
-          selector:  memberIface.getSighash("memberUpdateAdmin"),
+          selector: memberIface.getSighash("memberUpdateAdmin"),
           policyCode: 0,
           acstat: ActivityStatus.ENABLED,
           alstat: AlterabilityStatus.UPDATABLE
@@ -1532,7 +1528,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
         {
           adminId: LIVELY_VERSE_ACL_TYPE_ID,
           agentId: LIVELY_VERSE_ANY_TYPE_ID,
-          selector:  memberIface.getSighash("memberUpdateGeneralLimit"),
+          selector: memberIface.getSighash("memberUpdateGeneralLimit"),
           policyCode: 46,
           acstat: ActivityStatus.ENABLED,
           alstat: AlterabilityStatus.UPDATABLE
@@ -1846,7 +1842,9 @@ describe("Asset Manager ERC20 Token Tests", function () {
         }
       ]
       await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(typeFunctionRegisterRequest)
+    })
 
+    it("ACL Scopes Functions Register ", async() => {
       // Function functions
       const functionIface = new ethers.utils.Interface(FunctionManager__factory.abi);
       const functionFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
@@ -2382,6 +2380,132 @@ describe("Asset Manager ERC20 Token Tests", function () {
       ]
       await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(globalFunctionRegisterRequest)
 
+    })
+
+    it("ACL General Functions Register ", async() => {
+      // Profile Manager functions
+      const profileIface = new ethers.utils.Interface(ProfileManager__factory.abi);
+      const profileManagerFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
+        {
+          adminId: LIVELY_VERSE_ACL_TYPE_ID,
+          agentId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+          selector: profileIface.getSighash("profileRegister"),
+          policyCode: 250,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE
+        },
+        {
+          adminId: LIVELY_VERSE_ACL_TYPE_ID,
+          agentId: LIVELY_VERSE_ANY_TYPE_ID,
+          selector: profileIface.getSighash("profileUpdateLimits"),
+          policyCode: 100,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE
+        },
+        {
+          adminId: LIVELY_VERSE_ACL_TYPE_ID,
+          agentId: LIVELY_VERSE_ANY_TYPE_ID,
+          selector: profileIface.getSighash("profileUpdateExpiration"),
+          policyCode: 150,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE
+        },
+        {
+          adminId: LIVELY_VERSE_ACL_TYPE_ID,
+          agentId: LIVELY_VERSE_ANY_TYPE_ID,
+          selector: profileIface.getSighash("profileUpdateOwnerAccount"),
+          policyCode: 32,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE
+        },
+        {
+          adminId: LIVELY_VERSE_ACL_TYPE_ID,
+          agentId: LIVELY_VERSE_ANY_TYPE_ID,
+          selector: profileIface.getSighash("profileUpdateAdmin"),
+          policyCode: 0,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE
+        },
+        {
+          adminId: LIVELY_VERSE_ACL_TYPE_ID,
+          agentId: LIVELY_VERSE_ANY_TYPE_ID,
+          selector: profileIface.getSighash("profileUpdateActivityStatus"),
+          policyCode: 130,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE
+        },
+        {
+          adminId: LIVELY_VERSE_ACL_TYPE_ID,
+          agentId: LIVELY_VERSE_ANY_TYPE_ID,
+          selector: profileIface.getSighash("profileUpdateAlterabilityStatus"),
+          policyCode: 96,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE
+        },
+        {
+          adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+          agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+          selector: profileIface.getSighash("upgradeTo"),
+          policyCode: 0,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE
+        },
+        {
+          adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+          agentId: LIVELY_VERSE_ACL_TYPE_ID,
+          selector: profileIface.getSighash("setSafeModeStatus"),
+          policyCode: 16,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE
+        },
+        {
+          adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+          agentId: LIVELY_VERSE_ACL_TYPE_ID,
+          selector: profileIface.getSighash("setUpdatabilityStatus"),
+          policyCode: 90,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE
+        },
+        {
+          adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+          agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+          selector: profileIface.getSighash("setLocalAdmin"),
+          policyCode: 60,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE
+        },
+        {
+          adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+          agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+          selector: profileIface.getSighash("setAccessControlManager"),
+          policyCode: 0,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE
+        },
+        {
+          adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+          agentId: LIVELY_VERSE_ACL_TYPE_ID,
+          selector: profileIface.getSighash("withdrawBalance"),
+          policyCode: 230,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE
+        },
+      ]
+      const profileManagerFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
+        {
+          signature: new Int8Array(0),
+          realmId: ethers.constants.HashZero,
+          salt: ethers.constants.HashZero,
+          name: "",
+          version: "",
+          subject: ethers.constants.AddressZero,
+          deployer: ethers.constants.AddressZero,
+          contractId: profileManagerProxy.address,
+          functions: profileManagerFunctionRequests
+        }
+      ]
+      await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(profileManagerFunctionRegisterRequest)
+
       // Acl Manager functions
       const aclManagerIface = new ethers.utils.Interface(ACLManager__factory.abi);
       const aclManagerFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
@@ -2670,130 +2794,9 @@ describe("Asset Manager ERC20 Token Tests", function () {
         }
       ]
       await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(policyFunctionRegisterRequest)
+    })
 
-      // Profile Manager functions
-      const profileIface = new ethers.utils.Interface(ProfileManager__factory.abi);
-      const profileManagerFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
-        {
-          adminId: LIVELY_VERSE_ACL_TYPE_ID,
-          agentId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-          selector: profileIface.getSighash("profileRegister"),
-          policyCode: 250,
-          acstat: ActivityStatus.ENABLED,
-          alstat: AlterabilityStatus.UPDATABLE
-        },
-        {
-          adminId: LIVELY_VERSE_ACL_TYPE_ID,
-          agentId: LIVELY_VERSE_ANY_TYPE_ID,
-          selector: profileIface.getSighash("profileUpdateLimits"),
-          policyCode: 100,
-          acstat: ActivityStatus.ENABLED,
-          alstat: AlterabilityStatus.UPDATABLE
-        },
-        {
-          adminId: LIVELY_VERSE_ACL_TYPE_ID,
-          agentId: LIVELY_VERSE_ANY_TYPE_ID,
-          selector: profileIface.getSighash("profileUpdateExpiration"),
-          policyCode: 150,
-          acstat: ActivityStatus.ENABLED,
-          alstat: AlterabilityStatus.UPDATABLE
-        },
-        {
-          adminId: LIVELY_VERSE_ACL_TYPE_ID,
-          agentId: LIVELY_VERSE_ANY_TYPE_ID,
-          selector: profileIface.getSighash("profileUpdateOwnerAccount"),
-          policyCode: 32,
-          acstat: ActivityStatus.ENABLED,
-          alstat: AlterabilityStatus.UPDATABLE
-        },
-        {
-          adminId: LIVELY_VERSE_ACL_TYPE_ID,
-          agentId: LIVELY_VERSE_ANY_TYPE_ID,
-          selector: profileIface.getSighash("profileUpdateAdmin"),
-          policyCode: 0,
-          acstat: ActivityStatus.ENABLED,
-          alstat: AlterabilityStatus.UPDATABLE
-        },
-        {
-          adminId: LIVELY_VERSE_ACL_TYPE_ID,
-          agentId: LIVELY_VERSE_ANY_TYPE_ID,
-          selector: profileIface.getSighash("profileUpdateActivityStatus"),
-          policyCode: 130,
-          acstat: ActivityStatus.ENABLED,
-          alstat: AlterabilityStatus.UPDATABLE
-        },
-        {
-          adminId: LIVELY_VERSE_ACL_TYPE_ID,
-          agentId: LIVELY_VERSE_ANY_TYPE_ID,
-          selector: profileIface.getSighash("profileUpdateAlterabilityStatus"),
-          policyCode: 96,
-          acstat: ActivityStatus.ENABLED,
-          alstat: AlterabilityStatus.UPDATABLE
-        },
-        {
-          adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-          agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-          selector: profileIface.getSighash("upgradeTo"),
-          policyCode: 0,
-          acstat: ActivityStatus.ENABLED,
-          alstat: AlterabilityStatus.UPDATABLE
-        },
-        {
-          adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-          agentId: LIVELY_VERSE_ACL_TYPE_ID,
-          selector: profileIface.getSighash("setSafeModeStatus"),
-          policyCode: 16,
-          acstat: ActivityStatus.ENABLED,
-          alstat: AlterabilityStatus.UPDATABLE
-        },
-        {
-          adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-          agentId: LIVELY_VERSE_ACL_TYPE_ID,
-          selector: profileIface.getSighash("setUpdatabilityStatus"),
-          policyCode: 90,
-          acstat: ActivityStatus.ENABLED,
-          alstat: AlterabilityStatus.UPDATABLE
-        },
-        {
-          adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-          agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-          selector: profileIface.getSighash("setLocalAdmin"),
-          policyCode: 60,
-          acstat: ActivityStatus.ENABLED,
-          alstat: AlterabilityStatus.UPDATABLE
-        },
-        {
-          adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-          agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-          selector: profileIface.getSighash("setAccessControlManager"),
-          policyCode: 0,
-          acstat: ActivityStatus.ENABLED,
-          alstat: AlterabilityStatus.UPDATABLE
-        },
-        {
-          adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-          agentId: LIVELY_VERSE_ACL_TYPE_ID,
-          selector: profileIface.getSighash("withdrawBalance"),
-          policyCode: 230,
-          acstat: ActivityStatus.ENABLED,
-          alstat: AlterabilityStatus.UPDATABLE
-        },
-      ]
-      const profileManagerFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
-        {
-          signature: new Int8Array(0),
-          realmId: ethers.constants.HashZero,
-          salt: ethers.constants.HashZero,
-          name: "",
-          version: "",
-          subject: ethers.constants.AddressZero,
-          deployer: ethers.constants.AddressZero,
-          contractId: profileManagerProxy.address,
-          functions: profileManagerFunctionRequests
-        }
-      ]
-      await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(profileManagerFunctionRegisterRequest)
-
+    it("ACL Profile Agents Functions Register", async() => {
 
       // Profile Member functions
       const profileMemberIface = new ethers.utils.Interface(ProfileMemberManager__factory.abi);
@@ -2809,7 +2812,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
         {
           adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
           agentId: LIVELY_PROFILE_ANY_TYPE_ID,
-          selector:  profileMemberIface.getSighash("profileMemberUpdateTypeLimit"),
+          selector: profileMemberIface.getSighash("profileMemberUpdateTypeLimit"),
           policyCode: 96,
           acstat: ActivityStatus.ENABLED,
           alstat: AlterabilityStatus.UPDATABLE
@@ -2817,7 +2820,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
         {
           adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
           agentId: LIVELY_PROFILE_ANY_TYPE_ID,
-          selector:  profileMemberIface.getSighash("profileMemberUpdateRegisterLimit"),
+          selector: profileMemberIface.getSighash("profileMemberUpdateRegisterLimit"),
           policyCode: 130,
           acstat: ActivityStatus.ENABLED,
           alstat: AlterabilityStatus.UPDATABLE
@@ -2825,7 +2828,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
         {
           adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
           agentId: LIVELY_PROFILE_ANY_TYPE_ID,
-          selector:  profileMemberIface.getSighash("profileMemberUpdateCallLimit"),
+          selector: profileMemberIface.getSighash("profileMemberUpdateCallLimit"),
           policyCode: 0,
           acstat: ActivityStatus.ENABLED,
           alstat: AlterabilityStatus.UPDATABLE
@@ -2833,7 +2836,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
         {
           adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
           agentId: LIVELY_PROFILE_ANY_TYPE_ID,
-          selector:  profileMemberIface.getSighash("profileMemberUpdateActivityStatus"),
+          selector: profileMemberIface.getSighash("profileMemberUpdateActivityStatus"),
           policyCode: 46,
           acstat: ActivityStatus.ENABLED,
           alstat: AlterabilityStatus.UPDATABLE
@@ -2841,7 +2844,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
         {
           adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
           agentId: LIVELY_PROFILE_ANY_TYPE_ID,
-          selector:  profileMemberIface.getSighash("profileMemberUpdateAlterabilityStatus"),
+          selector: profileMemberIface.getSighash("profileMemberUpdateAlterabilityStatus"),
           policyCode: 46,
           acstat: ActivityStatus.ENABLED,
           alstat: AlterabilityStatus.UPDATABLE
@@ -2849,7 +2852,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
         {
           adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
           agentId: LIVELY_PROFILE_ANY_TYPE_ID,
-          selector:  profileMemberIface.getSighash("profileMemberUpdateAdmin"),
+          selector: profileMemberIface.getSighash("profileMemberUpdateAdmin"),
           policyCode: 46,
           acstat: ActivityStatus.ENABLED,
           alstat: AlterabilityStatus.UPDATABLE
@@ -3048,7 +3051,9 @@ describe("Asset Manager ERC20 Token Tests", function () {
         }
       ]
       await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(profileRoleFunctionRegisterRequest)
+    })
 
+    it("ACL Profile Scopes Functions Register", async() => {
       // Profile Type functions
       const profileTypeIface = new ethers.utils.Interface(ProfileTypeManager__factory.abi);
       const profileTypeFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
@@ -3714,7 +3719,9 @@ describe("Asset Manager ERC20 Token Tests", function () {
         }
       ]
       await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(profileGlobalFunctionRegisterRequest);
+    })
 
+    it("ACL Profile General Functions Register", async() => {
       // Profile Access Control functions
       const profileAccessControlIface = new ethers.utils.Interface(ProfileAccessControl__factory.abi);
       const profileAccessControlFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
@@ -3932,7 +3939,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
           adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
           realmLimit: 16,
           acstat: ActivityStatus.ENABLED,
-          alstat: AlterabilityStatus.DISABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
           name: ACL_DOMAIN_TOKENS_NAME
         }
       ]
@@ -3951,15 +3958,15 @@ describe("Asset Manager ERC20 Token Tests", function () {
           adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
           contextLimit: 16,
           acstat: ActivityStatus.ENABLED,
-          alstat: AlterabilityStatus.DISABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
           name: ACL_REALM_LIVELY_TOKEN_ERC20_NAME
         }
       ]
 
       // when
-      await expect(realmManagerDelegateProxy.connect(systemAdmin).realmRegister(requests)).
+      await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmRegister(requests)).
       to.emit(realmManagerDelegateProxy, "RealmRegistered")
-        .withArgs(systemAdminWallet.address, aclRealmLivelyTokenErc20Id , aclDomainTokensId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID)
+        .withArgs(livelyAdminWallet.address, aclRealmLivelyTokenErc20Id , aclDomainTokensId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID)
     })
 
     it("Should register token types success", async() => {
@@ -3970,7 +3977,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
           scopeId: aclRealmLivelyTokenErc20Id,
           roleLimit: 16,
           acstat: ActivityStatus.ENABLED,
-          alstat: AlterabilityStatus.DISABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
           name: ACL_TYPE_LIVELY_TOKEN_ERC20_MANAGER_NAME,
         },
         {
@@ -3978,7 +3985,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
           scopeId: aclRealmLivelyTokenErc20Id,
           roleLimit: 16,
           acstat: ActivityStatus.ENABLED,
-          alstat: AlterabilityStatus.DISABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
           name: ACL_TYPE_LIVELY_TOKEN_ERC20_ASSET_MANAGER_NAME,
         },
       ]
@@ -4012,7 +4019,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
           memberLimit: 16,
           acstat: ActivityStatus.ENABLED,
           alstat: AlterabilityStatus.UPDATABLE,
-          name: ACL_ROLE_LIVELY_TOKEN_MANAGER_ADMIN_NAME
+          name: ACL_ROLE_LIVELY_TOKEN_ERC20_MANAGER_ADMIN_NAME
         },
       ]
 
@@ -4035,7 +4042,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
           roleId: aclRoleLivelyTokenAssetManagerAdminId,
           account: assetAdminWallet.address,
           limits: {
-            memberLimit: 16777216,
+            memberLimit: 16777215,
             memberRegisterLimit: 65535,
             contextRegisterLimit: 65535,
             functionRegisterLimit: 65535,
@@ -4062,7 +4069,10 @@ describe("Asset Manager ERC20 Token Tests", function () {
       // when
       await expect(memberManagerDelegateProxy.connect(livelyAdmin).memberRegister(requests))
         .to.emit(memberManagerDelegateProxy, "MemberRegistered")
-        .withArgs(livelyAdminWallet.address, assetAdminId, assetAdminWallet.address, aclRoleLivelyTokenAssetManagerAdminId)
+        .withArgs(livelyAdminWallet.address, assetAdminId, assetAdminWallet.address,
+          aclRoleLivelyTokenAssetManagerAdminId, LIVELY_VERSE_MEMBER_MASTER_TYPE_ID,
+          [ 16777215, 65535, 65535, 65535, 0, 65535, 65535, 65535, 65535, 65535, 255, 255, 255, 255, 0, 255, 255, 255 ]
+        )
     })
 
     it("Should grants AssetAdmin to itself and major roles success", async() => {
@@ -4071,23 +4081,23 @@ describe("Asset Manager ERC20 Token Tests", function () {
       const roleGrantRequests: IRoleManagement.RoleGrantMembersRequestStruct[] = [
         {
           roleId: aclRoleLivelyTokenManagerAdminId,
-          members: [ assetAdminWallet.address ]
+          members: [ assetAdminId ]
         },
         {
           roleId: LIVELY_VERSE_TYPE_MASTER_ADMIN_ROLE_ID,
-          members: [ assetAdminWallet.address ]
+          members: [ assetAdminId ]
         },
         {
           roleId: LIVELY_VERSE_MEMBER_MASTER_ADMIN_ROLE_ID,
-          members: [ assetAdminWallet.address ]
+          members: [ assetAdminId ]
         },
         {
           roleId: LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE_ID,
-          members: [ assetAdminWallet.address ]
+          members: [ assetAdminId ]
         },
         {
           roleId: LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID,
-          members: [ assetAdminWallet.address ]
+          members: [ assetAdminId ]
         },
       ]
 
@@ -4138,69 +4148,6 @@ describe("Asset Manager ERC20 Token Tests", function () {
         .to.emit(typeManagerDelegateProxy, "TypeAdminUpdated")
         .withArgs(livelyAdminWallet.address, aclTypeLivelyTokenAssetManagerId, aclRoleLivelyTokenAssetManagerAdminId)
     })
-
-    // it("Should updateAdmin of tokens roles success", async() => {
-    //   // given
-    //   const updateAdminRequests: IACLCommonsRoles.UpdateAdminRequestStruct[] = [
-    //     {
-    //       id: aclRoleLivelyTokenAssetManagerAdminId,
-    //       adminId: aclRoleLivelyTokenAssetManagerAdminId,
-    //     },
-    //     {
-    //       id: aclRoleLivelyTokenManagerAdminId,
-    //       adminId: aclRoleLivelyTokenAssetManagerAdminId,
-    //     },
-    //     {
-    //       id: aclRoleLivelyAudioVideoProgramAssetAdminId,
-    //       adminId: aclRoleLivelyTokenAssetManagerAdminId,
-    //     },
-    //     {
-    //       id: aclRoleLivelyFoundingTeamAssetAdminId,
-    //       adminId: aclRoleLivelyTokenAssetManagerAdminId,
-    //     },
-    //     {
-    //       id: aclRoleLivelyTreasuryAssetAdminId,
-    //       adminId: aclRoleLivelyTokenAssetManagerAdminId,
-    //     },
-    //     {
-    //       id: aclRoleLivelyPublicSaleAssetAdminId,
-    //       adminId: aclRoleLivelyTokenAssetManagerAdminId,
-    //     },
-    //     {
-    //       id: aclRoleLivelyValidatorRewardsAssetAdminId,
-    //       adminId: aclRoleLivelyTokenAssetManagerAdminId,
-    //     },
-    //     {
-    //       id: aclRoleLivelyCrowdFoundingAssetAdminId,
-    //       adminId: aclRoleLivelyTokenAssetManagerAdminId,
-    //     },
-    //     {
-    //       id: aclRoleLivelyTaxTreasuryAssetAdminId,
-    //       adminId: aclRoleLivelyTokenAssetManagerAdminId,
-    //     },
-    //   ]
-    //
-    //   // when
-    //   await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleUpdateAdmin(updateAdminRequests))
-    //     .to.emit(typeManagerDelegateProxy, "RoleAdminUpdated")
-    //     .withArgs(livelyAdminWallet.address, aclRoleLivelyTokenAssetManagerAdminId, aclRoleLivelyTokenAssetManagerAdminId)
-    //     .to.emit(typeManagerDelegateProxy, "RoleAdminUpdated")
-    //     .withArgs(livelyAdminWallet.address, aclRoleLivelyTokenManagerAdminId, aclRoleLivelyTokenAssetManagerAdminId)
-    //     .to.emit(typeManagerDelegateProxy, "RoleAdminUpdated")
-    //     .withArgs(livelyAdminWallet.address, aclRoleLivelyAudioVideoProgramAssetAdminId, aclRoleLivelyTokenAssetManagerAdminId)
-    //     .to.emit(typeManagerDelegateProxy, "RoleAdminUpdated")
-    //     .withArgs(livelyAdminWallet.address, aclRoleLivelyFoundingTeamAssetAdminId, aclRoleLivelyTokenAssetManagerAdminId)
-    //     .to.emit(typeManagerDelegateProxy, "RoleAdminUpdated")
-    //     .withArgs(livelyAdminWallet.address, aclRoleLivelyTreasuryAssetAdminId, aclRoleLivelyTokenAssetManagerAdminId)
-    //     .to.emit(typeManagerDelegateProxy, "RoleAdminUpdated")
-    //     .withArgs(livelyAdminWallet.address, aclRoleLivelyPublicSaleAssetAdminId, aclRoleLivelyTokenAssetManagerAdminId)
-    //     .to.emit(typeManagerDelegateProxy, "RoleAdminUpdated")
-    //     .withArgs(livelyAdminWallet.address, aclRoleLivelyValidatorRewardsAssetAdminId, aclRoleLivelyTokenAssetManagerAdminId)
-    //     .to.emit(typeManagerDelegateProxy, "RoleAdminUpdated")
-    //     .withArgs(livelyAdminWallet.address, aclRoleLivelyCrowdFoundingAssetAdminId, aclRoleLivelyTokenAssetManagerAdminId)
-    //     .to.emit(typeManagerDelegateProxy, "RoleAdminUpdated")
-    //     .withArgs(livelyAdminWallet.address, aclRoleLivelyTaxTreasuryAssetAdminId, aclRoleLivelyTokenAssetManagerAdminId)
-    // })
 
     it("Should register assets roles success", async() => {
       // given
@@ -4271,85 +4218,39 @@ describe("Asset Manager ERC20 Token Tests", function () {
       ]
 
       // when
-      await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleRegister(roleRegisterRequests))
+      await expect(roleManagerDelegateProxy.connect(assetAdmin).roleRegister(roleRegisterRequests))
         .to.emit(roleManagerDelegateProxy, "RoleRegistered")
-        .withArgs(livelyAdminWallet.address, aclRoleLivelyAudioVideoProgramAssetAdminId, aclTypeLivelyTokenAssetManagerId,
+        .withArgs(assetAdminWallet.address, aclRoleLivelyAudioVideoProgramAssetAdminId, aclTypeLivelyTokenAssetManagerId,
           aclRoleLivelyTokenAssetManagerAdminId, aclRealmLivelyTokenErc20Id)
         .to.emit(roleManagerDelegateProxy, "RoleRegistered")
-        .withArgs(livelyAdminWallet.address, aclRoleLivelyPublicSaleAssetAdminId, aclTypeLivelyTokenAssetManagerId,
+        .withArgs(assetAdminWallet.address, aclRoleLivelyPublicSaleAssetAdminId, aclTypeLivelyTokenAssetManagerId,
           aclRoleLivelyTokenAssetManagerAdminId, aclRealmLivelyTokenErc20Id)
         .to.emit(roleManagerDelegateProxy, "RoleRegistered")
-        .withArgs(livelyAdminWallet.address, aclRoleLivelyFoundingTeamAssetAdminId, aclTypeLivelyTokenAssetManagerId,
+        .withArgs(assetAdminWallet.address, aclRoleLivelyFoundingTeamAssetAdminId, aclTypeLivelyTokenAssetManagerId,
           aclRoleLivelyTokenAssetManagerAdminId, aclRealmLivelyTokenErc20Id)
         .to.emit(roleManagerDelegateProxy, "RoleRegistered")
-        .withArgs(livelyAdminWallet.address, aclRoleLivelyCrowdFoundingAssetAdminId, aclTypeLivelyTokenAssetManagerId,
+        .withArgs(assetAdminWallet.address, aclRoleLivelyCrowdFoundingAssetAdminId, aclTypeLivelyTokenAssetManagerId,
           aclRoleLivelyTokenAssetManagerAdminId, aclRealmLivelyTokenErc20Id)
         .to.emit(roleManagerDelegateProxy, "RoleRegistered")
-        .withArgs(livelyAdminWallet.address, aclRoleLivelyValidatorRewardsAssetAdminId, aclTypeLivelyTokenAssetManagerId,
+        .withArgs(assetAdminWallet.address, aclRoleLivelyValidatorRewardsAssetAdminId, aclTypeLivelyTokenAssetManagerId,
           aclRoleLivelyTokenAssetManagerAdminId, aclRealmLivelyTokenErc20Id)
         .to.emit(roleManagerDelegateProxy, "RoleRegistered")
-        .withArgs(livelyAdminWallet.address, aclRoleLivelyTaxTreasuryAssetAdminId, aclTypeLivelyTokenAssetManagerId,
+        .withArgs(assetAdminWallet.address, aclRoleLivelyTaxTreasuryAssetAdminId, aclTypeLivelyTokenAssetManagerId,
           aclRoleLivelyTokenAssetManagerAdminId, aclRealmLivelyTokenErc20Id)
         .to.emit(roleManagerDelegateProxy, "RoleRegistered")
-        .withArgs(livelyAdminWallet.address, aclRoleLivelyTreasuryAssetAdminId, aclTypeLivelyTokenAssetManagerId,
+        .withArgs(assetAdminWallet.address, aclRoleLivelyTreasuryAssetAdminId, aclTypeLivelyTokenAssetManagerId,
           aclRoleLivelyTokenAssetManagerAdminId, aclRealmLivelyTokenErc20Id)
-    })
-
-    it("Should grants AssetAdmin to asset roles success", async() => {
-      // given
-      const assetAdminId = ethers.utils.keccak256(assetAdminWallet.address);
-      const roleGrantRequests: IRoleManagement.RoleGrantMembersRequestStruct[] = [
-        {
-          roleId: aclRoleLivelyAudioVideoProgramAssetAdminId,
-          members: [ assetAdminWallet.address ]
-        },
-        {
-          roleId: aclRoleLivelyFoundingTeamAssetAdminId,
-          members: [ assetAdminWallet.address ]
-        },
-        {
-          roleId: aclRoleLivelyTreasuryAssetAdminId,
-          members: [ assetAdminWallet.address ]
-        },
-        {
-          roleId: aclRoleLivelyPublicSaleAssetAdminId,
-          members: [ assetAdminWallet.address ]
-        },
-        {
-          roleId: aclRoleLivelyValidatorRewardsAssetAdminId,
-          members: [ assetAdminWallet.address ]
-        },
-        {
-          roleId: aclRoleLivelyCrowdFoundingAssetAdminId,
-          members: [ assetAdminWallet.address ]
-        },
-        {
-          roleId: aclRoleLivelyTaxTreasuryAssetAdminId,
-          members: [ assetAdminWallet.address ]
-        },
-      ]
-
-      // when
-      await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleGrantMembers(roleGrantRequests))
-        .to.emit(roleManagerDelegateProxy, "RoleMemberGranted")
-        .withArgs(livelyAdminWallet.address, aclRoleLivelyAudioVideoProgramAssetAdminId, assetAdminId, aclRoleLivelyTokenAssetManagerAdminId)
-        .to.emit(roleManagerDelegateProxy, "RoleMemberGranted")
-        .withArgs(livelyAdminWallet.address, aclRoleLivelyFoundingTeamAssetAdminId, assetAdminId, aclRoleLivelyTokenAssetManagerAdminId)
-        .to.emit(roleManagerDelegateProxy, "RoleMemberGranted")
-        .withArgs(livelyAdminWallet.address, aclRoleLivelyTreasuryAssetAdminId, assetAdminId, aclRoleLivelyTokenAssetManagerAdminId)
-        .to.emit(roleManagerDelegateProxy, "RoleMemberGranted")
-        .withArgs(livelyAdminWallet.address, aclRoleLivelyPublicSaleAssetAdminId, assetAdminId, aclRoleLivelyTokenAssetManagerAdminId)
-        .to.emit(roleManagerDelegateProxy, "RoleMemberGranted")
-        .withArgs(livelyAdminWallet.address, aclRoleLivelyValidatorRewardsAssetAdminId, assetAdminId, aclRoleLivelyTokenAssetManagerAdminId)
-        .to.emit(roleManagerDelegateProxy, "RoleMemberGranted")
-        .withArgs(livelyAdminWallet.address, aclRoleLivelyCrowdFoundingAssetAdminId, assetAdminId, aclRoleLivelyTokenAssetManagerAdminId)
-        .to.emit(roleManagerDelegateProxy, "RoleMemberGranted")
-        .withArgs(livelyAdminWallet.address, aclRoleLivelyTaxTreasuryAssetAdminId, assetAdminId, aclRoleLivelyTokenAssetManagerAdminId)
     })
 
     it("Should registers members to related roles success", async() => {
       // given
-      const assetAdminId = ethers.utils.keccak256(assetAdminWallet.address);
+      const audioVideoProgramManagerWalletId = ethers.utils.keccak256(audioVideoProgramManagerWallet.address);
+      const publicSaleManagerWalletId = ethers.utils.keccak256(publicSaleManagerWallet.address);
+      const treasuryManagerWalletId = ethers.utils.keccak256(treasuryManagerWallet.address);
+      const validatorsRewardsManagerWalletId = ethers.utils.keccak256(validatorsRewardsManagerWallet.address);
+      const crowdFoundingManagerWalletId = ethers.utils.keccak256(crowdFoundingManagerWallet.address);
+      const foundingTeamManagerWalletId = ethers.utils.keccak256(foundingTeamManagerWallet.address);
+      const taxTreasuryManagerWalletId = ethers.utils.keccak256(taxTreasuryManagerWallet.address);
       const requests: IMemberManagement.MemberRegisterRequestStruct[] = [
         {
           roleId: aclRoleLivelyAudioVideoProgramAssetAdminId,
@@ -4545,21 +4446,34 @@ describe("Asset Manager ERC20 Token Tests", function () {
       // when
       await expect(memberManagerDelegateProxy.connect(assetAdmin).memberRegister(requests))
         .to.emit(memberManagerDelegateProxy, "MemberRegistered")
-        .withArgs(assetAdminWallet.address, assetAdminId, audioVideoProgramManagerWallet.address, aclRoleLivelyAudioVideoProgramAssetAdminId)
+        .withArgs(assetAdminWallet.address, audioVideoProgramManagerWalletId, audioVideoProgramManagerWallet.address,
+          aclRoleLivelyAudioVideoProgramAssetAdminId, LIVELY_VERSE_MEMBER_MASTER_TYPE_ID,
+          [0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 2, 0, 0, 0, 0, 0, 0, 0])
         .to.emit(memberManagerDelegateProxy, "MemberRegistered")
-        .withArgs(assetAdminWallet.address, assetAdminId, publicSaleManagerWallet.address, aclRoleLivelyPublicSaleAssetAdminId)
+        .withArgs(assetAdminWallet.address, publicSaleManagerWalletId, publicSaleManagerWallet.address,
+          aclRoleLivelyPublicSaleAssetAdminId, LIVELY_VERSE_MEMBER_MASTER_TYPE_ID,
+          [0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 2, 0, 0, 0, 0, 0, 0, 0])
         .to.emit(memberManagerDelegateProxy, "MemberRegistered")
-        .withArgs(assetAdminWallet.address, assetAdminId, treasuryManagerWallet.address, aclRoleLivelyTreasuryAssetAdminId)
+        .withArgs(assetAdminWallet.address, treasuryManagerWalletId, treasuryManagerWallet.address,
+          aclRoleLivelyTreasuryAssetAdminId, LIVELY_VERSE_MEMBER_MASTER_TYPE_ID,
+          [0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 2, 0, 0, 0, 0, 0, 0, 0])
         .to.emit(memberManagerDelegateProxy, "MemberRegistered")
-        .withArgs(assetAdminWallet.address, assetAdminId, validatorsRewardsManagerWallet.address, aclRoleLivelyValidatorRewardsAssetAdminId)
+        .withArgs(assetAdminWallet.address, validatorsRewardsManagerWalletId, validatorsRewardsManagerWallet.address,
+          aclRoleLivelyValidatorRewardsAssetAdminId, LIVELY_VERSE_MEMBER_MASTER_TYPE_ID,
+          [0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 2, 0, 0, 0, 0, 0, 0, 0])
         .to.emit(memberManagerDelegateProxy, "MemberRegistered")
-        .withArgs(assetAdminWallet.address, assetAdminId, crowdFoundingManagerWallet.address, aclRoleLivelyCrowdFoundingAssetAdminId)
+        .withArgs(assetAdminWallet.address, crowdFoundingManagerWalletId, crowdFoundingManagerWallet.address,
+          aclRoleLivelyCrowdFoundingAssetAdminId, LIVELY_VERSE_MEMBER_MASTER_TYPE_ID,
+          [0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 2, 0, 0, 0, 0, 0, 0, 0])
         .to.emit(memberManagerDelegateProxy, "MemberRegistered")
-        .withArgs(assetAdminWallet.address, assetAdminId, foundingTeamManagerWallet.address, aclRoleLivelyFoundingTeamAssetAdminId)
+        .withArgs(assetAdminWallet.address, foundingTeamManagerWalletId, foundingTeamManagerWallet.address,
+          aclRoleLivelyFoundingTeamAssetAdminId, LIVELY_VERSE_MEMBER_MASTER_TYPE_ID,
+          [0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 2, 0, 0, 0, 0, 0, 0, 0])
         .to.emit(memberManagerDelegateProxy, "MemberRegistered")
-        .withArgs(assetAdminWallet.address, assetAdminId, taxTreasuryManagerWallet.address, aclRoleLivelyTaxTreasuryAssetAdminId)
+        .withArgs(assetAdminWallet.address, taxTreasuryManagerWalletId, taxTreasuryManagerWallet.address,
+          aclRoleLivelyTaxTreasuryAssetAdminId, LIVELY_VERSE_MEMBER_MASTER_TYPE_ID,
+          [0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 2, 0, 0, 0, 0, 0, 0, 0])
     })
-
   })
 
   describe("Libraries and Dependencies Deployments Test", function () {
@@ -4628,7 +4542,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
       expect(await livelyToken.localAdmin()).to.be.equal(systemAdminWallet.address);
       expect(await livelyToken.domainSeparator()).to.be.equal(domainSeparator);
       expect(await livelyToken.safeModeStatus()).to.be.equal(ProxySafeModeStatus.DISABLED);
-      expect(await livelyToken.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.ENABLED);
+      expect(await livelyToken.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
       expect(await livelyToken.initVersion()).to.be.equal(1)
       expect(await livelyToken.getLibrary()).to.be.equal(lTokenERC20.address)
     });
@@ -4657,7 +4571,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
       await expect(contextManagerDelegateProxy.connect(systemAdmin).contextRegister(contextRequests))
         .to.emit(contextManagerDelegateProxy, "ContextRegistered")
         .withArgs(systemAdminWallet.address, livelyTokenContextId, livelyToken.address,
-          aclRealmLivelyTokenErc20Id, systemAdminWallet.address, ethers.constants.AddressZero,
+          aclRealmLivelyTokenErc20Id, ethers.constants.AddressZero, ethers.constants.AddressZero,
           ethers.constants.AddressZero, aclTypeLivelyTokenAssetManagerId)
     })
 
@@ -4904,7 +4818,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
         },
         {
           adminId: aclTypeLivelyTokenManagerId,
-          agentId: aclTypeLivelyTokenAssetManagerId,
+          agentId: aclRoleLivelyTokenAssetManagerAdminId,
           selector: livelyTokenIface.getSighash("tokensDistribution"),
           policyCode: 0,
           acstat: ActivityStatus.ENABLED,
@@ -4962,12 +4876,12 @@ describe("Asset Manager ERC20 Token Tests", function () {
 
       const livelyTokenFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [{
         signature: new Int8Array(0),
-        realmId: new Int8Array(0),
-        salt: new Int8Array(0),
+        realmId: ethers.constants.HashZero,
+        salt: ethers.constants.HashZero,
         name: "",
         version: "",
-        subject: "",
-        deployer: "",
+        subject: ethers.constants.AddressZero,
+        deployer: ethers.constants.AddressZero,
         contractId: livelyToken.address,
         functions: livelyTokenFunctionRequests,
       }]
@@ -5034,7 +4948,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
           aclTypeLivelyTokenAssetManagerId,signer)
         .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
         .withArgs(systemAdminWallet.address, livelyTokenContextId, tokensDistributionFunctionId, aclTypeLivelyTokenManagerId,
-          aclTypeLivelyTokenAssetManagerId,signer)
+          aclRoleLivelyTokenAssetManagerAdminId,signer)
         .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
         .withArgs(systemAdminWallet.address, livelyTokenContextId, upgradeToFunctionId, aclTypeLivelyTokenManagerId,
           LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
@@ -5054,7 +4968,6 @@ describe("Asset Manager ERC20 Token Tests", function () {
         .withArgs(systemAdminWallet.address, livelyTokenContextId, withdrawBalanceFunctionId, aclTypeLivelyTokenManagerId,
           aclTypeLivelyTokenManagerId,signer)
     })
-
   });
 
   describe("Subject (AssetManagerERC20 Implementation) Tests", function () {
@@ -5078,7 +4991,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
           contractVersion: assetManagerERC20Version,
           aclManager: aclManagerProxy.address,
         })
-      ).to.be.revertedWith("Illegal Contract Call");
+      ).to.be.revertedWith("Illegal Call");
     });
 
     it("Should return correct slot storage of AssetManagerERC20 subject", async () => {
@@ -5130,12 +5043,12 @@ describe("Asset Manager ERC20 Token Tests", function () {
 
       expect(await assetManagerProxy.contractName()).to.be.equal(ASSET_MANAGER_ERC20_NAME);
       expect(await assetManagerProxy.contractVersion()).to.be.equal(assetManagerERC20Version);
-      expect(await assetManagerProxy.subjectAddress()).to.be.equal(assetManagerProxy.address);
+      expect(await assetManagerProxy.subjectAddress()).to.be.equal(assetManagerSubject.address);
       expect(await assetManagerProxy.accessControlManager()).to.be.equal(aclManagerProxy.address);
       expect(await assetManagerProxy.localAdmin()).to.be.equal(systemAdminWallet.address);
       expect(await assetManagerProxy.domainSeparator()).to.be.equal(domainSeparator);
       expect(await assetManagerProxy.safeModeStatus()).to.be.equal(ProxySafeModeStatus.DISABLED);
-      expect(await assetManagerProxy.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.ENABLED);
+      expect(await assetManagerProxy.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
       expect(await assetManagerProxy.initVersion()).to.be.equal(1);
     });
 
@@ -5164,7 +5077,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
       await expect(contextManagerDelegateProxy.connect(systemAdmin).contextRegister(contextRequests))
         .to.emit(contextManagerDelegateProxy, "ContextRegistered")
         .withArgs(systemAdminWallet.address, assetMangerContextId, assetManagerProxy.address,
-          aclRealmLivelyTokenErc20Id, systemAdminWallet.address, ethers.constants.AddressZero,
+          aclRealmLivelyTokenErc20Id, ethers.constants.AddressZero, ethers.constants.AddressZero,
           ethers.constants.AddressZero, aclRoleLivelyTokenAssetManagerAdminId)
     })
 
@@ -5312,12 +5225,12 @@ describe("Asset Manager ERC20 Token Tests", function () {
       const assetManagerFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
         {
           signature: new Int8Array(0),
-          realmId: new Int8Array(0),
-          salt: new Int8Array(0),
+          realmId: ethers.constants.HashZero,
+          salt: ethers.constants.HashZero,
           name: "",
           version: "",
-          subject: "",
-          deployer: "",
+          subject: ethers.constants.AddressZero,
+          deployer: ethers.constants.AddressZero,
           contractId: assetManagerProxy.address,
           functions: assetManagerFunctionRequests
         }]
@@ -5374,9 +5287,50 @@ describe("Asset Manager ERC20 Token Tests", function () {
 
       // and
       expect(assetSubjectERC20.address).to.be.not.null;
-      expect(await assetSubjectERC20.assetSafeMode()).to.be.true;
+      expect(await assetSubjectERC20.assetSafeMode()).to.be.equal(AssetSafeModeStatus.ENABLED)
       expect(await assetSubjectERC20.assetInitVersion()).to.be.equal(0);
     });
+
+    it("Should register assetManagerProxy to RoleLivelyTokenAssetManager success", async() => {
+      // given
+      const assetManagerId = ethers.utils.keccak256(assetManagerProxy.address);
+      const requests: IMemberManagement.MemberRegisterRequestStruct[] = [
+        {
+          roleId: aclRoleLivelyTokenAssetManagerAdminId,
+          account: assetManagerProxy.address,
+          adminId: ethers.constants.HashZero,
+          limits: {
+            memberLimit: 0,
+            memberRegisterLimit: 0,
+            contextRegisterLimit: 0,
+            functionRegisterLimit: 0,
+            profileRegisterLimit: 0,
+            contextLimit: 0,
+            realmLimit: 0,
+            domainLimit: 0,
+            callLimit: 128,
+            typeRoleLimit: 0,
+            typeLimit: 2,
+            roleRegisterLimit: 0,
+            typeRegisterLimit: 0,
+            realmRegisterLimit: 0,
+            domainRegisterLimit: 0,
+            policyRegisterLimit: 0,
+            policyRoleLimit: 0,
+            functionLimit: 0,
+          },
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE
+        },
+      ]
+
+      // when
+      await expect(memberManagerDelegateProxy.connect(livelyAdmin).memberRegister(requests))
+        .to.emit(memberManagerDelegateProxy, "MemberRegistered")
+        .withArgs(livelyAdminWallet.address, assetManagerId, assetManagerProxy.address,
+          aclRoleLivelyTokenAssetManagerAdminId, LIVELY_VERSE_MEMBER_MASTER_TYPE_ID,
+          [0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 2, 0, 0, 0, 0, 0, 0, 0])
+    })
 
     it("Should register lively token to assetManager by anyone failed", async () => {
       // given
@@ -5389,17 +5343,14 @@ describe("Asset Manager ERC20 Token Tests", function () {
       ]
 
       // when and then
-      await expect(assetManagerProxy.connect(livelyAdmin).registerToken(registerTokenRequest)).to.revertedWith(
-        "Access Denied"
-      );
+      await expect(assetManagerProxy.connect(livelyAdmin).registerToken(registerTokenRequest))
+        .to.revertedWith("ACLActionForbidden(6)");
 
-      await expect(assetManagerProxy.connect(systemAdmin).registerToken(registerTokenRequest)).to.revertedWith(
-        "Access Denied"
-      );
+      await expect(assetManagerProxy.connect(systemAdmin).registerToken(registerTokenRequest))
+        .to.revertedWith("ACLActionForbidden(6)");
 
-      await expect(assetManagerProxy.connect(user1).registerToken(registerTokenRequest)).to.revertedWith(
-        "Access Denied"
-      );
+      await expect(assetManagerProxy.connect(user1).registerToken(registerTokenRequest))
+        .to.revertedWith("ACLActionForbidden(5)");
 
       expect(await assetManagerProxy.isTokenExists(livelyToken.address)).to.be.false;
     });
@@ -5451,17 +5402,14 @@ describe("Asset Manager ERC20 Token Tests", function () {
       ]
 
       // when and then
-      await expect(assetManagerProxy.connect(livelyAdmin).updateToken(updateTokenRequest)).to.revertedWith(
-        "Access Denied"
-      );
+      await expect(assetManagerProxy.connect(livelyAdmin).updateToken(updateTokenRequest))
+        .to.revertedWith("ACLActionForbidden(6)");
 
-      await expect(assetManagerProxy.connect(systemAdmin).updateToken(updateTokenRequest)).to.revertedWith(
-        "Access Denied"
-      );
+      await expect(assetManagerProxy.connect(systemAdmin).updateToken(updateTokenRequest))
+        .to.revertedWith("ACLActionForbidden(6)");
 
-      await expect(assetManagerProxy.connect(user1).updateToken(updateTokenRequest)).to.revertedWith(
-        "Access Denied"
-      );
+      await expect(assetManagerProxy.connect(user1).updateToken(updateTokenRequest))
+        .to.revertedWith("ACLActionForbidden(5)");
 
       expect(await assetManagerProxy.isTokenExists(livelyToken.address)).to.be.true;
     });
@@ -5534,7 +5482,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
 
       const registerTokenRequest: IAssetManagerERC20.AssetTokenActionRequestStruct[] = [
         {
-          tokenId: livelyToken.address,
+          tokenId: tokenERC20.address,
           assetSubjectId: assetSubjectERC20.address,
           assetSignature: signature
         }
@@ -5568,13 +5516,16 @@ describe("Asset Manager ERC20 Token Tests", function () {
       }];
 
       // when
-      await expect(assetManagerProxy.connect(livelyAdmin).createAsset(createAssetRequest)).to.revertedWith("Access Denied");
+      await expect(assetManagerProxy.connect(livelyAdmin).createAsset(createAssetRequest))
+        .to.revertedWith("ACLActionForbidden(6)");
 
-      await expect(assetManagerProxy.connect(systemAdmin).createAsset(createAssetRequest)).to.revertedWith(
-        "Access Denied"
+      await expect(assetManagerProxy.connect(systemAdmin).createAsset(createAssetRequest))
+        .to.revertedWith(
+        "ACLActionForbidden(6)"
       );
 
-      await expect(assetManagerProxy.connect(user1).createAsset(createAssetRequest)).to.revertedWith("Access Denied");
+      await expect(assetManagerProxy.connect(user1).createAsset(createAssetRequest))
+        .to.revertedWith("ACLActionForbidden(5)");
     });
 
     it("Should create LIVELY_AUDIO_VIDEO_PROGRAM_ASSET asset by assetAdmin success", async () => {
@@ -5604,11 +5555,11 @@ describe("Asset Manager ERC20 Token Tests", function () {
       // when
       await expect(assetManagerProxy.connect(assetAdmin).createAsset(createAssetRequest))
         .to.emit(assetManagerProxy, "AssetCreated")
-        .withArgs(assetAdminWallet.address, assetId, livelyToken.address, assetSubjectERC20.address)
+        .withArgs(assetAdminWallet.address, assetId, livelyToken.address)
         .to.emit(assetAudioVideoProgram, "AssetInitialized")
         .withArgs(
-          aclRoleLivelyTokenAssetManagerAdminId,
-          aclRoleLivelyAudioVideoProgramAssetAdminId,
+          assetManagerProxy.address,
+          assetId,
           livelyToken.address,
           assetManagerProxy.address,
           assetSubjectERC20.address
@@ -5663,11 +5614,11 @@ describe("Asset Manager ERC20 Token Tests", function () {
       // when
       await expect(assetManagerProxy.connect(assetAdmin).createAsset(createAssetRequest))
         .to.emit(assetManagerProxy, "AssetCreated")
-        .withArgs(assetAdminWallet.address, assetId, livelyToken.address, assetSubjectERC20.address)
+        .withArgs(assetAdminWallet.address, assetId, livelyToken.address)
         .to.emit(assetFoundingTeam, "AssetInitialized")
         .withArgs(
-          aclRoleLivelyTokenAssetManagerAdminId,
-          aclRoleLivelyFoundingTeamAssetAdminId,
+          assetManagerProxy.address,
+          assetId,
           livelyToken.address,
           assetManagerProxy.address,
           assetSubjectERC20.address
@@ -5701,11 +5652,11 @@ describe("Asset Manager ERC20 Token Tests", function () {
       // when
       await expect(assetManagerProxy.connect(assetAdmin).createAsset(createAssetRequest))
         .to.emit(assetManagerProxy, "AssetCreated")
-        .withArgs(assetAdminWallet.address, assetId, livelyToken.address, assetSubjectERC20.address)
+        .withArgs(assetAdminWallet.address, assetId, livelyToken.address)
         .to.emit(assetTreasury, "AssetInitialized")
         .withArgs(
-          aclRoleLivelyTokenAssetManagerAdminId,
-          aclRoleLivelyTreasuryAssetAdminId,
+          assetManagerProxy.address,
+          assetId,
           livelyToken.address,
           assetManagerProxy.address,
           assetSubjectERC20.address
@@ -5739,11 +5690,11 @@ describe("Asset Manager ERC20 Token Tests", function () {
       // when
       await expect(assetManagerProxy.connect(assetAdmin).createAsset(createAssetRequest))
         .to.emit(assetManagerProxy, "AssetCreated")
-        .withArgs(assetAdminWallet.address, assetId, livelyToken.address, assetSubjectERC20.address)
+        .withArgs(assetAdminWallet.address, assetId, livelyToken.address)
         .to.emit(assetPublicSale, "AssetInitialized")
         .withArgs(
-          aclRoleLivelyTokenAssetManagerAdminId,
-          aclRoleLivelyPublicSaleAssetAdminId,
+          assetManagerProxy.address,
+          assetId,
           livelyToken.address,
           assetManagerProxy.address,
           assetSubjectERC20.address
@@ -5777,11 +5728,11 @@ describe("Asset Manager ERC20 Token Tests", function () {
       // when
       await expect(assetManagerProxy.connect(assetAdmin).createAsset(createAssetRequest))
         .to.emit(assetManagerProxy, "AssetCreated")
-        .withArgs(assetAdminWallet.address, assetId, livelyToken.address, assetSubjectERC20.address)
+        .withArgs(assetAdminWallet.address, assetId, livelyToken.address)
         .to.emit(assetValidatorsRewards, "AssetInitialized")
         .withArgs(
-          aclRoleLivelyTokenAssetManagerAdminId,
-          aclRoleLivelyValidatorRewardsAssetAdminId,
+          assetManagerProxy.address,
+          assetId,
           livelyToken.address,
           assetManagerProxy.address,
           assetSubjectERC20.address
@@ -5815,11 +5766,11 @@ describe("Asset Manager ERC20 Token Tests", function () {
       // when
       await expect(assetManagerProxy.connect(assetAdmin).createAsset(createAssetRequest))
         .to.emit(assetManagerProxy, "AssetCreated")
-        .withArgs(assetAdminWallet.address, assetId, livelyToken.address, assetSubjectERC20.address)
+        .withArgs(assetAdminWallet.address, assetId, livelyToken.address)
         .to.emit(assetCrowdFounding, "AssetInitialized")
         .withArgs(
-          aclRoleLivelyTokenAssetManagerAdminId,
-          aclRoleLivelyCrowdFoundingAssetAdminId,
+          assetManagerProxy.address,
+          assetId,
           livelyToken.address,
           assetManagerProxy.address,
           assetSubjectERC20.address
@@ -5853,11 +5804,11 @@ describe("Asset Manager ERC20 Token Tests", function () {
       // when
       await expect(assetManagerProxy.connect(assetAdmin).createAsset(createAssetRequest))
         .to.emit(assetManagerProxy, "AssetCreated")
-        .withArgs(assetAdminWallet.address, assetId, livelyToken.address, assetSubjectERC20.address)
+        .withArgs(assetAdminWallet.address, assetId, livelyToken.address)
         .to.emit(assetTaxTreasury, "AssetInitialized")
         .withArgs(
-          aclRoleLivelyTokenAssetManagerAdminId,
-          aclRoleLivelyTaxTreasuryAssetAdminId,
+          assetManagerProxy.address,
+          assetId,
           livelyToken.address,
           assetManagerProxy.address,
           assetSubjectERC20.address
@@ -6175,36 +6126,36 @@ describe("Asset Manager ERC20 Token Tests", function () {
     it("Should distribute token call by anyone failed", async () => {
       // given
       const assets: Address[] = [
-        assetAudioVideoProgramId,
-        assetPublicSaleId,
-        assetFoundingTeamId,
-        assetCrowdFoundingId,
-        assetValidatorsRewardsId,
-        assetTreasuryId,
-        assetTaxTreasuryId
+        assetAudioVideoProgram.address,
+        assetPublicSale.address,
+        assetFoundingTeam.address,
+        assetCrowdFounding.address,
+        assetValidatorsRewards.address,
+        assetTreasury.address,
+        assetTaxTreasury.address
       ]
 
       // when and then
       await expect(livelyToken.connect(livelyAdmin).tokensDistribution(assetManagerProxy.address, assets))
-        .to.revertedWith("Access Denied");
+        .to.revertedWith("ACLActionForbidden(1)");
 
       await expect(livelyToken.connect(systemAdmin).tokensDistribution(assetManagerProxy.address, assets))
-        .to.revertedWith("Access Denied");
+        .to.revertedWith("ACLActionForbidden(1)");
 
-      await expect(livelyToken.connect(systemAdmin).tokensDistribution(assetManagerProxy.address, assets))
-        .to.revertedWith("Access Denied");
+      await expect(livelyToken.connect(user1).tokensDistribution(assetManagerProxy.address, assets))
+        .to.revertedWith("ACLActionForbidden(5)");
     });
 
     it("Should distribute token call by assetAdmin success", async () => {
       // given
       const assets: Address[] = [
-        assetAudioVideoProgramId,
-        assetPublicSaleId,
-        assetFoundingTeamId,
-        assetCrowdFoundingId,
-        assetValidatorsRewardsId,
-        assetTreasuryId,
-        assetTaxTreasuryId
+        assetAudioVideoProgram.address,
+        assetPublicSale.address,
+        assetFoundingTeam.address,
+        assetCrowdFounding.address,
+        assetValidatorsRewards.address,
+        assetTreasury.address,
+        assetTaxTreasury.address
       ]
       const beforeBalanceAudioVideoProgram = await assetAudioVideoProgram.assetBalance();
       const beforeBalanceFoundingTeam = await assetFoundingTeam.assetBalance();
@@ -6216,19 +6167,19 @@ describe("Asset Manager ERC20 Token Tests", function () {
       // when
       await expect(livelyToken.connect(assetAdmin).tokensDistribution(assetManagerProxy.address, assets))
         .to.emit(livelyToken, "Mint")
-        .withArgs(assetManagerProxy.address, assetManagerProxy.address, livelyTokenTotalSupply, livelyTokenTotalSupply)
+        .withArgs(assetAdminWallet.address, assetAdminWallet.address, livelyTokenTotalSupply, livelyTokenTotalSupply)
         .to.emit(livelyToken, "Transfer")
-        .withArgs(assetManagerProxy.address, assetAudioVideoProgram.address, assetAudioVideoProgramBalance)
+        .withArgs(assetAdminWallet.address, assetAudioVideoProgram.address, assetAudioVideoProgramBalance)
         .to.emit(livelyToken, "Transfer")
-        .withArgs(assetManagerProxy.address, assetFoundingTeam.address, assetFoundingTeamBalance)
+        .withArgs(assetAdminWallet.address, assetFoundingTeam.address, assetFoundingTeamBalance)
         .to.emit(livelyToken, "Transfer")
-        .withArgs(assetManagerProxy.address, assetTreasury.address, assetTreasuryBalance)
+        .withArgs(assetAdminWallet.address, assetTreasury.address, assetTreasuryBalance)
         .to.emit(livelyToken, "Transfer")
-        .withArgs(assetManagerProxy.address, assetPublicSale.address, assetPublicSaleBalance)
+        .withArgs(assetAdminWallet.address, assetPublicSale.address, assetPublicSaleBalance)
         .to.emit(livelyToken, "Transfer")
-        .withArgs(assetManagerProxy.address, assetValidatorsRewards.address, assetValidatorsRewardsBalance)
+        .withArgs(assetAdminWallet.address, assetValidatorsRewards.address, assetValidatorsRewardsBalance)
         .to.emit(livelyToken, "Transfer")
-        .withArgs(assetManagerProxy.address, assetCrowdFounding.address, assetCrowdFoundingBalance);
+        .withArgs(assetAdminWallet.address, assetCrowdFounding.address, assetCrowdFoundingBalance);
 
       // then
       const afterBalanceAudioVideoProgram = await assetAudioVideoProgram.assetBalance();
@@ -6267,13 +6218,13 @@ describe("Asset Manager ERC20 Token Tests", function () {
 
       // when
       await expect(assetManagerProxy.connect(livelyAdmin).removeAsset(removeAssetsRequest))
-        .to.revertedWith("Access Denied");
+        .to.revertedWith("ACLActionForbidden(6)");
 
       await expect(assetManagerProxy.connect(systemAdmin).removeAsset(removeAssetsRequest))
-        .to.revertedWith("Access Denied");
+        .to.revertedWith("ACLActionForbidden(6)");
 
       await expect(assetManagerProxy.connect(user1).removeAsset(removeAssetsRequest))
-        .to.revertedWith("Access Denied");
+        .to.revertedWith("ACLActionForbidden(5)");
 
       expect(await assetManagerProxy.isAssetExists(assetPublicSale.address)).to.be.true;
     });
@@ -6301,8 +6252,8 @@ describe("Asset Manager ERC20 Token Tests", function () {
       const afterRemoveAssetSafeMode = await assetPublicSale.assetSafeMode();
       expect(beforeRemoveAsset).to.be.true;
       expect(afterRemoveAsset).to.be.false;
-      expect(beforeRemoveAssetSafeMode).to.be.false;
-      expect(afterRemoveAssetSafeMode).to.be.true;
+      expect(beforeRemoveAssetSafeMode).to.be.equal(AssetSafeModeStatus.DISABLED);
+      expect(afterRemoveAssetSafeMode).to.be.equal(AssetSafeModeStatus.ENABLED);
     });
 
     it("Should registerAsset call by anyone failed", async () => {
@@ -6316,13 +6267,13 @@ describe("Asset Manager ERC20 Token Tests", function () {
 
       // when
       await expect(assetManagerProxy.connect(livelyAdmin).registerAsset(registerAssetsRequest))
-        .to.revertedWith("Access Denied");
+        .to.revertedWith("ACLActionForbidden(6)");
 
       await expect(assetManagerProxy.connect(systemAdmin).registerAsset(registerAssetsRequest))
-        .to.revertedWith("Access Denied");
+        .to.revertedWith("ACLActionForbidden(6)");
 
       await expect(assetManagerProxy.connect(user1).registerAsset(registerAssetsRequest))
-        .to.revertedWith("Access Denied");
+        .to.revertedWith("ACLActionForbidden(5)");
 
       expect(await assetManagerProxy.isAssetExists(assetPublicSale.address)).to.be.false;
     });
@@ -6350,8 +6301,8 @@ describe("Asset Manager ERC20 Token Tests", function () {
       const afterRegisterAssetSafeMode = await assetPublicSale.assetSafeMode();
       expect(beforeRegisterAsset).to.be.false;
       expect(afterRegisterAsset).to.be.true;
-      expect(beforeRegisterAssetSafeMode).to.be.true;
-      expect(afterRegisterAssetSafeMode).to.be.false;
+      expect(beforeRegisterAssetSafeMode).to.be.equal(AssetSafeModeStatus.ENABLED);
+      expect(afterRegisterAssetSafeMode).to.be.equal(AssetSafeModeStatus.DISABLED);
     });
 
     it("Should setSafeModeToken call by anyone failed", async () => {
@@ -6365,13 +6316,13 @@ describe("Asset Manager ERC20 Token Tests", function () {
 
       // when
       await expect(assetManagerProxy.connect(livelyAdmin).setSafeModeAssets(assetSafeModeRequests))
-        .to.revertedWith("Access Denied");
+        .to.revertedWith("ACLActionForbidden(6)");
 
       await expect(assetManagerProxy.connect(systemAdmin).setSafeModeAssets(assetSafeModeRequests))
-        .to.revertedWith("Access Denied");
+        .to.revertedWith("ACLActionForbidden(6)");
 
       await expect(assetManagerProxy.connect(user1).setSafeModeAssets(assetSafeModeRequests))
-        .to.revertedWith("Access Denied");
+        .to.revertedWith("ACLActionForbidden(5)");
 
       // then
       const status = await assetPublicSale.assetSafeMode();
@@ -6472,20 +6423,17 @@ describe("Asset Manager ERC20 Token Tests", function () {
       const safeMode = await assetFoundingTeam.assetSafeMode();
 
       // when and then
-      await expect(assetFoundingTeam.connect(user1).assetSetSafeMode(AssetSafeModeStatus.ENABLED)).to.revertedWith("Access Denied");
+      await expect(assetFoundingTeam.connect(user1).assetSetSafeMode(AssetSafeModeStatus.ENABLED))
+        .to.revertedWith("ACLActionForbidden(5)");
 
-      await expect(assetFoundingTeam.connect(livelyAdmin).assetSetSafeMode(AssetSafeModeStatus.ENABLED)).to.revertedWith("Access Denied");
+      await expect(assetFoundingTeam.connect(livelyAdmin).assetSetSafeMode(AssetSafeModeStatus.ENABLED))
+        .to.revertedWith("ACLActionForbidden(1)");
 
-      await expect(assetFoundingTeam.connect(systemAdmin).assetSetSafeMode(AssetSafeModeStatus.ENABLED)).to.revertedWith(
-        "Access Denied"
-      );
+      await expect(assetFoundingTeam.connect(systemAdmin).assetSetSafeMode(AssetSafeModeStatus.ENABLED))
+        .to.revertedWith("ACLActionForbidden(1)");
 
-      await expect(assetFoundingTeam.connect(foundingTeamManager).assetSetSafeMode(AssetSafeModeStatus.ENABLED)).to.revertedWith(
-        "Access Denied"
-      );
-
-      // and
-      expect(safeMode).to.be.false;
+      await expect(assetFoundingTeam.connect(foundingTeamManager).assetSetSafeMode(AssetSafeModeStatus.ENABLED))
+        .to.revertedWith("ACLActionForbidden(1)");
     });
 
     it("Should enable asset safeMode of assetFoundingTeam by assetAdmin success", async () => {
@@ -6494,14 +6442,14 @@ describe("Asset Manager ERC20 Token Tests", function () {
 
       // when and then
       await expect(assetFoundingTeam.connect(assetAdmin).assetSetSafeMode(AssetSafeModeStatus.ENABLED))
-        .to.emit(assetFoundingTeam, "AssetSafeModeChanged")
+        .to.emit(assetFoundingTeam, "AssetSafeModeUpdated")
         .withArgs(assetAdminWallet.address, assetFoundingTeam.address, AssetSafeModeStatus.ENABLED);
 
       // and
-      expect(safeMode).to.be.false;
+      expect(safeMode).to.be.equal(AssetSafeModeStatus.DISABLED);
 
       // and
-      expect(await assetFoundingTeam.assetSafeMode()).to.be.true;
+      expect(await assetFoundingTeam.assetSafeMode()).to.be.equal(AssetSafeModeStatus.ENABLED);
     });
 
     it("Should call any methods by anyone when assetSafeMode enabled failed", async () => {
@@ -6526,119 +6474,119 @@ describe("Asset Manager ERC20 Token Tests", function () {
 
       // and
       await expect(assetFoundingTeam.connect(user1).tokenLock([lockRequest])).to.revertedWith(
-        "SafeMode: AssetERC20 Call Rejected"
+        "Rejected"
       );
       await expect(assetFoundingTeam.connect(livelyAdmin).tokenLock([lockRequest])).to.revertedWith(
-        "SafeMode: AssetERC20 Call Rejected"
+        "Rejected"
       );
       await expect(assetFoundingTeam.connect(systemAdmin).tokenLock([lockRequest])).to.revertedWith(
-        "SafeMode: AssetERC20 Call Rejected"
+        "Rejected"
       );
       await expect(assetFoundingTeam.connect(foundingTeamManager).tokenLock([lockRequest])).to.revertedWith(
-        "SafeMode: AssetERC20 Call Rejected"
+        "Rejected"
       );
 
       // and
       await expect(
         assetFoundingTeam.connect(user1).tokenTransfer(assetAdminWallet.address, BigNumber.from(0))
-      ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
+      ).to.revertedWith("Rejected");
       await expect(
         assetFoundingTeam.connect(livelyAdmin).tokenTransfer(assetAdminWallet.address, BigNumber.from(0))
-      ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
+      ).to.revertedWith("Rejected");
       await expect(
         assetFoundingTeam.connect(systemAdmin).tokenTransfer(assetAdminWallet.address, BigNumber.from(0))
-      ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
+      ).to.revertedWith("Rejected");
       await expect(
         assetFoundingTeam.connect(foundingTeamManager).tokenTransfer(assetAdminWallet.address, BigNumber.from(0))
-      ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
+      ).to.revertedWith("Rejected");
 
       // and
       await expect(assetFoundingTeam.connect(user1).tokenBatchTransfer([batchTransfer])).to.revertedWith(
-        "SafeMode: AssetERC20 Call Rejected"
+        "Rejected"
       );
       await expect(assetFoundingTeam.connect(livelyAdmin).tokenBatchTransfer([batchTransfer])).to.revertedWith(
-        "SafeMode: AssetERC20 Call Rejected"
+        "Rejected"
       );
       await expect(assetFoundingTeam.connect(systemAdmin).tokenBatchTransfer([batchTransfer])).to.revertedWith(
-        "SafeMode: AssetERC20 Call Rejected"
+        "Rejected"
       );
       await expect(assetFoundingTeam.connect(foundingTeamManager).tokenBatchTransfer([batchTransfer])).to.revertedWith(
-        "SafeMode: AssetERC20 Call Rejected"
+        "Rejected"
       );
 
       // and
       await expect(
         assetFoundingTeam.connect(user1).tokenTransferFrom(assetAdminWallet.address, assetAdminWallet.address, BigNumber.from(0))
-      ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
+      ).to.revertedWith("Rejected");
       await expect(
         assetFoundingTeam.connect(livelyAdmin).tokenTransferFrom(assetAdminWallet.address, assetAdminWallet.address, BigNumber.from(0))
-      ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
+      ).to.revertedWith("Rejected");
       await expect(
         assetFoundingTeam
           .connect(systemAdmin)
           .tokenTransferFrom(assetAdminWallet.address, assetAdminWallet.address, BigNumber.from(0))
-      ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
+      ).to.revertedWith("Rejected");
       await expect(
         assetFoundingTeam
           .connect(foundingTeamManager)
           .tokenTransferFrom(assetAdminWallet.address, assetAdminWallet.address, BigNumber.from(0))
-      ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
+      ).to.revertedWith("Rejected");
 
       // and
       await expect(assetFoundingTeam.connect(user1).tokenBatchTransferFrom([batchTransferFrom])).to.revertedWith(
-        "SafeMode: AssetERC20 Call Rejected"
+        "Rejected"
       );
       await expect(assetFoundingTeam.connect(livelyAdmin).tokenBatchTransferFrom([batchTransferFrom])).to.revertedWith(
-        "SafeMode: AssetERC20 Call Rejected"
+        "Rejected"
       );
       await expect(assetFoundingTeam.connect(systemAdmin).tokenBatchTransferFrom([batchTransferFrom])).to.revertedWith(
-        "SafeMode: AssetERC20 Call Rejected"
+        "Rejected"
       );
       await expect(
         assetFoundingTeam.connect(foundingTeamManager).tokenBatchTransferFrom([batchTransferFrom])
-      ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
+      ).to.revertedWith("Rejected");
 
       // and
       await expect(assetFoundingTeam.connect(user1).tokenApprove(assetAdminWallet.address, BigNumber.from(0))).to.revertedWith(
-        "SafeMode: AssetERC20 Call Rejected"
+        "Rejected"
       );
       await expect(assetFoundingTeam.connect(livelyAdmin).tokenApprove(assetAdminWallet.address, BigNumber.from(0))).to.revertedWith(
-        "SafeMode: AssetERC20 Call Rejected"
+        "Rejected"
       );
       await expect(
         assetFoundingTeam.connect(systemAdmin).tokenApprove(assetAdminWallet.address, BigNumber.from(0))
-      ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
+      ).to.revertedWith("Rejected");
       await expect(
         assetFoundingTeam.connect(foundingTeamManager).tokenApprove(assetAdminWallet.address, BigNumber.from(0))
-      ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
+      ).to.revertedWith("Rejected");
 
       // and
       await expect(
         assetFoundingTeam.connect(user1).tokenIncreaseAllowance(assetAdminWallet.address, BigNumber.from(0))
-      ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
+      ).to.revertedWith("Rejected");
       await expect(
         assetFoundingTeam.connect(livelyAdmin).tokenIncreaseAllowance(assetAdminWallet.address, BigNumber.from(0))
-      ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
+      ).to.revertedWith("Rejected");
       await expect(
         assetFoundingTeam.connect(systemAdmin).tokenIncreaseAllowance(assetAdminWallet.address, BigNumber.from(0))
-      ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
+      ).to.revertedWith("Rejected");
       await expect(
         assetFoundingTeam.connect(foundingTeamManager).tokenIncreaseAllowance(assetAdminWallet.address, BigNumber.from(0))
-      ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
+      ).to.revertedWith("Rejected");
 
       // and
       await expect(
         assetFoundingTeam.connect(user1).tokenDecreaseAllowance(assetAdminWallet.address, BigNumber.from(0))
-      ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
+      ).to.revertedWith("Rejected");
       await expect(
         assetFoundingTeam.connect(livelyAdmin).tokenDecreaseAllowance(assetAdminWallet.address, BigNumber.from(0))
-      ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
+      ).to.revertedWith("Rejected");
       await expect(
         assetFoundingTeam.connect(systemAdmin).tokenDecreaseAllowance(assetAdminWallet.address, BigNumber.from(0))
-      ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
+      ).to.revertedWith("Rejected");
       await expect(
         assetFoundingTeam.connect(foundingTeamManager).tokenDecreaseAllowance(assetAdminWallet.address, BigNumber.from(0))
-      ).to.revertedWith("SafeMode: AssetERC20 Call Rejected");
+      ).to.revertedWith("Rejected");
     });
 
     it("Should disable asset safeMode of assetFoundingTeam by assetAdmin success", async () => {
@@ -6669,15 +6617,19 @@ describe("Asset Manager ERC20 Token Tests", function () {
       ];
 
       await expect(assetFoundingTeam.connect(livelyAdmin).tokenLock(lockRequests)).to.revertedWith(
-        "AssetERC20 Access Denied"
+        "ACLActionForbidden(1)"
       );
 
       await expect(assetFoundingTeam.connect(systemAdmin).tokenLock(lockRequests)).to.revertedWith(
-        "AssetERC20 Access Denied"
+        "ACLActionForbidden(1)"
       );
 
       await expect(assetFoundingTeam.connect(assetAdmin).tokenLock(lockRequests)).to.revertedWith(
-        "AssetERC20 Access Denied"
+        "ACLActionForbidden(1)"
+      );
+
+      await expect(assetFoundingTeam.connect(user1).tokenLock(lockRequests)).to.revertedWith(
+        "ACLActionForbidden(5)"
       );
     });
 
@@ -6781,15 +6733,19 @@ describe("Asset Manager ERC20 Token Tests", function () {
     it("Should tokenTransfer of LIVELY_PUBLIC_SALE_ASSET by anyone failed", async () => {
       // when and then
       await expect(assetPublicSale.connect(livelyAdmin).tokenTransfer(userWallet1.address, dummyAmount)).to.revertedWith(
-        "AssetERC20 Access Denied"
+        "ACLActionForbidden(1)"
       );
 
       await expect(assetPublicSale.connect(systemAdmin).tokenTransfer(userWallet1.address, dummyAmount)).to.revertedWith(
-        "AssetERC20 Access Denied"
+        "ACLActionForbidden(1)"
       );
 
       await expect(assetPublicSale.connect(assetAdmin).tokenTransfer(userWallet1.address, dummyAmount)).to.revertedWith(
-        "AssetERC20 Access Denied"
+        "ACLActionForbidden(1)"
+      );
+
+      await expect(assetPublicSale.connect(user1).tokenTransfer(userWallet1.address, dummyAmount)).to.revertedWith(
+        "ACLActionForbidden(5)"
       );
     });
 
@@ -6827,15 +6783,19 @@ describe("Asset Manager ERC20 Token Tests", function () {
       };
 
       await expect(assetTreasury.connect(livelyAdmin).tokenBatchTransfer([batchTransfer])).to.revertedWith(
-        "AssetERC20 Access Denied"
-      );
+        "ACLActionForbidden(1)"
+      )
 
       await expect(assetTreasury.connect(systemAdmin).tokenBatchTransfer([batchTransfer])).to.revertedWith(
-        "AssetERC20 Access Denied"
+        "ACLActionForbidden(1)"
       );
 
       await expect(assetTreasury.connect(assetAdmin).tokenBatchTransfer([batchTransfer])).to.revertedWith(
-        "AssetERC20 Access Denied"
+        "ACLActionForbidden(1)"
+      );
+
+      await expect(assetTreasury.connect(user1).tokenBatchTransfer([batchTransfer])).to.revertedWith(
+        "ACLActionForbidden(5)"
       );
     });
 
@@ -6874,15 +6834,19 @@ describe("Asset Manager ERC20 Token Tests", function () {
     it("Should tokenApprove of LIVELY_VALIDATORS_REWARDS_ASSET by anyone failed", async () => {
       // when and then
       await expect(assetValidatorsRewards.connect(livelyAdmin).tokenApprove(userWallet1.address, dummyAmount)).to.revertedWith(
-        "AssetERC20 Access Denied"
+        "ACLActionForbidden(1)"
       );
 
       await expect(assetValidatorsRewards.connect(systemAdmin).tokenApprove(userWallet1.address, dummyAmount)).to.revertedWith(
-        "AssetERC20 Access Denied"
+        "ACLActionForbidden(1)"
       );
 
       await expect(assetValidatorsRewards.connect(assetAdmin).tokenApprove(userWallet1.address, dummyAmount)).to.revertedWith(
-        "AssetERC20 Access Denied"
+        "ACLActionForbidden(1)"
+      );
+
+      await expect(assetValidatorsRewards.connect(user1).tokenApprove(userWallet1.address, dummyAmount)).to.revertedWith(
+        "ACLActionForbidden(5)"
       );
     });
 
@@ -6924,19 +6888,19 @@ describe("Asset Manager ERC20 Token Tests", function () {
       // when
       await expect(
         assetTaxTreasury.connect(livelyAdmin).tokenTransferFrom(assetValidatorsRewards.address, userWallet1.address, dummyAmount)
-      ).to.revertedWith("AssetERC20 Access Denied");
+      ).to.revertedWith("ACLActionForbidden(1)");
 
       await expect(
         assetTaxTreasury
           .connect(systemAdmin)
           .tokenTransferFrom(assetValidatorsRewards.address, userWallet1.address, dummyAmount)
-      ).to.revertedWith("AssetERC20 Access Denied");
+      ).to.revertedWith("ACLActionForbidden(1)");
 
-      await expect(
-        assetTaxTreasury
-          .connect(treasuryManager)
-          .tokenTransferFrom(assetValidatorsRewards.address, userWallet1.address, dummyAmount)
-      ).to.revertedWith("AssetERC20 Access Denied");
+      await expect(assetTaxTreasury.connect(treasuryManager).tokenTransferFrom(assetValidatorsRewards.address, userWallet1.address, dummyAmount))
+        .to.revertedWith("ACLActionForbidden(1)");
+
+      await expect(assetTaxTreasury.connect(user1).tokenTransferFrom(assetValidatorsRewards.address, userWallet1.address, dummyAmount))
+        .to.revertedWith("ACLActionForbidden(5)");
     });
 
     it("Should tokenTransferFrom of LIVELY_TREASURY_ASSET by assetAdmin success", async () => {
@@ -6951,7 +6915,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
       // when
       await expect(
         assetTaxTreasury
-          .connect(assetAdmin)
+          .connect(taxTreasuryManagerWallet)
           .tokenTransferFrom(assetValidatorsRewards.address, userWallet1.address, dummyAmount)
       )
         .to.emit(livelyToken, "Transfer")
@@ -6966,7 +6930,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
         )
         .to.emit(assetTaxTreasury, "AssetERC20Called")
         .withArgs(
-          assetAdminWallet.address,
+          taxTreasuryManagerWallet.address,
           assetTaxTreasury.address,
           assetTaxTreasury.interface.getSighash(
             assetTaxTreasury.interface.functions["tokenTransferFrom(address,address,uint256)"]
@@ -6997,16 +6961,20 @@ describe("Asset Manager ERC20 Token Tests", function () {
 
       // when
       await expect(assetTaxTreasury.connect(livelyAdmin).tokenBatchTransferFrom([batchTransferFrom])).to.revertedWith(
-        "AssetERC20 Access Denied"
+        "ACLActionForbidden(1)"
       );
 
       await expect(assetTaxTreasury.connect(systemAdmin).tokenBatchTransferFrom([batchTransferFrom])).to.revertedWith(
-        "AssetERC20 Access Denied"
+        "ACLActionForbidden(1)"
       );
 
       await expect(
         assetTaxTreasury.connect(treasuryManager).tokenBatchTransferFrom([batchTransferFrom])
-      ).to.revertedWith("AssetERC20 Access Denied");
+      ).to.revertedWith("ACLActionForbidden(1)");
+
+      await expect(
+        assetTaxTreasury.connect(user1).tokenBatchTransferFrom([batchTransferFrom])
+      ).to.revertedWith("ACLActionForbidden(5)");
     });
 
     it("Should tokenBatchTransferFrom of LIVELY_TREASURY_ASSET by assetAdmin success", async () => {
@@ -7024,7 +6992,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
       };
 
       // when
-      await expect(assetTaxTreasury.connect(assetAdmin).tokenBatchTransferFrom([batchTransferFrom]))
+      await expect(assetTaxTreasury.connect(taxTreasuryManagerWallet).tokenBatchTransferFrom([batchTransferFrom]))
         .to.emit(livelyToken, "Transfer")
         .withArgs(assetValidatorsRewards.address, userWallet1.address, dummyAmount)
         .to.emit(livelyToken, "BatchTransferFrom")
@@ -7039,7 +7007,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
         )
         .to.emit(assetTaxTreasury, "AssetERC20Called")
         .withArgs(
-          assetAdminWallet.address,
+          taxTreasuryManagerWallet.address,
           assetTaxTreasury.address,
           assetTaxTreasury.interface.getSighash(
             assetTaxTreasury.interface.functions["tokenBatchTransferFrom((address,address,uint256)[])"]
@@ -7063,16 +7031,20 @@ describe("Asset Manager ERC20 Token Tests", function () {
     it("Should tokenIncreaseAllowance of LIVELY_CROWD_FOUNDING_ASSET by anyone failed", async () => {
       // when
       await expect(assetCrowdFounding.connect(livelyAdmin).tokenIncreaseAllowance(userWallet2.address, dummyAmount)).to.revertedWith(
-        "AssetERC20 Access Denied"
+        "ACLActionForbidden(1)"
       );
 
       await expect(
         assetCrowdFounding.connect(systemAdmin).tokenIncreaseAllowance(userWallet2.address, dummyAmount)
-      ).to.revertedWith("AssetERC20 Access Denied");
+      ).to.revertedWith("ACLActionForbidden(1)");
 
       await expect(
         assetCrowdFounding.connect(assetAdmin).tokenIncreaseAllowance(userWallet2.address, dummyAmount)
-      ).to.revertedWith("AssetERC20 Access Denied");
+      ).to.revertedWith("ACLActionForbidden(1)");
+
+      await expect(
+        assetCrowdFounding.connect(user1).tokenIncreaseAllowance(userWallet2.address, dummyAmount)
+      ).to.revertedWith("ACLActionForbidden(5)");
     });
 
     it("Should tokenIncreaseAllowance of LIVELY_CROWD_FOUNDING_ASSET by crowdFoundingManager success", async () => {
@@ -7102,16 +7074,18 @@ describe("Asset Manager ERC20 Token Tests", function () {
     it("Should tokenDecreaseAllowance of LIVELY_CROWD_FOUNDING_ASSET by anyone failed", async () => {
       // when
       await expect(assetCrowdFounding.connect(livelyAdmin).tokenDecreaseAllowance(userWallet2.address, dummyAmount)).to.revertedWith(
-        "AssetERC20 Access Denied"
+        "ACLActionForbidden(1)"
       );
 
-      await expect(
-        assetCrowdFounding.connect(systemAdmin).tokenDecreaseAllowance(userWallet2.address, dummyAmount)
-      ).to.revertedWith("AssetERC20 Access Denied");
+      await expect(assetCrowdFounding.connect(systemAdmin).tokenDecreaseAllowance(userWallet2.address, dummyAmount))
+        .to.revertedWith("ACLActionForbidden(1)");
 
       await expect(
         assetCrowdFounding.connect(assetAdmin).tokenDecreaseAllowance(userWallet2.address, dummyAmount)
-      ).to.revertedWith("AssetERC20 Access Denied");
+      ).to.revertedWith("ACLActionForbidden(1)");
+
+      await expect(assetCrowdFounding.connect(user1).tokenDecreaseAllowance(userWallet2.address, dummyAmount))
+        .to.revertedWith("ACLActionForbidden(5)");
     });
 
     it("Should tokenDecreaseAllowance of LIVELY_CROWD_FOUNDING_ASSET by crowdFoundingManager success", async () => {
@@ -7141,7 +7115,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
     it("Should deposit eth coin to LIVELY_AUDIO_VIDEO_PROGRAM_ASSET success", async () => {
       // given
       // const assetAudioVideoProgramBalanceBefore = await provider.getBalance(assetAudioVideoProgram.address);
-      const assetAudioVideoProgramBalanceBefore = await assetAudioVideoProgram.assetBalance();
+      const assetAudioVideoProgramBalanceBefore = await assetAudioVideoProgram.balance();
       const user1BalanceBefore = await provider.getBalance(userWallet1.address);
       const transaction: TransactionRequest = {
         to: assetAudioVideoProgram.address,
@@ -7154,7 +7128,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
       // then
       const receiptTx = await provider.getTransactionReceipt(response.hash);
       // const assetAudioVideoProgramBalanceAfter = await provider.getBalance(assetAudioVideoProgram.address);
-      const assetAudioVideoProgramBalanceAfter = await assetAudioVideoProgram.assetBalance();
+      const assetAudioVideoProgramBalanceAfter = await assetAudioVideoProgram.balance();
       const user1BalanceAfter = await provider.getBalance(userWallet1.address);
       expect(assetAudioVideoProgramBalanceAfter.toString()).to.be.equal(
         assetAudioVideoProgramBalanceBefore.add(BigNumber.from(10).mul(tokenDecimal)).toString()
@@ -7173,15 +7147,15 @@ describe("Asset Manager ERC20 Token Tests", function () {
 
       // when
       await expect(assetAudioVideoProgram.connect(user1).withdrawBalance(userWallet1.address)).to.revertedWith(
-        "AssetERC20 Access Denied"
+        "ACLActionForbidden(5)"
       );
 
       await expect(assetAudioVideoProgram.connect(systemAdmin).withdrawBalance(systemAdminWallet.address)).to.revertedWith(
-        "AssetERC20 Access Denied"
+        "ACLActionForbidden(1)"
       );
 
       await expect(assetAudioVideoProgram.connect(livelyAdmin).withdrawBalance(assetAdminWallet.address)).to.revertedWith(
-        "AssetERC20 Access Denied"
+        "ACLActionForbidden(1)"
       );
 
       // then

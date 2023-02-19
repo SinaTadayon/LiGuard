@@ -367,8 +367,8 @@ export async function generatePredictContextDomainSignatureManually(
     ["bytes32", "bytes32", "bytes32", "uint256", "address"],
     [
       DOMAIN_HASH,
-      ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["AccessControlManager"])),
-      ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["1.0.0"])),
+      ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["ACLManager"])),
+      ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["3.0.0"])),
       chainId,
       verifyingContract,
     ]

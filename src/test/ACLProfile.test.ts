@@ -437,7 +437,7 @@ describe("Lively Guard Profile Tests", function() {
         }
       })
 
-      it("Should profile profile MemberManager subject deploy success", async() => {
+      it("Should profile MemberManager subject deploy success", async() => {
         // given
         const memberManagerFactory = new MemberManager__factory(<MemberManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
 
@@ -453,7 +453,7 @@ describe("Lively Guard Profile Tests", function() {
         expect(await memberManagerSubject.initVersion()).to.be.equal(0);
       })
 
-      it("Should profile profile RoleManager subject deploy success", async() => {
+      it("Should profile RoleManager subject deploy success", async() => {
         // given
         const roleManagerFactory = new RoleManager__factory(<RoleManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
 

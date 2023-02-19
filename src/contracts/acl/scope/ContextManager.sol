@@ -16,6 +16,8 @@ import "../../lib/struct/LEnumerableSet.sol";
 import "../../proxy/IProxy.sol";
 import "../../proxy/BaseUUPSProxy.sol";
 
+import "hardhat/console.sol";
+
 /**
  * @title Context Manager Contract
  * @author Sina Tadayon, https://github.com/SinaTadayon
@@ -73,8 +75,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
           signer = msg.sender;
         }
 
-        contractId = requests[i].subject.predictDeterministicAddress(requests[i].salt, requests[i].deployer);
-        
+        contractId = requests[i].subject.predictDeterministicAddress(requests[i].salt, requests[i].deployer);     
       } else {
         if(requests[i].signature.length > 0) {
           bytes32 structHash = _getContextMessageHash(

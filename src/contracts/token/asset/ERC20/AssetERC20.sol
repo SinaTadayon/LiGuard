@@ -60,12 +60,10 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
     _accessControlId = request.accessControlId;
     _assetSafeModeStatus = AssetSafeModeStatus.DISABLED;
 
-    // register context
-    _accessControlId.functionCall(_createRequestContext(request));
+    _createContext(request);
 
-    // register functions
-    _accessControlId.functionCall(_createFunctionRequest(request));
-
+    _createFunctions(request);
+   
     emit AssetInitialized(
       _msgSender(),
       address(this),
@@ -77,30 +75,26 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
     return true;
   }
 
-  function _createRequestContext(AssetInitRequest calldata request) internal pure returns (bytes memory)
-  {
-    IContextManagement.ContextRegisterRequest memory contextRequest = IContextManagement.ContextRegisterRequest({
-      realmId: request.realmId,
-      adminId: request.adminId,
-      salt: request.salt,
-      name: request.contractName,
-      version: request.contractVersion,
-      contractId: request.assetContractId,
-      subject: request.subjectId,
-      deployer: request.assetManagerId,
-      functionLimit: 32,
-      acstat: IACLCommons.ActivityStatus.ENABLED,
-      alstat: IACLCommons.AlterabilityStatus.UPDATABLE,
-      signature: request.signature
-    });    
+  function _createContext(AssetInitRequest calldata request) internal {
+    IContextManagement.ContextRegisterRequest[] memory contextRequests = new IContextManagement.ContextRegisterRequest[](1);
+    contextRequests[0].realmId = request.realmId;
+    contextRequests[0].adminId = request.adminId;
+    contextRequests[0].salt = request.salt;
+    contextRequests[0].name = request.contractName;
+    contextRequests[0].version = request.contractVersion;
+    contextRequests[0].contractId = request.assetContractId;
+    contextRequests[0].subject = request.subjectId;
+    contextRequests[0].deployer = request.assetManagerId;
+    contextRequests[0].functionLimit = 32;
+    contextRequests[0].acstat = IACLCommons.ActivityStatus.ENABLED;
+    contextRequests[0].alstat = IACLCommons.AlterabilityStatus.UPGRADABLE;
+    contextRequests[0].signature = request.signature;
 
-    return abi.encodeWithSelector(IContextManagement.contextRegister.selector, contextRequest);
+    IContextManagement(_accessControlId).contextRegister(contextRequests);
   }
 
-  function _createFunctionRequest(AssetInitRequest calldata request) internal pure
-    returns (bytes memory)
-  {
-    IFunctionManagement.FunctionRequest[] memory functionRequests = new IFunctionManagement.FunctionRequest[](11);
+  function _createFunctions(AssetInitRequest calldata request) internal {
+    IFunctionManagement.FunctionRequest[] memory functionRequests = new IFunctionManagement.FunctionRequest[](10);
     
     // assetSafeModeSet
     functionRequests[0].adminId =  request.adminId;
@@ -193,7 +187,7 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
     requests[0].contractId =  address(0);
     requests[0].functions = functionRequests;
 
-    return abi.encode(IFunctionManagement.functionRegister.selector, requests);
+    IFunctionManagement(_accessControlId).functionRegister(requests);
   }
 
   /**
@@ -262,15 +256,9 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
     return IERC20Extra(_erc20TokenId).decreaseAllowance(spender, amount);
   }
 
-  function assetSetSafeMode(AssetSafeModeStatus status) public override returns (bool) {
-    require(
-      IACL(_accessControlId).hasAccountAccess(
-        address(this),
-        this.assetSetSafeMode.selector,
-        _msgSender()
-      ) == IACL.AuthorizationStatus.PERMITTED,
-      "Access Denied"
-    );
+  function assetSetSafeMode(AssetSafeModeStatus status) public override returns (bool) {    
+    IACL.AuthorizationStatus aclStatus = IACL(_accessControlId).hasAccountAccess(address(this), this.assetSetSafeMode.selector, _msgSender());
+    if(aclStatus != IACL.AuthorizationStatus.PERMITTED) revert IACL.ACLActionForbidden(aclStatus);
     require(_getInitializedCount() > 0, "NOT INIT");
     _assetSafeModeStatus = status;
     emit AssetSafeModeUpdated(_msgSender(), address(this), status);
@@ -339,13 +327,7 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
 
   function _policyInterceptor(bytes4 funcSelector) private {
     require(_assetSafeModeStatus == AssetSafeModeStatus.DISABLED, "Rejected");
-    require(
-      IACL(_accessControlId).hasAccountAccess(
-        address(this),
-        funcSelector,
-        _msgSender()
-      )  == IACL.AuthorizationStatus.PERMITTED,
-      "Access Denied"
-    );
+    IACL.AuthorizationStatus aclStatus = IACL(_accessControlId).hasAccountAccess(address(this), funcSelector, _msgSender());
+    if(aclStatus != IACL.AuthorizationStatus.PERMITTED) revert IACL.ACLActionForbidden(aclStatus);  
   }
 }

@@ -42,20 +42,6 @@ contract AssetManagerERC20 is AssetManagerStorageERC20, BaseUUPSProxy, IAssetMan
     );
   }
 
-  // function livelyTokensDistribution(address tokenId) public returns (bool) {
-  //   _policyInterceptor(this.livelyTokensDistribution.selector);
-  //   require(_data.tokensSet.contains(tokenId), "Not Found");
-
-  //   TokenData storage tokenData = _data.tokens[tokenId];
-  //   require(tokenData.assets.length() == 7, "Illegal Assets");
-
-  //   address[7] memory assets;
-  //   for (uint256 i = 0; i < 7; i++) {
-  //     assets[i] = tokenData.assets.at(i);
-  //   }
-  //   return LivelyToken(payable(tokenId)).tokensDistribution(address(this), assets);
-  // }
-
   /**
    * @dev See {IERC165-supportsInterface}.
    */
@@ -237,18 +223,4 @@ function removeAsset(AssetActionRequest[] calldata requests) external returns (b
   }
 
   function _policyInterceptor(bytes4 funcSelector) private safeModeCheck aclCheck(funcSelector) {}
-
-  function _validationAndPolicyInterceptor(address assetId, bytes4 funcSelector) private {
-    _policyInterceptor(funcSelector);
-    require(assetId != address(0), "Illegal Address");
-
-    if(IERC165(assetId).supportsInterface(type(IAssetEntity).interfaceId))
-      revert("Illegal IAssetEntity");
-
-    address tokenId = IAssetEntity(assetId).assetToken();
-    require(_data.tokensSet.contains(tokenId), "TokenId Not Found");
-
-    TokenData storage tokenData = _data.tokens[tokenId];
-    require(tokenData.assets.contains(assetId), "AssetId Not Found");
-  }
 }
