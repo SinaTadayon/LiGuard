@@ -40,6 +40,7 @@ interface IProfileMemberManagement is IACLCommons {
     uint16 callLimit;
     ProfileRegisterLimit registerLimit;
     AgentType adminType;
+    AgentType atype;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
   }

@@ -113,7 +113,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
       // update member function register limit
       MemberEntity storage memberEntity = _data.memberReadSlot(signerId);
       require(int32(uint32(memberEntity.limits.functionRegisterLimit)) - int16(uint16(requests[i].functions.length)) >= 0, "Illegal RegisterLimit");
-      memberEntity.limits.functionRegisterLimit -= uint16(requests[i].functions.length);      
+      unchecked { memberEntity.limits.functionRegisterLimit -= uint16(requests[i].functions.length); }
 
       ContextEntity storage contextEntity = _data.contextReadSlot(contextId);    
       require(contextEntity.bs.alstat == AlterabilityStatus.UPGRADABLE, "Illegal Upgrade");

@@ -68,7 +68,7 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
       _doMemberRegister(requests[i], memberEntity, functionId, senderId);      
     }
     
-    memberEntity.limits.memberRegisterLimit -= uint16(requests.length);
+    unchecked { memberEntity.limits.memberRegisterLimit -= uint16(requests.length); }
     return true;
   }
 
@@ -212,6 +212,7 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
         }),
         typeCount: 0,
         adminType: AgentType.NONE,
+        atype: AgentType.NONE,
         acstat: ActivityStatus.NONE,
         alstat: AlterabilityStatus.NONE
       });
@@ -242,6 +243,7 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
       }),
       typeCount: uint16(member.types.length()),
       adminType: _data.agents[member.ba.adminId].atype,
+      atype: member.ba.atype,
       acstat: member.ba.acstat,
       alstat: member.ba.alstat
     });

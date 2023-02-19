@@ -387,7 +387,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
       // update member context register limit
       MemberEntity storage memberEntity = _data.memberReadSlot(signerId);
       require(memberEntity.limits.contextRegisterLimit > 0, "Illegal RegisterLimit");
-      memberEntity.limits.contextRegisterLimit -= 1;
+      unchecked { memberEntity.limits.contextRegisterLimit -= 1; }
 
       // check realm 
       RealmEntity storage realmEntity = _data.realmReadSlot(request.realmId);

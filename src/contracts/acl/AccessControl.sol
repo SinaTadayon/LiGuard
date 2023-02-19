@@ -105,7 +105,7 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IACLGenerals, IACL {
       if(memberEntity.ba.acstat != ActivityStatus.ENABLED) return AuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN;
       if(!memberEntity.types.contains(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID)) {
         if(memberEntity.limits.callLimit > 0) {
-          memberEntity.limits.callLimit -= 1;
+          unchecked { memberEntity.limits.callLimit -= 1; }
         } else {
           return AuthorizationStatus.CALL_FORBIDDEN;
         }
@@ -147,7 +147,7 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IACLGenerals, IACL {
         if(memberEntity.ba.acstat != ActivityStatus.ENABLED) return AuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN;
         if(!memberEntity.types.contains(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID)) {
           if(memberEntity.limits.callLimit > 0) {
-            memberEntity.limits.callLimit -= 1;
+            unchecked { memberEntity.limits.callLimit -= 1; }
           } else {
             return AuthorizationStatus.CALL_FORBIDDEN;
           }
@@ -161,7 +161,7 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IACLGenerals, IACL {
         if(memberEntity.ba.acstat != ActivityStatus.ENABLED) return AuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN;
         if(!memberEntity.types.contains(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID)) {
           if(memberEntity.limits.callLimit > 0) {
-            memberEntity.limits.callLimit -= 1;
+            unchecked { memberEntity.limits.callLimit -= 1; }
           } else {
             return AuthorizationStatus.CALL_FORBIDDEN;
           }

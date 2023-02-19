@@ -63,7 +63,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
     // check and set
     MemberEntity storage memberEntity = _data.memberReadSlot(senderId);
     require(int16(uint16(memberEntity.limits.typeRegisterLimit)) - int8(uint8(requests.length)) >= 0, "Illegal RegisterLimit");
-    memberEntity.limits.typeRegisterLimit -= uint8(requests.length);    
+    unchecked { memberEntity.limits.typeRegisterLimit -= uint8(requests.length); }
 
     // fetch scope type and scope id of sender
     (ScopeType senderScopeType, bytes32 senderScopeId) = _doGetMemberScopeInfoFromType(_LIVELY_VERSE_TYPE_MASTER_TYPE_ID, senderId);    
@@ -145,12 +145,12 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
         require(requestScope.stype > oldScope.stype, "Illegal ScopeType");
       }
       require(oldScope.referredByAgent > 0, "Illeagl Referred");
-      oldScope.referredByAgent -= 1;
+      unchecked { oldScope.referredByAgent -= 1; }
       typeEntity.scopeId = requests[i].scopeId;
       emit TypeScopeUpdated(msg.sender, requests[i].id, requests[i].scopeId);
     }
     return true;
-  }
+  }  
 
   function typeUpdateActivityStatus(MemberSignature calldata memberSign, UpdateActivityRequest[] calldata requests) external returns (bool) {
     (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, ITypeManagement.typeUpdateActivityStatus.selector);
@@ -249,6 +249,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
         roleLimit: 0,
         roleCount: 0,    
         adminType: AgentType.NONE,
+        atype: AgentType.NONE,
         acstat: ActivityStatus.NONE,
         alstat: AlterabilityStatus.NONE,
         name: ""
@@ -261,6 +262,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
       roleLimit: te.roleLimit,
       roleCount: uint16(te.roles.length()),      
       adminType: _data.agents[te.ba.adminId].atype,
+      atype: te.ba.atype,
       acstat: te.ba.acstat,
       alstat: te.ba.alstat,
       name: te.name

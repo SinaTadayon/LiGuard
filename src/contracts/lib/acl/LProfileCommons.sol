@@ -71,8 +71,10 @@ library LProfileCommons {
       require(profileEntity.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Profile Updatable");
       require(profileMemberEntity.registerLimits.contextRegisterLimit > 0, "Illegal Member ContextRegisterLimit");
       require(profileEntity.registerLimits.contextRegisterLimit > 0, "Illegal Profile ContextRegisterLimit");
-      profileMemberEntity.registerLimits.contextRegisterLimit -= 1;
-      profileEntity.registerLimits.contextRegisterLimit -= 1;
+      unchecked {
+        profileMemberEntity.registerLimits.contextRegisterLimit -= 1;
+        profileEntity.registerLimits.contextRegisterLimit -= 1;
+      }
 
       // check realm 
       IACLCommons.RealmEntity storage realmEntity = profileEntity.profileRealmReadSlot(request.realmId);
@@ -104,10 +106,12 @@ library LProfileCommons {
     IACLCommons.ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(senderId);
     require(profileMemberEntity.ba.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
     require(profileEntity.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Profile Updatable");
-    require(int32(uint32(profileMemberEntity.registerLimits.domainRegisterLimit)) - int16(requestLength) >= 0, "Illegal Member DomainRegisterLimit");
-    require(int32(uint32(profileEntity.registerLimits.domainRegisterLimit)) - int16(requestLength) >= 0, "Illegal Profile DomainRegisterLimit");
-    profileMemberEntity.registerLimits.domainRegisterLimit -= requestLength; 
-    profileEntity.registerLimits.domainRegisterLimit -= requestLength;
+    unchecked {
+      require(int32(uint32(profileMemberEntity.registerLimits.domainRegisterLimit)) - int16(requestLength) >= 0, "Illegal Member DomainRegisterLimit");
+      require(int32(uint32(profileEntity.registerLimits.domainRegisterLimit)) - int16(requestLength) >= 0, "Illegal Profile DomainRegisterLimit");
+      profileMemberEntity.registerLimits.domainRegisterLimit -= requestLength; 
+      profileEntity.registerLimits.domainRegisterLimit -= requestLength;
+    }
   }
 
   function profileCheckMemberForFunctionRegister(IACLCommons.ProfileEntity storage profileEntity, uint16 requestLength, bytes32 signerId) external {
@@ -115,10 +119,12 @@ library LProfileCommons {
     IACLCommons.ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(signerId);
     require(profileMemberEntity.ba.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
     require(profileEntity.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Profile Updatable");
-    require(int32(profileMemberEntity.registerLimits.functionRegisterLimit) - int16(requestLength) >= 0, "Illegal Member FunctionRegisterLimit");
-    require(int32(profileEntity.registerLimits.functionRegisterLimit) - int16(requestLength) >= 0, "Illegal Profile FunctionRegisterLimit");
-    profileMemberEntity.registerLimits.functionRegisterLimit -= requestLength; 
-    profileEntity.registerLimits.functionRegisterLimit -= requestLength;
+    unchecked {
+      require(int32(profileMemberEntity.registerLimits.functionRegisterLimit) - int16(requestLength) >= 0, "Illegal Member FunctionRegisterLimit");
+      require(int32(profileEntity.registerLimits.functionRegisterLimit) - int16(requestLength) >= 0, "Illegal Profile FunctionRegisterLimit");
+      profileMemberEntity.registerLimits.functionRegisterLimit -= requestLength; 
+      profileEntity.registerLimits.functionRegisterLimit -= requestLength;
+    }
   }
 
   function profileCheckMemberForRealmRegister(IACLCommons.ProfileEntity storage profileEntity, uint16 requestLength, bytes32 senderId) external {
@@ -126,10 +132,12 @@ library LProfileCommons {
     IACLCommons.ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(senderId);
     require(profileMemberEntity.ba.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
     require(profileEntity.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Profile Updatable");
-    require(int32(uint32(profileMemberEntity.registerLimits.realmRegisterLimit)) - int16(requestLength) >= 0, "Illegal Member RealmRegisterLimit");
-    require(int32(uint32(profileEntity.registerLimits.realmRegisterLimit)) - int16(requestLength) >= 0, "Illegal Profile MemberRegisterLimit");
-    profileMemberEntity.registerLimits.realmRegisterLimit -= requestLength; 
-    profileEntity.registerLimits.realmRegisterLimit -= requestLength;
+    unchecked {
+      require(int32(uint32(profileMemberEntity.registerLimits.realmRegisterLimit)) - int16(requestLength) >= 0, "Illegal Member RealmRegisterLimit");
+      require(int32(uint32(profileEntity.registerLimits.realmRegisterLimit)) - int16(requestLength) >= 0, "Illegal Profile MemberRegisterLimit");
+      profileMemberEntity.registerLimits.realmRegisterLimit -= requestLength; 
+      profileEntity.registerLimits.realmRegisterLimit -= requestLength;
+    }
   }
 
   function profileCheckMemberForMemberRegister(IACLCommons.ProfileEntity storage profileEntity, IACLCommons.ProfileMemberEntity storage, uint16 requestLength, bytes32 senderId) external {
@@ -137,10 +145,12 @@ library LProfileCommons {
     IACLCommons.ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(senderId);
     require(profileMemberEntity.ba.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
     require(profileEntity.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Profile Updatable");
-    require(int32(profileMemberEntity.registerLimits.memberRegisterLimit) - int16(requestLength) >= 0, "Illegal Member MemberRegisterLimit");
-    require(int32(profileEntity.registerLimits.memberRegisterLimit) - int16(requestLength) >= 0, "Illegal Profile MemberRegisterLimit");
-    profileMemberEntity.registerLimits.memberRegisterLimit -= requestLength;
-    profileEntity.registerLimits.memberRegisterLimit -= requestLength;  
+    unchecked {
+      require(int32(profileMemberEntity.registerLimits.memberRegisterLimit) - int16(requestLength) >= 0, "Illegal Member MemberRegisterLimit");
+      require(int32(profileEntity.registerLimits.memberRegisterLimit) - int16(requestLength) >= 0, "Illegal Profile MemberRegisterLimit");
+      profileMemberEntity.registerLimits.memberRegisterLimit -= requestLength;
+      profileEntity.registerLimits.memberRegisterLimit -= requestLength;  
+    }
   }
 
   function profileDomainRegister(IACLCommons.ProfileEntity storage profileEntity, IProfileDomainManagement.ProfileDomainRegisterRequest calldata request, IACLCommons.FunctionEntity storage functionEntity, bytes32 senderId) external returns (bytes32) {
@@ -282,10 +292,11 @@ library LProfileCommons {
           policyRegisterLimit: 0
         }),
         adminType: IACLCommons.AgentType.NONE,
+        atype: IACLCommons.AgentType.NONE,
         acstat: IACLCommons.ActivityStatus.NONE,
         alstat: IACLCommons.AlterabilityStatus.NONE
       });
-    }
+    }    
 
     return IProfileMemberManagement.ProfileMemberInfo({
       adminId: member.ba.adminId,
@@ -304,6 +315,7 @@ library LProfileCommons {
         policyRegisterLimit:member.registerLimits.policyRegisterLimit
       }),
       adminType: profileEntity.agents[member.ba.adminId].atype,
+      atype: member.ba.atype,
       acstat: member.ba.acstat,
       alstat: member.ba.alstat
     });

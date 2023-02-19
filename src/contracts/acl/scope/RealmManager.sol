@@ -57,8 +57,10 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     
     // check and set
     MemberEntity storage memberEntity = _data.memberReadSlot(senderId);
-    require(int16(uint16(memberEntity.limits.realmRegisterLimit)) - int8(uint8(requests.length)) >= 0, "Illegal RegisterLimit");
-    memberEntity.limits.realmRegisterLimit -= uint8(requests.length);    
+    unchecked { 
+      require(int16(uint16(memberEntity.limits.realmRegisterLimit)) - int8(uint8(requests.length)) >= 0, "Illegal RegisterLimit");
+      memberEntity.limits.realmRegisterLimit -= uint8(requests.length); 
+    }
 
     // fetch scope type and scope id of sender
     (ScopeType memberScopeType, bytes32 memberScopeId) = _doGetMemberScopeInfoFromType(_LIVELY_VERSE_SCOPE_MASTER_TYPE_ID, senderId);    

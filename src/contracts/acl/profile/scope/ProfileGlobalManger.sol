@@ -268,7 +268,7 @@ contract ProfileGlobalManager is ACLStorage, BaseUUPSProxy, IProfileGlobalManage
   function _doAclHasAccess(ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 memberId) internal {
     
     if(profileEntity.limits.profileCallLimit > 0) {
-      profileEntity.limits.profileCallLimit -= 1;
+      unchecked { profileEntity.limits.profileCallLimit -= 1; }
     } else {
       LACLUtils.generateProfileAuthorizationError(IProfileACL.ProfileAuthorizationStatus.PROFILE_CALL_FORBIDDEN);
     }
@@ -282,7 +282,7 @@ contract ProfileGlobalManager is ACLStorage, BaseUUPSProxy, IProfileGlobalManage
       if(profileMemberEntity.ba.acstat != ActivityStatus.ENABLED) LACLUtils.generateProfileAuthorizationError(IProfileACL.ProfileAuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN); 
       if(profileEntity.owner != profileMemberEntity.account) {
         if(profileMemberEntity.callLimit > 0) {
-          profileMemberEntity.callLimit -= 1;
+          unchecked { profileMemberEntity.callLimit -= 1; }
         } else {
           LACLUtils.generateProfileAuthorizationError(IProfileACL.ProfileAuthorizationStatus.MEMBER_CALL_FORBIDDEN);
         }
@@ -315,7 +315,7 @@ contract ProfileGlobalManager is ACLStorage, BaseUUPSProxy, IProfileGlobalManage
         if(profileMemberEntity.ba.acstat != ActivityStatus.ENABLED) LACLUtils.generateProfileAuthorizationError(IProfileACL.ProfileAuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN);        
         if(profileEntity.owner != profileMemberEntity.account) {
           if(profileMemberEntity.callLimit > 0) {
-            profileMemberEntity.callLimit -= 1;
+            unchecked { profileMemberEntity.callLimit -= 1; }
           } else {
             LACLUtils.generateProfileAuthorizationError(IProfileACL.ProfileAuthorizationStatus.MEMBER_CALL_FORBIDDEN);
           }
@@ -358,7 +358,7 @@ contract ProfileGlobalManager is ACLStorage, BaseUUPSProxy, IProfileGlobalManage
     if(profileMemberEntity.ba.acstat != ActivityStatus.ENABLED) LACLUtils.generateProfileAuthorizationError(IProfileACL.ProfileAuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN);
     if(profileEntity.owner != profileMemberEntity.account) {
       if(profileMemberEntity.callLimit > 0) {
-        profileMemberEntity.callLimit -= 1;
+        unchecked { profileMemberEntity.callLimit -= 1; }
       } else {
         LACLUtils.generateProfileAuthorizationError(IProfileACL.ProfileAuthorizationStatus.MEMBER_CALL_FORBIDDEN);
       }

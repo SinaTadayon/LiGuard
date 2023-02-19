@@ -220,8 +220,9 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
     require(accountBalance >= amount, "Illegal Balance");
     unchecked {
       _data.accounts[account].balance = accountBalance - amount;
+      _totalSupply -= amount;
     }
-    _totalSupply -= amount;
+        
     emit Burn(_msgSender(), account, amount, _totalSupply);
     return _totalSupply;
   }

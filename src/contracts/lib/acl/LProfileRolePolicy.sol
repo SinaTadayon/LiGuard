@@ -56,10 +56,12 @@ library LProfileRolePolicy {
     IACLCommons.ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(senderId);
     require(profileMemberEntity.ba.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
     require(profileEntity.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Profile Updatable");
-    require(int32(profileMemberEntity.registerLimits.roleRegisterLimit) - int16(requestLength) >= 0, "Illegal Member RoleRegisterLimit");
-    require(int32(profileEntity.registerLimits.roleRegisterLimit) - int16(requestLength) >= 0, "Illegal Profile RoleRegisterLimit");
-    profileMemberEntity.registerLimits.roleRegisterLimit -= requestLength; 
-    profileEntity.registerLimits.roleRegisterLimit -= requestLength;
+    unchecked {
+      require(int32(profileMemberEntity.registerLimits.roleRegisterLimit) - int16(requestLength) >= 0, "Illegal Member RoleRegisterLimit");
+      require(int32(profileEntity.registerLimits.roleRegisterLimit) - int16(requestLength) >= 0, "Illegal Profile RoleRegisterLimit");
+      profileMemberEntity.registerLimits.roleRegisterLimit -= requestLength; 
+      profileEntity.registerLimits.roleRegisterLimit -= requestLength;
+    }
   }
 
   function profileCheckMemberForPolicyRegister(IACLCommons.ProfileEntity storage profileEntity, uint16 requestLength, bytes32 senderId) external {
@@ -67,10 +69,12 @@ library LProfileRolePolicy {
     IACLCommons.ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(senderId);
     require(profileMemberEntity.ba.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
     require(profileEntity.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Profile Updatable");
-    require(int32(uint32(profileMemberEntity.registerLimits.policyRegisterLimit)) - int16(requestLength) >= 0, "Illegal Member PolicyRegisterLimit");
-    require(int32(uint32(profileEntity.registerLimits.policyRegisterLimit)) - int16(requestLength) >= 0, "Illegal Profile PolicyRegisterLimit");
-    profileMemberEntity.registerLimits.policyRegisterLimit -= requestLength; 
-    profileEntity.registerLimits.policyRegisterLimit -= requestLength;  
+    unchecked {
+      require(int32(uint32(profileMemberEntity.registerLimits.policyRegisterLimit)) - int16(requestLength) >= 0, "Illegal Member PolicyRegisterLimit");
+      require(int32(uint32(profileEntity.registerLimits.policyRegisterLimit)) - int16(requestLength) >= 0, "Illegal Profile PolicyRegisterLimit");
+      profileMemberEntity.registerLimits.policyRegisterLimit -= requestLength; 
+      profileEntity.registerLimits.policyRegisterLimit -= requestLength;  
+    }
   }
 
   function profileRoleRegister(IProfileRoleManagement.ProfileRoleRegisterRequest calldata request, IACLCommons.ProfileEntity storage profileEntity, IACLCommons.FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId) external returns (bytes32, bytes32) {
@@ -266,6 +270,7 @@ library LProfileRolePolicy {
         memberLimit: 0,
         memberCount: 0,
         adminType: IACLCommons.AgentType.NONE,
+        atype: IACLCommons.AgentType.NONE,
         acstat: IACLCommons.ActivityStatus.NONE,
         alstat: IACLCommons.AlterabilityStatus.NONE,
         name: ""
@@ -278,6 +283,7 @@ library LProfileRolePolicy {
       memberLimit: roleEntity.memberLimit,
       memberCount: roleEntity.memberCount,
       adminType: profileEntity.agents[roleEntity.ba.adminId].atype,
+      atype: roleEntity.ba.atype,
       acstat: roleEntity.ba.acstat,
       alstat: roleEntity.ba.alstat,
       name: roleEntity.name
@@ -334,7 +340,7 @@ library LProfileRolePolicy {
     _doProfileCheckRoleRequestScope(profileEntity, request.scopeId, typeEntity.scopeId, profileId);
     IACLCommons.BaseScope storage oldScope = profileEntity.scopes[roleEntity.scopeId];
     require(oldScope.referredByAgent > 0, "Illeagl Referred");
-    oldScope.referredByAgent -= 1;
+    unchecked { oldScope.referredByAgent -= 1; }
     roleEntity.scopeId = request.scopeId;
 
     return true;

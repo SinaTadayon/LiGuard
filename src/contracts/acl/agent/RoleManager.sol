@@ -64,7 +64,7 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
     // check and set
     MemberEntity storage memberEntity = _data.memberReadSlot(senderId);
     require(int16(uint16(memberEntity.limits.roleRegisterLimit)) - int8(uint8(requests.length)) >= 0, "Illegal RegisterLimit");
-    memberEntity.limits.roleRegisterLimit -= uint8(requests.length);            
+    unchecked { memberEntity.limits.roleRegisterLimit -= uint8(requests.length); }
 
     for(uint i = 0; i < requests.length; i++) {
       // bytes32 newRoleId = LACLUtils.generateId(requests[i].name);
@@ -117,7 +117,7 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
       _getAndCheckRequestScope(requests[i].scopeId, typeEntity.scopeId);
       BaseScope storage oldScope = _data.scopes[roleEntity.scopeId];
       require(oldScope.referredByAgent > 0, "Illeagl Referred");
-      oldScope.referredByAgent -= 1;
+      unchecked { oldScope.referredByAgent -= 1; }
       roleEntity.scopeId = requests[i].scopeId;
       emit RoleScopeUpdated(msg.sender, requests[i].id, requests[i].scopeId);
     }
@@ -220,9 +220,8 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
         require(typeEntity.members[requests[i].members[j]] != bytes32(0), "Not Found");
         require(roleEntity.memberCount > 0, "Illegal Count");
         delete typeEntity.members[requests[i].members[j]];
-        unchecked { 
-          roleEntity.memberCount -= 1; 
-        }
+        unchecked { roleEntity.memberCount -= 1; }
+
         memberEntity.types.remove(roleEntity.typeId);
         if(memberEntity.types.length() == 0) { 
           delete memberEntity.ba;
@@ -235,8 +234,7 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
       }
     }
     return true;
-  }
-  
+  }  
  
   function roleCheckId(bytes32 roleId) external view returns (bool) {
     return _data.agents[roleId].atype == AgentType.ROLE;
@@ -290,6 +288,7 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
         memberLimit: 0,
         memberCount: 0,
         adminType: AgentType.NONE,
+        atype: AgentType.NONE,
         acstat: ActivityStatus.NONE,
         alstat: AlterabilityStatus.NONE,
         name: ""
@@ -302,6 +301,7 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
       memberLimit: roleEntity.memberLimit,
       memberCount: roleEntity.memberCount,
       adminType: _data.agents[roleEntity.ba.adminId].atype,
+      atype: roleEntity.ba.atype,
       acstat: roleEntity.ba.acstat,
       alstat: roleEntity.ba.alstat,
       name: roleEntity.name

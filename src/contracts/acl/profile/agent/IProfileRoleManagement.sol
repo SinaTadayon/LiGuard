@@ -43,6 +43,7 @@ interface IProfileRoleManagement is IACLCommons{
     uint24 memberLimit;
     uint24 memberCount;
     AgentType adminType;
+    AgentType atype;
     ActivityStatus acstat;
     AlterabilityStatus alstat;   
     string name;    

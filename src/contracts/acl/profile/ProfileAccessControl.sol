@@ -107,7 +107,7 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
   function _doProfileHasAccess(ProfileEntity storage profileEntity, bytes32 memberId, FunctionEntity storage functionEntity) internal returns (ProfileAuthorizationStatus) {
     
     if(profileEntity.limits.profileCallLimit > 0) {
-      profileEntity.limits.profileCallLimit -= 1;
+      unchecked { profileEntity.limits.profileCallLimit -= 1; }
     } else {
       return ProfileAuthorizationStatus.PROFILE_CALL_FORBIDDEN;
     }
@@ -120,7 +120,7 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
       if(profileMemberEntity.ba.acstat != ActivityStatus.ENABLED) return ProfileAuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN; 
       if(profileEntity.owner != profileMemberEntity.account) {
         if(profileMemberEntity.callLimit > 0) {
-          profileMemberEntity.callLimit -= 1;
+          unchecked { profileMemberEntity.callLimit -= 1; }
         } else {
           return ProfileAuthorizationStatus.MEMBER_CALL_FORBIDDEN;
         }
@@ -153,7 +153,7 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
         if(profileMemberEntity.ba.acstat != ActivityStatus.ENABLED) return ProfileAuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN;        
         if(profileEntity.owner != profileMemberEntity.account) {
           if(profileMemberEntity.callLimit > 0) {
-            profileMemberEntity.callLimit -= 1;
+            unchecked { profileMemberEntity.callLimit -= 1; }
           } else {
             return ProfileAuthorizationStatus.MEMBER_CALL_FORBIDDEN;
           }
@@ -166,7 +166,7 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
         if(profileMemberEntity.ba.acstat != ActivityStatus.ENABLED) return ProfileAuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN;
         if(profileEntity.owner != profileMemberEntity.account) {
           if(profileMemberEntity.callLimit > 0) {
-            profileMemberEntity.callLimit -= 1;
+            unchecked { profileMemberEntity.callLimit -= 1; }
           } else {
             return ProfileAuthorizationStatus.MEMBER_CALL_FORBIDDEN;
           }
@@ -222,7 +222,7 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
    function _doAclHasAccess(ProfileEntity storage profileEntity, bytes32 memberId, FunctionEntity storage functionEntity) internal {
     
     if(profileEntity.limits.profileCallLimit > 0) {
-      profileEntity.limits.profileCallLimit -= 1;
+      unchecked { profileEntity.limits.profileCallLimit -= 1; }
     } else {
       LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.PROFILE_CALL_FORBIDDEN);
     }
@@ -236,7 +236,7 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
       if(profileMemberEntity.ba.acstat != ActivityStatus.ENABLED) LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN); 
       if(profileEntity.owner != profileMemberEntity.account) {
         if(profileMemberEntity.callLimit > 0) {
-          profileMemberEntity.callLimit -= 1;
+          unchecked { profileMemberEntity.callLimit -= 1; }
         } else {
           LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.MEMBER_CALL_FORBIDDEN);
         }
@@ -269,7 +269,7 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
         if(profileMemberEntity.ba.acstat != ActivityStatus.ENABLED) LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN);        
         if(profileEntity.owner != profileMemberEntity.account) {
           if(profileMemberEntity.callLimit > 0) {
-            profileMemberEntity.callLimit -= 1;
+            unchecked { profileMemberEntity.callLimit -= 1; }
           } else {
             LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.MEMBER_CALL_FORBIDDEN);
           }
@@ -282,7 +282,7 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
         if(profileMemberEntity.ba.acstat != ActivityStatus.ENABLED) LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN);
         if(profileEntity.owner != profileMemberEntity.account) {
           if(profileMemberEntity.callLimit > 0) {
-            profileMemberEntity.callLimit -= 1;
+            unchecked { profileMemberEntity.callLimit -= 1; }
           } else {
             LACLUtils.generateProfileAuthorizationError(ProfileAuthorizationStatus.MEMBER_CALL_FORBIDDEN);
           }

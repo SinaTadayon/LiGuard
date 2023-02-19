@@ -65,7 +65,7 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
       // update member profile register limit
       MemberEntity storage memberEntity = _data.memberReadSlot(senderId);
       require(int32(uint32(memberEntity.limits.profileRegisterLimit)) - int16(uint16(requests.length)) >= 0, "Illegal RegisterLimit");
-      memberEntity.limits.profileRegisterLimit -= uint16(requests.length);
+      unchecked { memberEntity.limits.profileRegisterLimit -= uint16(requests.length); }
 
     for (uint i = 0; i < requests.length; i++) {
       _doProfileRegister(requests[i], msg.sender, senderId, functionId);    

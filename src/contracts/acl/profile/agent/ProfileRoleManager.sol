@@ -149,7 +149,7 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
               require(roleEntity.memberCount > 1, "Illegal Admin Revoke");
             }
             RoleEntity storage currentRoleEntity = _doGetEntityAndCheckAdminAccess(profileEntity, functionEntity, currentRoleId, senderId);
-            require(currentRoleEntity.memberCount > 0, "Illegal MemberTotal");
+            require(currentRoleEntity.memberCount > 0, "Illegal MemberCount");
             unchecked { currentRoleEntity.memberCount -= 1; }          
           }
           emit ProfileRoleMemberRevoked(msg.sender, profileId, typeEntity.members[requests[i].members[j]], requests[i].members[j], roleEntity.typeId);
@@ -171,7 +171,7 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
       }  
     }
     return true;
-  } 
+  }   
 
   function profileRoleRevokeMembers(ProfileMemberSignature calldata memberSign, ProfileRoleRevokeMembersRequest[] calldata requests) external returns (bool) {
     (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId) = _accessPermission(memberSign, IProfileRoleManagement.profileRoleRevokeMembers.selector);
@@ -188,11 +188,9 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
         }
 
         require(typeEntity.members[requests[i].members[j]] != bytes32(0), "Not Found");
-        require(roleEntity.memberCount > 0, "Illegal MemberTotal");
+        require(roleEntity.memberCount > 0, "Illegal MemberCount");
         delete typeEntity.members[requests[i].members[j]];
-        unchecked { 
-          roleEntity.memberCount -= 1; 
-        }
+        unchecked { roleEntity.memberCount -= 1; }
         profileMemberEntity.types.remove(roleEntity.typeId);
         
         // check and remove member from admin

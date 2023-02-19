@@ -63,7 +63,7 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
     // check and set
     MemberEntity storage memberEntity = _data.memberReadSlot(senderId);
     require(int16(uint16(memberEntity.limits.policyRegisterLimit)) - int8(uint8(requests.length)) >= 0, "Illegal RegisterLimit");
-    memberEntity.limits.policyRegisterLimit -= uint8(requests.length);     
+    unchecked { memberEntity.limits.policyRegisterLimit -= uint8(requests.length); }
 
     for(uint i = 0; i < requests.length; i++) {
       bytes32 newPolicyId = LACLUtils.generateId(requests[i].name);

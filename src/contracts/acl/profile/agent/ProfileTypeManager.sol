@@ -67,7 +67,7 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
     require(int32(profileMemberEntity.registerLimits.typeRegisterLimit) - int16(uint16(requests.length)) >= 0, "Illegal Member TypeRegisterLimit");
     require(int32(profileEntity.registerLimits.typeRegisterLimit) - int16(uint16(requests.length)) >= 0, "Illegal Profile TypeRegisterLimit");
     profileMemberEntity.registerLimits.typeRegisterLimit -= uint16(requests.length); 
-    profileEntity.registerLimits.typeRegisterLimit -= uint16(requests.length);
+    unchecked { profileEntity.registerLimits.typeRegisterLimit -= uint16(requests.length); }
 
     // fetch scope type and scope id of sender
     (ScopeType senderScopeType, bytes32 senderScopeId) = _doGetMemberScopeInfoFromType(profileEntity, _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID, senderId);
@@ -210,6 +210,7 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
         roleLimit: 0,
         roleCount: 0,    
         adminType: AgentType.NONE,
+        atype: AgentType.NONE,
         acstat: ActivityStatus.NONE,
         alstat: AlterabilityStatus.NONE,
         name: ""
@@ -222,6 +223,7 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
       roleLimit: te.roleLimit,
       roleCount: uint16(te.roles.length()),
       adminType: profileEntity.agents[te.ba.adminId].atype,
+      atype: te.ba.atype,
       acstat: te.ba.acstat,
       alstat: te.ba.alstat,
       name: te.name
@@ -371,7 +373,7 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
       RoleEntity storage memberAgentRole = profileEntity.profileRoleReadSlot(memberRoleId);
       senderScopeType = profileEntity.scopes[memberAgentRole.scopeId].stype;
       senderScopeId = memberAgentRole.scopeId;
-    }
+    }    
 
     BaseScope storage requestScope = _getAndCheckRequestScope(profileEntity, request.scopeId, senderScopeId, senderScopeType, profileId);
     BaseScope storage oldScope = profileEntity.scopes[typeEntity.scopeId];
@@ -379,7 +381,7 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
       require(requestScope.stype > oldScope.stype, "Illegal ScopeType");
     }    
     require(oldScope.referredByAgent > 0, "Illeagl Referred");
-    oldScope.referredByAgent -= 1;
+    unchecked { oldScope.referredByAgent -= 1; }
     typeEntity.scopeId = request.scopeId;
     emit ProfileTypeScopeUpdated(msg.sender, profileId, request.entityId, request.scopeId);
   }
