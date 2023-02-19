@@ -90,7 +90,13 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
     contextRequests[0].alstat = IACLCommons.AlterabilityStatus.UPGRADABLE;
     contextRequests[0].signature = request.signature;
 
-    IContextManagement(_accessControlId).contextRegister(contextRequests);
+    IACLCommons.MemberSignature memory memberSignRequest = IACLCommons.MemberSignature({
+      account: address(0),
+      expiredAt: 0,  
+      signature: bytes("")
+    });
+
+    IContextManagement(_accessControlId).contextRegister(memberSignRequest, contextRequests);
   }
 
   function _createFunctions(AssetInitRequest calldata request) internal {
@@ -187,7 +193,13 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
     requests[0].contractId =  address(0);
     requests[0].functions = functionRequests;
 
-    IFunctionManagement(_accessControlId).functionRegister(requests);
+    IACLCommons.MemberSignature memory memberSignRequest = IACLCommons.MemberSignature({
+      account: address(0),
+      expiredAt: 0,  
+      signature: bytes("")
+    });
+
+    IFunctionManagement(_accessControlId).functionRegister(memberSignRequest, requests);
   }
 
   /**

@@ -36,13 +36,13 @@ interface IProfileGlobalManagement is IACLCommons {
   
   event ProfileGlobalAlterabilityUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed globalId, AlterabilityStatus alstat);
 
-  function profileGlobalUpdateActivityStatus(bytes32 profileId, ActivityStatus acstat) external returns (bool);
+  function profileGlobalUpdateActivityStatus(ProfileMemberSignature calldata memberSign, ActivityStatus acstat) external returns (bool);
 
-  function profileGlobalUpdateAlterabilityStatus(bytes32 profileId, AlterabilityStatus alstat) external returns (bool);
+  function profileGlobalUpdateAlterabilityStatus(ProfileMemberSignature calldata memberSign, AlterabilityStatus alstat) external returns (bool);
 
-  function profileGlobalUpdateAdmin(bytes32 profileId, bytes32 adminId) external returns (bool);
+  function profileGlobalUpdateAdmin(ProfileMemberSignature calldata memberSign, bytes32 adminId) external returns (bool);
 
-  function profileGlobalUpdateDomainLimit(bytes32 profileId, uint16 domainLimit) external returns (bool);
+  function profileGlobalUpdateDomainLimit(ProfileMemberSignature calldata memberSign, uint16 domainLimit) external returns (bool);
 
   function profileGlobalCheckAdmin(bytes32 profileId, address account) external view returns (bool);
 

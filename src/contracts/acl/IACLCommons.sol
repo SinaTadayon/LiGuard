@@ -57,6 +57,12 @@ interface IACLCommons{
     LOCK            // 255
   }
 
+  struct MemberSignature {
+    address account;
+    uint64 expiredAt;  
+    bytes signature;
+  }
+
   struct BaseAgent {
     bytes32 adminId;
     AgentType atype;
@@ -196,6 +202,13 @@ interface IACLCommons{
 
   ////////////////////////////////////////////////////////////////////
   // Profiles 
+
+  struct ProfileMemberSignature {
+    string profileName;
+    address account;
+    uint64 expiredAt;  
+    bytes signature;
+  }
 
   struct ProfileRegisterLimit {
     uint32 memberRegisterLimit;

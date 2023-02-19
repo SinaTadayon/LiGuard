@@ -59,52 +59,63 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
   }
 
   // called by system admin
-  function profileContextRegister(bytes32 profileId, ProfileContextRegisterRequest[] calldata requests) external returns (bool) {
+  function profileContextRegister(ProfileMemberSignature calldata memberSign, ProfileContextRegisterRequest[] calldata requests) external returns (bool) {
     
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");   
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");
+    require(bytes(memberSign.profileName).length > 0, "Illegal ProfileName");
+    bytes32 profileId = LACLUtils.generateId(memberSign.profileName);
+
+    address signer;
+    if(memberSign.signature.length > 0) {
+      require(memberSign.expiredAt > block.timestamp, "Expired Signature");
+      signer = LACLUtils.getProfileMemeberSignerAddress(memberSign, PROFILE_MEMBER_SIGNATURE_MESSAGE_TYPEHASH);
+    } else {
+      signer = msg.sender;
+    }
+
     for (uint256 i = 0; i < requests.length; i++) {
-      address signer;
       address contractId;      
       if(requests[i].contractId == address(0)) {
-        if(requests[i].signature.length > 0) {
-          signer = _doGetSignerAddress(
-            requests[i].signature, 
-            _getPredictContextMessageHash(profileId, requests[i].deployer, requests[i].subject, requests[i].realmId)
-          );
-        } else {
-          signer = msg.sender;
+        if(memberSign.signature.length == 0) {
+          if(requests[i].signature.length > 0) {
+            signer = _doGetSignerAddress(
+              requests[i].signature, 
+              _getPredictContextMessageHash(profileId, requests[i].deployer, requests[i].subject, requests[i].realmId)
+            );
+          } else {
+            signer = msg.sender;
+          }
         }
 
         contractId = requests[i].subject.predictDeterministicAddress(requests[i].salt, requests[i].deployer);
         
       } else {
-        if(requests[i].signature.length > 0) {
-          bytes32 structHash = _getContextMessageHash(
-            profileId,
-            requests[i].contractId, 
-            LACLUtils.generateHash(requests[i].name), 
-            LACLUtils.generateHash(requests[i].version),
-            requests[i].realmId
-          );
-          signer = _doGetSignerAddress(requests[i].signature, structHash);
-        } else {
-          signer = msg.sender;
-        }    
+        if(memberSign.signature.length == 0) {
+          if(requests[i].signature.length > 0) {
+            bytes32 structHash = _getContextMessageHash(
+              profileId,
+              requests[i].contractId, 
+              LACLUtils.generateHash(requests[i].name), 
+              LACLUtils.generateHash(requests[i].version),
+              requests[i].realmId
+            );
+            signer = _doGetSignerAddress(requests[i].signature, structHash);
+          } else {
+            signer = msg.sender;
+          }
+        }
         contractId = requests[i].contractId;
       }      
 
       bytes32 newContextId = LProfileCommons.profileRegisterContext(_data, requests[i], profileId, contractId, signer);
-      if(requests[i].signature.length == 0) {
-        signer = address(0);
-      }
+
       emit ProfileContextRegistered(      
-        msg.sender,
+        signer,        
         profileId,
         newContextId, 
         requests[i].realmId,
         requests[i].adminId,
         contractId,
-        signer,
         requests[i].deployer,
         requests[i].subject      
       );    
@@ -113,8 +124,8 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
     return true;
   }  
 
-  function profileContextUpdateActivityStatus(bytes32 profileId, ProfileUpdateActivityRequest[] calldata requests) external returns (bool) {
-    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 senderId) = _accessPermission(profileId, IProfileContextManagement.profileContextUpdateActivityStatus.selector);
+  function profileContextUpdateActivityStatus(ProfileMemberSignature calldata memberSign, ProfileUpdateActivityRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId) = _accessPermission(memberSign, IProfileContextManagement.profileContextUpdateActivityStatus.selector);
     for (uint i = 0; i < requests.length; i++) {
       ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(profileEntity, functionEntity, requests[i].entityId, senderId);
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");    
@@ -124,8 +135,8 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
     return true;
   }
 
-  function profileContextUpdateAlterabilityStatus(bytes32 profileId, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool) {
-    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 senderId) = _accessPermission(profileId, IProfileContextManagement.profileContextUpdateAlterabilityStatus.selector);
+  function profileContextUpdateAlterabilityStatus(ProfileMemberSignature calldata memberSign, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId) = _accessPermission(memberSign, IProfileContextManagement.profileContextUpdateAlterabilityStatus.selector);
     for (uint i = 0; i < requests.length; i++) {
       ContextEntity storage contextEntity = profileEntity.profileContextReadSlot(requests[i].entityId);
       IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, functionEntity, contextEntity.bs.adminId, senderId);
@@ -137,8 +148,8 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
     return true;
   }
 
-  function profileContextUpdateAdmin(bytes32 profileId, ProfileUpdateAdminRequest[] calldata requests) external returns (bool) {
-    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 senderId) = _accessPermission(profileId, IProfileContextManagement.profileContextUpdateAdmin.selector);
+  function profileContextUpdateAdmin(ProfileMemberSignature calldata memberSign, ProfileUpdateAdminRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId) = _accessPermission(memberSign, IProfileContextManagement.profileContextUpdateAdmin.selector);
     for (uint i = 0; i < requests.length; i++) {
       ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(profileEntity, functionEntity, requests[i].entityId, senderId);
       
@@ -164,8 +175,8 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
     return true;
   }
 
-  function profileContextUpdateFunctionLimit(bytes32 profileId, ProfileContextUpdateFunctionLimitRequest[] calldata requests) external returns (bool) {
-    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 senderId) = _accessPermission(profileId, IProfileContextManagement.profileContextUpdateFunctionLimit.selector);     
+  function profileContextUpdateFunctionLimit(ProfileMemberSignature calldata memberSign, ProfileContextUpdateFunctionLimitRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId) = _accessPermission(memberSign, IProfileContextManagement.profileContextUpdateFunctionLimit.selector);     
     for (uint i = 0; i < requests.length; i++) {    
       ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(profileEntity, functionEntity, requests[i].contextId, senderId);
       require(requests[i].functionLimit > contextEntity.functions.length(), "Illegal Limit");
@@ -282,18 +293,29 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
     return LProfileCommons.profileAgentGetScopeInfo(profileEntity, agentId);
   }
 
-  function _accessPermission(bytes32 profileId, bytes4 selector) internal returns (ProfileEntity storage, FunctionEntity storage, bytes32) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
-    
+  function _accessPermission(ProfileMemberSignature calldata memberSign, bytes4 selector) internal returns (ProfileEntity storage, FunctionEntity storage, bytes32, bytes32) {
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");
+    require(bytes(memberSign.profileName).length > 0, "Illegal ProfileName");
+
+    address signer;
+
+    if(memberSign.signature.length > 0) {
+      require(memberSign.expiredAt > block.timestamp, "Expired Signature");
+      signer = LACLUtils.getProfileMemeberSignerAddress(memberSign, PROFILE_MEMBER_SIGNATURE_MESSAGE_TYPEHASH);
+    } else {
+      signer = msg.sender;
+    }
+
+    bytes32 profileId = LACLUtils.generateId(memberSign.profileName);
     address functionFacetId = _data.selectors[selector];
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector); 
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
+    bytes32 senderId = LACLUtils.accountGenerateId(signer);
 
     ProfileAccessControl(payable(address(this))).profileAclHasMemberAccess(profileId, functionId, senderId);    
     
     ProfileEntity storage profileEntity = _data.profiles[profileId];
     FunctionEntity storage functionEntity = _data.functionReadSlot(functionId);      
-    return (profileEntity, functionEntity, senderId);
+    return (profileEntity, functionEntity, profileId, senderId);
   }
 
   function _doGetEntityAndCheckAdminAccess(ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 contextId, bytes32 senderId) internal view returns (ContextEntity storage) {

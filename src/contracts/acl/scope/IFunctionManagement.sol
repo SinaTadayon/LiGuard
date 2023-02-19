@@ -64,8 +64,7 @@ interface IFunctionManagement is IACLCommons{
     bytes32 indexed contextId,
     bytes32 indexed functionId,
     bytes32 adminId, 
-    bytes32 agentId,
-    address signer
+    bytes32 agentId
   );
 
   event FunctionAdminUpdated(address indexed sender, bytes32 indexed functionId, bytes32 indexed adminId);
@@ -78,17 +77,17 @@ interface IFunctionManagement is IACLCommons{
 
   event FunctionPolicyUpdated(address indexed sender, bytes32 indexed functionId, uint8 policyCode);
 
-  function functionRegister(FunctionRegisterRequest[] calldata requests) external returns (bool);
+  function functionRegister(MemberSignature calldata memberSign, FunctionRegisterRequest[] calldata requests) external returns (bool);
 
-  function functionUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);
+  function functionUpdateAdmin(MemberSignature calldata memberSign, UpdateAdminRequest[] calldata requests) external returns (bool);
 
-  function functionUpdateAgent(FunctionUpdateAgentRequest[] calldata requests) external returns (bool);
+  function functionUpdateAgent(MemberSignature calldata memberSign, FunctionUpdateAgentRequest[] calldata requests) external returns (bool);
 
-  function functionUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
+  function functionUpdateActivityStatus(MemberSignature calldata memberSign, UpdateActivityRequest[] calldata requests) external returns (bool);
 
-  function functionUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool);
+  function functionUpdateAlterabilityStatus(MemberSignature calldata memberSign, UpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
-  function functionUpdatePolicyCode(FunctionUpdatePolicyRequest[] calldata requests) external returns (bool); 
+  function functionUpdatePolicyCode(MemberSignature calldata memberSign, FunctionUpdatePolicyRequest[] calldata requests) external returns (bool); 
 
   function functionCheckId(bytes32 functionId) external view returns (bool);
 

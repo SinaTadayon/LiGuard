@@ -65,19 +65,19 @@ interface IProfileMemberManagement is IACLCommons {
 
   event ProfileMemberAlterabilityUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed memberId, AlterabilityStatus alstat);
 
-  function profileMemberRegister(bytes32 profileId, ProfileMemberRegisterRequest[] calldata requests) external returns (bool);
+  function profileMemberRegister(ProfileMemberSignature calldata memberSign, ProfileMemberRegisterRequest[] calldata requests) external returns (bool);
 
-  function profileMemberUpdateTypeLimit(bytes32 profileId, ProfileMemberUpdateLimitRequest[] calldata requests) external returns (bool);
+  function profileMemberUpdateTypeLimit(ProfileMemberSignature calldata memberSign, ProfileMemberUpdateLimitRequest[] calldata requests) external returns (bool);
 
-  function profileMemberUpdateRegisterLimit(bytes32 profileId, ProfileMemberUpdateRegisterLimitRequest[] calldata requests) external returns (bool);
+  function profileMemberUpdateRegisterLimit(ProfileMemberSignature calldata memberSign, ProfileMemberUpdateRegisterLimitRequest[] calldata requests) external returns (bool);
 
-  function profileMemberUpdateCallLimit(bytes32 profileId, ProfileMemberUpdateLimitRequest[] calldata requests) external returns (bool);
+  function profileMemberUpdateCallLimit(ProfileMemberSignature calldata memberSign, ProfileMemberUpdateLimitRequest[] calldata requests) external returns (bool);
 
-  function profileMemberUpdateActivityStatus(bytes32 profileId, ProfileUpdateActivityRequest[] calldata requests) external returns (bool);
+  function profileMemberUpdateActivityStatus(ProfileMemberSignature calldata memberSign, ProfileUpdateActivityRequest[] calldata requests) external returns (bool);
 
-  function profileMemberUpdateAlterabilityStatus(bytes32 profileId, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool);
+  function profileMemberUpdateAlterabilityStatus(ProfileMemberSignature calldata memberSign, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
-  function profileMemberUpdateAdmin(bytes32 profileId, ProfileUpdateAdminRequest[] calldata requests) external returns (bool);
+  function profileMemberUpdateAdmin(ProfileMemberSignature calldata memberSign, ProfileUpdateAdminRequest[] calldata requests) external returns (bool);
 
   function profileMemberCheckId(bytes32 profileId, bytes32 memberId) external view returns (bool);
 

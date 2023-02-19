@@ -73,21 +73,21 @@ interface IProfileRoleManagement is IACLCommons{
 
   event ProfileRoleAlterabilityUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed roleId, AlterabilityStatus alstat);
 
-  function profileRoleRegister(bytes32 profileId, ProfileRoleRegisterRequest[] calldata requests) external returns (bool);
+  function profileRoleRegister(ProfileMemberSignature calldata memberSign, ProfileRoleRegisterRequest[] calldata requests) external returns (bool);
 
-  function profileRoleGrantMembers(bytes32 profileId, ProfileRoleGrantMembersRequest[] calldata requests) external returns (bool);
+  function profileRoleGrantMembers(ProfileMemberSignature calldata memberSign, ProfileRoleGrantMembersRequest[] calldata requests) external returns (bool);
 
-  function profileRoleRevokeMembers(bytes32 profileId, ProfileRoleRevokeMembersRequest[] calldata requests) external returns (bool);
+  function profileRoleRevokeMembers(ProfileMemberSignature calldata memberSign, ProfileRoleRevokeMembersRequest[] calldata requests) external returns (bool);
 
-  function profileRoleUpdateAdmin(bytes32 profileId, ProfileUpdateAdminRequest[] calldata requests) external returns (bool);
+  function profileRoleUpdateAdmin(ProfileMemberSignature calldata memberSign, ProfileUpdateAdminRequest[] calldata requests) external returns (bool);
 
-  function profileRoleUpdateScope(bytes32 profileId, ProfileUpdateScopeRequest[] calldata requests) external returns (bool);  
+  function profileRoleUpdateScope(ProfileMemberSignature calldata memberSign, ProfileUpdateScopeRequest[] calldata requests) external returns (bool);  
 
-  function profileRoleUpdateActivityStatus(bytes32 profileId, ProfileUpdateActivityRequest[] calldata requests) external returns (bool);
+  function profileRoleUpdateActivityStatus(ProfileMemberSignature calldata memberSign, ProfileUpdateActivityRequest[] calldata requests) external returns (bool);
 
-  function profileRoleUpdateAlterabilityStatus(bytes32 profileId, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool);
+  function profileRoleUpdateAlterabilityStatus(ProfileMemberSignature calldata memberSign, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
-  function profileRoleUpdateMemberLimit(bytes32 profileId, ProfileRoleUpdateMemberLimitRequest[] calldata requests) external returns (bool);
+  function profileRoleUpdateMemberLimit(ProfileMemberSignature calldata memberSign, ProfileRoleUpdateMemberLimitRequest[] calldata requests) external returns (bool);
 
   function profileRoleCheckId(bytes32 profileId, bytes32 roleId) external view returns (bool);
 

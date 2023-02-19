@@ -333,7 +333,7 @@ library LProfileRolePolicy {
     IACLCommons.TypeEntity storage typeEntity = profileEntity.profileTypeReadSlot(roleEntity.typeId);
     _doProfileCheckRoleRequestScope(profileEntity, request.scopeId, typeEntity.scopeId, profileId);
     IACLCommons.BaseScope storage oldScope = profileEntity.scopes[roleEntity.scopeId];
-    require(oldScope.referredByAgent > 0, "Illeagl ReferredByAgent");
+    require(oldScope.referredByAgent > 0, "Illeagl Referred");
     oldScope.referredByAgent -= 1;
     roleEntity.scopeId = request.scopeId;
 

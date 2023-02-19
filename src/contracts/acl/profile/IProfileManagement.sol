@@ -18,10 +18,8 @@ interface IProfileManagement is IACLCommons {
     ProfileRegisterLimit registerLimits;
     ProfileLimit limits;
     address profileOwner;
-    address profileAdmin;
     address profileSystemAdmin;
     bytes32 adminId;
-    bytes signature;
   }
 
   struct ProfileUpdateOwnerAccountRequest {
@@ -56,8 +54,6 @@ interface IProfileManagement is IACLCommons {
     address indexed sender,
     bytes32 indexed profileId,
     address indexed profileOwner,
-    address signer,
-    address profileAdmin,
     address profileSystemAdmin,
     bytes32 adminId,
     ProfileRegisterLimit registerlimits
@@ -75,19 +71,19 @@ interface IProfileManagement is IACLCommons {
   
   event ProfileOwnerAccountUpdated(address indexed sender, bytes32 indexed profileId, address indexed owner, address newOwner);
 
-  function profileRegister(ProfileRegisterRequest[] calldata request) external returns (bool);
+  function profileRegister(MemberSignature calldata memberSign, ProfileRegisterRequest[] calldata request) external returns (bool);
 
-  function profileUpdateLimits(ProfileUpdateLimitsRequest[] calldata requests) external returns (bool);
+  function profileUpdateLimits(MemberSignature calldata memberSign, ProfileUpdateLimitsRequest[] calldata requests) external returns (bool);
 
-  function profileUpdateExpiration(ProfileUpdateExpirationRequest[] calldata requests) external returns (bool);
+  function profileUpdateExpiration(MemberSignature calldata memberSign, ProfileUpdateExpirationRequest[] calldata requests) external returns (bool);
 
-  function profileUpdateOwnerAccount(ProfileUpdateOwnerAccountRequest[] calldata requests) external returns (bool);
+  function profileUpdateOwnerAccount(MemberSignature calldata memberSign, ProfileUpdateOwnerAccountRequest[] calldata requests) external returns (bool);
 
-  function profileUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
+  function profileUpdateActivityStatus(MemberSignature calldata memberSign, UpdateActivityRequest[] calldata requests) external returns (bool);
 
-  function profileUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool);
+  function profileUpdateAlterabilityStatus(MemberSignature calldata memberSign, UpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
-  function profileUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);
+  function profileUpdateAdmin(MemberSignature calldata memberSign, UpdateAdminRequest[] calldata requests) external returns (bool);
 
   function profileCheckId(bytes32 profileId) external view returns (bool);
 

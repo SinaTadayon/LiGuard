@@ -54,17 +54,17 @@ interface IProfileTypeManagement is IACLCommons {
 
   event ProfileTypeAdminUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed typeId, bytes32 adminId);
 
-  function profileTypeRegister(bytes32 profileId, ProfileTypeRegisterRequest[] calldata requests) external returns (bool);
+  function profileTypeRegister(ProfileMemberSignature calldata memberSign, ProfileTypeRegisterRequest[] calldata requests) external returns (bool);
 
-  function profileTypeUpdateAdmin(bytes32 profileId, ProfileUpdateAdminRequest[] calldata requests) external returns (bool);
+  function profileTypeUpdateAdmin(ProfileMemberSignature calldata memberSign, ProfileUpdateAdminRequest[] calldata requests) external returns (bool);
 
-  function profileTypeUpdateScope(bytes32 profileId, ProfileUpdateScopeRequest[] calldata requests) external returns (bool);
+  function profileTypeUpdateScope(ProfileMemberSignature calldata memberSign, ProfileUpdateScopeRequest[] calldata requests) external returns (bool);
 
-  function profileTypeUpdateActivityStatus(bytes32 profileId, ProfileUpdateActivityRequest[] calldata requests) external returns (bool);
+  function profileTypeUpdateActivityStatus(ProfileMemberSignature calldata memberSign, ProfileUpdateActivityRequest[] calldata requests) external returns (bool);
 
-  function profileTypeUpdateAlterabilityStatus(bytes32 profileId, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool);
+  function profileTypeUpdateAlterabilityStatus(ProfileMemberSignature calldata memberSign, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
-  function profileTypeUpdateRoleLimit(bytes32 profileId, ProfileTypeUpdateRoleLimitRequest[] calldata requests) external returns (bool);
+  function profileTypeUpdateRoleLimit(ProfileMemberSignature calldata memberSign, ProfileTypeUpdateRoleLimitRequest[] calldata requests) external returns (bool);
 
   function profileTypeCheckId(bytes32 profileId, bytes32 typeId) external view returns (bool);
 

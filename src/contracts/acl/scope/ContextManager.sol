@@ -58,36 +58,47 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
   }
 
   // called by system admin
-  function contextRegister(ContextRegisterRequest[] calldata requests) external returns (bool) {
+  function contextRegister(MemberSignature calldata memberSign, ContextRegisterRequest[] calldata requests) external returns (bool) {
     
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");   
-    for (uint256 i = 0; i < requests.length; i++) {
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");  
+    address signer;
 
-      address signer;
+    if(memberSign.signature.length > 0) {
+      require(memberSign.expiredAt > block.timestamp, "Expired Signature");
+      signer = LACLUtils.getMemeberSignerAddress(memberSign, MEMBER_SIGNATURE_MESSAGE_TYPEHASH);
+    } else {
+      signer = msg.sender;
+    }
+
+    for (uint256 i = 0; i < requests.length; i++) {
       address contractId;
       if(requests[i].contractId == address(0)) {
-        if(requests[i].signature.length > 0) {
-          signer = _doGetSignerAddress(
-            requests[i].signature, 
-            _getPredictContextMessageHash(requests[i].deployer, requests[i].subject, requests[i].realmId)
-          );
-        } else {
-          signer = msg.sender;
-        }
+        if(memberSign.signature.length == 0) {
+          if(requests[i].signature.length > 0) {
+            signer = LACLUtils.getSignerAddress(
+              requests[i].signature, 
+              _getPredictContextMessageHash(requests[i].deployer, requests[i].subject, requests[i].realmId)
+            );
+          } else {
+            signer = msg.sender;
+          }
+        } 
 
         contractId = requests[i].subject.predictDeterministicAddress(requests[i].salt, requests[i].deployer);     
       } else {
-        if(requests[i].signature.length > 0) {
-          bytes32 structHash = _getContextMessageHash(
-            requests[i].contractId, 
-            LACLUtils.generateHash(requests[i].name), 
-            LACLUtils.generateHash(requests[i].version),
-            requests[i].realmId
-          );
-          signer = _doGetSignerAddress(requests[i].signature, structHash);
-        } else {
-          signer = msg.sender;
-        }    
+        if(memberSign.signature.length == 0) {
+          if(requests[i].signature.length > 0) {          
+            bytes32 structHash = _getContextMessageHash(
+              requests[i].contractId, 
+              LACLUtils.generateHash(requests[i].name), 
+              LACLUtils.generateHash(requests[i].version),
+              requests[i].realmId
+            );
+            signer = LACLUtils.getSignerAddress(requests[i].signature, structHash);
+          } else {
+            signer = msg.sender;
+          }
+        }
         contractId = requests[i].contractId;
       }
 
@@ -97,8 +108,8 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     return true;
   }
 
-  function contextUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(IContextManagement.contextUpdateActivityStatus.selector);
+  function contextUpdateActivityStatus(MemberSignature calldata memberSign, UpdateActivityRequest[] calldata requests) external returns (bool) {
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IContextManagement.contextUpdateActivityStatus.selector);
     
     for(uint i = 0; i < requests.length; i++) {
       ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
@@ -109,8 +120,8 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     return true;
   }
 
-  function contextUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(IContextManagement.contextUpdateAlterabilityStatus.selector);
+  function contextUpdateAlterabilityStatus(MemberSignature calldata memberSign, UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IContextManagement.contextUpdateAlterabilityStatus.selector);
     
     for(uint i = 0; i < requests.length; i++) {      
       ContextEntity storage contextEntity = _data.contextReadSlot(requests[i].id);
@@ -123,8 +134,8 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     return true;
   }
 
-  function contextUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(IContextManagement.contextUpdateAdmin.selector);
+  function contextUpdateAdmin(MemberSignature calldata memberSign, UpdateAdminRequest[] calldata requests) external returns (bool) {
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IContextManagement.contextUpdateAdmin.selector);
     
     for(uint i = 0; i < requests.length; i++) {
       ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
@@ -150,8 +161,8 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     return true;
   }
 
-  function contextUpdateFunctionLimit(ContextUpdateFunctionLimitRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(IContextManagement.contextUpdateFunctionLimit.selector);
+  function contextUpdateFunctionLimit(MemberSignature calldata memberSign, ContextUpdateFunctionLimitRequest[] calldata requests) external returns (bool) {
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IContextManagement.contextUpdateFunctionLimit.selector);
     
     for (uint256 i = 0; i < requests.length; i++) {
       ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(requests[i].contextId, senderId, functionId);
@@ -274,12 +285,20 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     });
   }
 
-  function _accessPermission(bytes4 selector) internal returns (bytes32, bytes32) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
+ function _accessPermission(MemberSignature calldata memberSign, bytes4 selector) internal returns (bytes32, bytes32) {
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");  
+    address signer;
+
+    if(memberSign.signature.length > 0) {
+      require(memberSign.expiredAt > block.timestamp, "Expired Signature");
+      signer = LACLUtils.getMemeberSignerAddress(memberSign, MEMBER_SIGNATURE_MESSAGE_TYPEHASH);
+    } else {
+      signer = msg.sender;
+    }
     
     address functionFacetId = _data.selectors[selector];
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector); 
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
+    bytes32 senderId = LACLUtils.accountGenerateId(signer);
     IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
     if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
     return (functionId, senderId);
@@ -321,13 +340,6 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     }
   }
 
-  function _doGetSignerAddress(bytes memory signature, bytes32 structHash) internal view returns (address) {
-    bytes32 msgDigest = _hashTypedDataV4(structHash);
-    (address msgSigner, LECDSA.RecoverError recoverErr) = LECDSA.tryRecover(msgDigest, signature);
-    require(recoverErr == LECDSA.RecoverError.NoError, "Illegal Signature");
-    return msgSigner;
-  }
-
   function _doCheckSystemScope(bytes32 scopeId, bytes32 memberId) internal view returns (bool) {  
     TypeEntity storage systemType = _data.typeReadSlot(_LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID);
     bytes32 memberRoleId = systemType.members[memberId];
@@ -355,10 +367,6 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     bytes32 realmId
   ) internal pure returns (bytes32) {
     return keccak256(abi.encode(PREDICT_CTX_MESSAGE_TYPEHASH, deployer, subject, realmId));
-  }
-
-  function _hashTypedDataV4(bytes32 structHash) internal view returns (bytes32) {
-    return LECDSA.toTypedDataHash(IProxy(address(this)).domainSeparator(), structHash);
   }
 
   function _doRegisterContext(ContextRegisterRequest calldata request, address contractId, address signer) internal {
@@ -403,16 +411,11 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
       newContext.bs.adminId = _getContextAdmin(request.realmId, newContextId, realmEntity.bs.adminId, request.adminId);    
     }
 
-    if(request.signature.length == 0) {
-      signer = address(0);
-    }
-
     emit ContextRegistered(      
-      msg.sender,
+      signer,
       newContextId, 
       contractId,
       request.realmId,
-      signer,
       request.deployer,
       request.subject,
       request.adminId

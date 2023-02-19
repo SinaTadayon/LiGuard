@@ -36,13 +36,13 @@ interface IGlobalManagement is IACLCommons {
 
   event GlobalAlterabilityUpdated(address indexed sender, bytes32 indexed globalId, AlterabilityStatus alstat);
 
-  function globalUpdateActivityStatus(ActivityStatus acstat) external returns (ActivityStatus);
+  function globalUpdateActivityStatus(MemberSignature calldata memberSign, ActivityStatus acstat) external returns (ActivityStatus);
 
-  function globalUpdateAlterabilityStatus(AlterabilityStatus alstat) external returns (AlterabilityStatus);
+  function globalUpdateAlterabilityStatus(MemberSignature calldata memberSign, AlterabilityStatus alstat) external returns (AlterabilityStatus);
 
-  function globalUpdateAdmin(bytes32 newAdminId) external returns (bool);
+  function globalUpdateAdmin(MemberSignature calldata memberSign, bytes32 newAdminId) external returns (bool);
 
-  function globalUpdateDomainLimit(uint16 domainLimit) external returns (bool);
+  function globalUpdateDomainLimit(MemberSignature calldata memberSign, uint16 domainLimit) external returns (bool);
 
   function globalCheckAdmin(address account) external view returns (bool);
 

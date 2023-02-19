@@ -55,9 +55,9 @@ contract ProfileRealmManager is ACLStorage, BaseUUPSProxy, IProfileRealmManageme
       super.supportsInterface(interfaceId);
   }
 
-  function profileRealmRegister(bytes32 profileId, ProfileRealmRegisterRequest[] calldata requests) external returns (bool) {
+  function profileRealmRegister(ProfileMemberSignature calldata memberSign, ProfileRealmRegisterRequest[] calldata requests) external returns (bool) {
 
-    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 senderId) = _accessPermission(profileId, IProfileRealmManagement.profileRealmRegister.selector);
+    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId) = _accessPermission(memberSign, IProfileRealmManagement.profileRealmRegister.selector);
     LProfileCommons.profileCheckMemberForRealmRegister(profileEntity, uint16(requests.length), senderId);
 
     // fetch scope type and scope id of sender
@@ -76,8 +76,8 @@ contract ProfileRealmManager is ACLStorage, BaseUUPSProxy, IProfileRealmManageme
     return true;
   }
 
-  function profileRealmUpdateAdmin(bytes32 profileId, ProfileUpdateAdminRequest[] calldata requests) external returns (bool) {
-    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 senderId) = _accessPermission(profileId, IProfileRealmManagement.profileRealmUpdateAdmin.selector);
+  function profileRealmUpdateAdmin(ProfileMemberSignature calldata memberSign, ProfileUpdateAdminRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId) = _accessPermission(memberSign, IProfileRealmManagement.profileRealmUpdateAdmin.selector);
     for(uint i = 0; i < requests.length; i++) {
     
       RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(profileEntity, functionEntity, requests[i].entityId, senderId);
@@ -104,8 +104,8 @@ contract ProfileRealmManager is ACLStorage, BaseUUPSProxy, IProfileRealmManageme
     return true;
   }
 
-  function profileRealmMoveContext(bytes32 profileId, ProfileRealmMoveContextRequest[] calldata requests) external returns (bool) {
-    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 senderId) = _accessPermission(profileId, IProfileRealmManagement.profileRealmMoveContext.selector);
+  function profileRealmMoveContext(ProfileMemberSignature calldata memberSign, ProfileRealmMoveContextRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId) = _accessPermission(memberSign, IProfileRealmManagement.profileRealmMoveContext.selector);
     for(uint i = 0; i < requests.length; i++) {    
       RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(profileEntity, functionEntity, requests[i].realmId, senderId);
       require(realmEntity.contexts.contains(requests[i].contextId), "Context Not Found");
@@ -121,8 +121,8 @@ contract ProfileRealmManager is ACLStorage, BaseUUPSProxy, IProfileRealmManageme
     return true;
   }
 
-  function profileRealmUpdateActivityStatus(bytes32 profileId, ProfileUpdateActivityRequest[] calldata requests) external returns (bool) {
-    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 senderId) = _accessPermission(profileId, IProfileRealmManagement.profileRealmUpdateActivityStatus.selector);
+  function profileRealmUpdateActivityStatus(ProfileMemberSignature calldata memberSign, ProfileUpdateActivityRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId) = _accessPermission(memberSign, IProfileRealmManagement.profileRealmUpdateActivityStatus.selector);
     for(uint i = 0; i < requests.length; i++) {    
       RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(profileEntity, functionEntity, requests[i].entityId, senderId);
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");  
@@ -132,8 +132,8 @@ contract ProfileRealmManager is ACLStorage, BaseUUPSProxy, IProfileRealmManageme
     return true;
   }
 
-  function profileRealmUpdateAlterabilityStatus(bytes32 profileId, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool) {
-    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 senderId) = _accessPermission(profileId, IProfileRealmManagement.profileRealmUpdateAlterabilityStatus.selector);      
+  function profileRealmUpdateAlterabilityStatus(ProfileMemberSignature calldata memberSign, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId) = _accessPermission(memberSign, IProfileRealmManagement.profileRealmUpdateAlterabilityStatus.selector);      
     for(uint i = 0; i < requests.length; i++) {    
       RealmEntity storage realmEntity = profileEntity.profileRealmReadSlot(requests[i].entityId);        
       IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, functionEntity, realmEntity.bs.adminId, senderId);
@@ -145,8 +145,8 @@ contract ProfileRealmManager is ACLStorage, BaseUUPSProxy, IProfileRealmManageme
     return true;  
   }
 
-  function profileRealmUpdateContextLimit(bytes32 profileId, ProfileRealmUpdateContextLimitRequest[] calldata requests) external returns (bool) {
-    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 senderId) = _accessPermission(profileId, IProfileRealmManagement.profileRealmUpdateContextLimit.selector);
+  function profileRealmUpdateContextLimit(ProfileMemberSignature calldata memberSign, ProfileRealmUpdateContextLimitRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId) = _accessPermission(memberSign, IProfileRealmManagement.profileRealmUpdateContextLimit.selector);
     for(uint i = 0; i < requests.length; i++) {
       RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(profileEntity, functionEntity, requests[i].realmId, senderId);
       require(requests[i].contextLimit > realmEntity.contexts.length(), "Illegal Limit");
@@ -285,18 +285,29 @@ contract ProfileRealmManager is ACLStorage, BaseUUPSProxy, IProfileRealmManageme
     return LProfileCommons.profileCheckAdminAccess(profileEntity, functionEntity, adminId, senderId);
   }
 
-  function _accessPermission(bytes32 profileId, bytes4 selector) internal returns (ProfileEntity storage, FunctionEntity storage, bytes32) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
-    
+  function _accessPermission(ProfileMemberSignature calldata memberSign, bytes4 selector) internal returns (ProfileEntity storage, FunctionEntity storage, bytes32, bytes32) {
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");
+    require(bytes(memberSign.profileName).length > 0, "Illegal ProfileName");
+
+    address signer;
+
+    if(memberSign.signature.length > 0) {
+      require(memberSign.expiredAt > block.timestamp, "Expired Signature");
+      signer = LACLUtils.getProfileMemeberSignerAddress(memberSign, PROFILE_MEMBER_SIGNATURE_MESSAGE_TYPEHASH);
+    } else {
+      signer = msg.sender;
+    }
+
+    bytes32 profileId = LACLUtils.generateId(memberSign.profileName);
     address functionFacetId = _data.selectors[selector];
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector); 
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
+    bytes32 senderId = LACLUtils.accountGenerateId(signer);
 
     ProfileAccessControl(payable(address(this))).profileAclHasMemberAccess(profileId, functionId, senderId);    
     
     ProfileEntity storage profileEntity = _data.profiles[profileId];
     FunctionEntity storage functionEntity = _data.functionReadSlot(functionId);      
-    return (profileEntity, functionEntity, senderId);
+    return (profileEntity, functionEntity, profileId, senderId);
   }
 
   function _doGetEntityAndCheckAdminAccess(ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 realmId, bytes32 senderId) internal view returns (RealmEntity storage) {

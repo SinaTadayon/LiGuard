@@ -55,8 +55,8 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
   }
 
   // called by account that member of VERSE SCOPE MASTER TYPE
-  function domainRegister(DomainRegisterRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId,bytes32 senderId) = _accessPermission(IDomainManagement.domainRegister.selector);
+  function domainRegister(MemberSignature calldata memberSign, DomainRegisterRequest[] calldata requests) external returns (bool) {
+    (bytes32 functionId,bytes32 senderId) = _accessPermission(memberSign, IDomainManagement.domainRegister.selector);
     
     // check and set
     MemberEntity storage memberEntity = _data.memberReadSlot(senderId);
@@ -117,8 +117,8 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
     return true;
   }
  
-  function domainUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
-   (bytes32 functionId, bytes32 senderId) = _accessPermission(IDomainManagement.domainUpdateActivityStatus.selector);
+  function domainUpdateActivityStatus(MemberSignature calldata memberSign, UpdateActivityRequest[] calldata requests) external returns (bool) {
+   (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IDomainManagement.domainUpdateActivityStatus.selector);
 
     for(uint i = 0; i < requests.length; i++) {
      DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId); 
@@ -129,8 +129,8 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
     return true;
   }
 
-  function domainUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(IDomainManagement.domainUpdateAlterabilityStatus.selector);
+  function domainUpdateAlterabilityStatus(MemberSignature calldata memberSign, UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IDomainManagement.domainUpdateAlterabilityStatus.selector);
     
     for(uint i = 0; i < requests.length; i++) {
       DomainEntity storage domainEntity = _data.domainReadSlot(requests[i].id);
@@ -143,8 +143,8 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
     return true;  
   }
 
-  function domainUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(IDomainManagement.domainUpdateAdmin.selector);
+  function domainUpdateAdmin(MemberSignature calldata memberSign, UpdateAdminRequest[] calldata requests) external returns (bool) {
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IDomainManagement.domainUpdateAdmin.selector);
     
     for(uint i = 0; i < requests.length; i++) {
      DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId); 
@@ -164,8 +164,8 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
     return true;
   }
 
-  function domainMoveRealm(DomainMoveRealmRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(IDomainManagement.domainMoveRealm.selector);
+  function domainMoveRealm(MemberSignature calldata memberSign, DomainMoveRealmRequest[] calldata requests) external returns (bool) {
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IDomainManagement.domainMoveRealm.selector);
 
     for(uint i = 0; i < requests.length; i++) {
       DomainEntity storage domainEntity = _doGetEntityAndCheckAdminAccess(requests[i].domainId, senderId, functionId);
@@ -181,8 +181,8 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
     return true;
   }
 
-  function domainUpdateRealmLimit(DomainUpdateRealmLimitRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(IDomainManagement.domainUpdateRealmLimit.selector);
+  function domainUpdateRealmLimit(MemberSignature calldata memberSign, DomainUpdateRealmLimitRequest[] calldata requests) external returns (bool) {
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IDomainManagement.domainUpdateRealmLimit.selector);
 
     for (uint256 i = 0; i < requests.length; i++) {
       DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(requests[i].domainId, senderId, functionId); 
@@ -312,17 +312,25 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
     return bytes32(0);  
   }
   
-  function _accessPermission(bytes4 selector) internal returns (bytes32, bytes32) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
+function _accessPermission(MemberSignature calldata memberSign, bytes4 selector) internal returns (bytes32, bytes32) {
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");  
+    address signer;
 
+    if(memberSign.signature.length > 0) {
+      require(memberSign.expiredAt > block.timestamp, "Expired Signature");
+      signer = LACLUtils.getMemeberSignerAddress(memberSign, MEMBER_SIGNATURE_MESSAGE_TYPEHASH);
+    } else {
+      signer = msg.sender;
+    }
+    
     address functionFacetId = _data.selectors[selector];
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector); 
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
+    bytes32 senderId = LACLUtils.accountGenerateId(signer);
     IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
     if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
     return (functionId, senderId);
-  }  
-
+  }
+  
   function _doGetEntityAndCheckAdminAccess(bytes32 domainId, bytes32 senderId, bytes32 functionId) internal view returns (DomainEntity storage) {
     DomainEntity storage domainEntity = _data.domainReadSlot(domainId); 
     require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");

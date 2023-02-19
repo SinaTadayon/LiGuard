@@ -63,8 +63,7 @@ interface IProfileFunctionManagement is IACLCommons {
     bytes32 indexed functionId,
     bytes32 contextId,
     bytes32 adminId, 
-    bytes32 agentId,
-    address signer
+    bytes32 agentId
   );
 
   event ProfileFunctionAdminUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed functionId, bytes32 adminId);
@@ -77,17 +76,17 @@ interface IProfileFunctionManagement is IACLCommons {
 
   event ProfileFunctionPolicyUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed functionId, uint8 policyCode);
 
-  function profileFunctionRegister(bytes32 profileId, ProfileFunctionRegisterRequest[] calldata requests) external returns (bool);
+  function profileFunctionRegister(ProfileMemberSignature calldata memberSign, ProfileFunctionRegisterRequest[] calldata requests) external returns (bool);
 
-  function profileFunctionUpdateAdmin(bytes32 profileId, ProfileUpdateAdminRequest[] calldata requests) external returns (bool);
+  function profileFunctionUpdateAdmin(ProfileMemberSignature calldata memberSign, ProfileUpdateAdminRequest[] calldata requests) external returns (bool);
 
-  function profileFunctionUpdateAgent(bytes32 profileId, ProfileFunctionUpdateAgentRequest[] calldata requests) external returns (bool);
+  function profileFunctionUpdateAgent(ProfileMemberSignature calldata memberSign, ProfileFunctionUpdateAgentRequest[] calldata requests) external returns (bool);
 
-  function profileFunctionUpdateActivityStatus(bytes32 profileId, ProfileUpdateActivityRequest[] calldata requests) external returns (bool);
+  function profileFunctionUpdateActivityStatus(ProfileMemberSignature calldata memberSign, ProfileUpdateActivityRequest[] calldata requests) external returns (bool);
 
-  function profileFunctionUpdateAlterabilityStatus(bytes32 profileId, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool);
+  function profileFunctionUpdateAlterabilityStatus(ProfileMemberSignature calldata memberSign, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
-  function profileFunctionUpdatePolicyCode(bytes32 profileId, ProfileFunctionUpdatePolicyRequest[] calldata requests) external returns (bool); 
+  function profileFunctionUpdatePolicyCode(ProfileMemberSignature calldata memberSign, ProfileFunctionUpdatePolicyRequest[] calldata requests) external returns (bool); 
 
   function profileFunctionCheckId(bytes32 profileId, bytes32 functionId) external view returns (bool);
 

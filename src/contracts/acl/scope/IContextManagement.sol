@@ -51,7 +51,6 @@ interface IContextManagement is IACLCommons{
     bytes32 indexed contextId,
     address indexed contractId,
     bytes32 realmId,
-    address signer,
     address deployer,
     address subject,
     bytes32 adminId
@@ -65,15 +64,15 @@ interface IContextManagement is IACLCommons{
 
   event ContextFunctionLimitUpdated(address indexed sender, bytes32 indexed contextId, uint8 functionLimit);
 
-  function contextRegister(ContextRegisterRequest[] calldata requests) external returns (bool);
+  function contextRegister(MemberSignature calldata memberSign, ContextRegisterRequest[] calldata requests) external returns (bool);
 
-  function contextUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
+  function contextUpdateActivityStatus(MemberSignature calldata memberSign, UpdateActivityRequest[] calldata requests) external returns (bool);
 
-  function contextUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool);
+  function contextUpdateAlterabilityStatus(MemberSignature calldata memberSign, UpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
-  function contextUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);
+  function contextUpdateAdmin(MemberSignature calldata memberSign, UpdateAdminRequest[] calldata requests) external returns (bool);
 
-  function contextUpdateFunctionLimit(ContextUpdateFunctionLimitRequest[] calldata requests) external returns (bool);
+  function contextUpdateFunctionLimit(MemberSignature calldata memberSign, ContextUpdateFunctionLimitRequest[] calldata requests) external returns (bool);
 
   function contextCheckId(bytes32 contextId) external view returns (bool);
 

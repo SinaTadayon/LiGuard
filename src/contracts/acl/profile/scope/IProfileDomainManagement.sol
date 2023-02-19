@@ -61,17 +61,17 @@ interface IProfileDomainManagement is IACLCommons {
   
   event ProfileDomainAlterabilityUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed domainId, AlterabilityStatus alstat);
 
-  function profileDomainRegister(bytes32 profileId, ProfileDomainRegisterRequest[] calldata requests) external returns (bool);
+  function profileDomainRegister(ProfileMemberSignature calldata memberSign, ProfileDomainRegisterRequest[] calldata requests) external returns (bool);
 
-  function profileDomainUpdateActivityStatus(bytes32 profileId, ProfileUpdateActivityRequest[] calldata requests) external returns (bool);
+  function profileDomainUpdateActivityStatus(ProfileMemberSignature calldata memberSign, ProfileUpdateActivityRequest[] calldata requests) external returns (bool);
 
-  function profileDomainUpdateAlterabilityStatus(bytes32 profileId, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool);
+  function profileDomainUpdateAlterabilityStatus(ProfileMemberSignature calldata memberSign, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
-  function profileDomainUpdateAdmin(bytes32 profileId, ProfileUpdateAdminRequest[] calldata requests) external returns (bool);
+  function profileDomainUpdateAdmin(ProfileMemberSignature calldata memberSign, ProfileUpdateAdminRequest[] calldata requests) external returns (bool);
 
-  function profileDomainMoveRealm(bytes32 profileId, ProfileDomainMoveRealmRequest[] calldata requests) external returns (bool);
+  function profileDomainMoveRealm(ProfileMemberSignature calldata memberSign, ProfileDomainMoveRealmRequest[] calldata requests) external returns (bool);
 
-  function profileDomainUpdateRealmLimit(bytes32 profileId, ProfileDomainUpdateRealmLimitRequest[] calldata requests) external returns (bool);
+  function profileDomainUpdateRealmLimit(ProfileMemberSignature calldata memberSign, ProfileDomainUpdateRealmLimitRequest[] calldata requests) external returns (bool);
 
   function profileDomainCheckId(bytes32 profileId, bytes32 domainId) external view returns (bool);
 

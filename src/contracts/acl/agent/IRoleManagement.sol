@@ -74,21 +74,21 @@ interface IRoleManagement is IACLCommons{
 
   event RoleAlterabilityUpdated(address indexed sender, bytes32 indexed roleId, AlterabilityStatus alstat);
 
-  function roleRegister(RoleRegisterRequest[] calldata requests) external returns (bool);
+  function roleRegister(MemberSignature calldata memberSign, RoleRegisterRequest[] calldata requests) external returns (bool);
 
-  function roleGrantMembers(RoleGrantMembersRequest[] calldata requests) external returns (bool);
+  function roleGrantMembers(MemberSignature calldata memberSign, RoleGrantMembersRequest[] calldata requests) external returns (bool);
 
-  function roleRevokeMembers(RoleRevokeMembersRequest[] calldata requests) external returns (bool);
+  function roleRevokeMembers(MemberSignature calldata memberSign, RoleRevokeMembersRequest[] calldata requests) external returns (bool);
 
-  function roleUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);
+  function roleUpdateAdmin(MemberSignature calldata memberSign, UpdateAdminRequest[] calldata requests) external returns (bool);
 
-  function roleUpdateScope(UpdateScopeRequest[] calldata requests) external returns (bool);
+  function roleUpdateScope(MemberSignature calldata memberSign, UpdateScopeRequest[] calldata requests) external returns (bool);
 
-  function roleUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
+  function roleUpdateActivityStatus(MemberSignature calldata memberSign, UpdateActivityRequest[] calldata requests) external returns (bool);
 
-  function roleUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool);
+  function roleUpdateAlterabilityStatus(MemberSignature calldata memberSign, UpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
-  function roleUpdateMemberLimit(RoleUpdateMemberLimitRequest[] calldata requests) external returns (bool);
+  function roleUpdateMemberLimit(MemberSignature calldata memberSign, RoleUpdateMemberLimitRequest[] calldata requests) external returns (bool);
 
   function roleCheckId(bytes32 roleId) external view returns (bool);
 

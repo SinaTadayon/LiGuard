@@ -51,7 +51,6 @@ interface IProfileContextManagement is IACLCommons {
     bytes32 realmId,
     bytes32 adminId,
     address contractId,
-    address signer,
     address deployer,
     address subject    
   );
@@ -64,15 +63,15 @@ interface IProfileContextManagement is IACLCommons {
 
   event ProfileContextFunctionLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed contextId, uint8 functionLimit);
 
-  function profileContextRegister(bytes32 profileId, ProfileContextRegisterRequest[] calldata requests) external returns (bool);
+  function profileContextRegister(ProfileMemberSignature calldata memberSign, ProfileContextRegisterRequest[] calldata requests) external returns (bool);
 
-  function profileContextUpdateActivityStatus(bytes32 profileId, ProfileUpdateActivityRequest[] calldata requests) external returns (bool);
+  function profileContextUpdateActivityStatus(ProfileMemberSignature calldata memberSign, ProfileUpdateActivityRequest[] calldata requests) external returns (bool);
 
-  function profileContextUpdateAlterabilityStatus(bytes32 profileId, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool);
+  function profileContextUpdateAlterabilityStatus(ProfileMemberSignature calldata memberSign, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
-  function profileContextUpdateAdmin(bytes32 profileId, ProfileUpdateAdminRequest[] calldata requests) external returns (bool);
+  function profileContextUpdateAdmin(ProfileMemberSignature calldata memberSign, ProfileUpdateAdminRequest[] calldata requests) external returns (bool);
 
-  function profileContextUpdateFunctionLimit(bytes32 profileId, ProfileContextUpdateFunctionLimitRequest[] calldata requests) external returns (bool);
+  function profileContextUpdateFunctionLimit(ProfileMemberSignature calldata memberSign, ProfileContextUpdateFunctionLimitRequest[] calldata requests) external returns (bool);
 
   function profileContextCheckId(bytes32 profileId, bytes32 contextId) external view returns (bool);
 

@@ -57,8 +57,8 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
   }
 
   // Note: called by eveny admin of role
-  function memberRegister(MemberRegisterRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(IMemberManagement.memberRegister.selector);    
+  function memberRegister(MemberSignature calldata memberSign, MemberRegisterRequest[] calldata requests) external returns (bool) {
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IMemberManagement.memberRegister.selector);    
 
     // check and set
     MemberEntity storage memberEntity = _data.memberReadSlot(senderId);
@@ -72,8 +72,8 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
     return true;
   }
 
-  function memberUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {    
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(IMemberManagement.memberUpdateActivityStatus.selector);
+  function memberUpdateActivityStatus(MemberSignature calldata memberSign, UpdateActivityRequest[] calldata requests) external returns (bool) {    
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IMemberManagement.memberUpdateActivityStatus.selector);
 
     for(uint i = 0; i < requests.length; i++) {      
       MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
@@ -84,8 +84,8 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
     return true;  
   }
 
-  function memberUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(IMemberManagement.memberUpdateAlterabilityStatus.selector);
+  function memberUpdateAlterabilityStatus(MemberSignature calldata memberSign, UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IMemberManagement.memberUpdateAlterabilityStatus.selector);
 
     for(uint i = 0; i < requests.length; i++) {      
       MemberEntity storage memberEntity = _data.memberReadSlot(requests[i].id);      
@@ -99,8 +99,8 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
   }
 
   // Note: member default admin is 
-  function memberUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(IMemberManagement.memberUpdateAdmin.selector);
+  function memberUpdateAdmin(MemberSignature calldata memberSign, UpdateAdminRequest[] calldata requests) external returns (bool) {
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IMemberManagement.memberUpdateAdmin.selector);
 
     for (uint256 i = 0; i < requests.length; i++) {
       MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
@@ -118,8 +118,8 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
     return true;
   }
 
-  function memberUpdateGeneralLimit(MemberUpdateGeneralLimitRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(IMemberManagement.memberUpdateGeneralLimit.selector);
+  function memberUpdateGeneralLimit(MemberSignature calldata memberSign, MemberUpdateGeneralLimitRequest[] calldata requests) external returns (bool) {
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IMemberManagement.memberUpdateGeneralLimit.selector);
     MemberEntity storage senderMemberEntity = _data.memberReadSlot(senderId);
     for (uint256 i = 0; i < requests.length; i++) {
       MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].memberId, senderId, functionId);
@@ -251,12 +251,20 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
     return LACLCommons.checkAdminAccess(_data, adminId, memberId, functionId);   
   }
 
-  function _accessPermission(bytes4 selector) internal returns (bytes32, bytes32) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
+  function _accessPermission(MemberSignature calldata memberSign, bytes4 selector) internal returns (bytes32, bytes32) {
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");  
+    address signer;
+
+    if(memberSign.signature.length > 0) {
+      require(memberSign.expiredAt > block.timestamp, "Expired Signature");
+      signer = LACLUtils.getMemeberSignerAddress(memberSign, MEMBER_SIGNATURE_MESSAGE_TYPEHASH);
+    } else {
+      signer = msg.sender;
+    }
     
     address functionFacetId = _data.selectors[selector];
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector); 
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
+    bytes32 senderId = LACLUtils.accountGenerateId(signer);
     IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
     if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
     return (functionId, senderId);

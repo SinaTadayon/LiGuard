@@ -64,17 +64,17 @@ interface IRealmManagement is IACLCommons{
 
   event RealmAlterabilityUpdated(address indexed sender, bytes32 indexed realmId, AlterabilityStatus alstat);
 
-  function realmRegister(RealmRegisterRequest[] calldata requests) external returns (bool);
+  function realmRegister(MemberSignature calldata memberSign, RealmRegisterRequest[] calldata requests) external returns (bool);
 
-  function realmUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);
+  function realmUpdateAdmin(MemberSignature calldata memberSign, UpdateAdminRequest[] calldata requests) external returns (bool);
 
-  function realmMoveContext(RealmMoveContextRequest[] calldata requests) external returns (bool);
+  function realmMoveContext(MemberSignature calldata memberSign, RealmMoveContextRequest[] calldata requests) external returns (bool);
 
-  function realmUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
+  function realmUpdateActivityStatus(MemberSignature calldata memberSign, UpdateActivityRequest[] calldata requests) external returns (bool);
 
-  function realmUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool);
+  function realmUpdateAlterabilityStatus(MemberSignature calldata memberSign, UpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
-  function realmUpdateContextLimit(RealmUpdateContextLimitRequest[] calldata requests) external returns (bool);
+  function realmUpdateContextLimit(MemberSignature calldata memberSign, RealmUpdateContextLimitRequest[] calldata requests) external returns (bool);
 
   function realmCheckId(bytes32 realmId) external view returns (bool);
 

@@ -56,36 +56,49 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
       super.supportsInterface(interfaceId);
   }
 
-  function functionRegister(FunctionRegisterRequest[] calldata requests) external returns (bool) {
+  function functionRegister(MemberSignature calldata memberSign, FunctionRegisterRequest[] calldata requests) external returns (bool) {
     
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");
+    address signer;
+
+     if(memberSign.signature.length > 0) {
+      require(memberSign.expiredAt > block.timestamp, "Expired Signature");
+      signer = LACLUtils.getMemeberSignerAddress(memberSign, MEMBER_SIGNATURE_MESSAGE_TYPEHASH);
+    } else {
+      signer = msg.sender;
+    }
+
     for (uint256 i = 0; i < requests.length; i++) {
-      address signer;
+    
       address contractId;
       if(requests[i].contractId == address(0)) {
-        if(requests[i].signature.length > 0) {
-          signer = _doGetSignerAddress(
-            requests[i].signature, 
-            _getPredictContextMessageHash(requests[i].deployer, requests[i].subject, requests[i].realmId)
-          );
-        } else {
-          signer = msg.sender;
+        if(memberSign.signature.length == 0) {
+          if(requests[i].signature.length > 0) {
+            signer = LACLUtils.getSignerAddress(
+              requests[i].signature, 
+              _getPredictContextMessageHash(requests[i].deployer, requests[i].subject, requests[i].realmId)
+            );
+          } else {
+            signer = msg.sender;
+          }
         }
 
         contractId = requests[i].subject.predictDeterministicAddress(requests[i].salt, requests[i].deployer);
         
       } else {
-        if(requests[i].signature.length > 0) {
-          bytes32 structHash = _getContextMessageHash(
-            requests[i].contractId, 
-            LACLUtils.generateHash(requests[i].name), 
-            LACLUtils.generateHash(requests[i].version),
-            requests[i].realmId
-          );
-          signer = _doGetSignerAddress(requests[i].signature, structHash);
-        } else {
-          signer = msg.sender;
-        }    
+        if(memberSign.signature.length == 0) {
+          if(requests[i].signature.length > 0) {
+            bytes32 structHash = _getContextMessageHash(
+              requests[i].contractId, 
+              LACLUtils.generateHash(requests[i].name), 
+              LACLUtils.generateHash(requests[i].version),
+              requests[i].realmId
+            );
+            signer = LACLUtils.getSignerAddress(requests[i].signature, structHash);
+          } else {
+            signer = msg.sender;
+          }
+        }
         contractId = requests[i].contractId;
       }
 
@@ -110,14 +123,14 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
       require(_doCheckSystemScope(contextId, signerId), "Forbidden");       
 
       for (uint256 j = 0; j < requests[i].functions.length; j++) {
-        _doFunctionRegistration(contextEntity, requests[i].functions[j], msg.sender, signer, contextId);
+        _doFunctionRegistration(contextEntity, requests[i].functions[j], signer, contextId);
       }
     }
     return true;
   }
 
-  function functionUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool){
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(IFunctionManagement.functionUpdateAdmin.selector);
+  function functionUpdateAdmin(MemberSignature calldata memberSign, UpdateAdminRequest[] calldata requests) external returns (bool){
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IFunctionManagement.functionUpdateAdmin.selector);
     
     for(uint i = 0; i < requests.length; i++) {
       FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
@@ -127,8 +140,8 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     return true;  
   }
 
-  function functionUpdateAgent(FunctionUpdateAgentRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(IFunctionManagement.functionUpdateAgent.selector);
+  function functionUpdateAgent(MemberSignature calldata memberSign, FunctionUpdateAgentRequest[] calldata requests) external returns (bool) {
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IFunctionManagement.functionUpdateAgent.selector);
 
     for(uint i = 0; i < requests.length; i++) {
       FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(requests[i].functionId, senderId, functionId);  
@@ -139,8 +152,8 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     return true;  
   }
 
-  function functionUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(IFunctionManagement.functionUpdateActivityStatus.selector);
+  function functionUpdateActivityStatus(MemberSignature calldata memberSign, UpdateActivityRequest[] calldata requests) external returns (bool) {
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IFunctionManagement.functionUpdateActivityStatus.selector);
     for(uint i = 0; i < requests.length; i++) {
       FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
       require(requests[i].acstat != ActivityStatus.NONE, "Illegal Activity");
@@ -150,8 +163,8 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     return true;
   }
 
-  function functionUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(IFunctionManagement.functionUpdateAlterabilityStatus.selector);
+  function functionUpdateAlterabilityStatus(MemberSignature calldata memberSign, UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IFunctionManagement.functionUpdateAlterabilityStatus.selector);
     
     for(uint i = 0; i < requests.length; i++) {      
       FunctionEntity storage functionEntity = _data.functionReadSlot(requests[i].id);
@@ -165,8 +178,8 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     return true;
   }
 
-  function functionUpdatePolicyCode(FunctionUpdatePolicyRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(IFunctionManagement.functionUpdatePolicyCode.selector);
+  function functionUpdatePolicyCode(MemberSignature calldata memberSign, FunctionUpdatePolicyRequest[] calldata requests) external returns (bool) {
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IFunctionManagement.functionUpdatePolicyCode.selector);
     
     for (uint256 i = 0; i < requests.length; i++) {
       FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(requests[i].functionId, senderId, functionId);
@@ -287,12 +300,20 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     return LACLCommons.checkAdminAccess(_data, adminId, memberId, functionId);
   }
 
-  function _accessPermission(bytes4 selector) internal returns (bytes32, bytes32) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
+function _accessPermission(MemberSignature calldata memberSign, bytes4 selector) internal returns (bytes32, bytes32) {
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");  
+    address signer;
+
+    if(memberSign.signature.length > 0) {
+      require(memberSign.expiredAt > block.timestamp, "Expired Signature");
+      signer = LACLUtils.getMemeberSignerAddress(memberSign, MEMBER_SIGNATURE_MESSAGE_TYPEHASH);
+    } else {
+      signer = msg.sender;
+    }
     
     address functionFacetId = _data.selectors[selector];
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector); 
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
+    bytes32 senderId = LACLUtils.accountGenerateId(signer);
     IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
     if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
     return (functionId, senderId);
@@ -310,7 +331,6 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
    function _doFunctionRegistration(
       ContextEntity storage context, 
       FunctionRequest calldata functionRequest, 
-      address sender,
       address signer,
       bytes32 contextId
   ) internal {
@@ -341,12 +361,11 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     context.functions.add(newFunctionId);
    
     emit FunctionRegistered(
-      sender,
+      signer,
       contextId, 
       newFunctionId,
       functionRequest.adminId,
-      functionRequest.agentId,
-      signer
+      functionRequest.agentId
     );
   }
 
@@ -393,12 +412,12 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
       }
   }
 
-  function _doGetSignerAddress(bytes memory signature, bytes32 structHash) internal view returns (address) {
-    bytes32 msgDigest = _hashTypedDataV4(structHash);
-    (address msgSigner, LECDSA.RecoverError recoverErr) = LECDSA.tryRecover(msgDigest, signature);
-    require(recoverErr == LECDSA.RecoverError.NoError, "Illegal Signature");
-    return msgSigner;
-  }
+  // function _doGetSignerAddress(bytes memory signature, bytes32 structHash) internal view returns (address) {
+  //   bytes32 msgDigest = _hashTypedDataV4(structHash);
+  //   (address msgSigner, LECDSA.RecoverError recoverErr) = LECDSA.tryRecover(msgDigest, signature);
+  //   require(recoverErr == LECDSA.RecoverError.NoError, "Illegal Signature");
+  //   return msgSigner;
+  // }
 
   function _getPredictContextMessageHash(
     address deployer,
@@ -408,9 +427,9 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     return keccak256(abi.encode(PREDICT_CTX_MESSAGE_TYPEHASH, deployer, subject, realmId));
   }
 
-  function _hashTypedDataV4(bytes32 structHash) internal view returns (bytes32) {
-    return LECDSA.toTypedDataHash(IProxy(address(this)).domainSeparator(), structHash);
-  }
+  // function _hashTypedDataV4(bytes32 structHash) internal view returns (bytes32) {
+  //   return LECDSA.toTypedDataHash(IProxy(address(this)).domainSeparator(), structHash);
+  // }
 
   function getLibrary() external pure returns (address) {
     return address(LACLCommons);

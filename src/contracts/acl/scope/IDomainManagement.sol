@@ -62,17 +62,17 @@ interface IDomainManagement is IACLCommons {
 
   event DomainAlterabilityUpdated(address indexed sender, bytes32 indexed domainId, AlterabilityStatus alstat);
 
-  function domainRegister(DomainRegisterRequest[] calldata requests) external returns (bool);
+  function domainRegister(MemberSignature calldata memberSign, DomainRegisterRequest[] calldata requests) external returns (bool);
 
-  function domainUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool);
+  function domainUpdateActivityStatus(MemberSignature calldata memberSign, UpdateActivityRequest[] calldata requests) external returns (bool);
 
-  function domainUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool);
+  function domainUpdateAlterabilityStatus(MemberSignature calldata memberSign, UpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
-  function domainUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool);
+  function domainUpdateAdmin(MemberSignature calldata memberSign, UpdateAdminRequest[] calldata requests) external returns (bool);
 
-  function domainMoveRealm(DomainMoveRealmRequest[] calldata requests) external returns (bool);
+  function domainMoveRealm(MemberSignature calldata memberSign, DomainMoveRealmRequest[] calldata requests) external returns (bool);
 
-  function domainUpdateRealmLimit(DomainUpdateRealmLimitRequest[] calldata requests) external returns (bool);
+  function domainUpdateRealmLimit(MemberSignature calldata memberSign, DomainUpdateRealmLimitRequest[] calldata requests) external returns (bool);
 
   function domainCheckId(bytes32 domainId) external view returns (bool);
 

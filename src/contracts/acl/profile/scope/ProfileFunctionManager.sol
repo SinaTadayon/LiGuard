@@ -59,36 +59,51 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
       super.supportsInterface(interfaceId);
   }
 
-  function profileFunctionRegister(bytes32 profileId, ProfileFunctionRegisterRequest[] calldata requests) external returns (bool) {
+  function profileFunctionRegister(ProfileMemberSignature calldata memberSign, ProfileFunctionRegisterRequest[] calldata requests) external returns (bool) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");
+    require(bytes(memberSign.profileName).length > 0, "Illegal ProfileName");
+    bytes32 profileId = LACLUtils.generateId(memberSign.profileName);
+
+    address signer;
+    if(memberSign.signature.length > 0) {
+      require(memberSign.expiredAt > block.timestamp, "Expired Signature");
+      signer = LACLUtils.getProfileMemeberSignerAddress(memberSign, PROFILE_MEMBER_SIGNATURE_MESSAGE_TYPEHASH);
+    } else {
+      signer = msg.sender;
+    }
+
+
     for (uint i = 0; i < requests.length; i++) {
-      address signer;
       address contractId;      
       if(requests[i].contractId == address(0)) {
-        if(requests[i].signature.length > 0) {
-          signer = _doGetSignerAddress(
-            requests[i].signature, 
-            _getPredictContextMessageHash(profileId, requests[i].deployer, requests[i].subject, requests[i].realmId)
-          );
-        } else {
-          signer = msg.sender;
+        if(memberSign.signature.length == 0) {
+          if(requests[i].signature.length > 0) {
+            signer = _doGetSignerAddress(
+              requests[i].signature, 
+              _getPredictContextMessageHash(profileId, requests[i].deployer, requests[i].subject, requests[i].realmId)
+            );
+          } else {
+            signer = msg.sender;
+          }
         }
 
         contractId = requests[i].subject.predictDeterministicAddress(requests[i].salt, requests[i].deployer);
         
       } else {
-        if(requests[i].signature.length > 0) {
-          bytes32 structHash = _getContextMessageHash(
-            profileId,
-            requests[i].contractId, 
-            LACLUtils.generateHash(requests[i].name), 
-            LACLUtils.generateHash(requests[i].version),
-            requests[i].realmId
-          );
-          signer = _doGetSignerAddress(requests[i].signature, structHash);
-        } else {
-          signer = msg.sender;
-        }    
+        if(memberSign.signature.length == 0) {
+          if(requests[i].signature.length > 0) {
+            bytes32 structHash = _getContextMessageHash(
+              profileId,
+              requests[i].contractId, 
+              LACLUtils.generateHash(requests[i].name), 
+              LACLUtils.generateHash(requests[i].version),
+              requests[i].realmId
+            );
+            signer = _doGetSignerAddress(requests[i].signature, structHash);
+          } else {
+            signer = msg.sender;
+          }    
+        }
         contractId = requests[i].contractId;
       }
 
@@ -101,25 +116,19 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
         bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, IProfileFunctionManagement.profileFunctionRegister.selector); 
         ProfileAccessControl(payable(address(this))).profileAclHasMemberAccess(profileId, functionId, signerId);
       }
-          
-     
+              
       LProfileCommons.profileCheckMemberForFunctionRegister(profileEntity, uint16(requests[i].functions.length), signerId);
 
       // check access system scope
-      require(_doCheckSystemScope(profileEntity, contextId, signerId, profileId), "Forbidden");        
+      require(_doCheckSystemScope(profileEntity, contextId, signerId, profileId), "Forbidden");
 
-      if(requests[i].signature.length == 0) {
-        signer = address(0);
-      }
-
-      _doProfileFunctionRegister(profileEntity, requests[i], profileId, contextId, signer);
-       
+      _doProfileFunctionRegister(profileEntity, requests[i], profileId, contextId, signer);       
     }
     return true;
   }
 
-  function profileFunctionUpdateAdmin(bytes32 profileId, ProfileUpdateAdminRequest[] calldata requests) external returns (bool) {
-    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 senderId) = _accessPermission(profileId, IProfileFunctionManagement.profileFunctionUpdateAdmin.selector);      
+  function profileFunctionUpdateAdmin(ProfileMemberSignature calldata memberSign, ProfileUpdateAdminRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId) = _accessPermission(memberSign, IProfileFunctionManagement.profileFunctionUpdateAdmin.selector);      
     for (uint i = 0; i < requests.length; i++) {    
       FunctionEntity storage functionData = _doGetEntityAndCheckAdminAccess(profileEntity, functionEntity, requests[i].entityId, senderId);
       functionData.bs.adminId = _doGetAndCheckFunctionAdmin(profileEntity, profileEntity.scopes[functionEntity.contextId].adminId, functionData.contextId, requests[i].adminId, profileId);
@@ -128,8 +137,8 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
     return true;  
   }
 
-  function profileFunctionUpdateAgent(bytes32 profileId, ProfileFunctionUpdateAgentRequest[] calldata requests) external returns (bool) {
-    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 senderId) = _accessPermission(profileId, IProfileFunctionManagement.profileFunctionUpdateAgent.selector);
+  function profileFunctionUpdateAgent(ProfileMemberSignature calldata memberSign, ProfileFunctionUpdateAgentRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId) = _accessPermission(memberSign, IProfileFunctionManagement.profileFunctionUpdateAgent.selector);
     for (uint i = 0; i < requests.length; i++) {    
       FunctionEntity storage functionData = _doGetEntityAndCheckAdminAccess(profileEntity, functionEntity, requests[i].functionId, senderId);
       _doCheckAgentId(profileEntity, profileId, requests[i].agentId, functionData.contextId);
@@ -139,8 +148,8 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
     return true;  
   }
 
-  function profileFunctionUpdateActivityStatus(bytes32 profileId, ProfileUpdateActivityRequest[] calldata requests) external returns (bool) {
-    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 senderId) = _accessPermission(profileId, IProfileFunctionManagement.profileFunctionUpdateActivityStatus.selector);
+  function profileFunctionUpdateActivityStatus(ProfileMemberSignature calldata memberSign, ProfileUpdateActivityRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId) = _accessPermission(memberSign, IProfileFunctionManagement.profileFunctionUpdateActivityStatus.selector);
     for (uint i = 0; i < requests.length; i++) {
       FunctionEntity storage functionData = _doGetEntityAndCheckAdminAccess(profileEntity, functionEntity, requests[i].entityId, senderId);
       require(requests[i].acstat != ActivityStatus.NONE, "Illegal Activity");
@@ -150,8 +159,8 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
     return true;
   }
 
-  function profileFunctionUpdateAlterabilityStatus(bytes32 profileId, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool) {
-    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 senderId) = _accessPermission(profileId, IProfileFunctionManagement.profileFunctionUpdateAlterabilityStatus.selector);
+  function profileFunctionUpdateAlterabilityStatus(ProfileMemberSignature calldata memberSign, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId) = _accessPermission(memberSign, IProfileFunctionManagement.profileFunctionUpdateAlterabilityStatus.selector);
     for (uint i = 0; i < requests.length; i++) {  
       FunctionEntity storage functionData = profileEntity.profileFunctionReadSlot(requests[i].entityId);
       require(functionData.bs.acstat > ActivityStatus.DELETED, "Function Deleted");
@@ -164,8 +173,8 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
     return true;
   }
 
-  function profileFunctionUpdatePolicyCode(bytes32 profileId, ProfileFunctionUpdatePolicyRequest[] calldata requests) external returns (bool) {
-    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 senderId) = _accessPermission(profileId, IProfileFunctionManagement.profileFunctionUpdatePolicyCode.selector);
+  function profileFunctionUpdatePolicyCode(ProfileMemberSignature calldata memberSign, ProfileFunctionUpdatePolicyRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId) = _accessPermission(memberSign, IProfileFunctionManagement.profileFunctionUpdatePolicyCode.selector);
     for (uint i = 0; i < requests.length; i++) {    
       FunctionEntity storage functionEntityData = _doGetEntityAndCheckAdminAccess(profileEntity, functionEntity, requests[i].functionId, senderId);
       functionEntityData.policyCode = requests[i].policyCode;
@@ -279,18 +288,29 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
     return LProfileCommons.profileCheckAdminAccess(profileEntity, functionEntity, adminId, senderId);
   }
 
-  function _accessPermission(bytes32 profileId, bytes4 selector) internal returns (ProfileEntity storage, FunctionEntity storage, bytes32) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
-    
+  function _accessPermission(ProfileMemberSignature calldata memberSign, bytes4 selector) internal returns (ProfileEntity storage, FunctionEntity storage, bytes32, bytes32) {
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");
+    require(bytes(memberSign.profileName).length > 0, "Illegal ProfileName");
+
+    address signer;
+
+    if(memberSign.signature.length > 0) {
+      require(memberSign.expiredAt > block.timestamp, "Expired Signature");
+      signer = LACLUtils.getProfileMemeberSignerAddress(memberSign, PROFILE_MEMBER_SIGNATURE_MESSAGE_TYPEHASH);
+    } else {
+      signer = msg.sender;
+    }
+
+    bytes32 profileId = LACLUtils.generateId(memberSign.profileName);
     address functionFacetId = _data.selectors[selector];
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector); 
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
+    bytes32 senderId = LACLUtils.accountGenerateId(signer);
 
     ProfileAccessControl(payable(address(this))).profileAclHasMemberAccess(profileId, functionId, senderId);    
     
     ProfileEntity storage profileEntity = _data.profiles[profileId];
     FunctionEntity storage functionEntity = _data.functionReadSlot(functionId);      
-    return (profileEntity, functionEntity, senderId);
+    return (profileEntity, functionEntity, profileId, senderId);
   }
 
   function _doGetEntityAndCheckAdminAccess(ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 fId, bytes32 senderId) internal view returns (FunctionEntity storage) {
@@ -367,13 +387,12 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
     for (uint j = 0; j < request.functions.length; j++) {
       bytes32 functionId = LProfileCommons.profileFunctionRegistration(profileEntity, request.functions[j], profileId, contextId);
       emit ProfileFunctionRegistered(
-        msg.sender,
+        signer,
         profileId,
         contextId, 
         functionId,
         request.functions[j].adminId,
-        request.functions[j].agentId,
-        signer
+        request.functions[j].agentId
       );
     }    
   }

@@ -52,8 +52,8 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
       super.supportsInterface(interfaceId);
   }
 
-  function globalUpdateActivityStatus(ActivityStatus acstat) external returns (ActivityStatus) {  
-    bytes32 functionId = _accessPermissionActivity(IGlobalManagement.globalUpdateActivityStatus.selector);
+  function globalUpdateActivityStatus(MemberSignature calldata memberSign, ActivityStatus acstat) external returns (ActivityStatus) {  
+    bytes32 functionId = _accessPermissionActivity(memberSign, IGlobalManagement.globalUpdateActivityStatus.selector);
     bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
     GlobalEntity storage globalEntity = _doGetEntityAndCheckAdminAccess(senderId, functionId);
     require(acstat > ActivityStatus.DELETED, "Illegal Activity");
@@ -62,8 +62,8 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
     return acstat;
   }
 
-  function globalUpdateAlterabilityStatus(AlterabilityStatus alstat) external returns (AlterabilityStatus) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(IGlobalManagement.globalUpdateAlterabilityStatus.selector);
+  function globalUpdateAlterabilityStatus(MemberSignature calldata memberSign, AlterabilityStatus alstat) external returns (AlterabilityStatus) {
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IGlobalManagement.globalUpdateAlterabilityStatus.selector);
     
     GlobalEntity storage globalEntity = _data.globalReadSlot(_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
     IACL.AdminAccessStatus status = _doCheckAdminAccess(globalEntity.bs.adminId, senderId, functionId);
@@ -74,8 +74,8 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
     return alstat;
   }
 
-  function globalUpdateAdmin(bytes32 newAdminId) external returns (bool) { 
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(IGlobalManagement.globalUpdateAdmin.selector);
+  function globalUpdateAdmin(MemberSignature calldata memberSign, bytes32 newAdminId) external returns (bool) { 
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IGlobalManagement.globalUpdateAdmin.selector);
 
     GlobalEntity storage globalEntity = _doGetEntityAndCheckAdminAccess(senderId, functionId);
 
@@ -95,8 +95,8 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
     return true;
   }
 
-  function globalUpdateDomainLimit(uint16 domainLimit) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(IGlobalManagement.globalUpdateDomainLimit.selector);
+  function globalUpdateDomainLimit(MemberSignature calldata memberSign, uint16 domainLimit) external returns (bool) {
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IGlobalManagement.globalUpdateDomainLimit.selector);
     
     GlobalEntity storage globalEntity = _doGetEntityAndCheckAdminAccess(senderId, functionId);
     require(domainLimit > globalEntity.domains.length() , "Illegal Limit");
@@ -135,23 +135,39 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
     });
   }
 
-  function _accessPermissionActivity(bytes4 selector) internal returns (bytes32) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
-    
+  function _accessPermissionActivity(MemberSignature calldata memberSign, bytes4 selector) internal returns (bytes32) {
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");  
+    address signer;
+
+    if(memberSign.signature.length > 0) {
+      require(memberSign.expiredAt > block.timestamp, "Expired Signature");
+      signer = LACLUtils.getMemeberSignerAddress(memberSign, MEMBER_SIGNATURE_MESSAGE_TYPEHASH);
+    } else {
+      signer = msg.sender;
+    }
+
     address functionFacetId = _data.selectors[selector];
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector); 
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
+    bytes32 senderId = LACLUtils.accountGenerateId(signer);   
     IACL.AuthorizationStatus status = _doHasAccess(functionId, senderId);
     if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
     return functionId;
   }
 
-  function _accessPermission(bytes4 selector) internal returns (bytes32, bytes32) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");
+  function _accessPermission(MemberSignature calldata memberSign, bytes4 selector) internal returns (bytes32, bytes32) {
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");  
+    address signer;
+
+    if(memberSign.signature.length > 0) {
+      require(memberSign.expiredAt > block.timestamp, "Expired Signature");
+      signer = LACLUtils.getMemeberSignerAddress(memberSign, MEMBER_SIGNATURE_MESSAGE_TYPEHASH);
+    } else {
+      signer = msg.sender;
+    }
     
     address functionFacetId = _data.selectors[selector];
-    bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);
+    bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector); 
+    bytes32 senderId = LACLUtils.accountGenerateId(signer);
     IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
     if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
     return (functionId, senderId);
@@ -171,18 +187,8 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
     bytes32 agentId = functionEntity.agentId;
     AgentType atype = _data.agents[agentId].atype;
 
-    // console.log("agentId: ");
-    // console.logBytes32(agentId);
-    // console.log("atype: ");
-    // console.logBytes1(bytes1(uint8(atype)));
-    // console.log("memberId: ");
-    // console.logBytes32(memberId);
-    // console.log("member acstat: ");
-    // console.logBytes1(bytes1(uint8(_data.agents[memberId].acstat)));
-    // console.log("address(this): %s", address(this));
     if(atype == AgentType.ROLE) {
       // check member activation
-      // console.log("agentId type is role");
       (MemberEntity storage memberEntity, bool result0) = _data.memberTryReadSlot(memberId);
       if(!result0) return IACL.AuthorizationStatus.MEMBER_NOT_FOUND;
       if(memberEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN;
@@ -196,15 +202,11 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
       
       // check role activation
       (RoleEntity storage roleEntity, bool result1) = _data.roleTryReadSlot(agentId);
-      // console.log("roleEntity: ");
-      // console.logBytes1(bytes1(uint8(roleEntity.ba.acstat)));
       if(!result1) return IACL.AuthorizationStatus.ROLE_NOT_FOUND;      
       if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AuthorizationStatus.ROLE_ACTIVITY_FORBIDDEN;
 
       // check type activation
       (TypeEntity storage typeEntity, bool result2) = _data.typeTryReadSlot(roleEntity.typeId);
-      // console.log("typeEntity: ");
-      // console.logBytes1(bytes1(uint8(typeEntity.ba.acstat)));
       if(!result2) return IACL.AuthorizationStatus.TYPE_NOT_FOUND;
       if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AuthorizationStatus.TYPE_ACTIVITY_FORBIDDEN;
       if(_data.scopes[roleEntity.scopeId].stype == ScopeType.FUNCTION && roleEntity.scopeId != agentId) 
@@ -216,15 +218,11 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
 
       // check policy activation
       PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[agentId]];
-      // console.log("policyEntity: ");
-      // console.logBytes1(bytes1(uint8(policyEntity.acstat)));
       if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
         return IACL.AuthorizationStatus.POLICY_FORBIDDEN;
 
     } else if(atype == AgentType.TYPE) {
-      // console.log("agentId is type . . .");
       if(agentId == _LIVELY_VERSE_ANY_TYPE_ID) {
-        // console.log("agentId is ANY type . . .");
       (MemberEntity storage memberEntity, bool result0) = _data.memberTryReadSlot(memberId);
       if(!result0) return IACL.AuthorizationStatus.MEMBER_NOT_FOUND;
       if(memberEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN;
@@ -238,7 +236,6 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
 
       } else if(agentId != _LIVELY_VERSE_ANONYMOUS_TYPE_ID) {
         // check member activation
-        // console.log("agentId is Anonymous type . . .");
         (MemberEntity storage memberEntity, bool result0) = _data.memberTryReadSlot(memberId);
         if(!result0) return IACL.AuthorizationStatus.MEMBER_NOT_FOUND;
         if(memberEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN;
@@ -252,16 +249,12 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
         
         // check type activation
         (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(agentId);
-        // console.log("typeEntity: ");
-        // console.logBytes1(bytes1(uint8(typeEntity.ba.acstat)));
         if(!result1) return IACL.AuthorizationStatus.TYPE_NOT_FOUND;
         if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AuthorizationStatus.TYPE_ACTIVITY_FORBIDDEN;
 
         // check role activation
         bytes32 roleId = typeEntity.members[memberId];
         (RoleEntity storage roleEntity, bool result2) = _data.roleTryReadSlot(roleId);
-        // console.log("roleEntity: ");
-        // console.logBytes1(bytes1(uint8(roleEntity.ba.acstat)));
         if(!result2) return IACL.AuthorizationStatus.ROLE_NOT_FOUND;
         if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IACL.AuthorizationStatus.ROLE_ACTIVITY_FORBIDDEN;
         if(_data.scopes[roleEntity.scopeId].stype == ScopeType.FUNCTION && roleEntity.scopeId != agentId) 
@@ -269,8 +262,6 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
         
         // check policy activation
         PolicyEntity storage policyEntity = _data.policies[_data.rolePolicyMap[roleId]];
-        // console.log("policyEntity: ");
-        // console.logBytes1(bytes1(uint8(policyEntity.acstat)));
         if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
           return IACL.AuthorizationStatus.POLICY_FORBIDDEN;
       } 
@@ -279,28 +270,20 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
     }
 
     // check function activity
-    // console.log("functionEntity: ");
-    // console.logBytes1(bytes1(uint8(functionEntity.bs.acstat)));
     if(functionEntity.bs.acstat != ActivityStatus.ENABLED) return IACL.AuthorizationStatus.FUNCTION_ACTIVITY_FORBIDDEN;
 
     // check context activity
     (ContextEntity storage contextEntity, bool res1) = _data.contextTryReadSlot(functionEntity.contextId);
-    // console.log("contextEntity: ");
-    // console.logBytes1(bytes1(uint8(contextEntity.bs.acstat)));
     if(!res1) return IACL.AuthorizationStatus.CONTEXT_NOT_FOUND;
     if(contextEntity.bs.acstat != ActivityStatus.ENABLED) return IACL.AuthorizationStatus.CONTEXT_ACTIVITY_FORBIDDEN;
 
     // check realm activity
     (RealmEntity storage realmEntity, bool res2) = _data.realmTryReadSlot(contextEntity.realmId);
-    // console.log("realmEntity: ");
-    // console.logBytes1(bytes1(uint8(contextEntity.bs.acstat)));
     if(!res2) return IACL.AuthorizationStatus.REALM_NOT_FOUND;
     if(realmEntity.bs.acstat != ActivityStatus.ENABLED) return IACL.AuthorizationStatus.REALM_ACTIVITY_FORBIDDEN;
 
     // check domain activity
     (DomainEntity storage domainEntity, bool res3) = _data.domainTryReadSlot(realmEntity.domainId);
-    // console.log("domainEntity: ");
-    // console.logBytes1(bytes1(uint8(domainEntity.bs.acstat)));
     if(!res3) return IACL.AuthorizationStatus.DOMAIN_NOT_FOUND;
     if(domainEntity.bs.acstat != ActivityStatus.ENABLED) return IACL.AuthorizationStatus.DOMAIN_ACTIVITY_FORBIDDEN;
 

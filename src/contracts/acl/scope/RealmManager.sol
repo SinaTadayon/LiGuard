@@ -52,8 +52,8 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
       super.supportsInterface(interfaceId);
   }
 
-  function realmRegister(RealmRegisterRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(IRealmManagement.realmRegister.selector);
+  function realmRegister(MemberSignature calldata memberSign, RealmRegisterRequest[] calldata requests) external returns (bool) {
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IRealmManagement.realmRegister.selector);
     
     // check and set
     MemberEntity storage memberEntity = _data.memberReadSlot(senderId);
@@ -116,8 +116,8 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     return true;
   }
 
-  function realmUpdateAdmin(UpdateAdminRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(IRealmManagement.realmUpdateAdmin.selector);
+  function realmUpdateAdmin(MemberSignature calldata memberSign, UpdateAdminRequest[] calldata requests) external returns (bool) {
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IRealmManagement.realmUpdateAdmin.selector);
     
     for(uint i = 0; i < requests.length; i++) {
       RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
@@ -143,8 +143,8 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     return true;
   }
 
-  function realmMoveContext(RealmMoveContextRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(IRealmManagement.realmMoveContext.selector);
+  function realmMoveContext(MemberSignature calldata memberSign, RealmMoveContextRequest[] calldata requests) external returns (bool) {
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IRealmManagement.realmMoveContext.selector);
 
     for(uint i = 0; i < requests.length; i++) {
       RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].realmId, senderId, functionId);
@@ -161,8 +161,8 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     return true;
   }
 
-  function realmUpdateActivityStatus(UpdateActivityRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(IRealmManagement.realmUpdateActivityStatus.selector);
+  function realmUpdateActivityStatus(MemberSignature calldata memberSign, UpdateActivityRequest[] calldata requests) external returns (bool) {
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IRealmManagement.realmUpdateActivityStatus.selector);
 
     for(uint i = 0; i < requests.length; i++) {
       RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);      
@@ -173,8 +173,8 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     return true;
   }
 
-  function realmUpdateAlterabilityStatus(UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(IRealmManagement.realmUpdateAlterabilityStatus.selector);
+  function realmUpdateAlterabilityStatus(MemberSignature calldata memberSign, UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IRealmManagement.realmUpdateAlterabilityStatus.selector);
 
     for(uint i = 0; i < requests.length; i++) {      
       RealmEntity storage realmEntity = _data.realmReadSlot(requests[i].id);
@@ -187,8 +187,8 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     return true;  
   }
 
-  function realmUpdateContextLimit(RealmUpdateContextLimitRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(IRealmManagement.realmUpdateContextLimit.selector);
+  function realmUpdateContextLimit(MemberSignature calldata memberSign, RealmUpdateContextLimitRequest[] calldata requests) external returns (bool) {
+    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IRealmManagement.realmUpdateContextLimit.selector);
 
     for (uint256 i = 0; i < requests.length; i++) {
       RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].realmId, senderId, functionId);
@@ -307,12 +307,20 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     return LACLCommons.checkAdminAccess(_data, adminId, memberId, functionId);
   }
    
-  function _accessPermission(bytes4 selector) internal returns (bytes32, bytes32) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
+ function _accessPermission(MemberSignature calldata memberSign, bytes4 selector) internal returns (bytes32, bytes32) {
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");  
+    address signer;
+
+    if(memberSign.signature.length > 0) {
+      require(memberSign.expiredAt > block.timestamp, "Expired Signature");
+      signer = LACLUtils.getMemeberSignerAddress(memberSign, MEMBER_SIGNATURE_MESSAGE_TYPEHASH);
+    } else {
+      signer = msg.sender;
+    }
     
     address functionFacetId = _data.selectors[selector];
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector); 
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
+    bytes32 senderId = LACLUtils.accountGenerateId(signer);
     IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
     if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
     return (functionId, senderId);

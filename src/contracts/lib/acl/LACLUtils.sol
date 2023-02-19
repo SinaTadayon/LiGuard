@@ -3,8 +3,12 @@
 
 pragma solidity 0.8.17;
 
+import "../../proxy/IProxy.sol";
 import "../../acl/IACL.sol";
+import "../../acl/IACLCommons.sol";
 import "../../acl/profile/IProfileACL.sol";
+import "../../acl/ACLStorage.sol";
+import "../cryptography/LECDSA.sol";
 
 /**
  * @title Context Utils Library
@@ -34,6 +38,35 @@ library LACLUtils {
   function generateHash(string memory name) internal pure returns (bytes32) {
     return keccak256(abi.encodePacked(name));
   }
+
+  
+  function getMemeberSignerAddress(IACLCommons.MemberSignature calldata memberSign, bytes32 msgTypeHash) internal view returns (address) {
+    return getSignerAddress(memberSign.signature, _generateMemberSignMsgHash(msgTypeHash, memberSign.account, memberSign.expiredAt));
+  }
+
+  function getProfileMemeberSignerAddress(IACLCommons.ProfileMemberSignature calldata memberSign, bytes32 msgTypeHash) internal view returns (address) {
+    return getSignerAddress(memberSign.signature, _generateProfileMemberSignMsgHash(msgTypeHash, generateId(memberSign.profileName), memberSign.account, memberSign.expiredAt));
+  }
+  
+  function _hashTypedDataV4(bytes32 structHash) private view returns (bytes32) {
+    return LECDSA.toTypedDataHash(IProxy(address(this)).domainSeparator(), structHash);
+  }
+
+  function _generateMemberSignMsgHash(bytes32 msgTypeHash, address account, uint256 expiredAt) private pure returns (bytes32) {
+    return keccak256(abi.encode(msgTypeHash, account, expiredAt));
+  }
+
+  function _generateProfileMemberSignMsgHash(bytes32 msgTypeHash, bytes32 profileName, address account, uint256 expiredAt) private pure returns (bytes32) {
+    return keccak256(abi.encode(msgTypeHash, profileName, account, expiredAt));
+  }
+
+  function getSignerAddress(bytes memory signature, bytes32 structHash) internal view returns (address) {
+    bytes32 msgDigest = _hashTypedDataV4(structHash);
+    (address msgSigner, LECDSA.RecoverError recoverErr) = LECDSA.tryRecover(msgDigest, signature);
+    require(recoverErr == LECDSA.RecoverError.NoError, "Illegal Signature");
+    return msgSigner;
+  }
+
 
   function generateAuthorizationError(IACL.AuthorizationStatus status) internal pure {
     if(status == IACL.AuthorizationStatus.UNAUTHORIZED) revert IACL.ACLUnauthorized();

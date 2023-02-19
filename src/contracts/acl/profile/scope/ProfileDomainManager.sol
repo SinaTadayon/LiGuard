@@ -56,8 +56,8 @@ contract ProfileDomainManager is ACLStorage, BaseUUPSProxy, IProfileDomainManage
   }
 
   // called by account that member of VERSE SCOPE MASTER TYPE
-  function profileDomainRegister(bytes32 profileId, ProfileDomainRegisterRequest[] calldata requests) external returns (bool) {
-    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 senderId) = _accessPermission(profileId, IProfileDomainManagement.profileDomainRegister.selector);
+  function profileDomainRegister(ProfileMemberSignature calldata memberSign, ProfileDomainRegisterRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId) = _accessPermission(memberSign, IProfileDomainManagement.profileDomainRegister.selector);
     
     // check profile and domain limitations and update it
     LProfileCommons.profileCheckMemberForDomainRegister(profileEntity, uint16(requests.length), senderId);
@@ -79,8 +79,8 @@ contract ProfileDomainManager is ACLStorage, BaseUUPSProxy, IProfileDomainManage
     return true;
   }
  
-  function profileDomainUpdateActivityStatus(bytes32 profileId, ProfileUpdateActivityRequest[] calldata requests) external returns (bool) {
-    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 senderId) = _accessPermission(profileId, IProfileDomainManagement.profileDomainUpdateActivityStatus.selector);
+  function profileDomainUpdateActivityStatus(ProfileMemberSignature calldata memberSign, ProfileUpdateActivityRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId) = _accessPermission(memberSign, IProfileDomainManagement.profileDomainUpdateActivityStatus.selector);
     for(uint i = 0; i < requests.length; i++) {    
       DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(profileEntity, functionEntity, requests[i].entityId, senderId); 
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
@@ -90,8 +90,8 @@ contract ProfileDomainManager is ACLStorage, BaseUUPSProxy, IProfileDomainManage
     return true;
   }
 
-  function profileDomainUpdateAlterabilityStatus(bytes32 profileId, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool) {
-    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 senderId) = _accessPermission(profileId, IProfileDomainManagement.profileDomainUpdateAlterabilityStatus.selector);
+  function profileDomainUpdateAlterabilityStatus(ProfileMemberSignature calldata memberSign, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId) = _accessPermission(memberSign, IProfileDomainManagement.profileDomainUpdateAlterabilityStatus.selector);
     for(uint i = 0; i < requests.length; i++) {    
       DomainEntity storage domainEntity = profileEntity.profileDomainReadSlot(requests[i].entityId);
       IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, functionEntity, domainEntity.bs.adminId, senderId);
@@ -103,8 +103,8 @@ contract ProfileDomainManager is ACLStorage, BaseUUPSProxy, IProfileDomainManage
     return true;  
   }
 
-  function profileDomainUpdateAdmin(bytes32 profileId, ProfileUpdateAdminRequest[] calldata requests) external returns (bool) {
-    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 senderId) = _accessPermission(profileId, IProfileDomainManagement.profileDomainUpdateAdmin.selector);
+  function profileDomainUpdateAdmin(ProfileMemberSignature calldata memberSign, ProfileUpdateAdminRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId) = _accessPermission(memberSign, IProfileDomainManagement.profileDomainUpdateAdmin.selector);
     for(uint i = 0; i < requests.length; i++) {  
       DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(profileEntity, functionEntity, requests[i].entityId, senderId); 
   
@@ -123,8 +123,8 @@ contract ProfileDomainManager is ACLStorage, BaseUUPSProxy, IProfileDomainManage
     return true;
   }
 
-  function profileDomainMoveRealm(bytes32 profileId, ProfileDomainMoveRealmRequest[] calldata requests) external returns (bool) {
-    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 senderId) = _accessPermission(profileId, IProfileDomainManagement.profileDomainMoveRealm.selector);
+  function profileDomainMoveRealm(ProfileMemberSignature calldata memberSign, ProfileDomainMoveRealmRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId) = _accessPermission(memberSign, IProfileDomainManagement.profileDomainMoveRealm.selector);
     for(uint i = 0; i < requests.length; i++) {  
       DomainEntity storage domainEntity = _doGetEntityAndCheckAdminAccess(profileEntity, functionEntity, requests[i].domainId, senderId);
       require(domainEntity.realms.contains(requests[i].realmId), "Realm Not Found");
@@ -139,8 +139,8 @@ contract ProfileDomainManager is ACLStorage, BaseUUPSProxy, IProfileDomainManage
     return true;
   }
 
-  function profileDomainUpdateRealmLimit(bytes32 profileId, ProfileDomainUpdateRealmLimitRequest[] calldata requests) external returns (bool) {
-    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 senderId) = _accessPermission(profileId, IProfileDomainManagement.profileDomainUpdateRealmLimit.selector);
+  function profileDomainUpdateRealmLimit(ProfileMemberSignature calldata memberSign, ProfileDomainUpdateRealmLimitRequest[] calldata requests) external returns (bool) {
+    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId) = _accessPermission(memberSign, IProfileDomainManagement.profileDomainUpdateRealmLimit.selector);
     for(uint i = 0; i < requests.length; i++) {    
       DomainEntity storage domainEntity =  _doGetEntityAndCheckAdminAccess(profileEntity, functionEntity, requests[i].domainId, senderId); 
       require(requests[i].realmLimit > domainEntity.realms.length(), "Illegal Limit");
@@ -280,18 +280,29 @@ contract ProfileDomainManager is ACLStorage, BaseUUPSProxy, IProfileDomainManage
     return bytes32(0);  
   }
   
-  function _accessPermission(bytes32 profileId, bytes4 selector) internal returns (ProfileEntity storage, FunctionEntity storage, bytes32) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");        
-    
+  function _accessPermission(ProfileMemberSignature calldata memberSign, bytes4 selector) internal returns (ProfileEntity storage, FunctionEntity storage, bytes32, bytes32) {
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");
+    require(bytes(memberSign.profileName).length > 0, "Illegal ProfileName");
+
+    address signer;
+
+    if(memberSign.signature.length > 0) {
+      require(memberSign.expiredAt > block.timestamp, "Expired Signature");
+      signer = LACLUtils.getProfileMemeberSignerAddress(memberSign, PROFILE_MEMBER_SIGNATURE_MESSAGE_TYPEHASH);
+    } else {
+      signer = msg.sender;
+    }
+
+    bytes32 profileId = LACLUtils.generateId(memberSign.profileName);
     address functionFacetId = _data.selectors[selector];
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector); 
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);   
+    bytes32 senderId = LACLUtils.accountGenerateId(signer);
 
     ProfileAccessControl(payable(address(this))).profileAclHasMemberAccess(profileId, functionId, senderId);    
     
     ProfileEntity storage profileEntity = _data.profiles[profileId];
     FunctionEntity storage functionEntity = _data.functionReadSlot(functionId);      
-    return (profileEntity, functionEntity, senderId);
+    return (profileEntity, functionEntity, profileId, senderId);
   }
 
   function _doGetEntityAndCheckAdminAccess(ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 domainId, bytes32 senderId) internal view returns (DomainEntity storage) {

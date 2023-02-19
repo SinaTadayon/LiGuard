@@ -63,17 +63,17 @@ interface IProfileRealmManagement is IACLCommons {
   
   event ProfileRealmAlterabilityUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed realmId, AlterabilityStatus alstat);
 
-  function profileRealmRegister(bytes32 profileId, ProfileRealmRegisterRequest[] calldata requests) external returns (bool);
+  function profileRealmRegister(ProfileMemberSignature calldata memberSign, ProfileRealmRegisterRequest[] calldata requests) external returns (bool);
 
-  function profileRealmUpdateAdmin(bytes32 profileId, ProfileUpdateAdminRequest[] calldata requests) external returns (bool);
+  function profileRealmUpdateAdmin(ProfileMemberSignature calldata memberSign, ProfileUpdateAdminRequest[] calldata requests) external returns (bool);
 
-  function profileRealmMoveContext(bytes32 profileId, ProfileRealmMoveContextRequest[] calldata requests) external returns (bool);
+  function profileRealmMoveContext(ProfileMemberSignature calldata memberSign, ProfileRealmMoveContextRequest[] calldata requests) external returns (bool);
 
-  function profileRealmUpdateActivityStatus(bytes32 profileId, ProfileUpdateActivityRequest[] calldata requests) external returns (bool);
+  function profileRealmUpdateActivityStatus(ProfileMemberSignature calldata memberSign, ProfileUpdateActivityRequest[] calldata requests) external returns (bool);
 
-  function profileRealmUpdateAlterabilityStatus(bytes32 profileId, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool);
+  function profileRealmUpdateAlterabilityStatus(ProfileMemberSignature calldata memberSign, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool);
 
-  function profileRealmUpdateContextLimit(bytes32 profileId, ProfileRealmUpdateContextLimitRequest[] calldata requests) external returns (bool);
+  function profileRealmUpdateContextLimit(ProfileMemberSignature calldata memberSign, ProfileRealmUpdateContextLimitRequest[] calldata requests) external returns (bool);
 
   function profileRealmCheckId(bytes32 profileId, bytes32 realmId) external view returns (bool);
 
