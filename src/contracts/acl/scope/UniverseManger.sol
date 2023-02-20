@@ -3,7 +3,7 @@
 
 pragma solidity 0.8.17;
 
-import "./IGlobalManagement.sol";
+import "./IUniverseManagement.sol";
 import "../IACL.sol";
 import "../IACLGenerals.sol";
 import "../ACLStorage.sol";
@@ -15,12 +15,12 @@ import "../../proxy/IProxy.sol";
 import "../../proxy/BaseUUPSProxy.sol";
 
 /**
- * @title Global Manager Contract
+ * @title Universe Manager Contract
  * @author Sina Tadayon, https://github.com/SinaTadayon
  * @dev
  *
  */
-contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
+contract UniverseManager is ACLStorage, BaseUUPSProxy, IUniverseManagement {
   using LACLStorage for DataCollection;
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
 
@@ -48,38 +48,37 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
    */
   function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
     return
-      interfaceId == type(IGlobalManagement).interfaceId ||
+      interfaceId == type(IUniverseManagement).interfaceId ||
       super.supportsInterface(interfaceId);
   }
 
-  function globalUpdateActivityStatus(MemberSignature calldata memberSign, ActivityStatus acstat) external returns (ActivityStatus) {  
-    bytes32 functionId = _accessPermissionActivity(memberSign, IGlobalManagement.globalUpdateActivityStatus.selector);
-    bytes32 senderId = LACLUtils.accountGenerateId(msg.sender);  
-    GlobalEntity storage globalEntity = _doGetEntityAndCheckAdminAccess(senderId, functionId);
+  function universeUpdateActivityStatus(MemberSignature calldata memberSign, ActivityStatus acstat) external returns (ActivityStatus) {  
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermissionActivity(memberSign, IUniverseManagement.universeUpdateActivityStatus.selector);
+    UniverseEntity storage universeEntity = _doGetEntityAndCheckAdminAccess(senderId, functionId);
     require(acstat > ActivityStatus.DELETED, "Illegal Activity");
-    globalEntity.bs.acstat = acstat;
-    emit GlobalActivityUpdated(msg.sender, _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, globalEntity.bs.acstat);    
+    universeEntity.bs.acstat = acstat;
+    emit UniverseActivityUpdated(sender, _LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID, universeEntity.bs.acstat);    
     return acstat;
   }
 
-  function globalUpdateAlterabilityStatus(MemberSignature calldata memberSign, AlterabilityStatus alstat) external returns (AlterabilityStatus) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IGlobalManagement.globalUpdateAlterabilityStatus.selector);
+  function universeUpdateAlterabilityStatus(MemberSignature calldata memberSign, AlterabilityStatus alstat) external returns (AlterabilityStatus) {
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IUniverseManagement.universeUpdateAlterabilityStatus.selector);
     
-    GlobalEntity storage globalEntity = _data.globalReadSlot(_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
-    IACL.AdminAccessStatus status = _doCheckAdminAccess(globalEntity.bs.adminId, senderId, functionId);
+    UniverseEntity storage universeEntity = _data.universeReadSlot(_LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);
+    IACL.AdminAccessStatus status = _doCheckAdminAccess(universeEntity.bs.adminId, senderId, functionId);
     if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
     require(alstat != AlterabilityStatus.NONE, "Illegal Alterability");
-    globalEntity.bs.alstat = alstat;
-    emit GlobalAlterabilityUpdated(msg.sender, _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, globalEntity.bs.alstat);    
+    universeEntity.bs.alstat = alstat;
+    emit UniverseAlterabilityUpdated(sender, _LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID, universeEntity.bs.alstat);    
     return alstat;
   }
 
-  function globalUpdateAdmin(MemberSignature calldata memberSign, bytes32 newAdminId) external returns (bool) { 
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IGlobalManagement.globalUpdateAdmin.selector);
+  function universeUpdateAdmin(MemberSignature calldata memberSign, bytes32 newAdminId) external returns (bool) { 
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IUniverseManagement.universeUpdateAdmin.selector);
 
-    GlobalEntity storage globalEntity = _doGetEntityAndCheckAdminAccess(senderId, functionId);
+    UniverseEntity storage universeEntity = _doGetEntityAndCheckAdminAccess(senderId, functionId);
 
-    require(newAdminId != globalEntity.bs.adminId && newAdminId != bytes32(0), "Illegal AdminId");
+    require(newAdminId != universeEntity.bs.adminId && newAdminId != bytes32(0), "Illegal AdminId");
     
     BaseAgent storage adminBaseAgent = _data.agents[newAdminId];
     require(adminBaseAgent.atype > AgentType.MEMBER, "Illegal Admin AgentType");
@@ -90,22 +89,22 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
       require(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID == newAdminId, "Illegal Admin");
     }
     
-    globalEntity.bs.adminId = newAdminId;
-    emit GlobalAdminUpdated(msg.sender, _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, globalEntity.bs.adminId);
+    universeEntity.bs.adminId = newAdminId;
+    emit UniverseAdminUpdated(sender, _LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID, universeEntity.bs.adminId);
     return true;
   }
 
-  function globalUpdateDomainLimit(MemberSignature calldata memberSign, uint16 domainLimit) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IGlobalManagement.globalUpdateDomainLimit.selector);
+  function universeUpdateDomainLimit(MemberSignature calldata memberSign, uint16 domainLimit) external returns (bool) {
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IUniverseManagement.universeUpdateDomainLimit.selector);
     
-    GlobalEntity storage globalEntity = _doGetEntityAndCheckAdminAccess(senderId, functionId);
-    require(domainLimit > globalEntity.domains.length() , "Illegal Limit");
-    globalEntity.domainLimit = domainLimit;    
-    emit GlobalDomainLimitUpdated(msg.sender, _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, domainLimit);    
+    UniverseEntity storage universeEntity = _doGetEntityAndCheckAdminAccess(senderId, functionId);
+    require(domainLimit > universeEntity.domains.length() , "Illegal Limit");
+    universeEntity.domainLimit = domainLimit;    
+    emit UniverseDomainLimitUpdated(sender, _LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID, domainLimit);    
     return true;
   }
 
-  function globalCheckAdmin(address account) external view returns (bool) {
+  function universeCheckAdmin(address account) external view returns (bool) {
     bytes32 memberId = LACLUtils.accountGenerateId(account);
     TypeEntity storage livelyAdminType = _data.typeReadSlot(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID);
     return livelyAdminType.members[memberId] != bytes32(0);  
@@ -115,27 +114,27 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
     return LACLCommons.checkAdminAccess(_data, adminId, memberId, functionId);
   }
 
-  function globalGetDomains() external view returns (bytes32[] memory) {
-    GlobalEntity storage globalEntity = _data.globalReadSlot(_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
-    return globalEntity.domains.values();
+  function universeGetDomains() external view returns (bytes32[] memory) {
+    UniverseEntity storage universeEntity = _data.universeReadSlot(_LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);
+    return universeEntity.domains.values();
   }
 
-  function globalGetInfo() external view returns (GlobalInfo memory) {
-    GlobalEntity storage globalEntity = _data.globalReadSlot(_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);    
-    return GlobalInfo ({            
-      id: _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID,
-      adminId: globalEntity.bs.adminId,
-      domainLimit: globalEntity.domainLimit,
-      domainCount: uint16(globalEntity.domains.length()),
-      referredByAgent: globalEntity.bs.referredByAgent,
-      stype:  globalEntity.bs.stype,
-      adminType: _data.agents[globalEntity.bs.adminId].atype,
-      acstat: globalEntity.bs.acstat,      
-      alstat: globalEntity.bs.alstat
+  function universeGetInfo() external view returns (UniverseInfo memory) {
+    UniverseEntity storage universeEntity = _data.universeReadSlot(_LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);    
+    return UniverseInfo ({            
+      id: _LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID,
+      adminId: universeEntity.bs.adminId,
+      domainLimit: universeEntity.domainLimit,
+      domainCount: uint16(universeEntity.domains.length()),
+      referredByAgent: universeEntity.bs.referredByAgent,
+      stype:  universeEntity.bs.stype,
+      adminType: _data.agents[universeEntity.bs.adminId].atype,
+      acstat: universeEntity.bs.acstat,      
+      alstat: universeEntity.bs.alstat
     });
   }
 
-  function _accessPermissionActivity(MemberSignature calldata memberSign, bytes4 selector) internal returns (bytes32) {
+  function _accessPermissionActivity(MemberSignature calldata memberSign, bytes4 selector) internal returns (bytes32, bytes32, address) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");  
     address signer;
 
@@ -151,10 +150,10 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(signer);   
     IACL.AuthorizationStatus status = _doHasAccess(functionId, senderId);
     if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
-    return functionId;
+    return (functionId, senderId, signer);
   }
 
-  function _accessPermission(MemberSignature calldata memberSign, bytes4 selector) internal returns (bytes32, bytes32) {
+  function _accessPermission(MemberSignature calldata memberSign, bytes4 selector) internal returns (bytes32, bytes32, address) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");  
     address signer;
 
@@ -170,15 +169,15 @@ contract GlobalManager is ACLStorage, BaseUUPSProxy, IGlobalManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(signer);
     IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
     if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
-    return (functionId, senderId);
+    return (functionId, senderId, signer);
   }
 
-  function _doGetEntityAndCheckAdminAccess(bytes32 senderId, bytes32 functionId) internal view returns (GlobalEntity storage) {
-    GlobalEntity storage globalEntity = _data.globalReadSlot(_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
-    require(globalEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");    
-    IACL.AdminAccessStatus status = _doCheckAdminAccess(globalEntity.bs.adminId, senderId, functionId);
+  function _doGetEntityAndCheckAdminAccess(bytes32 senderId, bytes32 functionId) internal view returns (UniverseEntity storage) {
+    UniverseEntity storage universeEntity = _data.universeReadSlot(_LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);
+    require(universeEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");    
+    IACL.AdminAccessStatus status = _doCheckAdminAccess(universeEntity.bs.adminId, senderId, functionId);
     if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
-    return globalEntity;
+    return universeEntity;
   }
 
   function _doHasAccess(bytes32 functionId, bytes32 memberId) internal returns (IACL.AuthorizationStatus) {

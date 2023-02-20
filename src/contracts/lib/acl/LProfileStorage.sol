@@ -14,9 +14,9 @@ import "../../acl/ACLStorage.sol";
  */
 library LProfileStorage {
  
-  function profileGlobalReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.GlobalEntity storage ge) {
+  function profileUniverseReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.UniverseEntity storage ge) {
     IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
-    if(bs.stype == IACLCommons.ScopeType.GLOBAL) {
+    if(bs.stype == IACLCommons.ScopeType.UNIVERSE) {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), scopeId)
@@ -30,9 +30,9 @@ library LProfileStorage {
     } 
   }
 
-  function profileGlobalWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.GlobalEntity storage ge) {
+  function profileUniverseWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.UniverseEntity storage ge) {
     IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
-    if(bs.stype == IACLCommons.ScopeType.NONE || bs.stype == IACLCommons.ScopeType.GLOBAL) {
+    if(bs.stype == IACLCommons.ScopeType.NONE || bs.stype == IACLCommons.ScopeType.UNIVERSE) {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), scopeId)

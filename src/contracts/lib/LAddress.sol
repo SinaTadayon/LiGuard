@@ -87,7 +87,7 @@ library LAddress {
    * function (like regular Solidity function calls).
    *
    * Returns the raw returned data. To convert to the expected return value,
-   * use https://solidity.readthedocs.io/en/latest/units-and-global-variables.html?highlight=abi.decode#abi-encoding-and-decoding-functions[`abi.decode`].
+   * use https://solidity.readthedocs.io/en/latest/units-and-universe-variables.html?highlight=abi.decode#abi-encoding-and-decoding-functions[`abi.decode`].
    *
    * Requirements:
    *

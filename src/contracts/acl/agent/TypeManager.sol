@@ -58,7 +58,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
   }
 
   function typeRegister(MemberSignature calldata memberSign, TypeRegisterRequest[] calldata requests) external returns (bool) {
-    (, bytes32 senderId) =_accessPermission(memberSign, ITypeManagement.typeRegister.selector);
+    (, bytes32 senderId, address sender) =_accessPermission(memberSign, ITypeManagement.typeRegister.selector);
     
     // check and set
     MemberEntity storage memberEntity = _data.memberReadSlot(senderId);
@@ -91,7 +91,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
       newType.name = requests[i].name;
       newType.ba.adminId = _getTypeAdmin(requestedScope.stype, requestedScope.adminId, requests[i].scopeId, requests[i].adminId);
       emit TypeRegistered(
-        msg.sender,
+        sender,
         newTypeId,
         requests[i].scopeId,
         requests[i].adminId
@@ -101,7 +101,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
   }
 
   function typeUpdateAdmin(MemberSignature calldata memberSign, UpdateAdminRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, ITypeManagement.typeUpdateAdmin.selector);
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, ITypeManagement.typeUpdateAdmin.selector);
     
     for(uint i = 0; i < requests.length; i++) {
       TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
@@ -114,13 +114,13 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
         requests[i].adminId
       );
 
-      emit TypeAdminUpdated(msg.sender, requests[i].id, requests[i].adminId);
+      emit TypeAdminUpdated(sender, requests[i].id, requests[i].adminId);
     }
     return true;
   }
 
   function typeUpdateScope(MemberSignature calldata memberSign, UpdateScopeRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, ITypeManagement.typeUpdateScope.selector);
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, ITypeManagement.typeUpdateScope.selector);
     ScopeType senderScopeType;
     bytes32 senderScopeId;
     for(uint i = 0; i < requests.length; i++) {
@@ -140,50 +140,51 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
       }
       
       BaseScope storage requestScope = _getAndCheckRequestScope(requests[i].scopeId, senderScopeId, senderScopeType);
-      BaseScope storage oldScope = _data.scopes[typeEntity.scopeId];
-      if(typeEntity.roles.length() > 0) {
-        require(requestScope.stype > oldScope.stype, "Illegal ScopeType");
+      BaseScope storage currentScope = _data.scopes[typeEntity.scopeId];      
+      if(typeEntity.roles.length() > 0) {        
+        require(requestScope.stype > currentScope.stype, "Illegal ScopeType");
+        require(IACLGenerals(address(this)).isScopesCompatible(requests[i].scopeId, typeEntity.scopeId), "Illegal Scope");
       }
-      require(oldScope.referredByAgent > 0, "Illeagl Referred");
-      unchecked { oldScope.referredByAgent -= 1; }
+      require(currentScope.referredByAgent > 0, "Illeagl Referred");
+      unchecked { currentScope.referredByAgent -= 1; }
       typeEntity.scopeId = requests[i].scopeId;
-      emit TypeScopeUpdated(msg.sender, requests[i].id, requests[i].scopeId);
+      emit TypeScopeUpdated(sender, requests[i].id, requests[i].scopeId);
     }
     return true;
   }  
 
   function typeUpdateActivityStatus(MemberSignature calldata memberSign, UpdateActivityRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, ITypeManagement.typeUpdateActivityStatus.selector);
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, ITypeManagement.typeUpdateActivityStatus.selector);
     for(uint i = 0; i < requests.length; i++) {
       TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");             
       typeEntity.ba.acstat = requests[i].acstat;
-      emit TypeActivityUpdated(msg.sender, requests[i].id, requests[i].acstat);
+      emit TypeActivityUpdated(sender, requests[i].id, requests[i].acstat);
     }
     return true;
   }
 
   function typeUpdateAlterabilityStatus(MemberSignature calldata memberSign, UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, ITypeManagement.typeUpdateAlterabilityStatus.selector);
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, ITypeManagement.typeUpdateAlterabilityStatus.selector);
     for(uint i = 0; i < requests.length; i++) {      
       TypeEntity storage typeEntity = _data.typeReadSlot(requests[i].id);
       IACL.AdminAccessStatus status = _doCheckAdminAccess(typeEntity.ba.adminId, senderId, functionId);
       if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);  
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       typeEntity.ba.alstat = requests[i].alstat;
-      emit TypeAlterabilityUpdated(msg.sender, requests[i].id, requests[i].alstat);
+      emit TypeAlterabilityUpdated(sender, requests[i].id, requests[i].alstat);
     }
     return true;
   }
 
   function typeUpdateRoleLimit(MemberSignature calldata memberSign, TypeUpdateRoleLimitRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, ITypeManagement.typeUpdateRoleLimit.selector);
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, ITypeManagement.typeUpdateRoleLimit.selector);
 
     for (uint256 i = 0; i < requests.length; i++) {
       TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].typeId, senderId, functionId);
       require(requests[i].roleLimit > typeEntity.roles.length(), "Illegal Limit");
       typeEntity.roleLimit = requests[i].roleLimit;
-      emit TypeRoleLimitUpdated(msg.sender, requests[i].typeId, requests[i].roleLimit);
+      emit TypeRoleLimitUpdated(sender, requests[i].typeId, requests[i].roleLimit);
     }
     return true;
   }
@@ -289,7 +290,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
     return LACLCommons.checkAdminAccess(_data, adminId, memberId, functionId);      
   }
 
-  function _accessPermission(MemberSignature calldata memberSign, bytes4 selector) internal returns (bytes32, bytes32) {
+  function _accessPermission(MemberSignature calldata memberSign, bytes4 selector) internal returns (bytes32, bytes32, address) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");  
     address signer;
 
@@ -305,7 +306,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(signer);
     IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
     if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
-    return (functionId, senderId);
+    return (functionId, senderId, signer);
   }
 
   function _getTypeAdmin(ScopeType requestScopeType, bytes32 requestScopeAdmin, bytes32 scopeId, bytes32 adminId) internal view returns (bytes32 typeAdminId) {

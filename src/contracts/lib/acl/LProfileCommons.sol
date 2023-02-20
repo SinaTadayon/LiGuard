@@ -41,7 +41,7 @@ library LProfileCommons {
 
   bytes32 public constant LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID         = keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_MASTER"));
   bytes32 public constant LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID         = keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER"));
-  bytes32 public constant LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID        = keccak256(abi.encodePacked("GLOBAL.LIVELY_PROFILE"));
+  bytes32 public constant LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID        = keccak256(abi.encodePacked("UNIVERSE.LIVELY_PROFILE"));
   bytes32 public constant LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID   = keccak256(abi.encodePacked("ROLE.LIVELY_PROFILE.LIVELY_MASTER_ADMIN"));
   bytes32 public constant LIVELY_PROFILE_SYSTEM_MASTER_ADMIN_ROLE_ID   = keccak256(abi.encodePacked("ROLE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER_ADMIN"));
 
@@ -158,17 +158,17 @@ library LProfileCommons {
     require(profileEntity.scopes[newDomainId].stype == IACLCommons.ScopeType.NONE, "Already Exist");
 
     // check sender scopes
-    IACLCommons.GlobalEntity storage livelyGlobalEntity = profileEntity.profileGlobalReadSlot(LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID);
+    IACLCommons.UniverseEntity storage livelyUniverseEntity = profileEntity.profileUniverseReadSlot(LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID);
 
-    require(livelyGlobalEntity.bs.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Global Updatable");
-    require(livelyGlobalEntity.domainLimit > livelyGlobalEntity.domains.length(), "Illegal Register");
+    require(livelyUniverseEntity.bs.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Universe Updatable");
+    require(livelyUniverseEntity.domainLimit > livelyUniverseEntity.domains.length(), "Illegal Register");
 
-    // check access admin global
-    IProfileACL.ProfileAdminAccessStatus status = _doProfileCheckAdminAccess(profileEntity, functionEntity, livelyGlobalEntity.bs.adminId, senderId);
+    // check access admin universe
+    IProfileACL.ProfileAdminAccessStatus status = _doProfileCheckAdminAccess(profileEntity, functionEntity, livelyUniverseEntity.bs.adminId, senderId);
     if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
 
-    // add domain to global
-    livelyGlobalEntity.domains.add(newDomainId);
+    // add domain to universe
+    livelyUniverseEntity.domains.add(newDomainId);
 
     // create new domain entity
     IACLCommons.DomainEntity storage newDomain = profileEntity.profileDomainWriteSlot(newDomainId);
@@ -176,17 +176,17 @@ library LProfileCommons {
     newDomain.bs.acstat = IACLCommons.ActivityStatus.ENABLED;
     newDomain.bs.alstat = IACLCommons.AlterabilityStatus.UPDATABLE;      
     newDomain.name = request.name;
-    newDomain.globalId = LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID;
+    newDomain.universeId = LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID;
     newDomain.realmLimit = request.realmLimit >= 0 ? uint16(uint24(request.realmLimit)) : profileEntity.limits.realmLimit;
     
     // checking requested domain admin 
     if(request.adminId != bytes32(0)) {
       require(profileEntity.agents[request.adminId].atype > IACLCommons.AgentType.MEMBER, "Illegal Admin AgentType");
       bytes32 requestAdminScopeId = _doDomainAgentGetScopeInfo(profileEntity, request.adminId);
-      require(requestAdminScopeId == LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Admin Scope");
+      require(requestAdminScopeId == LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID, "Illegal Admin Scope");
       newDomain.bs.adminId = request.adminId;
     } else {
-      newDomain.bs.adminId = livelyGlobalEntity.bs.adminId;
+      newDomain.bs.adminId = livelyUniverseEntity.bs.adminId;
     }
 
     return newDomainId;
@@ -202,7 +202,7 @@ library LProfileCommons {
       require(memberScopeId == request.domainId, "Illegal Domain Scope");
 
     } else {
-      require(memberScopeId == LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Global Scope");
+      require(memberScopeId == LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID, "Illegal Universe Scope");
     }
 
 
@@ -376,7 +376,7 @@ library LProfileCommons {
         require(requestAdminScopeId == domainId, "Illegal Admin Scope");
 
       } else {
-        require(requestAdminScopeId == LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Admin Scope");
+        require(requestAdminScopeId == LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID, "Illegal Admin Scope");
       }
       realmAdminId = adminId;
 

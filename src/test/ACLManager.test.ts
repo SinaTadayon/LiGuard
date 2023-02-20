@@ -20,13 +20,13 @@ import {
   DomainManagerTest__factory,
   FunctionManager,
   FunctionManager__factory,
-  GlobalManager,
-  GlobalManager__factory,
+  UniverseManager,
+  UniverseManager__factory,
   IACLManager,
   IContextManagement,
   IDomainManagement, IDomainManagementTest,
   IFunctionManagement,
-  IGlobalManagement,
+  IUniverseManagement,
   IMemberManagement,
   IPolicyManagement,
   IProxy,
@@ -51,7 +51,7 @@ import {
   ProfileDomainManager, ProfileDomainManager__factory,
   ProfileFunctionManager,
   ProfileFunctionManager__factory,
-  ProfileGlobalManager, ProfileGlobalManager__factory,
+  ProfileUniverseManager, ProfileUniverseManager__factory,
   ProfileManager,
   ProfileManager__factory,
   ProfileMemberManager,
@@ -91,7 +91,7 @@ import {
   LIVELY_VERSE_ACL_TYPE_ID,
   LIVELY_VERSE_ANONYMOUS_TYPE_ID,
   LIVELY_VERSE_ANY_TYPE_ID,
-  LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID,
+  LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID,
   LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
   LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
   LIVELY_VERSE_MEMBER_MASTER_ADMIN_ROLE_ID,
@@ -108,7 +108,7 @@ import {
   PolicyType,
   ProxySafeModeStatus,
   ProxyUpdatabilityStatus,
-  ScopeType
+  ScopeType, generateMemberSignatureManually
 } from "./TestUtils";
 import { ProxyUpgradedEventObject } from "../../typechain/types/proxy/Proxy";
 import { ProxyLocalAdminUpdatedEventObject } from "../../typechain/types/proxy/IProxy";
@@ -146,14 +146,16 @@ import { ContextManagerLibraryAddresses } from "../../typechain/types/factories/
 import { DomainManagerLibraryAddresses } from "../../typechain/types/factories/acl/scope/DomainManager__factory";
 import { RealmManagerLibraryAddresses } from "../../typechain/types/factories/acl/scope/RealmManager__factory";
 import {
-  GlobalManagerLibraryAddresses
-} from "../../typechain/types/factories/acl/scope/GlobalManger.sol/GlobalManager__factory";
-import {
-  ProfileGlobalManagerLibraryAddresses
-} from "../../typechain/types/factories/acl/profile/scope/ProfileGlobalManger.sol/ProfileGlobalManager__factory";
+  UniverseManagerLibraryAddresses
+} from "../../typechain/types/factories/acl/scope/UniverseManger.sol/UniverseManager__factory";
 import {
   ProfileTypeManagerLibraryAddresses
 } from "../../typechain/types/factories/acl/profile/agent/ProfileTypeManager__factory";
+import {
+  ProfileUniverseManagerLibraryAddresses
+} from "../../typechain/types/factories/acl/profile/scope/ProfileUniverseManger.sol/ProfileUniverseManager__factory";
+import { PromiseOrValue } from "../../typechain/types/common";
+import { address } from "hardhat/internal/core/config/config-validation";
 // ethers.utils.keccak256(ethers.utils.toUtf8Bytes("src/contracts/lib/acl/ContextManagementLib.sol:ContextManagementLib")) => 0x0304621006bd13fe54dc5f6b75a37ec856740450109fd223c2bfb60db9095cad => __$0304621006bd13fe54dc5f6b75a37ec856$__ ( library placeholder)
 const { provider, deployMockContract } = waffle;
 
@@ -206,9 +208,9 @@ describe("Lively Guard Tests", function() {
     let domainManagerSubject: DomainManager;
     let domainManagerProxy: DomainManager;
     let domainManagerDelegateProxy: DomainManager;
-    let globalManagerSubject: GlobalManager;
-    let globalManagerProxy: GlobalManager;
-    let globalManagerDelegateProxy: GlobalManager;
+    let universeManagerSubject: UniverseManager;
+    let universeManagerProxy: UniverseManager;
+    let universeManagerDelegateProxy: UniverseManager;
     let policyManagerSubject: PolicyManager;
     let policyManagerProxy: PolicyManager;
     let policyManagerDelegateProxy: PolicyManager;
@@ -238,9 +240,9 @@ describe("Lively Guard Tests", function() {
     let profileDomainManagerSubject: ProfileDomainManager;
     let profileDomainManagerProxy: ProfileDomainManager;
     let profileDomainManagerDelegateProxy: ProfileDomainManager;
-    let profileGlobalManagerSubject: ProfileGlobalManager;
-    let profileGlobalManagerProxy: ProfileGlobalManager;
-    let profileGlobalManagerDelegateProxy: ProfileGlobalManager;
+    let profileUniverseManagerSubject: ProfileUniverseManager;
+    let profileUniverseManagerProxy: ProfileUniverseManager;
+    let profileUniverseManagerDelegateProxy: ProfileUniverseManager;
     let profilePolicyManagerSubject: ProfilePolicyManager;
     let profilePolicyManagerProxy: ProfilePolicyManager;
     let profilePolicyManagerDelegateProxy: ProfilePolicyManager;
@@ -256,7 +258,8 @@ describe("Lively Guard Tests", function() {
     let aclRoleTestId: string;
     let aclRoleTestId2: string;
     let aclRoleTestId3: string;
-    let aclRoleGlobalAdminTestId: string;
+    let aclRoleTestId4: string;
+    let aclRoleUniverseAdminTestId: string;
     let aclTypeTestId: string;
     let aclPolicyTestId: string;
     let aclDomainTestId: string;
@@ -265,7 +268,8 @@ describe("Lively Guard Tests", function() {
     const ACL_ROLE_TEST_NAME = "ACL_ROLE_TEST";
     const ACL_ROLE_TEST_NAME_2 = "ACL_ROLE_TEST_2";
     const ACL_ROLE_TEST_NAME_3 = "ACL_ROLE_TEST_3";
-    const ACL_ROLE_GLOBAL_ADMIN_TEST_NAME = "ACL_ROLE_GLOBAL_ADMIN_TEST";
+    const ACL_ROLE_TEST_NAME_4 = "ACL_ROLE_TEST_4";
+    const ACL_ROLE_UNIVERSE_ADMIN_TEST_NAME = "ACL_ROLE_UNIVERSE_ADMIN_TEST";
     const ACL_TYPE_TEST_NAME = "ACL_TYPE_TEST";
     const ACL_POLICY_TEST_NAME = "ACL_POLICY_TEST";
     const ACL_DOMAIN_TEST_NAME = "ACL_DOMAIN_TEST";
@@ -280,7 +284,7 @@ describe("Lively Guard Tests", function() {
     const CONTEXT_MANAGER_CONTRACT_NAME = "ContextManager";
     const REALM_MANAGER_CONTRACT_NAME = "RealmManager";
     const DOMAIN_MANAGER_CONTRACT_NAME = "DomainManager";
-    const GLOBAL_MANAGER_CONTRACT_NAME = "GlobalManager";
+    const UNIVERSE_MANAGER_CONTRACT_NAME = "UniverseManager";
     const POLICY_MANAGER_CONTRACT_NAME = "PolicyManager";
     const PROFILE_MANAGER_CONTRACT_NAME = "ProfileManager";
     const ACCESS_CONTROL_CONTRACT_NAME = "AccessControl";
@@ -293,7 +297,7 @@ describe("Lively Guard Tests", function() {
     const PROFILE_CONTEXT_MANAGER_CONTRACT_NAME = "ProfileContextManager";
     const PROFILE_REALM_MANAGER_CONTRACT_NAME = "ProfileRealmManager";
     const PROFILE_DOMAIN_MANAGER_CONTRACT_NAME = "ProfileDomainManager";
-    const PROFILE_GLOBAL_MANAGER_CONTRACT_NAME = "ProfileGlobalManager";
+    const PROFILE_UNIVERSE_MANAGER_CONTRACT_NAME = "ProfileUniverseManager";
     const PROFILE_POLICY_MANAGER_CONTRACT_NAME = "ProfilePolicyManager";
     const PROFILE_ACCESS_CONTROL_CONTRACT_NAME = "ProfileAccessControl";
 
@@ -485,20 +489,20 @@ describe("Lively Guard Tests", function() {
         expect(await domainManagerSubject.initVersion()).to.be.equal(0);
       })
 
-      it("Should GlobalManager subject deploy success", async() => {
+      it("Should UniverseManager subject deploy success", async() => {
         // given
-        const globalManagerFactory = new GlobalManager__factory(<GlobalManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
+        const universeManagerFactory = new UniverseManager__factory(<UniverseManagerLibraryAddresses>linkCommonLibraryAddresses, systemAdmin);
 
         // when
-        globalManagerSubject = await globalManagerFactory.deploy();
+        universeManagerSubject = await universeManagerFactory.deploy();
 
         // then
-        expect(globalManagerSubject.address).not.null;
-        expect(await globalManagerSubject.safeModeStatus()).to.be.equal(ProxySafeModeStatus.ENABLED);
-        expect(await globalManagerSubject.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
-        expect(await globalManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
-        expect(await globalManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
-        expect(await globalManagerSubject.initVersion()).to.be.equal(0);
+        expect(universeManagerSubject.address).not.null;
+        expect(await universeManagerSubject.safeModeStatus()).to.be.equal(ProxySafeModeStatus.ENABLED);
+        expect(await universeManagerSubject.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(await universeManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
+        expect(await universeManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
+        expect(await universeManagerSubject.initVersion()).to.be.equal(0);
       })
 
       it("Should PolicyManager subject deploy success", async() => {
@@ -674,20 +678,20 @@ describe("Lively Guard Tests", function() {
         expect(await profileDomainManagerSubject.initVersion()).to.be.equal(0);
       })
 
-      it("Should ProfileGlobalManager subject deploy success", async() => {
+      it("Should ProfileUniverseManager subject deploy success", async() => {
         // given
-        const profileGlobalManagerFactory = new ProfileGlobalManager__factory(<ProfileGlobalManagerLibraryAddresses>linkProfileCommonLibraryAddresses, systemAdmin);
+        const profileUniverseManagerFactory = new ProfileUniverseManager__factory(<ProfileUniverseManagerLibraryAddresses>linkProfileCommonLibraryAddresses, systemAdmin);
 
         // when
-        profileGlobalManagerSubject = await profileGlobalManagerFactory.deploy();
+        profileUniverseManagerSubject = await profileUniverseManagerFactory.deploy();
 
         // then
-        expect(profileGlobalManagerSubject.address).not.null;
-        expect(await profileGlobalManagerSubject.safeModeStatus()).to.be.equal(ProxySafeModeStatus.ENABLED);
-        expect(await profileGlobalManagerSubject.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
-        expect(await profileGlobalManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
-        expect(await profileGlobalManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
-        expect(await profileGlobalManagerSubject.initVersion()).to.be.equal(0);
+        expect(profileUniverseManagerSubject.address).not.null;
+        expect(await profileUniverseManagerSubject.safeModeStatus()).to.be.equal(ProxySafeModeStatus.ENABLED);
+        expect(await profileUniverseManagerSubject.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(await profileUniverseManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
+        expect(await profileUniverseManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
+        expect(await profileUniverseManagerSubject.initVersion()).to.be.equal(0);
       })
 
       it("Should ProfilePolicyManager subject deploy success", async() => {
@@ -1301,39 +1305,39 @@ describe("Lively Guard Tests", function() {
         expect(await domainManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
       });
 
-      it("Should GlobalManager proxy deploy success", async () => {
+      it("Should UniverseManager proxy deploy success", async () => {
         // given
         const proxyFactory = new ACLProxy__factory(systemAdmin);
-        const iface = new ethers.utils.Interface(GlobalManager__factory.abi);
+        const iface = new ethers.utils.Interface(UniverseManager__factory.abi);
         const data = iface.encodeFunctionData("initialize", [
-          GLOBAL_MANAGER_CONTRACT_NAME,
+          UNIVERSE_MANAGER_CONTRACT_NAME,
           CONTRACTS_VERSION,
           aclManagerProxy.address,
         ]);
 
         // when
-        const proxy = await proxyFactory.deploy(globalManagerSubject.address, data);
+        const proxy = await proxyFactory.deploy(universeManagerSubject.address, data);
         await proxy.deployTransaction.wait();
 
         // then
-        globalManagerProxy = globalManagerSubject.attach(proxy.address);
+        universeManagerProxy = universeManagerSubject.attach(proxy.address);
         const domainSeparator = generateDomainSeparator(
-          GLOBAL_MANAGER_CONTRACT_NAME,
+          UNIVERSE_MANAGER_CONTRACT_NAME,
           CONTRACTS_VERSION,
-          globalManagerProxy.address,
+          universeManagerProxy.address,
           networkChainId
         );
 
         // and
-        expect(await globalManagerProxy.safeModeStatus()).to.be.equal(ProxySafeModeStatus.DISABLED);
-        expect(await globalManagerProxy.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
-        expect(await globalManagerProxy.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
-        expect(await globalManagerProxy.contractName()).to.be.equal(GLOBAL_MANAGER_CONTRACT_NAME);
-        expect(await globalManagerProxy.contractVersion()).to.be.equal(CONTRACTS_VERSION);
-        expect(await globalManagerProxy.subjectAddress()).to.be.hexEqual(globalManagerSubject.address)
-        expect(await globalManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
-        expect(await globalManagerProxy.initVersion()).to.be.equal(1);
-        expect(await globalManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
+        expect(await universeManagerProxy.safeModeStatus()).to.be.equal(ProxySafeModeStatus.DISABLED);
+        expect(await universeManagerProxy.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(await universeManagerProxy.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
+        expect(await universeManagerProxy.contractName()).to.be.equal(UNIVERSE_MANAGER_CONTRACT_NAME);
+        expect(await universeManagerProxy.contractVersion()).to.be.equal(CONTRACTS_VERSION);
+        expect(await universeManagerProxy.subjectAddress()).to.be.hexEqual(universeManagerSubject.address)
+        expect(await universeManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
+        expect(await universeManagerProxy.initVersion()).to.be.equal(1);
+        expect(await universeManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
       });
 
       it("Should PolicyManager proxy deploy success", async () => {
@@ -1744,39 +1748,39 @@ describe("Lively Guard Tests", function() {
         expect(await profileDomainManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
       });
 
-      it("Should ProfileGlobalManager proxy deploy success", async () => {
+      it("Should ProfileUniverseManager proxy deploy success", async () => {
         // given
         const proxyFactory = new ACLProxy__factory(systemAdmin);
-        const iface = new ethers.utils.Interface(ProfileGlobalManager__factory.abi);
+        const iface = new ethers.utils.Interface(ProfileUniverseManager__factory.abi);
         const data = iface.encodeFunctionData("initialize", [
-          PROFILE_GLOBAL_MANAGER_CONTRACT_NAME,
+          PROFILE_UNIVERSE_MANAGER_CONTRACT_NAME,
           CONTRACTS_VERSION,
           aclManagerProxy.address,
         ]);
 
         // when
-        const proxy = await proxyFactory.deploy(profileGlobalManagerSubject.address, data);
+        const proxy = await proxyFactory.deploy(profileUniverseManagerSubject.address, data);
         await proxy.deployTransaction.wait();
 
         // then
-        profileGlobalManagerProxy = profileGlobalManagerSubject.attach(proxy.address);
+        profileUniverseManagerProxy = profileUniverseManagerSubject.attach(proxy.address);
         const domainSeparator = generateDomainSeparator(
-          PROFILE_GLOBAL_MANAGER_CONTRACT_NAME,
+          PROFILE_UNIVERSE_MANAGER_CONTRACT_NAME,
           CONTRACTS_VERSION,
-          profileGlobalManagerProxy.address,
+          profileUniverseManagerProxy.address,
           networkChainId
         );
 
         // and
-        expect(await profileGlobalManagerProxy.safeModeStatus()).to.be.equal(ProxySafeModeStatus.DISABLED);
-        expect(await profileGlobalManagerProxy.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
-        expect(await profileGlobalManagerProxy.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
-        expect(await profileGlobalManagerProxy.contractName()).to.be.equal(PROFILE_GLOBAL_MANAGER_CONTRACT_NAME);
-        expect(await profileGlobalManagerProxy.contractVersion()).to.be.equal(CONTRACTS_VERSION);
-        expect(await profileGlobalManagerProxy.subjectAddress()).to.be.hexEqual(profileGlobalManagerSubject.address);
-        expect(await profileGlobalManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
-        expect(await profileGlobalManagerProxy.initVersion()).to.be.equal(1);
-        expect(await profileGlobalManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
+        expect(await profileUniverseManagerProxy.safeModeStatus()).to.be.equal(ProxySafeModeStatus.DISABLED);
+        expect(await profileUniverseManagerProxy.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
+        expect(await profileUniverseManagerProxy.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
+        expect(await profileUniverseManagerProxy.contractName()).to.be.equal(PROFILE_UNIVERSE_MANAGER_CONTRACT_NAME);
+        expect(await profileUniverseManagerProxy.contractVersion()).to.be.equal(CONTRACTS_VERSION);
+        expect(await profileUniverseManagerProxy.subjectAddress()).to.be.hexEqual(profileUniverseManagerSubject.address);
+        expect(await profileUniverseManagerProxy.accessControlManager()).to.be.hexEqual(aclManagerProxy.address);
+        expect(await profileUniverseManagerProxy.initVersion()).to.be.equal(1);
+        expect(await profileUniverseManagerProxy.domainSeparator()).to.be.hexEqual(domainSeparator);
       });
 
       it("Should ProfilePolicyManager proxy deploy success", async () => {
@@ -1893,7 +1897,7 @@ describe("Lively Guard Tests", function() {
         const contextIface = new ethers.utils.Interface(ContextManager__factory.abi);
         const realmIface = new ethers.utils.Interface(RealmManager__factory.abi);
         const domainIface = new ethers.utils.Interface(DomainManager__factory.abi);
-        const globalIface = new ethers.utils.Interface(GlobalManager__factory.abi);
+        const universeIface = new ethers.utils.Interface(UniverseManager__factory.abi);
         const policyIface = new ethers.utils.Interface(PolicyManager__factory.abi);
         const profileIface = new ethers.utils.Interface(ProfileManager__factory.abi);
         const accessControlIface = new ethers.utils.Interface(AccessControl__factory.abi);
@@ -2075,16 +2079,16 @@ describe("Lively Guard Tests", function() {
             ]
           },
           {
-            facetId: globalManagerProxy.address,
-            subjectId: globalManagerSubject.address,
+            facetId: universeManagerProxy.address,
+            subjectId: universeManagerSubject.address,
             selectors: [
-              globalIface.getSighash("globalUpdateActivityStatus"),
-              globalIface.getSighash("globalUpdateAlterabilityStatus"),
-              globalIface.getSighash("globalUpdateAdmin"),
-              globalIface.getSighash("globalUpdateDomainLimit"),
-              globalIface.getSighash("globalCheckAdmin"),
-              globalIface.getSighash("globalGetDomains"),
-              globalIface.getSighash("globalGetInfo"),
+              universeIface.getSighash("universeUpdateActivityStatus"),
+              universeIface.getSighash("universeUpdateAlterabilityStatus"),
+              universeIface.getSighash("universeUpdateAdmin"),
+              universeIface.getSighash("universeUpdateDomainLimit"),
+              universeIface.getSighash("universeCheckAdmin"),
+              universeIface.getSighash("universeGetDomains"),
+              universeIface.getSighash("universeGetInfo"),
             ]
           },
           {
@@ -2104,7 +2108,7 @@ describe("Lively Guard Tests", function() {
               accessControlIface.getSighash("getLivelyMasterType"),
               accessControlIface.getSighash("getPolicyMasterType"),
               accessControlIface.getSighash("getProfileMasterType"),
-              accessControlIface.getSighash("getGlobalScope"),
+              accessControlIface.getSighash("getUniverseScope"),
               accessControlIface.getSighash("isAgentExist"),
               accessControlIface.getSighash("isScopeExist"),
               accessControlIface.getSighash("getScopeBaseInfo"),
@@ -2134,7 +2138,7 @@ describe("Lively Guard Tests", function() {
           .to.emit(aclManagerProxy, "ACLFacetRegistered")
           .withArgs(systemAdminWallet.address, domainManagerProxy.address, domainManagerSubject.address)
           .to.emit(aclManagerProxy, "ACLFacetRegistered")
-          .withArgs(systemAdminWallet.address, globalManagerProxy.address, globalManagerSubject.address)
+          .withArgs(systemAdminWallet.address, universeManagerProxy.address, universeManagerSubject.address)
           .to.emit(aclManagerProxy, "ACLFacetRegistered")
           .withArgs(systemAdminWallet.address, accessControlProxy.address, accessControlSubject.address)
 
@@ -2150,7 +2154,7 @@ describe("Lively Guard Tests", function() {
           contextManagerProxy.address,
           realmManagerProxy.address,
           domainManagerProxy.address,
-          globalManagerProxy.address,
+          universeManagerProxy.address,
           accessControlProxy.address
         ])
       })
@@ -2165,7 +2169,7 @@ describe("Lively Guard Tests", function() {
         const profileContextIface = new ethers.utils.Interface(ProfileContextManager__factory.abi);
         const profileRealmIface = new ethers.utils.Interface(ProfileRealmManager__factory.abi);
         const profileDomainIface = new ethers.utils.Interface(ProfileDomainManager__factory.abi);
-        const profileGlobalIface = new ethers.utils.Interface(ProfileGlobalManager__factory.abi);
+        const profileUniverseIface = new ethers.utils.Interface(ProfileUniverseManager__factory.abi);
         const profilePolicyIface = new ethers.utils.Interface(ProfilePolicyManager__factory.abi);
         const profileAccessControlIface = new ethers.utils.Interface(ProfileAccessControl__factory.abi);
         const facetRequests: IACLManager.FacetRegisterRequestStruct[] = [
@@ -2326,16 +2330,16 @@ describe("Lively Guard Tests", function() {
             ]
           },
           {
-            facetId: profileGlobalManagerProxy.address,
-            subjectId: profileGlobalManagerSubject.address,
+            facetId: profileUniverseManagerProxy.address,
+            subjectId: profileUniverseManagerSubject.address,
             selectors: [
-              profileGlobalIface.getSighash("profileGlobalUpdateActivityStatus"),
-              profileGlobalIface.getSighash("profileGlobalUpdateAlterabilityStatus"),
-              profileGlobalIface.getSighash("profileGlobalUpdateAdmin"),
-              profileGlobalIface.getSighash("profileGlobalUpdateDomainLimit"),
-              profileGlobalIface.getSighash("profileGlobalCheckAdmin"),
-              profileGlobalIface.getSighash("profileGlobalGetDomains"),
-              profileGlobalIface.getSighash("profileGlobalGetInfo")
+              profileUniverseIface.getSighash("profileUniverseUpdateActivityStatus"),
+              profileUniverseIface.getSighash("profileUniverseUpdateAlterabilityStatus"),
+              profileUniverseIface.getSighash("profileUniverseUpdateAdmin"),
+              profileUniverseIface.getSighash("profileUniverseUpdateDomainLimit"),
+              profileUniverseIface.getSighash("profileUniverseCheckAdmin"),
+              profileUniverseIface.getSighash("profileUniverseGetDomains"),
+              profileUniverseIface.getSighash("profileUniverseGetInfo")
             ]
           },
           {
@@ -2351,7 +2355,7 @@ describe("Lively Guard Tests", function() {
               profileAccessControlIface.getSighash("profileAnyType"),
               profileAccessControlIface.getSighash("profileSystemMasterType"),
               profileAccessControlIface.getSighash("profileMasterType"),
-              profileAccessControlIface.getSighash("profileGlobalScope"),
+              profileAccessControlIface.getSighash("profileUniverseScope"),
               profileAccessControlIface.getSighash("profileIsAgentExist"),
               profileAccessControlIface.getSighash("profileIsScopeExist"),
               profileAccessControlIface.getSighash("profileScopeBaseInfo"),
@@ -2379,7 +2383,7 @@ describe("Lively Guard Tests", function() {
           .to.emit(aclManagerProxy, "ACLFacetRegistered")
           .withArgs(systemAdminWallet.address, profileDomainManagerProxy.address, profileDomainManagerSubject.address)
           .to.emit(aclManagerProxy, "ACLFacetRegistered")
-          .withArgs(systemAdminWallet.address, profileGlobalManagerProxy.address, profileGlobalManagerSubject.address)
+          .withArgs(systemAdminWallet.address, profileUniverseManagerProxy.address, profileUniverseManagerSubject.address)
           .to.emit(aclManagerProxy, "ACLFacetRegistered")
           .withArgs(systemAdminWallet.address, profileAccessControlProxy.address, profileAccessControlSubject.address)
 
@@ -2395,7 +2399,7 @@ describe("Lively Guard Tests", function() {
           contextManagerProxy.address,
           realmManagerProxy.address,
           domainManagerProxy.address,
-          globalManagerProxy.address,
+          universeManagerProxy.address,
           accessControlProxy.address,
           profileMemberManagerProxy.address,
           profileRoleManagerProxy.address,
@@ -2405,7 +2409,7 @@ describe("Lively Guard Tests", function() {
           profileContextManagerProxy.address,
           profileRealmManagerProxy.address,
           profileDomainManagerProxy.address,
-          profileGlobalManagerProxy.address,
+          profileUniverseManagerProxy.address,
           profileAccessControlProxy.address
         ])
       })
@@ -2417,7 +2421,7 @@ describe("Lively Guard Tests", function() {
         const typeContextId = ethers.utils.keccak256(typeManagerProxy.address);
         const realmContextId = ethers.utils.keccak256(realmManagerProxy.address);
         const domainContextId = ethers.utils.keccak256(domainManagerProxy.address);
-        const globalContextId = ethers.utils.keccak256(globalManagerProxy.address);
+        const universeContextId = ethers.utils.keccak256(universeManagerProxy.address);
         const policyContextId = ethers.utils.keccak256(policyManagerProxy.address);
         const profileContextId = ethers.utils.keccak256(profileManagerProxy.address);
         const aclManagerContextId = ethers.utils.keccak256(aclManagerProxy.address);
@@ -2497,9 +2501,9 @@ describe("Lively Guard Tests", function() {
             realmId: LIVELY_VERSE_ACL_REALM_ID,
             adminId: LIVELY_VERSE_ACL_TYPE_ID,
             salt: ethers.constants.HashZero,
-            name: GLOBAL_MANAGER_CONTRACT_NAME,
+            name: UNIVERSE_MANAGER_CONTRACT_NAME,
             version: CONTRACTS_VERSION,
-            contractId: globalManagerProxy.address,
+            contractId: universeManagerProxy.address,
             subject: ethers.constants.AddressZero,
             deployer: ethers.constants.AddressZero,
             functionLimit: 32,
@@ -2564,13 +2568,18 @@ describe("Lively Guard Tests", function() {
             signature: new Int8Array(0)
           },
         ];
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // attach proxies to aclManager
         functionManagerDelegateProxy = functionManagerProxy.attach(aclManagerProxy.address);
         contextManagerDelegateProxy = contextManagerProxy.attach(aclManagerProxy.address);
         realmManagerDelegateProxy = realmManagerProxy.attach(aclManagerProxy.address);
         domainManagerDelegateProxy = domainManagerProxy.attach(aclManagerProxy.address);
-        globalManagerDelegateProxy = globalManagerProxy.attach(aclManagerProxy.address);
+        universeManagerDelegateProxy = universeManagerProxy.attach(aclManagerProxy.address);
         policyManagerDelegateProxy = policyManagerProxy.attach(aclManagerProxy.address);
         profileManagerDelegateProxy = profileManagerProxy.attach(aclManagerProxy.address);
         accessControlDelegateProxy = accessControlProxy.attach(aclManagerProxy.address);
@@ -2579,43 +2588,34 @@ describe("Lively Guard Tests", function() {
         typeManagerDelegateProxy = typeManagerProxy.attach(aclManagerProxy.address);
 
         // when
-        await expect(contextManagerDelegateProxy.connect(systemAdmin).contextRegister(contextRequests))
+        await expect(contextManagerDelegateProxy.connect(systemAdmin).contextRegister(memberSignature, contextRequests))
           .to.emit(contextManagerDelegateProxy, "ContextRegistered")
           .withArgs(systemAdminWallet.address, memberContextId, memberManagerProxy.address,LIVELY_VERSE_ACL_REALM_ID,
-            ethers.constants.AddressZero, ethers.constants.AddressZero, ethers.constants.AddressZero,
-            LIVELY_VERSE_ACL_TYPE_ID)
+            ethers.constants.AddressZero, ethers.constants.AddressZero, LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(contextManagerDelegateProxy, "ContextRegistered")
           .withArgs(systemAdminWallet.address, roleContextId, roleManagerProxy.address, LIVELY_VERSE_ACL_REALM_ID,
-            ethers.constants.AddressZero, ethers.constants.AddressZero, ethers.constants.AddressZero,
-            LIVELY_VERSE_ACL_TYPE_ID)
+            ethers.constants.AddressZero, ethers.constants.AddressZero, LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(contextManagerDelegateProxy, "ContextRegistered")
           .withArgs(systemAdminWallet.address, typeContextId, typeManagerProxy.address, LIVELY_VERSE_ACL_REALM_ID,
-            ethers.constants.AddressZero, ethers.constants.AddressZero, ethers.constants.AddressZero,
-            LIVELY_VERSE_ACL_TYPE_ID)
+            ethers.constants.AddressZero, ethers.constants.AddressZero, LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(contextManagerDelegateProxy, "ContextRegistered")
           .withArgs(systemAdminWallet.address, realmContextId, realmManagerProxy.address, LIVELY_VERSE_ACL_REALM_ID,
-            ethers.constants.AddressZero, ethers.constants.AddressZero, ethers.constants.AddressZero,
-            LIVELY_VERSE_ACL_TYPE_ID)
+            ethers.constants.AddressZero, ethers.constants.AddressZero, LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(contextManagerDelegateProxy, "ContextRegistered")
           .withArgs(systemAdminWallet.address, domainContextId, domainManagerProxy.address, LIVELY_VERSE_ACL_REALM_ID,
-            ethers.constants.AddressZero, ethers.constants.AddressZero, ethers.constants.AddressZero,
-            LIVELY_VERSE_ACL_TYPE_ID)
+            ethers.constants.AddressZero, ethers.constants.AddressZero, LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(contextManagerDelegateProxy, "ContextRegistered")
-          .withArgs(systemAdminWallet.address, globalContextId, globalManagerProxy.address, LIVELY_VERSE_ACL_REALM_ID,
-            ethers.constants.AddressZero, ethers.constants.AddressZero, ethers.constants.AddressZero,
-            LIVELY_VERSE_ACL_TYPE_ID)
+          .withArgs(systemAdminWallet.address, universeContextId, universeManagerProxy.address, LIVELY_VERSE_ACL_REALM_ID,
+            ethers.constants.AddressZero, ethers.constants.AddressZero, LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(contextManagerDelegateProxy, "ContextRegistered")
           .withArgs(systemAdminWallet.address, policyContextId, policyManagerProxy.address, LIVELY_VERSE_ACL_REALM_ID,
-            ethers.constants.AddressZero, ethers.constants.AddressZero, ethers.constants.AddressZero,
-            LIVELY_VERSE_ACL_TYPE_ID)
+            ethers.constants.AddressZero, ethers.constants.AddressZero, LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(contextManagerDelegateProxy, "ContextRegistered")
           .withArgs(systemAdminWallet.address, accessControlContextId, accessControlProxy.address, LIVELY_VERSE_ACL_REALM_ID,
-            ethers.constants.AddressZero, ethers.constants.AddressZero, ethers.constants.AddressZero,
-            LIVELY_VERSE_ACL_TYPE_ID)
+            ethers.constants.AddressZero, ethers.constants.AddressZero, LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(contextManagerDelegateProxy, "ContextRegistered")
           .withArgs(systemAdminWallet.address, aclManagerContextId, aclManagerProxy.address, LIVELY_VERSE_ACL_REALM_ID,
-            ethers.constants.AddressZero, ethers.constants.AddressZero, ethers.constants.AddressZero,
-            LIVELY_VERSE_ACL_TYPE_ID)
+            ethers.constants.AddressZero, ethers.constants.AddressZero, LIVELY_VERSE_ACL_TYPE_ID)
 
         // then
         expect(await contextManagerDelegateProxy.contextCheckId(memberContextId)).to.be.true;
@@ -2623,7 +2623,7 @@ describe("Lively Guard Tests", function() {
         expect(await contextManagerDelegateProxy.contextCheckId(typeContextId)).to.be.true;
         expect(await contextManagerDelegateProxy.contextCheckId(realmContextId)).to.be.true;
         expect(await contextManagerDelegateProxy.contextCheckId(domainContextId)).to.be.true;
-        expect(await contextManagerDelegateProxy.contextCheckId(globalContextId)).to.be.true;
+        expect(await contextManagerDelegateProxy.contextCheckId(universeContextId)).to.be.true;
         expect(await contextManagerDelegateProxy.contextCheckId(policyContextId)).to.be.true;
         expect(await contextManagerDelegateProxy.contextCheckId(profileContextId)).to.be.true;
         expect(await contextManagerDelegateProxy.contextCheckId(aclManagerContextId)).to.be.true;
@@ -2651,7 +2651,7 @@ describe("Lively Guard Tests", function() {
         const profileContextContextId = ethers.utils.keccak256(profileContextManagerProxy.address);
         const profileRealmContextId = ethers.utils.keccak256(profileRealmManagerProxy.address);
         const profileDomainContextId = ethers.utils.keccak256(profileDomainManagerProxy.address);
-        const profileGlobalContextId = ethers.utils.keccak256(profileGlobalManagerProxy.address);
+        const profileUniverseContextId = ethers.utils.keccak256(profileUniverseManagerProxy.address);
         const profilePolicyContextId = ethers.utils.keccak256(profilePolicyManagerProxy.address);
         const profileAccessControlContextId = ethers.utils.keccak256(profileAccessControlProxy.address);
         const contextRequests: IContextManagement.ContextRegisterRequestStruct[] = [
@@ -2757,9 +2757,9 @@ describe("Lively Guard Tests", function() {
             realmId: LIVELY_VERSE_ACL_REALM_ID,
             adminId: LIVELY_VERSE_ACL_TYPE_ID,
             salt: ethers.constants.HashZero,
-            name: PROFILE_GLOBAL_MANAGER_CONTRACT_NAME,
+            name: PROFILE_UNIVERSE_MANAGER_CONTRACT_NAME,
             version: CONTRACTS_VERSION,
-            contractId: profileGlobalManagerProxy.address,
+            contractId: profileUniverseManagerProxy.address,
             subject: ethers.constants.AddressZero,
             deployer: ethers.constants.AddressZero,
             functionLimit: 32,
@@ -2796,13 +2796,26 @@ describe("Lively Guard Tests", function() {
             signature: new Int8Array(0)
           },
         ];
+        const expiredAt = BigNumber.from(Date.now() + 10000);
+        const signature = generateMemberSignatureManually(
+          systemAdminWallet.address,
+          aclManagerProxy.address,
+          systemAdminWallet,
+          networkChainId,
+          expiredAt
+        );
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: systemAdminWallet.address,
+          expiredAt: expiredAt,
+          signature: signature
+        }
 
         // attach proxies to aclManager
         profileFunctionManagerDelegateProxy = profileFunctionManagerProxy.attach(aclManagerProxy.address);
         profileContextManagerDelegateProxy = profileContextManagerProxy.attach(aclManagerProxy.address);
         profileRealmManagerDelegateProxy = profileRealmManagerProxy.attach(aclManagerProxy.address);
         profileDomainManagerDelegateProxy = profileDomainManagerProxy.attach(aclManagerProxy.address);
-        profileGlobalManagerDelegateProxy = profileGlobalManagerProxy.attach(aclManagerProxy.address);
+        profileUniverseManagerDelegateProxy = profileUniverseManagerProxy.attach(aclManagerProxy.address);
         profilePolicyManagerDelegateProxy = profilePolicyManagerProxy.attach(aclManagerProxy.address);
         profileAccessControlDelegateProxy = profileAccessControlProxy.attach(aclManagerProxy.address);
         profileMemberManagerDelegateProxy = profileMemberManagerProxy.attach(aclManagerProxy.address);
@@ -2810,56 +2823,45 @@ describe("Lively Guard Tests", function() {
         profileTypeManagerDelegateProxy = profileTypeManagerProxy.attach(aclManagerProxy.address);
 
         // when
-        await expect(contextManagerDelegateProxy.connect(systemAdmin).contextRegister(contextRequests))
+        await expect(contextManagerDelegateProxy.connect(livelyAdmin).contextRegister(memberSignature, contextRequests))
           .to.emit(contextManagerDelegateProxy, "ContextRegistered")
           .withArgs(systemAdminWallet.address, profileMemberContextId, profileMemberManagerProxy.address,LIVELY_VERSE_ACL_REALM_ID,
-            ethers.constants.AddressZero, ethers.constants.AddressZero, ethers.constants.AddressZero,
-            LIVELY_VERSE_ACL_TYPE_ID)
+            ethers.constants.AddressZero, ethers.constants.AddressZero, LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(contextManagerDelegateProxy, "ContextRegistered")
           .withArgs(systemAdminWallet.address, profileRoleContextId, profileRoleManagerProxy.address, LIVELY_VERSE_ACL_REALM_ID,
-            ethers.constants.AddressZero, ethers.constants.AddressZero, ethers.constants.AddressZero,
-            LIVELY_VERSE_ACL_TYPE_ID)
+            ethers.constants.AddressZero, ethers.constants.AddressZero, LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(contextManagerDelegateProxy, "ContextRegistered")
           .withArgs(systemAdminWallet.address, profileTypeContextId, profileTypeManagerProxy.address, LIVELY_VERSE_ACL_REALM_ID,
-            ethers.constants.AddressZero, ethers.constants.AddressZero, ethers.constants.AddressZero,
-            LIVELY_VERSE_ACL_TYPE_ID)
+            ethers.constants.AddressZero, ethers.constants.AddressZero, LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(contextManagerDelegateProxy, "ContextRegistered")
           .withArgs(systemAdminWallet.address, profileFunctionContextId, profileFunctionManagerProxy.address, LIVELY_VERSE_ACL_REALM_ID,
-            ethers.constants.AddressZero, ethers.constants.AddressZero, ethers.constants.AddressZero,
-            LIVELY_VERSE_ACL_TYPE_ID)
+            ethers.constants.AddressZero, ethers.constants.AddressZero, LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(contextManagerDelegateProxy, "ContextRegistered")
           .withArgs(systemAdminWallet.address, profileContextContextId, profileContextManagerProxy.address, LIVELY_VERSE_ACL_REALM_ID,
-            ethers.constants.AddressZero, ethers.constants.AddressZero, ethers.constants.AddressZero,
-            LIVELY_VERSE_ACL_TYPE_ID)
+            ethers.constants.AddressZero, ethers.constants.AddressZero, LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(contextManagerDelegateProxy, "ContextRegistered")
           .withArgs(systemAdminWallet.address, profileRealmContextId, profileRealmManagerProxy.address, LIVELY_VERSE_ACL_REALM_ID,
-            ethers.constants.AddressZero, ethers.constants.AddressZero, ethers.constants.AddressZero,
-            LIVELY_VERSE_ACL_TYPE_ID)
+            ethers.constants.AddressZero, ethers.constants.AddressZero, LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(contextManagerDelegateProxy, "ContextRegistered")
           .withArgs(systemAdminWallet.address, profileDomainContextId, profileDomainManagerProxy.address, LIVELY_VERSE_ACL_REALM_ID,
-            ethers.constants.AddressZero, ethers.constants.AddressZero, ethers.constants.AddressZero,
-            LIVELY_VERSE_ACL_TYPE_ID)
+            ethers.constants.AddressZero, ethers.constants.AddressZero, LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(contextManagerDelegateProxy, "ContextRegistered")
-          .withArgs(systemAdminWallet.address, profileGlobalContextId, profileGlobalManagerProxy.address, LIVELY_VERSE_ACL_REALM_ID,
-            ethers.constants.AddressZero, ethers.constants.AddressZero, ethers.constants.AddressZero,
-            LIVELY_VERSE_ACL_TYPE_ID)
+          .withArgs(systemAdminWallet.address, profileUniverseContextId, profileUniverseManagerProxy.address, LIVELY_VERSE_ACL_REALM_ID,
+            ethers.constants.AddressZero, ethers.constants.AddressZero, LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(contextManagerDelegateProxy, "ContextRegistered")
           .withArgs(systemAdminWallet.address, profilePolicyContextId, profilePolicyManagerProxy.address, LIVELY_VERSE_ACL_REALM_ID,
-            ethers.constants.AddressZero, ethers.constants.AddressZero, ethers.constants.AddressZero,
-            LIVELY_VERSE_ACL_TYPE_ID)
+            ethers.constants.AddressZero, ethers.constants.AddressZero, LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(contextManagerDelegateProxy, "ContextRegistered")
           .withArgs(systemAdminWallet.address, profileAccessControlContextId, profileAccessControlProxy.address, LIVELY_VERSE_ACL_REALM_ID,
-            ethers.constants.AddressZero, ethers.constants.AddressZero, ethers.constants.AddressZero,
-            LIVELY_VERSE_ACL_TYPE_ID)
-
-
+            ethers.constants.AddressZero, ethers.constants.AddressZero, LIVELY_VERSE_ACL_TYPE_ID)
+        
         // then
         expect(await contextManagerDelegateProxy.contextCheckId(profileMemberContextId)).to.be.true;
         expect(await contextManagerDelegateProxy.contextCheckId(profileRoleContextId)).to.be.true;
         expect(await contextManagerDelegateProxy.contextCheckId(profileTypeContextId)).to.be.true;
         expect(await contextManagerDelegateProxy.contextCheckId(profileRealmContextId)).to.be.true;
         expect(await contextManagerDelegateProxy.contextCheckId(profileDomainContextId)).to.be.true;
-        expect(await contextManagerDelegateProxy.contextCheckId(profileGlobalContextId)).to.be.true;
+        expect(await contextManagerDelegateProxy.contextCheckId(profileUniverseContextId)).to.be.true;
         expect(await contextManagerDelegateProxy.contextCheckId(profilePolicyContextId)).to.be.true;
         expect(await contextManagerDelegateProxy.contextCheckId(profileAccessControlContextId)).to.be.true;
 
@@ -2879,7 +2881,7 @@ describe("Lively Guard Tests", function() {
       it("Should register MemberManger functions by systemAdmin success", async() => {
         // given
         // const memberIface = new ethers.utils.Interface(MemberManager__factory.abi);
-        const signer = new Int8Array(0);
+        
         const memberContextId = ethers.utils.keccak256(memberManagerProxy.address);
         const memberRegisterFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
@@ -3005,7 +3007,6 @@ describe("Lively Guard Tests", function() {
             alstat: AlterabilityStatus.UPDATABLE
           },
         ]
-
         const memberFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
           {
             signature: new Int8Array(0),
@@ -3019,42 +3020,47 @@ describe("Lively Guard Tests", function() {
             functions: memberFunctionRequests
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(memberFunctionRegisterRequest))
+        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(memberSignature, memberFunctionRegisterRequest))
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, memberContextId, memberRegisterFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, memberContextId, memberUpdateActivityStatusFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, memberContextId, memberUpdateAlterabilityStatusFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, memberContextId, memberUpdateAdminFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, memberContextId, memberUpdateGeneralLimitFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, memberContextId, upgradeToFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, memberContextId, setSafeModeStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, memberContextId, setUpdatabilityStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, memberContextId, setLocalAdminFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, memberContextId, setAccessControlManagerFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, memberContextId, withdrawBalanceFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
 
         // then
         expect(await contextManagerDelegateProxy.contextHasFunction(memberContextId, memberRegisterFunctionId)).to.be.true
@@ -3076,7 +3082,7 @@ describe("Lively Guard Tests", function() {
       it("Should register RoleManager functions by systemAdmin success", async() => {
         const roleIface = new ethers.utils.Interface(RoleManager__factory.abi);
         const roleContextId = ethers.utils.keccak256(roleManagerProxy.address);
-        const signer = new Int8Array(0);
+        
         const roleRegisterFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
             [roleManagerProxy.address,  roleIface.getSighash("roleRegister")]));
@@ -3234,7 +3240,6 @@ describe("Lively Guard Tests", function() {
             alstat: AlterabilityStatus.UPDATABLE
           },
         ]
-
         const roleFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
           {
             signature: new Int8Array(0),
@@ -3248,51 +3253,64 @@ describe("Lively Guard Tests", function() {
             functions: roleFunctionRequests
           }
         ]
+        const expiredAt = BigNumber.from(Date.now() + 10000);
+        const signature = generateMemberSignatureManually(
+          systemAdminWallet.address,
+          aclManagerProxy.address,
+          systemAdminWallet,
+          networkChainId,
+          expiredAt
+        );
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: systemAdminWallet.address,
+          expiredAt: expiredAt,
+          signature: signature
+        }
 
         // when
-        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(roleFunctionRegisterRequest))
+        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionRegister(memberSignature, roleFunctionRegisterRequest))
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, roleContextId, roleRegisterFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, roleContextId, roleUpdateActivityStatusFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, roleContextId, roleUpdateAlterabilityStatusFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, roleContextId, roleUpdateAdminFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, roleContextId, roleUpdateScopeFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, roleContextId, roleUpdateMemberLimitFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, roleContextId, roleGrantMembersFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, roleContextId, roleRevokeMembersFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, roleContextId, upgradeToFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, roleContextId, setSafeModeStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, roleContextId, setUpdatabilityStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, roleContextId, setLocalAdminFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, roleContextId, setAccessControlManagerFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, roleContextId, withdrawBalanceFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
 
         // then
         expect(await contextManagerDelegateProxy.contextHasFunction(roleContextId, roleRegisterFunctionId)).to.be.true
@@ -3314,7 +3332,7 @@ describe("Lively Guard Tests", function() {
       it("Should register TypeManager functions by systemAdmin success", async() => {
         const typeIface = new ethers.utils.Interface(TypeManager__factory.abi);
         const typeContextId = ethers.utils.keccak256(typeManagerProxy.address);
-        const signer = new Int8Array(0);
+        
         const typeRegisterFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
             [typeManagerProxy.address,  typeIface.getSighash("typeRegister")]));
@@ -3463,45 +3481,50 @@ describe("Lively Guard Tests", function() {
             functions: typeFunctionRequests
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(typeFunctionRegisterRequest))
+        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(memberSignature, typeFunctionRegisterRequest))
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, typeContextId, typeRegisterFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_TYPE_MASTER_TYPE_ID,signer)
+            LIVELY_VERSE_TYPE_MASTER_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, typeContextId, typeUpdateActivityStatusFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, typeContextId, typeUpdateAlterabilityStatusFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, typeContextId, typeUpdateAdminFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, typeContextId, typeUpdateScopeFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, typeContextId, typeUpdateRoleLimitFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, typeContextId, upgradeToFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, typeContextId, setSafeModeStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, typeContextId, setUpdatabilityStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, typeContextId, setLocalAdminFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, typeContextId, setAccessControlManagerFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, typeContextId, withdrawBalanceFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
 
         // then
         expect(await contextManagerDelegateProxy.contextHasFunction(typeContextId, typeRegisterFunctionId)).to.be.true
@@ -3523,7 +3546,7 @@ describe("Lively Guard Tests", function() {
       it("Should register FunctionManager functions by systemAdmin success", async() => {
         const functionIface = new ethers.utils.Interface(FunctionManager__factory.abi);
         const functionContextId = ethers.utils.keccak256(functionManagerProxy.address);
-        const signer = new Int8Array(0);
+        
         const functionUpdateAdminFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
             [functionManagerProxy.address,  functionIface.getSighash("functionUpdateAdmin")]));
@@ -3661,42 +3684,47 @@ describe("Lively Guard Tests", function() {
             functions: functionFunctionRequests
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(roleFunctionRegisterRequest))
+        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(memberSignature, roleFunctionRegisterRequest))
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, functionContextId, functionUpdateAdminFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, functionContextId, functionUpdateAgentFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, functionContextId, functionUpdateActivityStatusFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, functionContextId, functionUpdateAlterabilityStatusFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, functionContextId, functionUpdatePolicyFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, functionContextId, upgradeToFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, functionContextId, setSafeModeStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, functionContextId, setUpdatabilityStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, functionContextId, setLocalAdminFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, functionContextId, setAccessControlManagerFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, functionContextId, withdrawBalanceFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
 
         // then
         expect(await contextManagerDelegateProxy.contextHasFunction(functionContextId, functionUpdateAdminFunctionId)).to.be.true
@@ -3718,7 +3746,7 @@ describe("Lively Guard Tests", function() {
       it("Should register ContextManager functions by systemAdmin success", async() => {
         const contextIface = new ethers.utils.Interface(ContextManager__factory.abi);
         const contextContextId = ethers.utils.keccak256(contextManagerProxy.address);
-        const signer = new Int8Array(0);
+        
         const contextUpdateActivityStatusFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
             [contextManagerProxy.address,  contextIface.getSighash("contextUpdateActivityStatus")]));
@@ -3845,39 +3873,44 @@ describe("Lively Guard Tests", function() {
             functions: contextFunctionRequests
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(contextFunctionRegisterRequest))
+        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(memberSignature, contextFunctionRegisterRequest))
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, contextContextId, contextUpdateActivityStatusFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, contextContextId, contextUpdateAlterabilityStatusFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, contextContextId, contextUpdateAdminFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, contextContextId, contextUpdateFunctionLimitFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, contextContextId, upgradeToFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, contextContextId, setSafeModeStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, contextContextId, setUpdatabilityStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, contextContextId, setLocalAdminFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, contextContextId, setAccessControlManagerFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, contextContextId, withdrawBalanceFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
 
         // then
         expect(await contextManagerDelegateProxy.contextHasFunction(contextContextId, contextUpdateActivityStatusFunctionId)).to.be.true
@@ -3899,7 +3932,7 @@ describe("Lively Guard Tests", function() {
       it("Should register RealmManager functions by systemAdmin success", async() => {
         const realmIface = new ethers.utils.Interface(RealmManager__factory.abi);
         const realmContextId = ethers.utils.keccak256(realmManagerProxy.address);
-        const signer = new Int8Array(0);
+        
         const realmRegisterFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
             [realmManagerProxy.address,  realmIface.getSighash("realmRegister")]));
@@ -4048,45 +4081,50 @@ describe("Lively Guard Tests", function() {
             functions: realmFunctionRequests
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(realmFunctionRegisterRequest))
+        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(memberSignature, realmFunctionRegisterRequest))
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, realmContextId, realmRegisterFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_SCOPE_MASTER_TYPE_ID,signer)
+            LIVELY_VERSE_SCOPE_MASTER_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, realmContextId, realmUpdateAdminFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, realmContextId, realmUpdateActivityStatusFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, realmContextId, realmUpdateAlterabilityStatusFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, realmContextId, realmUpdateContextLimitFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, realmContextId, realmMoveContextFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, realmContextId, upgradeToFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, realmContextId, setSafeModeStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, realmContextId, setUpdatabilityStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, realmContextId, setLocalAdminFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, realmContextId, setAccessControlManagerFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, realmContextId, withdrawBalanceFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
 
         // then
         expect(await contextManagerDelegateProxy.contextHasFunction(realmContextId, realmRegisterFunctionId)).to.be.true
@@ -4108,7 +4146,7 @@ describe("Lively Guard Tests", function() {
       it("Should register DomainManager functions by systemAdmin success", async() => {
         const domainIface = new ethers.utils.Interface(DomainManager__factory.abi);
         const domainContextId = ethers.utils.keccak256(domainManagerProxy.address);
-        const signer = new Int8Array(0);
+        
         const domainRegisterFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
             [domainManagerProxy.address,  domainIface.getSighash("domainRegister")]));
@@ -4257,45 +4295,50 @@ describe("Lively Guard Tests", function() {
             functions: domainFunctionRequests
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(roleFunctionRegisterRequest))
+        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(memberSignature, roleFunctionRegisterRequest))
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, domainContextId, domainRegisterFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_SCOPE_MASTER_TYPE_ID,signer)
+            LIVELY_VERSE_SCOPE_MASTER_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, domainContextId, domainUpdateActivityStatusFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, domainContextId, domainUpdateAlterabilityStatusFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, domainContextId, domainUpdateAdminFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, domainContextId, domainUpdateRealmLimitFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, domainContextId, domainMoveRealmFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, domainContextId, upgradeToFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, domainContextId, setSafeModeStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, domainContextId, setUpdatabilityStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, domainContextId, setLocalAdminFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, domainContextId, setAccessControlManagerFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, domainContextId, withdrawBalanceFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
 
         // then
         expect(await contextManagerDelegateProxy.contextHasFunction(domainContextId, domainRegisterFunctionId)).to.be.true
@@ -4320,46 +4363,46 @@ describe("Lively Guard Tests", function() {
         expect(await domainManagerDelegateProxy.domainGetRealms(LIVELY_VERSE_ACL_DOMAIN_ID)).to.be.eqls([LIVELY_VERSE_ACL_REALM_ID]);
       })
 
-      it("Should register GlobalManager functions by systemAdmin success", async() => {
-        const globalIface = new ethers.utils.Interface(GlobalManager__factory.abi);
-        const globalContextId = ethers.utils.keccak256(globalManagerProxy.address);
-        const signer = new Int8Array(0);
-        const globalUpdateActivityStatusFunctionId = ethers.utils.keccak256(
+      it("Should register UniverseManager functions by systemAdmin success", async() => {
+        const universeIface = new ethers.utils.Interface(UniverseManager__factory.abi);
+        const universeContextId = ethers.utils.keccak256(universeManagerProxy.address);
+        
+        const universeUpdateActivityStatusFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
-            [globalManagerProxy.address,  globalIface.getSighash("globalUpdateActivityStatus")]));
-        const globalUpdateAlterabilityStatusFunctionId = ethers.utils.keccak256(
+            [universeManagerProxy.address,  universeIface.getSighash("universeUpdateActivityStatus")]));
+        const universeUpdateAlterabilityStatusFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
-            [globalManagerProxy.address,  globalIface.getSighash("globalUpdateAlterabilityStatus")]));
-        const globalUpdateAdminFunctionId = ethers.utils.keccak256(
+            [universeManagerProxy.address,  universeIface.getSighash("universeUpdateAlterabilityStatus")]));
+        const universeUpdateAdminFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
-            [globalManagerProxy.address,  globalIface.getSighash("globalUpdateAdmin")]))
-        const globalUpdateDomainLimitFunctionId = ethers.utils.keccak256(
+            [universeManagerProxy.address,  universeIface.getSighash("universeUpdateAdmin")]))
+        const universeUpdateDomainLimitFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
-            [globalManagerProxy.address,  globalIface.getSighash("globalUpdateDomainLimit")]))
+            [universeManagerProxy.address,  universeIface.getSighash("universeUpdateDomainLimit")]))
         const upgradeToFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
-            [globalManagerProxy.address,  globalIface.getSighash("upgradeTo")]))
+            [universeManagerProxy.address,  universeIface.getSighash("upgradeTo")]))
         const setSafeModeStatusFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
-            [globalManagerProxy.address,  globalIface.getSighash("setSafeModeStatus")]))
+            [universeManagerProxy.address,  universeIface.getSighash("setSafeModeStatus")]))
         const setUpdatabilityStatusFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
-            [globalManagerProxy.address,  globalIface.getSighash("setUpdatabilityStatus")]))
+            [universeManagerProxy.address,  universeIface.getSighash("setUpdatabilityStatus")]))
         const setLocalAdminFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
-            [globalManagerProxy.address,  globalIface.getSighash("setLocalAdmin")]))
+            [universeManagerProxy.address,  universeIface.getSighash("setLocalAdmin")]))
         const setAccessControlManagerFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
-            [globalManagerProxy.address,  globalIface.getSighash("setAccessControlManager")]))
+            [universeManagerProxy.address,  universeIface.getSighash("setAccessControlManager")]))
         const withdrawBalanceFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
-            [globalManagerProxy.address,  globalIface.getSighash("withdrawBalance")]))
+            [universeManagerProxy.address,  universeIface.getSighash("withdrawBalance")]))
 
-        const globalFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
+        const universeFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
           {
             adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
             agentId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
-            selector: globalIface.getSighash("globalUpdateActivityStatus"),
+            selector: universeIface.getSighash("universeUpdateActivityStatus"),
             policyCode: 48,
             acstat: ActivityStatus.ENABLED,
             alstat: AlterabilityStatus.UPDATABLE
@@ -4367,7 +4410,7 @@ describe("Lively Guard Tests", function() {
           {
             adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
             agentId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
-            selector: globalIface.getSighash("globalUpdateAlterabilityStatus"),
+            selector: universeIface.getSighash("universeUpdateAlterabilityStatus"),
             policyCode: 30,
             acstat: ActivityStatus.ENABLED,
             alstat: AlterabilityStatus.UPDATABLE
@@ -4375,7 +4418,7 @@ describe("Lively Guard Tests", function() {
           {
             adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
             agentId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
-            selector: globalIface.getSighash("globalUpdateAdmin"),
+            selector: universeIface.getSighash("universeUpdateAdmin"),
             policyCode: 0,
             acstat: ActivityStatus.ENABLED,
             alstat: AlterabilityStatus.UPDATABLE
@@ -4383,7 +4426,7 @@ describe("Lively Guard Tests", function() {
           {
             adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
             agentId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
-            selector: globalIface.getSighash("globalUpdateDomainLimit"),
+            selector: universeIface.getSighash("universeUpdateDomainLimit"),
             policyCode: 24,
             acstat: ActivityStatus.ENABLED,
             alstat: AlterabilityStatus.UPDATABLE
@@ -4391,7 +4434,7 @@ describe("Lively Guard Tests", function() {
           {
             adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
             agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-            selector: globalIface.getSighash("upgradeTo"),
+            selector: universeIface.getSighash("upgradeTo"),
             policyCode: 0,
             acstat: ActivityStatus.ENABLED,
             alstat: AlterabilityStatus.UPDATABLE
@@ -4399,7 +4442,7 @@ describe("Lively Guard Tests", function() {
           {
             adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
             agentId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
-            selector: globalIface.getSighash("setSafeModeStatus"),
+            selector: universeIface.getSighash("setSafeModeStatus"),
             policyCode: 16,
             acstat: ActivityStatus.ENABLED,
             alstat: AlterabilityStatus.UPDATABLE
@@ -4407,7 +4450,7 @@ describe("Lively Guard Tests", function() {
           {
             adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
             agentId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
-            selector: globalIface.getSighash("setUpdatabilityStatus"),
+            selector: universeIface.getSighash("setUpdatabilityStatus"),
             policyCode: 90,
             acstat: ActivityStatus.ENABLED,
             alstat: AlterabilityStatus.UPDATABLE
@@ -4415,7 +4458,7 @@ describe("Lively Guard Tests", function() {
           {
             adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
             agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-            selector: globalIface.getSighash("setLocalAdmin"),
+            selector: universeIface.getSighash("setLocalAdmin"),
             policyCode: 60,
             acstat: ActivityStatus.ENABLED,
             alstat: AlterabilityStatus.UPDATABLE
@@ -4423,7 +4466,7 @@ describe("Lively Guard Tests", function() {
           {
             adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
             agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-            selector: globalIface.getSighash("setAccessControlManager"),
+            selector: universeIface.getSighash("setAccessControlManager"),
             policyCode: 0,
             acstat: ActivityStatus.ENABLED,
             alstat: AlterabilityStatus.UPDATABLE
@@ -4431,13 +4474,13 @@ describe("Lively Guard Tests", function() {
           {
             adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
             agentId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
-            selector: globalIface.getSighash("withdrawBalance"),
+            selector: universeIface.getSighash("withdrawBalance"),
             policyCode: 230,
             acstat: ActivityStatus.ENABLED,
             alstat: AlterabilityStatus.UPDATABLE
           },
         ]
-        const globalFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
+        const universeFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
           {
             signature: new Int8Array(0),
             realmId: ethers.constants.HashZero,
@@ -4446,56 +4489,61 @@ describe("Lively Guard Tests", function() {
             version: "",
             subject: ethers.constants.AddressZero,
             deployer: ethers.constants.AddressZero,
-            contractId: globalManagerProxy.address,
-            functions: globalFunctionRequests
+            contractId: universeManagerProxy.address,
+            functions: universeFunctionRequests
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(globalFunctionRegisterRequest))
+        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(memberSignature, universeFunctionRegisterRequest))
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-          .withArgs(systemAdminWallet.address, globalContextId, globalUpdateActivityStatusFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-            LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,signer)
+          .withArgs(systemAdminWallet.address, universeContextId, universeUpdateActivityStatusFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            LIVELY_VERSE_LIVELY_MASTER_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-          .withArgs(systemAdminWallet.address, globalContextId, globalUpdateAlterabilityStatusFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-            LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,signer)
+          .withArgs(systemAdminWallet.address, universeContextId, universeUpdateAlterabilityStatusFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            LIVELY_VERSE_LIVELY_MASTER_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-          .withArgs(systemAdminWallet.address, globalContextId, globalUpdateAdminFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-            LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,signer)
+          .withArgs(systemAdminWallet.address, universeContextId, universeUpdateAdminFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            LIVELY_VERSE_LIVELY_MASTER_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-          .withArgs(systemAdminWallet.address, globalContextId, globalUpdateDomainLimitFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-            LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,signer)
+          .withArgs(systemAdminWallet.address, universeContextId, universeUpdateDomainLimitFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            LIVELY_VERSE_LIVELY_MASTER_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-          .withArgs(systemAdminWallet.address, globalContextId, upgradeToFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+          .withArgs(systemAdminWallet.address, universeContextId, upgradeToFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-          .withArgs(systemAdminWallet.address, globalContextId, setSafeModeStatusFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-            LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,signer)
+          .withArgs(systemAdminWallet.address, universeContextId, setSafeModeStatusFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            LIVELY_VERSE_LIVELY_MASTER_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-          .withArgs(systemAdminWallet.address, globalContextId, setUpdatabilityStatusFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-            LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,signer)
+          .withArgs(systemAdminWallet.address, universeContextId, setUpdatabilityStatusFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            LIVELY_VERSE_LIVELY_MASTER_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-          .withArgs(systemAdminWallet.address, globalContextId, setLocalAdminFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+          .withArgs(systemAdminWallet.address, universeContextId, setLocalAdminFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-          .withArgs(systemAdminWallet.address, globalContextId, setAccessControlManagerFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+          .withArgs(systemAdminWallet.address, universeContextId, setAccessControlManagerFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-          .withArgs(systemAdminWallet.address, globalContextId, withdrawBalanceFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-            LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,signer)
+          .withArgs(systemAdminWallet.address, universeContextId, withdrawBalanceFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+            LIVELY_VERSE_LIVELY_MASTER_TYPE_ID)
 
         // then
-        expect(await contextManagerDelegateProxy.contextHasFunction(globalContextId, globalUpdateAlterabilityStatusFunctionId)).to.be.true
+        expect(await contextManagerDelegateProxy.contextHasFunction(universeContextId, universeUpdateAlterabilityStatusFunctionId)).to.be.true
 
         // and
-        const functionInfo: IFunctionManagement.FunctionInfoStruct = await functionManagerDelegateProxy.functionGetInfo(globalUpdateAlterabilityStatusFunctionId);
+        const functionInfo: IFunctionManagement.FunctionInfoStruct = await functionManagerDelegateProxy.functionGetInfo(universeUpdateAlterabilityStatusFunctionId);
         expect(functionInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
         expect(functionInfo.agentId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_TYPE_ID);
-        expect(functionInfo.contextId).to.be.equal(globalContextId);
+        expect(functionInfo.contextId).to.be.equal(universeContextId);
         expect(functionInfo.adminType).to.be.equal(AgentType.ROLE);
         expect(functionInfo.agentType).to.be.equal(AgentType.TYPE);
         expect(functionInfo.policyCode).to.be.equal(30);
-        expect(functionInfo.selector).to.be.equal(globalIface.getSighash("globalUpdateAlterabilityStatus"));
+        expect(functionInfo.selector).to.be.equal(universeIface.getSighash("universeUpdateAlterabilityStatus"));
         expect(functionInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
         expect(functionInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
         expect(functionInfo.referredByAgent).to.be.equal(0);
@@ -4504,7 +4552,7 @@ describe("Lively Guard Tests", function() {
       it("Should register ACLManager functions by systemAdmin success", async() => {
         const aclManagerIface = new ethers.utils.Interface(ACLManager__factory.abi);
         const aclContextId = ethers.utils.keccak256(aclManagerProxy.address);
-        const signer = new Int8Array(0);
+        
         const aclRegisterFacetFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
             [aclManagerProxy.address,  aclManagerIface.getSighash("aclRegisterFacet")]));
@@ -4609,33 +4657,38 @@ describe("Lively Guard Tests", function() {
             functions: aclManagerFunctionRequests
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
          // when
-        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(aclManagerFunctionRegisterRequest))
+        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(memberSignature, aclManagerFunctionRegisterRequest))
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, aclContextId, aclRegisterFacetFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, aclContextId, aclUpgradeFacetFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, aclContextId, upgradeToFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, aclContextId, setSafeModeStatusFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-            LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, aclContextId, setUpdatabilityStatusFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-            LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, aclContextId, setLocalAdminFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, aclContextId, setAccessControlManagerFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-            LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, aclContextId, withdrawBalanceFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
 
         // then
         expect(await contextManagerDelegateProxy.contextHasFunction(aclContextId, aclRegisterFacetFunctionId)).to.be.true
@@ -4657,7 +4710,7 @@ describe("Lively Guard Tests", function() {
       it("Should register AccessControl functions by systemAdmin success", async() => {
         const accessControlIface = new ethers.utils.Interface(AccessControl__factory.abi);
         const accessControlContextId = ethers.utils.keccak256(accessControlProxy.address);
-        const signer = new Int8Array(0);
+        
         const upgradeToFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
             [accessControlProxy.address,  accessControlIface.getSighash("upgradeTo")]))
@@ -4740,27 +4793,32 @@ describe("Lively Guard Tests", function() {
             functions: accessControlFunctionRequests
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(accessControlFunctionRegisterRequest))
+        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(memberSignature, accessControlFunctionRegisterRequest))
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, accessControlContextId, upgradeToFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, accessControlContextId, setSafeModeStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, accessControlContextId, setUpdatabilityStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, accessControlContextId, setLocalAdminFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, accessControlContextId, setAccessControlManagerFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, accessControlContextId, withdrawBalanceFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
 
         // then
         expect(await contextManagerDelegateProxy.contextHasFunction(accessControlContextId, upgradeToFunctionId)).to.be.true
@@ -4782,7 +4840,7 @@ describe("Lively Guard Tests", function() {
       it("Should register PolicyManager functions by systemAdmin success", async() => {
         const policyIface = new ethers.utils.Interface(PolicyManager__factory.abi);
         const policyContextId = ethers.utils.keccak256(policyManagerProxy.address);
-        const signer = new Int8Array(0);
+        
         const policyRegisterFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
             [policyManagerProxy.address,  policyIface.getSighash("policyRegister")]));
@@ -4964,53 +5022,58 @@ describe("Lively Guard Tests", function() {
             functions: policyFunctionRequests
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
-        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(policyFunctionRegisterRequest))
+        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(memberSignature, policyFunctionRegisterRequest))
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, policyContextId, policyRegisterFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_POLICY_MASTER_TYPE_ID,signer)
+            LIVELY_VERSE_POLICY_MASTER_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, policyContextId, policyAddRolesFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, policyContextId, policyRemoveRolesFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, policyContextId, policyUpdateCodesFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, policyContextId, policyUpdateAdminFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, policyContextId, policyUpdateScopeFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, policyContextId, policyUpdateActivityStatusFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, policyContextId, policyUpdateAlterabilityStatusFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, policyContextId, policyUpdateRoleLimitFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, policyContextId, upgradeToFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, policyContextId, setSafeModeStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, policyContextId, setUpdatabilityStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, policyContextId, setLocalAdminFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, policyContextId, setAccessControlManagerFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, policyContextId, withdrawBalanceFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
 
         // then
         expect(await contextManagerDelegateProxy.contextHasFunction(policyContextId, policyRegisterFunctionId)).to.be.true
@@ -5032,7 +5095,7 @@ describe("Lively Guard Tests", function() {
       it("Should register ProfileManager functions by systemAdmin success", async() => {
         const profileIface = new ethers.utils.Interface(ProfileManager__factory.abi);
         const profileContextId = ethers.utils.keccak256(profileManagerProxy.address);
-        const signer = new Int8Array(0);
+        
         const profileRegisterFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
             [profileManagerProxy.address,  profileIface.getSighash("profileRegister")]));
@@ -5192,47 +5255,52 @@ describe("Lively Guard Tests", function() {
             functions: profileFunctionRequests
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
-        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(profileFunctionRegisterRequest))
+        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(memberSignature, profileFunctionRegisterRequest))
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileContextId, profileRegisterFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,signer)
+            LIVELY_VERSE_PROFILE_MASTER_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileContextId, profileUpdateLimitsFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileContextId, profileUpdateExpirationFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileContextId, profileUpdateOwnerAccountFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileContextId, profileUpdateActivityStatusFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileContextId, profileUpdateAlterabilityStatusFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileContextId, profileUpdateAdminFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileContextId, upgradeToFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileContextId, setSafeModeStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileContextId, setUpdatabilityStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileContextId, setLocalAdminFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileContextId, setAccessControlManagerFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileContextId, withdrawBalanceFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
 
         // then
         expect(await contextManagerDelegateProxy.contextHasFunction(profileContextId, profileRegisterFunctionId)).to.be.true
@@ -5256,7 +5324,7 @@ describe("Lively Guard Tests", function() {
         // given
         const profileMemberIface = new ethers.utils.Interface(ProfileMemberManager__factory.abi);
         const profileMemberContextId = ethers.utils.keccak256(profileMemberManagerProxy.address);
-        const signer = new Int8Array(0);
+        
         const profileMemberRegisterFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
             [profileMemberManagerProxy.address,  profileMemberIface.getSighash("profileMemberRegister")]));
@@ -5403,7 +5471,6 @@ describe("Lively Guard Tests", function() {
             alstat: AlterabilityStatus.UPDATABLE
           },
         ]
-
         const profileMemberFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
           {
             signature: new Int8Array(0),
@@ -5417,48 +5484,53 @@ describe("Lively Guard Tests", function() {
             functions: profileMemberFunctionRequests
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(profileMemberFunctionRegisterRequest))
+        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(memberSignature, profileMemberFunctionRegisterRequest))
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileMemberContextId, profileMemberRegisterFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,signer)
+            LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileMemberContextId, profileMemberUpdateTypeLimitFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileMemberContextId, profileMemberUpdateRegisterLimitFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileMemberContextId, profileMemberUpdateCallLimitFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileMemberContextId, profileMemberUpdateActivityStatusFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileMemberContextId, profileMemberUpdateAlterabilityStatusFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileMemberContextId, profileMemberUpdateAdminFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileMemberContextId, upgradeToFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileMemberContextId, setSafeModeStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileMemberContextId, setUpdatabilityStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileMemberContextId, setLocalAdminFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileMemberContextId, setAccessControlManagerFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileMemberContextId, withdrawBalanceFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
 
         // then
         expect(await contextManagerDelegateProxy.contextHasFunction(profileMemberContextId, profileMemberRegisterFunctionId)).to.be.true
@@ -5480,7 +5552,7 @@ describe("Lively Guard Tests", function() {
       it("Should register ProfileRoleManager functions by systemAdmin success", async() => {
         const profileRoleIface = new ethers.utils.Interface(ProfileRoleManager__factory.abi);
         const profileRoleContextId = ethers.utils.keccak256(profileRoleManagerProxy.address);
-        const signer = new Int8Array(0);
+        
         const profileRoleRegisterFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
             [profileRoleManagerProxy.address,  profileRoleIface.getSighash("profileRoleRegister")]));
@@ -5638,7 +5710,6 @@ describe("Lively Guard Tests", function() {
             alstat: AlterabilityStatus.UPDATABLE
           },
         ]
-
         const profileRoleFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
           {
             signature: new Int8Array(0),
@@ -5652,51 +5723,56 @@ describe("Lively Guard Tests", function() {
             functions: profileRoleFunctionRequests
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(profileRoleFunctionRegisterRequest))
+        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(memberSignature, profileRoleFunctionRegisterRequest))
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileRoleContextId, profileRoleRegisterFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,signer)
+            LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileRoleContextId, profileRoleGrantMembersFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileRoleContextId, profileRoleRevokeMembersFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileRoleContextId, profileRoleUpdateAdminFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileRoleContextId, profileRoleUpdateScopeFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileRoleContextId, profileRoleUpdateActivityStatusFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileRoleContextId, profileRoleUpdateAlterabilityStatusFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileRoleContextId, profileRoleUpdateMemberLimitFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileRoleContextId, upgradeToFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileRoleContextId, setSafeModeStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileRoleContextId, setUpdatabilityStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileRoleContextId, setLocalAdminFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileRoleContextId, setAccessControlManagerFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileRoleContextId, withdrawBalanceFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
 
         // then
         expect(await contextManagerDelegateProxy.contextHasFunction(profileRoleContextId, profileRoleRegisterFunctionId)).to.be.true
@@ -5718,7 +5794,7 @@ describe("Lively Guard Tests", function() {
       it("Should register ProfileTypeManager functions by systemAdmin success", async() => {
         const profileTypeIface = new ethers.utils.Interface(ProfileTypeManager__factory.abi);
         const profileTypeContextId = ethers.utils.keccak256(profileTypeManagerProxy.address);
-        const signer = new Int8Array(0);
+        
         const profileTypeRegisterFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
             [profileTypeManagerProxy.address,  profileTypeIface.getSighash("profileTypeRegister")]));
@@ -5867,45 +5943,50 @@ describe("Lively Guard Tests", function() {
             functions: profileTypeFunctionRequests
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(profileTypeFunctionRegisterRequest))
+        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(memberSignature, profileTypeFunctionRegisterRequest))
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileTypeContextId, profileTypeRegisterFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,signer)
+            LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileTypeContextId, profileTypeUpdateAdminFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileTypeContextId, profileTypeUpdateScopeFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileTypeContextId, profileTypeUpdateActivityStatusFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileTypeContextId, profileTypeUpdateAlterabilityStatusFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileTypeContextId, profileTypeUpdateRoleLimitFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileTypeContextId, upgradeToFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileTypeContextId, setSafeModeStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileTypeContextId, setUpdatabilityStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileTypeContextId, setLocalAdminFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileTypeContextId, setAccessControlManagerFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileTypeContextId, withdrawBalanceFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
 
         // then
         expect(await contextManagerDelegateProxy.contextHasFunction(profileTypeContextId, profileTypeRegisterFunctionId)).to.be.true
@@ -5927,7 +6008,7 @@ describe("Lively Guard Tests", function() {
       it("Should register ProfileFunctionManager functions by systemAdmin success", async() => {
         const profileFunctionIface = new ethers.utils.Interface(ProfileFunctionManager__factory.abi);
         const profileFunctionContextId = ethers.utils.keccak256(profileFunctionManagerProxy.address);
-        const signer = new Int8Array(0);
+        
         const profileFunctionRegisterFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
             [profileFunctionManagerProxy.address,  profileFunctionIface.getSighash("profileFunctionRegister")]));
@@ -6076,45 +6157,50 @@ describe("Lively Guard Tests", function() {
             functions: profileFunctionFunctionRequests
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(profileFunctionRegisterRequest))
+        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(memberSignature, profileFunctionRegisterRequest))
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileFunctionContextId, profileFunctionRegisterFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID,signer)
+            LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileFunctionContextId, profileFunctionUpdateAdminFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileFunctionContextId, profileFunctionUpdateAgentFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileFunctionContextId, profileFunctionUpdateActivityStatusFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileFunctionContextId, profileFunctionUpdateAlterabilityStatusFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileFunctionContextId, profileFunctionUpdatePolicyCodeFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileFunctionContextId, upgradeToFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileFunctionContextId, setSafeModeStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileFunctionContextId, setUpdatabilityStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileFunctionContextId, setLocalAdminFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileFunctionContextId, setAccessControlManagerFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileFunctionContextId, withdrawBalanceFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
 
         // then
         expect(await contextManagerDelegateProxy.contextHasFunction(profileFunctionContextId, profileFunctionUpdateAdminFunctionId)).to.be.true
@@ -6136,7 +6222,7 @@ describe("Lively Guard Tests", function() {
       it("Should register ProfileContextManager functions by systemAdmin success", async() => {
         const profileContextIface = new ethers.utils.Interface(ProfileContextManager__factory.abi);
         const profileContextContextId = ethers.utils.keccak256(profileContextManagerProxy.address);
-        const signer = new Int8Array(0);
+        
         const profileContextRegisterFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
             [profileContextManagerProxy.address,  profileContextIface.getSighash("profileContextRegister")]));
@@ -6274,42 +6360,47 @@ describe("Lively Guard Tests", function() {
             functions: profileContextFunctionRequests
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(profileContextFunctionRegisterRequest))
+        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(memberSignature, profileContextFunctionRegisterRequest))
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileContextContextId, profileContextRegisterFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileContextContextId, profileContextUpdateActivityStatusFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileContextContextId, profileContextUpdateAlterabilityStatusFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileContextContextId, profileContextUpdateAdminFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileContextContextId, profileContextUpdateFunctionLimitFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID,signer)
+            LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileContextContextId, upgradeToFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileContextContextId, setSafeModeStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileContextContextId, setUpdatabilityStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileContextContextId, setLocalAdminFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileContextContextId, setAccessControlManagerFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileContextContextId, withdrawBalanceFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
 
         // then
         expect(await contextManagerDelegateProxy.contextHasFunction(profileContextContextId, profileContextUpdateActivityStatusFunctionId)).to.be.true
@@ -6331,7 +6422,7 @@ describe("Lively Guard Tests", function() {
       it("Should register ProfileRealmManager functions by systemAdmin success", async() => {
         const profileRealmIface = new ethers.utils.Interface(ProfileRealmManager__factory.abi);
         const profileRealmContextId = ethers.utils.keccak256(profileRealmManagerProxy.address);
-        const signer = new Int8Array(0);
+        
         const profileRealmRegisterFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
             [profileRealmManagerProxy.address,  profileRealmIface.getSighash("profileRealmRegister")]));
@@ -6480,45 +6571,50 @@ describe("Lively Guard Tests", function() {
             functions: profileRealmFunctionRequests
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(profileRealmFunctionRegisterRequest))
+        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(memberSignature, profileRealmFunctionRegisterRequest))
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileRealmContextId, profileRealmRegisterFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,signer)
+            LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileRealmContextId, profileRealmUpdateAdminFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileRealmContextId, profileRealmUpdateActivityStatusFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileRealmContextId, profileRealmUpdateAlterabilityStatusFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileRealmContextId, profileRealmUpdateContextLimitFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileRealmContextId, profileRealmMoveContextFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileRealmContextId, upgradeToFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileRealmContextId, setSafeModeStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileRealmContextId, setUpdatabilityStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileRealmContextId, setLocalAdminFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileRealmContextId, setAccessControlManagerFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileRealmContextId, withdrawBalanceFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
 
         // then
         expect(await contextManagerDelegateProxy.contextHasFunction(profileRealmContextId, profileRealmRegisterFunctionId)).to.be.true
@@ -6540,7 +6636,7 @@ describe("Lively Guard Tests", function() {
       it("Should register ProfileDomainManager functions by systemAdmin success", async() => {
         const profileDomainIface = new ethers.utils.Interface(ProfileDomainManager__factory.abi);
         const profileDomainContextId = ethers.utils.keccak256(profileDomainManagerProxy.address);
-        const signer = new Int8Array(0);
+        
         const profileDomainRegisterFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
             [profileDomainManagerProxy.address,  profileDomainIface.getSighash("profileDomainRegister")]));
@@ -6689,45 +6785,50 @@ describe("Lively Guard Tests", function() {
             functions: profileDomainFunctionRequests
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(profileDomainFunctionRegisterRequest))
+        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(memberSignature, profileDomainFunctionRegisterRequest))
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileDomainContextId, profileDomainRegisterFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,signer)
+            LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileDomainContextId, profileDomainUpdateActivityStatusFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileDomainContextId, profileDomainUpdateAlterabilityStatusFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileDomainContextId, profileDomainUpdateAdminFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileDomainContextId, profileDomainUpdateRealmLimitFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileDomainContextId, profileDomainMoveRealmFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileDomainContextId, upgradeToFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileDomainContextId, setSafeModeStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileDomainContextId, setUpdatabilityStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileDomainContextId, setLocalAdminFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileDomainContextId, setAccessControlManagerFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileDomainContextId, withdrawBalanceFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
 
         // then
         expect(await contextManagerDelegateProxy.contextHasFunction(profileDomainContextId, profileDomainRegisterFunctionId)).to.be.true
@@ -6752,46 +6853,46 @@ describe("Lively Guard Tests", function() {
         expect(await domainManagerDelegateProxy.domainGetRealms(LIVELY_VERSE_ACL_DOMAIN_ID)).to.be.eqls([LIVELY_VERSE_ACL_REALM_ID]);
       })
 
-      it("Should register ProfileGlobalManager functions by systemAdmin success", async() => {
-        const profileGlobalIface = new ethers.utils.Interface(ProfileGlobalManager__factory.abi);
-        const profileGlobalContextId = ethers.utils.keccak256(profileGlobalManagerProxy.address);
-        const signer = new Int8Array(0);
-        const profileGlobalUpdateActivityStatusFunctionId = ethers.utils.keccak256(
+      it("Should register ProfileUniverseManager functions by systemAdmin success", async() => {
+        const profileUniverseIface = new ethers.utils.Interface(ProfileUniverseManager__factory.abi);
+        const profileUniverseContextId = ethers.utils.keccak256(profileUniverseManagerProxy.address);
+        
+        const profileUniverseUpdateActivityStatusFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
-            [profileGlobalManagerProxy.address,  profileGlobalIface.getSighash("profileGlobalUpdateActivityStatus")]));
-        const profileGlobalUpdateAlterabilityStatusFunctionId = ethers.utils.keccak256(
+            [profileUniverseManagerProxy.address,  profileUniverseIface.getSighash("profileUniverseUpdateActivityStatus")]));
+        const profileUniverseUpdateAlterabilityStatusFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
-            [profileGlobalManagerProxy.address,  profileGlobalIface.getSighash("profileGlobalUpdateAlterabilityStatus")]));
-        const profileGlobalUpdateAdminFunctionId = ethers.utils.keccak256(
+            [profileUniverseManagerProxy.address,  profileUniverseIface.getSighash("profileUniverseUpdateAlterabilityStatus")]));
+        const profileUniverseUpdateAdminFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
-            [profileGlobalManagerProxy.address,  profileGlobalIface.getSighash("profileGlobalUpdateAdmin")]))
-        const profileGlobalUpdateDomainLimitFunctionId = ethers.utils.keccak256(
+            [profileUniverseManagerProxy.address,  profileUniverseIface.getSighash("profileUniverseUpdateAdmin")]))
+        const profileUniverseUpdateDomainLimitFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
-            [profileGlobalManagerProxy.address,  profileGlobalIface.getSighash("profileGlobalUpdateDomainLimit")]))
+            [profileUniverseManagerProxy.address,  profileUniverseIface.getSighash("profileUniverseUpdateDomainLimit")]))
         const upgradeToFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
-            [profileGlobalManagerProxy.address,  profileGlobalIface.getSighash("upgradeTo")]))
+            [profileUniverseManagerProxy.address,  profileUniverseIface.getSighash("upgradeTo")]))
         const setSafeModeStatusFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
-            [profileGlobalManagerProxy.address,  profileGlobalIface.getSighash("setSafeModeStatus")]))
+            [profileUniverseManagerProxy.address,  profileUniverseIface.getSighash("setSafeModeStatus")]))
         const setUpdatabilityStatusFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
-            [profileGlobalManagerProxy.address,  profileGlobalIface.getSighash("setUpdatabilityStatus")]))
+            [profileUniverseManagerProxy.address,  profileUniverseIface.getSighash("setUpdatabilityStatus")]))
         const setLocalAdminFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
-            [profileGlobalManagerProxy.address,  profileGlobalIface.getSighash("setLocalAdmin")]))
+            [profileUniverseManagerProxy.address,  profileUniverseIface.getSighash("setLocalAdmin")]))
         const setAccessControlManagerFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
-            [profileGlobalManagerProxy.address,  profileGlobalIface.getSighash("setAccessControlManager")]))
+            [profileUniverseManagerProxy.address,  profileUniverseIface.getSighash("setAccessControlManager")]))
         const withdrawBalanceFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
-            [profileGlobalManagerProxy.address,  profileGlobalIface.getSighash("withdrawBalance")]))
+            [profileUniverseManagerProxy.address,  profileUniverseIface.getSighash("withdrawBalance")]))
 
-        const profileGlobalFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
+        const profileUniverseFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
           {
             adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
             agentId: LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,
-            selector: profileGlobalIface.getSighash("profileGlobalUpdateActivityStatus"),
+            selector: profileUniverseIface.getSighash("profileUniverseUpdateActivityStatus"),
             policyCode: 48,
             acstat: ActivityStatus.ENABLED,
             alstat: AlterabilityStatus.UPDATABLE
@@ -6799,7 +6900,7 @@ describe("Lively Guard Tests", function() {
           {
             adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
             agentId: LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,
-            selector: profileGlobalIface.getSighash("profileGlobalUpdateAlterabilityStatus"),
+            selector: profileUniverseIface.getSighash("profileUniverseUpdateAlterabilityStatus"),
             policyCode: 30,
             acstat: ActivityStatus.ENABLED,
             alstat: AlterabilityStatus.UPDATABLE
@@ -6807,7 +6908,7 @@ describe("Lively Guard Tests", function() {
           {
             adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
             agentId: LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,
-            selector: profileGlobalIface.getSighash("profileGlobalUpdateAdmin"),
+            selector: profileUniverseIface.getSighash("profileUniverseUpdateAdmin"),
             policyCode: 0,
             acstat: ActivityStatus.ENABLED,
             alstat: AlterabilityStatus.UPDATABLE
@@ -6815,7 +6916,7 @@ describe("Lively Guard Tests", function() {
           {
             adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
             agentId: LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,
-            selector: profileGlobalIface.getSighash("profileGlobalUpdateDomainLimit"),
+            selector: profileUniverseIface.getSighash("profileUniverseUpdateDomainLimit"),
             policyCode: 24,
             acstat: ActivityStatus.ENABLED,
             alstat: AlterabilityStatus.UPDATABLE
@@ -6823,7 +6924,7 @@ describe("Lively Guard Tests", function() {
           {
             adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
             agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-            selector: profileGlobalIface.getSighash("upgradeTo"),
+            selector: profileUniverseIface.getSighash("upgradeTo"),
             policyCode: 0,
             acstat: ActivityStatus.ENABLED,
             alstat: AlterabilityStatus.UPDATABLE
@@ -6831,7 +6932,7 @@ describe("Lively Guard Tests", function() {
           {
             adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
             agentId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
-            selector: profileGlobalIface.getSighash("setSafeModeStatus"),
+            selector: profileUniverseIface.getSighash("setSafeModeStatus"),
             policyCode: 16,
             acstat: ActivityStatus.ENABLED,
             alstat: AlterabilityStatus.UPDATABLE
@@ -6839,7 +6940,7 @@ describe("Lively Guard Tests", function() {
           {
             adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
             agentId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
-            selector: profileGlobalIface.getSighash("setUpdatabilityStatus"),
+            selector: profileUniverseIface.getSighash("setUpdatabilityStatus"),
             policyCode: 90,
             acstat: ActivityStatus.ENABLED,
             alstat: AlterabilityStatus.UPDATABLE
@@ -6847,7 +6948,7 @@ describe("Lively Guard Tests", function() {
           {
             adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
             agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-            selector: profileGlobalIface.getSighash("setLocalAdmin"),
+            selector: profileUniverseIface.getSighash("setLocalAdmin"),
             policyCode: 60,
             acstat: ActivityStatus.ENABLED,
             alstat: AlterabilityStatus.UPDATABLE
@@ -6855,7 +6956,7 @@ describe("Lively Guard Tests", function() {
           {
             adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
             agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-            selector: profileGlobalIface.getSighash("setAccessControlManager"),
+            selector: profileUniverseIface.getSighash("setAccessControlManager"),
             policyCode: 0,
             acstat: ActivityStatus.ENABLED,
             alstat: AlterabilityStatus.UPDATABLE
@@ -6863,13 +6964,13 @@ describe("Lively Guard Tests", function() {
           {
             adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
             agentId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
-            selector: profileGlobalIface.getSighash("withdrawBalance"),
+            selector: profileUniverseIface.getSighash("withdrawBalance"),
             policyCode: 230,
             acstat: ActivityStatus.ENABLED,
             alstat: AlterabilityStatus.UPDATABLE
           },
         ]
-        const profileGlobalFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
+        const profileUniverseFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
           {
             signature: new Int8Array(0),
             realmId: ethers.constants.HashZero,
@@ -6878,61 +6979,66 @@ describe("Lively Guard Tests", function() {
             version: "",
             subject: ethers.constants.AddressZero,
             deployer: ethers.constants.AddressZero,
-            contractId: profileGlobalManagerProxy.address,
-            functions: profileGlobalFunctionRequests
+            contractId: profileUniverseManagerProxy.address,
+            functions: profileUniverseFunctionRequests
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
-        let tx = await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(profileGlobalFunctionRegisterRequest);
+        let tx = await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(memberSignature, profileUniverseFunctionRegisterRequest);
         await tx.wait();
         // // console.log(`tx: ${JSON.stringify(tx, null, 2)}`);
         // // console.log(`receipt: ${JSON.stringify(receipt, null, 2)}`);
 
         // when
-        // await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(profileGlobalFunctionRegisterRequest))
+        // await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(profileUniverseFunctionRegisterRequest))
         //   .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-        //   .withArgs(systemAdminWallet.address, profileGlobalContextId, profileGlobalUpdateActivityStatusFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-        //     LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,signer)
+        //   .withArgs(systemAdminWallet.address, profileUniverseContextId, profileUniverseUpdateActivityStatusFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+        //     LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID)
         //   .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-        //   .withArgs(systemAdminWallet.address, profileGlobalContextId, profileGlobalUpdateAlterabilityStatusFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-        //     LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,signer)
+        //   .withArgs(systemAdminWallet.address, profileUniverseContextId, profileUniverseUpdateAlterabilityStatusFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+        //     LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID)
         //   .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-        //   .withArgs(systemAdminWallet.address, profileGlobalContextId, profileGlobalUpdateAdminFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-        //     LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,signer)
+        //   .withArgs(systemAdminWallet.address, profileUniverseContextId, profileUniverseUpdateAdminFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+        //     LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID)
         //   .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-        //   .withArgs(systemAdminWallet.address, profileGlobalContextId, profileGlobalUpdateDomainLimitFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-        //     LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,signer)
+        //   .withArgs(systemAdminWallet.address, profileUniverseContextId, profileUniverseUpdateDomainLimitFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+        //     LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID)
         //   .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-        //   .withArgs(systemAdminWallet.address, profileGlobalContextId, upgradeToFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-        //     LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+        //   .withArgs(systemAdminWallet.address, profileUniverseContextId, upgradeToFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+        //     LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
         //   .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-        //   .withArgs(systemAdminWallet.address, profileGlobalContextId, setSafeModeStatusFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-        //     LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,signer)
+        //   .withArgs(systemAdminWallet.address, profileUniverseContextId, setSafeModeStatusFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+        //     LIVELY_VERSE_LIVELY_MASTER_TYPE_ID)
         //   .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-        //   .withArgs(systemAdminWallet.address, profileGlobalContextId, setUpdatabilityStatusFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-        //     LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,signer)
+        //   .withArgs(systemAdminWallet.address, profileUniverseContextId, setUpdatabilityStatusFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+        //     LIVELY_VERSE_LIVELY_MASTER_TYPE_ID)
         //   .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-        //   .withArgs(systemAdminWallet.address, profileGlobalContextId, setLocalAdminFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-        //     LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+        //   .withArgs(systemAdminWallet.address, profileUniverseContextId, setLocalAdminFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+        //     LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
         //   .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-        //   .withArgs(systemAdminWallet.address, profileGlobalContextId, setAccessControlManagerFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-        //     LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+        //   .withArgs(systemAdminWallet.address, profileUniverseContextId, setAccessControlManagerFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+        //     LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
         //   .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-        //   .withArgs(systemAdminWallet.address, profileGlobalContextId, withdrawBalanceFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-        //     LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,signer)
+        //   .withArgs(systemAdminWallet.address, profileUniverseContextId, withdrawBalanceFunctionId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+        //     LIVELY_VERSE_LIVELY_MASTER_TYPE_ID)
 
         // then
-        expect(await contextManagerDelegateProxy.contextHasFunction(profileGlobalContextId, profileGlobalUpdateAlterabilityStatusFunctionId)).to.be.true
+        expect(await contextManagerDelegateProxy.contextHasFunction(profileUniverseContextId, profileUniverseUpdateAlterabilityStatusFunctionId)).to.be.true
 
         // and
-        const functionInfo: IFunctionManagement.FunctionInfoStruct = await functionManagerDelegateProxy.functionGetInfo(profileGlobalUpdateAlterabilityStatusFunctionId);
+        const functionInfo: IFunctionManagement.FunctionInfoStruct = await functionManagerDelegateProxy.functionGetInfo(profileUniverseUpdateAlterabilityStatusFunctionId);
         expect(functionInfo.adminId).to.be.equal(LIVELY_VERSE_PROFILE_MASTER_TYPE_ID);
         expect(functionInfo.agentId).to.be.equal(LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID);
-        expect(functionInfo.contextId).to.be.equal(profileGlobalContextId);
+        expect(functionInfo.contextId).to.be.equal(profileUniverseContextId);
         expect(functionInfo.adminType).to.be.equal(AgentType.TYPE);
         expect(functionInfo.agentType).to.be.equal(AgentType.TYPE);
         expect(functionInfo.policyCode).to.be.equal(30);
-        expect(functionInfo.selector).to.be.equal(profileGlobalIface.getSighash("profileGlobalUpdateAlterabilityStatus"));
+        expect(functionInfo.selector).to.be.equal(profileUniverseIface.getSighash("profileUniverseUpdateAlterabilityStatus"));
         expect(functionInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
         expect(functionInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
         expect(functionInfo.referredByAgent).to.be.equal(0);
@@ -6941,7 +7047,7 @@ describe("Lively Guard Tests", function() {
       it("Should register ProfileAccessControl functions by systemAdmin success", async() => {
         const profileAccessControlIface = new ethers.utils.Interface(ProfileAccessControl__factory.abi);
         const profileAccessControlContextId = ethers.utils.keccak256(profileAccessControlProxy.address);
-        const signer = new Int8Array(0);
+        
         const upgradeToFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
             [profileAccessControlProxy.address,  profileAccessControlIface.getSighash("upgradeTo")]))
@@ -7024,27 +7130,32 @@ describe("Lively Guard Tests", function() {
             functions: profileAccessControlFunctionRequests
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(profileAccessControlFunctionRegisterRequest))
+        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(memberSignature, profileAccessControlFunctionRegisterRequest))
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileAccessControlContextId, upgradeToFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileAccessControlContextId, setSafeModeStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileAccessControlContextId, setUpdatabilityStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileAccessControlContextId, setLocalAdminFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileAccessControlContextId, setAccessControlManagerFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileAccessControlContextId, withdrawBalanceFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
 
         // then
         expect(await contextManagerDelegateProxy.contextHasFunction(profileAccessControlContextId, upgradeToFunctionId)).to.be.true
@@ -7066,7 +7177,7 @@ describe("Lively Guard Tests", function() {
       it("Should register ProfilePolicyManager functions by systemAdmin success", async() => {
         const profilePolicyIface = new ethers.utils.Interface(ProfilePolicyManager__factory.abi);
         const profilePolicyContextId = ethers.utils.keccak256(profilePolicyManagerProxy.address);
-        const signer = new Int8Array(0);
+        
         const profilePolicyRegisterFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
             [profilePolicyManagerProxy.address,  profilePolicyIface.getSighash("profilePolicyRegister")]));
@@ -7248,53 +7359,58 @@ describe("Lively Guard Tests", function() {
             functions: profilePolicyFunctionRequests
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
-        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(profilePolicyFunctionRegisterRequest))
+        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(memberSignature, profilePolicyFunctionRegisterRequest))
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profilePolicyContextId, profilePolicyRegisterFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,signer)
+            LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profilePolicyContextId, profilePolicyAddRolesFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profilePolicyContextId, profilePolicyRemoveRolesFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profilePolicyContextId, profilePolicyUpdateCodesFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profilePolicyContextId, profilePolicyUpdateAdminFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profilePolicyContextId, profilePolicyUpdateScopeFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profilePolicyContextId, profilePolicyUpdateActivityStatusFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profilePolicyContextId, profilePolicyUpdateAlterabilityStatusFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profilePolicyContextId, profilePolicyUpdateRoleLimitFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_ANY_TYPE_ID,signer)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profilePolicyContextId, upgradeToFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profilePolicyContextId, setSafeModeStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profilePolicyContextId, setUpdatabilityStatusFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profilePolicyContextId, setLocalAdminFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profilePolicyContextId, setAccessControlManagerFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,signer)
+            LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profilePolicyContextId, withdrawBalanceFunctionId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
-            LIVELY_VERSE_ACL_TYPE_ID,signer)
+            LIVELY_VERSE_ACL_TYPE_ID)
 
         // then
         expect(await contextManagerDelegateProxy.contextHasFunction(profilePolicyContextId, profilePolicyRegisterFunctionId)).to.be.true
@@ -7464,8 +7580,14 @@ describe("Lively Guard Tests", function() {
           }
         ]
 
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
+
         // when
-        await expect(typeManagerDelegateProxy.connect(livelyAdmin).typeRegister(typeRegisterRequests))
+        await expect(typeManagerDelegateProxy.connect(livelyAdmin).typeRegister(memberSignature, typeRegisterRequests))
           .to.revertedWith("Rejected");
       })
 
@@ -7532,7 +7654,7 @@ describe("Lively Guard Tests", function() {
       it("Should ACL invariants check success", async() => {
         // Lively Master
         const livelyAdminRoleInfo = await roleManagerDelegateProxy.roleGetInfo(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
-        expect(livelyAdminRoleInfo.scopeId).to.be.equal(LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
+        expect(livelyAdminRoleInfo.scopeId).to.be.equal(LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);
         expect(livelyAdminRoleInfo.typeId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_TYPE_ID);
         expect(livelyAdminRoleInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
         expect(livelyAdminRoleInfo.memberLimit).to.be.equal(16777215);
@@ -7544,7 +7666,7 @@ describe("Lively Guard Tests", function() {
 
         // Lively System Master
         const livelySystemRoleInfo = await roleManagerDelegateProxy.roleGetInfo(LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID);
-        expect(livelySystemRoleInfo.scopeId).to.be.equal(LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
+        expect(livelySystemRoleInfo.scopeId).to.be.equal(LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);
         expect(livelySystemRoleInfo.typeId).to.be.equal(LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID);
         expect(livelySystemRoleInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
         expect(livelySystemRoleInfo.memberLimit).to.be.equal(16777215);
@@ -7556,7 +7678,7 @@ describe("Lively Guard Tests", function() {
 
         // Lively Scope Master
         const livelyScopeRoleInfo = await roleManagerDelegateProxy.roleGetInfo(LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID);
-        expect(livelyScopeRoleInfo.scopeId).to.be.equal(LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
+        expect(livelyScopeRoleInfo.scopeId).to.be.equal(LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);
         expect(livelyScopeRoleInfo.typeId).to.be.equal(LIVELY_VERSE_SCOPE_MASTER_TYPE_ID);
         expect(livelyScopeRoleInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
         expect(livelyScopeRoleInfo.memberLimit).to.be.equal(16777215);
@@ -7568,7 +7690,7 @@ describe("Lively Guard Tests", function() {
 
         // Lively Member Master
         const livelyMemberRoleInfo = await roleManagerDelegateProxy.roleGetInfo(LIVELY_VERSE_MEMBER_MASTER_ADMIN_ROLE_ID);
-        expect(livelyMemberRoleInfo.scopeId).to.be.equal(LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
+        expect(livelyMemberRoleInfo.scopeId).to.be.equal(LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);
         expect(livelyMemberRoleInfo.typeId).to.be.equal(LIVELY_VERSE_MEMBER_MASTER_TYPE_ID);
         expect(livelyMemberRoleInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
         expect(livelyMemberRoleInfo.memberLimit).to.be.equal(16777215);
@@ -7580,7 +7702,7 @@ describe("Lively Guard Tests", function() {
 
         // Lively Type Master
         const livelyTypeRoleInfo = await roleManagerDelegateProxy.roleGetInfo(LIVELY_VERSE_TYPE_MASTER_ADMIN_ROLE_ID);
-        expect(livelyTypeRoleInfo.scopeId).to.be.equal(LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
+        expect(livelyTypeRoleInfo.scopeId).to.be.equal(LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);
         expect(livelyTypeRoleInfo.typeId).to.be.equal(LIVELY_VERSE_TYPE_MASTER_TYPE_ID);
         expect(livelyTypeRoleInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
         expect(livelyTypeRoleInfo.memberLimit).to.be.equal(16777215);
@@ -7592,7 +7714,7 @@ describe("Lively Guard Tests", function() {
 
         // Lively Policy Master
         const livelyPolicyRoleInfo = await roleManagerDelegateProxy.roleGetInfo(LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE_ID);
-        expect(livelyPolicyRoleInfo.scopeId).to.be.equal(LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
+        expect(livelyPolicyRoleInfo.scopeId).to.be.equal(LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);
         expect(livelyPolicyRoleInfo.typeId).to.be.equal(LIVELY_VERSE_POLICY_MASTER_TYPE_ID);
         expect(livelyPolicyRoleInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
         expect(livelyPolicyRoleInfo.memberLimit).to.be.equal(16777215);
@@ -7615,6 +7737,92 @@ describe("Lively Guard Tests", function() {
         expect(livelyGuardRoleInfo.name).to.be.equal("ROLE.LIVELY_VERSE.LIVELY_GUARD.MASTER_ADMIN");
       })
 
+      it("Should register test type with expired memberSignature failed", async() => {
+        // given
+        const realmContextId = ethers.utils.keccak256(realmManagerProxy.address);
+        aclTypeTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_TYPE_TEST_NAME));
+
+        const typeRegisterRequests: ITypeManagement.TypeRegisterRequestStruct[] = [
+          {
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            scopeId: realmContextId,
+            roleLimit: 2,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE,
+            name: "TestType",
+          }
+        ]
+
+        const expiredAt = BigNumber.from(0);
+        const signature = generateMemberSignatureManually(
+          livelyAdminWallet.address,
+          aclManagerProxy.address,
+          livelyAdminWallet,
+          networkChainId,
+          expiredAt
+        );
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: livelyAdminWallet.address,
+          expiredAt: expiredAt,
+          signature: signature
+        }
+
+        // when
+        await expect(typeManagerDelegateProxy.connect(systemAdmin).typeRegister(memberSignature, typeRegisterRequests))
+          .to.revertedWith("Expired Signature");
+      })
+
+      it("Should register test type with memberSignature success", async() => {
+        // given
+        const realmContextId = ethers.utils.keccak256(realmManagerProxy.address);
+        const typeTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TestType"));
+
+        const typeRegisterRequests: ITypeManagement.TypeRegisterRequestStruct[] = [
+          {
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            scopeId: realmContextId,
+            roleLimit: 2,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE,
+            name: "TestType",
+          }
+        ]
+
+        const expiredAt = BigNumber.from(Date.now() + 10000);
+        const signature = generateMemberSignatureManually(
+          livelyAdminWallet.address,
+          aclManagerProxy.address,
+          livelyAdminWallet,
+          networkChainId,
+          expiredAt
+        );
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: livelyAdminWallet.address,
+          expiredAt: expiredAt,
+          signature: signature
+        }
+
+        // when
+        await expect(typeManagerDelegateProxy.connect(systemAdmin).typeRegister(memberSignature, typeRegisterRequests)).
+        to.emit(typeManagerDelegateProxy, "TypeRegistered")
+          .withArgs(livelyAdminWallet.address, typeTestId, realmContextId,
+            LIVELY_VERSE_ACL_ADMIN_ROLE_ID)
+
+        // then
+        expect(await typeManagerDelegateProxy.typeCheckId(typeTestId)).to.be.true
+
+        // and
+        const typeInfo: ITypeManagement.TypeInfoStruct = await typeManagerDelegateProxy.typeGetInfo(typeTestId);
+        expect(typeInfo.name).to.be.equal("TestType");
+        expect(typeInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_ADMIN_ROLE_ID);
+        expect(typeInfo.scopeId).to.be.equal(realmContextId);
+        expect(typeInfo.roleLimit).to.be.equal(2);
+        expect(typeInfo.roleCount).to.be.equal(0);
+        expect(typeInfo.adminType).to.be.equal(AgentType.ROLE);
+        expect(typeInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(typeInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+      })
+
       it("Should register ACL_TYPE_TEST success", async() => {
         // given
         const realmContextId = ethers.utils.keccak256(realmManagerProxy.address);
@@ -7624,15 +7832,21 @@ describe("Lively Guard Tests", function() {
           {
             adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
             scopeId: realmContextId,
-            roleLimit: 1,
+            roleLimit: 2,
             acstat: ActivityStatus.ENABLED,
             alstat: AlterabilityStatus.UPDATABLE,
             name: ACL_TYPE_TEST_NAME,
           }
         ]
 
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
+
         // when
-        await expect(typeManagerDelegateProxy.connect(livelyAdmin).typeRegister(typeRegisterRequests)).
+        await expect(typeManagerDelegateProxy.connect(livelyAdmin).typeRegister(memberSignature, typeRegisterRequests)).
         to.emit(typeManagerDelegateProxy, "TypeRegistered")
           .withArgs(livelyAdminWallet.address, aclTypeTestId, realmContextId,
             LIVELY_VERSE_ACL_ADMIN_ROLE_ID)
@@ -7645,7 +7859,7 @@ describe("Lively Guard Tests", function() {
         expect(typeInfo.name).to.be.equal(ACL_TYPE_TEST_NAME);
         expect(typeInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_ADMIN_ROLE_ID);
         expect(typeInfo.scopeId).to.be.equal(realmContextId);
-        expect(typeInfo.roleLimit).to.be.equal(1);
+        expect(typeInfo.roleLimit).to.be.equal(2);
         expect(typeInfo.roleCount).to.be.equal(0);
         expect(typeInfo.adminType).to.be.equal(AgentType.ROLE);
         expect(typeInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
@@ -7664,8 +7878,14 @@ describe("Lively Guard Tests", function() {
           alstat: AlterabilityStatus.DISABLED
         }]
 
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
+
         // when
-        await expect(typeManagerDelegateProxy.connect(livelyAdmin).typeUpdateAlterabilityStatus(requests))
+        await expect(typeManagerDelegateProxy.connect(livelyAdmin).typeUpdateAlterabilityStatus(memberSignature, requests))
           .to.emit(typeManagerDelegateProxy, "TypeAlterabilityUpdated")
           .withArgs(livelyAdminWallet.address, aclTypeTestId, AlterabilityStatus.DISABLED)
       })
@@ -7677,8 +7897,14 @@ describe("Lively Guard Tests", function() {
           adminId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID
         }]
 
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
+
         // when
-        await expect(typeManagerDelegateProxy.connect(livelyAdmin).typeUpdateAdmin(updateAdminRequests))
+        await expect(typeManagerDelegateProxy.connect(livelyAdmin).typeUpdateAdmin(memberSignature, updateAdminRequests))
           .revertedWith("Illegal Updatable")
       })
 
@@ -7688,9 +7914,14 @@ describe("Lively Guard Tests", function() {
           typeId: aclTypeTestId,
           roleLimit: 5
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(typeManagerDelegateProxy.connect(livelyAdmin).typeUpdateRoleLimit(requests))
+        await expect(typeManagerDelegateProxy.connect(livelyAdmin).typeUpdateRoleLimit(memberSignature, requests))
           .revertedWith("Illegal Updatable")
       })
 
@@ -7700,9 +7931,14 @@ describe("Lively Guard Tests", function() {
           id: aclTypeTestId,
           acstat: ActivityStatus.ENABLED
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(typeManagerDelegateProxy.connect(livelyAdmin).typeUpdateActivityStatus(requests))
+        await expect(typeManagerDelegateProxy.connect(livelyAdmin).typeUpdateActivityStatus(memberSignature, requests))
           .revertedWith("Illegal Updatable")
       })
 
@@ -7718,9 +7954,14 @@ describe("Lively Guard Tests", function() {
             scopeId: memberRegisterFunctionId
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(typeManagerDelegateProxy.connect(livelyAdmin).typeUpdateScope(requests))
+        await expect(typeManagerDelegateProxy.connect(livelyAdmin).typeUpdateScope(memberSignature, requests))
           .revertedWith("Illegal Updatable")
       })
 
@@ -7730,9 +7971,14 @@ describe("Lively Guard Tests", function() {
           id: aclTypeTestId,
           alstat: AlterabilityStatus.UPDATABLE
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(typeManagerDelegateProxy.connect(livelyAdmin).typeUpdateAlterabilityStatus(requests))
+        await expect(typeManagerDelegateProxy.connect(livelyAdmin).typeUpdateAlterabilityStatus(memberSignature, requests))
           .to.emit(typeManagerDelegateProxy, "TypeAlterabilityUpdated")
           .withArgs(livelyAdminWallet.address, aclTypeTestId, AlterabilityStatus.UPDATABLE)
       })
@@ -7743,9 +7989,14 @@ describe("Lively Guard Tests", function() {
           id: aclTypeTestId,
           acstat: ActivityStatus.DISABLED
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(typeManagerDelegateProxy.connect(user1).typeUpdateActivityStatus(requests))
+        await expect(typeManagerDelegateProxy.connect(user1).typeUpdateActivityStatus(memberSignature, requests))
           .revertedWith("ACLMemberNotFound()")
       })
 
@@ -7755,9 +8006,14 @@ describe("Lively Guard Tests", function() {
           id: aclTypeTestId,
           acstat: ActivityStatus.DISABLED
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(typeManagerDelegateProxy.connect(systemAdmin).typeUpdateActivityStatus(requests))
+        await expect(typeManagerDelegateProxy.connect(systemAdmin).typeUpdateActivityStatus(memberSignature, requests))
           .revertedWith("'AdminAccessNotPermitted()")
       })
 
@@ -7768,9 +8024,14 @@ describe("Lively Guard Tests", function() {
           id: aclTypeTestId,
           acstat: ActivityStatus.DISABLED
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(typeManagerDelegateProxy.connect(livelyAdmin).typeUpdateActivityStatus(requests))
+        await expect(typeManagerDelegateProxy.connect(livelyAdmin).typeUpdateActivityStatus(memberSignature, requests))
           .to.emit(typeManagerDelegateProxy, "TypeActivityUpdated")
           .withArgs(livelyAdminWallet.address, aclTypeTestId, ActivityStatus.DISABLED);
 
@@ -7779,7 +8040,7 @@ describe("Lively Guard Tests", function() {
         expect(typeInfo.name).to.be.equal(ACL_TYPE_TEST_NAME);
         expect(typeInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_ADMIN_ROLE_ID);
         expect(typeInfo.scopeId).to.be.equal(realmContextId);
-        expect(typeInfo.roleLimit).to.be.equal(1);
+        expect(typeInfo.roleLimit).to.be.equal(2);
         expect(typeInfo.roleCount).to.be.equal(0);
         expect(typeInfo.adminType).to.be.equal(AgentType.ROLE);
         expect(typeInfo.acstat).to.be.equal(ActivityStatus.DISABLED);
@@ -7792,9 +8053,14 @@ describe("Lively Guard Tests", function() {
           id: aclTypeTestId,
           acstat: ActivityStatus.ENABLED
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(typeManagerDelegateProxy.connect(livelyAdmin).typeUpdateActivityStatus(requests))
+        await expect(typeManagerDelegateProxy.connect(livelyAdmin).typeUpdateActivityStatus(memberSignature, requests))
           .to.emit(typeManagerDelegateProxy, "TypeActivityUpdated")
           .withArgs(livelyAdminWallet.address, aclTypeTestId, ActivityStatus.ENABLED);
 
@@ -7806,9 +8072,14 @@ describe("Lively Guard Tests", function() {
           id: aclTypeTestId,
           adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(typeManagerDelegateProxy.connect(livelyAdmin).typeUpdateAdmin(updateAdminRequests))
+        await expect(typeManagerDelegateProxy.connect(livelyAdmin).typeUpdateAdmin(memberSignature, updateAdminRequests))
           .to.emit(typeManagerDelegateProxy, "TypeAdminUpdated")
           .withArgs(livelyAdminWallet.address, aclTypeTestId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
 
@@ -7830,13 +8101,18 @@ describe("Lively Guard Tests", function() {
             name: ACL_ROLE_TEST_NAME
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleRegister(roleRegisterRequests)).
+        await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleRegister(memberSignature, roleRegisterRequests)).
         to.revertedWith("Illegal Scope")
       })
 
-      it("Should update scope ACL_TYPE_TEST failed", async() => {
+      it("Should update scope ACL_TYPE_TEST to low scope type success", async() => {
         // given
         const memberRegisterFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
@@ -7848,10 +8124,98 @@ describe("Lively Guard Tests", function() {
             scopeId: memberRegisterFunctionId
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(typeManagerDelegateProxy.connect(livelyAdmin).typeUpdateScope(requests))
-          .to.revertedWith("Illegal ScopeType");
+        await expect(typeManagerDelegateProxy.connect(livelyAdmin).typeUpdateScope(memberSignature, requests))
+          .to.emit(typeManagerDelegateProxy, "TypeScopeUpdated")
+          .withArgs(livelyAdminWallet.address, aclTypeTestId, memberRegisterFunctionId)
+      })
+
+      it("Should register aclRoleTest4 in ACL type success", async() => {
+        // given
+        const memberRegisterFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [memberManagerProxy.address,  memberIface.getSighash("memberRegister")]));
+        aclRoleTestId4 = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_TEST_NAME_4));
+        const roleRegisterRequests: IRoleManagement.RoleRegisterRequestStruct[] = [
+          {
+            adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+            scopeId: memberRegisterFunctionId,
+            typeId: aclTypeTestId,
+            memberLimit: 2,
+            acstat: ActivityStatus.ENABLED,
+            alstat: AlterabilityStatus.UPDATABLE,
+            name: ACL_ROLE_TEST_NAME_4
+          }
+        ]
+        const expiredAt = BigNumber.from(Date.now() + 10000);
+        const signature = generateMemberSignatureManually(
+          livelyAdminWallet.address,
+          aclManagerProxy.address,
+          livelyAdminWallet,
+          networkChainId,
+          expiredAt
+        );
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: livelyAdminWallet.address,
+          expiredAt: expiredAt,
+          signature: signature
+        }
+
+        // when
+        await expect(roleManagerDelegateProxy.connect(systemAdmin).roleRegister(memberSignature, roleRegisterRequests)).
+        to.emit(roleManagerDelegateProxy, "RoleRegistered")
+          .withArgs(livelyAdminWallet.address, aclRoleTestId4, aclTypeTestId,
+            LIVELY_VERSE_ACL_ADMIN_ROLE_ID, memberRegisterFunctionId)
+
+        // then
+        expect(await roleManagerDelegateProxy.roleCheckId(aclRoleTestId4)).to.be.true
+
+        // and
+        const roleInfo: IRoleManagement.RoleInfoStruct = await roleManagerDelegateProxy.roleGetInfo(aclRoleTestId4);
+        expect(roleInfo.name).to.be.equal(ACL_ROLE_TEST_NAME_4);
+        expect(roleInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_ADMIN_ROLE_ID);
+        expect(roleInfo.scopeId).to.be.equal(memberRegisterFunctionId);
+        expect(roleInfo.typeId).to.be.equal(aclTypeTestId);
+        expect(roleInfo.memberLimit).to.be.equal(2);
+        expect(roleInfo.memberCount).to.be.equal(0);
+        expect(roleInfo.adminType).to.be.equal(AgentType.ROLE);
+        expect(roleInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(roleInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+
+        // and
+        expect(await roleManagerDelegateProxy.roleCheckId(aclRoleTestId4)).to.be.true;
+        expect(await roleManagerDelegateProxy.roleCheckName(ACL_ROLE_TEST_NAME_4)).to.be.true;
+        expect(await roleManagerDelegateProxy.roleCheckAdmin(aclRoleTestId4, livelyAdminWallet.address)).to.be.true;
+      })
+
+      it("Should update scope ACL_TYPE_TEST failed", async() => {
+        // given
+        const roleIface = new ethers.utils.Interface(RoleManager__factory.abi);
+        const roleRegisterFunctionId = ethers.utils.keccak256(
+          ethers.utils.solidityPack(["address", "bytes4"],
+            [roleManagerProxy.address,  roleIface.getSighash("roleRegister")]));
+        aclTypeTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_TYPE_TEST_NAME));
+        const requests: IACLCommonsRoles.UpdateScopeRequestStruct[] = [
+          {
+            id: aclTypeTestId,
+            scopeId: roleRegisterFunctionId
+          }
+        ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
+
+        // when
+        await expect(typeManagerDelegateProxy.connect(livelyAdmin).typeUpdateScope(memberSignature, requests))
+          .to.revertedWith("Illegal Scope");
       })
 
       it("Should update scope ACL_TYPE_TEST success", async() => {
@@ -7860,14 +8224,19 @@ describe("Lively Guard Tests", function() {
         const requests: IACLCommonsRoles.UpdateScopeRequestStruct[] = [
           {
             id: aclTypeTestId,
-            scopeId: LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID
+            scopeId: LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(typeManagerDelegateProxy.connect(livelyAdmin).typeUpdateScope(requests))
+        await expect(typeManagerDelegateProxy.connect(livelyAdmin).typeUpdateScope(memberSignature, requests))
           .to.emit(typeManagerDelegateProxy, "TypeScopeUpdated")
-          .withArgs(livelyAdminWallet.address, aclTypeTestId, LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID)
+          .withArgs(livelyAdminWallet.address, aclTypeTestId, LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID)
       })
 
       it("Should ACL_TYPE_TEST update admin by anyone failed", async() => {
@@ -7876,9 +8245,14 @@ describe("Lively Guard Tests", function() {
           id: aclTypeTestId,
           adminId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(typeManagerDelegateProxy.connect(user1).typeUpdateAdmin(updateAdminRequests))
+        await expect(typeManagerDelegateProxy.connect(user1).typeUpdateAdmin(memberSignature, updateAdminRequests))
           .revertedWith("ACLMemberNotFound()");
       })
 
@@ -7888,9 +8262,14 @@ describe("Lively Guard Tests", function() {
           id: aclTypeTestId,
           adminId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(typeManagerDelegateProxy.connect(livelyAdmin).typeUpdateAdmin(updateAdminRequests))
+        await expect(typeManagerDelegateProxy.connect(livelyAdmin).typeUpdateAdmin(memberSignature, updateAdminRequests))
           .to.emit(typeManagerDelegateProxy, "TypeAdminUpdated")
           .withArgs(livelyAdminWallet.address, aclTypeTestId, LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID);
 
@@ -7912,9 +8291,14 @@ describe("Lively Guard Tests", function() {
             name: ACL_ROLE_TEST_NAME
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(roleManagerDelegateProxy.connect(systemAdmin).roleRegister(roleRegisterRequests)).
+        await expect(roleManagerDelegateProxy.connect(systemAdmin).roleRegister(memberSignature, roleRegisterRequests)).
         to.revertedWith("Illegal RegisterLimit")
       })
 
@@ -7944,9 +8328,14 @@ describe("Lively Guard Tests", function() {
             functionLimit: 255,
           },
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(memberManagerDelegateProxy.connect(user1).memberUpdateGeneralLimit(requests))
+        await expect(memberManagerDelegateProxy.connect(user1).memberUpdateGeneralLimit(memberSignature, requests))
           .revertedWith("ACLMemberNotFound()");
       })
 
@@ -7976,9 +8365,14 @@ describe("Lively Guard Tests", function() {
             functionLimit: 255,
           },
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(memberManagerDelegateProxy.connect(livelyAdmin).memberUpdateGeneralLimit(requests))
+        await expect(memberManagerDelegateProxy.connect(livelyAdmin).memberUpdateGeneralLimit(memberSignature, requests))
           .revertedWith("Illegal TypeLimit");
       })
 
@@ -8008,9 +8402,14 @@ describe("Lively Guard Tests", function() {
             functionLimit: 255,
           },
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(memberManagerDelegateProxy.connect(livelyAdmin).memberUpdateGeneralLimit(requests))
+        await expect(memberManagerDelegateProxy.connect(livelyAdmin).memberUpdateGeneralLimit(memberSignature, requests))
           .to.emit(memberManagerDelegateProxy, "MemberGeneralLimitUpdated")
           .withArgs(livelyAdminWallet.address, systemAdminId, [
              7, 7, 128, 65535, 0, 65535, 0, 0, 65535, 0, 3, 7, 7, 0, 0, 0, 0, 255
@@ -8058,9 +8457,14 @@ describe("Lively Guard Tests", function() {
             name: ACL_ROLE_TEST_NAME
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(roleManagerDelegateProxy.connect(systemAdmin).roleRegister(roleRegisterRequests)).
+        await expect(roleManagerDelegateProxy.connect(systemAdmin).roleRegister(memberSignature, roleRegisterRequests)).
         to.emit(roleManagerDelegateProxy, "RoleRegistered")
           .withArgs(systemAdminWallet.address, aclRoleTestId, aclTypeTestId,
             LIVELY_VERSE_ACL_ADMIN_ROLE_ID, LIVELY_VERSE_ACL_REALM_ID)
@@ -8100,9 +8504,14 @@ describe("Lively Guard Tests", function() {
             name: ACL_ROLE_TEST_NAME_2
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(roleManagerDelegateProxy.connect(systemAdmin).roleRegister(roleRegisterRequests))
+        await expect(roleManagerDelegateProxy.connect(systemAdmin).roleRegister(memberSignature, roleRegisterRequests))
           .to.revertedWith("Illegal Register");
       })
 
@@ -8112,9 +8521,14 @@ describe("Lively Guard Tests", function() {
           typeId: aclTypeTestId,
           roleLimit: 0
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(typeManagerDelegateProxy.connect(systemAdmin).typeUpdateRoleLimit(requests))
+        await expect(typeManagerDelegateProxy.connect(systemAdmin).typeUpdateRoleLimit(memberSignature, requests))
           .revertedWith("Illegal Limit");
 
       })
@@ -8125,9 +8539,14 @@ describe("Lively Guard Tests", function() {
           typeId: aclTypeTestId,
           roleLimit: 5
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(typeManagerDelegateProxy.connect(systemAdmin).typeUpdateRoleLimit(requests))
+        await expect(typeManagerDelegateProxy.connect(systemAdmin).typeUpdateRoleLimit(memberSignature, requests))
           .to.emit(typeManagerDelegateProxy, "TypeRoleLimitUpdated")
           .withArgs(systemAdminWallet.address, aclTypeTestId, 5)
       })
@@ -8147,9 +8566,14 @@ describe("Lively Guard Tests", function() {
              name: ACL_ROLE_TEST_NAME_2
            }
          ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
          // when
-         await expect(roleManagerDelegateProxy.connect(systemAdmin).roleRegister(roleRegisterRequests))
+         await expect(roleManagerDelegateProxy.connect(systemAdmin).roleRegister(memberSignature, roleRegisterRequests))
           .to.emit(roleManagerDelegateProxy, "RoleRegistered")
            .withArgs(systemAdminWallet.address, aclRoleTestId2, aclTypeTestId,
              LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, typeContextId);
@@ -8176,9 +8600,14 @@ describe("Lively Guard Tests", function() {
             scopeId: LIVELY_VERSE_ACL_REALM_ID,
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(roleManagerDelegateProxy.connect(systemAdmin).roleUpdateScope(roleRegisterRequests))
+        await expect(roleManagerDelegateProxy.connect(systemAdmin).roleUpdateScope(memberSignature, roleRegisterRequests))
           .to.emit(roleManagerDelegateProxy, "RoleScopeUpdated")
           .withArgs(systemAdminWallet.address, aclRoleTestId2, LIVELY_VERSE_ACL_REALM_ID)
       })
@@ -8200,9 +8629,14 @@ describe("Lively Guard Tests", function() {
             name: ACL_ROLE_TEST_NAME_3
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(roleManagerDelegateProxy.connect(systemAdmin).roleRegister(roleRegisterRequests))
+        await expect(roleManagerDelegateProxy.connect(systemAdmin).roleRegister(memberSignature, roleRegisterRequests))
           .to.emit(roleManagerDelegateProxy, "RoleRegistered")
           .withArgs(systemAdminWallet.address, aclRoleTestId3, aclTypeTestId,
             LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID, memberUpdateAdminFunctionId);
@@ -8226,9 +8660,14 @@ describe("Lively Guard Tests", function() {
           id: aclRoleTestId,
           adminId: aclRoleTestId
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(roleManagerDelegateProxy.connect(systemAdmin).roleUpdateAdmin(updateAdminRequests))
+        await expect(roleManagerDelegateProxy.connect(systemAdmin).roleUpdateAdmin(memberSignature, updateAdminRequests))
           .revertedWith("Illegal Updatable")
       })
 
@@ -8238,9 +8677,14 @@ describe("Lively Guard Tests", function() {
           id: aclRoleTestId,
           acstat: ActivityStatus.DISABLED
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(roleManagerDelegateProxy.connect(systemAdmin).roleUpdateActivityStatus(requests))
+        await expect(roleManagerDelegateProxy.connect(systemAdmin).roleUpdateActivityStatus(memberSignature, requests))
           .revertedWith("Illegal Updatable")
       })
 
@@ -8250,9 +8694,14 @@ describe("Lively Guard Tests", function() {
           roleId: aclRoleTestId,
           memberLimit: 5
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(roleManagerDelegateProxy.connect(systemAdmin).roleUpdateMemberLimit(memberLimitRequests))
+        await expect(roleManagerDelegateProxy.connect(systemAdmin).roleUpdateMemberLimit(memberSignature, memberLimitRequests))
           .revertedWith("Illegal Updatable")
       })
 
@@ -8263,9 +8712,14 @@ describe("Lively Guard Tests", function() {
           roleId: aclRoleTestId,
           members: [ userId1 ]
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(roleManagerDelegateProxy.connect(systemAdmin).roleGrantMembers(requests))
+        await expect(roleManagerDelegateProxy.connect(systemAdmin).roleGrantMembers(memberSignature, requests))
           .revertedWith("Illegal Updatable")
       })
 
@@ -8276,9 +8730,14 @@ describe("Lively Guard Tests", function() {
           roleId: aclRoleTestId,
           members: [ userId1 ]
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(roleManagerDelegateProxy.connect(systemAdmin).roleRevokeMembers(requests))
+        await expect(roleManagerDelegateProxy.connect(systemAdmin).roleRevokeMembers(memberSignature, requests))
           .revertedWith("Illegal Updatable")
       })
 
@@ -8313,9 +8772,14 @@ describe("Lively Guard Tests", function() {
             alstat: AlterabilityStatus.UPDATABLE
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(memberManagerDelegateProxy.connect(systemAdmin).memberRegister(memberRegisterRequests))
+        await expect(memberManagerDelegateProxy.connect(systemAdmin).memberRegister(memberSignature, memberRegisterRequests))
           .to.revertedWith("Illegal Role Updatable");
       })
 
@@ -8325,9 +8789,14 @@ describe("Lively Guard Tests", function() {
           id: aclRoleTestId,
           alstat: AlterabilityStatus.UPDATABLE
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleUpdateAlterabilityStatus(requests))
+        await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleUpdateAlterabilityStatus(memberSignature, requests))
           .to.emit(roleManagerDelegateProxy, "RoleAlterabilityUpdated")
           .withArgs(livelyAdminWallet.address, aclRoleTestId, AlterabilityStatus.UPDATABLE)
       })
@@ -8364,9 +8833,14 @@ describe("Lively Guard Tests", function() {
             alstat: AlterabilityStatus.UPDATABLE
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(memberManagerDelegateProxy.connect(livelyAdmin).memberRegister(memberRegisterRequests))
+        await expect(memberManagerDelegateProxy.connect(livelyAdmin).memberRegister(memberSignature, memberRegisterRequests))
           .to.revertedWith("Illegal Admin AgentType");
       })
 
@@ -8402,9 +8876,22 @@ describe("Lively Guard Tests", function() {
             alstat: AlterabilityStatus.UPDATABLE
           }
         ]
+        const expiredAt = BigNumber.from(Date.now() + 10000);
+        const signature = generateMemberSignatureManually(
+          livelyAdminWallet.address,
+          aclManagerProxy.address,
+          livelyAdminWallet,
+          networkChainId,
+          expiredAt
+        );
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: livelyAdminWallet.address,
+          expiredAt: expiredAt,
+          signature: signature
+        }
 
         // when
-        await expect(memberManagerDelegateProxy.connect(livelyAdmin).memberRegister(memberRegisterRequests))
+        await expect(memberManagerDelegateProxy.connect(systemAdmin).memberRegister(memberSignature, memberRegisterRequests))
           .to.emit(memberManagerDelegateProxy, "MemberRegistered")
           .withArgs(livelyAdminWallet.address, roleMemberUserId1, userWallet1.address,
             aclRoleTestId, LIVELY_VERSE_MEMBER_MASTER_TYPE_ID, [32, 32, 32, 32, 32, 32, 32, 32, 1, 32, 2, 32, 32, 32, 32, 32, 32, 32])
@@ -8472,9 +8959,14 @@ describe("Lively Guard Tests", function() {
             alstat: AlterabilityStatus.UPDATABLE
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(memberManagerDelegateProxy.connect(systemAdmin).memberRegister(memberRegisterRequests))
+        await expect(memberManagerDelegateProxy.connect(systemAdmin).memberRegister(memberSignature, memberRegisterRequests))
           .revertedWith("Already Exist")
       })
 
@@ -8487,10 +8979,15 @@ describe("Lively Guard Tests", function() {
             members: [systemAdminId]
           },
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleGrantMembers(requests))
-          .revertedWith("Illegal GrantMemberType")
+        await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleGrantMembers(memberSignature, requests))
+          .revertedWith("Illegal Grant")
       })
 
       it("Should aclRoleTest grant systemAdmin to aclRoleTestId role success", async() => {
@@ -8506,9 +9003,14 @@ describe("Lively Guard Tests", function() {
             members: [systemAdminId]
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleGrantMembers(requests))
+        await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleGrantMembers(memberSignature, requests))
           .to.emit(roleManagerDelegateProxy, "RoleMemberGranted")
           .withArgs(livelyAdminWallet.address, aclRoleTestId, systemAdminId, aclTypeTestId)
 
@@ -8545,9 +9047,14 @@ describe("Lively Guard Tests", function() {
             alstat: AlterabilityStatus.UPDATABLE
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(memberManagerDelegateProxy.connect(systemAdmin).memberRegister(memberRegisterRequests))
+        await expect(memberManagerDelegateProxy.connect(systemAdmin).memberRegister(memberSignature, memberRegisterRequests))
           .revertedWith("SetAdminForbidden(3)")
       })
 
@@ -8557,9 +9064,14 @@ describe("Lively Guard Tests", function() {
           id: aclRoleTestId,
           acstat: ActivityStatus.DISABLED
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(roleManagerDelegateProxy.connect(user1).roleUpdateActivityStatus(requests))
+        await expect(roleManagerDelegateProxy.connect(user1).roleUpdateActivityStatus(memberSignature, requests))
           .to.revertedWith("AdminAccessNotPermitted()")
       })
 
@@ -8569,9 +9081,14 @@ describe("Lively Guard Tests", function() {
           id: aclRoleTestId,
           acstat: ActivityStatus.DISABLED
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleUpdateActivityStatus(requests))
+        await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleUpdateActivityStatus(memberSignature, requests))
           .to.emit(roleManagerDelegateProxy, "RoleActivityUpdated")
           .withArgs(livelyAdminWallet.address, aclRoleTestId, ActivityStatus.DISABLED)
 
@@ -8594,9 +9111,14 @@ describe("Lively Guard Tests", function() {
           id: aclRoleTestId,
           acstat: ActivityStatus.ENABLED
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleUpdateActivityStatus(requests))
+        await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleUpdateActivityStatus(memberSignature, requests))
           .to.emit(roleManagerDelegateProxy, "RoleActivityUpdated")
           .withArgs(livelyAdminWallet.address, aclRoleTestId, ActivityStatus.ENABLED)
 
@@ -8646,9 +9168,14 @@ describe("Lively Guard Tests", function() {
             alstat: AlterabilityStatus.UPDATABLE
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(memberManagerDelegateProxy.connect(livelyAdmin).memberRegister(requests))
+        await expect(memberManagerDelegateProxy.connect(livelyAdmin).memberRegister(memberSignature, requests))
           .to.emit(memberManagerDelegateProxy, "MemberRegistered")
           .withArgs(livelyAdminWallet.address, roleMemberUserId2, userWallet2.address,
             aclRoleTestId, aclRoleTestId, [16, 16, 16, 16, 16, 16, 16, 16, 15, 16, 5, 16, 16, 16, 16, 16, 16, 16])
@@ -8693,9 +9220,14 @@ describe("Lively Guard Tests", function() {
             adminId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(memberManagerDelegateProxy.connect(systemAdmin).memberUpdateAdmin(requests))
+        await expect(memberManagerDelegateProxy.connect(systemAdmin).memberUpdateAdmin(memberSignature, requests))
           .to.emit(memberManagerDelegateProxy, "MemberAdminUpdated")
           .withArgs(systemAdminWallet.address, roleMemberUserId2, LIVELY_VERSE_LIVELY_MASTER_TYPE_ID)
       })
@@ -8706,9 +9238,14 @@ describe("Lively Guard Tests", function() {
           id: aclRoleTestId,
           adminId: aclRoleTestId
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleUpdateAdmin(updateAdminRequests))
+        await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleUpdateAdmin(memberSignature, updateAdminRequests))
           .to.emit(roleManagerDelegateProxy, "RoleAdminUpdated")
           .withArgs(livelyAdminWallet.address, aclRoleTestId, aclRoleTestId);
 
@@ -8748,9 +9285,14 @@ describe("Lively Guard Tests", function() {
             alstat: AlterabilityStatus.UPDATABLE
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(memberManagerDelegateProxy.connect(user1).memberRegister(requests))
+        await expect(memberManagerDelegateProxy.connect(user1).memberRegister(memberSignature, requests))
           .revertedWith("Illegal Register")
       })
 
@@ -8760,9 +9302,14 @@ describe("Lively Guard Tests", function() {
           roleId: aclRoleTestId,
           memberLimit: 1
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(roleManagerDelegateProxy.connect(user1).roleUpdateMemberLimit(requests))
+        await expect(roleManagerDelegateProxy.connect(user1).roleUpdateMemberLimit(memberSignature, requests))
           .revertedWith("Illegal Limit")
       })
 
@@ -8772,9 +9319,14 @@ describe("Lively Guard Tests", function() {
           roleId: aclRoleTestId,
           memberLimit: 10
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleUpdateMemberLimit(requests))
+        await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleUpdateMemberLimit(memberSignature, requests))
           .revertedWith("AdminAccessNotPermitted()")
       })
 
@@ -8784,9 +9336,14 @@ describe("Lively Guard Tests", function() {
           roleId: aclRoleTestId,
           memberLimit: 5
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(roleManagerDelegateProxy.connect(user1).roleUpdateMemberLimit(requests))
+        await expect(roleManagerDelegateProxy.connect(user1).roleUpdateMemberLimit(memberSignature, requests))
           .to.emit(roleManagerDelegateProxy, "RoleMemberLimitUpdated")
           .withArgs(userWallet1.address, aclRoleTestId, 5)
       })
@@ -8822,9 +9379,14 @@ describe("Lively Guard Tests", function() {
             alstat: AlterabilityStatus.UPDATABLE
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(memberManagerDelegateProxy.connect(user1).memberRegister(requests))
+        await expect(memberManagerDelegateProxy.connect(user1).memberRegister(memberSignature, requests))
           .to.revertedWith("CallForbidden()")
       })
 
@@ -8854,9 +9416,14 @@ describe("Lively Guard Tests", function() {
             functionLimit: 16,
           },
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(memberManagerDelegateProxy.connect(livelyAdmin).memberUpdateGeneralLimit(requests))
+        await expect(memberManagerDelegateProxy.connect(livelyAdmin).memberUpdateGeneralLimit(memberSignature, requests))
           .to.emit(memberManagerDelegateProxy, "MemberGeneralLimitUpdated")
           .withArgs(livelyAdminWallet.address, userId1, [
             16, 16, 16, 16, 16, 16, 16, 16, 32, 16, 15, 16, 16, 16, 16, 16, 16, 16
@@ -8895,9 +9462,14 @@ describe("Lively Guard Tests", function() {
             alstat: AlterabilityStatus.UPDATABLE
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(memberManagerDelegateProxy.connect(user1).memberRegister(requests))
+        await expect(memberManagerDelegateProxy.connect(user1).memberRegister(memberSignature, requests))
           .to.emit(memberManagerDelegateProxy, "MemberRegistered")
           .withArgs(userWallet1.address, roleMemberUserId3, userWallet3.address, aclRoleTestId,
             LIVELY_VERSE_MEMBER_MASTER_TYPE_ID, [8, 8, 8, 8, 8, 8, 8, 8, 2, 8, 1, 8, 8, 8, 8, 8, 8, 8])
@@ -8940,10 +9512,15 @@ describe("Lively Guard Tests", function() {
           roleId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
           members: [userId3]
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleGrantMembers(requests))
-          .revertedWith("Illegal Member TypeLimit")
+        await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleGrantMembers(memberSignature, requests))
+          .revertedWith("Illegal TypeLimit")
       })
 
       it("Should revoke member from aclRoleTest and delete user3 success", async() => {
@@ -8953,9 +9530,14 @@ describe("Lively Guard Tests", function() {
           roleId: aclRoleTestId,
           members: [userId3]
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(roleManagerDelegateProxy.connect(user1).roleRevokeMembers(requests))
+        await expect(roleManagerDelegateProxy.connect(user1).roleRevokeMembers(memberSignature, requests))
           .to.emit(roleManagerDelegateProxy, "RoleMemberDeleted")
           .withArgs(userWallet1.address, aclRoleTestId, userId3, aclTypeTestId, userWallet3.address)
           .to.emit(roleManagerDelegateProxy, "RoleMemberRevoked")
@@ -8979,9 +9561,14 @@ describe("Lively Guard Tests", function() {
             members: [userId1, userId2]
           },
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleGrantMembers(requests))
+        await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleGrantMembers(memberSignature, requests))
           .to.emit(roleManagerDelegateProxy, "RoleMemberGranted")
           .withArgs(livelyAdminWallet.address, LIVELY_VERSE_ACL_ADMIN_ROLE_ID, userId1, LIVELY_VERSE_ACL_TYPE_ID)
           .to.emit(roleManagerDelegateProxy, "RoleMemberGranted")
@@ -9009,7 +9596,7 @@ describe("Lively Guard Tests", function() {
 
         // and
         expect(await typeManagerDelegateProxy.typeGetRoles(LIVELY_VERSE_ACL_TYPE_ID)).to.be.eqls([LIVELY_VERSE_ACL_ADMIN_ROLE_ID]);
-        expect(await typeManagerDelegateProxy.typeGetRoles(aclTypeTestId)).to.be.eqls([aclRoleTestId, aclRoleTestId2, aclRoleTestId3]);
+        expect(await typeManagerDelegateProxy.typeGetRoles(aclTypeTestId)).to.be.eqls([aclRoleTestId4, aclRoleTestId, aclRoleTestId2, aclRoleTestId3]);
       })
 
       it("Should revoke user1 from aclAdminRole success", async() => {
@@ -9019,9 +9606,14 @@ describe("Lively Guard Tests", function() {
           roleId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
           members: [ userId1]
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleRevokeMembers(requests))
+        await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleRevokeMembers(memberSignature, requests))
           .to.emit(roleManagerDelegateProxy, "RoleMemberRevoked")
           .withArgs(livelyAdminWallet.address, LIVELY_VERSE_ACL_ADMIN_ROLE_ID, userId1, LIVELY_VERSE_ACL_TYPE_ID)
 
@@ -9039,9 +9631,14 @@ describe("Lively Guard Tests", function() {
           id: userId1,
           alstat: AlterabilityStatus.UPGRADABLE
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(memberManagerDelegateProxy.connect(user1).memberUpdateAlterabilityStatus(requests))
+        await expect(memberManagerDelegateProxy.connect(user1).memberUpdateAlterabilityStatus(memberSignature, requests))
           .revertedWith("AdminAccessRoleNotFound()")
       })
 
@@ -9052,9 +9649,14 @@ describe("Lively Guard Tests", function() {
           id: userId1,
           alstat: AlterabilityStatus.DISABLED
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(memberManagerDelegateProxy.connect(livelyAdmin).memberUpdateAlterabilityStatus(requests))
+        await expect(memberManagerDelegateProxy.connect(livelyAdmin).memberUpdateAlterabilityStatus(memberSignature, requests))
           .to.emit(memberManagerDelegateProxy, "MemberAlterabilityUpdated")
           .withArgs(livelyAdminWallet.address, userId1, AlterabilityStatus.DISABLED)
       })
@@ -9066,9 +9668,14 @@ describe("Lively Guard Tests", function() {
           id: userId1,
           adminId: aclRoleTestId
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(memberManagerDelegateProxy.connect(livelyAdmin).memberUpdateAdmin(updateAdminRequests))
+        await expect(memberManagerDelegateProxy.connect(livelyAdmin).memberUpdateAdmin(memberSignature, updateAdminRequests))
           .revertedWith("Illegal Updatable")
       })
 
@@ -9079,9 +9686,14 @@ describe("Lively Guard Tests", function() {
           id: userId1,
           acstat: ActivityStatus.DISABLED
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(memberManagerDelegateProxy.connect(livelyAdmin).memberUpdateActivityStatus(requests))
+        await expect(memberManagerDelegateProxy.connect(livelyAdmin).memberUpdateActivityStatus(memberSignature, requests))
           .revertedWith("Illegal Updatable")
       })
 
@@ -9111,9 +9723,14 @@ describe("Lively Guard Tests", function() {
             profileRegisterLimit: 0,
           }
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(memberManagerDelegateProxy.connect(livelyAdmin).memberUpdateGeneralLimit(requests))
+        await expect(memberManagerDelegateProxy.connect(livelyAdmin).memberUpdateGeneralLimit(memberSignature, requests))
           .revertedWith("Illegal Updatable")
       })
 
@@ -9124,9 +9741,14 @@ describe("Lively Guard Tests", function() {
           id: userId1,
           alstat: AlterabilityStatus.UPDATABLE
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(memberManagerDelegateProxy.connect(livelyAdmin).memberUpdateAlterabilityStatus(requests))
+        await expect(memberManagerDelegateProxy.connect(livelyAdmin).memberUpdateAlterabilityStatus(memberSignature, requests))
           .to.emit(memberManagerDelegateProxy, "MemberAlterabilityUpdated")
           .withArgs(livelyAdminWallet.address, userId1, AlterabilityStatus.UPDATABLE)
       })
@@ -9138,9 +9760,14 @@ describe("Lively Guard Tests", function() {
           id: userId1,
           acstat: ActivityStatus.DISABLED
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(memberManagerDelegateProxy.connect(livelyAdmin).memberUpdateActivityStatus(requests))
+        await expect(memberManagerDelegateProxy.connect(livelyAdmin).memberUpdateActivityStatus(memberSignature, requests))
           .to.emit(memberManagerDelegateProxy, "MemberActivityUpdated")
           .withArgs(livelyAdminWallet.address, userId1, ActivityStatus.DISABLED)
 
@@ -9179,9 +9806,14 @@ describe("Lively Guard Tests", function() {
           id: userId1,
           adminId: aclRoleTestId
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(memberManagerDelegateProxy.connect(livelyAdmin).memberUpdateAdmin(updateAdminRequests))
+        await expect(memberManagerDelegateProxy.connect(livelyAdmin).memberUpdateAdmin(memberSignature, updateAdminRequests))
           .to.emit(memberManagerDelegateProxy, "MemberAdminUpdated")
           .withArgs(livelyAdminWallet.address, userId1, aclRoleTestId);
 
@@ -9196,9 +9828,14 @@ describe("Lively Guard Tests", function() {
           id: userId1,
           acstat: ActivityStatus.ENABLED
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(memberManagerDelegateProxy.connect(user1).memberUpdateActivityStatus(requests))
+        await expect(memberManagerDelegateProxy.connect(user1).memberUpdateActivityStatus(memberSignature, requests))
           .to.revertedWith("MemberActivityForbidden()")
       })
 
@@ -9209,52 +9846,66 @@ describe("Lively Guard Tests", function() {
           id: userId1,
           acstat: ActivityStatus.ENABLED
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(memberManagerDelegateProxy.connect(user2).memberUpdateActivityStatus(requests))
+        await expect(memberManagerDelegateProxy.connect(user2).memberUpdateActivityStatus(memberSignature, requests))
           .to.emit(memberManagerDelegateProxy, "MemberActivityUpdated")
           .withArgs(userWallet2.address, userId1, ActivityStatus.ENABLED)
       })
 
-      it("Should update scope aclRoleTest to Global success", async() => {
+      it("Should update scope aclRoleTest to Universe success", async() => {
         // given
         aclRoleTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_TEST_NAME));
         const roleRegisterRequests: IACLCommonsRoles.UpdateScopeRequestStruct[] = [
           {
             id: aclRoleTestId,
-            scopeId: LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID,
+            scopeId: LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID,
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(roleManagerDelegateProxy.connect(systemAdmin).roleUpdateScope(roleRegisterRequests))
+        await expect(roleManagerDelegateProxy.connect(systemAdmin).roleUpdateScope(memberSignature, roleRegisterRequests))
           .to.emit(roleManagerDelegateProxy, "RoleScopeUpdated")
-          .withArgs(systemAdminWallet.address, aclRoleTestId, LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID)
+          .withArgs(systemAdminWallet.address, aclRoleTestId, LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID)
       })
-
     })
 
     describe("Policy Test", function() {
       it("Should register aclPolicyTest in ACL policy success", async() => {
         // given
-        const realmContextId = ethers.utils.keccak256(realmManagerProxy.address);
+        const memberContextId = ethers.utils.keccak256(memberManagerProxy.address);
         aclPolicyTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_POLICY_TEST_NAME));
         const requests: IPolicyManagement.PolicyRegisterRequestStruct[] = [
           {
             adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-            scopeId: realmContextId,
-            roleLimit: 1,
+            scopeId: memberContextId,
+            roleLimit: 2,
             policyCode: 80,
             acstat: ActivityStatus.ENABLED,
             alstat: AlterabilityStatus.UPDATABLE,
             name: ACL_POLICY_TEST_NAME
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyRegister(requests)).
+        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyRegister(memberSignature, requests)).
         to.emit(policyManagerDelegateProxy, "PolicyRegistered")
-          .withArgs(livelyAdminWallet.address, aclPolicyTestId, realmContextId,
+          .withArgs(livelyAdminWallet.address, aclPolicyTestId, memberContextId,
             LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID, 80)
 
         // then
@@ -9264,8 +9915,8 @@ describe("Lively Guard Tests", function() {
         const policyInfo: IPolicyManagement.PolicyInfoStruct = await policyManagerDelegateProxy.policyGetInfo(aclPolicyTestId);
         expect(policyInfo.name).to.be.equal(ACL_POLICY_TEST_NAME);
         expect(policyInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
-        expect(policyInfo.scopeId).to.be.equal(realmContextId);
-        expect(policyInfo.roleLimit).to.be.equal(1);
+        expect(policyInfo.scopeId).to.be.equal(memberContextId);
+        expect(policyInfo.roleLimit).to.be.equal(2);
         expect(policyInfo.roleCount).to.be.equal(0);
         expect(policyInfo.ptype).to.be.equal(PolicyType.MLOCK);
         expect(policyInfo.policyCode).to.be.equal(80);
@@ -9276,6 +9927,49 @@ describe("Lively Guard Tests", function() {
         expect(await policyManagerDelegateProxy.policyCheckId(aclPolicyTestId)).to.be.true;
         expect(await policyManagerDelegateProxy.policyCheckName(ACL_POLICY_TEST_NAME)).to.be.true;
         expect(await policyManagerDelegateProxy.policyCheckAdmin(aclPolicyTestId, livelyAdminWallet.address)).to.be.true;
+      })
+
+      it("Should add aclRoleTestId4 to aclPolicyTest success", async() => {
+        // given
+        const memberContextId = ethers.utils.keccak256(memberManagerProxy.address);
+        const requests: IPolicyManagement.PolicyAddRolesRequestStruct[] = [{
+          policyId: aclPolicyTestId,
+          roles: [ aclRoleTestId4 ]
+        }]
+        const expiredAt = BigNumber.from(Date.now() + 10000);
+        const signature = generateMemberSignatureManually(
+          livelyAdminWallet.address,
+          aclManagerProxy.address,
+          livelyAdminWallet,
+          networkChainId,
+          expiredAt
+        );
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: livelyAdminWallet.address,
+          expiredAt: expiredAt,
+          signature: signature
+        }
+
+        // when
+        await expect(policyManagerDelegateProxy.connect(user1).policyAddRoles(memberSignature, requests))
+          .to.emit(policyManagerDelegateProxy, "PolicyRoleAdded")
+          .withArgs(livelyAdminWallet.address, aclPolicyTestId, aclRoleTestId4);
+
+        // then
+        expect(await policyManagerDelegateProxy.policyCheckRole(aclRoleTestId4)).to.be.true;
+        expect(await policyManagerDelegateProxy.policyHasRole(aclPolicyTestId, aclRoleTestId4)).to.be.true;
+
+        // and
+        const policyInfo: IPolicyManagement.PolicyInfoStruct = await policyManagerDelegateProxy.policyGetInfoByRole(aclRoleTestId4);
+        expect(policyInfo.name).to.be.equal(ACL_POLICY_TEST_NAME);
+        expect(policyInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
+        expect(policyInfo.scopeId).to.be.equal(memberContextId);
+        expect(policyInfo.roleLimit).to.be.equal(2);
+        expect(policyInfo.roleCount).to.be.equal(1);
+        expect(policyInfo.ptype).to.be.equal(PolicyType.MLOCK);
+        expect(policyInfo.policyCode).to.be.equal(80);
+        expect(policyInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(policyInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
       })
 
       it("Should update scope aclPolicyTest in ACL policy failed", async() => {
@@ -9291,9 +9985,14 @@ describe("Lively Guard Tests", function() {
             scopeId: realmRegisterFunctionId,
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateScope(requests)).
+        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateScope(memberSignature, requests)).
         to.revertedWith("Illegal ScopeType")
       })
 
@@ -9303,14 +10002,19 @@ describe("Lively Guard Tests", function() {
         const requests: IACLCommonsRoles.UpdateScopeRequestStruct[] = [
           {
             id: aclPolicyTestId,
-            scopeId: LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID,
+            scopeId: LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID,
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateScope(requests))
+        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateScope(memberSignature, requests))
           .to.emit(policyManagerDelegateProxy, "PolicyScopeUpdated")
-          .withArgs(livelyAdminWallet.address, aclPolicyTestId, LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID)
+          .withArgs(livelyAdminWallet.address, aclPolicyTestId, LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID)
       })
 
       it("Should disable alterability of aclPolicyTest success", async() => {
@@ -9319,9 +10023,22 @@ describe("Lively Guard Tests", function() {
           id: aclPolicyTestId,
           alstat: AlterabilityStatus.DISABLED
         }]
+        const expiredAt = BigNumber.from(Date.now() + 10000);
+        const signature = generateMemberSignatureManually(
+          livelyAdminWallet.address,
+          aclManagerProxy.address,
+          livelyAdminWallet,
+          networkChainId,
+          expiredAt
+        );
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: livelyAdminWallet.address,
+          expiredAt: expiredAt,
+          signature: signature
+        }
 
         // when
-        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateAlterabilityStatus(requests))
+        await expect(policyManagerDelegateProxy.connect(systemAdmin).policyUpdateAlterabilityStatus(memberSignature, requests))
           .to.emit(policyManagerDelegateProxy, "PolicyAlterabilityUpdated")
           .withArgs(livelyAdminWallet.address, aclPolicyTestId, AlterabilityStatus.DISABLED)
       })
@@ -9332,9 +10049,14 @@ describe("Lively Guard Tests", function() {
           id: aclPolicyTestId,
           adminId: aclRoleTestId
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateAdmin(updateAdminRequests))
+        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateAdmin(memberSignature, updateAdminRequests))
           .revertedWith("Illegal Updatable")
       })
 
@@ -9344,9 +10066,14 @@ describe("Lively Guard Tests", function() {
           policyId: aclPolicyTestId,
           policyCode: 30
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateCodes(requests))
+        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateCodes(memberSignature, requests))
           .revertedWith("Illegal Updatable")
       })
 
@@ -9356,9 +10083,14 @@ describe("Lively Guard Tests", function() {
           id: aclPolicyTestId,
           acstat: ActivityStatus.DISABLED
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateActivityStatus(requests))
+        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateActivityStatus(memberSignature, requests))
           .revertedWith("Illegal Updatable")
       })
 
@@ -9368,9 +10100,14 @@ describe("Lively Guard Tests", function() {
           policyId: aclPolicyTestId,
           roleLimit: 5
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateRoleLimit(requests))
+        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateRoleLimit(memberSignature, requests))
           .revertedWith("Illegal Updatable")
       })
 
@@ -9380,9 +10117,14 @@ describe("Lively Guard Tests", function() {
           policyId: aclPolicyTestId,
           roles: [ aclRoleTestId ]
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyAddRoles(requests))
+        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyAddRoles(memberSignature, requests))
           .revertedWith("Illegal Updatable")
       })
 
@@ -9392,9 +10134,14 @@ describe("Lively Guard Tests", function() {
           policyId: aclPolicyTestId,
           roles: [ aclRoleTestId ]
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyAddRoles(requests))
+        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyAddRoles(memberSignature, requests))
           .revertedWith("Illegal Updatable")
       })
 
@@ -9404,9 +10151,14 @@ describe("Lively Guard Tests", function() {
           id: aclPolicyTestId,
           alstat: AlterabilityStatus.UPDATABLE
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateAlterabilityStatus(requests))
+        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateAlterabilityStatus(memberSignature, requests))
           .to.emit(policyManagerDelegateProxy, "PolicyAlterabilityUpdated")
           .withArgs(livelyAdminWallet.address, aclPolicyTestId, AlterabilityStatus.UPDATABLE)
       })
@@ -9418,9 +10170,14 @@ describe("Lively Guard Tests", function() {
           id: aclPolicyTestId,
           acstat: ActivityStatus.DISABLED
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateActivityStatus(requests))
+        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateActivityStatus(memberSignature, requests))
           .to.emit(policyManagerDelegateProxy, "PolicyActivityUpdated")
           .withArgs(livelyAdminWallet.address, aclPolicyTestId, ActivityStatus.DISABLED)
 
@@ -9428,9 +10185,9 @@ describe("Lively Guard Tests", function() {
         const policyInfo: IPolicyManagement.PolicyInfoStruct = await policyManagerDelegateProxy.policyGetInfo(aclPolicyTestId);
         expect(policyInfo.name).to.be.equal(ACL_POLICY_TEST_NAME);
         expect(policyInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
-        expect(policyInfo.scopeId).to.be.equal(LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
-        expect(policyInfo.roleLimit).to.be.equal(1);
-        expect(policyInfo.roleCount).to.be.equal(0);
+        expect(policyInfo.scopeId).to.be.equal(LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);
+        expect(policyInfo.roleLimit).to.be.equal(2);
+        expect(policyInfo.roleCount).to.be.equal(1);
         expect(policyInfo.ptype).to.be.equal(PolicyType.MLOCK);
         expect(policyInfo.policyCode).to.be.equal(80);
         expect(policyInfo.acstat).to.be.equal(ActivityStatus.DISABLED);
@@ -9444,9 +10201,14 @@ describe("Lively Guard Tests", function() {
           id: aclPolicyTestId,
           acstat: ActivityStatus.ENABLED
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateActivityStatus(requests))
+        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateActivityStatus(memberSignature, requests))
           .to.emit(policyManagerDelegateProxy, "PolicyActivityUpdated")
           .withArgs(livelyAdminWallet.address, aclPolicyTestId, ActivityStatus.ENABLED)
       })
@@ -9457,9 +10219,14 @@ describe("Lively Guard Tests", function() {
           policyId: aclPolicyTestId,
           roles: [ LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID ]
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyAddRoles(requests))
+        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyAddRoles(memberSignature, requests))
           .revertedWith("Illegal Role")
       })
 
@@ -9469,9 +10236,14 @@ describe("Lively Guard Tests", function() {
           id: aclPolicyTestId,
           adminId: aclRoleTestId
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateAdmin(updateAdminRequests))
+        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateAdmin(memberSignature, updateAdminRequests))
           .to.emit(policyManagerDelegateProxy, "PolicyAdminUpdated")
           .withArgs(livelyAdminWallet.address, aclPolicyTestId, aclRoleTestId);
       })
@@ -9482,9 +10254,14 @@ describe("Lively Guard Tests", function() {
           policyId: aclPolicyTestId,
           roles: [ aclRoleTestId2 ]
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(policyManagerDelegateProxy.connect(user1).policyAddRoles(requests))
+        await expect(policyManagerDelegateProxy.connect(user1).policyAddRoles(memberSignature, requests))
           .to.emit(policyManagerDelegateProxy, "PolicyRoleAdded")
           .withArgs(userWallet1.address, aclPolicyTestId, aclRoleTestId2);
 
@@ -9496,9 +10273,9 @@ describe("Lively Guard Tests", function() {
         const policyInfo: IPolicyManagement.PolicyInfoStruct = await policyManagerDelegateProxy.policyGetInfoByRole(aclRoleTestId2);
         expect(policyInfo.name).to.be.equal(ACL_POLICY_TEST_NAME);
         expect(policyInfo.adminId).to.be.equal(aclRoleTestId);
-        expect(policyInfo.scopeId).to.be.equal(LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
-        expect(policyInfo.roleLimit).to.be.equal(1);
-        expect(policyInfo.roleCount).to.be.equal(1);
+        expect(policyInfo.scopeId).to.be.equal(LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);
+        expect(policyInfo.roleLimit).to.be.equal(2);
+        expect(policyInfo.roleCount).to.be.equal(2);
         expect(policyInfo.ptype).to.be.equal(PolicyType.MLOCK);
         expect(policyInfo.policyCode).to.be.equal(80);
         expect(policyInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
@@ -9511,9 +10288,14 @@ describe("Lively Guard Tests", function() {
           policyId: aclPolicyTestId,
           roles: [ aclRoleTestId ]
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(policyManagerDelegateProxy.connect(user1).policyAddRoles(requests))
+        await expect(policyManagerDelegateProxy.connect(user1).policyAddRoles(memberSignature, requests))
           .revertedWith("Illegal Role")
       })
 
@@ -9523,9 +10305,14 @@ describe("Lively Guard Tests", function() {
           id: aclPolicyTestId,
           adminId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(policyManagerDelegateProxy.connect(user1).policyUpdateAdmin(updateAdminRequests))
+        await expect(policyManagerDelegateProxy.connect(user1).policyUpdateAdmin(memberSignature, updateAdminRequests))
           .to.emit(policyManagerDelegateProxy, "PolicyAdminUpdated")
           .withArgs(userWallet1.address, aclPolicyTestId, LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID);
       })
@@ -9536,9 +10323,14 @@ describe("Lively Guard Tests", function() {
           policyId: aclPolicyTestId,
           roles: [ aclRoleTestId ]
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(policyManagerDelegateProxy.connect(systemAdmin).policyAddRoles(requests))
+        await expect(policyManagerDelegateProxy.connect(systemAdmin).policyAddRoles(memberSignature, requests))
           .revertedWith("Illegal Limit")
       })
 
@@ -9548,9 +10340,14 @@ describe("Lively Guard Tests", function() {
           policyId: aclPolicyTestId,
           roleLimit: 0
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateRoleLimit(requests))
+        await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyUpdateRoleLimit(memberSignature, requests))
           .revertedWith("AdminAccessNotPermitted()")
       })
 
@@ -9560,9 +10357,14 @@ describe("Lively Guard Tests", function() {
           policyId: aclPolicyTestId,
           roleLimit: 5
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(policyManagerDelegateProxy.connect(systemAdmin).policyUpdateRoleLimit(requests))
+        await expect(policyManagerDelegateProxy.connect(systemAdmin).policyUpdateRoleLimit(memberSignature, requests))
           .to.emit(policyManagerDelegateProxy, "PolicyRoleLimitUpdated")
           .withArgs(systemAdminWallet.address, aclPolicyTestId, 5)
       })
@@ -9573,16 +10375,21 @@ describe("Lively Guard Tests", function() {
           policyId: aclPolicyTestId,
           roles: [ aclRoleTestId ]
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(policyManagerDelegateProxy.connect(systemAdmin).policyAddRoles(requests))
+        await expect(policyManagerDelegateProxy.connect(systemAdmin).policyAddRoles(memberSignature, requests))
           .to.emit(policyManagerDelegateProxy, "PolicyRoleAdded")
           .withArgs(systemAdminWallet.address, aclPolicyTestId, aclRoleTestId);
 
         // then
         expect(await policyManagerDelegateProxy.policyCheckRole(aclRoleTestId)).to.be.true;
         expect(await policyManagerDelegateProxy.policyHasRole(aclPolicyTestId, aclRoleTestId)).to.be.true;
-        expect(await policyManagerDelegateProxy.policyGetRoles(aclPolicyTestId)).to.be.eqls([aclRoleTestId2, aclRoleTestId])
+        expect(await policyManagerDelegateProxy.policyGetRoles(aclPolicyTestId)).to.be.eqls([aclRoleTestId4, aclRoleTestId2, aclRoleTestId])
       })
 
       it("Should remove roles aclRoleTestId2 to aclPolicyTest success", async() => {
@@ -9591,9 +10398,14 @@ describe("Lively Guard Tests", function() {
           policyId: aclPolicyTestId,
           roles: [ aclRoleTestId2 ]
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(policyManagerDelegateProxy.connect(systemAdmin).policyRemoveRoles(requests))
+        await expect(policyManagerDelegateProxy.connect(systemAdmin).policyRemoveRoles(memberSignature, requests))
           .to.emit(policyManagerDelegateProxy, "PolicyRoleRemoved")
           .withArgs(systemAdminWallet.address, aclPolicyTestId, aclRoleTestId2);
 
@@ -9613,9 +10425,14 @@ describe("Lively Guard Tests", function() {
           policyId: aclPolicyTestId,
           policyCode: 0
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(policyManagerDelegateProxy.connect(systemAdmin).policyUpdateCodes(requests))
+        await expect(policyManagerDelegateProxy.connect(systemAdmin).policyUpdateCodes(memberSignature, requests))
           .to.emit(policyManagerDelegateProxy, "PolicyCodeUpdated")
           .withArgs(systemAdminWallet.address, aclPolicyTestId, 0, PolicyType.UNLOCK);
 
@@ -9639,8 +10456,14 @@ describe("Lively Guard Tests", function() {
           alstat: AlterabilityStatus.DISABLED
         }]
 
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
+
         // when
-        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateAlterabilityStatus(requests))
+        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateAlterabilityStatus(memberSignature, requests))
           .to.emit(functionManagerDelegateProxy, "FunctionAlterabilityUpdated")
           .withArgs(livelyAdminWallet.address, memberRegisterFunctionId, AlterabilityStatus.DISABLED);
       })
@@ -9654,9 +10477,14 @@ describe("Lively Guard Tests", function() {
           id: memberRegisterFunctionId,
           adminId: aclRoleTestId
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateAdmin(requests))
+        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateAdmin(memberSignature, requests))
           .revertedWith("Illegal Updatable")
       })
 
@@ -9669,9 +10497,14 @@ describe("Lively Guard Tests", function() {
           functionId: memberRegisterFunctionId,
           agentId: aclRoleTestId
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateAgent(requests))
+        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateAgent(memberSignature, requests))
           .revertedWith("Illegal Updatable")
       })
 
@@ -9684,9 +10517,14 @@ describe("Lively Guard Tests", function() {
           functionId: memberRegisterFunctionId,
           policyCode: 30
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdatePolicyCode(requests))
+        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdatePolicyCode(memberSignature, requests))
           .revertedWith("Illegal Updatable")
       })
 
@@ -9699,9 +10537,14 @@ describe("Lively Guard Tests", function() {
           id: memberRegisterFunctionId,
           acstat: ActivityStatus.DISABLED
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateActivityStatus(requests))
+        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateActivityStatus(memberSignature, requests))
           .revertedWith("Illegal Updatable")
       })
 
@@ -9714,9 +10557,22 @@ describe("Lively Guard Tests", function() {
           id: memberRegisterFunctionId,
           alstat: AlterabilityStatus.UPDATABLE
         }]
+        const expiredAt = BigNumber.from(Date.now() + 10000);
+        const signature = generateMemberSignatureManually(
+          livelyAdminWallet.address,
+          aclManagerProxy.address,
+          livelyAdminWallet,
+          networkChainId,
+          expiredAt
+        );
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: livelyAdminWallet.address,
+          expiredAt: expiredAt,
+          signature: signature
+        }
 
         // when
-        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateAlterabilityStatus(requests))
+        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionUpdateAlterabilityStatus(memberSignature, requests))
           .to.emit(functionManagerDelegateProxy, "FunctionAlterabilityUpdated")
           .withArgs(livelyAdminWallet.address, memberRegisterFunctionId, AlterabilityStatus.UPDATABLE)
       })
@@ -9731,9 +10587,14 @@ describe("Lively Guard Tests", function() {
           id: memberRegisterFunctionId,
           acstat: ActivityStatus.DISABLED
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateActivityStatus(requests))
+        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateActivityStatus(memberSignature, requests))
           .to.emit(functionManagerDelegateProxy, "FunctionActivityUpdated")
           .withArgs(livelyAdminWallet.address, memberRegisterFunctionId, ActivityStatus.DISABLED)
 
@@ -9748,7 +10609,7 @@ describe("Lively Guard Tests", function() {
         expect(functionInfo.selector).to.be.equal(memberIface.getSighash("memberRegister"));
         expect(functionInfo.acstat).to.be.equal(ActivityStatus.DISABLED);
         expect(functionInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
-        expect(functionInfo.referredByAgent).to.be.equal(0);
+        expect(functionInfo.referredByAgent).to.be.equal(1);
       })
 
       it("Should enable activity of memberRegisterFunction success", async() => {
@@ -9760,9 +10621,14 @@ describe("Lively Guard Tests", function() {
           id: memberRegisterFunctionId,
           acstat: ActivityStatus.ENABLED
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateActivityStatus(requests))
+        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateActivityStatus(memberSignature, requests))
           .to.emit(functionManagerDelegateProxy, "FunctionActivityUpdated")
           .withArgs(livelyAdminWallet.address, memberRegisterFunctionId, ActivityStatus.ENABLED)
 
@@ -9779,9 +10645,14 @@ describe("Lively Guard Tests", function() {
           functionId: memberRegisterFunctionId,
           agentId: aclTypeTestId
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateAgent(requests))
+        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateAgent(memberSignature, requests))
           .to.emit(functionManagerDelegateProxy, "FunctionAgentUpdated")
           .withArgs(livelyAdminWallet.address, memberRegisterFunctionId, aclTypeTestId);
 
@@ -9800,9 +10671,14 @@ describe("Lively Guard Tests", function() {
             members: [userId2]
           },
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(roleManagerDelegateProxy.connect(systemAdmin).roleGrantMembers(requests))
+        await expect(roleManagerDelegateProxy.connect(systemAdmin).roleGrantMembers(memberSignature, requests))
           .to.emit(roleManagerDelegateProxy, "RoleMemberRevoked")
           .withArgs(systemAdminWallet.address, aclRoleTestId, userId2, aclTypeTestId)
           .to.emit(roleManagerDelegateProxy, "RoleMemberGranted")
@@ -9840,9 +10716,14 @@ describe("Lively Guard Tests", function() {
             alstat: AlterabilityStatus.UPDATABLE
           }
         ]
+          const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(memberManagerDelegateProxy.connect(user2).memberRegister(memberRegisterRequests))
+        await expect(memberManagerDelegateProxy.connect(user2).memberRegister(memberSignature, memberRegisterRequests))
           .to.revertedWith("ACLRoleScopeForbidden()");
       })
 
@@ -9855,9 +10736,14 @@ describe("Lively Guard Tests", function() {
           functionId: memberRegisterFunctionId,
           agentId: aclRoleTestId
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateAgent(requests))
+        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateAgent(memberSignature, requests))
           .to.emit(functionManagerDelegateProxy, "FunctionAgentUpdated")
           .withArgs(livelyAdminWallet.address, memberRegisterFunctionId, aclRoleTestId);
 
@@ -9877,9 +10763,14 @@ describe("Lively Guard Tests", function() {
           id: memberRegisterFunctionId,
           adminId: aclRoleTestId
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateAdmin(updateAdminRequests))
+        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateAdmin(memberSignature, updateAdminRequests))
           .to.emit(functionManagerDelegateProxy, "FunctionAdminUpdated")
           .withArgs(livelyAdminWallet.address, memberRegisterFunctionId, aclRoleTestId);
 
@@ -9898,9 +10789,14 @@ describe("Lively Guard Tests", function() {
           policyId: aclPolicyTestId,
           policyCode: 255
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(policyManagerDelegateProxy.connect(systemAdmin).policyUpdateCodes(requests))
+        await expect(policyManagerDelegateProxy.connect(systemAdmin).policyUpdateCodes(memberSignature, requests))
           .to.emit(policyManagerDelegateProxy, "PolicyCodeUpdated")
           .withArgs(systemAdminWallet.address, aclPolicyTestId, 255, PolicyType.LOCK);
 
@@ -9942,9 +10838,14 @@ describe("Lively Guard Tests", function() {
             alstat: AlterabilityStatus.UPDATABLE
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(memberManagerDelegateProxy.connect(user1).memberRegister(requests))
+        await expect(memberManagerDelegateProxy.connect(user1).memberRegister(memberSignature, requests))
           .to.revertedWith("ACLPolicyForbidden()")
       })
 
@@ -9957,9 +10858,14 @@ describe("Lively Guard Tests", function() {
           functionId: memberRegisterFunctionId,
           policyCode: 130
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(functionManagerDelegateProxy.connect(user1).functionUpdatePolicyCode(requests))
+        await expect(functionManagerDelegateProxy.connect(user1).functionUpdatePolicyCode(memberSignature, requests))
           .to.revertedWith("AdminAccessPolicyForbidden()");
       })
 
@@ -9969,9 +10875,14 @@ describe("Lively Guard Tests", function() {
           policyId: aclPolicyTestId,
           policyCode: 0
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(policyManagerDelegateProxy.connect(systemAdmin).policyUpdateCodes(requests))
+        await expect(policyManagerDelegateProxy.connect(systemAdmin).policyUpdateCodes(memberSignature, requests))
           .to.emit(policyManagerDelegateProxy, "PolicyCodeUpdated")
           .withArgs(systemAdminWallet.address, aclPolicyTestId, 0, PolicyType.UNLOCK);
       })
@@ -9986,9 +10897,14 @@ describe("Lively Guard Tests", function() {
           functionId: memberRegisterFunctionId,
           policyCode: 130
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(functionManagerDelegateProxy.connect(user1).functionUpdatePolicyCode(requests))
+        await expect(functionManagerDelegateProxy.connect(user1).functionUpdatePolicyCode(memberSignature, requests))
           .to.emit(functionManagerDelegateProxy, "FunctionPolicyUpdated")
           .withArgs(userWallet1.address, memberRegisterFunctionId, 130);
 
@@ -10003,7 +10919,7 @@ describe("Lively Guard Tests", function() {
         expect(functionInfo.selector).to.be.equal(memberIface.getSighash("memberRegister"));
         expect(functionInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
         expect(functionInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
-        expect(functionInfo.referredByAgent).to.be.equal(0);
+        expect(functionInfo.referredByAgent).to.be.equal(1);
       })
 
       it("Should aclRoleTest register user3 member with policy UNLOCK success", async() => {
@@ -10038,9 +10954,14 @@ describe("Lively Guard Tests", function() {
             alstat: AlterabilityStatus.UPDATABLE
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(memberManagerDelegateProxy.connect(user1).memberRegister(requests))
+        await expect(memberManagerDelegateProxy.connect(user1).memberRegister(memberSignature, requests))
           .to.emit(memberManagerDelegateProxy, "MemberRegistered")
           .withArgs(userWallet1.address, roleMemberUserId3, userWallet3.address, aclRoleTestId,
             LIVELY_VERSE_MEMBER_MASTER_TYPE_ID, [8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8])
@@ -10085,9 +11006,14 @@ describe("Lively Guard Tests", function() {
           id: memberContextId,
           alstat: AlterabilityStatus.DISABLED
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(contextManagerDelegateProxy.connect(livelyAdmin).contextUpdateAlterabilityStatus(requests))
+        await expect(contextManagerDelegateProxy.connect(livelyAdmin).contextUpdateAlterabilityStatus(memberSignature, requests))
           .to.emit(contextManagerDelegateProxy, "ContextAlterabilityUpdated")
           .withArgs(livelyAdminWallet.address, memberContextId, AlterabilityStatus.DISABLED);
       })
@@ -10099,9 +11025,14 @@ describe("Lively Guard Tests", function() {
           id: memberContextId,
           adminId: aclRoleTestId
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(contextManagerDelegateProxy.connect(livelyAdmin).contextUpdateAdmin(requests))
+        await expect(contextManagerDelegateProxy.connect(livelyAdmin).contextUpdateAdmin(memberSignature, requests))
           .revertedWith("Illegal Updatable")
       })
 
@@ -10112,9 +11043,14 @@ describe("Lively Guard Tests", function() {
           id: memberContextId,
           acstat: ActivityStatus.DISABLED
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(contextManagerDelegateProxy.connect(livelyAdmin).contextUpdateActivityStatus(requests))
+        await expect(contextManagerDelegateProxy.connect(livelyAdmin).contextUpdateActivityStatus(memberSignature, requests))
           .revertedWith("Illegal Updatable")
       })
 
@@ -10125,9 +11061,14 @@ describe("Lively Guard Tests", function() {
           contextId: memberContextId,
           functionLimit: 5
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(contextManagerDelegateProxy.connect(livelyAdmin).contextUpdateFunctionLimit(requests))
+        await expect(contextManagerDelegateProxy.connect(livelyAdmin).contextUpdateFunctionLimit(memberSignature, requests))
           .revertedWith("Illegal Updatable")
       })
 
@@ -10138,9 +11079,22 @@ describe("Lively Guard Tests", function() {
           id: memberContextId,
           alstat: AlterabilityStatus.UPDATABLE
         }]
+        const expiredAt = BigNumber.from(Date.now() + 10000);
+        const signature = generateMemberSignatureManually(
+          livelyAdminWallet.address,
+          aclManagerProxy.address,
+          livelyAdminWallet,
+          networkChainId,
+          expiredAt
+        );
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: livelyAdminWallet.address,
+          expiredAt: expiredAt,
+          signature: signature
+        }
 
         // when
-        await expect(contextManagerDelegateProxy.connect(livelyAdmin).contextUpdateAlterabilityStatus(requests))
+        await expect(contextManagerDelegateProxy.connect(systemAdmin).contextUpdateAlterabilityStatus(memberSignature, requests))
           .to.emit(contextManagerDelegateProxy, "ContextAlterabilityUpdated")
           .withArgs(livelyAdminWallet.address, memberContextId, AlterabilityStatus.UPDATABLE)
       })
@@ -10152,9 +11106,14 @@ describe("Lively Guard Tests", function() {
           id: memberContextId,
           acstat: ActivityStatus.DISABLED
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(contextManagerDelegateProxy.connect(livelyAdmin).contextUpdateActivityStatus(requests))
+        await expect(contextManagerDelegateProxy.connect(livelyAdmin).contextUpdateActivityStatus(memberSignature, requests))
           .to.emit(contextManagerDelegateProxy, "ContextActivityUpdated")
           .withArgs(livelyAdminWallet.address, memberContextId, ActivityStatus.DISABLED)
 
@@ -10180,9 +11139,14 @@ describe("Lively Guard Tests", function() {
           id: memberContextId,
           acstat: ActivityStatus.ENABLED
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(contextManagerDelegateProxy.connect(livelyAdmin).contextUpdateActivityStatus(requests))
+        await expect(contextManagerDelegateProxy.connect(livelyAdmin).contextUpdateActivityStatus(memberSignature, requests))
           .to.emit(contextManagerDelegateProxy, "ContextActivityUpdated")
           .withArgs(livelyAdminWallet.address, memberContextId, ActivityStatus.ENABLED)
 
@@ -10202,9 +11166,14 @@ describe("Lively Guard Tests", function() {
           id: memberContextId,
           adminId: aclRoleTestId
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(contextManagerDelegateProxy.connect(livelyAdmin).contextUpdateAdmin(updateAdminRequests))
+        await expect(contextManagerDelegateProxy.connect(livelyAdmin).contextUpdateAdmin(memberSignature, updateAdminRequests))
           .to.emit(contextManagerDelegateProxy, "ContextAdminUpdated")
           .withArgs(livelyAdminWallet.address, memberContextId, aclRoleTestId);
 
@@ -10219,9 +11188,14 @@ describe("Lively Guard Tests", function() {
           contextId: memberContextId,
           functionLimit: 25
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(contextManagerDelegateProxy.connect(user1).contextUpdateFunctionLimit(requests))
+        await expect(contextManagerDelegateProxy.connect(user1).contextUpdateFunctionLimit(memberSignature, requests))
           .to.emit(contextManagerDelegateProxy, "ContextFunctionLimitUpdated")
           .withArgs(userWallet1.address, memberContextId, 25);
 
@@ -10239,7 +11213,7 @@ describe("Lively Guard Tests", function() {
 
 
       // domain manager test
-      it("Should register aclDomainTest in ACL Global success", async() => {
+      it("Should register aclDomainTest in ACL Universe success", async() => {
         // given
         aclDomainTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_DOMAIN_TEST_NAME));
         const requests: IDomainManagement.DomainRegisterRequestStruct[] = [
@@ -10251,9 +11225,22 @@ describe("Lively Guard Tests", function() {
             name: ACL_DOMAIN_TEST_NAME
           }
         ]
+        const expiredAt = BigNumber.from(Date.now() + 10000);
+        const signature = generateMemberSignatureManually(
+          livelyAdminWallet.address,
+          aclManagerProxy.address,
+          livelyAdminWallet,
+          networkChainId,
+          expiredAt
+        );
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: livelyAdminWallet.address,
+          expiredAt: expiredAt,
+          signature: signature
+        }
 
         // when
-        await expect(domainManagerDelegateProxy.connect(livelyAdmin).domainRegister(requests)).
+        await expect(domainManagerDelegateProxy.connect(systemAdmin).domainRegister(memberSignature, requests)).
         to.emit(domainManagerDelegateProxy, "DomainRegistered")
           .withArgs(livelyAdminWallet.address, aclDomainTestId ,LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID)
 
@@ -10276,7 +11263,7 @@ describe("Lively Guard Tests", function() {
         expect(await domainManagerDelegateProxy.domainCheckId(aclDomainTestId)).to.be.true;
         expect(await domainManagerDelegateProxy.domainCheckName(ACL_DOMAIN_TEST_NAME)).to.be.true;
         expect(await domainManagerDelegateProxy.domainCheckAdmin(aclDomainTestId, livelyAdminWallet.address)).to.be.true;
-        expect(await globalManagerDelegateProxy.globalGetDomains()).to.be.eqls([LIVELY_VERSE_ACL_DOMAIN_ID, aclDomainTestId]);
+        expect(await universeManagerDelegateProxy.universeGetDomains()).to.be.eqls([LIVELY_VERSE_ACL_DOMAIN_ID, aclDomainTestId]);
       })
 
       it("Should update admin of aclDomainTest when alterability disabled failed", async() => {
@@ -10285,9 +11272,14 @@ describe("Lively Guard Tests", function() {
           id: aclDomainTestId,
           adminId: aclRoleTestId
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(domainManagerDelegateProxy.connect(livelyAdmin).domainUpdateAdmin(requests))
+        await expect(domainManagerDelegateProxy.connect(livelyAdmin).domainUpdateAdmin(memberSignature, requests))
           .revertedWith("Illegal Updatable")
       })
 
@@ -10297,9 +11289,14 @@ describe("Lively Guard Tests", function() {
           id: aclDomainTestId,
           acstat: ActivityStatus.DISABLED
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(domainManagerDelegateProxy.connect(livelyAdmin).domainUpdateActivityStatus(requests))
+        await expect(domainManagerDelegateProxy.connect(livelyAdmin).domainUpdateActivityStatus(memberSignature, requests))
           .revertedWith("Illegal Updatable")
       })
 
@@ -10309,9 +11306,14 @@ describe("Lively Guard Tests", function() {
           domainId: aclDomainTestId,
           realmLimit: 1
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(domainManagerDelegateProxy.connect(livelyAdmin).domainUpdateRealmLimit(requests))
+        await expect(domainManagerDelegateProxy.connect(livelyAdmin).domainUpdateRealmLimit(memberSignature, requests))
           .revertedWith("Illegal Updatable")
       })
 
@@ -10321,9 +11323,14 @@ describe("Lively Guard Tests", function() {
           id: aclDomainTestId,
           alstat: AlterabilityStatus.UPDATABLE
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(domainManagerDelegateProxy.connect(livelyAdmin).domainUpdateAlterabilityStatus(requests))
+        await expect(domainManagerDelegateProxy.connect(livelyAdmin).domainUpdateAlterabilityStatus(memberSignature, requests))
           .to.emit(domainManagerDelegateProxy, "DomainAlterabilityUpdated")
           .withArgs(livelyAdminWallet.address, aclDomainTestId, AlterabilityStatus.UPDATABLE)
       })
@@ -10334,9 +11341,14 @@ describe("Lively Guard Tests", function() {
           id: aclDomainTestId,
           acstat: ActivityStatus.DISABLED
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(domainManagerDelegateProxy.connect(livelyAdmin).domainUpdateActivityStatus(requests))
+        await expect(domainManagerDelegateProxy.connect(livelyAdmin).domainUpdateActivityStatus(memberSignature, requests))
           .to.emit(domainManagerDelegateProxy, "DomainActivityUpdated")
           .withArgs(livelyAdminWallet.address, aclDomainTestId, ActivityStatus.DISABLED)
 
@@ -10359,9 +11371,14 @@ describe("Lively Guard Tests", function() {
           id: aclDomainTestId,
           acstat: ActivityStatus.ENABLED
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(domainManagerDelegateProxy.connect(livelyAdmin).domainUpdateActivityStatus(requests))
+        await expect(domainManagerDelegateProxy.connect(livelyAdmin).domainUpdateActivityStatus(memberSignature, requests))
           .to.emit(domainManagerDelegateProxy, "DomainActivityUpdated")
           .withArgs(livelyAdminWallet.address, aclDomainTestId, ActivityStatus.ENABLED)
       })
@@ -10372,9 +11389,14 @@ describe("Lively Guard Tests", function() {
           id: aclDomainTestId,
           adminId: aclTypeTestId
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(domainManagerDelegateProxy.connect(livelyAdmin).domainUpdateAdmin(updateAdminRequests))
+        await expect(domainManagerDelegateProxy.connect(livelyAdmin).domainUpdateAdmin(memberSignature, updateAdminRequests))
           .to.emit(domainManagerDelegateProxy, "DomainAdminUpdated")
           .withArgs(livelyAdminWallet.address, aclDomainTestId, aclTypeTestId);
 
@@ -10388,9 +11410,14 @@ describe("Lively Guard Tests", function() {
           domainId: aclDomainTestId,
           realmLimit: 2
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(domainManagerDelegateProxy.connect(user1).domainUpdateRealmLimit(requests))
+        await expect(domainManagerDelegateProxy.connect(user1).domainUpdateRealmLimit(memberSignature, requests))
           .to.emit(domainManagerDelegateProxy, "DomainRealmLimitUpdated")
           .withArgs(userWallet1.address, aclDomainTestId, 2);
 
@@ -10420,9 +11447,14 @@ describe("Lively Guard Tests", function() {
             members: [userId1]
           },
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleGrantMembers(requests))
+        await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleGrantMembers(memberSignature, requests))
           .to.emit(roleManagerDelegateProxy, "RoleMemberGranted")
           .withArgs(livelyAdminWallet.address, LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID, userId1, LIVELY_VERSE_SCOPE_MASTER_TYPE_ID)
           .to.emit(roleManagerDelegateProxy, "RoleMemberGranted")
@@ -10447,9 +11479,22 @@ describe("Lively Guard Tests", function() {
             name: ACL_REALM_TEST_NAME
           }
         ]
+        const expiredAt = BigNumber.from(Date.now() + 10000);
+        const signature = generateMemberSignatureManually(
+          userWallet1.address,
+          aclManagerProxy.address,
+          userWallet1,
+          networkChainId,
+          expiredAt
+        );
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: userWallet1.address,
+          expiredAt: expiredAt,
+          signature: signature
+        }
 
         // when
-        await expect(realmManagerDelegateProxy.connect(user1).realmRegister(requests)).
+        await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmRegister(memberSignature, requests)).
         to.emit(realmManagerDelegateProxy, "RealmRegistered")
           .withArgs(userWallet1.address, aclRealmTestId , aclDomainTestId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID)
 
@@ -10488,9 +11533,14 @@ describe("Lively Guard Tests", function() {
           id: aclRealmTestId,
           adminId: aclRoleTestId
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateAdmin(requests))
+        await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateAdmin(memberSignature, requests))
           .revertedWith("Illegal Updatable")
       })
 
@@ -10500,9 +11550,14 @@ describe("Lively Guard Tests", function() {
           id: aclRealmTestId,
           acstat: ActivityStatus.DISABLED
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateActivityStatus(requests))
+        await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateActivityStatus(memberSignature, requests))
           .revertedWith("Illegal Updatable")
       })
 
@@ -10512,9 +11567,14 @@ describe("Lively Guard Tests", function() {
           realmId: aclRealmTestId,
           contextLimit: 1
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateContextLimit(requests))
+        await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateContextLimit(memberSignature, requests))
           .revertedWith("Illegal Updatable")
       })
 
@@ -10524,9 +11584,14 @@ describe("Lively Guard Tests", function() {
           id: aclRealmTestId,
           alstat: AlterabilityStatus.UPDATABLE
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateAlterabilityStatus(requests))
+        await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateAlterabilityStatus(memberSignature, requests))
           .to.emit(realmManagerDelegateProxy, "RealmAlterabilityUpdated")
           .withArgs(livelyAdminWallet.address, aclRealmTestId, AlterabilityStatus.UPDATABLE)
       })
@@ -10537,9 +11602,14 @@ describe("Lively Guard Tests", function() {
           id: aclRealmTestId,
           acstat: ActivityStatus.DISABLED
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateActivityStatus(requests))
+        await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateActivityStatus(memberSignature, requests))
           .to.emit(realmManagerDelegateProxy, "RealmActivityUpdated")
           .withArgs(livelyAdminWallet.address, aclRealmTestId, ActivityStatus.DISABLED)
 
@@ -10563,9 +11633,14 @@ describe("Lively Guard Tests", function() {
           id: aclRealmTestId,
           acstat: ActivityStatus.ENABLED
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateActivityStatus(requests))
+        await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateActivityStatus(memberSignature, requests))
           .to.emit(realmManagerDelegateProxy, "RealmActivityUpdated")
           .withArgs(livelyAdminWallet.address, aclRealmTestId, ActivityStatus.ENABLED)
       })
@@ -10576,9 +11651,14 @@ describe("Lively Guard Tests", function() {
           id: aclRealmTestId,
           adminId: aclTypeTestId
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateAdmin(updateAdminRequests))
+        await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateAdmin(memberSignature, updateAdminRequests))
           .to.emit(realmManagerDelegateProxy, "RealmAdminUpdated")
           .withArgs(livelyAdminWallet.address, aclRealmTestId, aclTypeTestId);
 
@@ -10592,9 +11672,14 @@ describe("Lively Guard Tests", function() {
           realmId: aclRealmTestId,
           contextLimit: 5
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(realmManagerDelegateProxy.connect(user1).realmUpdateContextLimit(requests))
+        await expect(realmManagerDelegateProxy.connect(user1).realmUpdateContextLimit(memberSignature, requests))
           .to.emit(realmManagerDelegateProxy, "RealmContextLimitUpdated")
           .withArgs(userWallet1.address, aclRealmTestId, 5);
 
@@ -10619,9 +11704,14 @@ describe("Lively Guard Tests", function() {
           targetDomainId: LIVELY_VERSE_ACL_DOMAIN_ID,
           realmId: aclRealmTestId
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(domainManagerDelegateProxy.connect(user1).domainMoveRealm(requests))
+        await expect(domainManagerDelegateProxy.connect(user1).domainMoveRealm(memberSignature, requests))
           .to.emit(domainManagerDelegateProxy, "DomainRealmMoved")
           .withArgs(userWallet1.address, aclDomainTestId, aclRealmTestId, LIVELY_VERSE_ACL_DOMAIN_ID);
 
@@ -10650,9 +11740,14 @@ describe("Lively Guard Tests", function() {
           targetRealmId: aclRealmTestId,
           contextId: memberContextId
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(realmManagerDelegateProxy.connect(user1).realmMoveContext(requests))
+        await expect(realmManagerDelegateProxy.connect(user1).realmMoveContext(memberSignature, requests))
           .to.emit(realmManagerDelegateProxy, "RealmContextMoved")
           .withArgs(userWallet1.address, LIVELY_VERSE_ACL_REALM_ID, memberContextId, aclRealmTestId);
 
@@ -10672,54 +11767,96 @@ describe("Lively Guard Tests", function() {
         expect(memberContextInfo.referredByAgent).to.be.equal(0);
       })
 
-      // global manager tests
-      it("Should disable alterability of global scope success", async() => {
+      // universe manager tests
+      it("Should disable alterability of universe scope success", async() => {
         // when
-        await expect(globalManagerDelegateProxy.connect(livelyAdmin).globalUpdateAlterabilityStatus(AlterabilityStatus.DISABLED))
-          .to.emit(globalManagerDelegateProxy, "GlobalAlterabilityUpdated")
-          .withArgs(livelyAdminWallet.address, LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, AlterabilityStatus.DISABLED);
+        const expiredAt = BigNumber.from(Date.now() + 10000);
+        const signature = generateMemberSignatureManually(
+          livelyAdminWallet.address,
+          aclManagerProxy.address,
+          livelyAdminWallet,
+          networkChainId,
+          expiredAt
+        );
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: livelyAdminWallet.address,
+          expiredAt: expiredAt,
+          signature: signature
+        }
+        await expect(universeManagerDelegateProxy.connect(systemAdmin).universeUpdateAlterabilityStatus(memberSignature, AlterabilityStatus.DISABLED))
+          .to.emit(universeManagerDelegateProxy, "UniverseAlterabilityUpdated")
+          .withArgs(livelyAdminWallet.address, LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID, AlterabilityStatus.DISABLED);
       })
 
-      it("Should update admin of global scope when alterability disabled failed", async() => {
+      it("Should update admin of universe scope when alterability disabled failed", async() => {
 
         // when
-        await expect(globalManagerDelegateProxy.connect(livelyAdmin).globalUpdateAdmin(aclRoleTestId))
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
+        await expect(universeManagerDelegateProxy.connect(livelyAdmin).universeUpdateAdmin(memberSignature, aclRoleTestId))
           .revertedWith("Illegal Updatable")
       })
 
-      it("Should update activity of global scope when alterability disabled failed", async() => {
+      it("Should update activity of universe scope when alterability disabled failed", async() => {
         // when
-        await expect(globalManagerDelegateProxy.connect(livelyAdmin).globalUpdateActivityStatus(ActivityStatus.DISABLED))
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
+        await expect(universeManagerDelegateProxy.connect(livelyAdmin).universeUpdateActivityStatus(memberSignature, ActivityStatus.DISABLED))
           .revertedWith("Illegal")
       })
 
-      it("Should update alterability of global scope success", async() => {
+      it("Should update alterability of universe scope success", async() => {
+        const expiredAt = BigNumber.from(Date.now() + 10000);
+        const signature = generateMemberSignatureManually(
+          livelyAdminWallet.address,
+          aclManagerProxy.address,
+          livelyAdminWallet,
+          networkChainId,
+          expiredAt
+        );
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: livelyAdminWallet.address,
+          expiredAt: expiredAt,
+          signature: signature
+        }
+
         // when
-        await expect(globalManagerDelegateProxy.connect(livelyAdmin).globalUpdateAlterabilityStatus(AlterabilityStatus.UPDATABLE))
-          .to.emit(globalManagerDelegateProxy, "GlobalAlterabilityUpdated")
-          .withArgs(livelyAdminWallet.address, LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, AlterabilityStatus.UPDATABLE)
+        await expect(universeManagerDelegateProxy.connect(systemAdmin).universeUpdateAlterabilityStatus(memberSignature, AlterabilityStatus.UPDATABLE))
+          .to.emit(universeManagerDelegateProxy, "UniverseAlterabilityUpdated")
+          .withArgs(livelyAdminWallet.address, LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID, AlterabilityStatus.UPDATABLE)
       })
 
-      it("Should disable activity of global scope success", async() => {
+      it("Should disable activity of universe scope success", async() => {
         // when
-        await expect(globalManagerDelegateProxy.connect(livelyAdmin).globalUpdateActivityStatus(ActivityStatus.DISABLED))
-          .to.emit(globalManagerDelegateProxy, "GlobalActivityUpdated")
-          .withArgs(livelyAdminWallet.address, LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, ActivityStatus.DISABLED)
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
+        await expect(universeManagerDelegateProxy.connect(livelyAdmin).universeUpdateActivityStatus(memberSignature, ActivityStatus.DISABLED))
+          .to.emit(universeManagerDelegateProxy, "UniverseActivityUpdated")
+          .withArgs(livelyAdminWallet.address, LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID, ActivityStatus.DISABLED)
 
         // and
-        const globalInfo: IGlobalManagement.GlobalInfoStruct = await globalManagerDelegateProxy.globalGetInfo();
-        expect(globalInfo.id).to.be.equal(LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
-        expect(globalInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_TYPE_ID);
-        expect(globalInfo.adminType).to.be.equal(AgentType.TYPE);
-        expect(globalInfo.domainLimit).to.be.equal(65535);
-        expect(globalInfo.domainCount).to.be.equal(2);
-        expect(globalInfo.acstat).to.be.equal(ActivityStatus.DISABLED);
-        expect(globalInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
-        expect(globalInfo.stype).to.be.equal(ScopeType.GLOBAL);
-        expect(globalInfo.referredByAgent).to.be.equal(18);
+        const universeInfo: IUniverseManagement.UniverseInfoStruct = await universeManagerDelegateProxy.universeGetInfo();
+        expect(universeInfo.id).to.be.equal(LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);
+        expect(universeInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_TYPE_ID);
+        expect(universeInfo.adminType).to.be.equal(AgentType.TYPE);
+        expect(universeInfo.domainLimit).to.be.equal(65535);
+        expect(universeInfo.domainCount).to.be.equal(2);
+        expect(universeInfo.acstat).to.be.equal(ActivityStatus.DISABLED);
+        expect(universeInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+        expect(universeInfo.stype).to.be.equal(ScopeType.UNIVERSE);
+        expect(universeInfo.referredByAgent).to.be.equal(18);
       })
 
-      it("Should register aclDomainTest2 in Global failed", async() => {
+      it("Should register aclDomainTest2 in Universe failed", async() => {
         // given
         const requests: IDomainManagement.DomainRegisterRequestStruct[] = [
           {
@@ -10730,96 +11867,133 @@ describe("Lively Guard Tests", function() {
             name: ACL_DOMAIN_TEST_NAME_2
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(domainManagerDelegateProxy.connect(livelyAdmin).domainRegister(requests)).
-        revertedWith("ACLGlobalActivityForbidden()")
+        await expect(domainManagerDelegateProxy.connect(livelyAdmin).domainRegister(memberSignature, requests)).
+        revertedWith("ACLUniverseActivityForbidden()")
 
       })
 
-      it("Should enable activity of global scope success", async() => {
+      it("Should enable activity of universe scope success", async() => {
         // when
-        await expect(globalManagerDelegateProxy.connect(livelyAdmin).globalUpdateActivityStatus(ActivityStatus.ENABLED))
-          .to.emit(globalManagerDelegateProxy, "GlobalActivityUpdated")
-          .withArgs(livelyAdminWallet.address, LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, ActivityStatus.ENABLED)
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
+        await expect(universeManagerDelegateProxy.connect(livelyAdmin).universeUpdateActivityStatus(memberSignature, ActivityStatus.ENABLED))
+          .to.emit(universeManagerDelegateProxy, "UniverseActivityUpdated")
+          .withArgs(livelyAdminWallet.address, LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID, ActivityStatus.ENABLED)
       })
 
-      it("Should register aclRoleGlobalAdminTest in LivelyMaster type success", async() => {
+      it("Should register aclRoleUniverseAdminTest in LivelyMaster type success", async() => {
         // given
-        aclRoleGlobalAdminTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_GLOBAL_ADMIN_TEST_NAME));
+        aclRoleUniverseAdminTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_UNIVERSE_ADMIN_TEST_NAME));
         const roleRegisterRequests: IRoleManagement.RoleRegisterRequestStruct[] = [
           {
             adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-            scopeId: LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID,
+            scopeId: LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID,
             typeId: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
             memberLimit: 2,
             acstat: ActivityStatus.ENABLED,
             alstat: AlterabilityStatus.UPDATABLE,
-            name: ACL_ROLE_GLOBAL_ADMIN_TEST_NAME
+            name: ACL_ROLE_UNIVERSE_ADMIN_TEST_NAME
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleRegister(roleRegisterRequests)).
+        await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleRegister(memberSignature, roleRegisterRequests)).
         to.emit(roleManagerDelegateProxy, "RoleRegistered")
-          .withArgs(livelyAdminWallet.address, aclRoleGlobalAdminTestId, LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
-            LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID, LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID)
+          .withArgs(livelyAdminWallet.address, aclRoleUniverseAdminTestId, LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
+            LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID, LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID)
 
       })
 
-      it("Should grant user3 to aclRoleGlobalAdminTest role success", async() => {
+      it("Should grant user3 to aclRoleUniverseAdminTest role success", async() => {
         // given
         const userId3 = ethers.utils.keccak256(userWallet3.address)
         const requests: IRoleManagement.RoleGrantMembersRequestStruct[] = [{
-          roleId: aclRoleGlobalAdminTestId,
+          roleId: aclRoleUniverseAdminTestId,
           members: [userId3]
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleGrantMembers(requests))
+        await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleGrantMembers(memberSignature, requests))
           .to.emit(roleManagerDelegateProxy, "RoleMemberGranted")
-          .withArgs(livelyAdminWallet.address, aclRoleGlobalAdminTestId, userId3, LIVELY_VERSE_LIVELY_MASTER_TYPE_ID)
+          .withArgs(livelyAdminWallet.address, aclRoleUniverseAdminTestId, userId3, LIVELY_VERSE_LIVELY_MASTER_TYPE_ID)
       })
 
-      it("Should update admin of global scope to aclRoleGlobalAdminTestId success", async() => {
+      it("Should update admin of universe scope to aclRoleUniverseAdminTestId success", async() => {
         // when
-        await expect(globalManagerDelegateProxy.connect(livelyAdmin).globalUpdateAdmin(aclRoleGlobalAdminTestId))
-          .to.emit(globalManagerDelegateProxy, "GlobalAdminUpdated")
-          .withArgs(livelyAdminWallet.address, LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, aclRoleGlobalAdminTestId);
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
+        await expect(universeManagerDelegateProxy.connect(livelyAdmin).universeUpdateAdmin(memberSignature, aclRoleUniverseAdminTestId))
+          .to.emit(universeManagerDelegateProxy, "UniverseAdminUpdated")
+          .withArgs(livelyAdminWallet.address, LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID, aclRoleUniverseAdminTestId);
 
         // then
-        expect(await globalManagerDelegateProxy.globalCheckAdmin(userWallet3.address)).to.be.true;
+        expect(await universeManagerDelegateProxy.universeCheckAdmin(userWallet3.address)).to.be.true;
       })
 
-      it("Should update domainLimit of global scope success", async() => {
+      it("Should update domainLimit of universe scope success", async() => {
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
+
         // when
-        await expect(globalManagerDelegateProxy.connect(user3).globalUpdateDomainLimit(5))
-          .to.emit(globalManagerDelegateProxy, "GlobalDomainLimitUpdated")
-          .withArgs(userWallet3.address, LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, 5);
+        await expect(universeManagerDelegateProxy.connect(user3).universeUpdateDomainLimit(memberSignature, 5))
+          .to.emit(universeManagerDelegateProxy, "UniverseDomainLimitUpdated")
+          .withArgs(userWallet3.address, LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID, 5);
       })
 
-      it("Should update admin of global scope to LIVELY_MATER_ADMIN success", async() => {
+      it("Should update admin of universe scope to LIVELY_MATER_ADMIN success", async() => {
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
+
         // when
-        await expect(globalManagerDelegateProxy.connect(user3).globalUpdateAdmin(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID))
-          .to.emit(globalManagerDelegateProxy, "GlobalAdminUpdated")
-          .withArgs(userWallet3.address, LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
+        await expect(universeManagerDelegateProxy.connect(user3).universeUpdateAdmin(memberSignature, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID))
+          .to.emit(universeManagerDelegateProxy, "UniverseAdminUpdated")
+          .withArgs(userWallet3.address, LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
 
         // then
-        const globalInfo: IGlobalManagement.GlobalInfoStruct = await globalManagerDelegateProxy.globalGetInfo();
-        expect(globalInfo.id).to.be.equal(LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
-        expect(globalInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
-        expect(globalInfo.adminType).to.be.equal(AgentType.ROLE);
-        expect(globalInfo.domainLimit).to.be.equal(5);
-        expect(globalInfo.domainCount).to.be.equal(2);
-        expect(globalInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
-        expect(globalInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
-        expect(globalInfo.stype).to.be.equal(ScopeType.GLOBAL);
-        expect(globalInfo.referredByAgent).to.be.equal(19);
+        const universeInfo: IUniverseManagement.UniverseInfoStruct = await universeManagerDelegateProxy.universeGetInfo();
+        expect(universeInfo.id).to.be.equal(LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);
+        expect(universeInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
+        expect(universeInfo.adminType).to.be.equal(AgentType.ROLE);
+        expect(universeInfo.domainLimit).to.be.equal(5);
+        expect(universeInfo.domainCount).to.be.equal(2);
+        expect(universeInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(universeInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+        expect(universeInfo.stype).to.be.equal(ScopeType.UNIVERSE);
+        expect(universeInfo.referredByAgent).to.be.equal(19);
 
         // and
-        expect(await globalManagerDelegateProxy.globalCheckAdmin(userWallet1.address)).to.be.false;
-        expect(await globalManagerDelegateProxy.globalCheckAdmin(userWallet2.address)).to.be.false;
-        expect(await globalManagerDelegateProxy.globalGetDomains()).to.be.eqls([LIVELY_VERSE_ACL_DOMAIN_ID, aclDomainTestId]);
+        expect(await universeManagerDelegateProxy.universeCheckAdmin(userWallet1.address)).to.be.false;
+        expect(await universeManagerDelegateProxy.universeCheckAdmin(userWallet2.address)).to.be.false;
+        expect(await universeManagerDelegateProxy.universeGetDomains()).to.be.eqls([LIVELY_VERSE_ACL_DOMAIN_ID, aclDomainTestId]);
 
       })
 
@@ -10830,9 +12004,14 @@ describe("Lively Guard Tests", function() {
           roleId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
           members: [ userId1]
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleRevokeMembers(requests))
+        await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleRevokeMembers(memberSignature, requests))
           .to.emit(roleManagerDelegateProxy, "RoleMemberRevoked")
           .withArgs(livelyAdminWallet.address, LIVELY_VERSE_ACL_ADMIN_ROLE_ID, userId1, LIVELY_VERSE_ACL_TYPE_ID)
       })
@@ -11075,9 +12254,14 @@ describe("Lively Guard Tests", function() {
           id: domainRegisterFunctionId,
           acstat: ActivityStatus.DELETED
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateActivityStatus(requests))
+        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateActivityStatus(memberSignature, requests))
           .to.emit(functionManagerDelegateProxy, "FunctionActivityUpdated")
           .withArgs(livelyAdminWallet.address, domainRegisterFunctionId, ActivityStatus.DELETED)
 
@@ -11106,9 +12290,14 @@ describe("Lively Guard Tests", function() {
           id: domainMoveRealmFunctionId,
           acstat: ActivityStatus.DELETED
         }]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateActivityStatus(requests))
+        await expect(functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateActivityStatus(memberSignature, requests))
           .to.emit(functionManagerDelegateProxy, "FunctionActivityUpdated")
           .withArgs(livelyAdminWallet.address, domainMoveRealmFunctionId, ActivityStatus.DELETED)
 
@@ -11155,12 +12344,17 @@ describe("Lively Guard Tests", function() {
             functions: domainFunctionRequests
           }
         ]
+        const memberSignature: IACLCommons.MemberSignatureStruct = {
+          account: ethers.constants.AddressZero,
+          expiredAt: 0,
+          signature: new Int8Array(0)
+        }
 
         // when
-        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(domainFunctionRegisterRequest))
+        await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(memberSignature, domainFunctionRegisterRequest))
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, domainContextId, domainRegisterFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_SCOPE_MASTER_TYPE_ID,systemAdminWallet.address)
+            LIVELY_VERSE_SCOPE_MASTER_TYPE_ID)
 
         // then
         expect(await contextManagerDelegateProxy.contextHasFunction(domainContextId, domainRegisterFunctionId)).to.be.true
@@ -11236,7 +12430,7 @@ describe("Lively Guard Tests", function() {
         expect(await accessControlDelegateProxy.getSystemMasterType()).to.be.equal(LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID);
         expect(await accessControlDelegateProxy.getLivelyMasterType()).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_TYPE_ID);
         expect(await accessControlDelegateProxy.getPolicyMasterType()).to.be.equal(LIVELY_VERSE_POLICY_MASTER_TYPE_ID);
-        expect(await accessControlDelegateProxy.getGlobalScope()).to.be.equal(LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
+        expect(await accessControlDelegateProxy.getUniverseScope()).to.be.equal(LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);
         expect(await accessControlDelegateProxy.isAgentExist(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID)).to.be.true;
         expect(await accessControlDelegateProxy.isScopeExist(LIVELY_VERSE_ACL_DOMAIN_ID)).to.be.true;
         expect(await accessControlDelegateProxy.getScopeBaseInfo(LIVELY_VERSE_ACL_DOMAIN_ID)).to.be.not.empty;

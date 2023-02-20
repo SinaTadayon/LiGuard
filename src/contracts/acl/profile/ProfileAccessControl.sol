@@ -212,9 +212,9 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
     if(!res3) return ProfileAuthorizationStatus.DOMAIN_NOT_FOUND;
     if(domainEntity.bs.acstat != ActivityStatus.ENABLED) return ProfileAuthorizationStatus.DOMAIN_ACTIVITY_FORBIDDEN;
 
-    // check global activity
-    GlobalEntity storage globalEntity = profileEntity.profileGlobalReadSlot(_LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID);
-    if(globalEntity.bs.acstat != ActivityStatus.ENABLED) return ProfileAuthorizationStatus.GLOBAL_ACTIVITY_FORBIDDEN;
+    // check universe activity
+    UniverseEntity storage universeEntity = profileEntity.profileUniverseReadSlot(_LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID);
+    if(universeEntity.bs.acstat != ActivityStatus.ENABLED) return ProfileAuthorizationStatus.UNIVERSE_ACTIVITY_FORBIDDEN;
     
     return ProfileAuthorizationStatus.PERMITTED;
   }
@@ -328,9 +328,9 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
     if(!res3) LACLUtils.generateAuthorizationError(IACL.AuthorizationStatus.DOMAIN_NOT_FOUND);
     if(domainEntity.bs.acstat != ActivityStatus.ENABLED) LACLUtils.generateAuthorizationError(IACL.AuthorizationStatus.DOMAIN_ACTIVITY_FORBIDDEN);
 
-    // check global activity
-    GlobalEntity storage globalEntity = _data.globalReadSlot(_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
-    if(globalEntity.bs.acstat != ActivityStatus.ENABLED) LACLUtils.generateAuthorizationError(IACL.AuthorizationStatus.GLOBAL_ACTIVITY_FORBIDDEN);    
+    // check universe activity
+    UniverseEntity storage universeEntity = _data.universeReadSlot(_LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);
+    if(universeEntity.bs.acstat != ActivityStatus.ENABLED) LACLUtils.generateAuthorizationError(IACL.AuthorizationStatus.UNIVERSE_ACTIVITY_FORBIDDEN);    
   }
 
   // Anonymouse type
@@ -353,8 +353,8 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
     return _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID;
   }
 
-  function profileGlobalScope() external pure returns (bytes32) {
-    return _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID;
+  function profileUniverseScope() external pure returns (bytes32) {
+    return _LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID;
   }
 
 
@@ -385,7 +385,7 @@ contract ProfileAccessControl is ACLStorage, BaseUUPSProxy, IProfileACLGenerals,
     ScopeType destScopeType = profileEntity.scopes[destScopeId].stype;
     ScopeType srcScopeType = profileEntity.scopes[srcScopeId].stype;
     if(destScopeType == ScopeType.NONE || srcScopeType == ScopeType.NONE) return false;
-    if(destScopeType == ScopeType.GLOBAL)  return true;
+    if(destScopeType == ScopeType.UNIVERSE)  return true;
 
     if(destScopeType == ScopeType.CONTEXT && srcScopeType == ScopeType.FUNCTION) {
       ContextEntity storage ce = profileEntity.profileContextReadSlot(destScopeId);

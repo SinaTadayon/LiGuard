@@ -22,18 +22,24 @@ export const MESSAGE_PROFILE_CONTEXT_TYPE_HASH = ethers.utils.keccak256(
 export const MESSAGE_PROFILE_PREDICT_CONTEXT_TYPE_HASH = ethers.utils.keccak256(
   ethers.utils.toUtf8Bytes("ProfilePredictContext(string profile,address deployer,address subject,string realm)"));
 
-export const MESSAGE_PROFILE_REGISTER_TYPE_HASH = ethers.utils.keccak256(
-  ethers.utils.toUtf8Bytes("ProfileRegister(string name,address owner,uint256 expiredAt)"));
+// export const MESSAGE_PROFILE_REGISTER_TYPE_HASH = ethers.utils.keccak256(
+//   ethers.utils.toUtf8Bytes("ProfileRegister(string name,address owner,uint256 expiredAt)"));
 
-export const PERMIT_TYPE_HASH: string = ethers.utils.keccak256(
+export const PERMIT_TYPE_HASH = ethers.utils.keccak256(
   ethers.utils.toUtf8Bytes("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)")
 );
+
+export const MEMBER_SIGNATURE_MESSAGE_TYPE_HASH = ethers.utils.keccak256(
+  ethers.utils.toUtf8Bytes("MemberSignature(address account,uint256 expiredAt)"));
+
+export const PROFILE_MEMBER_SIGNATURE_MESSAGE_TYPE_HASH = ethers.utils.keccak256(
+  ethers.utils.toUtf8Bytes("ProfileMemberSignature(string profile,address account,uint256 expiredAt)"));
 
 // General Profile Type
 export const LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID   = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TYPE.LIVELY_PROFILE.LIVELY_MASTER"));
 export const LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID   = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TYPE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER"));
 export const LIVELY_PROFILE_ANY_TYPE_ID             = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TYPE.LIVELY_PROFILE.LIVELY_ANY"));
-export const LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID  = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("GLOBAL.LIVELY_PROFILE"));
+export const LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID  = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("UNIVERSE.LIVELY_PROFILE"));
 
 // General Profile Roles
 export const LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID   = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("ROLE.LIVELY_PROFILE.LIVELY_MASTER_ADMIN"));
@@ -61,7 +67,7 @@ export const LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE_ID  = ethers.utils.keccak256(
 export const LIVELY_VERSE_PROFILE_MASTER_ADMIN_ROLE_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("ROLE.LIVELY_VERSE.LIVELY_PROFILE_MASTER_ADMIN"));
 
 // Global Scope ID
-export const LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("GLOBAL.LIVELY_VERSE"));
+export const LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("UNIVERSE.LIVELY_VERSE"));
 
 // ACL IDs
 export const LIVELY_VERSE_ACL_DOMAIN_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("DOMAIN.LIVELY_VERSE.LIVELY_GUARD"));
@@ -106,7 +112,7 @@ export enum ScopeType {
   CONTEXT,
   REALM,
   DOMAIN,
-  GLOBAL
+  UNIVERSE
 }
 
 export enum ActionType {
@@ -168,7 +174,7 @@ export enum AuthorizationStatus {
   CONTEXT_ACTIVITY_FORBIDDEN,
   REALM_ACTIVITY_FORBIDDEN,
   DOMAIN_ACTIVITY_FORBIDDEN,
-  GLOBAL_ACTIVITY_FORBIDDEN
+  UNIVERSE_ACTIVITY_FORBIDDEN
 }
 
 export enum AdminAccessStatus {
@@ -202,7 +208,7 @@ export enum ProfileAuthorizationStatus {
   CONTEXT_ACTIVITY_FORBIDDEN,
   REALM_ACTIVITY_FORBIDDEN,
   DOMAIN_ACTIVITY_FORBIDDEN,
-  GLOBAL_ACTIVITY_FORBIDDEN,
+  UNIVERSE_ACTIVITY_FORBIDDEN,
   PROFILE_ACTIVITY_FORBIDDEN
 }
 
@@ -483,9 +489,45 @@ export async function generateProfilePredictContextDomainSignatureManually(
   return signature.compact;
 }
 
-export async function generateProfileRegisterSignatureManually(
+export async function generateMemberSignatureManually(
+  memberAddress: Address,
+  verifyingContract: Address,
+  signerAddress: Wallet,
+  chainId: BigNumber,
+  expiredAt: BigNumber,
+): Promise<string> {
+  const abiCoder = ethers.utils.defaultAbiCoder;
+
+  const domainAbiEncode = abiCoder.encode(
+    ["bytes32", "bytes32", "bytes32", "uint256", "address"],
+    [
+      DOMAIN_HASH,
+      ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["ACLManager"])),
+      ethers.utils.keccak256(ethers.utils.solidityPack(["string"], ["3.0.0"])),
+      chainId,
+      verifyingContract,
+    ]
+  );
+  const domainEncode = ethers.utils.keccak256(domainAbiEncode);
+  const messageAbiEncode = abiCoder.encode(
+    ["bytes32", "address", "uint256"],
+    [
+      MEMBER_SIGNATURE_MESSAGE_TYPE_HASH,
+      memberAddress,
+      expiredAt,
+    ]
+  );
+  const msgEncode = ethers.utils.keccak256(messageAbiEncode);
+  const domainMessageHash = ethers.utils.keccak256(
+    ethers.utils.solidityPack(["string", "bytes32", "bytes32"], ["\x19\x01", domainEncode, msgEncode])
+  );
+  const signature = signerAddress._signingKey().signDigest(domainMessageHash);
+  return signature.compact;
+}
+
+export async function generateProfileMemberSignatureManually(
   profileName: string,
-  ownerAddress: Address,
+  memberAddress: Address,
   verifyingContract: Address,
   signerAddress: Wallet,
   chainId: BigNumber,
@@ -507,9 +549,9 @@ export async function generateProfileRegisterSignatureManually(
   const messageAbiEncode = abiCoder.encode(
     ["bytes32", "bytes32", "address", "uint256"],
     [
-      MESSAGE_PROFILE_REGISTER_TYPE_HASH,
+      PROFILE_MEMBER_SIGNATURE_MESSAGE_TYPE_HASH,
       ethers.utils.keccak256(ethers.utils.solidityPack(["string"], [profileName])),
-      ownerAddress,
+      memberAddress,
       expiredAt,
     ]
   );
@@ -520,6 +562,7 @@ export async function generateProfileRegisterSignatureManually(
   const signature = signerAddress._signingKey().signDigest(domainMessageHash);
   return signature.compact;
 }
+
 
 export async function generateProfilePredictContextDomainByHardHat(
   profileName: string,

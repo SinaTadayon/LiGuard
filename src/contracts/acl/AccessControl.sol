@@ -222,11 +222,11 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IACLGenerals, IACL {
     if(!res3) return AuthorizationStatus.DOMAIN_NOT_FOUND;
     if(domainEntity.bs.acstat != ActivityStatus.ENABLED) return AuthorizationStatus.DOMAIN_ACTIVITY_FORBIDDEN;
 
-    // check global activity
-    // console.log("global: ");
-    // console.logBytes1(bytes1(uint8(_data.scopes[_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID].acstat)));
-    GlobalEntity storage globalEntity = _data.globalReadSlot(_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
-    if(globalEntity.bs.acstat != ActivityStatus.ENABLED) return AuthorizationStatus.GLOBAL_ACTIVITY_FORBIDDEN;
+    // check universe activity
+    // console.log("universe: ");
+    // console.logBytes1(bytes1(uint8(_data.scopes[_LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID].acstat)));
+    UniverseEntity storage universeEntity = _data.universeReadSlot(_LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);
+    if(universeEntity.bs.acstat != ActivityStatus.ENABLED) return AuthorizationStatus.UNIVERSE_ACTIVITY_FORBIDDEN;
     
     return AuthorizationStatus.PERMITTED;
   }
@@ -276,8 +276,8 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IACLGenerals, IACL {
     return _LIVELY_VERSE_PROFILE_MASTER_TYPE_ID;
   }
 
-  function getGlobalScope() external pure returns (bytes32) {
-    return _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID;
+  function getUniverseScope() external pure returns (bytes32) {
+    return _LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID;
   }
 
   // general
@@ -301,7 +301,7 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IACLGenerals, IACL {
     ScopeType destScopeType = _data.scopes[destScopeId].stype;
     ScopeType srcScopeType = _data.scopes[srcScopeId].stype;
     if(destScopeType == ScopeType.NONE || srcScopeType == ScopeType.NONE) return false;
-    if(destScopeType == ScopeType.GLOBAL)  return true;
+    if(destScopeType == ScopeType.UNIVERSE)  return true;
 
     if(destScopeType == ScopeType.CONTEXT && srcScopeType == ScopeType.FUNCTION) {
       ContextEntity storage ce = _data.contextReadSlot(destScopeId);

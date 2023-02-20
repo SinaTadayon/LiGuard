@@ -31,7 +31,7 @@ interface IACL {
     CONTEXT_ACTIVITY_FORBIDDEN,    
     REALM_ACTIVITY_FORBIDDEN,
     DOMAIN_ACTIVITY_FORBIDDEN,
-    GLOBAL_ACTIVITY_FORBIDDEN
+    UNIVERSE_ACTIVITY_FORBIDDEN
   }
 
   error ACLUnauthorized();
@@ -52,7 +52,7 @@ interface IACL {
   error ACLContextActivityForbidden();
   error ACLRealmActivityForbidden();
   error ACLDomainActivityForbidden();
-  error ACLGlobalActivityForbidden();
+  error ACLUniverseActivityForbidden();
 
   error ACLActionForbidden(AuthorizationStatus);
 

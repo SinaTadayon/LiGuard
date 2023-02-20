@@ -87,7 +87,7 @@ library LACLUtils {
     else if(status == IACL.AuthorizationStatus.CONTEXT_ACTIVITY_FORBIDDEN) revert IACL.ACLContextActivityForbidden();
     else if(status == IACL.AuthorizationStatus.REALM_ACTIVITY_FORBIDDEN)  revert IACL.ACLRealmActivityForbidden();
     else if(status == IACL.AuthorizationStatus.DOMAIN_ACTIVITY_FORBIDDEN) revert IACL.ACLDomainActivityForbidden();
-    else if(status == IACL.AuthorizationStatus.GLOBAL_ACTIVITY_FORBIDDEN) revert IACL.ACLGlobalActivityForbidden();
+    else if(status == IACL.AuthorizationStatus.UNIVERSE_ACTIVITY_FORBIDDEN) revert IACL.ACLUniverseActivityForbidden();
     else revert("Unknown ERR");
   }
 
@@ -111,7 +111,7 @@ library LACLUtils {
     else if(status == IProfileACL.ProfileAuthorizationStatus.CONTEXT_ACTIVITY_FORBIDDEN) revert IProfileACL.ProfileACLContextActivityForbidden();
     else if(status == IProfileACL.ProfileAuthorizationStatus.REALM_ACTIVITY_FORBIDDEN)  revert IProfileACL.ProfileACLRealmActivityForbidden();
     else if(status == IProfileACL.ProfileAuthorizationStatus.DOMAIN_ACTIVITY_FORBIDDEN) revert IProfileACL.ProfileACLDomainActivityForbidden();
-    else if(status == IProfileACL.ProfileAuthorizationStatus.GLOBAL_ACTIVITY_FORBIDDEN) revert IProfileACL.ProfileACLGlobalActivityForbidden();
+    else if(status == IProfileACL.ProfileAuthorizationStatus.UNIVERSE_ACTIVITY_FORBIDDEN) revert IProfileACL.ProfileACLUniverseActivityForbidden();
     else if(status == IProfileACL.ProfileAuthorizationStatus.PROFILE_ACTIVITY_FORBIDDEN) revert IProfileACL.ProfileACLProfileActivityForbidden();
     else revert("Unknown ERR");
   }

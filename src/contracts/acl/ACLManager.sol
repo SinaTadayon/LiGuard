@@ -11,7 +11,7 @@ import "./scope/IContextManagement.sol";
 import "./scope/IFunctionManagement.sol";
 import "./scope/IRealmManagement.sol";
 import "./scope/IDomainManagement.sol";
-import "./scope/IGlobalManagement.sol";
+import "./scope/IUniverseManagement.sol";
 import "./agent/IMemberManagement.sol";
 import "./agent/IRoleManagement.sol";
 import "./agent/ITypeManagement.sol";
@@ -23,7 +23,7 @@ import "./profile/scope/IProfileContextManagement.sol";
 import "./profile/scope/IProfileFunctionManagement.sol";
 import "./profile/scope/IProfileRealmManagement.sol";
 import "./profile/scope/IProfileDomainManagement.sol";
-import "./profile/scope/IProfileGlobalManagement.sol";
+import "./profile/scope/IProfileUniverseManagement.sol";
 import "./profile/agent/IProfileMemberManagement.sol";
 import "./profile/agent/IProfileRoleManagement.sol";
 import "./profile/agent/IProfileTypeManagement.sol";
@@ -87,7 +87,7 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
       interfaceId == type(IContextManagement).interfaceId ||
       interfaceId == type(IRealmManagement).interfaceId ||
       interfaceId == type(IDomainManagement).interfaceId ||
-      interfaceId == type(IGlobalManagement).interfaceId ||
+      interfaceId == type(IUniverseManagement).interfaceId ||
       interfaceId == type(IMemberManagement).interfaceId ||
       interfaceId == type(IRoleManagement).interfaceId ||
       interfaceId == type(ITypeManagement).interfaceId ||  
@@ -99,7 +99,7 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
       interfaceId == type(IProfileContextManagement).interfaceId ||
       interfaceId == type(IProfileRealmManagement).interfaceId ||
       interfaceId == type(IProfileDomainManagement).interfaceId ||
-      interfaceId == type(IProfileGlobalManagement).interfaceId ||
+      interfaceId == type(IProfileUniverseManagement).interfaceId ||
       interfaceId == type(IProfileMemberManagement).interfaceId ||
       interfaceId == type(IProfileRoleManagement).interfaceId ||
       interfaceId == type(IProfileTypeManagement).interfaceId ||          

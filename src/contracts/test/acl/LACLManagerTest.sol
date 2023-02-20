@@ -16,7 +16,7 @@ import "../../acl/IACL.sol";
 import "../../acl/scope/IContextManagement.sol";
 import "../../acl/scope/IFunctionManagement.sol";
 import "../../acl/scope/IRealmManagement.sol";
-import "../../acl/scope/IGlobalManagement.sol";
+import "../../acl/scope/IUniverseManagement.sol";
 import "../../acl/agent/IMemberManagement.sol";
 import "../../acl/agent/IRoleManagement.sol";
 import "../../acl/agent/ITypeManagement.sol";
@@ -82,7 +82,7 @@ library LACLManagerTest {
     //   request.interfaceId != type(IContextManagement).interfaceId ||
     //   request.interfaceId != type(IRealmManagement).interfaceId ||
     //   request.interfaceId != type(IDomainManagementTest).interfaceId ||
-    //   request.interfaceId != type(IGlobalManagement).interfaceId ||
+    //   request.interfaceId != type(IUniverseManagement).interfaceId ||
     //   request.interfaceId != type(IMemberManagement).interfaceId ||
     //   request.interfaceId != type(IRoleManagement).interfaceId ||
     //   request.interfaceId != type(ITypeManagement).interfaceId, 

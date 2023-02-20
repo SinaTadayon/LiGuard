@@ -55,15 +55,15 @@ contract DomainManagerTest is ACLStorage, BaseUUPSProxy, IDomainManagementTest {
       );
 
       // check sender scopes
-      GlobalEntity storage livelyGlobalEntity = _data.globalReadSlot(_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
-      require(senderScopeId == _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Global Scope");
-      require(livelyGlobalEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Global Updatable");
-      require(livelyGlobalEntity.domainLimit > livelyGlobalEntity.domains.length(), "Illegal Domain Register");
+      UniverseEntity storage livelyUniverseEntity = _data.universeReadSlot(_LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);
+      require(senderScopeId == _LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID, "Illegal Universe Scope");
+      require(livelyUniverseEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Universe Updatable");
+      require(livelyUniverseEntity.domainLimit > livelyUniverseEntity.domains.length(), "Illegal Domain Register");
 
-      // check access admin global
-      require(_doCheckAdminAccess(livelyGlobalEntity.bs.adminId, senderId, functionId), "Forbidden");
+      // check access admin universe
+      require(_doCheckAdminAccess(livelyUniverseEntity.bs.adminId, senderId, functionId), "Forbidden");
 
-      livelyGlobalEntity.domains.add(newDomainId);
+      livelyUniverseEntity.domains.add(newDomainId);
 
       // create new domain entity
       DomainEntity storage newDomain = _data.domainWriteSlot(newDomainId);
@@ -77,10 +77,10 @@ contract DomainManagerTest is ACLStorage, BaseUUPSProxy, IDomainManagementTest {
       if(requests[i].adminId != bytes32(0)) {
         require(_data.agents[requests[i].adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
         bytes32 requestAdminScopeId = _doAgentGetScopeInfo(requests[i].adminId);
-        require(requestAdminScopeId == _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Admin Scope");
+        require(requestAdminScopeId == _LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID, "Illegal Admin Scope");
         newDomain.bs.adminId = requests[i].adminId;
       } else {
-        newDomain.bs.adminId = livelyGlobalEntity.bs.adminId;
+        newDomain.bs.adminId = livelyUniverseEntity.bs.adminId;
       }
             
       emit DomainRegistered(
@@ -132,10 +132,10 @@ contract DomainManagerTest is ACLStorage, BaseUUPSProxy, IDomainManagementTest {
       if(requests[i].adminId != bytes32(0)) {
         require(_data.agents[requests[i].adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
         bytes32 requestAdminScopeId = _doAgentGetScopeInfo(requests[i].adminId);
-        require(requestAdminScopeId == _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID, "Illegal Admin Scope");
+        require(requestAdminScopeId == _LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID, "Illegal Admin Scope");
         domainEntity.bs.adminId = requests[i].adminId;
       } else {
-        domainEntity.bs.adminId = _data.scopes[_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID].adminId;
+        domainEntity.bs.adminId = _data.scopes[_LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID].adminId;
       }
 
       emit DomainAdminUpdated(msg.sender, requests[i].id, requests[i].adminId);

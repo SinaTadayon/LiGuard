@@ -10,7 +10,7 @@ import "../../acl/IACLManager.sol";
 import "../../acl/scope/IContextManagement.sol";
 import "../../acl/scope/IFunctionManagement.sol";
 import "../../acl/scope/IRealmManagement.sol";
-import "../../acl/scope/IGlobalManagement.sol";
+import "../../acl/scope/IUniverseManagement.sol";
 import "../../acl/agent/IMemberManagement.sol";
 import "../../acl/agent/IRoleManagement.sol";
 import "../../acl/agent/ITypeManagement.sol";
@@ -72,7 +72,7 @@ contract ACLManagerTest is ACLStorage, BaseUUPSProxy, IACLManager {
       interfaceId == type(IContextManagement).interfaceId ||
       interfaceId == type(IRealmManagement).interfaceId ||
       interfaceId == type(IDomainManagementTest).interfaceId ||
-      interfaceId == type(IGlobalManagement).interfaceId ||
+      interfaceId == type(IUniverseManagement).interfaceId ||
       interfaceId == type(IMemberManagement).interfaceId ||
       interfaceId == type(IRoleManagement).interfaceId ||
       interfaceId == type(ITypeManagement).interfaceId ||      

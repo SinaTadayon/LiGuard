@@ -128,39 +128,39 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
   }
 
   function profileFunctionUpdateAdmin(ProfileMemberSignature calldata memberSign, ProfileUpdateAdminRequest[] calldata requests) external returns (bool) {
-    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId) = _accessPermission(memberSign, IProfileFunctionManagement.profileFunctionUpdateAdmin.selector);      
+    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId, address sender) = _accessPermission(memberSign, IProfileFunctionManagement.profileFunctionUpdateAdmin.selector);      
     for (uint i = 0; i < requests.length; i++) {    
       FunctionEntity storage functionData = _doGetEntityAndCheckAdminAccess(profileEntity, functionEntity, requests[i].entityId, senderId);
       functionData.bs.adminId = _doGetAndCheckFunctionAdmin(profileEntity, profileEntity.scopes[functionEntity.contextId].adminId, functionData.contextId, requests[i].adminId, profileId);
-      emit ProfileFunctionAdminUpdated(msg.sender, profileId, requests[i].entityId, requests[i].adminId);
+      emit ProfileFunctionAdminUpdated(sender, profileId, requests[i].entityId, requests[i].adminId);
     }
     return true;  
   }
 
   function profileFunctionUpdateAgent(ProfileMemberSignature calldata memberSign, ProfileFunctionUpdateAgentRequest[] calldata requests) external returns (bool) {
-    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId) = _accessPermission(memberSign, IProfileFunctionManagement.profileFunctionUpdateAgent.selector);
+    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId, address sender) = _accessPermission(memberSign, IProfileFunctionManagement.profileFunctionUpdateAgent.selector);
     for (uint i = 0; i < requests.length; i++) {    
       FunctionEntity storage functionData = _doGetEntityAndCheckAdminAccess(profileEntity, functionEntity, requests[i].functionId, senderId);
       _doCheckAgentId(profileEntity, profileId, requests[i].agentId, functionData.contextId);
       functionData.agentId = requests[i].agentId;
-      emit ProfileFunctionAgentUpdated(msg.sender, profileId, requests[i].functionId, requests[i].agentId);
+      emit ProfileFunctionAgentUpdated(sender, profileId, requests[i].functionId, requests[i].agentId);
     }
     return true;  
   }
 
   function profileFunctionUpdateActivityStatus(ProfileMemberSignature calldata memberSign, ProfileUpdateActivityRequest[] calldata requests) external returns (bool) {
-    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId) = _accessPermission(memberSign, IProfileFunctionManagement.profileFunctionUpdateActivityStatus.selector);
+    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId, address sender) = _accessPermission(memberSign, IProfileFunctionManagement.profileFunctionUpdateActivityStatus.selector);
     for (uint i = 0; i < requests.length; i++) {
       FunctionEntity storage functionData = _doGetEntityAndCheckAdminAccess(profileEntity, functionEntity, requests[i].entityId, senderId);
       require(requests[i].acstat != ActivityStatus.NONE, "Illegal Activity");
       functionData.bs.acstat = requests[i].acstat;
-      emit ProfileFunctionActivityUpdated(msg.sender, profileId, requests[i].entityId, requests[i].acstat);        
+      emit ProfileFunctionActivityUpdated(sender, profileId, requests[i].entityId, requests[i].acstat);        
     }
     return true;
   }
 
   function profileFunctionUpdateAlterabilityStatus(ProfileMemberSignature calldata memberSign, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool) {
-    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId) = _accessPermission(memberSign, IProfileFunctionManagement.profileFunctionUpdateAlterabilityStatus.selector);
+    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId, address sender) = _accessPermission(memberSign, IProfileFunctionManagement.profileFunctionUpdateAlterabilityStatus.selector);
     for (uint i = 0; i < requests.length; i++) {  
       FunctionEntity storage functionData = profileEntity.profileFunctionReadSlot(requests[i].entityId);
       require(functionData.bs.acstat > ActivityStatus.DELETED, "Function Deleted");
@@ -168,17 +168,17 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
       if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);        
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       functionData.bs.alstat = requests[i].alstat;
-      emit ProfileFunctionAlterabilityUpdated(msg.sender, profileId, requests[i].entityId, requests[i].alstat);
+      emit ProfileFunctionAlterabilityUpdated(sender, profileId, requests[i].entityId, requests[i].alstat);
     }
     return true;
   }
 
   function profileFunctionUpdatePolicyCode(ProfileMemberSignature calldata memberSign, ProfileFunctionUpdatePolicyRequest[] calldata requests) external returns (bool) {
-    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId) = _accessPermission(memberSign, IProfileFunctionManagement.profileFunctionUpdatePolicyCode.selector);
+    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId, address sender) = _accessPermission(memberSign, IProfileFunctionManagement.profileFunctionUpdatePolicyCode.selector);
     for (uint i = 0; i < requests.length; i++) {    
       FunctionEntity storage functionEntityData = _doGetEntityAndCheckAdminAccess(profileEntity, functionEntity, requests[i].functionId, senderId);
       functionEntityData.policyCode = requests[i].policyCode;
-      emit ProfileFunctionPolicyUpdated(msg.sender,profileId, requests[i].functionId, requests[i].policyCode);      
+      emit ProfileFunctionPolicyUpdated(sender, profileId, requests[i].functionId, requests[i].policyCode);      
     }
     return true;
   }
@@ -288,7 +288,7 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
     return LProfileCommons.profileCheckAdminAccess(profileEntity, functionEntity, adminId, senderId);
   }
 
-  function _accessPermission(ProfileMemberSignature calldata memberSign, bytes4 selector) internal returns (ProfileEntity storage, FunctionEntity storage, bytes32, bytes32) {
+  function _accessPermission(ProfileMemberSignature calldata memberSign, bytes4 selector) internal returns (ProfileEntity storage, FunctionEntity storage, bytes32, bytes32, address) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");
     require(bytes(memberSign.profileName).length > 0, "Illegal ProfileName");
 
@@ -310,7 +310,7 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
     
     ProfileEntity storage profileEntity = _data.profiles[profileId];
     FunctionEntity storage functionEntity = _data.functionReadSlot(functionId);      
-    return (profileEntity, functionEntity, profileId, senderId);
+    return (profileEntity, functionEntity, profileId, senderId, signer);
   }
 
   function _doGetEntityAndCheckAdminAccess(ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 fId, bytes32 senderId) internal view returns (FunctionEntity storage) {

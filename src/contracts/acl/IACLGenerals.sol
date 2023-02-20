@@ -40,8 +40,8 @@ interface IACLGenerals is IACLCommons{
   // Profile Master type
   function getProfileMasterType() external pure returns (bytes32);
 
-  // Global Scope
-  function getGlobalScope() external pure returns (bytes32);
+  // Universe Scope
+  function getUniverseScope() external pure returns (bytes32);
  
   // general
   function isAgentExist(bytes32 agentId) external view returns (bool);

@@ -32,7 +32,7 @@ interface IProfileACL {
     CONTEXT_ACTIVITY_FORBIDDEN,    
     REALM_ACTIVITY_FORBIDDEN,
     DOMAIN_ACTIVITY_FORBIDDEN,
-    GLOBAL_ACTIVITY_FORBIDDEN,
+    UNIVERSE_ACTIVITY_FORBIDDEN,
     PROFILE_ACTIVITY_FORBIDDEN
   }
 
@@ -55,7 +55,7 @@ interface IProfileACL {
   error ProfileACLContextActivityForbidden();
   error ProfileACLRealmActivityForbidden();
   error ProfileACLDomainActivityForbidden();
-  error ProfileACLGlobalActivityForbidden();
+  error ProfileACLUniverseActivityForbidden();
   error ProfileACLProfileActivityForbidden();
 
   enum ProfileAdminAccessStatus {

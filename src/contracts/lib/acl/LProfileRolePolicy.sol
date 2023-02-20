@@ -39,7 +39,7 @@ library LProfileRolePolicy {
   bytes32 public constant LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID         = keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_MASTER"));
   bytes32 public constant LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID         = keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER"));
   bytes32 public constant LIVELY_PROFILE_ANY_TYPE_ID                   = keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_ANY"));
-  bytes32 public constant LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID        = keccak256(abi.encodePacked("GLOBAL.LIVELY_PROFILE"));
+  bytes32 public constant LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID        = keccak256(abi.encodePacked("UNIVERSE.LIVELY_PROFILE"));
   bytes32 public constant LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID   = keccak256(abi.encodePacked("ROLE.LIVELY_PROFILE.LIVELY_MASTER_ADMIN"));
   bytes32 public constant LIVELY_PROFILE_SYSTEM_MASTER_ADMIN_ROLE_ID   = keccak256(abi.encodePacked("ROLE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER_ADMIN"));
 
@@ -160,7 +160,10 @@ library LProfileRolePolicy {
     }
     
     IACLCommons.BaseScope storage requestScope = _doProfileGetAndCheckRequestScope(profileEntity, request.scopeId, senderScopeId, senderScopeType, profileId);
-    require(requestScope.stype > profileEntity.scopes[policyEntity.scopeId].stype, "Illegal ScopeType");   
+    if(policyEntity.roles.length() > 0) {        
+      require(requestScope.stype > profileEntity.scopes[policyEntity.scopeId].stype, "Illegal ScopeType");
+      require(IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, request.scopeId, policyEntity.scopeId), "Illegal Scope");
+    }    
     policyEntity.scopeId = request.scopeId;
   }
 

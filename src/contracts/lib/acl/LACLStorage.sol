@@ -14,9 +14,9 @@ import "../../acl/ACLStorage.sol";
  */
 library LACLStorage {
  
-  function globalReadSlot(ACLStorage.DataCollection storage data, bytes32 scopeId) internal view returns (IACLCommons.GlobalEntity storage ge) {
+  function universeReadSlot(ACLStorage.DataCollection storage data, bytes32 scopeId) internal view returns (IACLCommons.UniverseEntity storage ge) {
     IACLCommons.BaseScope storage bs = data.scopes[scopeId];
-    if(bs.stype == IACLCommons.ScopeType.GLOBAL) {
+    if(bs.stype == IACLCommons.ScopeType.UNIVERSE) {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), scopeId)
@@ -30,9 +30,9 @@ library LACLStorage {
     } 
   }
 
-  function globalWriteSlot(ACLStorage.DataCollection storage data, bytes32 scopeId) internal view returns (IACLCommons.GlobalEntity storage ge) {
+  function universeWriteSlot(ACLStorage.DataCollection storage data, bytes32 scopeId) internal view returns (IACLCommons.UniverseEntity storage ge) {
     IACLCommons.BaseScope storage bs = data.scopes[scopeId];
-    if(bs.stype == IACLCommons.ScopeType.NONE || bs.stype == IACLCommons.ScopeType.GLOBAL) {
+    if(bs.stype == IACLCommons.ScopeType.NONE || bs.stype == IACLCommons.ScopeType.UNIVERSE) {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), scopeId)

@@ -109,19 +109,19 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
   }
 
   function contextUpdateActivityStatus(MemberSignature calldata memberSign, UpdateActivityRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IContextManagement.contextUpdateActivityStatus.selector);
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IContextManagement.contextUpdateActivityStatus.selector);
     
     for(uint i = 0; i < requests.length; i++) {
       ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");    
       contextEntity.bs.acstat = requests[i].acstat;
-      emit ContextActivityUpdated(msg.sender, requests[i].id, requests[i].acstat);
+      emit ContextActivityUpdated(sender, requests[i].id, requests[i].acstat);
     }
     return true;
   }
 
   function contextUpdateAlterabilityStatus(MemberSignature calldata memberSign, UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IContextManagement.contextUpdateAlterabilityStatus.selector);
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IContextManagement.contextUpdateAlterabilityStatus.selector);
     
     for(uint i = 0; i < requests.length; i++) {      
       ContextEntity storage contextEntity = _data.contextReadSlot(requests[i].id);
@@ -129,13 +129,13 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
       if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       contextEntity.bs.alstat = requests[i].alstat;
-      emit ContextAlterabilityUpdated(msg.sender, requests[i].id, requests[i].alstat);
+      emit ContextAlterabilityUpdated(sender, requests[i].id, requests[i].alstat);
     }
     return true;
   }
 
   function contextUpdateAdmin(MemberSignature calldata memberSign, UpdateAdminRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IContextManagement.contextUpdateAdmin.selector);
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IContextManagement.contextUpdateAdmin.selector);
     
     for(uint i = 0; i < requests.length; i++) {
       ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
@@ -156,19 +156,19 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
         contextEntity.bs.adminId = _data.scopes[contextEntity.realmId].adminId;
       }
 
-      emit ContextAdminUpdated(msg.sender, requests[i].id, requests[i].adminId);
+      emit ContextAdminUpdated(sender, requests[i].id, requests[i].adminId);
     }
     return true;
   }
 
   function contextUpdateFunctionLimit(MemberSignature calldata memberSign, ContextUpdateFunctionLimitRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IContextManagement.contextUpdateFunctionLimit.selector);
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IContextManagement.contextUpdateFunctionLimit.selector);
     
     for (uint256 i = 0; i < requests.length; i++) {
       ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(requests[i].contextId, senderId, functionId);
       require(requests[i].functionLimit > contextEntity.functions.length(), "Illegal Limit");
       contextEntity.functionLimit = requests[i].functionLimit;      
-      emit ContextFunctionLimitUpdated(msg.sender, requests[i].contextId, requests[i].functionLimit);
+      emit ContextFunctionLimitUpdated(sender, requests[i].contextId, requests[i].functionLimit);
     }
     return true;    
   }
@@ -285,7 +285,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     });
   }
 
- function _accessPermission(MemberSignature calldata memberSign, bytes4 selector) internal returns (bytes32, bytes32) {
+ function _accessPermission(MemberSignature calldata memberSign, bytes4 selector) internal returns (bytes32, bytes32, address) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");  
     address signer;
 
@@ -301,7 +301,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(signer);
     IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
     if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
-    return (functionId, senderId);
+    return (functionId, senderId, signer);
   }
 
   function _doGetEntityAndCheckAdminAccess(bytes32 contextId, bytes32 senderId, bytes32 functionId) internal view returns (ContextEntity storage) {

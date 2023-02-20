@@ -57,8 +57,8 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
  
   // called by members of Policy Master type
   function policyRegister(MemberSignature calldata memberSign, PolicyRegisterRequest[] calldata requests) external returns (bool) {    
-    (, bytes32 senderId) = _accessPermission(memberSign, IPolicyManagement.policyRegister.selector);
-    (ScopeType senderScopeType, bytes32 senderScopeId) = _getMemberPolicyScopeInfo(msg.sender);
+    (, bytes32 senderId, address sender) = _accessPermission(memberSign, IPolicyManagement.policyRegister.selector);
+    (ScopeType senderScopeType, bytes32 senderScopeId) = _getMemberPolicyScopeInfo(sender);
 
     // check and set
     MemberEntity storage memberEntity = _data.memberReadSlot(senderId);
@@ -66,44 +66,15 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
     unchecked { memberEntity.limits.policyRegisterLimit -= uint8(requests.length); }
 
     for(uint i = 0; i < requests.length; i++) {
-      bytes32 newPolicyId = LACLUtils.generateId(requests[i].name);
-      require(_data.policies[newPolicyId].acstat == ActivityStatus.NONE , "Already Exist");
-      require(
-        requests[i].acstat > ActivityStatus.DELETED && 
-        requests[i].alstat > AlterabilityStatus.NONE,
-        "Illegal Activity/Alterability"
-      );
-
-      // // checking requested type scope
-
-      BaseScope storage requestedScope = _getAndCheckRequestScope(requests[i].scopeId, senderScopeId, senderScopeType);
-
-      // create policy entity
-      PolicyEntity storage policyEntity = _data.policies[newPolicyId];
-      policyEntity.ptype = _doGetPolicyType(requests[i].policyCode);
-      policyEntity.policyCode = requests[i].policyCode;
-      policyEntity.acstat = requests[i].acstat;
-      policyEntity.alstat = requests[i].alstat;
-      policyEntity.name = requests[i].name;
-      policyEntity.scopeId = requests[i].scopeId;
-      policyEntity.roleLimit = requests[i].roleLimit >= 0 ? uint16(uint24(requests[i].roleLimit)) : memberEntity.limits.policyRoleLimit;
-      policyEntity.adminId = _getPolicyAdmin(requestedScope.stype, requestedScope.adminId, requests[i].scopeId, requests[i].adminId);
-      emit PolicyRegistered(
-        msg.sender,
-        newPolicyId,
-        requests[i].scopeId, 
-        requests[i].adminId,
-        requests[i].policyCode
-      );
+      _doPolicyRegister(requests[i], memberEntity, senderScopeType, senderScopeId, sender);      
     }
 
     return true;
   }
-
   // called by policy admin
   function policyAddRoles(MemberSignature calldata memberSign, PolicyAddRolesRequest[] calldata requests) external returns (bool) {    
 
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IPolicyManagement.policyAddRoles.selector);            
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IPolicyManagement.policyAddRoles.selector);            
     for(uint i = 0; i < requests.length; i++) {      
       PolicyEntity storage policyEntity = _doGetPolicyAndCheckAdminAccess(requests[i].policyId, senderId, functionId);
       ScopeType policyScopeType = _data.scopes[policyEntity.scopeId].stype;
@@ -124,7 +95,7 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
 
         _data.rolePolicyMap[requests[i].roles[j]] = requests[i].policyId;
         policyEntity.roles.add(requests[i].roles[j]);
-        emit PolicyRoleAdded(msg.sender, requests[i].policyId, requests[i].roles[j]);
+        emit PolicyRoleAdded(sender, requests[i].policyId, requests[i].roles[j]);
       }      
     }
     return true;
@@ -133,7 +104,7 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
   // called by policy admin
   function policyRemoveRoles(MemberSignature calldata memberSign, PolicyRemoveRolesRequest[] calldata requests) external returns (bool) {
 
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IPolicyManagement.policyRemoveRoles.selector);
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IPolicyManagement.policyRemoveRoles.selector);
     for(uint i = 0; i < requests.length; i++) {
       PolicyEntity storage policyEntity = _doGetPolicyAndCheckAdminAccess(requests[i].policyId, senderId, functionId);
 
@@ -141,7 +112,7 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
         require(policyEntity.roles.contains(requests[i].roles[j]), "Not Found");    
         delete _data.rolePolicyMap[requests[i].roles[j]];
         policyEntity.roles.remove(requests[i].roles[j]);
-        emit PolicyRoleRemoved(msg.sender, requests[i].policyId, requests[i].roles[j]);
+        emit PolicyRoleRemoved(sender, requests[i].policyId, requests[i].roles[j]);
       }      
     }
     return true;
@@ -149,31 +120,31 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
 
   function policyUpdateCodes(MemberSignature calldata memberSign, PolicyUpdateCodeRequest[] calldata requests) external returns (bool) {
 
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IPolicyManagement.policyUpdateCodes.selector);
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IPolicyManagement.policyUpdateCodes.selector);
     for(uint i = 0; i < requests.length; i++) {
       PolicyEntity storage policyEntity = _doGetPolicyAndCheckAdminAccess(requests[i].policyId, senderId, functionId);
 
       policyEntity.policyCode = requests[i].policyCode;
       policyEntity.ptype = _doGetPolicyType(requests[i].policyCode);
-      emit PolicyCodeUpdated(msg.sender, requests[i].policyId, requests[i].policyCode, policyEntity.ptype);
+      emit PolicyCodeUpdated(sender, requests[i].policyId, requests[i].policyCode, policyEntity.ptype);
     }
     return true;
   }
 
   function policyUpdateAdmin(MemberSignature calldata memberSign, UpdateAdminRequest[] calldata requests) external returns (bool) {
 
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IPolicyManagement.policyUpdateAdmin.selector);   
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IPolicyManagement.policyUpdateAdmin.selector);   
     for(uint i = 0; i < requests.length; i++) {
       PolicyEntity storage policyEntity = _doGetPolicyAndCheckAdminAccess(requests[i].id, senderId, functionId); 
       policyEntity.adminId = _getPolicyAdmin(_data.scopes[policyEntity.scopeId].stype, _data.scopes[policyEntity.scopeId].adminId, policyEntity.scopeId, requests[i].adminId);
       require(!policyEntity.roles.contains(policyEntity.adminId), "Illegal AID");
-      emit PolicyAdminUpdated(msg.sender, requests[i].id, requests[i].adminId);
+      emit PolicyAdminUpdated(sender, requests[i].id, requests[i].adminId);
     }
     return true;
   }
 
   function policyUpdateScope(MemberSignature calldata memberSign, UpdateScopeRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IPolicyManagement.policyUpdateScope.selector);
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IPolicyManagement.policyUpdateScope.selector);
     ScopeType senderScopeType;
     bytes32 senderScopeId;
     for(uint i = 0; i < requests.length; i++) {
@@ -193,26 +164,29 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
       }
       
       BaseScope storage requestScope = _getAndCheckRequestScope(requests[i].scopeId, senderScopeId, senderScopeType);  
-      require(requestScope.stype > _data.scopes[policyEntity.scopeId].stype, "Illegal ScopeType");   
+      if(policyEntity.roles.length() > 0) {        
+        require(requestScope.stype > _data.scopes[policyEntity.scopeId].stype, "Illegal ScopeType");   
+        require(IACLGenerals(address(this)).isScopesCompatible(requests[i].scopeId, policyEntity.scopeId), "Illegal Scope");
+      }            
       policyEntity.scopeId = requests[i].scopeId;
-      emit PolicyScopeUpdated(msg.sender, requests[i].id, requests[i].scopeId);
+      emit PolicyScopeUpdated(sender, requests[i].id, requests[i].scopeId);
     }
     return true;
   }
 
   function policyUpdateActivityStatus(MemberSignature calldata memberSign, UpdateActivityRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IPolicyManagement.policyUpdateActivityStatus.selector);   
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IPolicyManagement.policyUpdateActivityStatus.selector);   
     for(uint i = 0; i < requests.length; i++) {
       PolicyEntity storage policyEntity = _doGetPolicyAndCheckAdminAccess(requests[i].id, senderId, functionId);   
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");       
       policyEntity.acstat = requests[i].acstat;
-      emit PolicyActivityUpdated(msg.sender, requests[i].id, requests[i].acstat);
+      emit PolicyActivityUpdated(sender, requests[i].id, requests[i].acstat);
     }
     return true;
   }
 
   function policyUpdateAlterabilityStatus(MemberSignature calldata memberSign, UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IPolicyManagement.policyUpdateAlterabilityStatus.selector);   
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IPolicyManagement.policyUpdateAlterabilityStatus.selector);   
     for(uint i = 0; i < requests.length; i++) {
       PolicyEntity storage policyEntity = _data.policies[requests[i].id];
       require(policyEntity.adminId != bytes32(0), "Not Found");      
@@ -220,18 +194,18 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
       if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       policyEntity.alstat = requests[i].alstat;
-      emit PolicyAlterabilityUpdated(msg.sender, requests[i].id, requests[i].alstat);
+      emit PolicyAlterabilityUpdated(sender, requests[i].id, requests[i].alstat);
     }
     return true;  
   }
 
   function policyUpdateRoleLimit(MemberSignature calldata memberSign, PolicyUpdateRoleLimitRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IPolicyManagement.policyUpdateRoleLimit.selector);   
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IPolicyManagement.policyUpdateRoleLimit.selector);   
     for(uint i = 0; i < requests.length; i++) {
       PolicyEntity storage policyEntity = _doGetPolicyAndCheckAdminAccess(requests[i].policyId, senderId, functionId);   
       require(requests[i].roleLimit > policyEntity.roles.length(), "Illegal Limit");
       policyEntity.roleLimit = requests[i].roleLimit;         
-      emit PolicyRoleLimitUpdated(msg.sender, requests[i].policyId, requests[i].roleLimit);
+      emit PolicyRoleLimitUpdated(sender, requests[i].policyId, requests[i].roleLimit);
     }
     return true;
   }
@@ -368,7 +342,7 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
     return LACLCommons.checkAdminAccess(_data, adminId, memberId, functionId);
   }
 
-  function _accessPermission(MemberSignature calldata memberSign, bytes4 selector) internal returns (bytes32, bytes32) {
+  function _accessPermission(MemberSignature calldata memberSign, bytes4 selector) internal returns (bytes32, bytes32, address) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");  
     address signer;
 
@@ -384,7 +358,7 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(signer);
     IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
     if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
-    return (functionId, senderId);
+    return (functionId, senderId, signer);
   }
 
   function _getMemberPolicyScopeInfo(address account) internal view returns (ScopeType, bytes32){
@@ -406,6 +380,37 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
   function _getAndCheckRequestScope(bytes32 requestScopeId, bytes32 senderScopeId, ScopeType senderScopeType) internal view returns (BaseScope storage){
     return LACLCommons.getAndCheckRequestScope(_data, requestScopeId, senderScopeId, senderScopeType);  
   }     
+
+  function _doPolicyRegister(PolicyRegisterRequest calldata request, MemberEntity storage memberEntity, ScopeType senderScopeType, bytes32 senderScopeId, address sender) internal {
+    bytes32 newPolicyId = LACLUtils.generateId(request.name);
+    require(_data.policies[newPolicyId].acstat == ActivityStatus.NONE , "Already Exist");
+    require(
+      request.acstat > ActivityStatus.DELETED && 
+      request.alstat > AlterabilityStatus.NONE,
+      "Illegal Activity/Alterability"
+    );
+
+    // checking requested type scope
+    BaseScope storage requestedScope = _getAndCheckRequestScope(request.scopeId, senderScopeId, senderScopeType);
+
+    // create policy entity
+    PolicyEntity storage policyEntity = _data.policies[newPolicyId];
+    policyEntity.ptype = _doGetPolicyType(request.policyCode);
+    policyEntity.policyCode = request.policyCode;
+    policyEntity.acstat = request.acstat;
+    policyEntity.alstat = request.alstat;
+    policyEntity.name = request.name;
+    policyEntity.scopeId = request.scopeId;
+    policyEntity.roleLimit = request.roleLimit >= 0 ? uint16(uint24(request.roleLimit)) : memberEntity.limits.policyRoleLimit;
+    policyEntity.adminId = _getPolicyAdmin(requestedScope.stype, requestedScope.adminId, request.scopeId, request.adminId);
+    emit PolicyRegistered(
+      sender,
+      newPolicyId,
+      request.scopeId, 
+      request.adminId,
+      request.policyCode
+    );
+  }
 
   function getLibrary() external pure returns (address) {
     return address(LACLCommons);

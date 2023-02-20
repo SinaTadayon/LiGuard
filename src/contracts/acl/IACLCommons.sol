@@ -39,7 +39,7 @@ interface IACLCommons{
     CONTEXT,
     REALM,
     DOMAIN,
-    GLOBAL
+    UNIVERSE
   }
 
   enum ActionType {
@@ -116,13 +116,13 @@ interface IACLCommons{
 
   struct DomainEntity {
     BaseScope bs;
-    bytes32 globalId;
+    bytes32 universeId;
     uint16 realmLimit;
     string name;
     LEnumerableSet.Bytes32Set realms;
   }
 
-  struct GlobalEntity {
+  struct UniverseEntity {
     BaseScope bs;
     uint16 domainLimit;
     string name;    

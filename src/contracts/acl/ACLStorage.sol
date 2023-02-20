@@ -61,14 +61,14 @@ abstract contract ACLStorage is BaseUUPSStorage, IACLCommons {
   bytes32 internal constant _LIVELY_VERSE_POLICY_MASTER_TYPE_ID         = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_POLICY_MASTER"));
   bytes32 internal constant _LIVELY_VERSE_PROFILE_MASTER_TYPE_ID        = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_PROFILE_MASTER"));
 
-  // Global Scope ID
-  bytes32 internal constant _LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID        = keccak256(abi.encodePacked("GLOBAL.LIVELY_VERSE"));
+  // Universe Scope ID
+  bytes32 internal constant _LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID        = keccak256(abi.encodePacked("UNIVERSE.LIVELY_VERSE"));
 
   // General Profile Type
   bytes32 internal constant _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID         = keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_MASTER"));
   bytes32 internal constant _LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID         = keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER"));
   bytes32 internal constant _LIVELY_PROFILE_ANY_TYPE_ID                   = keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_ANY"));
-  bytes32 internal constant _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID        = keccak256(abi.encodePacked("GLOBAL.LIVELY_PROFILE"));
+  bytes32 internal constant _LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID        = keccak256(abi.encodePacked("UNIVERSE.LIVELY_PROFILE"));
 
   bool internal _firstInit;
   DataCollection internal _data;

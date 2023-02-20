@@ -58,14 +58,14 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
 
   // Note: called by eveny admin of role
   function memberRegister(MemberSignature calldata memberSign, MemberRegisterRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IMemberManagement.memberRegister.selector);    
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IMemberManagement.memberRegister.selector);    
 
     // check and set
     MemberEntity storage memberEntity = _data.memberReadSlot(senderId);
     require(int32(uint32(memberEntity.limits.memberRegisterLimit)) - int16(uint16(requests.length)) >= 0, "Illegal RegisterLimit");  
 
     for (uint256 i = 0; i < requests.length; i++) {
-      _doMemberRegister(requests[i], memberEntity, functionId, senderId);      
+      _doMemberRegister(requests[i], memberEntity, functionId, senderId, sender);      
     }
     
     unchecked { memberEntity.limits.memberRegisterLimit -= uint16(requests.length); }
@@ -73,19 +73,19 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
   }
 
   function memberUpdateActivityStatus(MemberSignature calldata memberSign, UpdateActivityRequest[] calldata requests) external returns (bool) {    
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IMemberManagement.memberUpdateActivityStatus.selector);
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IMemberManagement.memberUpdateActivityStatus.selector);
 
     for(uint i = 0; i < requests.length; i++) {      
       MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
       memberEntity.ba.acstat = requests[i].acstat;
-      emit MemberActivityUpdated(msg.sender, requests[i].id, requests[i].acstat);
+      emit MemberActivityUpdated(sender, requests[i].id, requests[i].acstat);
     }
     return true;  
   }
 
   function memberUpdateAlterabilityStatus(MemberSignature calldata memberSign, UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IMemberManagement.memberUpdateAlterabilityStatus.selector);
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IMemberManagement.memberUpdateAlterabilityStatus.selector);
 
     for(uint i = 0; i < requests.length; i++) {      
       MemberEntity storage memberEntity = _data.memberReadSlot(requests[i].id);      
@@ -93,14 +93,14 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
       if(adminAccessStatus != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(adminAccessStatus);
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       memberEntity.ba.alstat = requests[i].alstat;
-      emit MemberAlterabilityUpdated(msg.sender, requests[i].id, requests[i].alstat);
+      emit MemberAlterabilityUpdated(sender, requests[i].id, requests[i].alstat);
     }
     return true;
   }
 
   // Note: member default admin is 
   function memberUpdateAdmin(MemberSignature calldata memberSign, UpdateAdminRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IMemberManagement.memberUpdateAdmin.selector);
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IMemberManagement.memberUpdateAdmin.selector);
 
     for (uint256 i = 0; i < requests.length; i++) {
       MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
@@ -113,13 +113,13 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
       } else {
         memberEntity.ba.adminId = _LIVELY_VERSE_MEMBER_MASTER_TYPE_ID;
       }
-      emit MemberAdminUpdated(msg.sender, requests[i].id, requests[i].adminId);
+      emit MemberAdminUpdated(sender, requests[i].id, requests[i].adminId);
     }
     return true;
   }
 
   function memberUpdateGeneralLimit(MemberSignature calldata memberSign, MemberUpdateGeneralLimitRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IMemberManagement.memberUpdateGeneralLimit.selector);
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IMemberManagement.memberUpdateGeneralLimit.selector);
     MemberEntity storage senderMemberEntity = _data.memberReadSlot(senderId);
     for (uint256 i = 0; i < requests.length; i++) {
       MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].memberId, senderId, functionId);
@@ -132,7 +132,7 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
         _doCheckMemberRegisterLimits(senderMemberEntity, requests[i].limits);
       }
       memberEntity.limits = requests[i].limits;
-      emit MemberGeneralLimitUpdated(msg.sender, requests[i].memberId, requests[i].limits);
+      emit MemberGeneralLimitUpdated(sender, requests[i].memberId, requests[i].limits);
     }
     return true;
   }  
@@ -253,7 +253,7 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
     return LACLCommons.checkAdminAccess(_data, adminId, memberId, functionId);   
   }
 
-  function _accessPermission(MemberSignature calldata memberSign, bytes4 selector) internal returns (bytes32, bytes32) {
+  function _accessPermission(MemberSignature calldata memberSign, bytes4 selector) internal returns (bytes32, bytes32, address) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");  
     address signer;
 
@@ -263,13 +263,13 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
     } else {
       signer = msg.sender;
     }
-    
+      
     address functionFacetId = _data.selectors[selector];
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector); 
     bytes32 senderId = LACLUtils.accountGenerateId(signer);
     IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
     if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
-    return (functionId, senderId);
+    return (functionId, senderId, signer);
   }
 
   function _doGetEntityAndCheckAdminAccess(bytes32 memberId, bytes32 senderId, bytes32 functionId) internal view returns (MemberEntity storage) {
@@ -280,7 +280,7 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
     return memberEntity;
   }
 
-  function _doMemberRegister(MemberRegisterRequest calldata request, MemberEntity storage memberEntity, bytes32 functionId, bytes32 senderId) internal {
+  function _doMemberRegister(MemberRegisterRequest calldata request, MemberEntity storage memberEntity, bytes32 functionId, bytes32 senderId, address sender) internal {
     bytes32 newMemberId = LACLUtils.accountGenerateId(request.account);
     require(_data.agents[newMemberId].acstat == ActivityStatus.NONE, "Already Exist");
     require(request.limits.typeLimit >= 1, "Illegal TypeLimit");
@@ -337,7 +337,7 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
     newMember.limits = request.limits;
 
     emit MemberRegistered(
-      msg.sender,
+      sender,
       newMemberId,
       request.account,
       request.roleId,

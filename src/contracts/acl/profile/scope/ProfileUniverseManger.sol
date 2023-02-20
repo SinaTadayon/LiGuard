@@ -3,7 +3,7 @@
 
 pragma solidity 0.8.17;
 
-import "./IProfileGlobalManagement.sol";
+import "./IProfileUniverseManagement.sol";
 import "../IProfileACL.sol";
 import "../IProfileACLGenerals.sol";
 import "../ProfileAccessControl.sol";
@@ -17,12 +17,12 @@ import "../../../proxy/IProxy.sol";
 import "../../../proxy/BaseUUPSProxy.sol";
 
 /**
- * @title Profile Global Manager Contract
+ * @title Profile Universe Manager Contract
  * @author Sina Tadayon, https://github.com/SinaTadayon
  * @dev
  *
  */
-contract ProfileGlobalManager is ACLStorage, BaseUUPSProxy, IProfileGlobalManagement {
+contract ProfileUniverseManager is ACLStorage, BaseUUPSProxy, IProfileUniverseManagement {
   using LACLStorage for DataCollection;
   using LProfileStorage for ProfileEntity;
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
@@ -51,36 +51,36 @@ contract ProfileGlobalManager is ACLStorage, BaseUUPSProxy, IProfileGlobalManage
    */
   function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
     return
-      interfaceId == type(IProfileGlobalManagement).interfaceId ||
+      interfaceId == type(IProfileUniverseManagement).interfaceId ||
       super.supportsInterface(interfaceId);
   }
 
-  function profileGlobalUpdateActivityStatus(ProfileMemberSignature calldata memberSign, ActivityStatus acstat) external returns (bool) {
+  function profileUniverseUpdateActivityStatus(ProfileMemberSignature calldata memberSign, ActivityStatus acstat) external returns (bool) {
 
-    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId) = _accessPermissionActivity(memberSign, IProfileGlobalManagement.profileGlobalUpdateActivityStatus.selector);
-    GlobalEntity storage globalEntity = _doGetEntityAndCheckAdminAccess(profileEntity, functionEntity, senderId);
+    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId, address sender) = _accessPermissionActivity(memberSign, IProfileUniverseManagement.profileUniverseUpdateActivityStatus.selector);
+    UniverseEntity storage universeEntity = _doGetEntityAndCheckAdminAccess(profileEntity, functionEntity, senderId);
     require(acstat > ActivityStatus.DELETED, "Illegal Activity");
-    globalEntity.bs.acstat = acstat;
-    emit ProfileGlobalActivityUpdated(msg.sender, profileId, _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, acstat);
+    universeEntity.bs.acstat = acstat;
+    emit ProfileUniverseActivityUpdated(sender, profileId, _LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID, acstat);
     return true;
   }
 
 
-  function profileGlobalUpdateAlterabilityStatus(ProfileMemberSignature calldata memberSign, AlterabilityStatus alstat) external returns (bool) {
-    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId) = _accessPermission(memberSign, IProfileGlobalManagement.profileGlobalUpdateAlterabilityStatus.selector);
-    GlobalEntity storage globalEntity = profileEntity.profileGlobalReadSlot(_LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID);
-    IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, functionEntity, globalEntity.bs.adminId, senderId);
+  function profileUniverseUpdateAlterabilityStatus(ProfileMemberSignature calldata memberSign, AlterabilityStatus alstat) external returns (bool) {
+    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId, address sender) = _accessPermission(memberSign, IProfileUniverseManagement.profileUniverseUpdateAlterabilityStatus.selector);
+    UniverseEntity storage universeEntity = profileEntity.profileUniverseReadSlot(_LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID);
+    IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, functionEntity, universeEntity.bs.adminId, senderId);
     if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
     require(alstat != AlterabilityStatus.NONE, "Illegal Alterability");
-    globalEntity.bs.alstat = alstat;
-    emit ProfileGlobalAlterabilityUpdated(msg.sender, profileId, _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, alstat);    
+    universeEntity.bs.alstat = alstat;
+    emit ProfileUniverseAlterabilityUpdated(sender, profileId, _LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID, alstat);    
     return true;
   }
 
-  function profileGlobalUpdateAdmin(ProfileMemberSignature calldata memberSign, bytes32 adminId) external returns (bool) { 
-    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId) = _accessPermission(memberSign, IProfileGlobalManagement.profileGlobalUpdateAdmin.selector);
-    GlobalEntity storage globalEntity = _doGetEntityAndCheckAdminAccess(profileEntity, functionEntity, senderId);
-    require(adminId != globalEntity.bs.adminId && adminId != bytes32(0), "Illegal AdminId");    
+  function profileUniverseUpdateAdmin(ProfileMemberSignature calldata memberSign, bytes32 adminId) external returns (bool) { 
+    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId, address sender) = _accessPermission(memberSign, IProfileUniverseManagement.profileUniverseUpdateAdmin.selector);
+    UniverseEntity storage universeEntity = _doGetEntityAndCheckAdminAccess(profileEntity, functionEntity, senderId);
+    require(adminId != universeEntity.bs.adminId && adminId != bytes32(0), "Illegal AdminId");    
     BaseAgent storage adminBaseAgent = profileEntity.agents[adminId];
     require(adminBaseAgent.atype > AgentType.MEMBER, "Illegal Admin AgentType");
     if (adminBaseAgent.atype == AgentType.ROLE) {
@@ -90,22 +90,22 @@ contract ProfileGlobalManager is ACLStorage, BaseUUPSProxy, IProfileGlobalManage
       require(_LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID == adminId, "Illegal Admin");
     }
     
-    globalEntity.bs.adminId = adminId;
-    emit ProfileGlobalAdminUpdated(msg.sender, profileId, _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, adminId);
+    universeEntity.bs.adminId = adminId;
+    emit ProfileUniverseAdminUpdated(sender, profileId, _LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID, adminId);
   
     return true;
   }
 
-  function profileGlobalUpdateDomainLimit(ProfileMemberSignature calldata memberSign, uint16 domainLimit) external returns (bool) {
-    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId) = _accessPermission(memberSign, IProfileGlobalManagement.profileGlobalUpdateDomainLimit.selector);
-    GlobalEntity storage globalEntity = _doGetEntityAndCheckAdminAccess(profileEntity, functionEntity, senderId);
-    require(domainLimit > globalEntity.domains.length() , "Illegal Limit");
-    globalEntity.domainLimit = domainLimit;      
-    emit ProfileGlobalDomainLimitUpdated(msg.sender, profileId, _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID, domainLimit);    
+  function profileUniverseUpdateDomainLimit(ProfileMemberSignature calldata memberSign, uint16 domainLimit) external returns (bool) {
+    (ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId, address sender) = _accessPermission(memberSign, IProfileUniverseManagement.profileUniverseUpdateDomainLimit.selector);
+    UniverseEntity storage universeEntity = _doGetEntityAndCheckAdminAccess(profileEntity, functionEntity, senderId);
+    require(domainLimit > universeEntity.domains.length() , "Illegal Limit");
+    universeEntity.domainLimit = domainLimit;      
+    emit ProfileUniverseDomainLimitUpdated(sender, profileId, _LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID, domainLimit);    
     return true;
   }
 
-  function profileGlobalCheckAdmin(bytes32 profileId, address account) external view returns (bool) {
+  function profileUniverseCheckAdmin(bytes32 profileId, address account) external view returns (bool) {
     ProfileEntity storage profileEntity = _data.profiles[profileId];
     if(profileEntity.acstat == ActivityStatus.NONE) return false;
     bytes32 memberId = LACLUtils.accountGenerateId(account);
@@ -113,19 +113,19 @@ contract ProfileGlobalManager is ACLStorage, BaseUUPSProxy, IProfileGlobalManage
     return profileAdminType.members[memberId] != bytes32(0);  
   }
 
-  function profileGlobalGetDomains(bytes32 profileId) external view returns (bytes32[] memory) {
+  function profileUniverseGetDomains(bytes32 profileId) external view returns (bytes32[] memory) {
     ProfileEntity storage profileEntity = _data.profiles[profileId];
     if(profileEntity.acstat == ActivityStatus.NONE) return new bytes32[](0);
-    GlobalEntity storage globalEntity = profileEntity.profileGlobalReadSlot(_LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID);
-    return globalEntity.domains.values();
+    UniverseEntity storage universeEntity = profileEntity.profileUniverseReadSlot(_LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID);
+    return universeEntity.domains.values();
   }
 
-  function profileGlobalGetInfo(bytes32 profileId) external view returns (ProfileGlobalInfo memory) {
+  function profileUniverseGetInfo(bytes32 profileId) external view returns (ProfileUniverseInfo memory) {
     ProfileEntity storage profileEntity = _data.profiles[profileId];
-    GlobalEntity storage globalEntity = profileEntity.profileGlobalReadSlot(_LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID);
+    UniverseEntity storage universeEntity = profileEntity.profileUniverseReadSlot(_LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID);
 
     if(profileEntity.acstat == ActivityStatus.NONE) {
-      return ProfileGlobalInfo ({            
+      return ProfileUniverseInfo ({            
         id: bytes32(0),
         adminId: bytes32(0),
         domainLimit: 0,
@@ -138,71 +138,24 @@ contract ProfileGlobalManager is ACLStorage, BaseUUPSProxy, IProfileGlobalManage
       });  
     }
 
-    return ProfileGlobalInfo ({            
-      id: _LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID,
-      adminId: globalEntity.bs.adminId,
-      domainLimit: globalEntity.domainLimit,
-      domainCount: uint16(globalEntity.domains.length()),      
-      referredByAgent: globalEntity.bs.referredByAgent,
-      stype:  globalEntity.bs.stype,
-      adminType: profileEntity.agents[globalEntity.bs.adminId].atype,
-      acstat: globalEntity.bs.acstat,      
-      alstat: globalEntity.bs.alstat
+    return ProfileUniverseInfo ({            
+      id: _LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID,
+      adminId: universeEntity.bs.adminId,
+      domainLimit: universeEntity.domainLimit,
+      domainCount: uint16(universeEntity.domains.length()),      
+      referredByAgent: universeEntity.bs.referredByAgent,
+      stype:  universeEntity.bs.stype,
+      adminType: profileEntity.agents[universeEntity.bs.adminId].atype,
+      acstat: universeEntity.bs.acstat,      
+      alstat: universeEntity.bs.alstat
     });
   }
 
-
-
   function _doCheckAdminAccess(ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 adminId, bytes32 senderId) internal view returns (IProfileACL.ProfileAdminAccessStatus) {
     return LProfileCommons.profileCheckAdminAccess(profileEntity, functionEntity, adminId, senderId);
-  
-    // // owners always access to all entities to modify those
-    // if(profileEntity.admins.contains(senderId)) return IProfileACL.ProfileAdminAccessStatus.PERMITTED;
-
-    // (FunctionEntity storage functionEntity, bool res) = profileEntity.profileFunctionTryReadSlot(functionId);    
-    // if (!res) return IProfileACL.ProfileAdminAccessStatus.FUNCTION_NOT_FOUND;
-
-    // // if(profileEntity.agents[senderId].acstat != ActivityStatus.ENABLED) return false;
-    
-    // AgentType adminAgentType = profileEntity.agents[adminId].atype;
-    // if(adminAgentType == AgentType.ROLE) {
-    //   (RoleEntity storage roleEntity, bool result) = profileEntity.profileRoleTryReadSlot(adminId);
-    //   if(!result) return IProfileACL.ProfileAdminAccessStatus.ROLE_NOT_FOUND;
-    //   if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAdminAccessStatus.ROLE_ACTIVITY_FORBIDDEN;
-
-    //   (TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(roleEntity.typeId);
-    //   if(!result1) return IProfileACL.ProfileAdminAccessStatus.TYPE_NOT_FOUND;
-    //   if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAdminAccessStatus.TYPE_ACTIVITY_FORBIDDEN;
-      
-    //   if (typeEntity.members[senderId] != adminId) return IProfileACL.ProfileAdminAccessStatus.NOT_PERMITTED;
-      
-    //   PolicyEntity storage policyEntity = profileEntity.policies[profileEntity.rolePolicyMap[adminId]];
-    //   if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
-    //     return IProfileACL.ProfileAdminAccessStatus.POLICY_FORBIDDEN;
-
-    //   return IProfileACL.ProfileAdminAccessStatus.PERMITTED;
-   
-    // } else if(adminAgentType == AgentType.TYPE) { 
-    //   (TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(adminId);
-    //   if(!result1) return IProfileACL.ProfileAdminAccessStatus.TYPE_NOT_FOUND;
-    //   if(typeEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAdminAccessStatus.TYPE_ACTIVITY_FORBIDDEN;
-
-    //   bytes32 roleId = typeEntity.members[senderId];
-    //   (RoleEntity storage roleEntity, bool result2) = profileEntity.profileRoleTryReadSlot(roleId);
-    //   if(!result2) return IProfileACL.ProfileAdminAccessStatus.ROLE_NOT_FOUND;
-    //   if(roleEntity.ba.acstat != ActivityStatus.ENABLED) return IProfileACL.ProfileAdminAccessStatus.ROLE_ACTIVITY_FORBIDDEN;
-      
-    //   PolicyEntity storage policyEntity = profileEntity.policies[profileEntity.rolePolicyMap[roleId]];
-    //   if(policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
-    //     return IProfileACL.ProfileAdminAccessStatus.POLICY_FORBIDDEN;
-
-    //   return IProfileACL.ProfileAdminAccessStatus.PERMITTED;
-    // } 
-
-    // return IProfileACL.ProfileAdminAccessStatus.NOT_PERMITTED;
   }
 
-   function _accessPermission(ProfileMemberSignature calldata memberSign, bytes4 selector) internal returns (ProfileEntity storage, FunctionEntity storage, bytes32, bytes32) {
+   function _accessPermission(ProfileMemberSignature calldata memberSign, bytes4 selector) internal returns (ProfileEntity storage, FunctionEntity storage, bytes32, bytes32, address) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");
     require(bytes(memberSign.profileName).length > 0, "Illegal ProfileName");
 
@@ -224,10 +177,10 @@ contract ProfileGlobalManager is ACLStorage, BaseUUPSProxy, IProfileGlobalManage
     
     ProfileEntity storage profileEntity = _data.profiles[profileId];
     FunctionEntity storage functionEntity = _data.functionReadSlot(functionId);      
-    return (profileEntity, functionEntity, profileId, senderId);
+    return (profileEntity, functionEntity, profileId, senderId, signer);
   }
 
-  function _accessPermissionActivity(ProfileMemberSignature calldata memberSign, bytes4 selector) internal returns (ProfileEntity storage, FunctionEntity storage, bytes32, bytes32) {
+  function _accessPermissionActivity(ProfileMemberSignature calldata memberSign, bytes4 selector) internal returns (ProfileEntity storage, FunctionEntity storage, bytes32, bytes32, address) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");            
     require(bytes(memberSign.profileName).length > 0, "Illegal ProfileName");
 
@@ -254,15 +207,15 @@ contract ProfileGlobalManager is ACLStorage, BaseUUPSProxy, IProfileGlobalManage
     if (!res) LACLUtils.generateAuthorizationError(IACL.AuthorizationStatus.FUNCTION_NOT_FOUND);
 
      _doAclHasAccess(profileEntity, functionEntity, senderId);
-    return (profileEntity, functionEntity, profileId, senderId);
+    return (profileEntity, functionEntity, profileId, senderId, signer);
   }
 
-  function _doGetEntityAndCheckAdminAccess(ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 senderId) internal view returns (GlobalEntity storage) {
-    GlobalEntity storage globalEntity = profileEntity.profileGlobalReadSlot(_LIVELY_PROFILE_LIVELY_GLOBAL_SCOPE_ID);
-    require(globalEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");    
-    IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, functionEntity, globalEntity.bs.adminId, senderId);
+  function _doGetEntityAndCheckAdminAccess(ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 senderId) internal view returns (UniverseEntity storage) {
+    UniverseEntity storage universeEntity = profileEntity.profileUniverseReadSlot(_LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID);
+    require(universeEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");    
+    IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, functionEntity, universeEntity.bs.adminId, senderId);
     if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
-    return globalEntity;
+    return universeEntity;
   }
 
   function _doAclHasAccess(ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 memberId) internal {
@@ -346,9 +299,9 @@ contract ProfileGlobalManager is ACLStorage, BaseUUPSProxy, IProfileGlobalManage
     if(!res3) LACLUtils.generateAuthorizationError(IACL.AuthorizationStatus.DOMAIN_NOT_FOUND);
     if(domainEntity.bs.acstat != ActivityStatus.ENABLED) LACLUtils.generateAuthorizationError(IACL.AuthorizationStatus.DOMAIN_ACTIVITY_FORBIDDEN);
 
-    // check global activity
-    GlobalEntity storage globalEntity = _data.globalReadSlot(_LIVELY_VERSE_LIVELY_GLOBAL_SCOPE_ID);
-    if(globalEntity.bs.acstat != ActivityStatus.ENABLED) LACLUtils.generateAuthorizationError(IACL.AuthorizationStatus.GLOBAL_ACTIVITY_FORBIDDEN);    
+    // check universe activity
+    UniverseEntity storage universeEntity = _data.universeReadSlot(_LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);
+    if(universeEntity.bs.acstat != ActivityStatus.ENABLED) LACLUtils.generateAuthorizationError(IACL.AuthorizationStatus.UNIVERSE_ACTIVITY_FORBIDDEN);    
   }
 
   function _doCheckTypeAccess(ProfileEntity storage profileEntity, FunctionEntity storage functionEntity, bytes32 memberId) internal {

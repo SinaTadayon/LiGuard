@@ -59,57 +59,39 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
 
   // type admins call roleRegister function
   function roleRegister(MemberSignature calldata memberSign, RoleRegisterRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IRoleManagement.roleRegister.selector);
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IRoleManagement.roleRegister.selector);
 
     // check and set
     MemberEntity storage memberEntity = _data.memberReadSlot(senderId);
     require(int16(uint16(memberEntity.limits.roleRegisterLimit)) - int8(uint8(requests.length)) >= 0, "Illegal RegisterLimit");
     unchecked { memberEntity.limits.roleRegisterLimit -= uint8(requests.length); }
 
-    for(uint i = 0; i < requests.length; i++) {
-      // bytes32 newRoleId = LACLUtils.generateId(requests[i].name);
-      // require(_data.agents[newRoleId].atype == AgentType.NONE, "Role Already Exist");
-      // require(
-      //   requests[i].acstat > ActivityStatus.DELETED && 
-      //   requests[i].alstat > AlterabilityStatus.NONE,
-      //   "Illegal Activity/Alterability"
-      // );
-      // require(
-      //   requests[i].typeId != _LIVELY_VERSE_ANONYMOUS_TYPE_ID && 
-      //   requests[i].typeId != _LIVELY_VERSE_ANY_TYPE_ID,
-      //   "Illegal Type"
-      // );
-      
-      // // check type 
-      // TypeEntity storage typeEntity = _data.typeReadSlot(requests[i].typeId);
-      // require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Type Updatable");
-      // require(typeEntity.roles.length() < typeEntity.roleLimit, "Illegal Register");
-
+    for(uint i = 0; i < requests.length; i++) {    
       (TypeEntity storage typeEntity, bytes32 newRoleId) = LACLCommons.aclRegisterRole(_data, requests[i]);
 
       // check access
       IACL.AdminAccessStatus status = _doCheckAdminAccess(typeEntity.ba.adminId, senderId, functionId);
       if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
 
-      _doRegisterRole(requests[i], typeEntity, memberEntity, newRoleId);
+      _doRegisterRole(requests[i], typeEntity, memberEntity, newRoleId, sender);
     }
     return true;
   }
 
   // Note: Admin must be Role or Type, and it can't be a member 
   function roleUpdateAdmin(MemberSignature calldata memberSign, UpdateAdminRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IRoleManagement.roleUpdateAdmin.selector);
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IRoleManagement.roleUpdateAdmin.selector);
 
     for(uint i = 0; i < requests.length; i++) {
       RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);      
       roleEntity.ba.adminId = _getRoleAdmin(_data.scopes[roleEntity.scopeId].stype, _data.agents[roleEntity.typeId].adminId, roleEntity.scopeId, requests[i].adminId);
-      emit RoleAdminUpdated(msg.sender, requests[i].id, requests[i].adminId);
+      emit RoleAdminUpdated(sender, requests[i].id, requests[i].adminId);
     }
     return true;
   }
 
   function roleUpdateScope(MemberSignature calldata memberSign, UpdateScopeRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IRoleManagement.roleUpdateScope.selector);
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IRoleManagement.roleUpdateScope.selector);
 
     for(uint i = 0; i < requests.length; i++) {
       RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
@@ -119,48 +101,48 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
       require(oldScope.referredByAgent > 0, "Illeagl Referred");
       unchecked { oldScope.referredByAgent -= 1; }
       roleEntity.scopeId = requests[i].scopeId;
-      emit RoleScopeUpdated(msg.sender, requests[i].id, requests[i].scopeId);
+      emit RoleScopeUpdated(sender, requests[i].id, requests[i].scopeId);
     }
     return true;
   }
 
   function roleUpdateActivityStatus(MemberSignature calldata memberSign, UpdateActivityRequest[] calldata requests) external returns (bool) {    
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IRoleManagement.roleUpdateActivityStatus.selector);
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IRoleManagement.roleUpdateActivityStatus.selector);
     for(uint i = 0; i < requests.length; i++) {
       RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
       roleEntity.ba.acstat = requests[i].acstat;
-      emit RoleActivityUpdated(msg.sender, requests[i].id, requests[i].acstat);
+      emit RoleActivityUpdated(sender, requests[i].id, requests[i].acstat);
     }
     return true;
   }
 
   function roleUpdateAlterabilityStatus(MemberSignature calldata memberSign, UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IRoleManagement.roleUpdateAlterabilityStatus.selector);    
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IRoleManagement.roleUpdateAlterabilityStatus.selector);    
     for(uint i = 0; i < requests.length; i++) {      
       RoleEntity storage roleEntity = _data.roleReadSlot(requests[i].id);          
       IACL.AdminAccessStatus status = _doCheckAdminAccess(roleEntity.ba.adminId, senderId, functionId);
       if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);      
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       roleEntity.ba.alstat = requests[i].alstat;
-      emit RoleAlterabilityUpdated(msg.sender, requests[i].id, requests[i].alstat);
+      emit RoleAlterabilityUpdated(sender, requests[i].id, requests[i].alstat);
     }
     return true;
   }
 
   function roleUpdateMemberLimit(MemberSignature calldata memberSign, RoleUpdateMemberLimitRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IRoleManagement.roleUpdateMemberLimit.selector);
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IRoleManagement.roleUpdateMemberLimit.selector);
     for (uint256 i = 0; i < requests.length; i++) {
       RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(requests[i].roleId, senderId, functionId);
       require(requests[i].memberLimit > roleEntity.memberCount, "Illegal Limit");
       roleEntity.memberLimit = requests[i].memberLimit;      
-      emit RoleMemberLimitUpdated(msg.sender, requests[i].roleId, requests[i].memberLimit);
+      emit RoleMemberLimitUpdated(sender, requests[i].roleId, requests[i].memberLimit);
     }
     return true;
   }
 
   function roleGrantMembers(MemberSignature calldata memberSign, RoleGrantMembersRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IRoleManagement.roleGrantMembers.selector);
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IRoleManagement.roleGrantMembers.selector);
     for(uint i = 0; i < requests.length; i++) {      
       RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(requests[i].roleId, senderId, functionId);
       TypeEntity storage typeEntity = _data.typeReadSlot(roleEntity.typeId);
@@ -178,7 +160,7 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
           RoleEntity storage currentRoleEntity = _doGetEntityAndCheckAdminAccess(currentRoleId, senderId, functionId);
           require(currentRoleEntity.memberCount > 0, "Illegal Count");
           unchecked { currentRoleEntity.memberCount -= 1; }          
-          emit RoleMemberRevoked(msg.sender, currentRoleId, requests[i].members[j], currentRoleEntity.typeId);
+          emit RoleMemberRevoked(sender, currentRoleId, requests[i].members[j], currentRoleEntity.typeId);
         
         } else {
           require(memberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
@@ -196,14 +178,14 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
 
         typeEntity.members[requests[i].members[j]] = requests[i].roleId;
         roleEntity.memberCount += 1;
-        emit RoleMemberGranted(msg.sender, requests[i].roleId, requests[i].members[j], roleEntity.typeId);
+        emit RoleMemberGranted(sender, requests[i].roleId, requests[i].members[j], roleEntity.typeId);
       }
     }
     return true;
   }
 
   function roleRevokeMembers(MemberSignature calldata memberSign, RoleRevokeMembersRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IRoleManagement.roleRevokeMembers.selector);
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IRoleManagement.roleRevokeMembers.selector);
     for(uint i = 0; i < requests.length; i++) {      
       RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(requests[i].roleId, senderId, functionId);
 
@@ -228,9 +210,9 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
           delete memberEntity.account;
           delete memberEntity.limits;
           delete memberEntity.types;
-          emit RoleMemberDeleted(msg.sender, requests[i].members[j], requests[i].roleId, roleEntity.typeId, memberEntity.account);
+          emit RoleMemberDeleted(sender, requests[i].members[j], requests[i].roleId, roleEntity.typeId, memberEntity.account);
         }
-        emit RoleMemberRevoked(msg.sender, requests[i].roleId, requests[i].members[j], roleEntity.typeId);
+        emit RoleMemberRevoked(sender, requests[i].roleId, requests[i].members[j], roleEntity.typeId);
       }
     }
     return true;
@@ -328,7 +310,7 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
     return LACLCommons.checkAdminAccess(_data, adminId, memberId, functionId);   
   }
 
-  function _accessPermission(MemberSignature calldata memberSign, bytes4 selector) internal returns (bytes32, bytes32) {
+  function _accessPermission(MemberSignature calldata memberSign, bytes4 selector) internal returns (bytes32, bytes32, address) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");  
     address signer;
 
@@ -344,7 +326,7 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(signer);
     IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
     if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
-    return (functionId, senderId);
+    return (functionId, senderId, signer);
   }
 
   function _getRoleAdmin(ScopeType requestScopeType, bytes32 requestScopeAdmin, bytes32 scopeId, bytes32 adminId) internal view returns (bytes32 roleAdminId) {
@@ -396,7 +378,7 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
     return roleEntity;
   }
 
-  function _doRegisterRole(RoleRegisterRequest calldata request, TypeEntity storage typeEntity, MemberEntity storage memberEntity, bytes32 newRoleId) internal {
+  function _doRegisterRole(RoleRegisterRequest calldata request, TypeEntity storage typeEntity, MemberEntity storage memberEntity, bytes32 newRoleId, address sender) internal {
     // check and get requested scope type
     ScopeType requestScopeType = _getAndCheckRequestScope(request.scopeId, typeEntity.scopeId);
     
@@ -414,7 +396,7 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
     newRole.typeId = request.typeId;
     newRole.ba.adminId = _getRoleAdmin(requestScopeType, typeEntity.ba.adminId, request.scopeId, request.adminId);
     emit RoleRegistered(
-      msg.sender,
+      sender,
       newRoleId,
       request.typeId, 
       newRole.ba.adminId,

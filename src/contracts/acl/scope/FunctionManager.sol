@@ -130,41 +130,41 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
   }
 
   function functionUpdateAdmin(MemberSignature calldata memberSign, UpdateAdminRequest[] calldata requests) external returns (bool){
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IFunctionManagement.functionUpdateAdmin.selector);
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IFunctionManagement.functionUpdateAdmin.selector);
     
     for(uint i = 0; i < requests.length; i++) {
       FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
       functionEntity.bs.adminId = _doGetAndCheckFunctionAdmin(_data.scopes[functionEntity.contextId].adminId, functionEntity.contextId, requests[i].adminId);
-      emit FunctionAdminUpdated(msg.sender, requests[i].id, requests[i].adminId);
+      emit FunctionAdminUpdated(sender, requests[i].id, requests[i].adminId);
     }
     return true;  
   }
 
   function functionUpdateAgent(MemberSignature calldata memberSign, FunctionUpdateAgentRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IFunctionManagement.functionUpdateAgent.selector);
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IFunctionManagement.functionUpdateAgent.selector);
 
     for(uint i = 0; i < requests.length; i++) {
       FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(requests[i].functionId, senderId, functionId);  
       _doCheckAgentId(requests[i].agentId, functionEntity.contextId);
       functionEntity.agentId = requests[i].agentId;
-      emit FunctionAgentUpdated(msg.sender, requests[i].functionId, requests[i].agentId);
+      emit FunctionAgentUpdated(sender, requests[i].functionId, requests[i].agentId);
     }
     return true;  
   }
 
   function functionUpdateActivityStatus(MemberSignature calldata memberSign, UpdateActivityRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IFunctionManagement.functionUpdateActivityStatus.selector);
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IFunctionManagement.functionUpdateActivityStatus.selector);
     for(uint i = 0; i < requests.length; i++) {
       FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
       require(requests[i].acstat != ActivityStatus.NONE, "Illegal Activity");
       functionEntity.bs.acstat = requests[i].acstat;
-      emit FunctionActivityUpdated(msg.sender, requests[i].id, requests[i].acstat);      
+      emit FunctionActivityUpdated(sender, requests[i].id, requests[i].acstat);      
     }
     return true;
   }
 
   function functionUpdateAlterabilityStatus(MemberSignature calldata memberSign, UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IFunctionManagement.functionUpdateAlterabilityStatus.selector);
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IFunctionManagement.functionUpdateAlterabilityStatus.selector);
     
     for(uint i = 0; i < requests.length; i++) {      
       FunctionEntity storage functionEntity = _data.functionReadSlot(requests[i].id);
@@ -173,18 +173,18 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
       if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       functionEntity.bs.alstat = requests[i].alstat;
-      emit FunctionAlterabilityUpdated(msg.sender, requests[i].id, requests[i].alstat);
+      emit FunctionAlterabilityUpdated(sender, requests[i].id, requests[i].alstat);
     }
     return true;
   }
 
   function functionUpdatePolicyCode(MemberSignature calldata memberSign, FunctionUpdatePolicyRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId) = _accessPermission(memberSign, IFunctionManagement.functionUpdatePolicyCode.selector);
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IFunctionManagement.functionUpdatePolicyCode.selector);
     
     for (uint256 i = 0; i < requests.length; i++) {
       FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(requests[i].functionId, senderId, functionId);
       functionEntity.policyCode = requests[i].policyCode;
-      emit FunctionPolicyUpdated(msg.sender, requests[i].functionId, requests[i].policyCode);      
+      emit FunctionPolicyUpdated(sender, requests[i].functionId, requests[i].policyCode);      
     }
     return true;
   }
@@ -300,7 +300,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     return LACLCommons.checkAdminAccess(_data, adminId, memberId, functionId);
   }
 
-function _accessPermission(MemberSignature calldata memberSign, bytes4 selector) internal returns (bytes32, bytes32) {
+function _accessPermission(MemberSignature calldata memberSign, bytes4 selector) internal returns (bytes32, bytes32, address) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");  
     address signer;
 
@@ -316,7 +316,7 @@ function _accessPermission(MemberSignature calldata memberSign, bytes4 selector)
     bytes32 senderId = LACLUtils.accountGenerateId(signer);
     IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
     if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
-    return (functionId, senderId);
+    return (functionId, senderId, signer);
   }
 
   function _doGetEntityAndCheckAdminAccess(bytes32 fId, bytes32 senderId, bytes32 functionId) internal view returns (FunctionEntity storage) {
