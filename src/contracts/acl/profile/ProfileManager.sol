@@ -291,7 +291,8 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
       request.profileOwner,    
       request.profileSystemAdmin,
       adminId,     
-      request.registerLimits      
+      request.registerLimits,
+      request.limits  
     );    
   }
 

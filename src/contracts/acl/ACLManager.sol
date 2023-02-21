@@ -219,7 +219,8 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
     {
       DomainEntity storage aclDomain = _data.domainWriteSlot(aclDomainId);
       aclDomain.name = "DOMAIN.LIVELY_VERSE.LIVELY_GUARD";
-      aclDomain.realmLimit = 3;
+      aclDomain.universeId = _LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID;
+      aclDomain.realmLimit = 3;    
       aclDomain.bs.stype = ScopeType.DOMAIN;
       aclDomain.bs.alstat = AlterabilityStatus.UPDATABLE;
       aclDomain.bs.acstat = ActivityStatus.ENABLED;

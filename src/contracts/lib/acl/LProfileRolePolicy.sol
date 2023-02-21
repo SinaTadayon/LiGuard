@@ -79,7 +79,7 @@ library LProfileRolePolicy {
 
   function profileRoleRegister(IProfileRoleManagement.ProfileRoleRegisterRequest calldata request, IACLCommons.ProfileEntity storage profileEntity, IACLCommons.FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId) external returns (bytes32, bytes32) {
     bytes32 newRoleId = LACLUtils.generateId(request.name);
-    require(profileEntity.agents[newRoleId].atype == IACLCommons.AgentType.NONE, "Role Already Exist");   
+    require(profileEntity.agents[newRoleId].atype == IACLCommons.AgentType.NONE, "Already Exist");   
     require(
       request.typeId != LIVELY_VERSE_ANONYMOUS_TYPE_ID && 
       request.typeId != LIVELY_PROFILE_ANY_TYPE_ID,

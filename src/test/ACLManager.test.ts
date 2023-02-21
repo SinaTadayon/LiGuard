@@ -108,7 +108,7 @@ import {
   PolicyType,
   ProxySafeModeStatus,
   ProxyUpdatabilityStatus,
-  ScopeType, generateMemberSignatureManually
+  ScopeType, generateMemberSignatureManually, LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID
 } from "./TestUtils";
 import { ProxyUpgradedEventObject } from "../../typechain/types/proxy/Proxy";
 import { ProxyLocalAdminUpdatedEventObject } from "../../typechain/types/proxy/IProxy";
@@ -5368,7 +5368,7 @@ describe("Lively Guard Tests", function() {
         const profileMemberFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
           {
             adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            agentId: LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,
+            agentId: LIVELY_PROFILE_ANY_TYPE_ID,
             selector: profileMemberIface.getSighash("profileMemberRegister"),
             policyCode: 250,
             acstat: ActivityStatus.ENABLED,
@@ -5494,7 +5494,7 @@ describe("Lively Guard Tests", function() {
         await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(memberSignature, profileMemberFunctionRegisterRequest))
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileMemberContextId, profileMemberRegisterFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileMemberContextId, profileMemberUpdateTypeLimitFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
             LIVELY_PROFILE_ANY_TYPE_ID)
@@ -5538,7 +5538,7 @@ describe("Lively Guard Tests", function() {
         // and
         const functionInfo: IFunctionManagement.FunctionInfoStruct = await functionManagerDelegateProxy.functionGetInfo(profileMemberRegisterFunctionId);
         expect(functionInfo.adminId).to.be.equal(LIVELY_VERSE_PROFILE_MASTER_TYPE_ID);
-        expect(functionInfo.agentId).to.be.equal(LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID);
+        expect(functionInfo.agentId).to.be.equal(LIVELY_PROFILE_ANY_TYPE_ID);
         expect(functionInfo.contextId).to.be.equal(profileMemberContextId);
         expect(functionInfo.adminType).to.be.equal(AgentType.TYPE);
         expect(functionInfo.agentType).to.be.equal(AgentType.TYPE);
@@ -5599,7 +5599,7 @@ describe("Lively Guard Tests", function() {
         const profileRoleFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
           {
             adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            agentId: LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,
+            agentId: LIVELY_PROFILE_ANY_TYPE_ID,
             selector: profileRoleIface.getSighash("profileRoleRegister"),
             policyCode: 250,
             acstat: ActivityStatus.ENABLED,
@@ -5733,7 +5733,7 @@ describe("Lively Guard Tests", function() {
         await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(memberSignature, profileRoleFunctionRegisterRequest))
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileRoleContextId, profileRoleRegisterFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileRoleContextId, profileRoleGrantMembersFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
             LIVELY_PROFILE_ANY_TYPE_ID)
@@ -5780,7 +5780,7 @@ describe("Lively Guard Tests", function() {
         // and
         const functionInfo: IFunctionManagement.FunctionInfoStruct = await functionManagerDelegateProxy.functionGetInfo(profileRoleRegisterFunctionId);
         expect(functionInfo.adminId).to.be.equal(LIVELY_VERSE_PROFILE_MASTER_TYPE_ID);
-        expect(functionInfo.agentId).to.be.equal(LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID);
+        expect(functionInfo.agentId).to.be.equal(LIVELY_PROFILE_ANY_TYPE_ID);
         expect(functionInfo.contextId).to.be.equal(profileRoleContextId);
         expect(functionInfo.adminType).to.be.equal(AgentType.TYPE);
         expect(functionInfo.agentType).to.be.equal(AgentType.TYPE);
@@ -5835,7 +5835,7 @@ describe("Lively Guard Tests", function() {
         const profileTypeFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
           {
             adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            agentId: LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,
+            agentId: LIVELY_PROFILE_ANY_TYPE_ID,
             selector: profileTypeIface.getSighash("profileTypeRegister"),
             policyCode: 250,
             acstat: ActivityStatus.ENABLED,
@@ -5953,7 +5953,7 @@ describe("Lively Guard Tests", function() {
         await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(memberSignature, profileTypeFunctionRegisterRequest))
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileTypeContextId, profileTypeRegisterFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileTypeContextId, profileTypeUpdateAdminFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
             LIVELY_PROFILE_ANY_TYPE_ID)
@@ -5994,7 +5994,7 @@ describe("Lively Guard Tests", function() {
         // and
         const functionInfo: IFunctionManagement.FunctionInfoStruct = await functionManagerDelegateProxy.functionGetInfo(profileTypeRegisterFunctionId);
         expect(functionInfo.adminId).to.be.equal(LIVELY_VERSE_PROFILE_MASTER_TYPE_ID);
-        expect(functionInfo.agentId).to.be.equal(LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID);
+        expect(functionInfo.agentId).to.be.equal(LIVELY_PROFILE_ANY_TYPE_ID);
         expect(functionInfo.contextId).to.be.equal(profileTypeContextId);
         expect(functionInfo.adminType).to.be.equal(AgentType.TYPE);
         expect(functionInfo.agentType).to.be.equal(AgentType.TYPE);
@@ -6463,7 +6463,7 @@ describe("Lively Guard Tests", function() {
         const profileRealmFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
           {
             adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            agentId: LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,
+            agentId: LIVELY_PROFILE_ANY_TYPE_ID,
             selector: profileRealmIface.getSighash("profileRealmRegister"),
             policyCode: 250,
             acstat: ActivityStatus.ENABLED,
@@ -6581,7 +6581,7 @@ describe("Lively Guard Tests", function() {
         await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(memberSignature, profileRealmFunctionRegisterRequest))
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileRealmContextId, profileRealmRegisterFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileRealmContextId, profileRealmUpdateAdminFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
             LIVELY_PROFILE_ANY_TYPE_ID)
@@ -6622,7 +6622,7 @@ describe("Lively Guard Tests", function() {
         // and
         const functionInfo: IFunctionManagement.FunctionInfoStruct = await functionManagerDelegateProxy.functionGetInfo(profileRealmRegisterFunctionId);
         expect(functionInfo.adminId).to.be.equal(LIVELY_VERSE_PROFILE_MASTER_TYPE_ID);
-        expect(functionInfo.agentId).to.be.equal(LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID);
+        expect(functionInfo.agentId).to.be.equal(LIVELY_PROFILE_ANY_TYPE_ID);
         expect(functionInfo.contextId).to.be.equal(profileRealmContextId);
         expect(functionInfo.adminType).to.be.equal(AgentType.TYPE);
         expect(functionInfo.agentType).to.be.equal(AgentType.TYPE);
@@ -6677,7 +6677,7 @@ describe("Lively Guard Tests", function() {
         const profileDomainFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
           {
             adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            agentId: LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,
+            agentId: LIVELY_PROFILE_ANY_TYPE_ID,
             selector: profileDomainIface.getSighash("profileDomainRegister"),
             policyCode: 250,
             acstat: ActivityStatus.ENABLED,
@@ -6795,7 +6795,7 @@ describe("Lively Guard Tests", function() {
         await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(memberSignature, profileDomainFunctionRegisterRequest))
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileDomainContextId, profileDomainRegisterFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID)
+            LIVELY_PROFILE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileDomainContextId, profileDomainUpdateActivityStatusFunctionId, LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
             LIVELY_PROFILE_ANY_TYPE_ID)
@@ -6836,7 +6836,7 @@ describe("Lively Guard Tests", function() {
         // and
         const functionInfo: IFunctionManagement.FunctionInfoStruct = await functionManagerDelegateProxy.functionGetInfo(profileDomainRegisterFunctionId);
         expect(functionInfo.adminId).to.be.equal(LIVELY_VERSE_PROFILE_MASTER_TYPE_ID);
-        expect(functionInfo.agentId).to.be.equal(LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID);
+        expect(functionInfo.agentId).to.be.equal(LIVELY_PROFILE_ANY_TYPE_ID);
         expect(functionInfo.contextId).to.be.equal(profileDomainContextId);
         expect(functionInfo.adminType).to.be.equal(AgentType.TYPE);
         expect(functionInfo.agentType).to.be.equal(AgentType.TYPE);
@@ -7724,7 +7724,7 @@ describe("Lively Guard Tests", function() {
         expect(livelyPolicyRoleInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
         expect(livelyPolicyRoleInfo.name).to.be.equal("ROLE.LIVELY_VERSE.LIVELY_POLICY_MASTER_ADMIN");
 
-        // Lively Guard ACL Master
+        // Lively Guard ACL Master Role
         const livelyGuardRoleInfo = await roleManagerDelegateProxy.roleGetInfo(LIVELY_VERSE_ACL_ADMIN_ROLE_ID);
         expect(livelyGuardRoleInfo.scopeId).to.be.equal(LIVELY_VERSE_ACL_DOMAIN_ID);
         expect(livelyGuardRoleInfo.typeId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
@@ -7735,6 +7735,32 @@ describe("Lively Guard Tests", function() {
         expect(livelyGuardRoleInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
         expect(livelyGuardRoleInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
         expect(livelyGuardRoleInfo.name).to.be.equal("ROLE.LIVELY_VERSE.LIVELY_GUARD.MASTER_ADMIN");
+
+        // Lively Guard ACL Domain
+        const livelyGuardDomainInfo = await domainManagerDelegateProxy.domainGetInfo(LIVELY_VERSE_ACL_DOMAIN_ID);
+        expect(livelyGuardDomainInfo.name).to.be.equal("DOMAIN.LIVELY_VERSE.LIVELY_GUARD");
+        expect(livelyGuardDomainInfo.universeId).to.be.equal(LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);
+        expect(livelyGuardDomainInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
+        expect(livelyGuardDomainInfo.adminType).to.be.equal(AgentType.TYPE);
+        expect(livelyGuardDomainInfo.realmLimit).to.be.equal(3);
+        expect(livelyGuardDomainInfo.realmCount).to.be.equal(1);
+        expect(livelyGuardDomainInfo.referredByAgent).to.be.equal(2);
+        expect(livelyGuardDomainInfo.stype).to.be.equal(ScopeType.DOMAIN);
+        expect(livelyGuardDomainInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(livelyGuardDomainInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+
+        // Lively Guard ACL Realm
+        const livelyGuardRealmInfo = await realmManagerDelegateProxy.realmGetInfo(LIVELY_VERSE_ACL_REALM_ID);
+        expect(livelyGuardRealmInfo.name).to.be.equal("REALM.LIVELY_VERSE.LIVELY_GUARD.ACL");
+        expect(livelyGuardRealmInfo.domainId).to.be.equal(LIVELY_VERSE_ACL_DOMAIN_ID);
+        expect(livelyGuardRealmInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
+        expect(livelyGuardRealmInfo.adminType).to.be.equal(AgentType.TYPE);
+        expect(livelyGuardRealmInfo.contextLimit).to.be.equal(128);
+        expect(livelyGuardRealmInfo.contextCount).to.be.equal(0);
+        expect(livelyGuardRealmInfo.referredByAgent).to.be.equal(0);
+        expect(livelyGuardRealmInfo.stype).to.be.equal(ScopeType.REALM);
+        expect(livelyGuardRealmInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+        expect(livelyGuardRealmInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
       })
 
       it("Should register test type with expired memberSignature failed", async() => {
@@ -11250,6 +11276,7 @@ describe("Lively Guard Tests", function() {
         // and
         const domainInfo: IDomainManagement.DomainInfoStruct = await domainManagerDelegateProxy.domainGetInfo(aclDomainTestId);
         expect(domainInfo.name).to.be.equal(ACL_DOMAIN_TEST_NAME);
+        expect(domainInfo.universeId).to.be.equal(LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);
         expect(domainInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
         expect(domainInfo.adminType).to.be.equal(AgentType.ROLE);
         expect(domainInfo.realmLimit).to.be.equal(1);

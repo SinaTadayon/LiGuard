@@ -106,7 +106,7 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
         }
         contractId = requests[i].contractId;
       }      
-
+      
       bytes32 newContextId = LProfileCommons.profileRegisterContext(_data, requests[i], profileId, contractId, signer);
 
       emit ProfileContextRegistered(      

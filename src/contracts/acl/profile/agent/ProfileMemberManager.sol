@@ -274,6 +274,10 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
       if(adminAccessStatus != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(adminAccessStatus);
     }
 
+    // check and add member to profile admin
+    if(roleEntity.typeId == _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID) 
+      profileEntity.admins.add(newMemberId);
+
     // add new member to type
     typeEntity.members[newMemberId] = memberRequest.roleId;
 
@@ -314,7 +318,7 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
       memberRequest.roleId,
       newMember.ba.adminId,
       memberRequest.registerLimit      
-    );
+    );    
   }
 
   function _doCheckRegisterLimit(ProfileRegisterLimit storage registerLimits, ProfileRegisterLimit calldata registerLimitRequest, uint32 memberRegisterLimit, bool isMemberRegister) internal view {

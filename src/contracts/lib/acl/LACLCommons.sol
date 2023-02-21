@@ -430,8 +430,8 @@ library LACLCommons {
     livelyMasterAdminRole.name = "ROLE.LIVELY_PROFILE.LIVELY_MASTER_ADMIN";
     livelyMasterAdminRole.scopeId = LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID;
     livelyMasterAdminRole.typeId = LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID;
-    livelyMasterAdminRole.memberLimit = profileEntity.limits.memberLimit > 2 ? profileEntity.limits.memberLimit : 2;
-    livelyMasterAdminRole.memberCount = 2;
+    livelyMasterAdminRole.memberLimit = profileEntity.limits.memberLimit > 1 ? profileEntity.limits.memberLimit : 1;
+    livelyMasterAdminRole.memberCount = 1;
     livelyMasterAdminRole.ba.atype = IACLCommons.AgentType.ROLE;
     livelyMasterAdminRole.ba.acstat = IACLCommons.ActivityStatus.ENABLED;
     livelyMasterAdminRole.ba.alstat = IACLCommons.AlterabilityStatus.UPDATABLE;

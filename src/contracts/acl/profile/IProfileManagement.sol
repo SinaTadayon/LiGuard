@@ -56,7 +56,8 @@ interface IProfileManagement is IACLCommons {
     address indexed profileOwner,
     address profileSystemAdmin,
     bytes32 adminId,
-    ProfileRegisterLimit registerlimits
+    ProfileRegisterLimit registerlimits,
+    ProfileLimit limits
   );
 
   event ProfileAdminUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed adminId);
