@@ -58,21 +58,9 @@ interface IERC20Lock {
     string reason
   );
 
-  // event BatchTokenClaimed(address indexed sender, uint256 totalAmount);
-
-  // event BatchTokenUnlocked(address indexed sender, uint256 totalAmount);
-
-  // event BatchTokenLocked(address indexed sender, uint256 totalAmount);
-
-  // function lockToken(LockTokenRequest calldata lockRequest) external returns (bytes32);
-
   function lockToken(LockTokenRequest[] calldata lockRequest) external returns (bytes32[] memory);
 
-  // function unlockToken(UnLockTokenRequest calldata unlockRequest) external returns (uint256);
-
   function unlockToken(UnLockTokenRequest[] calldata unlockRequest) external returns (uint256);
-
-  // function claimToken(bytes32 lockId) external returns (uint256);
 
   function claimToken(bytes32[] calldata lockIds) external returns (uint256);
 

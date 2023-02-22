@@ -274,7 +274,7 @@ export async function generatePermitDomainSignatureByHardhat(
   deadline: BigNumber,
   verifyingContract: Address,
   signerAddress: Address,
-  chainId: number
+  chainId: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<string> {
   const messageParams = JSON.stringify({
@@ -296,7 +296,7 @@ export async function generatePermitDomainSignatureByHardhat(
     primaryType: "Permit",
     domain: {
       name: "LivelyToken",
-      version: "1.0.0",
+      version: "3.0.0",
       chainId,
       verifyingContract,
     },

@@ -299,14 +299,12 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
   }
 
   function initialize(InitRequest calldata request) public onlyProxy onlyLocalAdmin initializer {
-    // bytes32 realm = keccak256(abi.encodePacked(request.domainRealm));
     __BASE_UUPS_init(request.contractName, request.contractVersion, request.aclManager);
 
     _name = "LIVELY";
-    _symbol = "LVL";
+    _symbol = "LIV";
     _taxRate = request.taxRateValue;
     _isTokenDistributed = false;
-    // _initContext(request.domainName, request.domainVersion, realm, request.signature);
 
     emit Initialized(
       _msgSender(),
@@ -384,28 +382,6 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
   function getLibrary() public pure returns (address) {
     return address(LTokenERC20);
   }
-
-  // function _initContext(
-  //   string calldata domainName,
-  //   string calldata domainVersion,
-  //   bytes32 realm,
-  //   bytes calldata signature
-  // ) internal {
-  //   (IContextManagement.RequestContext memory rc, IContextManagement.RequestRegisterContext[] memory rrc) = LTokenERC20
-  //     .createRequestContext(_domainName, _domainVersion, _domainRealm);
-
-  //   IContextManagement(_accessControlManager).registerContext(signature, rc, rrc);
-
-  //   emit Initialized(
-  //     _msgSender(),
-  //     address(this),
-  //     _implementation(),
-  //     domainName,
-  //     domainVersion,
-  //     realm,
-  //     _getInitializedCount()
-  //   );
-  // }
 
   function _updateTaxWhitelist(address account, bool isDeleted) internal returns (bool) {
     emit TaxWhitelistUpdated(_msgSender(), account, isDeleted);

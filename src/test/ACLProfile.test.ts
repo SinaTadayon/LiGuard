@@ -8027,9 +8027,24 @@ describe("Lively Guard Profile Tests", function() {
             name: PROFILE_DOMAIN_TEST_NAME
           }
         ]
+        const expiredAt = BigNumber.from(Date.now() + 10000);
+        const signature = generateProfileMemberSignatureManually(
+          PROFILE_TEST_NAME,
+          profileOwnerWallet2.address,
+          aclManagerProxy.address,
+          profileOwnerWallet2,
+          networkChainId,
+          expiredAt
+        );
+        const profileMemberSignature: IProfileACLCommons.ProfileMemberSignatureStruct = {
+          profileName: PROFILE_TEST_NAME,
+          account: profileOwnerWallet2.address,
+          expiredAt: expiredAt,
+          signature: signature
+        }
 
         // when
-        await expect(profileDomainManagerDelegateProxy.connect(profileOwner2).profileDomainRegister(emptyProfileMemberSignature, requests)).
+        await expect(profileDomainManagerDelegateProxy.connect(profileAdmin2).profileDomainRegister(profileMemberSignature, requests)).
         to.emit(profileDomainManagerDelegateProxy, "ProfileDomainRegistered")
           .withArgs(profileOwnerWallet2.address, profileTestId, profileDomainTestId ,LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID)
 
@@ -8067,9 +8082,24 @@ describe("Lively Guard Profile Tests", function() {
             name: PROFILE_REALM_TEST_NAME
           }
         ]
+        const expiredAt = BigNumber.from(Date.now() + 10000);
+        const signature = generateProfileMemberSignatureManually(
+          PROFILE_TEST_NAME,
+          profileAdminWallet.address,
+          aclManagerProxy.address,
+          profileAdminWallet,
+          networkChainId,
+          expiredAt
+        );
+        const profileMemberSignature: IProfileACLCommons.ProfileMemberSignatureStruct = {
+          profileName: PROFILE_TEST_NAME,
+          account: profileAdminWallet.address,
+          expiredAt: expiredAt,
+          signature: signature
+        }
 
         // when
-        await expect(profileRealmManagerDelegateProxy.connect(profileAdmin).profileRealmRegister(emptyProfileMemberSignature, requests)).
+        await expect(profileRealmManagerDelegateProxy.connect(profileAdmin2).profileRealmRegister(profileMemberSignature, requests)).
         to.emit(profileRealmManagerDelegateProxy, "ProfileRealmRegistered")
           .withArgs(profileAdminWallet.address, profileTestId, profileRealmTestId , profileDomainTestId, LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID)
 
@@ -8299,7 +8329,6 @@ describe("Lively Guard Profile Tests", function() {
         const memberRegisterFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
             [profileMemberManagerTest.address,  profileTestMemberIface.getSighash("profileMemberRegisterTest")]));
-
         const memberFunctionRequests: IProfileFunctionManagement.ProfileFunctionRequestStruct[] = [
           {
             adminId: LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID,
@@ -8308,7 +8337,6 @@ describe("Lively Guard Profile Tests", function() {
             policyCode: 250,
           },
         ]
-
         const memberFunctionRegisterRequest: IProfileFunctionManagement.ProfileFunctionRegisterRequestStruct[] = [
           {
             signature: new Int8Array(0),
@@ -8322,9 +8350,25 @@ describe("Lively Guard Profile Tests", function() {
             functions: memberFunctionRequests
           }
         ]
+        const expiredAt = BigNumber.from(Date.now() + 10000);
+        const signature = generateProfileMemberSignatureManually(
+          PROFILE_TEST_NAME,
+          profileSystemAdminWallet.address,
+          aclManagerProxy.address,
+          profileSystemAdminWallet,
+          networkChainId,
+          expiredAt
+        );
+        const profileMemberSignature: IProfileACLCommons.ProfileMemberSignatureStruct = {
+          profileName: PROFILE_TEST_NAME,
+          account: profileSystemAdminWallet.address,
+          expiredAt: expiredAt,
+          signature: signature
+        }
+
 
         // when
-        await expect(profileFunctionManagerDelegateProxy.connect(profileSystemAdmin).profileFunctionRegister(emptyProfileMemberSignature, memberFunctionRegisterRequest))
+        await expect(profileFunctionManagerDelegateProxy.connect(profileSystemAdmin2).profileFunctionRegister(profileMemberSignature, memberFunctionRegisterRequest))
           .to.emit(profileFunctionManagerDelegateProxy, "ProfileFunctionRegistered")
           .withArgs(profileSystemAdminWallet.address, profileTestId, profileMemberContextTestId, memberRegisterFunctionId, LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID,
             LIVELY_PROFILE_ANY_TYPE_ID)
@@ -8463,9 +8507,25 @@ describe("Lively Guard Profile Tests", function() {
             alstat: AlterabilityStatus.DISABLED
           }
         ]
+        const expiredAt = BigNumber.from(Date.now() + 10000);
+        const signature = generateProfileMemberSignatureManually(
+          PROFILE_TEST_NAME,
+          profileOwnerWallet2.address,
+          aclManagerProxy.address,
+          profileOwnerWallet2,
+          networkChainId,
+          expiredAt
+        );
+        const profileMemberSignature: IProfileACLCommons.ProfileMemberSignatureStruct = {
+          profileName: PROFILE_TEST_NAME,
+          account: profileOwnerWallet2.address,
+          expiredAt: expiredAt,
+          signature: signature
+        }
+
 
         // when
-        await expect(profileTypeManagerDelegateProxy.connect(profileOwner2).profileTypeUpdateAlterabilityStatus(emptyProfileMemberSignature, requests))
+        await expect(profileTypeManagerDelegateProxy.connect(profileOwner).profileTypeUpdateAlterabilityStatus(profileMemberSignature, requests))
           .to.emit(profileTypeManagerDelegateProxy, "ProfileTypeAlterabilityUpdated")
           .withArgs(profileOwnerWallet2.address, profileTestId, aclTypeTestId, AlterabilityStatus.DISABLED)
       })
@@ -8754,9 +8814,25 @@ describe("Lively Guard Profile Tests", function() {
             name: ACL_ROLE_TEST_NAME_4
           }
         ]
+        const expiredAt = BigNumber.from(Date.now() + 10000);
+        const signature = generateProfileMemberSignatureManually(
+          PROFILE_TEST_NAME,
+          profileSystemAdminWallet.address,
+          aclManagerProxy.address,
+          profileSystemAdminWallet,
+          networkChainId,
+          expiredAt
+        );
+        const profileMemberSignature: IProfileACLCommons.ProfileMemberSignatureStruct = {
+          profileName: PROFILE_TEST_NAME,
+          account: profileSystemAdminWallet.address,
+          expiredAt: expiredAt,
+          signature: signature
+        }
+
 
         // when
-        await expect(profileRoleManagerDelegateProxy.connect(profileSystemAdmin).profileRoleRegister(emptyProfileMemberSignature, roleRegisterRequests)).
+        await expect(profileRoleManagerDelegateProxy.connect(profileSystemAdmin2).profileRoleRegister(profileMemberSignature, roleRegisterRequests)).
         to.emit(profileRoleManagerDelegateProxy, "ProfileRoleRegistered")
           .withArgs(profileSystemAdminWallet.address, profileTestId, aclRoleTestId4, aclTypeTestId,
             LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID, memberRegisterFunctionId)
@@ -9163,9 +9239,25 @@ describe("Lively Guard Profile Tests", function() {
             }
           }
         ]
+        const expiredAt = BigNumber.from(Date.now() + 10000);
+        const signature = generateProfileMemberSignatureManually(
+          PROFILE_TEST_NAME,
+          profileAdminWallet.address,
+          aclManagerProxy.address,
+          profileAdminWallet,
+          networkChainId,
+          expiredAt
+        );
+        const profileMemberSignature: IProfileACLCommons.ProfileMemberSignatureStruct = {
+          profileName: PROFILE_TEST_NAME,
+          account: profileAdminWallet.address,
+          expiredAt: expiredAt,
+          signature: signature
+        }
+
 
         // when
-        await expect(profileMemberManagerDelegateProxy.connect(profileAdmin).profileMemberRegister(emptyProfileMemberSignature, memberRegisterRequests))
+        await expect(profileMemberManagerDelegateProxy.connect(profileAdmin2).profileMemberRegister(profileMemberSignature, memberRegisterRequests))
           .to.emit(profileMemberManagerDelegateProxy, "ProfileMemberRegistered")
           .withArgs(profileAdminWallet.address, profileTestId, roleMemberUserId1,
             aclRoleTestId, LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID, [8, 8, 8, 8, 8, 8, 8, 8])
@@ -9923,9 +10015,25 @@ describe("Lively Guard Profile Tests", function() {
             name: ACL_POLICY_TEST_NAME
           }
         ]
+        const expiredAt = BigNumber.from(Date.now() + 10000);
+        const signature = generateProfileMemberSignatureManually(
+          PROFILE_TEST_NAME,
+          profileAdminWallet.address,
+          aclManagerProxy.address,
+          profileAdminWallet,
+          networkChainId,
+          expiredAt
+        );
+        const profileMemberSignature: IProfileACLCommons.ProfileMemberSignatureStruct = {
+          profileName: PROFILE_TEST_NAME,
+          account: profileAdminWallet.address,
+          expiredAt: expiredAt,
+          signature: signature
+        }
+
 
         // when
-        await expect(profilePolicyManagerDelegateProxy.connect(profileAdmin).profilePolicyRegister(emptyProfileMemberSignature, requests)).
+        await expect(profilePolicyManagerDelegateProxy.connect(profileAdmin2).profilePolicyRegister(profileMemberSignature, requests)).
         to.emit(profilePolicyManagerDelegateProxy, "ProfilePolicyRegistered")
           .withArgs(profileAdminWallet.address, profileTestId, aclPolicyTestId, profileMemberContextTestId,
             LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID, 80)
@@ -10339,9 +10447,25 @@ describe("Lively Guard Profile Tests", function() {
           entityId: memberRegisterFunctionId,
           alstat: AlterabilityStatus.DISABLED
         }]
+        const expiredAt = BigNumber.from(Date.now() + 10000);
+        const signature = generateProfileMemberSignatureManually(
+          PROFILE_TEST_NAME,
+          profileAdminWallet.address,
+          aclManagerProxy.address,
+          profileAdminWallet,
+          networkChainId,
+          expiredAt
+        );
+        const profileMemberSignature: IProfileACLCommons.ProfileMemberSignatureStruct = {
+          profileName: PROFILE_TEST_NAME,
+          account: profileAdminWallet.address,
+          expiredAt: expiredAt,
+          signature: signature
+        }
+
 
         // when
-        await expect(profileFunctionManagerDelegateProxy.connect(profileAdmin).profileFunctionUpdateAlterabilityStatus(emptyProfileMemberSignature, requests))
+        await expect(profileFunctionManagerDelegateProxy.connect(profileAdmin2).profileFunctionUpdateAlterabilityStatus(profileMemberSignature, requests))
           .to.emit(profileFunctionManagerDelegateProxy, "ProfileFunctionAlterabilityUpdated")
           .withArgs(profileAdminWallet.address, profileTestId, memberRegisterFunctionId, AlterabilityStatus.DISABLED);
       })
@@ -10777,9 +10901,25 @@ describe("Lively Guard Profile Tests", function() {
           entityId: memberContextId,
           alstat: AlterabilityStatus.DISABLED
         }]
+        const expiredAt = BigNumber.from(Date.now() + 10000);
+        const signature = generateProfileMemberSignatureManually(
+          PROFILE_TEST_NAME,
+          profileAdminWallet.address,
+          aclManagerProxy.address,
+          profileAdminWallet,
+          networkChainId,
+          expiredAt
+        );
+        const profileMemberSignature: IProfileACLCommons.ProfileMemberSignatureStruct = {
+          profileName: PROFILE_TEST_NAME,
+          account: profileAdminWallet.address,
+          expiredAt: expiredAt,
+          signature: signature
+        }
+
 
         // when
-        await expect(profileContextManagerDelegateProxy.connect(profileAdmin).profileContextUpdateAlterabilityStatus(emptyProfileMemberSignature, requests))
+        await expect(profileContextManagerDelegateProxy.connect(profileAdmin2).profileContextUpdateAlterabilityStatus(profileMemberSignature, requests))
           .to.emit(profileContextManagerDelegateProxy, "ProfileContextAlterabilityUpdated")
           .withArgs(profileAdminWallet.address, profileTestId, memberContextId, AlterabilityStatus.DISABLED);
       })
@@ -10943,9 +11083,25 @@ describe("Lively Guard Profile Tests", function() {
             name: ACL_DOMAIN_TEST_NAME
           }
         ]
+        const expiredAt = BigNumber.from(Date.now() + 10000);
+        const signature = generateProfileMemberSignatureManually(
+          PROFILE_TEST_NAME,
+          profileAdminWallet.address,
+          aclManagerProxy.address,
+          profileAdminWallet,
+          networkChainId,
+          expiredAt
+        );
+        const profileMemberSignature: IProfileACLCommons.ProfileMemberSignatureStruct = {
+          profileName: PROFILE_TEST_NAME,
+          account: profileAdminWallet.address,
+          expiredAt: expiredAt,
+          signature: signature
+        }
+
 
         // when
-        await expect(profileDomainManagerDelegateProxy.connect(profileAdmin).profileDomainRegister(emptyProfileMemberSignature, requests)).
+        await expect(profileDomainManagerDelegateProxy.connect(profileAdmin2).profileDomainRegister(profileMemberSignature, requests)).
         to.emit(profileDomainManagerDelegateProxy, "ProfileDomainRegistered")
           .withArgs(profileAdminWallet.address, profileTestId, aclDomainTestId ,LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID)
 
@@ -10955,6 +11111,7 @@ describe("Lively Guard Profile Tests", function() {
         // and
         const domainInfo: IProfileDomainManagement.ProfileDomainInfoStruct = await profileDomainManagerDelegateProxy.profileDomainGetInfo(profileTestId, aclDomainTestId);
         expect(domainInfo.name).to.be.equal(ACL_DOMAIN_TEST_NAME);
+        expect(domainInfo.universeId).to.be.equal(LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID);
         expect(domainInfo.adminId).to.be.equal(LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID);
         expect(domainInfo.adminType).to.be.equal(AgentType.ROLE);
         expect(domainInfo.realmLimit).to.be.equal(1);
@@ -11144,9 +11301,25 @@ describe("Lively Guard Profile Tests", function() {
             name: ACL_REALM_TEST_NAME
           }
         ]
+        const expiredAt = BigNumber.from(Date.now() + 10000);
+        const signature = generateProfileMemberSignatureManually(
+          PROFILE_TEST_NAME,
+          userWallet1.address,
+          aclManagerProxy.address,
+          userWallet1,
+          networkChainId,
+          expiredAt
+        );
+        const profileMemberSignature: IProfileACLCommons.ProfileMemberSignatureStruct = {
+          profileName: PROFILE_TEST_NAME,
+          account: userWallet1.address,
+          expiredAt: expiredAt,
+          signature: signature
+        }
+
 
         // when
-        await expect(profileRealmManagerDelegateProxy.connect(user1).profileRealmRegister(emptyProfileMemberSignature, requests)).
+        await expect(profileRealmManagerDelegateProxy.connect(livelyAdmin).profileRealmRegister(profileMemberSignature, requests)).
         to.emit(profileRealmManagerDelegateProxy, "ProfileRealmRegistered")
           .withArgs(userWallet1.address, profileTestId, aclRealmTestId , aclDomainTestId, LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID)
 
@@ -11383,8 +11556,24 @@ describe("Lively Guard Profile Tests", function() {
 
       // universe manager tests
       it("Should profile disable alterability of universe scope success", async() => {
+        const expiredAt = BigNumber.from(Date.now() + 10000);
+        const signature = generateProfileMemberSignatureManually(
+          PROFILE_TEST_NAME,
+          profileAdminWallet.address,
+          aclManagerProxy.address,
+          profileAdminWallet,
+          networkChainId,
+          expiredAt
+        );
+        const profileMemberSignature: IProfileACLCommons.ProfileMemberSignatureStruct = {
+          profileName: PROFILE_TEST_NAME,
+          account: profileAdminWallet.address,
+          expiredAt: expiredAt,
+          signature: signature
+        }
+
         // when
-        await expect(profileUniverseManagerDelegateProxy.connect(profileAdmin).profileUniverseUpdateAlterabilityStatus(emptyProfileMemberSignature, AlterabilityStatus.DISABLED))
+        await expect(profileUniverseManagerDelegateProxy.connect(profileAdmin2).profileUniverseUpdateAlterabilityStatus(profileMemberSignature, AlterabilityStatus.DISABLED))
           .to.emit(profileUniverseManagerDelegateProxy, "ProfileUniverseAlterabilityUpdated")
           .withArgs(profileAdminWallet.address, profileTestId, LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID, AlterabilityStatus.DISABLED);
       })
@@ -11410,8 +11599,24 @@ describe("Lively Guard Profile Tests", function() {
       })
 
       it("Should profile disable activity of universe scope success", async() => {
+        const expiredAt = BigNumber.from(Date.now() + 10000);
+        const signature = generateProfileMemberSignatureManually(
+          PROFILE_TEST_NAME,
+          profileAdminWallet.address,
+          aclManagerProxy.address,
+          profileAdminWallet,
+          networkChainId,
+          expiredAt
+        );
+        const profileMemberSignature: IProfileACLCommons.ProfileMemberSignatureStruct = {
+          profileName: PROFILE_TEST_NAME,
+          account: profileAdminWallet.address,
+          expiredAt: expiredAt,
+          signature: signature
+        }
+
         // when
-        await expect(profileUniverseManagerDelegateProxy.connect(profileAdmin).profileUniverseUpdateActivityStatus(emptyProfileMemberSignature, ActivityStatus.DISABLED))
+        await expect(profileUniverseManagerDelegateProxy.connect(profileAdmin2).profileUniverseUpdateActivityStatus(profileMemberSignature, ActivityStatus.DISABLED))
           .to.emit(profileUniverseManagerDelegateProxy, "ProfileUniverseActivityUpdated")
           .withArgs(profileAdminWallet.address, profileTestId, LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID, ActivityStatus.DISABLED)
 

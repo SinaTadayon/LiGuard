@@ -229,7 +229,6 @@ abstract contract BaseUUPSProxy is
     require(_ustat == ProxyUpdatabilityStatus.ENABLED, "Illegal Updatable");
     require(LAddress.isContract(newImplementation), "Illegal Contract");
     _authorizeUpgrade(newImplementation);
-    _ustat = ProxyUpdatabilityStatus.DISABLED;
     return _upgradeToAndCallUUPS(newImplementation, data, forceCall);
   }
 
@@ -259,7 +258,6 @@ abstract contract BaseUUPSProxy is
     IACL.AuthorizationStatus status = _hasPermission(this.setLocalAdmin.selector);
     if(status != IACL.AuthorizationStatus.PERMITTED) revert IACL.ACLActionForbidden(status);
     require(newLocalAdmin != address(0), "Invalid");
-    _ustat = ProxyUpdatabilityStatus.DISABLED;
     _setLocalAdmin(newLocalAdmin);
     return true;
   }
@@ -314,7 +312,6 @@ abstract contract BaseUUPSProxy is
         revert("Illegal ACL");  
     }
 
-    _ustat = ProxyUpdatabilityStatus.DISABLED;
     _accessControlManager = acl; 
     emit ProxyAccessControlUpdated(_msgSender(), address(this), _accessControlManager);
     return true;   

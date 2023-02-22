@@ -9,7 +9,6 @@ import "../../token/lively/IERC20Pause.sol";
 import "../../token/lively/IERC20Lock.sol";
 import "../../token/lively/LivelyStorage.sol";
 import "../../proxy/IProxy.sol";
-// import "../../acl/IContextManagement.sol";
 import "../../acl/IACL.sol";
 import "../struct/LEnumerableSet.sol";
 
@@ -22,8 +21,8 @@ import "../struct/LEnumerableSet.sol";
 library LTokenERC20 {
   using LEnumerableSet for LEnumerableSet.AddressSet;
 
-  bytes32 public constant LIB_NAME = "LTokenERC20";
-  bytes32 public constant LIB_VERSION = "3.0.0";
+  string public constant LIB_NAME = "LTokenERC20";
+  string public constant LIB_VERSION = "3.0.0";
 
   // bytes32 public constant LIVELY_ADMIN_ROLE = keccak256(abi.encodePacked("LIVELY_ADMIN_ROLE"));
   // bytes32 public constant LIVELY_SYSTEM_ADMIN_ROLE = keccak256(abi.encodePacked("LIVELY_SYSTEM_ADMIN_ROLE"));

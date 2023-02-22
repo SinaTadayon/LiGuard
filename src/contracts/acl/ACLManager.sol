@@ -226,6 +226,7 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
       aclDomain.bs.acstat = ActivityStatus.ENABLED;
       aclDomain.bs.adminId = aclTypeId;
       aclDomain.realms.add(aclRealmId);
+      aclDomain.bs.referredByAgent = 2;    
 
       // Create Realm ACL
       RealmEntity storage aclRealm = _data.realmWriteSlot(aclRealmId);
@@ -233,14 +234,11 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
       aclRealm.contextLimit = 128;
       aclRealm.domainId = aclDomainId;
       aclRealm.bs.stype = ScopeType.REALM;
-      aclRealm.bs.alstat = AlterabilityStatus.UPGRADABLE;
+      aclRealm.bs.alstat = AlterabilityStatus.UPDATABLE;
       aclRealm.bs.acstat = ActivityStatus.ENABLED;
       aclRealm.bs.adminId = aclTypeId;
       aclRealm.contexts.add(aclContextManagerId);
       aclRealm.contexts.add(aclFunctionManagerId);
-
-      // update aclRealm referredByAgent
-      aclRealm.bs.referredByAgent = 2;    
     }
 
     {
