@@ -109,7 +109,7 @@ import {
   ProxySafeModeStatus,
   ProxyUpdatabilityStatus,
   ScopeType, generateMemberSignatureManually, LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID
-} from "./TestUtils";
+} from "../utils/Utils";
 import { ProxyUpgradedEventObject } from "../../typechain/types/proxy/Proxy";
 import { ProxyLocalAdminUpdatedEventObject } from "../../typechain/types/proxy/IProxy";
 import {IACLCommons as IACLCommonsRoles } from "../../typechain/types/acl/agent/IRoleManagement";
@@ -154,21 +154,17 @@ import {
 import {
   ProfileUniverseManagerLibraryAddresses
 } from "../../typechain/types/factories/acl/profile/scope/ProfileUniverseManger.sol/ProfileUniverseManager__factory";
-import { PromiseOrValue } from "../../typechain/types/common";
-import { address } from "hardhat/internal/core/config/config-validation";
 // ethers.utils.keccak256(ethers.utils.toUtf8Bytes("src/contracts/lib/acl/ContextManagementLib.sol:ContextManagementLib")) => 0x0304621006bd13fe54dc5f6b75a37ec856740450109fd223c2bfb60db9095cad => __$0304621006bd13fe54dc5f6b75a37ec856$__ ( library placeholder)
 const { provider, deployMockContract } = waffle;
 
 describe("Lively Guard Tests", function() {
     let livelyAdmin: Signer;
     let systemAdmin: Signer;
-    let aclAdmin: Signer;
     let user1: Signer;
     let user2: Signer;
     let user3: Signer;
     let livelyAdminWallet: Wallet;
     let systemAdminWallet: Wallet;
-    let aclAdminWallet: Wallet;
     let userWallet1: Wallet;
     let userWallet2: Wallet;
     let userWallet3: Wallet;
@@ -312,8 +308,8 @@ describe("Lively Guard Tests", function() {
     let linkLibraryAddressesTest: ACLManagerTestLibraryAddresses;
 
     this.beforeAll(async () => {
-      [livelyAdmin, systemAdmin, aclAdmin, user1, user2, user3] = await ethers.getSigners();
-      [livelyAdminWallet, systemAdminWallet, aclAdminWallet, userWallet1, userWallet2, userWallet3] = waffle.provider.getWallets();
+      [livelyAdmin, systemAdmin, user1, user2, user3] = await ethers.getSigners();
+      [livelyAdminWallet, systemAdminWallet, userWallet1, userWallet2, userWallet3] = waffle.provider.getWallets();
       networkChainId = await provider.send("eth_chainId", []);
 
       // console.log(`lively admin address: ${livelyAdminWallet.address}`);
@@ -12057,7 +12053,7 @@ describe("Lively Guard Tests", function() {
           .to.revertedWith("Forbidden");
       });
 
-      it("Should enable Upgrade Status of domain proxy by aclAdmin success", async () => {
+      it("Should enable Upgrade Status of domain proxy by livelyAdmin success", async () => {
         // when and then
         await expect(domainManagerProxy.connect(livelyAdmin).setUpdatabilityStatus(ProxyUpdatabilityStatus.ENABLED))
           .to.emit(domainManagerProxy, "ProxyUpdatabilityUpdated")
@@ -12274,7 +12270,7 @@ describe("Lively Guard Tests", function() {
         expect(await aclManagerProxy.getLibrary()).to.be.equal(lACLManagerTest.address);
       });
 
-      it("Should delete activity of domainRegister in domainContext by aclAdmin success", async() => {
+      it("Should delete activity of domainRegister in domainContext by livelyAdmin success", async() => {
         // given
         const domainIface = new ethers.utils.Interface(DomainManager__factory.abi);
         const domainRegisterFunctionId = ethers.utils.keccak256(
@@ -12310,7 +12306,7 @@ describe("Lively Guard Tests", function() {
         expect(functionInfo.referredByAgent).to.be.equal(0);
       })
 
-      it("Should delete activity of domainMoveRealm in domainContext by aclAdmin success", async() => {
+      it("Should delete activity of domainMoveRealm in domainContext by livelyAdmin success", async() => {
         // given
         const domainIface = new ethers.utils.Interface(DomainManager__factory.abi);
         const domainMoveRealmFunctionId = ethers.utils.keccak256(
@@ -12346,7 +12342,7 @@ describe("Lively Guard Tests", function() {
         expect(functionInfo.referredByAgent).to.be.equal(0);
       })
 
-      it("Should register new domainRegister2 in domainContext by aclAdmin success", async() => {
+      it("Should register new domainRegister2 in domainContext by livelyAdmin success", async() => {
         const domainTestIface = new ethers.utils.Interface(DomainManagerTest__factory.abi);
         const domainContextId = ethers.utils.keccak256(domainManagerProxy.address);
         const domainRegisterFunctionId = ethers.utils.keccak256(
@@ -12410,7 +12406,7 @@ describe("Lively Guard Tests", function() {
 
       })
 
-      it("Should call domainRegister2 by aclAdmin success", async() => {
+      it("Should call domainRegister2 by livelyAdmin success", async() => {
         // given
         aclDomainTest2Id = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_DOMAIN_TEST_NAME_2));
         const requests: IDomainManagementTest.DomainRegisterRequestStruct[] = [

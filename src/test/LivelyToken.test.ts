@@ -80,7 +80,7 @@ import { LivelyTokenLibraryAddresses } from "../../typechain/types/factories/tok
 import {
   generateDomainSeparator,
   generateContextDomainSignatureManually,
-  generatePermitDomainSignatureByHardhat,
+  generatePermitDomainSignatureByWaffleProvider,
   LockState,
   generatePredictContextDomainSignatureManually,
   LIVELY_VERSE_ACL_REALM_ID,
@@ -109,7 +109,7 @@ import {
   LIVELY_VERSE_MEMBER_MASTER_ADMIN_ROLE_ID,
   LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE_ID,
   LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID
-} from "./TestUtils";
+} from "../utils/Utils";
 /* eslint-disable node/no-extraneous-import */
 import { TransactionRequest } from "@ethersproject/abstract-provider";
 import {
@@ -163,7 +163,6 @@ const { provider } = waffle;
 describe("Lively Token Tests", function () {
   let livelyAdmin: Signer;
   let systemAdmin: Signer;
-  let aclAdmin: Signer;
   let assetAdmin: Signer;
   let crowdFoundingManager: Signer;
   let validatorsRewardsManager: Signer;
@@ -178,7 +177,6 @@ describe("Lively Token Tests", function () {
 
   let livelyAdminWallet: Wallet;
   let systemAdminWallet: Wallet;
-  let aclAdminWallet: Wallet;
   let assetAdminWallet: Wallet;
   let crowdFoundingManagerWallet: Wallet;
   let validatorsRewardsManagerWallet: Wallet;
@@ -379,7 +377,6 @@ describe("Lively Token Tests", function () {
     [
       livelyAdmin,
       systemAdmin,
-      aclAdmin,
       assetAdmin,
       crowdFoundingManager,
       validatorsRewardsManager,
@@ -395,7 +392,6 @@ describe("Lively Token Tests", function () {
     [
       livelyAdminWallet,
       systemAdminWallet,
-      aclAdminWallet,
       assetAdminWallet,
       crowdFoundingManagerWallet,
       validatorsRewardsManagerWallet,
@@ -2929,7 +2925,7 @@ describe("Lively Token Tests", function () {
       ]
       await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(emptyMemberSignature, profileMemberFunctionRegisterRequest)
 
-      // Profile Type functions
+      // Profile Role functions
       const profileRoleIface = new ethers.utils.Interface(ProfileRoleManager__factory.abi);
       const profileRoleFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
         {
@@ -3059,10 +3055,7 @@ describe("Lively Token Tests", function () {
         }
       ]
       await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(emptyMemberSignature, profileRoleFunctionRegisterRequest)
-    })
-
-    it("ACL Profile Scopes Functions Register", async() => {
-      // Profile Type functions
+          // Profile Type functions
       const profileTypeIface = new ethers.utils.Interface(ProfileTypeManager__factory.abi);
       const profileTypeFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
         {
@@ -3176,6 +3169,9 @@ describe("Lively Token Tests", function () {
         }
       ]
       await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(emptyMemberSignature, profileTypeFunctionRegisterRequest)
+    })
+
+    it("ACL Profile Scopes Functions Register", async() => {
 
       // Profile Function funtions
       const profileFunctionIface = new ethers.utils.Interface(ProfileFunctionManager__factory.abi);
@@ -3290,7 +3286,7 @@ describe("Lively Token Tests", function () {
           functions: profileFunctionFunctionRequests
         }
       ]
-      await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(emptyMemberSignature, profileFunctionRegisterRequest))
+      await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(emptyMemberSignature, profileFunctionRegisterRequest)
 
       // Profile Context functions
       const profileContextIface = new ethers.utils.Interface(ProfileContextManager__factory.abi);
@@ -3627,7 +3623,7 @@ describe("Lively Token Tests", function () {
           functions: profileDomainFunctionRequests
         }
       ]
-      await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(emptyMemberSignature, profileDomainFunctionRegisterRequest))
+      await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(emptyMemberSignature, profileDomainFunctionRegisterRequest)
 
       // Profile Universe functions
       const profileUniverseIface = new ethers.utils.Interface(ProfileUniverseManager__factory.abi);
@@ -6085,7 +6081,7 @@ describe("Lively Token Tests", function () {
       const user1Nonce = await livelyTokenProxy.nonce(userWallet1.address);
       const adminNonce = await livelyTokenProxy.nonce(assetAdminWallet.address);
       const systemAdminNonce = await livelyTokenProxy.nonce(systemAdminWallet.address);
-      const user1Signature = await generatePermitDomainSignatureByHardhat(
+      const user1Signature = await generatePermitDomainSignatureByWaffleProvider(
         userWallet1.address,
         userWallet2.address,
         dummyAmount,
@@ -6095,7 +6091,7 @@ describe("Lively Token Tests", function () {
         userWallet1.address,
         networkChainId.toString()
       );
-      const adminSignature = await generatePermitDomainSignatureByHardhat(
+      const adminSignature = await generatePermitDomainSignatureByWaffleProvider(
         assetAdminWallet.address,
         userWallet2.address,
         dummyAmount,
@@ -6106,7 +6102,7 @@ describe("Lively Token Tests", function () {
         networkChainId.toString()
       );
 
-      const systemAdminSignature = await generatePermitDomainSignatureByHardhat(
+      const systemAdminSignature = await generatePermitDomainSignatureByWaffleProvider(
         systemAdminWallet.address,
         userWallet2.address,
         dummyAmount,
@@ -6615,7 +6611,7 @@ describe("Lively Token Tests", function () {
       const user1AllowanceBefore = await livelyTokenProxy.allowance(userWallet1.address, userWallet2.address);
       const deadline = BigNumber.from(Date.now() + 10000);
       const nonce = await livelyTokenProxy.nonce(userWallet1.address);
-      const user1Signature = await generatePermitDomainSignatureByHardhat(
+      const user1Signature = await generatePermitDomainSignatureByWaffleProvider(
         userWallet1.address,
         userWallet2.address,
         dummyAmount,
@@ -6951,7 +6947,7 @@ describe("Lively Token Tests", function () {
       const user2AllowanceBefore = await livelyTokenProxy.allowance(userWallet2.address, userWallet1.address);
       const deadline = BigNumber.from(Date.now() + 10000);
       const nonce = await livelyTokenProxy.nonce(userWallet2.address);
-      const user2Signature = await generatePermitDomainSignatureByHardhat(
+      const user2Signature = await generatePermitDomainSignatureByWaffleProvider(
         userWallet2.address,
         userWallet1.address,
         dummyAmount,
@@ -7364,7 +7360,7 @@ describe("Lively Token Tests", function () {
       const user1NonceBefore = await livelyTokenProxy.nonce(userWallet1.address);
       const adminNonceBefore = await livelyTokenProxy.nonce(assetAdminWallet.address);
       const systemAdminNonceBefore = await livelyTokenProxy.nonce(systemAdminWallet.address);
-      const user1Signature = await generatePermitDomainSignatureByHardhat(
+      const user1Signature = await generatePermitDomainSignatureByWaffleProvider(
         userWallet1.address,
         userWallet2.address,
         dummyAmount,
@@ -7374,7 +7370,7 @@ describe("Lively Token Tests", function () {
         userWallet1.address,
         networkChainId.toString()
       );
-      const adminSignature = await generatePermitDomainSignatureByHardhat(
+      const adminSignature = await generatePermitDomainSignatureByWaffleProvider(
         assetAdminWallet.address,
         userWallet2.address,
         dummyAmount,
@@ -7384,7 +7380,7 @@ describe("Lively Token Tests", function () {
         assetAdminWallet.address,
         networkChainId.toString()
       );
-      const systemAdminSignature = await generatePermitDomainSignatureByHardhat(
+      const systemAdminSignature = await generatePermitDomainSignatureByWaffleProvider(
         systemAdminWallet.address,
         userWallet2.address,
         dummyAmount,

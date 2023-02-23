@@ -4,14 +4,19 @@
 // /* eslint-disable  node/no-unpublished-import */
 // import { BigNumber } from "ethers";
 //
-// import { generateContextDomainSignatureByHardhat } from "../utils/deployUtils";
+// import {
+//   generateContextDomainSignatureByHardhatProvider,
+//   generateContextDomainSignatureByWaffleProvider
+// } from "../utils/Utils";
 //
 // /* eslint-disable camelcase,node/no-extraneous-import */
 // import { LivelyToken, LivelyToken__factory } from "../../typechain/types";
+// import { generateContextDomainSignatureByHardhat } from "../../build/src/test/TestUtils";
 //
-// const livelyTokenDomainName = "LivelyToken";
-// const livelyTokenDomainVersion = "1.0.0";
-// const livelyTokenDomainRealm = "LIVELY_GENERAL_REALM";
+// const ACL_MANAGER_CONTRACT_NAME_PROXY = "ACLManagerProxy";
+//
+// const LIVELY_TOKEN_NAME = "LivelyToken";
+// const LIVELY_TOKEN_VERSION = "3.0.0";
 // export let LIVELY_TOKEN_INIT_VERSION: number;
 //
 // const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
@@ -19,7 +24,7 @@
 //   const { deploy } = deployments;
 //   const [systemAdmin] = await ethers.getSigners();
 //   const systemAdminAddress = systemAdmin.address;
-//   const accessControlManager = await deployments.get("AccessControlManagerProxy");
+//   const aclManagerProxy = await deployments.get(ACL_MANAGER_CONTRACT_NAME_PROXY);
 //   const chainId = await getChainId();
 //   const typedArray1 = new Int8Array(0);
 //
@@ -49,13 +54,13 @@
 //     skipIfAlreadyDeployed: true,
 //   });
 //
-//   const signature = await generateContextDomainSignatureByHardhat(
+//   const signature = await generateContextDomainSignatureByHardhatProvider(
 //     hre,
 //     livelyTokenProxy.address,
 //     livelyTokenDomainName,
 //     livelyTokenDomainVersion,
 //     livelyTokenDomainRealm,
-//     accessControlManager.address,
+//     aclManagerProxy.address,
 //     systemAdminAddress,
 //     parseInt(chainId)
 //   );
@@ -66,7 +71,7 @@
 //     domainRealm: livelyTokenDomainRealm,
 //     signature,
 //     taxRateValue: BigNumber.from(0),
-//     accessControlManager: accessControlManager.address,
+//     accessControlManager: aclManagerProxy.address,
 //   };
 //
 //   const livelyToken = LivelyToken__factory.connect(livelyTokenProxy.address, systemAdmin);

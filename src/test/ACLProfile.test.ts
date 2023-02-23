@@ -94,7 +94,7 @@ import {
   AlterabilityStatus,
   generateDomainSeparator,
   generateProfileContextDomainSignatureManually,
-  generateProfilePredictContextDomainByHardHat,
+  generateProfilePredictContextDomainByWaffleProvider,
   LIVELY_PROFILE_ANY_TYPE_ID,
   LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID,
   LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID,
@@ -124,7 +124,7 @@ import {
   ProxySafeModeStatus,
   ProxyUpdatabilityStatus,
   ScopeType, generateMemberSignatureManually, generateProfileMemberSignatureManually
-} from "./TestUtils";
+} from "../utils/Utils";
 import { ProxyUpgradedEventObject } from "../../typechain/types/proxy/Proxy";
 import { ProxyLocalAdminUpdatedEventObject } from "../../typechain/types/proxy/IProxy";
 import {IACLCommons as IACLCommonsRoles } from "../../typechain/types/acl/agent/IRoleManagement";
@@ -177,7 +177,6 @@ const { provider, deployMockContract } = waffle;
 describe("Lively Guard Profile Tests", function() {
     let livelyAdmin: Signer;
     let systemAdmin: Signer;
-    let aclAdmin: Signer;
     let user1: Signer;
     let user2: Signer;
     let user3: Signer;
@@ -189,7 +188,6 @@ describe("Lively Guard Profile Tests", function() {
     let profileSystemAdmin2: Signer;
     let livelyAdminWallet: Wallet;
     let systemAdminWallet: Wallet;
-    let aclAdminWallet: Wallet;
     let userWallet1: Wallet;
     let userWallet2: Wallet;
     let userWallet3: Wallet;
@@ -318,7 +316,6 @@ describe("Lively Guard Profile Tests", function() {
     const ACL_TYPE_TEST_NAME = "ACL_TYPE_TEST";
     const ACL_POLICY_TEST_NAME = "ACL_POLICY_TEST";
     const ACL_DOMAIN_TEST_NAME = "ACL_DOMAIN_TEST";
-    const ACL_DOMAIN_TEST_NAME_2 = "ACL_DOMAIN_TEST_2";
     const ACL_REALM_TEST_NAME = "ACL_REALM_TEST";
 
     // main acl contracts name
@@ -374,7 +371,6 @@ describe("Lively Guard Profile Tests", function() {
       [
         livelyAdmin,
         systemAdmin,
-        aclAdmin,
         user1,
         user2,
         user3,
@@ -389,7 +385,6 @@ describe("Lively Guard Profile Tests", function() {
       [
         livelyAdminWallet,
         systemAdminWallet,
-        aclAdminWallet,
         userWallet1,
         userWallet2,
         userWallet3,

@@ -2,6 +2,7 @@ import { Address } from "hardhat-deploy/dist/types";
 /* eslint-disable  node/no-unpublished-import */
 import { BigNumber, Wallet } from "ethers";
 import { ethers, waffle } from "hardhat";
+import { HardhatRuntimeEnvironment } from "hardhat/types";
 const { provider } = waffle;
 
 export const DOMAIN_HASH: string = ethers.utils.keccak256(
@@ -21,9 +22,6 @@ export const MESSAGE_PROFILE_CONTEXT_TYPE_HASH = ethers.utils.keccak256(
 
 export const MESSAGE_PROFILE_PREDICT_CONTEXT_TYPE_HASH = ethers.utils.keccak256(
   ethers.utils.toUtf8Bytes("ProfilePredictContext(string profile,address deployer,address subject,string realm)"));
-
-// export const MESSAGE_PROFILE_REGISTER_TYPE_HASH = ethers.utils.keccak256(
-//   ethers.utils.toUtf8Bytes("ProfileRegister(string name,address owner,uint256 expiredAt)"));
 
 export const PERMIT_TYPE_HASH = ethers.utils.keccak256(
   ethers.utils.toUtf8Bytes("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)")
@@ -144,11 +142,6 @@ export enum AssetType {
   ERC1155,
 }
 
-// export enum TokenSafeModeStatus {
-//   DISABLED,
-//   ENABLED
-// }
-
 export enum AssetSafeModeStatus {
   NONE,
   DISABLED,
@@ -223,7 +216,139 @@ export enum ProfileAdminAccessStatus {
   TYPE_ACTIVITY_FORBIDDEN
 }
 
-export async function generateContextDomainSignatureByHardhat(
+export async function generateContextDomainSignatureByHardhatProvider(
+  hre: HardhatRuntimeEnvironment,
+  contractAddress: Address,
+  contractName: string,
+  contractVersion: string,
+  contractRealm: string,
+  verifyingContract: Address,
+  signerAddress: Address,
+  chainId: number
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): Promise<string> {
+  const messageParams = JSON.stringify({
+    types: {
+      EIP712Domain: [
+        { name: "name", type: "string" },
+        { name: "version", type: "string" },
+        { name: "chainId", type: "uint256" },
+        { name: "verifyingContract", type: "address" },
+      ],
+      Context: [
+        { name: "contractId", type: "address" },
+        { name: "name", type: "string" },
+        { name: "version", type: "string" },
+        { name: "realm", type: "string" },
+      ],
+    },
+    primaryType: "Context",
+    domain: {
+      name: "AccessControlManager",
+      version: "1.0.0",
+      chainId,
+      verifyingContract,
+    },
+    message: {
+      contractId: contractAddress,
+      name: contractName,
+      version: contractVersion,
+      realm: contractRealm,
+    },
+  });
+
+  return await hre.network.provider.send("eth_signTypedData_v4", [signerAddress, messageParams]);
+}
+
+export async function generatePredictContextDomainSignatureByHardhatProvider(
+  hre: HardhatRuntimeEnvironment,
+  contractAddress: Address,
+  contractRealm: string,
+  verifyingContract: Address,
+  signerAddress: Address,
+  chainId: number,
+  subjectAddress: Address
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): Promise<string> {
+  const messageParams = JSON.stringify({
+    types: {
+      EIP712Domain: [
+        { name: "name", type: "string" },
+        { name: "version", type: "string" },
+        { name: "chainId", type: "uint256" },
+        { name: "verifyingContract", type: "address" },
+      ],
+      PredictContext: [
+        { name: "deployer", type: "address" },
+        { name: "subject", type: "address" },
+        { name: "realm", type: "string" },
+      ],
+    },
+    primaryType: "PredictContext",
+    domain: {
+      name: "AccessControlManager",
+      version: "1.0.0",
+      chainId,
+      verifyingContract,
+    },
+    message: {
+      deployer: contractAddress,
+      subject: subjectAddress,
+      realm: contractRealm,
+    },
+  });
+
+  return await hre.network.provider.send("eth_signTypedData_v4", [signerAddress, messageParams]);
+}
+
+export async function generatePermitDomainSignatureByHardhatProvider(
+  hre: HardhatRuntimeEnvironment,
+  owner: Address,
+  spender: Address,
+  value: BigNumber,
+  nonce: BigNumber,
+  deadline: BigNumber,
+  verifyingContract: Address,
+  signerAddress: Address,
+  chainId: number
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): Promise<string> {
+  const messageParams = JSON.stringify({
+    types: {
+      EIP712Domain: [
+        { name: "name", type: "string" },
+        { name: "version", type: "string" },
+        { name: "chainId", type: "uint256" },
+        { name: "verifyingContract", type: "address" },
+      ],
+      Permit: [
+        { name: "owner", type: "address" },
+        { name: "spender", type: "address" },
+        { name: "value", type: "uint256" },
+        { name: "nonce", type: "uint256" },
+        { name: "deadline", type: "uint256" },
+      ],
+    },
+    primaryType: "Permit",
+    domain: {
+      name: "LivelyToken",
+      version: "1.0.0",
+      chainId,
+      verifyingContract,
+    },
+    message: {
+      owner,
+      spender,
+      value: value.toString(),
+      nonce: nonce.toString(),
+      deadline: deadline.toString(),
+    },
+  });
+
+  return await hre.network.provider.send("eth_signTypedData_v4", [signerAddress, messageParams]);
+}
+
+export async function generateContextDomainSignatureByWaffleProvider(
   contractAddress: Address,
   contractName: string,
   contractVersion: string,
@@ -266,7 +391,7 @@ export async function generateContextDomainSignatureByHardhat(
   return await provider.send("eth_signTypedData_v4", [signerAddress, messageParams]);
 }
 
-export async function generatePermitDomainSignatureByHardhat(
+export async function generatePermitDomainSignatureByWaffleProvider(
   owner: Address,
   spender: Address,
   value: BigNumber,
@@ -564,7 +689,7 @@ export async function generateProfileMemberSignatureManually(
 }
 
 
-export async function generateProfilePredictContextDomainByHardHat(
+export async function generateProfilePredictContextDomainByWaffleProvider(
   profileName: string,
   ownerAddress: Address,
   verifyingContract: Address,

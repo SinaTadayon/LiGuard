@@ -106,7 +106,7 @@ import {
   ProxySafeModeStatus,
   ProxyUpdatabilityStatus,
   ScopeType
-} from "./TestUtils";
+} from "../utils/Utils";
 import { IERC20Lock } from "../../typechain/types/token/lively/LivelyToken";
 /* eslint-disable node/no-extraneous-import */
 import { TransactionRequest } from "@ethersproject/abstract-provider";
@@ -157,7 +157,6 @@ const { provider, deployMockContract } = waffle;
 describe("Asset Manager ERC20 Token Tests", function () {
   let livelyAdmin: Signer;
   let systemAdmin: Signer;
-  let aclAdmin: Signer;
   let assetAdmin: Signer;
   let crowdFoundingManager: Signer;
   let validatorsRewardsManager: Signer;
@@ -172,7 +171,6 @@ describe("Asset Manager ERC20 Token Tests", function () {
 
   let livelyAdminWallet: Wallet;
   let systemAdminWallet: Wallet;
-  let aclAdminWallet: Wallet;
   let assetAdminWallet: Wallet;
   let crowdFoundingManagerWallet: Wallet;
   let validatorsRewardsManagerWallet: Wallet;
@@ -350,10 +348,10 @@ describe("Asset Manager ERC20 Token Tests", function () {
   const LIVELY_CROWD_FOUNDING_ASSET_NAME = "LIVELY_CROWD_FOUNDING_ASSET";
   const LIVELY_TAX_TREASURY_ASSET_NAME = "LIVELY_TAX_TREASURY_ASSET";
   const ASSET_MANAGER_ERC20_NAME = "AssetManagerERC20";
-  const assetManagerERC20Version = "3.0.0";
+  const ASSET_MANAGER_ERC20_VERSION = "3.0.0";
 
-  const livelyTokenName = "LivelyToken";
-  const livelyTokenVersion = "3.0.0";
+  const LIVELY_TOKEN_NAME = "LivelyToken";
+  const LIVELY_TOKEN_VERSION = "3.0.0";
 
   const emptyMemberSignature: IACLCommons.MemberSignatureStruct = {
     account: ethers.constants.AddressZero,
@@ -365,7 +363,6 @@ describe("Asset Manager ERC20 Token Tests", function () {
     [
       livelyAdmin,
       systemAdmin,
-      aclAdmin,
       assetAdmin,
       crowdFoundingManager,
       validatorsRewardsManager,
@@ -381,7 +378,6 @@ describe("Asset Manager ERC20 Token Tests", function () {
     [
       livelyAdminWallet,
       systemAdminWallet,
-      aclAdminWallet,
       assetAdminWallet,
       crowdFoundingManagerWallet,
       validatorsRewardsManagerWallet,
@@ -2915,7 +2911,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
       ]
       await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(emptyMemberSignature, profileMemberFunctionRegisterRequest)
 
-      // Profile Type functions
+      // Profile Role functions
       const profileRoleIface = new ethers.utils.Interface(ProfileRoleManager__factory.abi);
       const profileRoleFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
         {
@@ -3045,9 +3041,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
         }
       ]
       await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(emptyMemberSignature, profileRoleFunctionRegisterRequest)
-    })
 
-    it("ACL Profile Scopes Functions Register", async() => {
       // Profile Type functions
       const profileTypeIface = new ethers.utils.Interface(ProfileTypeManager__factory.abi);
       const profileTypeFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
@@ -3162,7 +3156,9 @@ describe("Asset Manager ERC20 Token Tests", function () {
         }
       ]
       await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(emptyMemberSignature, profileTypeFunctionRegisterRequest)
+    })
 
+    it("ACL Profile Scopes Functions Register", async() => {
       // Profile Function funtions
       const profileFunctionIface = new ethers.utils.Interface(ProfileFunctionManager__factory.abi);
       const profileFunctionFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
@@ -3276,7 +3272,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
           functions: profileFunctionFunctionRequests
         }
       ]
-      await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(emptyMemberSignature, profileFunctionRegisterRequest))
+      await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(emptyMemberSignature, profileFunctionRegisterRequest)
 
       // Profile Context functions
       const profileContextIface = new ethers.utils.Interface(ProfileContextManager__factory.abi);
@@ -3613,7 +3609,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
           functions: profileDomainFunctionRequests
         }
       ]
-      await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(emptyMemberSignature, profileDomainFunctionRegisterRequest))
+      await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(emptyMemberSignature, profileDomainFunctionRegisterRequest)
 
       // Profile Universe functions
       const profileUniverseIface = new ethers.utils.Interface(ProfileUniverseManager__factory.abi);
@@ -4475,8 +4471,8 @@ describe("Asset Manager ERC20 Token Tests", function () {
     it("Should LivelyToken token deploy success", async () => {
       // given
       // const livelyTokenRealm = "LIVELY_GENERAL_REALM";
-      // const livelyTokenNameHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(livelyTokenName));
-      // const livelyTokenDomainVersionHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(livelyTokenVersion));
+      // const livelyTokenNameHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(LIVELY_TOKEN_NAME));
+      // const livelyTokenDomainVersionHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(LIVELY_TOKEN_VERSION));
       // const livelyTokenDomainRealmHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(livelyTokenRealm));
       const lTokenERC20Factory = new LTokenERC20__factory(systemAdmin);
       const lTokenERC20 = await lTokenERC20Factory.deploy();
@@ -4490,16 +4486,16 @@ describe("Asset Manager ERC20 Token Tests", function () {
       const tokenProxy = await proxyFactory.deploy(livelyTokenSubject.address, new Int8Array(0));
       // const signature = await generateContextDomainSignatureManually(
       //   tokenProxy.address,
-      //   livelyTokenName,
-      //   livelyTokenVersion,
+      //   LIVELY_TOKEN_NAME,
+      //   LIVELY_TOKEN_VERSION,
       //   livelyTokenRealm,
       //   accessControlManager.address,
       //   systemAdminWallet,
       //   networkChainId
       // );
       const request: LivelyToken.InitRequestStruct = {
-        contractName: livelyTokenName,
-        contractVersion: livelyTokenVersion,
+        contractName: LIVELY_TOKEN_NAME,
+        contractVersion: LIVELY_TOKEN_VERSION,
         taxRateValue: BigNumber.from(0),
         aclManager: aclManagerProxy.address,
       };
@@ -4516,21 +4512,21 @@ describe("Asset Manager ERC20 Token Tests", function () {
           systemAdminWallet.address,
           livelyToken.address,
           livelyTokenSubject.address,
-          livelyTokenName,
-          livelyTokenVersion,
+          LIVELY_TOKEN_NAME,
+          LIVELY_TOKEN_VERSION,
           1
         );
 
       const domainSeparator = generateDomainSeparator(
-        livelyTokenName,
-        livelyTokenVersion,
+        LIVELY_TOKEN_NAME,
+        LIVELY_TOKEN_VERSION,
         livelyToken.address,
         networkChainId
       );
 
       // then
-      expect(await livelyToken.contractName()).to.be.equal(livelyTokenName);
-      expect(await livelyToken.contractVersion()).to.be.equal(livelyTokenVersion);
+      expect(await livelyToken.contractName()).to.be.equal(LIVELY_TOKEN_NAME);
+      expect(await livelyToken.contractVersion()).to.be.equal(LIVELY_TOKEN_VERSION);
       expect(await livelyToken.subjectAddress()).to.be.equal(livelyTokenSubject.address);
       expect(await livelyToken.accessControlManager()).to.be.equal(aclManagerProxy.address);
       expect(await livelyToken.localAdmin()).to.be.equal(systemAdminWallet.address);
@@ -4549,8 +4545,8 @@ describe("Asset Manager ERC20 Token Tests", function () {
           realmId: aclRealmLivelyTokenErc20Id,
           adminId: aclTypeLivelyTokenAssetManagerId,
           salt: ethers.constants.HashZero,
-          name: livelyTokenName,
-          version: livelyTokenVersion,
+          name: LIVELY_TOKEN_NAME,
+          version: LIVELY_TOKEN_VERSION,
           contractId: livelyToken.address,
           subject: ethers.constants.AddressZero,
           deployer: ethers.constants.AddressZero,
@@ -4981,7 +4977,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
       await expect(
         assetManagerSubject.connect(systemAdmin).initialize({
           contractName: ASSET_MANAGER_ERC20_NAME,
-          contractVersion: assetManagerERC20Version,
+          contractVersion: ASSET_MANAGER_ERC20_VERSION,
           aclManager: aclManagerProxy.address,
         })
       ).to.be.revertedWith("Illegal Call");
@@ -5004,7 +5000,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
 
       const request: AssetManagerERC20.InitRequestStruct = {
         contractName: ASSET_MANAGER_ERC20_NAME,
-        contractVersion: assetManagerERC20Version,
+        contractVersion: ASSET_MANAGER_ERC20_VERSION,
         aclManager: aclManagerProxy.address
       };
 
@@ -5022,20 +5018,20 @@ describe("Asset Manager ERC20 Token Tests", function () {
           assetManagerProxy.address,
           assetManagerSubject.address,
           ASSET_MANAGER_ERC20_NAME,
-          assetManagerERC20Version,
+          ASSET_MANAGER_ERC20_VERSION,
           1
         );
 
       // then
       const domainSeparator = generateDomainSeparator(
         ASSET_MANAGER_ERC20_NAME,
-        assetManagerERC20Version,
+        ASSET_MANAGER_ERC20_VERSION,
         assetManagerProxy.address,
         networkChainId
       );
 
       expect(await assetManagerProxy.contractName()).to.be.equal(ASSET_MANAGER_ERC20_NAME);
-      expect(await assetManagerProxy.contractVersion()).to.be.equal(assetManagerERC20Version);
+      expect(await assetManagerProxy.contractVersion()).to.be.equal(ASSET_MANAGER_ERC20_VERSION);
       expect(await assetManagerProxy.subjectAddress()).to.be.equal(assetManagerSubject.address);
       expect(await assetManagerProxy.accessControlManager()).to.be.equal(aclManagerProxy.address);
       expect(await assetManagerProxy.localAdmin()).to.be.equal(systemAdminWallet.address);
@@ -5054,7 +5050,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
           adminId: aclRoleLivelyTokenAssetManagerAdminId,
           salt: ethers.constants.HashZero,
           name: ASSET_MANAGER_ERC20_NAME,
-          version: assetManagerERC20Version,
+          version: ASSET_MANAGER_ERC20_VERSION,
           contractId: assetManagerProxy.address,
           subject: ethers.constants.AddressZero,
           deployer: ethers.constants.AddressZero,
