@@ -118,11 +118,6 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
     return true;
   }
 
-  // function updateTaxWhitelist(address account, bool isDeleted) external returns (bool) {
-  //   _policyInterceptor(this.updateTaxWhitelist.selector, address(0), false, false);
-  //   return _updateTaxWhitelist(account, isDeleted);
-  // }
-
   function transfer(address recipient, uint256 amount) external returns (bool) {
     _policyInterceptor(this.transfer.selector, _msgSender(), true, true);
     if (_taxRate > 0 && !_data.taxWhitelist.contains(_msgSender())) {

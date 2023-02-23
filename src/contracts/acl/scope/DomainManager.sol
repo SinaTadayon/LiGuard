@@ -14,8 +14,6 @@ import "../../lib/struct/LEnumerableSet.sol";
 import "../../proxy/IProxy.sol";
 import "../../proxy/BaseUUPSProxy.sol";
 
-import "hardhat/console.sol";
-
 /**
  * @title Domain Manager Contract
  * @author Sina Tadayon, https://github.com/SinaTadayon

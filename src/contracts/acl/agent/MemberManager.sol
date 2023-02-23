@@ -16,8 +16,6 @@ import "../../lib/acl/LACLUtils.sol";
 import "../../proxy/IProxy.sol";
 import "../../proxy/BaseUUPSProxy.sol";
 
-import "hardhat/console.sol";
-
 /**
  * @title ACL Member Manager Contract
  * @author Sina Tadayon, https://github.com/SinaTadayon

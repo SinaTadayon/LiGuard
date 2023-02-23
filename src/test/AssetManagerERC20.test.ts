@@ -848,7 +848,6 @@ describe("Asset Manager ERC20 Token Tests", function () {
           selectors: [
             profileIface.getSighash("profileRegister"),
             profileIface.getSighash("profileUpdateLimits"),
-            profileIface.getSighash("profileUpdateExpiration"),
             profileIface.getSighash("profileUpdateOwnerAccount"),
             profileIface.getSighash("profileUpdateActivityStatus"),
             profileIface.getSighash("profileUpdateAlterabilityStatus"),
@@ -2402,14 +2401,6 @@ describe("Asset Manager ERC20 Token Tests", function () {
           agentId: LIVELY_VERSE_ANY_TYPE_ID,
           selector: profileIface.getSighash("profileUpdateLimits"),
           policyCode: 100,
-          acstat: ActivityStatus.ENABLED,
-          alstat: AlterabilityStatus.UPDATABLE
-        },
-        {
-          adminId: LIVELY_VERSE_ACL_TYPE_ID,
-          agentId: LIVELY_VERSE_ANY_TYPE_ID,
-          selector: profileIface.getSighash("profileUpdateExpiration"),
-          policyCode: 150,
           acstat: ActivityStatus.ENABLED,
           alstat: AlterabilityStatus.UPDATABLE
         },

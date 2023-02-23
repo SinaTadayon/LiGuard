@@ -18,8 +18,6 @@ import "../../lib/cryptography/LECDSA.sol";
 import "../../lib/struct/LEnumerableSet.sol";
 import "../../proxy/BaseUUPSProxy.sol";
 
-import "hardhat/console.sol";
-
 /**
  * @title Profile AccessControl Contract
  * @author Sina Tadayon, https://github.com/SinaTadayon
@@ -80,17 +78,6 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
       profileEntity.limits = requests[i].limits;
       profileEntity.registerLimits = requests[i].registerLimits;
       emit ProfileLimitsUpdated(sender, requests[i].profileId, requests[i].limits, requests[i].registerLimits);
-    }
-    return true;
-  }
-
-  function profileUpdateExpiration(MemberSignature calldata memberSign, ProfileUpdateExpirationRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IProfileManagement.profileUpdateExpiration.selector);
-    for(uint i = 0; i < requests.length; i++) {
-      ProfileEntity storage profileEntity = _doGetEntityAndCheckAdminAccess(requests[i].profileId, senderId, functionId);
-      require(requests[i].expiredAt > block.timestamp + 1 days, "Illegal Expiration");
-      profileEntity.expiredAt = requests[i].expiredAt;
-      emit ProfileExpirationUpdated(sender, requests[i].profileId, requests[i].expiredAt);
     }
     return true;
   }
@@ -191,7 +178,6 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
     if(profileEntity.acstat == ActivityStatus.NONE) {
       return ProfileInfo ({
         name: "",
-        expiredAt: 0,
         adminId: bytes32(0),
         owner: address(0),
         registerLimits: ProfileRegisterLimit({
@@ -224,7 +210,6 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
 
     return ProfileInfo ({
       name: profileEntity.name,
-      expiredAt: profileEntity.expiredAt,
       adminId: profileEntity.adminId,
       owner: profileEntity.owner,
       registerLimits: profileEntity.registerLimits,
@@ -237,7 +222,7 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
 
   function _doCheckAdminAccess(bytes32 adminId, bytes32 memberId, bytes32 functionId) internal view returns (IACL.AdminAccessStatus) {
     return LACLCommons.checkAdminAccess(_data, adminId, memberId, functionId);
-  }
+  }  
 
  function _accessPermission(MemberSignature calldata memberSign, bytes4 selector) internal returns (bytes32, bytes32, address) {
     require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");  

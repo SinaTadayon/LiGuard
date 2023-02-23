@@ -57,12 +57,6 @@ interface IACLCommons{
     LOCK            // 255
   }
 
-  struct MemberSignature {
-    address account;
-    uint64 expiredAt;  
-    bytes signature;
-  }
-
   struct BaseAgent {
     bytes32 adminId;
     AgentType atype;
@@ -157,6 +151,12 @@ interface IACLCommons{
     LEnumerableSet.Bytes32Set types;
   }
 
+  struct MemberSignature {
+    address account;
+    uint64 expiredAt;  
+    bytes signature;
+  }
+
   struct RoleEntity {
     BaseAgent ba;    
     bytes32 scopeId;
@@ -247,7 +247,6 @@ interface IACLCommons{
     bytes32 adminId;
     string name;
     address owner;
-    uint64 expiredAt;    
     ActivityStatus acstat;
     AlterabilityStatus alstat;
     ProfileRegisterLimit registerLimits;
@@ -282,6 +281,4 @@ interface IACLCommons{
     bytes32 entityId;
     bytes32 scopeId;
   }
-  
-
 }

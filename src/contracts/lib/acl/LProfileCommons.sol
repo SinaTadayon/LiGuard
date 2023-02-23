@@ -21,8 +21,6 @@ import "../../acl/profile/scope/IProfileRealmManagement.sol";
 import "../../acl/profile/scope/IProfileDomainManagement.sol";
 import "../../acl/profile/agent/IProfileMemberManagement.sol";
 
-import "hardhat/console.sol";
-
 /**
  * @title Profile Commons Library
  * @author Sina Tadayon, https://github.com/SinaTadayon
@@ -41,7 +39,7 @@ library LProfileCommons {
 
   bytes32 public constant LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID         = keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_MASTER"));
   bytes32 public constant LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID         = keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER"));
-  bytes32 public constant LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID        = keccak256(abi.encodePacked("UNIVERSE.LIVELY_PROFILE"));
+  bytes32 public constant LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID      = keccak256(abi.encodePacked("UNIVERSE.LIVELY_PROFILE"));
   bytes32 public constant LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID   = keccak256(abi.encodePacked("ROLE.LIVELY_PROFILE.LIVELY_MASTER_ADMIN"));
   bytes32 public constant LIVELY_PROFILE_SYSTEM_MASTER_ADMIN_ROLE_ID   = keccak256(abi.encodePacked("ROLE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER_ADMIN"));
 

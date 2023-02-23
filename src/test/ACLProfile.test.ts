@@ -1793,7 +1793,6 @@ describe("Lively Guard Profile Tests", function() {
             selectors: [
               profileIface.getSighash("profileRegister"),
               profileIface.getSighash("profileUpdateLimits"),
-              profileIface.getSighash("profileUpdateExpiration"),
               profileIface.getSighash("profileUpdateOwnerAccount"),
               profileIface.getSighash("profileUpdateActivityStatus"),
               profileIface.getSighash("profileUpdateAlterabilityStatus"),
@@ -4907,9 +4906,6 @@ describe("Lively Guard Profile Tests", function() {
         const profileUpdateLimitsFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
             [profileManagerProxy.address,  profileIface.getSighash("profileUpdateLimits")]));
-        const profileUpdateExpirationFunctionId = ethers.utils.keccak256(
-          ethers.utils.solidityPack(["address", "bytes4"],
-            [profileManagerProxy.address,  profileIface.getSighash("profileUpdateExpiration")]))
         const profileUpdateOwnerAccountFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
             [profileManagerProxy.address,  profileIface.getSighash("profileUpdateOwnerAccount")]))
@@ -4955,14 +4951,6 @@ describe("Lively Guard Profile Tests", function() {
             agentId: LIVELY_VERSE_ANY_TYPE_ID,
             selector: profileIface.getSighash("profileUpdateLimits"),
             policyCode: 100,
-            acstat: ActivityStatus.ENABLED,
-            alstat: AlterabilityStatus.UPDATABLE
-          },
-          {
-            adminId: LIVELY_VERSE_ACL_TYPE_ID,
-            agentId: LIVELY_VERSE_ANY_TYPE_ID,
-            selector: profileIface.getSighash("profileUpdateExpiration"),
-            policyCode: 150,
             acstat: ActivityStatus.ENABLED,
             alstat: AlterabilityStatus.UPDATABLE
           },
@@ -5072,9 +5060,6 @@ describe("Lively Guard Profile Tests", function() {
             LIVELY_VERSE_PROFILE_MASTER_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileContextId, profileUpdateLimitsFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID)
-          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-          .withArgs(systemAdminWallet.address, profileContextId, profileUpdateExpirationFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
             LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileContextId, profileUpdateOwnerAccountFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
@@ -7241,7 +7226,6 @@ describe("Lively Guard Profile Tests", function() {
         profileTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(PROFILE_TEST_NAME));
         const requests: IProfileManagement.ProfileRegisterRequestStruct[] = [{
           name: PROFILE_TEST_NAME,
-          expiredAt: BigNumber.from(Date.now() + 10000),
           registerLimits: {
             memberRegisterLimit: 1,
             roleRegisterLimit: 1,
@@ -7285,7 +7269,6 @@ describe("Lively Guard Profile Tests", function() {
         profileSystemAdminId = ethers.utils.keccak256(profileSystemAdminWallet.address);
         const requests: IProfileManagement.ProfileRegisterRequestStruct[] = [{
           name: PROFILE_TEST_NAME,
-          expiredAt: profileExpiredAt,
           registerLimits: {
             memberRegisterLimit: 10,
             roleRegisterLimit: 10,
@@ -7351,7 +7334,6 @@ describe("Lively Guard Profile Tests", function() {
         // and
         const profileInfo: IProfileManagement.ProfileInfoStruct = await profileManagerDelegateProxy.profileGetInfo(profileTestId);
         expect(profileInfo.name).to.be.equal(PROFILE_TEST_NAME);
-        expect(profileInfo.expiredAt).to.be.equal(profileExpiredAt);
         expect(profileInfo.adminId).to.be.equal(LIVELY_VERSE_PROFILE_MASTER_TYPE_ID);
         expect(profileInfo.owner).to.be.equal(profileOwnerWallet.address);
         expect(profileInfo.registerLimits).to.be.eql([10,10,10,10,10,10,10,10]);
@@ -7404,7 +7386,6 @@ describe("Lively Guard Profile Tests", function() {
 
         const requests: IProfileManagement.ProfileRegisterRequestStruct[] = [{
           name: PROFILE_TEST_NAME_2,
-          expiredAt: profileExpiredAt2,
           registerLimits: {
             memberRegisterLimit: 2,
             roleRegisterLimit: 2,
@@ -7457,7 +7438,6 @@ describe("Lively Guard Profile Tests", function() {
         // and
         const profileInfo: IProfileManagement.ProfileInfoStruct = await profileManagerDelegateProxy.profileGetInfo(profileTestId2);
         expect(profileInfo.name).to.be.equal(PROFILE_TEST_NAME_2);
-        expect(profileInfo.expiredAt).to.be.equal(profileExpiredAt2);
         expect(profileInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_TYPE_ID);
         expect(profileInfo.owner).to.be.equal(profileOwnerWallet2.address);
         expect(profileInfo.registerLimits).to.be.eql([2,2,2,2,2,2,2,2]);
@@ -7523,18 +7503,6 @@ describe("Lively Guard Profile Tests", function() {
 
         // then
         await expect(profileManagerDelegateProxy.connect(livelyAdmin).profileUpdateLimits(emptyMemberSignature, requests))
-          .to.revertedWith("Illegal Updatable")
-      })
-
-      it("Should profile update Expiration of PROFILE_TEST_NAME profile when alterability disabled failed", async() => {
-        // given
-        const requests: IProfileManagement.ProfileUpdateExpirationRequestStruct[] = [{
-          profileId: profileTestId,
-          expiredAt: BigNumber.from(Date.now() + 30000)
-        }]
-
-        // then
-        await expect(profileManagerDelegateProxy.connect(livelyAdmin).profileUpdateExpiration(emptyMemberSignature, requests))
           .to.revertedWith("Illegal Updatable")
       })
 
@@ -7628,7 +7596,6 @@ describe("Lively Guard Profile Tests", function() {
         // and
         const profileInfo: IProfileManagement.ProfileInfoStruct = await profileManagerDelegateProxy.profileGetInfo(profileTestId);
         expect(profileInfo.name).to.be.equal(PROFILE_TEST_NAME);
-        expect(profileInfo.expiredAt).to.be.equal(profileExpiredAt);
         expect(profileInfo.adminId).to.be.equal(LIVELY_VERSE_PROFILE_MASTER_TYPE_ID);
         expect(profileInfo.owner).to.be.equal(profileOwnerWallet.address);
         expect(profileInfo.adminType).to.be.equal(AgentType.TYPE);
@@ -7715,32 +7682,6 @@ describe("Lively Guard Profile Tests", function() {
           .to.emit(profileManagerDelegateProxy, "ProfileLimitsUpdated")
           .withArgs(livelyAdminWallet.address, profileTestId,
             [512, 20, 20, 20, 20, 20, 20, 20, 20, 20], [13, 13, 13, 13, 13, 13, 13, 13])
-      })
-
-      it("Should profile update Expiration of PROFILE_TEST_NAME profile by someone failed", async() => {
-        // given
-        const requests: IProfileManagement.ProfileUpdateExpirationRequestStruct[] = [{
-          profileId: profileTestId,
-          expiredAt: BigNumber.from(Date.now() + 30000)
-        }]
-
-        // then
-        await expect(profileManagerDelegateProxy.connect(user1).profileUpdateExpiration(emptyMemberSignature, requests))
-          .to.revertedWith("ACLMemberNotFound()");
-      })
-
-      it("Should profile update Expiration of PROFILE_TEST_NAME profile success", async() => {
-        // given
-        profileExpiredAt = BigNumber.from(Date.now() + 30000);
-        const requests: IProfileManagement.ProfileUpdateExpirationRequestStruct[] = [{
-          profileId: profileTestId,
-          expiredAt: profileExpiredAt
-        }]
-
-        // then
-        await expect(profileManagerDelegateProxy.connect(livelyAdmin).profileUpdateExpiration(emptyMemberSignature, requests))
-          .to.emit(profileManagerDelegateProxy, "ProfileExpirationUpdated")
-          .withArgs(livelyAdminWallet.address, profileTestId, profileExpiredAt)
       })
 
       it("Should profile update admin of PROFILE_TEST_NAME profile by someone failed", async() => {
@@ -7957,7 +7898,6 @@ describe("Lively Guard Profile Tests", function() {
         // and
         const profileInfo: IProfileManagement.ProfileInfoStruct = await profileManagerDelegateProxy.profileGetInfo(profileTestId);
         expect(profileInfo.name).to.be.equal(PROFILE_TEST_NAME);
-        expect(profileInfo.expiredAt).to.be.equal(profileExpiredAt);
         expect(profileInfo.adminId).to.be.equal(LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID);
         expect(profileInfo.owner).to.be.equal(profileOwnerWallet2.address);
         expect(profileInfo.registerLimits).to.be.eql([12, 13, 13, 13, 13, 13, 13, 13]);

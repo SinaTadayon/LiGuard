@@ -19,8 +19,6 @@ import "../../../lib/acl/LProfileCommons.sol";
 import "../../../proxy/IProxy.sol";
 import "../../../proxy/BaseUUPSProxy.sol";
 
-import "hardhat/console.sol";
-
 /**
  * @title ACL Profile Member Manager Contract
  * @author Sina Tadayon, https://github.com/SinaTadayon
@@ -231,28 +229,6 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
     IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(profileEntity, functionEntity, memberEntity.ba.adminId, senderId);
     if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
     return memberEntity;
-  }
-
-  function _checkProfileAccount(bytes32 profileId, bytes32 typeId, ProfileMemberEntity storage profileMemberEntity) internal view {
-    ProfileAccount storage profileAccount = _data.profileAccounts[profileMemberEntity.account];
-    require(profileAccount.profiles.length > 0, "PA Not Found");
-    bool findFlag = false;
-    for (uint i = 0; i < profileAccount.profiles.length; i++) {
-      if(profileAccount.profiles[i] == profileId) {
-        if((profileMemberEntity.types.contains(_LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID) || 
-          profileMemberEntity.types.contains(_LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID)) &&
-          (typeId == _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID || typeId == _LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID)
-        ) {
-          revert ("Illegal GrantMemberType");
-        }      
-        findFlag = true;
-        break;
-      }
-    }
-
-    if(!findFlag) {
-      revert ("Illegal PA");
-    }
   }
 
   function _doProfileMemberRegister(ProfileEntity storage profileEntity, ProfileMemberRegisterRequest calldata memberRequest, FunctionEntity storage functionEntity, bytes32 senderId, bytes32 profileId, address sender) internal {

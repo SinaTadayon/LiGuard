@@ -34,8 +34,6 @@ import "../lib/acl/LACLCommons.sol";
 import "../proxy/Initializable.sol";
 import "../proxy/BaseUUPSProxy.sol";
 
-import "hardhat/console.sol";
-
 /**
  * @title Access Control Manager Contract
  * @author Sina Tadayon, https://github.com/SinaTadayon

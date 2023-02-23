@@ -14,11 +14,8 @@ import "../../proxy/IProxy.sol";
 import "../../proxy/IERC1822.sol";
 import "../../utils/IERC165.sol";
 import "../../acl/profile/IProfileACL.sol";
-
 import "../../acl/profile/agent/IProfileRoleManagement.sol";
 import "../../acl/profile/policy/IProfilePolicyManagement.sol";
-
-import "hardhat/console.sol";
 
 /**
  * @title Profile Commons Library
@@ -39,7 +36,7 @@ library LProfileRolePolicy {
   bytes32 public constant LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID         = keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_MASTER"));
   bytes32 public constant LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID         = keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER"));
   bytes32 public constant LIVELY_PROFILE_ANY_TYPE_ID                   = keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_ANY"));
-  bytes32 public constant LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID        = keccak256(abi.encodePacked("UNIVERSE.LIVELY_PROFILE"));
+  bytes32 public constant LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID      = keccak256(abi.encodePacked("UNIVERSE.LIVELY_PROFILE"));
   bytes32 public constant LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID   = keccak256(abi.encodePacked("ROLE.LIVELY_PROFILE.LIVELY_MASTER_ADMIN"));
   bytes32 public constant LIVELY_PROFILE_SYSTEM_MASTER_ADMIN_ROLE_ID   = keccak256(abi.encodePacked("ROLE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER_ADMIN"));
 
@@ -510,9 +507,6 @@ library LProfileRolePolicy {
     // owners always access to all entities to modify those
     if(profileEntity.admins.contains(senderId)) return IProfileACL.ProfileAdminAccessStatus.PERMITTED;
 
-    // (IACLCommons.FunctionEntity storage functionEntity, bool res) = profileEntity.profileFunctionTryReadSlot(functionId);    
-    // if (!res) return IProfileACL.ProfileAdminAccessStatus.FUNCTION_NOT_FOUND;
-   
     IACLCommons.AgentType adminAgentType = profileEntity.agents[adminId].atype;
     if(adminAgentType == IACLCommons.AgentType.ROLE) {
       (IACLCommons.RoleEntity storage roleEntity, bool result) = profileEntity.profileRoleTryReadSlot(adminId);

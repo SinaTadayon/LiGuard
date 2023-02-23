@@ -18,7 +18,6 @@ import "../../../lib/proxy/LClones.sol";
 import "../../../proxy/IProxy.sol";
 import "../../../proxy/BaseUUPSProxy.sol";
 
-import "hardhat/console.sol";
 /**
  * @title Function Manager Contract
  * @author Sina Tadayon, https://github.com/SinaTadayon

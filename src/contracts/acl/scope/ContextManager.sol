@@ -16,8 +16,6 @@ import "../../lib/struct/LEnumerableSet.sol";
 import "../../proxy/IProxy.sol";
 import "../../proxy/BaseUUPSProxy.sol";
 
-import "hardhat/console.sol";
-
 /**
  * @title Context Manager Contract
  * @author Sina Tadayon, https://github.com/SinaTadayon
@@ -224,10 +222,6 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     return ce.functions.contains(functionId);    
   }
 
-  function _doRoleHasMember(bytes32 roleId, bytes32 memberId) internal view returns (bool) {
-  
-  }
-
   function _doCheckAdminAccess(bytes32 adminId, bytes32 memberId, bytes32 functionId) internal view returns (IACL.AdminAccessStatus) {
     return LACLCommons.checkAdminAccess(_data, adminId, memberId, functionId);
   }
@@ -310,15 +304,6 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     IACL.AdminAccessStatus status = _doCheckAdminAccess(contextEntity.bs.adminId, senderId, functionId);
     if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
     return contextEntity;
-  }
-
-  function _doGetScopeInfo(bytes32 signerId) internal view returns (ScopeType, bytes32) {
-    // get scope id of sender
-    TypeEntity storage systemAdminType = _data.typeReadSlot(_LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID);
-    bytes32 signerRoleId = systemAdminType.members[signerId];
-    RoleEntity storage signerSystemRole =  _data.roleReadSlot(signerRoleId);
-    ScopeType signerSystemScopeType = _data.scopes[signerSystemRole.scopeId].stype;
-    return (signerSystemScopeType, signerSystemRole.scopeId);
   }
 
   function _getContextAdmin(bytes32 realmId, bytes32 scopeId, bytes32 requestScopeAdmin, bytes32 adminId) internal view returns (bytes32 contextAdminId) {

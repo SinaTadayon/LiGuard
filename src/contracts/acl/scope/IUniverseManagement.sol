@@ -25,8 +25,6 @@ interface IUniverseManagement is IACLCommons {
     ActivityStatus acstat;
     AlterabilityStatus alstat;
   }  
-    
-  // event UniverseRegistered(address indexed sender, bytes32 indexed universeId, bytes32 indexed adminId);
 
   event UniverseAdminUpdated(address indexed sender, bytes32 indexed universeId, bytes32 indexed adminId);
 

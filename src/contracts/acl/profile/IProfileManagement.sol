@@ -14,7 +14,6 @@ import "../IACLCommons.sol";
 interface IProfileManagement is IACLCommons {
   struct ProfileRegisterRequest {
     string name;    
-    uint64 expiredAt;  
     ProfileRegisterLimit registerLimits;
     ProfileLimit limits;
     address profileOwner;
@@ -33,14 +32,8 @@ interface IProfileManagement is IACLCommons {
     ProfileLimit limits;
   }
 
-  struct ProfileUpdateExpirationRequest {
-    bytes32 profileId;
-    uint64 expiredAt;
-  }
-
   struct ProfileInfo {
     string name;    
-    uint64 expiredAt;
     bytes32 adminId;
     address owner;
     ProfileRegisterLimit registerLimits;
@@ -67,16 +60,12 @@ interface IProfileManagement is IACLCommons {
   event ProfileAlterabilityUpdated(address indexed sender, bytes32 indexed profileId, AlterabilityStatus alstat);
 
   event ProfileLimitsUpdated(address indexed sender, bytes32 indexed profileId, ProfileLimit limit, ProfileRegisterLimit registerLimit);
-
-  event ProfileExpirationUpdated(address indexed sender, bytes32 indexed profileId, uint64 expiredAt);
   
   event ProfileOwnerAccountUpdated(address indexed sender, bytes32 indexed profileId, address indexed owner, address newOwner);
 
   function profileRegister(MemberSignature calldata memberSign, ProfileRegisterRequest[] calldata request) external returns (bool);
 
   function profileUpdateLimits(MemberSignature calldata memberSign, ProfileUpdateLimitsRequest[] calldata requests) external returns (bool);
-
-  function profileUpdateExpiration(MemberSignature calldata memberSign, ProfileUpdateExpirationRequest[] calldata requests) external returns (bool);
 
   function profileUpdateOwnerAccount(MemberSignature calldata memberSign, ProfileUpdateOwnerAccountRequest[] calldata requests) external returns (bool);
 

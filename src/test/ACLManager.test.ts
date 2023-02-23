@@ -1988,7 +1988,6 @@ describe("Lively Guard Tests", function() {
             selectors: [
               profileIface.getSighash("profileRegister"),
               profileIface.getSighash("profileUpdateLimits"),
-              profileIface.getSighash("profileUpdateExpiration"),
               profileIface.getSighash("profileUpdateOwnerAccount"),
               profileIface.getSighash("profileUpdateActivityStatus"),
               profileIface.getSighash("profileUpdateAlterabilityStatus"),
@@ -5102,9 +5101,6 @@ describe("Lively Guard Tests", function() {
         const profileUpdateLimitsFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
             [profileManagerProxy.address,  profileIface.getSighash("profileUpdateLimits")]));
-        const profileUpdateExpirationFunctionId = ethers.utils.keccak256(
-          ethers.utils.solidityPack(["address", "bytes4"],
-            [profileManagerProxy.address,  profileIface.getSighash("profileUpdateExpiration")]))
         const profileUpdateOwnerAccountFunctionId = ethers.utils.keccak256(
           ethers.utils.solidityPack(["address", "bytes4"],
             [profileManagerProxy.address,  profileIface.getSighash("profileUpdateOwnerAccount")]))
@@ -5150,14 +5146,6 @@ describe("Lively Guard Tests", function() {
             agentId: LIVELY_VERSE_ANY_TYPE_ID,
             selector: profileIface.getSighash("profileUpdateLimits"),
             policyCode: 100,
-            acstat: ActivityStatus.ENABLED,
-            alstat: AlterabilityStatus.UPDATABLE
-          },
-          {
-            adminId: LIVELY_VERSE_ACL_TYPE_ID,
-            agentId: LIVELY_VERSE_ANY_TYPE_ID,
-            selector: profileIface.getSighash("profileUpdateExpiration"),
-            policyCode: 150,
             acstat: ActivityStatus.ENABLED,
             alstat: AlterabilityStatus.UPDATABLE
           },
@@ -5267,9 +5255,6 @@ describe("Lively Guard Tests", function() {
             LIVELY_VERSE_PROFILE_MASTER_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileContextId, profileUpdateLimitsFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
-            LIVELY_VERSE_ANY_TYPE_ID)
-          .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-          .withArgs(systemAdminWallet.address, profileContextId, profileUpdateExpirationFunctionId, LIVELY_VERSE_ACL_TYPE_ID,
             LIVELY_VERSE_ANY_TYPE_ID)
           .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
           .withArgs(systemAdminWallet.address, profileContextId, profileUpdateOwnerAccountFunctionId, LIVELY_VERSE_ACL_TYPE_ID,

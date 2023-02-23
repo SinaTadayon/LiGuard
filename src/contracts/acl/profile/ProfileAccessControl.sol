@@ -12,14 +12,11 @@ import "./agent/IProfileTypeManagement.sol";
 import "../ACLStorage.sol";
 import "../IACL.sol";
 import "../../proxy/IProxy.sol";
-
 import "../../lib/acl/LACLUtils.sol";
 import "../../lib/acl/LProfileStorage.sol";
 import "../../lib/acl/LACLStorage.sol";
 import "../../lib/struct/LEnumerableSet.sol";
 import "../../proxy/BaseUUPSProxy.sol";
-
-import "hardhat/console.sol";
 
 /**
  * @title Profile AccessControl Contract

@@ -16,7 +16,6 @@ import "../../lib/proxy/LClones.sol";
 import "../../proxy/IProxy.sol";
 import "../../proxy/BaseUUPSProxy.sol";
 
-import "hardhat/console.sol";
 /**
  * @title Function Manager Contract
  * @author Sina Tadayon, https://github.com/SinaTadayon
@@ -412,13 +411,6 @@ function _accessPermission(MemberSignature calldata memberSign, bytes4 selector)
       }
   }
 
-  // function _doGetSignerAddress(bytes memory signature, bytes32 structHash) internal view returns (address) {
-  //   bytes32 msgDigest = _hashTypedDataV4(structHash);
-  //   (address msgSigner, LECDSA.RecoverError recoverErr) = LECDSA.tryRecover(msgDigest, signature);
-  //   require(recoverErr == LECDSA.RecoverError.NoError, "Illegal Signature");
-  //   return msgSigner;
-  // }
-
   function _getPredictContextMessageHash(
     address deployer,
     address subject,
@@ -426,10 +418,6 @@ function _accessPermission(MemberSignature calldata memberSign, bytes4 selector)
   ) internal pure returns (bytes32) {
     return keccak256(abi.encode(PREDICT_CTX_MESSAGE_TYPEHASH, deployer, subject, realmId));
   }
-
-  // function _hashTypedDataV4(bytes32 structHash) internal view returns (bytes32) {
-  //   return LECDSA.toTypedDataHash(IProxy(address(this)).domainSeparator(), structHash);
-  // }
 
   function getLibrary() external pure returns (address) {
     return address(LACLCommons);
