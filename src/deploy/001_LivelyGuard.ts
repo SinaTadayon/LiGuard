@@ -136,15 +136,15 @@ const PROFILE_ACCESS_CONTROL_CONTRACT_NAME_PROXY = "ProfileAccessControlProxy";
 const PROFILE_ACCESS_CONTROL_CONTRACT_NAME = "ProfileAccessControl";
 
 const ACL_MANAGER_CONTRACT_NAME_SUBJECT = "ACLManagerSubject";
-const ACL_MANAGER_CONTRACT_NAME_PROXY = "ACLManagerProxy";
+export const ACL_MANAGER_CONTRACT_NAME_PROXY = "ACLManagerProxy";
 const ACL_MANAGER_CONTRACT_NAME = "ACLManager";
 
 const CONTRACTS_VERSION = "3.0.0";
 
-const TESTNET_TX_WAIT_BLOCK_COUNT = 1;
-const MAINNET_TX_WAIT_BLOCK_COUNT = 7;
+export const TESTNET_TX_WAIT_BLOCK_COUNT = 1;
+export const MAINNET_TX_WAIT_BLOCK_COUNT = 7;
 
-const EMPTY_MEMBER_SIGNATURE: IACLCommons.MemberSignatureStruct = {
+export const EMPTY_MEMBER_SIGNATURE: IACLCommons.MemberSignatureStruct = {
   account: ethers.constants.AddressZero,
   expiredAt: 0,
   signature: new Int8Array(0)
@@ -152,8 +152,8 @@ const EMPTY_MEMBER_SIGNATURE: IACLCommons.MemberSignatureStruct = {
 
 // Lively Guard Libraries
 let lACLCommons: DeployResult;
-let lProfileCommons;
-let lProfileRolePolicy;
+let lProfileCommons: DeployResult;
+let lProfileRolePolicy: DeployResult;
 
 // Lively Guard contracts
 let memberManagerSubjectDeployed: DeployResult;
@@ -240,25 +240,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     skipIfAlreadyDeployed: true,
   });
 
-  // deploy aclManager subject
-  aclManagerSubjectDeployed = await deploy(ACL_MANAGER_CONTRACT_NAME_SUBJECT, {
-    contract: ACL_MANAGER_CONTRACT_NAME,
-    from: systemAdmin.address,
-    args: [],
-    log: true,
-    skipIfAlreadyDeployed: true,
-    libraries: {
-      LACLCommons: lACLCommons.address,
-    },
-  });
-
-
   // @ts-ignore
   await deployACLSubjects(systemAdmin, deploy);
 
   // @ts-ignore
   await deployProfileSubjects(systemAdmin, deploy);
-
 
   // @ts-ignore
   await deployACLProxies(systemAdmin, deploy);
@@ -266,18 +252,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   // @ts-ignore
   await deployProfileProxies(systemAdmin, deploy);
 
-  // Acl Manager Init
-  await aclManagerProxy.getFirstInit();
-  await aclManagerProxy.connect(systemAdmin).initACL(
-    contextManagerProxyDeployed.address,
-    functionManagerProxyDeployed.address,
-    livelyAdmin.address,
-    systemAdmin.address
-  );
-
-  // attach proxies to function and context manager
-  functionManagerDelegateProxy = FunctionManager__factory.connect(aclManagerProxy.address, systemAdmin);
-  contextManagerDelegateProxy = ContextManager__factory.connect(aclManagerProxy.address, systemAdmin);
+  // @ts-ignore
+  await initAclManager(hre, systemAdmin, livelyAdmin)
 
   // @ts-ignore
   await registerACLFacets(hre, systemAdmin);
@@ -297,6 +273,30 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   // @ts-ignore
   await registerProfileFunctions(hre, systemAdmin);
 };
+
+async function initAclManager(hre: HardhatRuntimeEnvironment, systemAdmin: SignerWithAddress, livelyAdmin: SignerWithAddress) {
+  // Acl Manager Init
+  let txReceipt;
+  console.log(`[ Initialize ACL Manager ]`);
+  const tx = await aclManagerProxy.connect(systemAdmin).initACL(
+    contextManagerProxyDeployed.address,
+    functionManagerProxyDeployed.address,
+    livelyAdmin.address,
+    systemAdmin.address
+  );
+  console.log(`txHash: ${tx.hash} . . .`);
+  if (hre.network.name === "polygon" || hre.network.name === "bsc") {
+    txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
+  } else {
+    txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
+  }
+  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log();
+
+  // attach proxies to function and context manager
+  functionManagerDelegateProxy = FunctionManager__factory.connect(aclManagerProxy.address, systemAdmin);
+  contextManagerDelegateProxy = ContextManager__factory.connect(aclManagerProxy.address, systemAdmin);
+}
 
 async function deployACLSubjects(systemAdmin: SignerWithAddress, deploy: (name: string, options: DeployOptions) => Promise<DeployResult>) {
   // deploy memberManager subject
@@ -426,9 +426,6 @@ async function deployACLSubjects(systemAdmin: SignerWithAddress, deploy: (name: 
     args: [],
     log: true,
     skipIfAlreadyDeployed: true,
-    libraries: {
-      LACLCommons: lACLCommons.address,
-    },
   });
 }
 
@@ -441,7 +438,7 @@ async function deployProfileSubjects(systemAdmin: SignerWithAddress, deploy: (na
     log: true,
     skipIfAlreadyDeployed: true,
     libraries: {
-      LACLCommons: lACLCommons.address,
+      LProfileCommons: lProfileCommons.address,
     },
   });
 
@@ -453,7 +450,7 @@ async function deployProfileSubjects(systemAdmin: SignerWithAddress, deploy: (na
     log: true,
     skipIfAlreadyDeployed: true,
     libraries: {
-      LACLCommons: lACLCommons.address,
+      LProfileRolePolicy: lProfileRolePolicy.address,
     },
   });
 
@@ -465,7 +462,7 @@ async function deployProfileSubjects(systemAdmin: SignerWithAddress, deploy: (na
     log: true,
     skipIfAlreadyDeployed: true,
     libraries: {
-      LACLCommons: lACLCommons.address,
+      LProfileCommons: lProfileCommons.address,
     },
   });
 
@@ -477,7 +474,7 @@ async function deployProfileSubjects(systemAdmin: SignerWithAddress, deploy: (na
     log: true,
     skipIfAlreadyDeployed: true,
     libraries: {
-      LACLCommons: lACLCommons.address,
+      LProfileCommons: lProfileCommons.address,
     },
   });
 
@@ -489,7 +486,7 @@ async function deployProfileSubjects(systemAdmin: SignerWithAddress, deploy: (na
     log: true,
     skipIfAlreadyDeployed: true,
     libraries: {
-      LACLCommons: lACLCommons.address,
+      LProfileCommons: lProfileCommons.address,
     },
   });
 
@@ -501,7 +498,7 @@ async function deployProfileSubjects(systemAdmin: SignerWithAddress, deploy: (na
     log: true,
     skipIfAlreadyDeployed: true,
     libraries: {
-      LACLCommons: lACLCommons.address,
+      LProfileCommons: lProfileCommons.address,
     },
   });
 
@@ -513,7 +510,7 @@ async function deployProfileSubjects(systemAdmin: SignerWithAddress, deploy: (na
     log: true,
     skipIfAlreadyDeployed: true,
     libraries: {
-      LACLCommons: lACLCommons.address,
+      LProfileCommons: lProfileCommons.address,
     },
   });
 
@@ -525,7 +522,7 @@ async function deployProfileSubjects(systemAdmin: SignerWithAddress, deploy: (na
     log: true,
     skipIfAlreadyDeployed: true,
     libraries: {
-      LACLCommons: lACLCommons.address,
+      LProfileCommons: lProfileCommons.address,
     },
   });
 
@@ -537,7 +534,7 @@ async function deployProfileSubjects(systemAdmin: SignerWithAddress, deploy: (na
     log: true,
     skipIfAlreadyDeployed: true,
     libraries: {
-      LACLCommons: lACLCommons.address,
+      LProfileRolePolicy: lProfileRolePolicy.address,
     },
   });
 
@@ -548,10 +545,20 @@ async function deployProfileSubjects(systemAdmin: SignerWithAddress, deploy: (na
     args: [],
     log: true,
     skipIfAlreadyDeployed: true,
+  });
+
+  // deploy aclManager subject
+  aclManagerSubjectDeployed = await deploy(ACL_MANAGER_CONTRACT_NAME_SUBJECT, {
+    contract: ACL_MANAGER_CONTRACT_NAME,
+    from: systemAdmin.address,
+    args: [],
+    log: true,
+    skipIfAlreadyDeployed: true,
     libraries: {
       LACLCommons: lACLCommons.address,
     },
   });
+
 }
 
 async function deployACLProxies(systemAdmin: SignerWithAddress, deploy: (name: string, options: DeployOptions) => Promise<DeployResult>) {
@@ -4277,7 +4284,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       functions: profilePolicyFunctionRequests
     }
   ]
-  console.log(`[ Register Profile Profile Functions ]`);
+  console.log(`[ Register Profile Policy Functions ]`);
   tx = await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(EMPTY_MEMBER_SIGNATURE, profilePolicyFunctionRegisterRequest);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
@@ -4289,54 +4296,5 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
   console.log();
 }
 
-
-func.tags = [
-  "LACLCommons",
-  "LProfileCommons",
-  "LProfileRolePolicy",
-  MEMBER_MANAGER_CONTRACT_NAME_SUBJECT,
-  MEMBER_MANAGER_CONTRACT_NAME_PROXY,
-  ROLE_MANAGER_CONTRACT_NAME_SUBJECT,
-  ROLE_MANAGER_CONTRACT_NAME_PROXY,
-  TYPE_MANAGER_CONTRACT_NAME_SUBJECT,
-  TYPE_MANAGER_CONTRACT_NAME_PROXY,
-  FUNCTION_MANAGER_CONTRACT_NAME_SUBJECT,
-  FUNCTION_MANAGER_CONTRACT_NAME_PROXY,
-  CONTEXT_MANAGER_CONTRACT_NAME_SUBJECT,
-  CONTEXT_MANAGER_CONTRACT_NAME_PROXY,
-  REALM_MANAGER_CONTRACT_NAME_SUBJECT,
-  REALM_MANAGER_CONTRACT_NAME_PROXY,
-  DOMAIN_MANAGER_CONTRACT_NAME_SUBJECT,
-  DOMAIN_MANAGER_CONTRACT_NAME_PROXY,
-  UNIVERSE_MANAGER_CONTRACT_NAME_SUBJECT,
-  UNIVERSE_MANAGER_CONTRACT_NAME_PROXY,
-  POLICY_MANAGER_CONTRACT_NAME_SUBJECT,
-  POLICY_MANAGER_CONTRACT_NAME_PROXY,
-  PROFILE_MANAGER_CONTRACT_NAME_SUBJECT,
-  PROFILE_MANAGER_CONTRACT_NAME_PROXY,
-  ACCESS_CONTROL_CONTRACT_NAME_SUBJECT,
-  ACCESS_CONTROL_CONTRACT_NAME_PROXY,
-  PROFILE_MEMBER_MANAGER_CONTRACT_NAME_SUBJECT,
-  PROFILE_MEMBER_MANAGER_CONTRACT_NAME_PROXY,
-  PROFILE_ROLE_MANAGER_CONTRACT_NAME_SUBJECT,
-  PROFILE_ROLE_MANAGER_CONTRACT_NAME_PROXY,
-  PROFILE_TYPE_MANAGER_CONTRACT_NAME_SUBJECT,
-  PROFILE_TYPE_MANAGER_CONTRACT_NAME_PROXY,
-  PROFILE_FUNCTION_MANAGER_CONTRACT_NAME_SUBJECT,
-  PROFILE_FUNCTION_MANAGER_CONTRACT_NAME_PROXY,
-  PROFILE_CONTEXT_MANAGER_CONTRACT_NAME_SUBJECT,
-  PROFILE_CONTEXT_MANAGER_CONTRACT_NAME_PROXY,
-  PROFILE_REALM_MANAGER_CONTRACT_NAME_SUBJECT,
-  PROFILE_REALM_MANAGER_CONTRACT_NAME_PROXY,
-  PROFILE_DOMAIN_MANAGER_CONTRACT_NAME_SUBJECT,
-  PROFILE_DOMAIN_MANAGER_CONTRACT_NAME_PROXY,
-  PROFILE_UNIVERSE_MANAGER_CONTRACT_NAME_SUBJECT,
-  PROFILE_UNIVERSE_MANAGER_CONTRACT_NAME_PROXY,
-  PROFILE_POLICY_MANAGER_CONTRACT_NAME_SUBJECT,
-  PROFILE_POLICY_MANAGER_CONTRACT_NAME_PROXY,
-  PROFILE_ACCESS_CONTROL_CONTRACT_NAME_SUBJECT,
-  PROFILE_ACCESS_CONTROL_CONTRACT_NAME_PROXY,
-  ACL_MANAGER_CONTRACT_NAME_SUBJECT,
-  ACL_MANAGER_CONTRACT_NAME_PROXY,
-];
+func.tags = [ ACL_MANAGER_CONTRACT_NAME_PROXY ];
 export default func;

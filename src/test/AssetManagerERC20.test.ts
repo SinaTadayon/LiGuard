@@ -4470,10 +4470,6 @@ describe("Asset Manager ERC20 Token Tests", function () {
 
     it("Should LivelyToken token deploy success", async () => {
       // given
-      // const livelyTokenRealm = "LIVELY_GENERAL_REALM";
-      // const livelyTokenNameHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(LIVELY_TOKEN_NAME));
-      // const livelyTokenDomainVersionHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(LIVELY_TOKEN_VERSION));
-      // const livelyTokenDomainRealmHash = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(livelyTokenRealm));
       const lTokenERC20Factory = new LTokenERC20__factory(systemAdmin);
       const lTokenERC20 = await lTokenERC20Factory.deploy();
       const libraryAddresses = {
@@ -4484,15 +4480,6 @@ describe("Asset Manager ERC20 Token Tests", function () {
 
       const proxyFactory = new Proxy__factory(systemAdmin);
       const tokenProxy = await proxyFactory.deploy(livelyTokenSubject.address, new Int8Array(0));
-      // const signature = await generateContextDomainSignatureManually(
-      //   tokenProxy.address,
-      //   LIVELY_TOKEN_NAME,
-      //   LIVELY_TOKEN_VERSION,
-      //   livelyTokenRealm,
-      //   accessControlManager.address,
-      //   systemAdminWallet,
-      //   networkChainId
-      // );
       const request: LivelyToken.InitRequestStruct = {
         contractName: LIVELY_TOKEN_NAME,
         contractVersion: LIVELY_TOKEN_VERSION,
