@@ -42,54 +42,28 @@ import {
   LIVELY_VERSE_ANONYMOUS_TYPE_ID,
   LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
   LIVELY_VERSE_MEMBER_MASTER_ADMIN_ROLE_ID,
-  LIVELY_VERSE_MEMBER_MASTER_TYPE_ID,
   LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE_ID,
-  LIVELY_VERSE_POLICY_MASTER_TYPE_ID,
-  LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID, LIVELY_VERSE_SCOPE_MASTER_TYPE_ID,
+  LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID,
   LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
   LIVELY_VERSE_TYPE_MASTER_ADMIN_ROLE_ID,
-  LIVELY_VERSE_TYPE_MASTER_TYPE_ID
 } from "../utils/Utils";
-import { expect } from "chai";
 import { IACLCommons as IACLCommonsRoles } from "../../typechain/types/acl/agent/IRoleManagement";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/src/signers";
 
-const ACL_DOMAIN_TOKENS_NAME = "DOMAIN.LIVELY_VERSE.TOKENS";
-const ACL_REALM_LIVELY_TOKEN_ERC20_NAME = "REALM.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20";
-const ACL_TYPE_LIVELY_TOKEN_ERC20_MANAGER_NAME = "TYPE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.MANAGER";
-const ACL_ROLE_LIVELY_TOKEN_ERC20_MANAGER_ADMIN_NAME = "ROLE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.MANAGER_ADMIN";
-const ACL_TYPE_LIVELY_TOKEN_ERC20_ASSET_MANAGER_NAME = "TYPE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.ASSET_MANAGER";
-const ACL_ROLE_LIVELY_TOKEN_ERC20_ASSET_MANAGER_ADMIN_NAME = "ROLE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.ASSET_MANAGER_ADMIN";
-// const ACL_ROLE_LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_NAME = "ROLE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.AUDIO_VIDEO_PROGRAM_ASSET_ADMIN";
-// const ACL_ROLE_LIVELY_FOUNDING_TEAM_ASSET_NAME = "ROLE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.FOUNDING_TEAM_ASSET_ADMIN";
-// const ACL_ROLE_LIVELY_TREASURY_ASSET_NAME = "ROLE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.TREASURY_ASSET_ADMIN";
-// const ACL_ROLE_LIVELY_PUBLIC_SALE_ASSET_NAME = "ROLE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.PUBLIC_SALE_ASSET_ADMIN";
-// const ACL_ROLE_LIVELY_VALIDATOR_REWARDS_ASSET_NAME = "ROLE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.VALIDATORS_REWARDS_ASSET_ADMIN";
-// const ACL_ROLE_LIVELY_CROWD_FOUNDING_ASSET_NAME = "ROLE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.CROWD_FOUNDING_ASSET_ADMIN";
-// const ACL_ROLE_LIVELY_TAX_TREASURY_ASSET_NAME = "ROLE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.TAX_TREASURY_ASSET_ADMIN";
+export const ACL_DOMAIN_TOKENS_NAME = "DOMAIN.LIVELY_VERSE.TOKENS";
+export const ACL_REALM_LIVELY_TOKEN_ERC20_NAME = "REALM.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20";
+export const ACL_TYPE_LIVELY_TOKEN_ERC20_MANAGER_NAME = "TYPE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.MANAGER";
+export const ACL_ROLE_LIVELY_TOKEN_ERC20_MANAGER_ADMIN_NAME = "ROLE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.MANAGER_ADMIN";
+export const ACL_TYPE_LIVELY_TOKEN_ERC20_ASSET_MANAGER_NAME = "TYPE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.ASSET_MANAGER";
+export const ACL_ROLE_LIVELY_TOKEN_ERC20_ASSET_MANAGER_ADMIN_NAME = "ROLE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.ASSET_MANAGER_ADMIN";
 
-const aclDomainTokensId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_DOMAIN_TOKENS_NAME));
-const aclRealmLivelyTokenErc20Id = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_REALM_LIVELY_TOKEN_ERC20_NAME));
-const aclTypeLivelyTokenManagerId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_TYPE_LIVELY_TOKEN_ERC20_MANAGER_NAME));
-const aclRoleLivelyTokenManagerAdminId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_LIVELY_TOKEN_ERC20_MANAGER_ADMIN_NAME));
-const aclTypeLivelyTokenAssetManagerId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_TYPE_LIVELY_TOKEN_ERC20_ASSET_MANAGER_NAME));
-const aclRoleLivelyTokenAssetManagerAdminId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_LIVELY_TOKEN_ERC20_ASSET_MANAGER_ADMIN_NAME));
-// let aclRoleLivelyAudioVideoProgramAssetAdminId: string;
-// let aclRoleLivelyFoundingTeamAssetAdminId: string;
-// let aclRoleLivelyTreasuryAssetAdminId: string;
-// let aclRoleLivelyPublicSaleAssetAdminId: string;
-// let aclRoleLivelyValidatorRewardsAssetAdminId: string;
-// let aclRoleLivelyCrowdFoundingAssetAdminId: string;
-// let aclRoleLivelyTaxTreasuryAssetAdminId: string;
+export const ACL_DOMAIN_TOKENS_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_DOMAIN_TOKENS_NAME));
+export const ACL_REALM_LIVELY_TOKEN_ERC20_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_REALM_LIVELY_TOKEN_ERC20_NAME));
+export const ACL_TYPE_LIVELY_TOKEN_MANAGER_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_TYPE_LIVELY_TOKEN_ERC20_MANAGER_NAME));
+export const ACL_ROLE_LIVELY_TOKEN_MANAGER_ADMIN_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_LIVELY_TOKEN_ERC20_MANAGER_ADMIN_NAME));
+export const ACL_TYPE_LIVELY_TOKEN_ASSET_MANAGER_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_TYPE_LIVELY_TOKEN_ERC20_ASSET_MANAGER_NAME));
+export const ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_LIVELY_TOKEN_ERC20_ASSET_MANAGER_ADMIN_NAME));
 
-
-// aclRoleLivelyAudioVideoProgramAssetAdminId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_NAME));
-// aclRoleLivelyFoundingTeamAssetAdminId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_LIVELY_FOUNDING_TEAM_ASSET_NAME));
-// aclRoleLivelyTreasuryAssetAdminId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_LIVELY_TREASURY_ASSET_NAME));
-// aclRoleLivelyPublicSaleAssetAdminId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_LIVELY_PUBLIC_SALE_ASSET_NAME));
-// aclRoleLivelyValidatorRewardsAssetAdminId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_LIVELY_VALIDATOR_REWARDS_ASSET_NAME));
-// aclRoleLivelyCrowdFoundingAssetAdminId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_LIVELY_CROWD_FOUNDING_ASSET_NAME));
-// aclRoleLivelyTaxTreasuryAssetAdminId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_LIVELY_TAX_TREASURY_ASSET_NAME));
 
 
 const LIVELY_TOKEN_NAME = "LivelyToken";
@@ -135,14 +109,16 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   // @ts-ignore
   await deployLivelyToken(systemAdmin, aclManagerProxy, hre, deploy);
 
-  // @ts-ignore
-  await initializeTokenACL(livelyAdmin, assetAdmin, hre);
+  if (LIVELY_TOKEN_INIT_VERSION === 0) {
+    // @ts-ignore
+    await initializeTokenACL(livelyAdmin, assetAdmin, hre);
 
-  // @ts-ignore
-  await registerLivelyTokenContext(systemAdmin, hre);
+    // @ts-ignore
+    await registerLivelyTokenContext(systemAdmin, hre);
 
-  // @ts-ignore
-  await registerLivelyTokenACLFunctions(systemAdmin, hre);
+    // @ts-ignore
+    await registerLivelyTokenACLFunctions(systemAdmin, hre);
+  }
 };
 
 async function deployLivelyToken(systemAdmin: SignerWithAddress, aclManagerProxy: Deployment, hre: HardhatRuntimeEnvironment, deploy: (name: string, options: DeployOptions) => Promise<DeployResult>) {
@@ -185,7 +161,7 @@ async function deployLivelyToken(systemAdmin: SignerWithAddress, aclManagerProxy
     } else {
       txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
     }
-    console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+    console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
     console.log();
   }
 }
@@ -210,13 +186,13 @@ async function initializeTokenACL(livelyAdmin: SignerWithAddress, assetAdmin: Si
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 
   // Register Acl Realm
   const realmRequests: IRealmManagement.RealmRegisterRequestStruct[] = [
     {
-      domainId: aclDomainTokensId,
+      domainId: ACL_DOMAIN_TOKENS_ID,
       adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
       contextLimit: 16,
       acstat: ActivityStatus.ENABLED,
@@ -232,14 +208,14 @@ async function initializeTokenACL(livelyAdmin: SignerWithAddress, assetAdmin: Si
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 
   // register AssetManager and LivelyToken Types
   const typeRegisterRequests: ITypeManagement.TypeRegisterRequestStruct[] = [
     {
       adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-      scopeId: aclRealmLivelyTokenErc20Id,
+      scopeId: ACL_REALM_LIVELY_TOKEN_ERC20_ID,
       roleLimit: 16,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPDATABLE,
@@ -247,7 +223,7 @@ async function initializeTokenACL(livelyAdmin: SignerWithAddress, assetAdmin: Si
     },
     {
       adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-      scopeId: aclRealmLivelyTokenErc20Id,
+      scopeId: ACL_REALM_LIVELY_TOKEN_ERC20_ID,
       roleLimit: 16,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPDATABLE,
@@ -262,15 +238,15 @@ async function initializeTokenACL(livelyAdmin: SignerWithAddress, assetAdmin: Si
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 
   // Register AssetManagerAdmin and TokenERC20ManagerAdmin Roles
   const roleRegisterRequests: IRoleManagement.RoleRegisterRequestStruct[] = [
     {
       adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-      scopeId: aclRealmLivelyTokenErc20Id,
-      typeId: aclTypeLivelyTokenAssetManagerId,
+      scopeId: ACL_REALM_LIVELY_TOKEN_ERC20_ID,
+      typeId: ACL_TYPE_LIVELY_TOKEN_ASSET_MANAGER_ID,
       memberLimit: 16,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPDATABLE,
@@ -278,8 +254,8 @@ async function initializeTokenACL(livelyAdmin: SignerWithAddress, assetAdmin: Si
     },
     {
       adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
-      scopeId: aclRealmLivelyTokenErc20Id,
-      typeId: aclTypeLivelyTokenManagerId,
+      scopeId: ACL_REALM_LIVELY_TOKEN_ERC20_ID,
+      typeId: ACL_TYPE_LIVELY_TOKEN_MANAGER_ID,
       memberLimit: 16,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPDATABLE,
@@ -294,7 +270,7 @@ async function initializeTokenACL(livelyAdmin: SignerWithAddress, assetAdmin: Si
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 
   // Register ACL AssetAdmin Member
@@ -302,7 +278,7 @@ async function initializeTokenACL(livelyAdmin: SignerWithAddress, assetAdmin: Si
   const requests: IMemberManagement.MemberRegisterRequestStruct[] = [
     {
       adminId: ethers.constants.HashZero,
-      roleId: aclRoleLivelyTokenAssetManagerAdminId,
+      roleId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
       account: assetAdmin.address,
       limits: {
         memberLimit: 16777215,
@@ -336,13 +312,13 @@ async function initializeTokenACL(livelyAdmin: SignerWithAddress, assetAdmin: Si
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 
   // Grant Roles to AssetAdmin
   const roleGrantRequests: IRoleManagement.RoleGrantMembersRequestStruct[] = [
     {
-      roleId: aclRoleLivelyTokenManagerAdminId,
+      roleId: ACL_ROLE_LIVELY_TOKEN_MANAGER_ADMIN_ID,
       members: [ assetAdminId ]
     },
     {
@@ -362,7 +338,7 @@ async function initializeTokenACL(livelyAdmin: SignerWithAddress, assetAdmin: Si
       members: [ assetAdminId ]
     },
   ]
-  console.log(`[ Register ACL AssetAdmin Member ]`);
+  console.log(`[ Grant Roles to AssetAdmin ]`);
   tx = await roleManagerDelegateProxy.connect(livelyAdmin).roleGrantMembers(EMPTY_MEMBER_SIGNATURE, roleGrantRequests);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
@@ -370,13 +346,13 @@ async function initializeTokenACL(livelyAdmin: SignerWithAddress, assetAdmin: Si
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 
   // Update LivelyTokenERC20 Realm Admin to AssetManager Type
   const updateRealmAdminRequests: IACLCommonsRoles.UpdateAdminRequestStruct[] = [{
-    id: aclRealmLivelyTokenErc20Id,
-    adminId: aclRoleLivelyTokenAssetManagerAdminId
+    id: ACL_REALM_LIVELY_TOKEN_ERC20_ID,
+    adminId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID
   }]
   console.log(`[ Update RealmAdmin to AssetManager Type ]`);
   tx = await realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateAdmin(EMPTY_MEMBER_SIGNATURE, updateRealmAdminRequests);
@@ -386,18 +362,18 @@ async function initializeTokenACL(livelyAdmin: SignerWithAddress, assetAdmin: Si
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 
   // Update Admin of AssetManager and TokenManager
   const updateTypeAdminRequests: IACLCommonsRoles.UpdateAdminRequestStruct[] = [
     {
-      id: aclTypeLivelyTokenManagerId,
-      adminId: aclRoleLivelyTokenManagerAdminId
+      id: ACL_TYPE_LIVELY_TOKEN_MANAGER_ID,
+      adminId: ACL_ROLE_LIVELY_TOKEN_MANAGER_ADMIN_ID
     },
     {
-      id: aclTypeLivelyTokenAssetManagerId,
-      adminId: aclRoleLivelyTokenAssetManagerAdminId
+      id: ACL_TYPE_LIVELY_TOKEN_ASSET_MANAGER_ID,
+      adminId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID
     }
   ]
   console.log(`[ Update Admin of AssetManger & TokenManager Type ]`);
@@ -408,15 +384,15 @@ async function initializeTokenACL(livelyAdmin: SignerWithAddress, assetAdmin: Si
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 }
 
 async function registerLivelyTokenContext(systemAdmin: SignerWithAddress, hre: HardhatRuntimeEnvironment) {
   const contextRequests: IContextManagement.ContextRegisterRequestStruct[] = [
     {
-      realmId: aclRealmLivelyTokenErc20Id,
-      adminId: aclTypeLivelyTokenAssetManagerId,
+      realmId: ACL_REALM_LIVELY_TOKEN_ERC20_ID,
+      adminId: ACL_TYPE_LIVELY_TOKEN_ASSET_MANAGER_ID,
       salt: ethers.constants.HashZero,
       name: LIVELY_TOKEN_NAME,
       version: LIVELY_TOKEN_VERSION,
@@ -438,7 +414,7 @@ async function registerLivelyTokenContext(systemAdmin: SignerWithAddress, hre: H
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 }
 
@@ -446,7 +422,7 @@ async function registerLivelyTokenACLFunctions(systemAdmin: SignerWithAddress, h
   const livelyTokenIface = new ethers.utils.Interface(LivelyToken__factory.abi);
   const livelyTokenFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
     {
-      adminId: aclTypeLivelyTokenManagerId,
+      adminId: ACL_TYPE_LIVELY_TOKEN_MANAGER_ID,
       agentId: LIVELY_VERSE_ANONYMOUS_TYPE_ID,
       selector: livelyTokenIface.getSighash("transfer"),
       policyCode: 200,
@@ -454,7 +430,7 @@ async function registerLivelyTokenACLFunctions(systemAdmin: SignerWithAddress, h
       alstat: AlterabilityStatus.UPDATABLE
     },
     {
-      adminId: aclTypeLivelyTokenManagerId,
+      adminId: ACL_TYPE_LIVELY_TOKEN_MANAGER_ID,
       agentId: LIVELY_VERSE_ANONYMOUS_TYPE_ID,
       selector: livelyTokenIface.getSighash("transferFrom"),
       policyCode: 210,
@@ -462,7 +438,7 @@ async function registerLivelyTokenACLFunctions(systemAdmin: SignerWithAddress, h
       alstat: AlterabilityStatus.UPDATABLE
     },
     {
-      adminId: aclTypeLivelyTokenManagerId,
+      adminId: ACL_TYPE_LIVELY_TOKEN_MANAGER_ID,
       agentId: LIVELY_VERSE_ANONYMOUS_TYPE_ID,
       selector: livelyTokenIface.getSighash("approve"),
       policyCode: 205,
@@ -470,7 +446,7 @@ async function registerLivelyTokenACLFunctions(systemAdmin: SignerWithAddress, h
       alstat: AlterabilityStatus.UPDATABLE
     },
     {
-      adminId: aclTypeLivelyTokenManagerId,
+      adminId: ACL_TYPE_LIVELY_TOKEN_MANAGER_ID,
       agentId: LIVELY_VERSE_ANONYMOUS_TYPE_ID,
       selector: livelyTokenIface.getSighash("batchTransfer"),
       policyCode: 215,
@@ -478,7 +454,7 @@ async function registerLivelyTokenACLFunctions(systemAdmin: SignerWithAddress, h
       alstat: AlterabilityStatus.UPDATABLE
     },
     {
-      adminId: aclTypeLivelyTokenManagerId,
+      adminId: ACL_TYPE_LIVELY_TOKEN_MANAGER_ID,
       agentId: LIVELY_VERSE_ANONYMOUS_TYPE_ID,
       selector: livelyTokenIface.getSighash("batchTransferFrom"),
       policyCode: 220,
@@ -486,7 +462,7 @@ async function registerLivelyTokenACLFunctions(systemAdmin: SignerWithAddress, h
       alstat: AlterabilityStatus.UPDATABLE
     },
     {
-      adminId: aclRoleLivelyTokenManagerAdminId,
+      adminId: ACL_ROLE_LIVELY_TOKEN_MANAGER_ADMIN_ID,
       agentId: LIVELY_VERSE_ANONYMOUS_TYPE_ID,
       selector: livelyTokenIface.getSighash("permit"),
       policyCode: 201,
@@ -494,7 +470,7 @@ async function registerLivelyTokenACLFunctions(systemAdmin: SignerWithAddress, h
       alstat: AlterabilityStatus.UPDATABLE
     },
     {
-      adminId: aclRoleLivelyTokenManagerAdminId,
+      adminId: ACL_ROLE_LIVELY_TOKEN_MANAGER_ADMIN_ID,
       agentId: LIVELY_VERSE_ANONYMOUS_TYPE_ID,
       selector: livelyTokenIface.getSighash("increaseAllowance"),
       policyCode: 207,
@@ -502,7 +478,7 @@ async function registerLivelyTokenACLFunctions(systemAdmin: SignerWithAddress, h
       alstat: AlterabilityStatus.UPDATABLE
     },
     {
-      adminId: aclRoleLivelyTokenManagerAdminId,
+      adminId: ACL_ROLE_LIVELY_TOKEN_MANAGER_ADMIN_ID,
       agentId: LIVELY_VERSE_ANONYMOUS_TYPE_ID,
       selector: livelyTokenIface.getSighash("decreaseAllowance"),
       policyCode: 210,
@@ -510,7 +486,7 @@ async function registerLivelyTokenACLFunctions(systemAdmin: SignerWithAddress, h
       alstat: AlterabilityStatus.UPDATABLE
     },
     {
-      adminId: aclRoleLivelyTokenManagerAdminId,
+      adminId: ACL_ROLE_LIVELY_TOKEN_MANAGER_ADMIN_ID,
       agentId: LIVELY_VERSE_ANONYMOUS_TYPE_ID,
       selector: livelyTokenIface.getSighash("claimToken"),
       policyCode: 225,
@@ -518,95 +494,95 @@ async function registerLivelyTokenACLFunctions(systemAdmin: SignerWithAddress, h
       alstat: AlterabilityStatus.UPDATABLE
     },
     {
-      adminId: aclRoleLivelyTokenManagerAdminId,
-      agentId: aclRoleLivelyTokenManagerAdminId,
+      adminId: ACL_ROLE_LIVELY_TOKEN_MANAGER_ADMIN_ID,
+      agentId: ACL_ROLE_LIVELY_TOKEN_MANAGER_ADMIN_ID,
       selector: livelyTokenIface.getSighash("burn"),
       policyCode: 24,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPDATABLE
     },
     {
-      adminId: aclRoleLivelyTokenManagerAdminId,
-      agentId: aclRoleLivelyTokenManagerAdminId,
+      adminId: ACL_ROLE_LIVELY_TOKEN_MANAGER_ADMIN_ID,
+      agentId: ACL_ROLE_LIVELY_TOKEN_MANAGER_ADMIN_ID,
       selector: livelyTokenIface.getSighash("mint"),
       policyCode: 32,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPDATABLE
     },
     {
-      adminId: aclTypeLivelyTokenManagerId,
-      agentId: aclRoleLivelyTokenManagerAdminId,
+      adminId: ACL_TYPE_LIVELY_TOKEN_MANAGER_ID,
+      agentId: ACL_ROLE_LIVELY_TOKEN_MANAGER_ADMIN_ID,
       selector: livelyTokenIface.getSighash("updateTaxRate"),
       policyCode: 72,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPDATABLE
     },
     {
-      adminId: aclTypeLivelyTokenManagerId,
-      agentId: aclRoleLivelyTokenManagerAdminId,
+      adminId: ACL_TYPE_LIVELY_TOKEN_MANAGER_ID,
+      agentId: ACL_ROLE_LIVELY_TOKEN_MANAGER_ADMIN_ID,
       selector: livelyTokenIface.getSighash("updateTaxWhitelist"),
       policyCode: 89,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPDATABLE
     },
     {
-      adminId: aclTypeLivelyTokenManagerId,
-      agentId: aclRoleLivelyTokenManagerAdminId,
+      adminId: ACL_TYPE_LIVELY_TOKEN_MANAGER_ID,
+      agentId: ACL_ROLE_LIVELY_TOKEN_MANAGER_ADMIN_ID,
       selector: livelyTokenIface.getSighash("pause"),
       policyCode: 110,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPDATABLE
     },
     {
-      adminId: aclTypeLivelyTokenManagerId,
-      agentId: aclRoleLivelyTokenManagerAdminId,
+      adminId: ACL_TYPE_LIVELY_TOKEN_MANAGER_ID,
+      agentId: ACL_ROLE_LIVELY_TOKEN_MANAGER_ADMIN_ID,
       selector: livelyTokenIface.getSighash("unpause"),
       policyCode: 115,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPDATABLE
     },
     {
-      adminId: aclTypeLivelyTokenManagerId,
-      agentId: aclRoleLivelyTokenManagerAdminId,
+      adminId: ACL_TYPE_LIVELY_TOKEN_MANAGER_ID,
+      agentId: ACL_ROLE_LIVELY_TOKEN_MANAGER_ADMIN_ID,
       selector: livelyTokenIface.getSighash("pauseAll"),
       policyCode: 56,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPDATABLE
     },
     {
-      adminId: aclTypeLivelyTokenManagerId,
-      agentId: aclRoleLivelyTokenManagerAdminId,
+      adminId: ACL_TYPE_LIVELY_TOKEN_MANAGER_ID,
+      agentId: ACL_ROLE_LIVELY_TOKEN_MANAGER_ADMIN_ID,
       selector: livelyTokenIface.getSighash("unpauseAll"),
       policyCode: 60,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPDATABLE
     },
     {
-      adminId: aclTypeLivelyTokenManagerId,
-      agentId: aclTypeLivelyTokenManagerId,
+      adminId: ACL_TYPE_LIVELY_TOKEN_MANAGER_ID,
+      agentId: ACL_TYPE_LIVELY_TOKEN_MANAGER_ID,
       selector: livelyTokenIface.getSighash("unlockToken"),
       policyCode: 10,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPDATABLE
     },
     {
-      adminId: aclTypeLivelyTokenManagerId,
-      agentId: aclTypeLivelyTokenAssetManagerId,
+      adminId: ACL_TYPE_LIVELY_TOKEN_MANAGER_ID,
+      agentId: ACL_TYPE_LIVELY_TOKEN_ASSET_MANAGER_ID,
       selector: livelyTokenIface.getSighash("lockToken"),
       policyCode: 127,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPDATABLE
     },
     {
-      adminId: aclTypeLivelyTokenManagerId,
-      agentId: aclRoleLivelyTokenAssetManagerAdminId,
+      adminId: ACL_TYPE_LIVELY_TOKEN_MANAGER_ID,
+      agentId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
       selector: livelyTokenIface.getSighash("tokensDistribution"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPDATABLE
     },
     {
-      adminId: aclTypeLivelyTokenManagerId,
+      adminId: ACL_TYPE_LIVELY_TOKEN_MANAGER_ID,
       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
       selector: livelyTokenIface.getSighash("upgradeTo"),
       policyCode: 0,
@@ -614,23 +590,23 @@ async function registerLivelyTokenACLFunctions(systemAdmin: SignerWithAddress, h
       alstat: AlterabilityStatus.UPDATABLE
     },
     {
-      adminId: aclTypeLivelyTokenManagerId,
-      agentId: aclTypeLivelyTokenManagerId,
+      adminId: ACL_TYPE_LIVELY_TOKEN_MANAGER_ID,
+      agentId: ACL_TYPE_LIVELY_TOKEN_MANAGER_ID,
       selector: livelyTokenIface.getSighash("setSafeModeStatus"),
       policyCode: 16,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPDATABLE
     },
     {
-      adminId: aclTypeLivelyTokenManagerId,
-      agentId: aclTypeLivelyTokenManagerId,
+      adminId: ACL_TYPE_LIVELY_TOKEN_MANAGER_ID,
+      agentId: ACL_TYPE_LIVELY_TOKEN_MANAGER_ID,
       selector: livelyTokenIface.getSighash("setUpdatabilityStatus"),
       policyCode: 90,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPDATABLE
     },
     {
-      adminId: aclTypeLivelyTokenManagerId,
+      adminId: ACL_TYPE_LIVELY_TOKEN_MANAGER_ID,
       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
       selector: livelyTokenIface.getSighash("setLocalAdmin"),
       policyCode: 65,
@@ -638,16 +614,16 @@ async function registerLivelyTokenACLFunctions(systemAdmin: SignerWithAddress, h
       alstat: AlterabilityStatus.UPDATABLE
     },
     {
-      adminId: aclRoleLivelyTokenManagerAdminId,
-      agentId: aclRoleLivelyTokenManagerAdminId,
+      adminId: ACL_ROLE_LIVELY_TOKEN_MANAGER_ADMIN_ID,
+      agentId: ACL_ROLE_LIVELY_TOKEN_MANAGER_ADMIN_ID,
       selector: livelyTokenIface.getSighash("setAccessControlManager"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPDATABLE
     },
     {
-      adminId: aclTypeLivelyTokenManagerId,
-      agentId: aclTypeLivelyTokenManagerId,
+      adminId: ACL_TYPE_LIVELY_TOKEN_MANAGER_ID,
+      agentId: ACL_TYPE_LIVELY_TOKEN_MANAGER_ID,
       selector: livelyTokenIface.getSighash("withdrawBalance"),
       policyCode: 240,
       acstat: ActivityStatus.ENABLED,
@@ -674,7 +650,7 @@ async function registerLivelyTokenACLFunctions(systemAdmin: SignerWithAddress, h
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 }
 

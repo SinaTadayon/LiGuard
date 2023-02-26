@@ -733,17 +733,6 @@ describe("Asset Manager ERC20 Token Tests", function () {
       profileAccessControlProxy = profileAccessControlSubject.attach(proxy.address);
     })
 
-    it("ACL Manager Initialize", async() => {
-      // Acl Manager Init
-      await aclManagerProxy.getFirstInit();
-      await aclManagerProxy.connect(systemAdmin).initACL(
-        contextManagerProxy.address,
-        functionManagerProxy.address,
-        livelyAdminWallet.address,
-        systemAdminWallet.address
-      );
-    })
-
     it("ACL Facets Register ", async() => {
       // acl facets
       const memberIface = new ethers.utils.Interface(MemberManager__factory.abi);
@@ -1178,6 +1167,17 @@ describe("Asset Manager ERC20 Token Tests", function () {
         }
       ]
       await aclManagerProxy.connect(systemAdmin).aclRegisterFacet(profileFacetRequests)
+    })
+
+    it("ACL Manager Initialize", async() => {
+      // Acl Manager Init
+      await aclManagerProxy.getFirstInit();
+      await aclManagerProxy.connect(systemAdmin).initACL(
+        contextManagerProxy.address,
+        functionManagerProxy.address,
+        livelyAdminWallet.address,
+        systemAdminWallet.address
+      );
     })
 
     it("ACL Contexts Register ", async() => {
@@ -1842,7 +1842,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
       await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(emptyMemberSignature, typeFunctionRegisterRequest)
     })
 
-    it("ACL Scopes Functions Register ", async() => {
+    it("ACL Scopes (Function,Context,Realm) Functions Register ", async() => {
       // Function functions
       const functionIface = new ethers.utils.Interface(FunctionManager__factory.abi);
       const functionFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
@@ -2163,7 +2163,9 @@ describe("Asset Manager ERC20 Token Tests", function () {
         }
       ]
       await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(emptyMemberSignature, realmFunctionRegisterRequest)
+    })
 
+    it("ACL Scopes (Domain, Universe) Functions Register ", async() => {
       // Domain functions
       const domainIface = new ethers.utils.Interface(DomainManager__factory.abi);
       const domainFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
@@ -3784,7 +3786,7 @@ describe("Asset Manager ERC20 Token Tests", function () {
       const profilePolicyFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
         {
           adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-          agentId: LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,
+          agentId: LIVELY_PROFILE_ANY_TYPE_ID,
           selector: profilePolicyIface.getSighash("profilePolicyRegister"),
           policyCode: 250,
           acstat: ActivityStatus.ENABLED,

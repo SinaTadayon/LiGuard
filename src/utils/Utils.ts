@@ -244,8 +244,8 @@ export async function generateContextDomainSignatureByHardhatProvider(
     },
     primaryType: "Context",
     domain: {
-      name: "AccessControlManager",
-      version: "1.0.0",
+      name: "ACLManager",
+      version: "3.0.0",
       chainId,
       verifyingContract,
     },
@@ -286,8 +286,8 @@ export async function generatePredictContextDomainSignatureByHardhatProvider(
     },
     primaryType: "PredictContext",
     domain: {
-      name: "AccessControlManager",
-      version: "1.0.0",
+      name: "ACLManager",
+      version: "3.0.0",
       chainId,
       verifyingContract,
     },
@@ -332,7 +332,7 @@ export async function generatePermitDomainSignatureByHardhatProvider(
     primaryType: "Permit",
     domain: {
       name: "LivelyToken",
-      version: "1.0.0",
+      version: "3.0.0",
       chainId,
       verifyingContract,
     },
@@ -523,7 +523,6 @@ export async function generatePredictContextDomainSignatureManually(
   return signature.compact;
 }
 
-
 export async function generateProfileContextDomainSignatureManually(
   profileName: string,
   contractAddress: Address,
@@ -688,7 +687,6 @@ export async function generateProfileMemberSignatureManually(
   return signature.compact;
 }
 
-
 export async function generateProfilePredictContextDomainByWaffleProvider(
   profileName: string,
   ownerAddress: Address,
@@ -728,7 +726,6 @@ export async function generateProfilePredictContextDomainByWaffleProvider(
 
   return await provider.send("eth_signTypedData_v4", [signerAddress, messageParams]);
 }
-
 
 export function generateDomainSeparator(
   contractName: string,

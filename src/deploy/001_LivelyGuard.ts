@@ -1,31 +1,56 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction, DeployOptions, DeployResult } from "hardhat-deploy/types";
 import {
-  AccessControl, AccessControl__factory,
-  ACLManager, ACLManager__factory,
-  ContextManager, ContextManager__factory,
-  DomainManager, DomainManager__factory,
-  FunctionManager, FunctionManager__factory, IACLManager, IContextManagement, IFunctionManagement,
+  AccessControl,
+  AccessControl__factory,
+  ACLManager,
+  ACLManager__factory,
+  ContextManager,
+  ContextManager__factory,
+  DomainManager,
+  DomainManager__factory,
+  FunctionManager,
+  FunctionManager__factory,
+  IACLManager,
+  IContextManagement,
+  IFunctionManagement,
   LACLCommons,
   LProfileCommons,
   LProfileRolePolicy,
-  MemberManager, MemberManager__factory,
-  PolicyManager, PolicyManager__factory,
-  ProfileAccessControl, ProfileAccessControl__factory,
-  ProfileContextManager, ProfileContextManager__factory,
-  ProfileDomainManager, ProfileDomainManager__factory,
-  ProfileFunctionManager, ProfileFunctionManager__factory,
-  ProfileManager, ProfileManager__factory,
-  ProfileMemberManager, ProfileMemberManager__factory,
-  ProfilePolicyManager, ProfilePolicyManager__factory,
-  ProfileRealmManager, ProfileRealmManager__factory,
-  ProfileRoleManager, ProfileRoleManager__factory,
-  ProfileTypeManager, ProfileTypeManager__factory,
-  ProfileUniverseManager, ProfileUniverseManager__factory,
-  RealmManager, RealmManager__factory,
-  RoleManager, RoleManager__factory,
-  TypeManager, TypeManager__factory,
-  UniverseManager, UniverseManager__factory
+  MemberManager,
+  MemberManager__factory,
+  PolicyManager,
+  PolicyManager__factory,
+  ProfileAccessControl,
+  ProfileAccessControl__factory,
+  ProfileContextManager,
+  ProfileContextManager__factory,
+  ProfileDomainManager,
+  ProfileDomainManager__factory,
+  ProfileFunctionManager,
+  ProfileFunctionManager__factory,
+  ProfileManager,
+  ProfileManager__factory,
+  ProfileMemberManager,
+  ProfileMemberManager__factory,
+  ProfilePolicyManager,
+  ProfilePolicyManager__factory,
+  ProfileRealmManager,
+  ProfileRealmManager__factory,
+  ProfileRoleManager,
+  ProfileRoleManager__factory,
+  ProfileTypeManager,
+  ProfileTypeManager__factory,
+  ProfileUniverseManager,
+  ProfileUniverseManager__factory,
+  RealmManager,
+  RealmManager__factory,
+  RoleManager,
+  RoleManager__factory,
+  TypeManager,
+  TypeManager__factory,
+  UniverseManager,
+  UniverseManager__factory
 } from "../../typechain/types";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/src/signers";
 import { ethers } from "ethers";
@@ -207,6 +232,7 @@ let profileAccessControlProxyDeployed: DeployResult;
 let aclManagerSubjectDeployed: DeployResult;
 let aclManagerProxyDeployed: DeployResult;
 let aclManagerProxy: ACLManager;
+let aclManagerFirstInit: boolean;
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, ethers, getChainId } = hre;
@@ -252,26 +278,30 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   // @ts-ignore
   await deployProfileProxies(systemAdmin, deploy);
 
-  // @ts-ignore
-  await initAclManager(hre, systemAdmin, livelyAdmin)
+  aclManagerFirstInit = await aclManagerProxy.connect(systemAdmin).getFirstInit();
+  if(aclManagerFirstInit) {
 
-  // @ts-ignore
-  await registerACLFacets(hre, systemAdmin);
+    // @ts-ignore
+    await registerACLFacets(hre, systemAdmin);
 
-  // @ts-ignore
-  await registerProfileFacets(hre, systemAdmin);
+    // @ts-ignore
+    await registerProfileFacets(hre, systemAdmin);
 
-  // @ts-ignore
-  await registerACLContexts(hre, systemAdmin);
+    // @ts-ignore
+    await initAclManager(hre, systemAdmin, livelyAdmin)
 
-  // @ts-ignore
-  await registerProfileContexts(hre, systemAdmin);
+    // @ts-ignore
+    await registerACLContexts(hre, systemAdmin);
 
-  // @ts-ignore
-  await registerAclFunctions(hre, systemAdmin);
+    // @ts-ignore
+    await registerProfileContexts(hre, systemAdmin);
 
-  // @ts-ignore
-  await registerProfileFunctions(hre, systemAdmin);
+    // @ts-ignore
+    await registerAclFunctions(hre, systemAdmin);
+
+    // @ts-ignore
+    await registerProfileFunctions(hre, systemAdmin);
+  }
 };
 
 async function initAclManager(hre: HardhatRuntimeEnvironment, systemAdmin: SignerWithAddress, livelyAdmin: SignerWithAddress) {
@@ -290,7 +320,7 @@ async function initAclManager(hre: HardhatRuntimeEnvironment, systemAdmin: Signe
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 
   // attach proxies to function and context manager
@@ -1133,7 +1163,7 @@ async function registerACLFacets(hre: HardhatRuntimeEnvironment, systemAdmin: Si
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 }
 
@@ -1352,7 +1382,7 @@ async function registerProfileFacets(hre: HardhatRuntimeEnvironment, systemAdmin
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 }
 
@@ -1510,7 +1540,7 @@ async function registerACLContexts(hre: HardhatRuntimeEnvironment, systemAdmin: 
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 }
 
@@ -1668,7 +1698,7 @@ async function registerProfileContexts(hre: HardhatRuntimeEnvironment, systemAdm
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 }
 
@@ -1788,7 +1818,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 
   // Role functions
@@ -1928,7 +1958,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 
   // Type functions
@@ -2052,7 +2082,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 
   // Function functions
@@ -2168,7 +2198,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 
   // Context functions
@@ -2276,7 +2306,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 
   // Realm functions
@@ -2400,7 +2430,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 
   // Domain functions
@@ -2524,7 +2554,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 
   // Universe functions
@@ -2632,7 +2662,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 
   // Profile Manager functions
@@ -2756,7 +2786,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 
   // Policy functions
@@ -2904,7 +2934,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 
   // Access Control functions
@@ -2980,7 +3010,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 
   // Acl Manager functions
@@ -3072,7 +3102,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 }
 
@@ -3208,7 +3238,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 
   // Profile Role functions
@@ -3348,7 +3378,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 
   // Profile Type functions
@@ -3472,7 +3502,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 
   // Profile Function funtions
@@ -3596,7 +3626,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 
   // Profile Context functions
@@ -3712,7 +3742,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 
   // Profile Realm functions
@@ -3836,7 +3866,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 
   // Profile Domain functions
@@ -3960,7 +3990,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 
   // Profile Universe functions
@@ -4068,7 +4098,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 
   // Profile Access Control functions
@@ -4144,7 +4174,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 
   // Profile Policy functions
@@ -4152,7 +4182,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
   const profilePolicyFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-      agentId: LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,
+      agentId: LIVELY_PROFILE_ANY_TYPE_ID,
       selector: profilePolicyIface.getSighash("profilePolicyRegister"),
       policyCode: 250,
       acstat: ActivityStatus.ENABLED,
@@ -4292,7 +4322,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, txBlock: ${txReceipt.blockNumber}, status: ${txReceipt.status}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 }
 

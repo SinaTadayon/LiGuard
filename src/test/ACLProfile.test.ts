@@ -1665,29 +1665,6 @@ describe("Lively Guard Profile Tests", function() {
     })
 
     describe("Initialize ACL Manager Tests", function() {
-      it("Should call aclInit of ACLManager by systemAdmin success", async() => {
-        // given
-        const firstInit = await aclManagerProxy.getFirstInit();
-
-        // when
-        await expect(aclManagerProxy.connect(systemAdmin).initACL(
-          contextManagerProxy.address,
-          functionManagerProxy.address,
-          livelyAdminWallet.address,
-          systemAdminWallet.address
-        )).to.emit(aclManagerProxy, "ACLInitialized")
-          .withArgs(
-            systemAdminWallet.address,
-            livelyAdminWallet.address,
-            systemAdminWallet.address,
-            contextManagerProxy.address,
-            functionManagerProxy.address,
-          )
-
-        // then
-        expect(await aclManagerProxy.getFirstInit()).to.be.equal(firstInit);
-      })
-
       it("Should facets acl register to ACLManager by systemAdmin success", async() => {
 
         // given
@@ -2211,6 +2188,30 @@ describe("Lively Guard Profile Tests", function() {
           profileUniverseManagerProxy.address,
           profileAccessControlProxy.address
         ])
+      })
+
+      it("Should call aclInit of ACLManager by systemAdmin success", async() => {
+        // given
+        const firstInit = await aclManagerProxy.getFirstInit();
+
+        // when
+        await expect(aclManagerProxy.connect(systemAdmin).initACL(
+          contextManagerProxy.address,
+          functionManagerProxy.address,
+          livelyAdminWallet.address,
+          systemAdminWallet.address
+        )).to.emit(aclManagerProxy, "ACLInitialized")
+          .withArgs(
+            systemAdminWallet.address,
+            livelyAdminWallet.address,
+            systemAdminWallet.address,
+            contextManagerProxy.address,
+            functionManagerProxy.address,
+          )
+
+        // then
+        expect(firstInit).to.be.true;
+        expect(await aclManagerProxy.getFirstInit()).to.be.false;
       })
 
       it("Should register ACL contexts by systemAdmin success", async() => {
@@ -7012,7 +7013,7 @@ describe("Lively Guard Profile Tests", function() {
         const profilePolicyFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
           {
             adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
-            agentId: LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,
+            agentId: LIVELY_PROFILE_ANY_TYPE_ID,
             selector: profilePolicyIface.getSighash("profilePolicyRegister"),
             policyCode: 250,
             acstat: ActivityStatus.ENABLED,
@@ -7203,7 +7204,7 @@ describe("Lively Guard Profile Tests", function() {
         // and
         const functionInfo: IFunctionManagement.FunctionInfoStruct = await functionManagerDelegateProxy.functionGetInfo(profilePolicyRegisterFunctionId);
         expect(functionInfo.adminId).to.be.equal(LIVELY_VERSE_PROFILE_MASTER_TYPE_ID);
-        expect(functionInfo.agentId).to.be.equal(LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID);
+        expect(functionInfo.agentId).to.be.equal(LIVELY_PROFILE_ANY_TYPE_ID);
         expect(functionInfo.contextId).to.be.equal(profilePolicyContextId);
         expect(functionInfo.adminType).to.be.equal(AgentType.TYPE);
         expect(functionInfo.agentType).to.be.equal(AgentType.TYPE);

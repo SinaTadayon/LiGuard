@@ -1,50 +1,53 @@
-import { DeployFunction } from "hardhat-deploy/types";
+import { DeployFunction, DeployResult } from "hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 /* eslint-disable camelcase,node/no-unpublished-import */
 import {
-  AccessControlManager,
-  AccessControlManager__factory,
+  ACLManager,
+  ACLManager__factory,
   AssetERC20,
   AssetERC20__factory,
   AssetManagerERC20,
   AssetManagerERC20__factory,
+  ContextManager,
+  ContextManager__factory,
+  DomainManager,
+  FunctionManager,
+  FunctionManager__factory,
+  IAssetEntity,
   IAssetManagerERC20,
+  IMemberManagement,
   IRoleManagement,
   LivelyToken,
   LivelyToken__factory,
+  MemberManager, MemberManager__factory,
+  RealmManager,
+  RoleManager, RoleManager__factory,
+  TypeManager
 } from "../../typechain/types";
-import {
-  generatePredictContextDomainSignatureByHardhat,
-  LIVELY_ADMIN_ROLE,
-  LIVELY_ASSET_ADMIN_ROLE,
-  LIVELY_ASSET_ERC20_DOMAIN_VERSION,
-  LIVELY_ASSET_GROUP,
-  LIVELY_ASSET_MANAGER_ROLE,
-  LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_NAME,
-  LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_ROLE,
-  LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_ROLE_NAME,
-  LIVELY_CROWD_FOUNDING_ASSET_NAME,
-  LIVELY_CROWD_FOUNDING_ASSET_ROLE,
-  LIVELY_CROWD_FOUNDING_ASSET_ROLE_NAME,
-  LIVELY_FOUNDING_TEAM_ASSET_NAME,
-  LIVELY_FOUNDING_TEAM_ASSET_ROLE,
-  LIVELY_FOUNDING_TEAM_ASSET_ROLE_NAME,
-  LIVELY_PUBLIC_SALE_ASSET_NAME,
-  LIVELY_PUBLIC_SALE_ASSET_ROLE,
-  LIVELY_PUBLIC_SALE_ASSET_ROLE_NAME,
-  LIVELY_TAX_TREASURY_ASSET_NAME,
-  LIVELY_TREASURY_ASSET_NAME,
-  LIVELY_TREASURY_ASSET_ROLE,
-  LIVELY_TREASURY_ASSET_ROLE_NAME,
-  LIVELY_VALIDATORS_REWARDS_ASSET_NAME,
-  LIVELY_VALIDATORS_REWARDS_ASSET_ROLE,
-  LIVELY_VALIDATORS_REWARDS_ASSET_ROLE_NAME,
-} from "../utils/deployUtils";
 import { ethers } from "hardhat";
 import { Address } from "hardhat-deploy/dist/types";
-import { LIVELY_TOKEN_INIT_VERSION } from "./002_LivelyToken";
-import { ASSET_MANAGER_INIT_VERSION } from "./003_AssetManagerERC20";
+import {
+  ACL_REALM_LIVELY_TOKEN_ERC20_ID, ACL_REALM_LIVELY_TOKEN_ERC20_NAME,
+  ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID, ACL_TYPE_LIVELY_TOKEN_ASSET_MANAGER_ID,
+  LIVELY_TOKEN_INIT_VERSION,
+  LIVELY_TOKEN_PROXY
+} from "./002_LivelyToken";
+import { ASSET_MANAGER_ERC20_PROXY, ASSET_MANAGER_INIT_VERSION } from "./003_AssetManagerERC20";
 import { Signer } from "ethers";
+import { expect } from "chai";
+import {
+  ActivityStatus,
+  AlterabilityStatus,
+  AssetSafeModeStatus, AssetType, generatePredictContextDomainSignatureByHardhatProvider,
+  generatePredictContextDomainSignatureManually
+} from "../utils/Utils";
+import { IACLCommons as IACLCommonsRoles } from "../../typechain/types/acl/agent/IRoleManagement";
+import {
+  ACL_MANAGER_CONTRACT_NAME_PROXY,
+  EMPTY_MEMBER_SIGNATURE,
+  MAINNET_TX_WAIT_BLOCK_COUNT, TESTNET_TX_WAIT_BLOCK_COUNT
+} from "./001_LivelyGuard";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/src/signers";
 
 type AssetInfo = {
   assetId: Address;
@@ -53,416 +56,751 @@ type AssetInfo = {
   salt: string;
 };
 
-const assetManagerERC20DomainRealm = "LIVELY_ASSET_REALM";
+
+const ASSET_ERC20_SUBJECT = "AssetERC20Subject";
+const ASSET_ERC20_NAME = "AssetERC20";
+const ASSET_ERC20_CONTRACT_VERSION = "3.0.0";
+
+const LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_NAME = "LIVELY_AUDIO_VIDEO_PROGRAM_ASSET";
+const LIVELY_FOUNDING_TEAM_ASSET_NAME = "LIVELY_FOUNDING_TEAM_ASSET";
+const LIVELY_TREASURY_ASSET_NAME = "LIVELY_TREASURY_ASSET";
+const LIVELY_PUBLIC_SALE_ASSET_NAME = "LIVELY_PUBLIC_SALE_ASSET";
+const LIVELY_VALIDATOR_REWARDS_ASSET_NAME = "LIVELY_VALIDATORS_REWARDS_ASSET";
+const LIVELY_CROWD_FOUNDING_ASSET_NAME = "LIVELY_CROWD_FOUNDING_ASSET";
+const LIVELY_TAX_TREASURY_ASSET_NAME = "LIVELY_TAX_TREASURY_ASSET";
+
+const ACL_ROLE_LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_NAME = "ROLE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.AUDIO_VIDEO_PROGRAM_ASSET_ADMIN";
+const ACL_ROLE_LIVELY_FOUNDING_TEAM_ASSET_NAME = "ROLE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.FOUNDING_TEAM_ASSET_ADMIN";
+const ACL_ROLE_LIVELY_TREASURY_ASSET_NAME = "ROLE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.TREASURY_ASSET_ADMIN";
+const ACL_ROLE_LIVELY_PUBLIC_SALE_ASSET_NAME = "ROLE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.PUBLIC_SALE_ASSET_ADMIN";
+const ACL_ROLE_LIVELY_VALIDATOR_REWARDS_ASSET_NAME = "ROLE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.VALIDATORS_REWARDS_ASSET_ADMIN";
+const ACL_ROLE_LIVELY_CROWD_FOUNDING_ASSET_NAME = "ROLE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.CROWD_FOUNDING_ASSET_ADMIN";
+const ACL_ROLE_LIVELY_TAX_TREASURY_ASSET_NAME = "ROLE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.TAX_TREASURY_ASSET_ADMIN";
+
+const ACL_ROLE_LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_ADMIN_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_NAME));
+const ACL_ROLE_LIVELY_FOUNDING_TEAM_ASSET_ADMIN_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_LIVELY_FOUNDING_TEAM_ASSET_NAME));
+const ACL_ROLE_LIVELY_TREASURY_ASSET_ADMIN_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_LIVELY_TREASURY_ASSET_NAME));
+const ACL_ROLE_LIVELY_PUBLIC_SALE_ASSET_ADMIN_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_LIVELY_PUBLIC_SALE_ASSET_NAME));
+const ACL_ROLE_LIVELY_VALIDATOR_REWARDS_ASSET_ADMIN_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_LIVELY_VALIDATOR_REWARDS_ASSET_NAME));
+const ACL_ROLE_LIVELY_CROWD_FOUNDING_ASSET_ADMIN_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_LIVELY_CROWD_FOUNDING_ASSET_NAME));
+const ACL_ROLE_LIVELY_TAX_TREASURY_ASSET_ADMIN_ID = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_LIVELY_TAX_TREASURY_ASSET_NAME));
+
+let assetERC20Subject: DeployResult;
+
+let memberManagerDelegateProxy: MemberManager;
+let roleManagerDelegateProxy: RoleManager;
+
+let assetAudioVideoProgramId: string;
+let assetFoundingTeamId: string;
+let assetTreasuryId: string;
+let assetPublicSaleId: string;
+let assetValidatorsRewardsId: string;
+let assetCrowdFoundingId: string;
+let assetTaxTreasuryId: string;
+
+let assetAudioVideoProgramAddress: string;
+let assetFoundingTeamAddress: string;
+let assetTreasuryAddress: string;
+let assetPublicSaleAddress: string;
+let assetValidatorsRewardsAddress: string;
+let assetCrowdFoundingAddress: string;
+let assetTaxTreasuryAddress: string;
+
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, ethers, getChainId } = hre;
   const { deploy } = deployments;
-  const [systemAdmin, admin, assetAdmin] = await ethers.getSigners();
-  const systemAdminAddress = systemAdmin.address;
-  const adminAddress = admin.address;
-  const assetAdminAddress = assetAdmin.address;
-  const accessControlManagerDeployed = await deployments.get("AccessControlManagerProxy");
-  const assetManagerERC20Deployed = await deployments.get("AssetManagerERC20Proxy");
-  const livelyTokenDeployed = await deployments.get("LivelyTokenProxy");
-  const chainId = await getChainId();
-  const accessControlManager = AccessControlManager__factory.connect(accessControlManagerDeployed.address, systemAdmin);
-  const assetManagerERC20 = AssetManagerERC20__factory.connect(assetManagerERC20Deployed.address, systemAdmin);
-  const livelyToken = LivelyToken__factory.connect(livelyTokenDeployed.address, systemAdmin);
-  const assetERC20Subject = await deploy("AssetERC20Subject", {
-    contract: "AssetERC20",
-    from: systemAdminAddress,
+  const [systemAdmin, livelyAdmin, assetAdmin] = await ethers.getSigners();
+  const aclManagerProxyDeployed = await deployments.get(ACL_MANAGER_CONTRACT_NAME_PROXY);
+  const assetManagerProxyDeployed = await deployments.get(ASSET_MANAGER_ERC20_PROXY);
+  const livelyTokenProxyDeployed = await deployments.get(LIVELY_TOKEN_PROXY);
+  const aclManagerProxy = ACLManager__factory.connect(aclManagerProxyDeployed.address, systemAdmin);
+  const assetManagerProxy = AssetManagerERC20__factory.connect(assetManagerProxyDeployed.address, systemAdmin);
+  const livelyTokenProxy = LivelyToken__factory.connect(livelyTokenProxyDeployed.address, systemAdmin);
+
+  memberManagerDelegateProxy = MemberManager__factory.connect(aclManagerProxy.address, systemAdmin);
+  roleManagerDelegateProxy = RoleManager__factory.connect(aclManagerProxy.address, systemAdmin);
+
+  assetERC20Subject = await deploy(ASSET_ERC20_SUBJECT, {
+    contract: ASSET_ERC20_NAME,
+    from: systemAdmin.address,
     log: true,
     skipIfAlreadyDeployed: true,
   });
 
   if (LIVELY_TOKEN_INIT_VERSION === 0 && ASSET_MANAGER_INIT_VERSION === 0) {
-    await registerAssetRoles(hre, accessControlManager, systemAdmin);
-    await grantRolesToAccounts(
-      hre,
-      accessControlManager,
-      assetManagerERC20,
-      systemAdmin,
-      adminAddress,
-      assetAdminAddress
-    );
 
-    const assetsMap = await generateAssetsInfo(assetManagerERC20, assetERC20Subject.address);
-    const assetSignature = await generatePredictContextDomainSignatureByHardhat(
-      hre,
-      assetManagerERC20.address,
-      assetManagerERC20DomainRealm,
-      accessControlManager.address,
-      systemAdminAddress,
-      parseInt(chainId),
-      assetERC20Subject.address
-    );
+    // @ts-ignore
+    await registerAssetAClRoles(assetAdmin, hre);
 
-    let txReceipt;
-    console.log(`[ Update AssetSubject AssetManagerERC20 ]`);
-    let tx = await assetManagerERC20.connect(assetAdmin).updateAssetSubject(assetERC20Subject.address, assetSignature);
-    console.log(`txHash: ${tx.hash} . . .`);
-    if (hre.network.name === "polygon" || hre.network.name === "bsc") {
-      txReceipt = await tx.wait(7);
-    } else {
-      txReceipt = await tx.wait(1);
-    }
-    console.log(`txHash: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
-    // console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
-    console.log();
+    // @ts-ignore
+    await registerLivelyTokenToAssetManager(livelyTokenProxy, assetManagerProxy, aclManagerProxy, systemAdmin, assetAdmin, hre);
 
-    // register lively token
-    console.log(`[ Register Token AssetManagerERC20 ]`);
-    tx = await assetManagerERC20.connect(assetAdmin).registerToken(livelyToken.address);
-    console.log(`txHash: ${tx.hash} . . .`);
-    if (hre.network.name === "polygon" || hre.network.name === "bsc") {
-      txReceipt = await tx.wait(7);
-    } else {
-      txReceipt = await tx.wait(1);
-    }
-    console.log(`tx: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
-    // console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
-    console.log();
+    // @ts-ignore
+    await registerLivelyTokenAssets(systemAdmin, assetAdmin, livelyTokenProxy, assetManagerProxy, hre);
 
-    // create assets
-    for (const assetInfo of assetsMap.values()) {
-      await createAsset(hre, assetManagerERC20, assetInfo, assetAdmin, livelyToken);
-    }
+    // @ts-ignore
+    await registerAssetRoles(assetAdmin, hre);
 
-    // grant role ASSET_MANAGER to ERC20 assets
-    await grantAssetManagerRoleToAssets(hre, accessControlManager, assetManagerERC20, admin, assetsMap);
+    // @ts-ignore
+    await updateAssetRolesScope(assetAdmin, hre);
 
-    // distribute tokens to assets ERC20
-    console.log(`[ Distribution LivelyTokens ]`);
-    tx = await assetManagerERC20.connect(assetAdmin).livelyTokensDistribution(livelyToken.address);
-    console.log(`txHash: ${tx.hash} . . .`);
-    if (hre.network.name === "polygon" || hre.network.name === "bsc") {
-      txReceipt = await tx.wait(7);
-    } else {
-      txReceipt = await tx.wait(1);
-    }
-    console.log(`txHash: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
-    // console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
-    console.log();
-
-    // revoke systemAdmin from LIVELY_ADMIN_ROLE role
-    console.log(`[ Revoke Role LIVELY_ADMIN_ROLE From SystemAdmin ]`);
-    tx = await accessControlManager.connect(admin).revokeRoleAccount(LIVELY_ADMIN_ROLE, systemAdminAddress);
-    console.log(`txHash: ${tx.hash} . . .`);
-    if (hre.network.name === "polygon" || hre.network.name === "bsc") {
-      txReceipt = await tx.wait(7);
-    } else {
-      txReceipt = await tx.wait(1);
-    }
-    console.log(`txHash: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
-    // console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
-    console.log();
+    // @ts-ignore
+    await distributeLivelyToken(assetAdmin, livelyTokenProxy, assetManagerProxy, hre);
   }
 };
 
-async function registerAssetRoles(
-  hre: HardhatRuntimeEnvironment,
-  accessControlManager: AccessControlManager,
-  systemAdmin: Signer
-) {
-  const registerRoleRequest: IRoleManagement.RegisterRoleRequestStruct[] = [
+async function registerAssetAClRoles(assetAdmin: SignerWithAddress, hre: HardhatRuntimeEnvironment) {
+  const roleRegisterRequests: IRoleManagement.RoleRegisterRequestStruct[] = [
     {
-      name: LIVELY_CROWD_FOUNDING_ASSET_ROLE_NAME,
-      group: LIVELY_ASSET_GROUP,
-      status: true,
+      adminId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
+      scopeId: ACL_REALM_LIVELY_TOKEN_ERC20_ID,
+      typeId: ACL_TYPE_LIVELY_TOKEN_ASSET_MANAGER_ID,
+      memberLimit: 16,
+      acstat: ActivityStatus.ENABLED,
+      alstat: AlterabilityStatus.UPDATABLE,
+      name: ACL_ROLE_LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_NAME
     },
     {
-      name: LIVELY_VALIDATORS_REWARDS_ASSET_ROLE_NAME,
-      group: LIVELY_ASSET_GROUP,
-      status: true,
+      adminId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
+      scopeId: ACL_REALM_LIVELY_TOKEN_ERC20_ID,
+      typeId: ACL_TYPE_LIVELY_TOKEN_ASSET_MANAGER_ID,
+      memberLimit: 16,
+      acstat: ActivityStatus.ENABLED,
+      alstat: AlterabilityStatus.UPDATABLE,
+      name: ACL_ROLE_LIVELY_PUBLIC_SALE_ASSET_NAME
     },
     {
-      name: LIVELY_PUBLIC_SALE_ASSET_ROLE_NAME,
-      group: LIVELY_ASSET_GROUP,
-      status: true,
+      adminId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
+      scopeId: ACL_REALM_LIVELY_TOKEN_ERC20_ID,
+      typeId: ACL_TYPE_LIVELY_TOKEN_ASSET_MANAGER_ID,
+      memberLimit: 16,
+      acstat: ActivityStatus.ENABLED,
+      alstat: AlterabilityStatus.UPDATABLE,
+      name: ACL_ROLE_LIVELY_FOUNDING_TEAM_ASSET_NAME
     },
     {
-      name: LIVELY_TREASURY_ASSET_ROLE_NAME,
-      group: LIVELY_ASSET_GROUP,
-      status: true,
+      adminId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
+      scopeId: ACL_REALM_LIVELY_TOKEN_ERC20_ID,
+      typeId: ACL_TYPE_LIVELY_TOKEN_ASSET_MANAGER_ID,
+      memberLimit: 16,
+      acstat: ActivityStatus.ENABLED,
+      alstat: AlterabilityStatus.UPDATABLE,
+      name: ACL_ROLE_LIVELY_CROWD_FOUNDING_ASSET_NAME
     },
     {
-      name: LIVELY_FOUNDING_TEAM_ASSET_ROLE_NAME,
-      group: LIVELY_ASSET_GROUP,
-      status: true,
+      adminId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
+      scopeId: ACL_REALM_LIVELY_TOKEN_ERC20_ID,
+      typeId: ACL_TYPE_LIVELY_TOKEN_ASSET_MANAGER_ID,
+      memberLimit: 16,
+      acstat: ActivityStatus.ENABLED,
+      alstat: AlterabilityStatus.UPDATABLE,
+      name: ACL_ROLE_LIVELY_VALIDATOR_REWARDS_ASSET_NAME
     },
     {
-      name: LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_ROLE_NAME,
-      group: LIVELY_ASSET_GROUP,
-      status: true,
+      adminId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
+      scopeId: ACL_REALM_LIVELY_TOKEN_ERC20_ID,
+      typeId: ACL_TYPE_LIVELY_TOKEN_ASSET_MANAGER_ID,
+      memberLimit: 16,
+      acstat: ActivityStatus.ENABLED,
+      alstat: AlterabilityStatus.UPDATABLE,
+      name: ACL_ROLE_LIVELY_TAX_TREASURY_ASSET_NAME
     },
-  ];
-
+    {
+      adminId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
+      scopeId: ACL_REALM_LIVELY_TOKEN_ERC20_ID,
+      typeId: ACL_TYPE_LIVELY_TOKEN_ASSET_MANAGER_ID,
+      memberLimit: 16,
+      acstat: ActivityStatus.ENABLED,
+      alstat: AlterabilityStatus.UPDATABLE,
+      name: ACL_ROLE_LIVELY_TREASURY_ASSET_NAME
+    },
+  ]
   let txReceipt;
-  console.log(`[ BatchRegisterRole AccessControlManager ]`);
-  const tx = await accessControlManager.connect(systemAdmin).batchRegisterRole(registerRoleRequest);
+  console.log(`[ Register Assets ACL Roles ]`);
+  const tx = await roleManagerDelegateProxy.connect(assetAdmin).roleRegister(EMPTY_MEMBER_SIGNATURE, roleRegisterRequests);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
-    txReceipt = await tx.wait(7);
+    txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
   } else {
-    txReceipt = await tx.wait(1);
+    txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
-  // console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 }
 
-async function grantRolesToAccounts(
-  hre: HardhatRuntimeEnvironment,
-  accessControlManager: AccessControlManager,
-  assetManagerERC20: AssetManagerERC20,
-  systemAdminSigner: Signer,
-  adminAddress: string,
-  assetAdminAddress: string
+async function registerLivelyTokenToAssetManager(
+  livelyTokenProxy: LivelyToken,
+  assetManagerProxy: AssetManagerERC20,
+  aclManagerProxy: ACLManager,
+  systemAdmin: SignerWithAddress,
+  assetAdmin: SignerWithAddress,
+  hre: HardhatRuntimeEnvironment
 ) {
-  const batchGrantRequest: IRoleManagement.UpdateRoleRequestStruct[] = [
+  const chainId = await hre.getChainId();
+  const assetSignature = await generatePredictContextDomainSignatureByHardhatProvider(
+    hre,
+    assetManagerProxy.address,
+    ACL_REALM_LIVELY_TOKEN_ERC20_NAME,
+    aclManagerProxy.address,
+    systemAdmin.address,
+    parseInt(chainId),
+    assetERC20Subject.address
+  );
+  const registerTokenRequest: IAssetManagerERC20.AssetTokenActionRequestStruct[] = [
     {
-      role: LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_ROLE,
-      account: assetManagerERC20.address,
-    },
-    {
-      role: LIVELY_PUBLIC_SALE_ASSET_ROLE,
-      account: assetManagerERC20.address,
-    },
-    {
-      role: LIVELY_TREASURY_ASSET_ROLE,
-      account: assetManagerERC20.address,
-    },
-    {
-      role: LIVELY_VALIDATORS_REWARDS_ASSET_ROLE,
-      account: assetManagerERC20.address,
-    },
-    {
-      role: LIVELY_CROWD_FOUNDING_ASSET_ROLE,
-      account: assetManagerERC20.address,
-    },
-    {
-      role: LIVELY_FOUNDING_TEAM_ASSET_ROLE,
-      account: assetManagerERC20.address,
-    },
-    {
-      role: LIVELY_ASSET_ADMIN_ROLE,
-      account: assetManagerERC20.address,
-    },
-    {
-      role: LIVELY_ASSET_ADMIN_ROLE,
-      account: assetAdminAddress,
-    },
-    {
-      role: LIVELY_ASSET_MANAGER_ROLE,
-      account: assetManagerERC20.address,
-    },
-    {
-      role: LIVELY_ADMIN_ROLE,
-      account: adminAddress,
-    },
-  ];
-
+      tokenId: livelyTokenProxy.address,
+      assetSubjectId: assetERC20Subject.address,
+      assetSignature: assetSignature
+    }
+  ]
   let txReceipt;
-  console.log(`[ BatchGrantRoleAccount AccessControlManager ]`);
-  const tx = await accessControlManager.connect(systemAdminSigner).batchGrantRoleAccount(batchGrantRequest);
+  console.log(`[ Register LivelyToken To AssetManagerERC20 ]`);
+  const tx = await assetManagerProxy.connect(assetAdmin).registerToken(registerTokenRequest);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
-    txReceipt = await tx.wait(7);
+    txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
   } else {
-    txReceipt = await tx.wait(1);
+    txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
-  // console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
 }
 
-async function generateAssetsInfo(
-  assetManagerERC20: AssetManagerERC20,
-  assetERC20Subject: Address
-): Promise<Map<string, AssetInfo>> {
-  const assetMap = new Map<string, AssetInfo>();
-
+async function registerLivelyTokenAssets(
+  systemAdmin: SignerWithAddress,
+  assetAdmin: SignerWithAddress,
+  livelyTokenProxy: LivelyToken,
+  assetManagerProxy: AssetManagerERC20,
+  hre: HardhatRuntimeEnvironment
+) {
+  // Register LIVELY_AUDIO_VIDEO_PROGRAM Asset
   let saltValue = ethers.utils.keccak256(
     ethers.utils.toUtf8Bytes(`${Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)}`)
   );
-  let assetId = await assetManagerERC20.predictAddress(assetERC20Subject, saltValue, assetManagerERC20.address);
-  assetMap.set(LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_NAME, {
-    assetId,
+  assetAudioVideoProgramAddress = await assetManagerProxy.predictAddress(
+    assetERC20Subject.address,
+    saltValue,
+    assetManagerProxy.address
+  );
+  const createAudioVideoProgramAssetRequest: IAssetManagerERC20.AssetCreateRequestStruct[] = [{
+    adminId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
+    agentId: ACL_ROLE_LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_ADMIN_ID,
+    realmId: ACL_REALM_LIVELY_TOKEN_ERC20_ID,
     salt: saltValue,
     assetName: LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_NAME,
-    assetRole: LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_ROLE,
-  });
+    assetVersion: ASSET_ERC20_CONTRACT_VERSION,
+    tokenId: livelyTokenProxy.address,
+    assetId: ethers.constants.AddressZero
+  }];
+  assetAudioVideoProgramId = ethers.utils.keccak256(assetAudioVideoProgramAddress);
+  let txReceipt;
+  console.log(`[ Register LIVELY_AUDIO_VIDEO_PROGRAM Asset ]`);
+  let tx = await assetManagerProxy.connect(assetAdmin).createAsset(createAudioVideoProgramAssetRequest);
+  console.log(`salt: ${saltValue}`);
+  console.log(`txHash: ${tx.hash} . . .`);
+  if (hre.network.name === "polygon" || hre.network.name === "bsc") {
+    txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
+  } else {
+    txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
+  }
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log();
 
+  // Register LIVELY_FOUNDING_TEAM Asset
   saltValue = ethers.utils.keccak256(
     ethers.utils.toUtf8Bytes(`${Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)}`)
   );
-  assetId = await assetManagerERC20.predictAddress(assetERC20Subject, saltValue, assetManagerERC20.address);
-  assetMap.set(LIVELY_FOUNDING_TEAM_ASSET_NAME, {
-    assetId,
+  assetFoundingTeamAddress = await assetManagerProxy.predictAddress(
+    assetERC20Subject.address,
+    saltValue,
+    assetManagerProxy.address
+  );
+  const createFoundingTeamAssetRequest: IAssetManagerERC20.AssetCreateRequestStruct[] = [{
+    adminId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
+    agentId: ACL_ROLE_LIVELY_FOUNDING_TEAM_ASSET_ADMIN_ID,
+    realmId: ACL_REALM_LIVELY_TOKEN_ERC20_ID,
     salt: saltValue,
     assetName: LIVELY_FOUNDING_TEAM_ASSET_NAME,
-    assetRole: LIVELY_FOUNDING_TEAM_ASSET_ROLE,
-  });
+    assetVersion: ASSET_ERC20_CONTRACT_VERSION,
+    tokenId: livelyTokenProxy.address,
+    assetId: ethers.constants.AddressZero
+  }];
+  assetFoundingTeamId = ethers.utils.keccak256(assetFoundingTeamAddress);
+  console.log(`[ Register LIVELY_FOUNDING_TEAM Asset ]`);
+  tx = await assetManagerProxy.connect(assetAdmin).createAsset(createFoundingTeamAssetRequest);
+  console.log(`salt: ${saltValue}`);
+  console.log(`txHash: ${tx.hash} . . .`);
+  if (hre.network.name === "polygon" || hre.network.name === "bsc") {
+    txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
+  } else {
+    txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
+  }
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log();
 
+  // Register LIVELY_TREASURY Asset
   saltValue = ethers.utils.keccak256(
     ethers.utils.toUtf8Bytes(`${Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)}`)
   );
-  assetId = await assetManagerERC20.predictAddress(assetERC20Subject, saltValue, assetManagerERC20.address);
-  assetMap.set(LIVELY_TREASURY_ASSET_NAME, {
-    assetId,
+  assetTreasuryAddress = await assetManagerProxy.predictAddress(
+    assetERC20Subject.address,
+    saltValue,
+    assetManagerProxy.address
+  );
+  const createTreasuryAssetRequest: IAssetManagerERC20.AssetCreateRequestStruct[] = [{
+    adminId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
+    agentId: ACL_ROLE_LIVELY_TREASURY_ASSET_ADMIN_ID,
+    realmId: ACL_REALM_LIVELY_TOKEN_ERC20_ID,
     salt: saltValue,
     assetName: LIVELY_TREASURY_ASSET_NAME,
-    assetRole: LIVELY_TREASURY_ASSET_ROLE,
-  });
+    assetVersion: ASSET_ERC20_CONTRACT_VERSION,
+    tokenId: livelyTokenProxy.address,
+    assetId: ethers.constants.AddressZero
+  }];
+  assetTreasuryId = ethers.utils.keccak256(assetTreasuryAddress);
+  console.log(`[ Register LIVELY_TREASURY Asset ]`);
+  tx = await assetManagerProxy.connect(assetAdmin).createAsset(createTreasuryAssetRequest);
+  console.log(`salt: ${saltValue}`);
+  console.log(`txHash: ${tx.hash} . . .`);
+  if (hre.network.name === "polygon" || hre.network.name === "bsc") {
+    txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
+  } else {
+    txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
+  }
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log();
 
+  // Register LIVELY_PUBLIC_SALE Asset
   saltValue = ethers.utils.keccak256(
     ethers.utils.toUtf8Bytes(`${Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)}`)
   );
-  assetId = await assetManagerERC20.predictAddress(assetERC20Subject, saltValue, assetManagerERC20.address);
-  assetMap.set(LIVELY_PUBLIC_SALE_ASSET_NAME, {
-    assetId,
+  assetPublicSaleAddress = await assetManagerProxy.predictAddress(
+    assetERC20Subject.address,
+    saltValue,
+    assetManagerProxy.address
+  );
+  const createPublicSalesAssetRequest: IAssetManagerERC20.AssetCreateRequestStruct[] = [{
+    adminId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
+    agentId: ACL_ROLE_LIVELY_PUBLIC_SALE_ASSET_ADMIN_ID,
+    realmId: ACL_REALM_LIVELY_TOKEN_ERC20_ID,
     salt: saltValue,
     assetName: LIVELY_PUBLIC_SALE_ASSET_NAME,
-    assetRole: LIVELY_PUBLIC_SALE_ASSET_ROLE,
-  });
+    assetVersion: ASSET_ERC20_CONTRACT_VERSION,
+    tokenId: livelyTokenProxy.address,
+    assetId: ethers.constants.AddressZero
+  }];
+  assetPublicSaleId = ethers.utils.keccak256(assetPublicSaleAddress);
+  console.log(`[ Register LIVELY_PUBLIC_SALE Asset ]`);
+  tx = await assetManagerProxy.connect(assetAdmin).createAsset(createPublicSalesAssetRequest);
+  console.log(`salt: ${saltValue}`);
+  console.log(`txHash: ${tx.hash} . . .`);
+  if (hre.network.name === "polygon" || hre.network.name === "bsc") {
+    txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
+  } else {
+    txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
+  }
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log();
 
+  // Register VALIDATOR_REWARDS Asset
   saltValue = ethers.utils.keccak256(
     ethers.utils.toUtf8Bytes(`${Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)}`)
   );
-  assetId = await assetManagerERC20.predictAddress(assetERC20Subject, saltValue, assetManagerERC20.address);
-  assetMap.set(LIVELY_VALIDATORS_REWARDS_ASSET_NAME, {
-    assetId,
+  assetValidatorsRewardsAddress = await assetManagerProxy.predictAddress(
+    assetERC20Subject.address,
+    saltValue,
+    assetManagerProxy.address
+  );
+  const createValidatorRewardAssetRequest: IAssetManagerERC20.AssetCreateRequestStruct[] = [{
+    adminId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
+    agentId: ACL_ROLE_LIVELY_VALIDATOR_REWARDS_ASSET_ADMIN_ID,
+    realmId: ACL_REALM_LIVELY_TOKEN_ERC20_ID,
     salt: saltValue,
-    assetName: LIVELY_VALIDATORS_REWARDS_ASSET_NAME,
-    assetRole: LIVELY_VALIDATORS_REWARDS_ASSET_ROLE,
-  });
+    assetName: LIVELY_VALIDATOR_REWARDS_ASSET_NAME,
+    assetVersion: ASSET_ERC20_CONTRACT_VERSION,
+    tokenId: livelyTokenProxy.address,
+    assetId: ethers.constants.AddressZero
+  }];
+  assetValidatorsRewardsId = ethers.utils.keccak256(assetValidatorsRewardsAddress);
+  console.log(`[ Register LIVELY_VALIDATOR_REWARDS Asset ]`);
+  tx = await assetManagerProxy.connect(assetAdmin).createAsset(createValidatorRewardAssetRequest);
+  console.log(`salt: ${saltValue}`);
+  console.log(`txHash: ${tx.hash} . . .`);
+  if (hre.network.name === "polygon" || hre.network.name === "bsc") {
+    txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
+  } else {
+    txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
+  }
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log();
 
+  // Register LIVELY_CROWD_FOUNDING Asset
   saltValue = ethers.utils.keccak256(
     ethers.utils.toUtf8Bytes(`${Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)}`)
   );
-  assetId = await assetManagerERC20.predictAddress(assetERC20Subject, saltValue, assetManagerERC20.address);
-  assetMap.set(LIVELY_CROWD_FOUNDING_ASSET_NAME, {
-    assetId,
+  assetCrowdFoundingAddress = await assetManagerProxy.predictAddress(
+    assetERC20Subject.address,
+    saltValue,
+    assetManagerProxy.address
+  );
+  const createCrowdFoundingAssetRequest: IAssetManagerERC20.AssetCreateRequestStruct[] = [{
+    adminId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
+    agentId: ACL_ROLE_LIVELY_CROWD_FOUNDING_ASSET_ADMIN_ID,
+    realmId: ACL_REALM_LIVELY_TOKEN_ERC20_ID,
     salt: saltValue,
     assetName: LIVELY_CROWD_FOUNDING_ASSET_NAME,
-    assetRole: LIVELY_CROWD_FOUNDING_ASSET_ROLE,
-  });
+    assetVersion: ASSET_ERC20_CONTRACT_VERSION,
+    tokenId: livelyTokenProxy.address,
+    assetId: ethers.constants.AddressZero
+  }];
+  assetCrowdFoundingId = ethers.utils.keccak256(assetCrowdFoundingAddress);
+  console.log(`[ Register LIVELY_CROWD_FOUNDING Asset ]`);
+  tx = await assetManagerProxy.connect(assetAdmin).createAsset(createCrowdFoundingAssetRequest);
+  console.log(`salt: ${saltValue}`);
+  console.log(`txHash: ${tx.hash} . . .`);
+  if (hre.network.name === "polygon" || hre.network.name === "bsc") {
+    txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
+  } else {
+    txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
+  }
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log();
 
+  // Register LIVELY_TAX_TREASURY Asset
   saltValue = ethers.utils.keccak256(
     ethers.utils.toUtf8Bytes(`${Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)}`)
   );
-  assetId = await assetManagerERC20.predictAddress(assetERC20Subject, saltValue, assetManagerERC20.address);
-  assetMap.set(LIVELY_TAX_TREASURY_ASSET_NAME, {
-    assetId,
+  assetTaxTreasuryAddress = await assetManagerProxy.predictAddress(
+    assetERC20Subject.address,
+    saltValue,
+    assetManagerProxy.address
+  );
+  const createTaxTreasuryAssetRequest: IAssetManagerERC20.AssetCreateRequestStruct[] = [{
+    adminId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
+    agentId: ACL_ROLE_LIVELY_TAX_TREASURY_ASSET_ADMIN_ID,
+    realmId: ACL_REALM_LIVELY_TOKEN_ERC20_ID,
     salt: saltValue,
     assetName: LIVELY_TAX_TREASURY_ASSET_NAME,
-    assetRole: LIVELY_ASSET_ADMIN_ROLE,
-  });
-
-  return assetMap;
-}
-
-async function createAsset(
-  hre: HardhatRuntimeEnvironment,
-  assetManagerERC20: AssetManagerERC20,
-  assetInfo: AssetInfo,
-  assetAdmin: Signer,
-  livelyToken: LivelyToken
-): Promise<AssetERC20> {
-  const factory = new AssetERC20__factory(assetAdmin);
-  const createAssetRequest: IAssetManagerERC20.CreateAssetRequestStruct = {
-    assetName: assetInfo.assetName,
-    assetVersion: LIVELY_ASSET_ERC20_DOMAIN_VERSION,
-    tokenId: livelyToken.address,
-    role: assetInfo.assetRole,
-    salt: assetInfo.salt,
-  };
-  let txReceipt;
-  console.log(`[ CreateAsset AssetManagerERC20 ]`);
-  console.log(`name: ${assetInfo.assetName}, deployed at: ${assetInfo.assetId}`);
-  console.log(`salt: ${assetInfo.salt}, role: ${assetInfo.assetRole}`);
-  const asset = await factory.attach(assetInfo.assetId);
-  const tx = await assetManagerERC20.connect(assetAdmin).createAsset(createAssetRequest);
+    assetVersion: ASSET_ERC20_CONTRACT_VERSION,
+    tokenId: livelyTokenProxy.address,
+    assetId: ethers.constants.AddressZero
+  }];
+  assetTaxTreasuryId = ethers.utils.keccak256(assetTaxTreasuryAddress);
+  console.log(`[ Register LIVELY_TAX_TREASURY Asset ]`);
+  tx = await assetManagerProxy.connect(assetAdmin).createAsset(createTaxTreasuryAssetRequest);
+  console.log(`salt: ${saltValue}`);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
-    txReceipt = await tx.wait(7);
+    txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
   } else {
-    txReceipt = await tx.wait(1);
+    txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
-  // console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
-
-  return asset;
 }
 
-async function grantAssetManagerRoleToAssets(
-  hre: HardhatRuntimeEnvironment,
-  accessControlManager: AccessControlManager,
-  assetManagerERC20: AssetManagerERC20,
-  adminSigner: Signer,
-  assetsMap: Map<string, AssetInfo>
+async function registerAssetRoles(assetAdmin: SignerWithAddress, hre: HardhatRuntimeEnvironment) {
+  const requests: IMemberManagement.MemberRegisterRequestStruct[] = [
+    {
+      roleId: ACL_ROLE_LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_ADMIN_ID,
+      account: assetAudioVideoProgramAddress,
+      adminId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
+      limits: {
+        memberLimit: 0,
+        memberRegisterLimit: 0,
+        contextRegisterLimit: 0,
+        functionRegisterLimit: 0,
+        profileRegisterLimit: 0,
+        contextLimit: 0,
+        realmLimit: 0,
+        domainLimit: 0,
+        callLimit: 65535,
+        typeRoleLimit: 0,
+        typeLimit: 1,
+        roleRegisterLimit: 0,
+        typeRegisterLimit: 0,
+        realmRegisterLimit: 0,
+        domainRegisterLimit: 0,
+        policyRegisterLimit: 0,
+        policyRoleLimit: 0,
+        functionLimit: 0
+      },
+      acstat: ActivityStatus.ENABLED,
+      alstat: AlterabilityStatus.UPDATABLE
+    },
+    {
+      roleId: ACL_ROLE_LIVELY_PUBLIC_SALE_ASSET_ADMIN_ID,
+      account: assetPublicSaleAddress,
+      adminId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
+      limits: {
+        memberLimit: 0,
+        memberRegisterLimit: 0,
+        contextRegisterLimit: 0,
+        functionRegisterLimit: 0,
+        profileRegisterLimit: 0,
+        contextLimit: 0,
+        realmLimit: 0,
+        domainLimit: 0,
+        callLimit: 65535,
+        typeRoleLimit: 0,
+        typeLimit: 1,
+        roleRegisterLimit: 0,
+        typeRegisterLimit: 0,
+        realmRegisterLimit: 0,
+        domainRegisterLimit: 0,
+        policyRegisterLimit: 0,
+        policyRoleLimit: 0,
+        functionLimit: 0
+      },
+      acstat: ActivityStatus.ENABLED,
+      alstat: AlterabilityStatus.UPDATABLE
+    },
+    {
+      roleId: ACL_ROLE_LIVELY_FOUNDING_TEAM_ASSET_ADMIN_ID,
+      account: assetFoundingTeamAddress,
+      adminId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
+      limits: {
+        memberLimit: 0,
+        memberRegisterLimit: 0,
+        contextRegisterLimit: 0,
+        functionRegisterLimit: 0,
+        profileRegisterLimit: 0,
+        contextLimit: 0,
+        realmLimit: 0,
+        domainLimit: 0,
+        callLimit: 65535,
+        typeRoleLimit: 0,
+        typeLimit: 1,
+        roleRegisterLimit: 0,
+        typeRegisterLimit: 0,
+        realmRegisterLimit: 0,
+        domainRegisterLimit: 0,
+        policyRegisterLimit: 0,
+        policyRoleLimit: 0,
+        functionLimit: 0
+      },
+      acstat: ActivityStatus.ENABLED,
+      alstat: AlterabilityStatus.UPDATABLE
+    },
+    {
+      roleId: ACL_ROLE_LIVELY_CROWD_FOUNDING_ASSET_ADMIN_ID,
+      account: assetCrowdFoundingAddress,
+      adminId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
+      limits: {
+        memberLimit: 0,
+        memberRegisterLimit: 0,
+        contextRegisterLimit: 0,
+        functionRegisterLimit: 0,
+        profileRegisterLimit: 0,
+        contextLimit: 0,
+        realmLimit: 0,
+        domainLimit: 0,
+        callLimit: 65535,
+        typeRoleLimit: 0,
+        typeLimit: 1,
+        roleRegisterLimit: 0,
+        typeRegisterLimit: 0,
+        realmRegisterLimit: 0,
+        domainRegisterLimit: 0,
+        policyRegisterLimit: 0,
+        policyRoleLimit: 0,
+        functionLimit: 0
+      },
+      acstat: ActivityStatus.ENABLED,
+      alstat: AlterabilityStatus.UPDATABLE
+    },
+    {
+      roleId: ACL_ROLE_LIVELY_VALIDATOR_REWARDS_ASSET_ADMIN_ID,
+      account: assetValidatorsRewardsAddress,
+      adminId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
+      limits: {
+        memberLimit: 0,
+        memberRegisterLimit: 0,
+        contextRegisterLimit: 0,
+        functionRegisterLimit: 0,
+        profileRegisterLimit: 0,
+        contextLimit: 0,
+        realmLimit: 0,
+        domainLimit: 0,
+        callLimit: 65535,
+        typeRoleLimit: 0,
+        typeLimit: 1,
+        roleRegisterLimit: 0,
+        typeRegisterLimit: 0,
+        realmRegisterLimit: 0,
+        domainRegisterLimit: 0,
+        policyRegisterLimit: 0,
+        policyRoleLimit: 0,
+        functionLimit: 0
+      },
+      acstat: ActivityStatus.ENABLED,
+      alstat: AlterabilityStatus.UPDATABLE
+    },
+    {
+      roleId: ACL_ROLE_LIVELY_TREASURY_ASSET_ADMIN_ID,
+      account: assetTreasuryAddress,
+      adminId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
+      limits: {
+        memberLimit: 0,
+        memberRegisterLimit: 0,
+        contextRegisterLimit: 0,
+        functionRegisterLimit: 0,
+        profileRegisterLimit: 0,
+        contextLimit: 0,
+        realmLimit: 0,
+        domainLimit: 0,
+        callLimit: 65535,
+        typeRoleLimit: 0,
+        typeLimit: 1,
+        roleRegisterLimit: 0,
+        typeRegisterLimit: 0,
+        realmRegisterLimit: 0,
+        domainRegisterLimit: 0,
+        policyRegisterLimit: 0,
+        policyRoleLimit: 0,
+        functionLimit: 0
+      },
+      acstat: ActivityStatus.ENABLED,
+      alstat: AlterabilityStatus.UPDATABLE
+    },
+    {
+      roleId: ACL_ROLE_LIVELY_TAX_TREASURY_ASSET_ADMIN_ID,
+      account: assetTaxTreasuryAddress,
+      adminId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
+      limits: {
+        memberLimit: 0,
+        memberRegisterLimit: 0,
+        contextRegisterLimit: 0,
+        functionRegisterLimit: 0,
+        profileRegisterLimit: 0,
+        contextLimit: 0,
+        realmLimit: 0,
+        domainLimit: 0,
+        callLimit: 65535,
+        typeRoleLimit: 0,
+        typeLimit: 1,
+        roleRegisterLimit: 0,
+        typeRegisterLimit: 0,
+        realmRegisterLimit: 0,
+        domainRegisterLimit: 0,
+        policyRegisterLimit: 0,
+        policyRoleLimit: 0,
+        functionLimit: 0
+      },
+      acstat: ActivityStatus.ENABLED,
+      alstat: AlterabilityStatus.UPDATABLE
+    }
+  ]
+  let txReceipt;
+  console.log(`[ Register Asset Roles ]`);
+  const tx = await memberManagerDelegateProxy.connect(assetAdmin).memberRegister(EMPTY_MEMBER_SIGNATURE, requests);
+  console.log(`txHash: ${tx.hash} . . .`);
+  if (hre.network.name === "polygon" || hre.network.name === "bsc") {
+    txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
+  } else {
+    txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
+  }
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log();
+}
+
+async function updateAssetRolesScope(assetAdmin: SignerWithAddress, hre: HardhatRuntimeEnvironment) {
+  const requests: IACLCommonsRoles.UpdateScopeRequestStruct[] = [
+    {
+      id: ACL_ROLE_LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_ADMIN_ID,
+      scopeId: assetAudioVideoProgramId,
+    },
+    {
+      id: ACL_ROLE_LIVELY_PUBLIC_SALE_ASSET_ADMIN_ID,
+      scopeId: assetPublicSaleId,
+    },
+    {
+      id: ACL_ROLE_LIVELY_FOUNDING_TEAM_ASSET_ADMIN_ID,
+      scopeId: assetFoundingTeamId,
+    },
+    {
+      id: ACL_ROLE_LIVELY_CROWD_FOUNDING_ASSET_ADMIN_ID,
+      scopeId: assetCrowdFoundingId,
+    },
+    {
+      id: ACL_ROLE_LIVELY_VALIDATOR_REWARDS_ASSET_ADMIN_ID,
+      scopeId: assetValidatorsRewardsId,
+    },
+    {
+      id: ACL_ROLE_LIVELY_TREASURY_ASSET_ADMIN_ID,
+      scopeId: assetTreasuryId,
+    },
+    {
+      id: ACL_ROLE_LIVELY_TAX_TREASURY_ASSET_ADMIN_ID,
+      scopeId: assetTaxTreasuryId,
+    },
+  ]
+  let txReceipt;
+  console.log(`[ Update Asset Roles Scope ]`);
+  const tx = await roleManagerDelegateProxy.connect(assetAdmin).roleUpdateScope(EMPTY_MEMBER_SIGNATURE, requests);
+  console.log(`txHash: ${tx.hash} . . .`);
+  if (hre.network.name === "polygon" || hre.network.name === "bsc") {
+    txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
+  } else {
+    txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
+  }
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log();
+}
+
+async function distributeLivelyToken(
+  assetAdmin: SignerWithAddress,
+  livelyTokenProxy: LivelyToken,
+  assetManagerProxy: AssetManagerERC20,
+  hre: HardhatRuntimeEnvironment
 ) {
-  const batchGrantRequest: IRoleManagement.UpdateRoleRequestStruct[] = [
-    {
-      role: LIVELY_ASSET_MANAGER_ROLE,
-      /* eslint-disable  @typescript-eslint/ban-ts-comment */
-      // @ts-ignore
-      account: assetsMap.get(LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_NAME).assetId,
-    },
-    {
-      role: LIVELY_ASSET_MANAGER_ROLE,
-      /* eslint-disable  @typescript-eslint/ban-ts-comment */
-      // @ts-ignore
-      account: assetsMap.get(LIVELY_FOUNDING_TEAM_ASSET_NAME).assetId,
-    },
-    {
-      role: LIVELY_ASSET_MANAGER_ROLE,
-      /* eslint-disable  @typescript-eslint/ban-ts-comment */
-      // @ts-ignore
-      account: assetsMap.get(LIVELY_TREASURY_ASSET_NAME).assetId,
-    },
-    {
-      role: LIVELY_ASSET_MANAGER_ROLE,
-      /* eslint-disable  @typescript-eslint/ban-ts-comment */
-      // @ts-ignore
-      account: assetsMap.get(LIVELY_PUBLIC_SALE_ASSET_NAME).assetId,
-    },
-    {
-      role: LIVELY_ASSET_MANAGER_ROLE,
-      /* eslint-disable  @typescript-eslint/ban-ts-comment */
-      // @ts-ignore
-      account: assetsMap.get(LIVELY_VALIDATORS_REWARDS_ASSET_NAME).assetId,
-    },
-    {
-      role: LIVELY_ASSET_MANAGER_ROLE,
-      /* eslint-disable  @typescript-eslint/ban-ts-comment */
-      // @ts-ignore
-      account: assetsMap.get(LIVELY_CROWD_FOUNDING_ASSET_NAME).assetId,
-    },
-    {
-      role: LIVELY_ASSET_MANAGER_ROLE,
-      /* eslint-disable  @typescript-eslint/ban-ts-comment */
-      // @ts-ignore
-      account: assetsMap.get(LIVELY_TAX_TREASURY_ASSET_NAME).assetId,
-    },
-  ];
+
+  const assets: Address[] = [
+    assetAudioVideoProgramAddress,
+    assetPublicSaleAddress,
+    assetFoundingTeamAddress,
+    assetCrowdFoundingAddress,
+    assetValidatorsRewardsAddress,
+    assetTreasuryAddress,
+    assetTaxTreasuryAddress
+  ]
 
   let txReceipt;
-  console.log(`[ BatchGrantRoleAccount AccessControlManager ]`);
-  const tx = await accessControlManager.connect(adminSigner).batchGrantRoleAccount(batchGrantRequest);
+  console.log(`[ Distribute Lively Token ]`);
+  const tx = await livelyTokenProxy.connect(assetAdmin).tokensDistribution(assetManagerProxy.address, assets);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
-    txReceipt = await tx.wait(7);
+    txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
   } else {
-    txReceipt = await tx.wait(1);
+    txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txHash: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
-  // console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
   console.log();
+
+  const factory = new AssetERC20__factory(assetAdmin);
+  let assetContract = await factory.attach(assetAudioVideoProgramAddress);
+  console.log(`assetAudioVideoProgram balance: ${await assetContract.assetBalance()}`);
+
+  assetContract = await factory.attach(assetPublicSaleAddress);
+  console.log(`assetPublicSale balance: ${await assetContract.assetBalance()}`);
+
+  assetContract = await factory.attach(assetFoundingTeamAddress);
+  console.log(`assetFoundingTeam balance: ${await assetContract.assetBalance()}`);
+
+  assetContract = await factory.attach(assetValidatorsRewardsAddress);
+  console.log(`assetValidatorsRewards balance: ${await assetContract.assetBalance()}`);
+
+  assetContract = await factory.attach(assetCrowdFoundingAddress);
+  console.log(`assetCrowdFounding balance: ${await assetContract.assetBalance()}`);
+
+  assetContract = await factory.attach(assetTreasuryAddress);
+  console.log(`assetTreasury balance: ${await assetContract.assetBalance()}`);
+
+  assetContract = await factory.attach(assetTaxTreasuryAddress);
+  console.log(`assetTaxTreasury balance: ${await assetContract.assetBalance()}`);
 }
 
-func.dependencies = ["AccessControlManagerProxy", "LivelyTokenProxy", "AssetManagerERC20Proxy"];
+func.dependencies = [ACL_MANAGER_CONTRACT_NAME_PROXY, LIVELY_TOKEN_PROXY, ASSET_MANAGER_ERC20_PROXY];
 func.runAtTheEnd = true;
 export default func;

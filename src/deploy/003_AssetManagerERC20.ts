@@ -1,152 +1,125 @@
-import { DeployFunction } from "hardhat-deploy/types";
+import { DeployFunction, Deployment, DeployOptions, DeployResult } from "hardhat-deploy/types";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 /* eslint-disable camelcase,node/no-unpublished-import */
 import {
-  AssetERC20__factory,
   AssetManagerERC20,
-  AssetManagerERC20__factory, IAssetManagerERC20,
-  IContextManagement, IFunctionManagement, IMemberManagement,
-  Proxy__factory
+  AssetManagerERC20__factory,
+  ContextManager, ContextManager__factory,
+  FunctionManager,
+  FunctionManager__factory,
+  IContextManagement,
+  IFunctionManagement,
+  IMemberManagement,
+  MemberManager, MemberManager__factory,
 } from "../../typechain/types";
-import { ACL_MANAGER_CONTRACT_NAME_PROXY } from "./001_LivelyGuard";
-import { LIVELY_TOKEN_PROXY } from "./002_LivelyToken";
+import {
+  ACL_MANAGER_CONTRACT_NAME_PROXY, EMPTY_MEMBER_SIGNATURE,
+  MAINNET_TX_WAIT_BLOCK_COUNT,
+  TESTNET_TX_WAIT_BLOCK_COUNT
+} from "./001_LivelyGuard";
+import {
+  ACL_REALM_LIVELY_TOKEN_ERC20_ID,
+  ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
+  ACL_TYPE_LIVELY_TOKEN_ASSET_MANAGER_ID,
+} from "./002_LivelyToken";
 import {
   ActivityStatus,
   AlterabilityStatus,
-  AssetSafeModeStatus,
-  generateContextDomainSignatureByHardhatProvider,
-  generateDomainSeparator,
-  generatePredictContextDomainSignatureManually,
-  LIVELY_VERSE_MEMBER_MASTER_TYPE_ID,
   LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-  ProxySafeModeStatus,
-  ProxyUpdatabilityStatus
 } from "../utils/Utils";
 import { ethers } from "hardhat";
-import { expect } from "chai";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/src/signers";
 
 const ASSET_MANAGER_ERC20_CONTRACT_NAME = "AssetManagerERC20";
 const ASSET_MANAGER_ERC20_CONTRACT_VERSION = "3.0.0";
 const ASSET_MANAGER_ERC20_SUBJECT = "AssetManagerERC20Subject";
 export const ASSET_MANAGER_ERC20_PROXY = "AssetManagerERC20Proxy";
-// const assetManagerERC20DomainRealm = "LIVELY_ASSET_REALM";
 export let ASSET_MANAGER_INIT_VERSION: number;
 
+let assetManagerERC20Subject: DeployResult;
+let assetManagerERC20Proxy: DeployResult;
+
+let functionManagerDelegateProxy: FunctionManager;
+let contextManagerDelegateProxy: ContextManager;
+let memberManagerDelegateProxy: MemberManager;
+
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const { deployments, ethers, getChainId } = hre;
+  const { deployments, ethers } = hre;
   const { deploy } = deployments;
-  const [systemAdmin] = await ethers.getSigners();
-  const systemAdminAddress = systemAdmin.address;
-  const accessControlManager = await deployments.get(ACL_MANAGER_CONTRACT_NAME_PROXY);
-  const chainId = await getChainId();
-  const typedArray1 = new Int8Array(0);
+  const [systemAdmin , livelyAdmin] = await ethers.getSigners();
+  const aclManagerProxy = await deployments.get(ACL_MANAGER_CONTRACT_NAME_PROXY);
 
+  functionManagerDelegateProxy = FunctionManager__factory.connect(aclManagerProxy.address, systemAdmin);
+  contextManagerDelegateProxy = ContextManager__factory.connect(aclManagerProxy.address, systemAdmin);
+  memberManagerDelegateProxy = MemberManager__factory.connect(aclManagerProxy.address, systemAdmin);
 
-  const assetManagerERC20Subject = await deploy(ASSET_MANAGER_ERC20_SUBJECT, {
+  // @ts-ignore
+  await deployAssetManager(systemAdmin, aclManagerProxy, hre, deploy);
+
+  if (ASSET_MANAGER_INIT_VERSION === 0) {
+    // @ts-ignore
+    await registerAssetMangerACLContext(systemAdmin, hre);
+
+    // @ts-ignore
+    await registerAssetManagerACLFunctions(systemAdmin, hre);
+
+    // @ts-ignore
+    await registerAssetManagerProxyToAssetManagerRole(livelyAdmin, hre);
+  }
+};
+
+async function deployAssetManager(systemAdmin: SignerWithAddress, aclManagerProxy: Deployment, hre: HardhatRuntimeEnvironment, deploy: (name: string, options: DeployOptions) => Promise<DeployResult>) {
+  assetManagerERC20Subject = await deploy(ASSET_MANAGER_ERC20_SUBJECT, {
     contract: ASSET_MANAGER_ERC20_CONTRACT_NAME,
-    from: systemAdminAddress,
+    from: systemAdmin.address,
     args: [],
     log: true,
     skipIfAlreadyDeployed: true,
-    libraries: {
-      LAssetManagerERC20: lAssetManagerERC20.address,
-    },
   });
 
-  const assetManagerERC20Proxy = await deploy(ASSET_MANAGER_ERC20_PROXY, {
+  assetManagerERC20Proxy = await deploy(ASSET_MANAGER_ERC20_PROXY, {
     contract: "Proxy",
-    from: systemAdminAddress,
-    args: [assetManagerERC20Subject.address, typedArray1],
+    from: systemAdmin.address,
+    args: [assetManagerERC20Subject.address, new Int8Array(0)],
     log: true,
     skipIfAlreadyDeployed: true,
   });
 
   const request: AssetManagerERC20.InitRequestStruct = {
-    domainName: ASSET_MANAGER_ERC20_CONTRACT_NAME,
-    domainVersion: ASSET_MANAGER_ERC20_CONTRACT_VERSION,
-    domainRealm: assetManagerERC20DomainRealm,
-    accessControlManager: accessControlManager.address,
-    assetManagerSignature: signature,
+    contractName: ASSET_MANAGER_ERC20_CONTRACT_NAME,
+    contractVersion: ASSET_MANAGER_ERC20_CONTRACT_VERSION,
+    aclManager: aclManagerProxy.address,
   };
 
   const assetManagerERC20 = AssetManagerERC20__factory.connect(assetManagerERC20Proxy.address, systemAdmin);
   ASSET_MANAGER_INIT_VERSION = await assetManagerERC20.initVersion();
   if (ASSET_MANAGER_INIT_VERSION === 0) {
     let txReceipt;
-    console.log(`[Initialize AssetManagerERC20 ]`);
+    console.log(`[ Initialize AssetManagerERC20 ]`);
     const tx = await assetManagerERC20.connect(systemAdmin).initialize(request);
     console.log(`txHash: ${tx.hash} . . .`);
     if (hre.network.name === "polygon" || hre.network.name === "bsc") {
-      txReceipt = await tx.wait(7);
+      txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
     } else {
-      txReceipt = await tx.wait(1);
+      txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
     }
-    console.log(`txHash: ${txReceipt.transactionHash}, status: ${txReceipt.status}`);
-    // console.log(`txReceipt: ${JSON.stringify(txReceipt, null, 2)}`);
+    console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
     console.log();
   }
-};
+}
 
-it("Should deploy and initialize AssetManagerERC20 proxy success", async () => {
-  // given
-  const proxyFactory = new Proxy__factory(systemAdmin);
-  const assetProxy = await proxyFactory.deploy(assetManagerSubject.address, new Int8Array(0));
+async function registerAssetMangerACLContext(systemAdmin: SignerWithAddress, hre: HardhatRuntimeEnvironment) {
 
-  const request: AssetManagerERC20.InitRequestStruct = {
-    contractName: ASSET_MANAGER_ERC20_NAME,
-    contractVersion: ASSET_MANAGER_ERC20_VERSION,
-    aclManager: aclManagerProxy.address
-  };
-
-  // when
-  assetManagerProxy = assetManagerSubject.attach(assetProxy.address);
-  assetManagerProxyId = ethers.utils.keccak256(assetManagerProxy.address)
-  await expect(assetManagerProxy.connect(systemAdmin).initialize(request))
-    .to.emit(assetManagerProxy, "Upgraded")
-    .withArgs(systemAdminWallet.address, assetManagerProxy.address, assetManagerSubject.address)
-    .to.emit(assetManagerProxy, "LocalAdminChanged")
-    .withArgs(systemAdminWallet.address, assetManagerProxy.address, systemAdminWallet.address)
-    .to.emit(assetManagerProxy, "Initialized")
-    .withArgs(
-      systemAdminWallet.address,
-      assetManagerProxy.address,
-      assetManagerSubject.address,
-      ASSET_MANAGER_ERC20_NAME,
-      ASSET_MANAGER_ERC20_VERSION,
-      1
-    );
-
-  // then
-  const domainSeparator = generateDomainSeparator(
-    ASSET_MANAGER_ERC20_NAME,
-    ASSET_MANAGER_ERC20_VERSION,
-    assetManagerProxy.address,
-    networkChainId
-  );
-
-  expect(await assetManagerProxy.contractName()).to.be.equal(ASSET_MANAGER_ERC20_NAME);
-  expect(await assetManagerProxy.contractVersion()).to.be.equal(ASSET_MANAGER_ERC20_VERSION);
-  expect(await assetManagerProxy.subjectAddress()).to.be.equal(assetManagerSubject.address);
-  expect(await assetManagerProxy.accessControlManager()).to.be.equal(aclManagerProxy.address);
-  expect(await assetManagerProxy.localAdmin()).to.be.equal(systemAdminWallet.address);
-  expect(await assetManagerProxy.domainSeparator()).to.be.equal(domainSeparator);
-  expect(await assetManagerProxy.safeModeStatus()).to.be.equal(ProxySafeModeStatus.DISABLED);
-  expect(await assetManagerProxy.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.DISABLED);
-  expect(await assetManagerProxy.initVersion()).to.be.equal(1);
-});
-
-it("Should register AssetManger context by systemAdmin success", async() => {
-  // given
-  const assetMangerContextId = ethers.utils.keccak256(assetManagerProxy.address);
+  const assetMangerContextId = ethers.utils.keccak256(assetManagerERC20Proxy.address);
   const contextRequests: IContextManagement.ContextRegisterRequestStruct[] = [
     {
-      realmId: aclRealmLivelyTokenErc20Id,
-      adminId: aclRoleLivelyTokenAssetManagerAdminId,
+      realmId: ACL_REALM_LIVELY_TOKEN_ERC20_ID,
+      adminId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
       salt: ethers.constants.HashZero,
-      name: ASSET_MANAGER_ERC20_NAME,
-      version: ASSET_MANAGER_ERC20_VERSION,
-      contractId: assetManagerProxy.address,
+      name: ASSET_MANAGER_ERC20_CONTRACT_NAME,
+      version: ASSET_MANAGER_ERC20_CONTRACT_VERSION,
+      contractId: assetManagerERC20Proxy.address,
       subject: ethers.constants.AddressZero,
       deployer: ethers.constants.AddressZero,
       functionLimit: 128,
@@ -155,108 +128,73 @@ it("Should register AssetManger context by systemAdmin success", async() => {
       signature: new Int8Array(0)
     },
   ];
+  let txReceipt;
+  console.log(`[ Register AssetManagerERC20 ACL Context ]`);
+  const tx =   await contextManagerDelegateProxy.connect(systemAdmin).contextRegister(EMPTY_MEMBER_SIGNATURE, contextRequests);
+  console.log(`txHash: ${tx.hash} . . .`);
+  if (hre.network.name === "polygon" || hre.network.name === "bsc") {
+    txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
+  } else {
+    txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
+  }
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log();
+}
 
+async function registerAssetManagerACLFunctions(systemAdmin: SignerWithAddress, hre: HardhatRuntimeEnvironment) {
 
-  // when
-  await expect(contextManagerDelegateProxy.connect(systemAdmin).contextRegister(emptyMemberSignature, contextRequests))
-    .to.emit(contextManagerDelegateProxy, "ContextRegistered")
-    .withArgs(systemAdminWallet.address, assetMangerContextId, assetManagerProxy.address,
-      aclRealmLivelyTokenErc20Id, ethers.constants.AddressZero, ethers.constants.AddressZero,
-      aclRoleLivelyTokenAssetManagerAdminId)
-})
-
-it("Should register AssetManager functions by systemAdmin success", async() => {
-  // given
   const assetManagerIface = new ethers.utils.Interface(AssetManagerERC20__factory.abi);
-  const assetContextId = ethers.utils.keccak256(assetManagerProxy.address);
-  const createAssetFunctionId = ethers.utils.keccak256(
-    ethers.utils.solidityPack(["address", "bytes4"],
-      [assetManagerProxy.address,  assetManagerIface.getSighash("createAsset")]))
-  const removeAssetFunctionId = ethers.utils.keccak256(
-    ethers.utils.solidityPack(["address", "bytes4"],
-      [assetManagerProxy.address,  assetManagerIface.getSighash("removeAsset")]))
-  const registerAssetFunctionId = ethers.utils.keccak256(
-    ethers.utils.solidityPack(["address", "bytes4"],
-      [assetManagerProxy.address,  assetManagerIface.getSighash("registerAsset")]))
-  const updateTokenFunctionId = ethers.utils.keccak256(
-    ethers.utils.solidityPack(["address", "bytes4"],
-      [assetManagerProxy.address,  assetManagerIface.getSighash("updateToken")]))
-  const registerTokenFunctionId = ethers.utils.keccak256(
-    ethers.utils.solidityPack(["address", "bytes4"],
-      [assetManagerProxy.address,  assetManagerIface.getSighash("registerToken")]))
-  const setSafeModeTokenFunctionId = ethers.utils.keccak256(
-    ethers.utils.solidityPack(["address", "bytes4"],
-      [assetManagerProxy.address,  assetManagerIface.getSighash("setSafeModeAssets")]))
-  const upgradeToFunctionId = ethers.utils.keccak256(
-    ethers.utils.solidityPack(["address", "bytes4"],
-      [assetManagerProxy.address,  assetManagerIface.getSighash("upgradeTo")]))
-  const setSafeModeStatusFunctionId = ethers.utils.keccak256(
-    ethers.utils.solidityPack(["address", "bytes4"],
-      [assetManagerProxy.address,  assetManagerIface.getSighash("setSafeModeStatus")]))
-  const setUpdatabilityStatusFunctionId = ethers.utils.keccak256(
-    ethers.utils.solidityPack(["address", "bytes4"],
-      [assetManagerProxy.address,  assetManagerIface.getSighash("setUpdatabilityStatus")]))
-  const setLocalAdminFunctionId = ethers.utils.keccak256(
-    ethers.utils.solidityPack(["address", "bytes4"],
-      [assetManagerProxy.address,  assetManagerIface.getSighash("setLocalAdmin")]))
-  const setAccessControlManagerFunctionId = ethers.utils.keccak256(
-    ethers.utils.solidityPack(["address", "bytes4"],
-      [assetManagerProxy.address,  assetManagerIface.getSighash("setAccessControlManager")]))
-  const withdrawBalanceFunctionId = ethers.utils.keccak256(
-    ethers.utils.solidityPack(["address", "bytes4"],
-      [assetManagerProxy.address,  assetManagerIface.getSighash("withdrawBalance")]))
-
   const assetManagerFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
     {
-      adminId: aclRoleLivelyTokenAssetManagerAdminId,
-      agentId: aclTypeLivelyTokenAssetManagerId,
+      adminId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
+      agentId: ACL_TYPE_LIVELY_TOKEN_ASSET_MANAGER_ID,
       selector: assetManagerIface.getSighash("createAsset"),
       policyCode: 24,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPDATABLE
     },
     {
-      adminId: aclRoleLivelyTokenAssetManagerAdminId,
-      agentId: aclTypeLivelyTokenAssetManagerId,
+      adminId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
+      agentId: ACL_TYPE_LIVELY_TOKEN_ASSET_MANAGER_ID,
       selector: assetManagerIface.getSighash("registerAsset"),
       policyCode: 36,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPDATABLE
     },
     {
-      adminId: aclRoleLivelyTokenAssetManagerAdminId,
-      agentId: aclTypeLivelyTokenAssetManagerId,
+      adminId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
+      agentId: ACL_TYPE_LIVELY_TOKEN_ASSET_MANAGER_ID,
       selector: assetManagerIface.getSighash("removeAsset"),
       policyCode: 10,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPDATABLE
     },
     {
-      adminId: aclRoleLivelyTokenAssetManagerAdminId,
-      agentId: aclTypeLivelyTokenAssetManagerId,
+      adminId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
+      agentId: ACL_TYPE_LIVELY_TOKEN_ASSET_MANAGER_ID,
       selector: assetManagerIface.getSighash("registerToken"),
       policyCode: 48,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPDATABLE
     },
     {
-      adminId: aclRoleLivelyTokenAssetManagerAdminId,
-      agentId: aclTypeLivelyTokenAssetManagerId,
+      adminId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
+      agentId: ACL_TYPE_LIVELY_TOKEN_ASSET_MANAGER_ID,
       selector: assetManagerIface.getSighash("updateToken"),
       policyCode: 42,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPDATABLE
     },
     {
-      adminId: aclRoleLivelyTokenAssetManagerAdminId,
-      agentId: aclTypeLivelyTokenAssetManagerId,
+      adminId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
+      agentId: ACL_TYPE_LIVELY_TOKEN_ASSET_MANAGER_ID,
       selector: assetManagerIface.getSighash("setSafeModeAssets"),
       policyCode: 53,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPDATABLE
     },
     {
-      adminId: aclRoleLivelyTokenAssetManagerAdminId,
+      adminId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
       selector: assetManagerIface.getSighash("upgradeTo"),
       policyCode: 0,
@@ -264,23 +202,23 @@ it("Should register AssetManager functions by systemAdmin success", async() => {
       alstat: AlterabilityStatus.UPDATABLE
     },
     {
-      adminId: aclRoleLivelyTokenAssetManagerAdminId,
-      agentId: aclRoleLivelyTokenAssetManagerAdminId,
+      adminId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
+      agentId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
       selector: assetManagerIface.getSighash("setSafeModeStatus"),
       policyCode: 16,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPDATABLE
     },
     {
-      adminId: aclRoleLivelyTokenAssetManagerAdminId,
-      agentId: aclRoleLivelyTokenAssetManagerAdminId,
+      adminId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
+      agentId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
       selector: assetManagerIface.getSighash("setUpdatabilityStatus"),
       policyCode: 90,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPDATABLE
     },
     {
-      adminId: aclRoleLivelyTokenAssetManagerAdminId,
+      adminId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
       selector: assetManagerIface.getSighash("setLocalAdmin"),
       policyCode: 60,
@@ -288,7 +226,7 @@ it("Should register AssetManager functions by systemAdmin success", async() => {
       alstat: AlterabilityStatus.UPDATABLE
     },
     {
-      adminId: aclRoleLivelyTokenAssetManagerAdminId,
+      adminId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
       selector: assetManagerIface.getSighash("setAccessControlManager"),
       policyCode: 0,
@@ -296,15 +234,14 @@ it("Should register AssetManager functions by systemAdmin success", async() => {
       alstat: AlterabilityStatus.UPDATABLE
     },
     {
-      adminId: aclRoleLivelyTokenAssetManagerAdminId,
-      agentId: aclRoleLivelyTokenAssetManagerAdminId,
+      adminId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
+      agentId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
       selector: assetManagerIface.getSighash("withdrawBalance"),
       policyCode: 230,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPDATABLE
     },
   ]
-
   const assetManagerFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
     {
       signature: new Int8Array(0),
@@ -314,73 +251,30 @@ it("Should register AssetManager functions by systemAdmin success", async() => {
       version: "",
       subject: ethers.constants.AddressZero,
       deployer: ethers.constants.AddressZero,
-      contractId: assetManagerProxy.address,
+      contractId: assetManagerERC20Proxy.address,
       functions: assetManagerFunctionRequests
     }]
 
-  // when
-  await expect(functionManagerDelegateProxy.connect(systemAdmin).functionRegister(emptyMemberSignature, assetManagerFunctionRegisterRequest))
-    .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-    .withArgs(systemAdminWallet.address, assetContextId, createAssetFunctionId, aclRoleLivelyTokenAssetManagerAdminId,
-      aclTypeLivelyTokenAssetManagerId)
-    .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-    .withArgs(systemAdminWallet.address, assetContextId, removeAssetFunctionId, aclRoleLivelyTokenAssetManagerAdminId,
-      aclTypeLivelyTokenAssetManagerId)
-    .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-    .withArgs(systemAdminWallet.address, assetContextId, registerAssetFunctionId, aclRoleLivelyTokenAssetManagerAdminId,
-      aclTypeLivelyTokenAssetManagerId)
-    .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-    .withArgs(systemAdminWallet.address, assetContextId, updateTokenFunctionId, aclRoleLivelyTokenAssetManagerAdminId,
-      aclTypeLivelyTokenAssetManagerId)
-    .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-    .withArgs(systemAdminWallet.address, assetContextId, registerTokenFunctionId, aclRoleLivelyTokenAssetManagerAdminId,
-      aclTypeLivelyTokenAssetManagerId)
-    .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-    .withArgs(systemAdminWallet.address, assetContextId, setSafeModeTokenFunctionId, aclRoleLivelyTokenAssetManagerAdminId,
-      aclTypeLivelyTokenAssetManagerId)
-    .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-    .withArgs(systemAdminWallet.address, assetContextId, upgradeToFunctionId, aclRoleLivelyTokenAssetManagerAdminId,
-      LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
-    .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-    .withArgs(systemAdminWallet.address, assetContextId, setSafeModeStatusFunctionId, aclRoleLivelyTokenAssetManagerAdminId,
-      aclTypeLivelyTokenAssetManagerId)
-    .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-    .withArgs(systemAdminWallet.address, assetContextId, setUpdatabilityStatusFunctionId, aclRoleLivelyTokenAssetManagerAdminId,
-      aclTypeLivelyTokenAssetManagerId)
-    .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-    .withArgs(systemAdminWallet.address, assetContextId, setLocalAdminFunctionId, aclRoleLivelyTokenAssetManagerAdminId,
-      LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
-    .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-    .withArgs(systemAdminWallet.address, assetContextId, setAccessControlManagerFunctionId, aclRoleLivelyTokenAssetManagerAdminId,
-      LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID)
-    .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
-    .withArgs(systemAdminWallet.address, assetContextId, withdrawBalanceFunctionId, aclRoleLivelyTokenAssetManagerAdminId,
-      aclRoleLivelyTokenAssetManagerAdminId)
-})
+  let txReceipt;
+  console.log(`[ Register AssetManagerERC20 ACL Functions ]`);
+  const tx = await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(EMPTY_MEMBER_SIGNATURE, assetManagerFunctionRegisterRequest);
+  console.log(`txHash: ${tx.hash} . . .`);
+  if (hre.network.name === "polygon" || hre.network.name === "bsc") {
+    txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
+  } else {
+    txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
+  }
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log();
 
-it("Should deploy assetERC20 by systemAdmin success", async () => {
-  // given
-  const factory = new AssetERC20__factory(systemAdmin);
+}
 
-  // when
-  assetSubjectERC20 = await factory.deploy();
-
-  // then
-  expect(assetSubjectERC20).to.be.not.null;
-
-  // and
-  expect(assetSubjectERC20.address).to.be.not.null;
-  expect(await assetSubjectERC20.assetSafeMode()).to.be.equal(AssetSafeModeStatus.ENABLED)
-  expect(await assetSubjectERC20.assetInitVersion()).to.be.equal(0);
-});
-
-it("Should register assetManagerProxy to RoleLivelyTokenAssetManager success", async() => {
-  // given
-  const assetManagerId = ethers.utils.keccak256(assetManagerProxy.address);
+async function registerAssetManagerProxyToAssetManagerRole(livelyAdmin: SignerWithAddress, hre: HardhatRuntimeEnvironment) {
+  const assetManagerId = ethers.utils.keccak256(assetManagerERC20Proxy.address);
   const requests: IMemberManagement.MemberRegisterRequestStruct[] = [
     {
-      roleId: aclRoleLivelyTokenAssetManagerAdminId,
-      account: assetManagerProxy.address,
+      roleId: ACL_ROLE_LIVELY_TOKEN_ASSET_MANAGER_ADMIN_ID,
+      account: assetManagerERC20Proxy.address,
       adminId: ethers.constants.HashZero,
       limits: {
         memberLimit: 0,
@@ -406,75 +300,19 @@ it("Should register assetManagerProxy to RoleLivelyTokenAssetManager success", a
       alstat: AlterabilityStatus.UPDATABLE
     },
   ]
+  let txReceipt;
+  console.log(`[ Register AssetManagerERC20 Contract To AssetManagerRole ]`);
+  const tx = await memberManagerDelegateProxy.connect(livelyAdmin).memberRegister(EMPTY_MEMBER_SIGNATURE, requests);
+  console.log(`txHash: ${tx.hash} . . .`);
+  if (hre.network.name === "polygon" || hre.network.name === "bsc") {
+    txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
+  } else {
+    txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
+  }
+  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log();
+}
 
-  // when
-  await expect(memberManagerDelegateProxy.connect(livelyAdmin).memberRegister(emptyMemberSignature, requests))
-    .to.emit(memberManagerDelegateProxy, "MemberRegistered")
-    .withArgs(livelyAdminWallet.address, assetManagerId, assetManagerProxy.address,
-      aclRoleLivelyTokenAssetManagerAdminId, LIVELY_VERSE_MEMBER_MASTER_TYPE_ID,
-      [0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 2, 0, 0, 0, 0, 0, 0, 0])
-})
-
-it("Should register lively token to assetManager by anyone failed", async () => {
-  // given
-  const registerTokenRequest: IAssetManagerERC20.AssetTokenActionRequestStruct[] = [
-    {
-      tokenId: livelyToken.address,
-      assetSubjectId: assetSubjectERC20.address,
-      assetSignature: "0x00"
-    }
-  ]
-
-  // when and then
-  await expect(assetManagerProxy.connect(livelyAdmin).registerToken(registerTokenRequest))
-    .to.revertedWith("ACLActionForbidden(6)");
-
-  await expect(assetManagerProxy.connect(systemAdmin).registerToken(registerTokenRequest))
-    .to.revertedWith("ACLActionForbidden(6)");
-
-  await expect(assetManagerProxy.connect(user1).registerToken(registerTokenRequest))
-    .to.revertedWith("ACLActionForbidden(5)");
-
-  expect(await assetManagerProxy.isTokenExists(livelyToken.address)).to.be.false;
-});
-
-it("Should register lively token to assetManager by assetAdmin success", async () => {
-  // given
-  const tokenName = await livelyToken.name();
-  const tokenSymbol = await livelyToken.symbol();
-  const signature = await generatePredictContextDomainSignatureManually(
-    assetManagerProxy.address,
-    ACL_REALM_LIVELY_TOKEN_ERC20_NAME,
-    aclManagerProxy.address,
-    systemAdminWallet,
-    networkChainId,
-    assetSubjectERC20.address
-  );
-
-  const registerTokenRequest: IAssetManagerERC20.AssetTokenActionRequestStruct[] = [
-    {
-      tokenId: livelyToken.address,
-      assetSubjectId: assetSubjectERC20.address,
-      assetSignature: signature
-    }
-  ]
-
-  // when
-  await expect(assetManagerProxy.connect(assetAdmin).registerToken(registerTokenRequest))
-    .to.emit(assetManagerProxy, "TokenRegistered")
-    .withArgs(assetAdminWallet.address, livelyToken.address, assetSubjectERC20.address, tokenName, tokenSymbol);
-
-  // then
-  expect(await assetManagerProxy.isTokenExists(livelyToken.address)).to.be.true;
-
-  // and
-  const tokenInfo: IAssetManagerERC20.TokenInfoStruct = await assetManagerProxy.getTokenInfo(livelyToken.address);
-  expect(tokenInfo.assets).to.be.empty;
-  expect(tokenInfo.assetSubjectId).to.be.equal(assetSubjectERC20.address);
-  expect(tokenInfo.assetSignature).to.be.equal(signature);
-});
-
-
-func.tags = ["AssetManagerERC20Subject", "AssetManagerERC20Proxy"];
-func.dependencies = [ACL_MANAGER_CONTRACT_NAME_PROXY, LIVELY_TOKEN_PROXY];
+func.tags = [ASSET_MANAGER_ERC20_PROXY];
+func.dependencies = [ACL_MANAGER_CONTRACT_NAME_PROXY];
 export default func;

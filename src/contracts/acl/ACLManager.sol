@@ -123,13 +123,12 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
         requests[i].subjectId
       );
     }
-    if(_data.facetSet.length() >= 22) _firstInit = false;
     return true;      
   }
 
   function aclUpgradeFacet(FacetUpgradeRequest[] calldata requests) external onlyProxy aclCheck(this.aclUpgradeFacet.selector) returns (bool) {
     require(_sstat == ProxySafeModeStatus.DISABLED, "Rejected");
-    require(!_firstInit, "Illegal Init");
+    require(!_firstInit, "Illegal INIT");
     for(uint i = 0; i < requests.length; i++) {      
       require(_data.facetSet.contains(requests[i].facetId), "Facet Not Found");
       
@@ -182,6 +181,8 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
     address livelyAdmin,
     address systemAdmin    
   ) public onlyProxy onlyLocalAdmin {
+    require(_firstInit, "Already INIT");
+    _firstInit = false;
     LACLCommons.initACLAgents(_data, livelyAdmin, systemAdmin);    
 
     _initACLScopes(
