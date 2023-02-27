@@ -131,7 +131,12 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
     );
 
     for (uint256 i = 0; i < requests.length; i++) {
-      DomainEntity storage domainEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
+      DomainEntity storage domainEntity = _data.domainReadSlot(requests[i].id);
+      require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
+
+      IACL.AdminAccessStatus status = _doCheckAdminAccess(domainEntity.bs.adminId, senderId, functionId);
+      if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
+
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
       domainEntity.bs.acstat = requests[i].acstat;
       emit DomainActivityUpdated(sender, requests[i].id, requests[i].acstat);
@@ -150,9 +155,12 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
 
     for (uint256 i = 0; i < requests.length; i++) {
       DomainEntity storage domainEntity = _data.domainReadSlot(requests[i].id);
+      require(domainEntity.bs.acstat > ActivityStatus.DELETED, "Domain Deleted");
+
       IACL.AdminAccessStatus status = _doCheckAdminAccess(domainEntity.bs.adminId, senderId, functionId);
       if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
+      
       domainEntity.bs.alstat = requests[i].alstat;
       emit DomainAlterabilityUpdated(sender, requests[i].id, requests[i].alstat);
     }
@@ -201,9 +209,12 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
       DomainEntity storage targetDomainEntity = _doGetEntityAndCheckAdminAccess(
         requests[i].targetDomainId,
         senderId,
-        functionId
+        functionId        
       );
-      RealmEntity storage realmEntity = _doGetRealmEntityAndCheckAdminAccess(requests[i].realmId, senderId, functionId);
+      
+      RealmEntity storage realmEntity = _data.realmReadSlot(requests[i].realmId);
+      require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Realm Updatable");
+      
       require(targetDomainEntity.realmLimit > targetDomainEntity.realms.length(), "Illegal Move");
       domainEntity.realms.remove(requests[i].realmId);
       targetDomainEntity.realms.add(requests[i].realmId);
@@ -228,6 +239,39 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
       domainEntity.realmLimit = requests[i].realmLimit;
       emit DomainRealmLimitUpdated(sender, requests[i].domainId, requests[i].realmLimit);
     }
+    return true;
+  }
+
+  function domainRemove(MemberSignature calldata memberSign, bytes32[] calldata domains) external returns (bool) {
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(
+      memberSign,
+      IDomainManagement.domainUpdateRealmLimit.selector
+    );
+
+    for (uint256 i = 0; i < domains.length; i++) {
+      DomainEntity storage domainEntity = _data.domainReadSlot(domains[i]);
+      IACL.AdminAccessStatus status = _doCheckAdminAccess(domainEntity.bs.adminId, senderId, functionId);
+      if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
+
+      if(domainEntity.bs.referredByAgent == 0) {
+        if(domainEntity.realms.length() == 0) {
+          delete domainEntity.bs;
+          delete domainEntity.universeId;
+          delete domainEntity.realmLimit;
+          delete domainEntity.name;
+          delete domainEntity.realms;
+          emit DomainRemoved(sender, domains[i], false);
+        
+        } else {
+          require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
+          domainEntity.bs.acstat = ActivityStatus.DELETED;
+          emit DomainRemoved(sender, domains[i], true);
+        }
+      } else {
+        revert("Illegal Remove");
+      }
+    }
+
     return true;
   }
 
@@ -386,22 +430,11 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
     bytes32 functionId
   ) internal view returns (DomainEntity storage) {
     DomainEntity storage domainEntity = _data.domainReadSlot(domainId);
+    require(domainEntity.bs.acstat > ActivityStatus.DELETED, "Domain Deleted");
     require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
     IACL.AdminAccessStatus status = _doCheckAdminAccess(domainEntity.bs.adminId, senderId, functionId);
     if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
     return domainEntity;
-  }
-
-  function _doGetRealmEntityAndCheckAdminAccess(
-    bytes32 realmId,
-    bytes32 senderId,
-    bytes32 functionId
-  ) internal view returns (RealmEntity storage) {
-    RealmEntity storage realmEntity = _data.realmReadSlot(realmId);
-    require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Realm Updatable");
-    IACL.AdminAccessStatus status = _doCheckAdminAccess(realmEntity.bs.adminId, senderId, functionId);
-    if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
-    return realmEntity;
   }
 
   function _doGetMemberScopeInfoFromType(bytes32 typeId, bytes32 senderId) internal view returns (bytes32) {

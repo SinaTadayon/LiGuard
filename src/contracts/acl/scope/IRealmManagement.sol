@@ -63,6 +63,8 @@ interface IRealmManagement is IACLCommons {
 
   event RealmAlterabilityUpdated(address indexed sender, bytes32 indexed realmId, AlterabilityStatus alstat);
 
+  event RealmRemoved(address indexed sender, bytes32 indexed realmId, bool isSoftDeleted);
+
   function realmRegister(MemberSignature calldata memberSign, RealmRegisterRequest[] calldata requests)
     external
     returns (bool);
@@ -88,6 +90,10 @@ interface IRealmManagement is IACLCommons {
     MemberSignature calldata memberSign,
     RealmUpdateContextLimitRequest[] calldata requests
   ) external returns (bool);
+
+  function realmRemove(MemberSignature calldata memberSign, bytes32[] calldata realms)
+    external
+    returns (bool);
 
   function realmCheckId(bytes32 realmId) external view returns (bool);
 

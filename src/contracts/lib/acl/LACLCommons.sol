@@ -41,7 +41,8 @@ library LACLCommons {
     keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_SYSTEM_MASTER"));
   bytes32 public constant LIVELY_VERSE_ANONYMOUS_TYPE_ID =
     keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_ANONYMOUS"));
-  bytes32 public constant LIVELY_VERSE_ANY_TYPE_ID = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_ANY"));
+  bytes32 public constant LIVELY_VERSE_ANY_TYPE_ID = 
+    keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_ANY"));
   bytes32 public constant LIVELY_VERSE_SCOPE_MASTER_TYPE_ID =
     keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_SCOPE_MASTER"));
   bytes32 public constant LIVELY_VERSE_MEMBER_MASTER_TYPE_ID =
@@ -54,7 +55,8 @@ library LACLCommons {
     keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_PROFILE_MASTER"));
 
   // Universe Scope ID
-  bytes32 private constant LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID = keccak256(abi.encodePacked("UNIVERSE.LIVELY_VERSE"));
+  bytes32 private constant LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID = 
+    keccak256(abi.encodePacked("UNIVERSE.LIVELY_VERSE"));
 
   // General Roles ID
   bytes32 public constant LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID =
@@ -77,7 +79,8 @@ library LACLCommons {
     keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_MASTER"));
   bytes32 public constant LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID =
     keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER"));
-  bytes32 public constant LIVELY_PROFILE_ANY_TYPE_ID = keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_ANY"));
+  bytes32 public constant LIVELY_PROFILE_ANY_TYPE_ID = 
+    keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_ANY"));
   bytes32 public constant LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID =
     keccak256(abi.encodePacked("ROLE.LIVELY_PROFILE.LIVELY_MASTER_ADMIN"));
   bytes32 public constant LIVELY_PROFILE_SYSTEM_MASTER_ADMIN_ROLE_ID =
@@ -138,30 +141,7 @@ library LACLCommons {
     return true;
   }
 
-  function aclRegisterRole(ACLStorage.DataCollection storage data, IRoleManagement.RoleRegisterRequest calldata request)
-    external
-    view
-    returns (IACLCommons.TypeEntity storage, bytes32)
-  {
-    bytes32 newRoleId = LACLUtils.generateId(request.name);
-    require(data.agents[newRoleId].atype == IACLCommons.AgentType.NONE, "Role Already Exist");
-    require(
-      request.acstat > IACLCommons.ActivityStatus.DELETED && request.alstat > IACLCommons.AlterabilityStatus.NONE,
-      "Illegal Activity/Alterability"
-    );
-    require(
-      request.typeId != LIVELY_VERSE_ANONYMOUS_TYPE_ID && request.typeId != LIVELY_VERSE_ANY_TYPE_ID,
-      "Illegal Type"
-    );
-
-    // check type
-    IACLCommons.TypeEntity storage typeEntity = data.typeReadSlot(request.typeId);
-    require(typeEntity.ba.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Type Updatable");
-    require(typeEntity.roles.length() < typeEntity.roleLimit, "Illegal Register");
-
-    return (typeEntity, newRoleId);
-  }
-
+ 
   function initACLAgents(
     ACLStorage.DataCollection storage data,
     address livelyAdmin,
@@ -179,53 +159,19 @@ library LACLCommons {
     return _doCheckAdminAccess(data, adminId, memberId, functionId);
   }
 
-  function getPolicyAdmin(
-    ACLStorage.DataCollection storage data,
-    IACLCommons.ScopeType requestScopeType,
-    bytes32 requestScopeAdmin,
-    bytes32 scopeId,
-    bytes32 adminId
-  ) external view returns (bytes32 policyAdminId) {
-    // checking requested type admin
-    if (adminId != bytes32(0)) {
-      require(data.agents[adminId].atype == IACLCommons.AgentType.ROLE, "Illegal Admin AgentType");
-      (IACLCommons.ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(data, adminId);
-      require(requestScopeType <= requestAdminScopeType, "Illegal Admin ScopeType");
-      if (requestScopeType == requestAdminScopeType) {
-        require(requestAdminScopeId == scopeId, "Illegal Admin Scope");
-      } else {
-        require(IACLGenerals(address(this)).isScopesCompatible(requestAdminScopeId, scopeId), "Illegal Admin Scope");
-      }
-      policyAdminId = adminId;
-    } else {
-      policyAdminId = requestScopeAdmin;
-    }
-  }
-
-  function getPolicyAndCheckAdminAccess(
-    ACLStorage.DataCollection storage data,
-    bytes32 policyId,
-    bytes32 memberId,
-    bytes32 functionId
-  ) external view returns (IACLCommons.PolicyEntity storage) {
-    IACLCommons.PolicyEntity storage policyEntity = data.policies[policyId];
-    require(policyEntity.adminId != bytes32(0), "Not Found");
-    require(policyEntity.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-    IACL.AdminAccessStatus status = _doCheckAdminAccess(data, policyEntity.adminId, memberId, functionId);
-    if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
-    return policyEntity;
-  }
-
-  function getAndCheckRequestScope(
+  function getCheckUpdateRequestScope(
     ACLStorage.DataCollection storage data,
     bytes32 requestScopeId,
     bytes32 senderScopeId,
     IACLCommons.ScopeType senderScopeType
-  ) external view returns (IACLCommons.BaseScope storage) {
+  ) external returns (IACLCommons.BaseScope storage) {
     // checking requested type scope
     IACLCommons.BaseScope storage requestedScope = data.scopes[requestScopeId];
     require(requestedScope.stype != IACLCommons.ScopeType.NONE, "Scope Not Found");
-    require(requestedScope.acstat > IACLCommons.ActivityStatus.DELETED, "Deleted");
+    require(requestedScope.acstat > IACLCommons.ActivityStatus.DELETED, "Scope Deleted");
+
+    // increase referred count to target scope
+    requestedScope.referredByAgent += 1;
 
     require(requestedScope.stype <= senderScopeType, "Illegal ScopeType");
     if (requestedScope.stype == senderScopeType) {

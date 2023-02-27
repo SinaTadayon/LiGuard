@@ -54,6 +54,10 @@ interface IMemberManagement is IACLCommons {
 
   event MemberAlterabilityUpdated(address indexed sender, bytes32 indexed memberId, AlterabilityStatus alstat);
 
+  event MemberRoleRevoked(address indexed sender, bytes32 indexed memberId, bytes32 indexed roleId, bytes32 typeId);
+
+  event MemberRemoved(address indexed sender, bytes32 indexed memberId, bool isCompleted);
+
   function memberRegister(MemberSignature calldata memberSign, MemberRegisterRequest[] calldata requests)
     external
     returns (bool);
@@ -75,6 +79,8 @@ interface IMemberManagement is IACLCommons {
     MemberSignature calldata memberSign,
     MemberUpdateGeneralLimitRequest[] calldata requests
   ) external returns (bool);
+
+  function memberRemove(MemberSignature calldata memberSign, bytes32[] calldata members) external returns (bool);
 
   function memberCheckId(bytes32 memberId) external view returns (bool);
 

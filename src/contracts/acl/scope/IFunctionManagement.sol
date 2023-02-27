@@ -43,6 +43,11 @@ interface IFunctionManagement is IACLCommons {
     bytes32 agentId;
   }
 
+  struct FunctionRemoveRequest {
+    bytes32 functionId;
+    bool isSoftDelete;
+  }
+
   struct FunctionInfo {
     bytes32 adminId;
     bytes32 agentId;
@@ -75,6 +80,8 @@ interface IFunctionManagement is IACLCommons {
 
   event FunctionPolicyUpdated(address indexed sender, bytes32 indexed functionId, uint8 policyCode);
 
+  event FunctionRemoved(address indexed sender, bytes32 indexed functionId, bool isSoftDeleted);
+
   function functionRegister(MemberSignature calldata memberSign, FunctionRegisterRequest[] calldata requests)
     external
     returns (bool);
@@ -100,6 +107,10 @@ interface IFunctionManagement is IACLCommons {
     MemberSignature calldata memberSign,
     FunctionUpdatePolicyRequest[] calldata requests
   ) external returns (bool);
+
+  function functionRemove(MemberSignature calldata memberSign, FunctionRemoveRequest[] calldata requests)
+    external
+    returns (bool);
 
   function functionCheckId(bytes32 functionId) external view returns (bool);
 

@@ -116,7 +116,12 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     );
 
     for (uint256 i = 0; i < requests.length; i++) {
-      ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
+      ContextEntity storage contextEntity = _data.contextReadSlot(requests[i].id);
+      require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
+      
+      IACL.AdminAccessStatus status = _doCheckAdminAccess(contextEntity.bs.adminId, senderId, functionId);
+      if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
+      
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
       contextEntity.bs.acstat = requests[i].acstat;
       emit ContextActivityUpdated(sender, requests[i].id, requests[i].acstat);
@@ -135,8 +140,11 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
 
     for (uint256 i = 0; i < requests.length; i++) {
       ContextEntity storage contextEntity = _data.contextReadSlot(requests[i].id);
+      require(contextEntity.bs.acstat > ActivityStatus.DELETED, "Context Deleted");
+
       IACL.AdminAccessStatus status = _doCheckAdminAccess(contextEntity.bs.adminId, senderId, functionId);
       if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
+
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       contextEntity.bs.alstat = requests[i].alstat;
       emit ContextAlterabilityUpdated(sender, requests[i].id, requests[i].alstat);
@@ -200,6 +208,42 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     }
     return true;
   }
+
+  function contextRemove(
+    MemberSignature calldata memberSign, 
+    bytes32[] calldata contexts    
+  ) external returns (bool) {
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(
+      memberSign,
+      IContextManagement.contextUpdateFunctionLimit.selector
+    );
+
+    for (uint256 i = 0; i < contexts.length; i++) {
+      ContextEntity storage contextEntity = _data.contextReadSlot(contexts[i]);      
+      IACL.AdminAccessStatus status = _doCheckAdminAccess(contextEntity.bs.adminId, senderId, functionId);
+      if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
+
+      if(contextEntity.bs.referredByAgent == 0) {
+        if(contextEntity.functions.length() == 0) {
+          delete contextEntity.bs;
+          delete contextEntity.realmId;
+          delete contextEntity.contractId;
+          delete contextEntity.functionLimit;
+          delete contextEntity.functions;
+          emit ContextRemoved(sender, contexts[i], false);
+
+        } else {
+          require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
+          contextEntity.bs.acstat = ActivityStatus.DELETED;
+          emit ContextRemoved(sender, contexts[i], true);
+        }
+      } else {
+        revert("Illegal Remove");
+      }
+    }
+    return true;
+  }
+
 
   function contextCheckId(bytes32 contextId) external view returns (bool) {
     return _data.scopes[contextId].stype == ScopeType.CONTEXT;
@@ -345,6 +389,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     bytes32 functionId
   ) internal view returns (ContextEntity storage) {
     ContextEntity storage contextEntity = _data.contextReadSlot(contextId);
+    require(contextEntity.bs.acstat > ActivityStatus.DELETED, "Context Deleted");
     require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
     IACL.AdminAccessStatus status = _doCheckAdminAccess(contextEntity.bs.adminId, senderId, functionId);
     if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);

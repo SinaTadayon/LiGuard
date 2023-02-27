@@ -50,6 +50,8 @@ interface ITypeManagement is IACLCommons {
 
   event TypeAdminUpdated(address indexed sender, bytes32 indexed typeId, bytes32 indexed adminId);
 
+  event TypeRemoved(address indexed sender, bytes32 indexed typeId);
+
   function typeRegister(MemberSignature calldata memberSign, TypeRegisterRequest[] calldata requests)
     external
     returns (bool);
@@ -74,6 +76,10 @@ interface ITypeManagement is IACLCommons {
   function typeUpdateRoleLimit(MemberSignature calldata memberSign, TypeUpdateRoleLimitRequest[] calldata requests)
     external
     returns (bool);
+
+  function typeRemove(MemberSignature calldata memberSign, bytes32[] calldata types)
+    external
+    returns (bool);  
 
   function typeCheckId(bytes32 typeId) external view returns (bool);
 

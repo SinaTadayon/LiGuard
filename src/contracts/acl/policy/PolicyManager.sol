@@ -12,7 +12,7 @@ import "../agent/IRoleManagement.sol";
 import "../agent/ITypeManagement.sol";
 import "../../proxy/IProxy.sol";
 import "../../lib/acl/LACLUtils.sol";
-import "../../lib/acl/LACLCommons.sol";
+import "../../lib/acl/LACLAgentScope.sol";
 import "../../lib/acl/LACLStorage.sol";
 import "../../lib/struct/LEnumerableSet.sol";
 import "../../proxy/BaseUUPSProxy.sol";
@@ -186,33 +186,39 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
       memberSign,
       IPolicyManagement.policyUpdateScope.selector
     );
-    ScopeType senderScopeType;
-    bytes32 senderScopeId;
+    // ScopeType senderScopeType;
+    // bytes32 senderScopeId;
     for (uint256 i = 0; i < requests.length; i++) {
-      PolicyEntity storage policyEntity = _doGetPolicyAndCheckAdminAccess(requests[i].id, senderId, functionId);
+      LACLAgentScope.updatePolicyScope(_data, requests[i], functionId, senderId);
+      // PolicyEntity storage policyEntity = _doGetPolicyAndCheckAdminAccess(requests[i].id, senderId, functionId);
 
-      AgentType adminAgentType = _data.agents[policyEntity.adminId].atype;
-      if (adminAgentType == AgentType.ROLE) {
-        RoleEntity storage roleEntity = _data.roleReadSlot(policyEntity.adminId);
-        senderScopeId = roleEntity.scopeId;
-        senderScopeType = _data.scopes[roleEntity.scopeId].stype;
-      } else {
-        TypeEntity storage agentType = _data.typeReadSlot(policyEntity.adminId);
-        bytes32 memberRoleId = agentType.members[senderId];
-        RoleEntity storage memberAgentRole = _data.roleReadSlot(memberRoleId);
-        senderScopeType = _data.scopes[memberAgentRole.scopeId].stype;
-        senderScopeId = memberAgentRole.scopeId;
-      }
+      // AgentType adminAgentType = _data.agents[policyEntity.adminId].atype;
+      // if (adminAgentType == AgentType.ROLE) {
+      //   RoleEntity storage roleEntity = _data.roleReadSlot(policyEntity.adminId);
+      //   senderScopeId = roleEntity.scopeId;
+      //   senderScopeType = _data.scopes[roleEntity.scopeId].stype;
+      // } else {
+      //   TypeEntity storage agentType = _data.typeReadSlot(policyEntity.adminId);
+      //   bytes32 memberRoleId = agentType.members[senderId];
+      //   RoleEntity storage memberAgentRole = _data.roleReadSlot(memberRoleId);
+      //   senderScopeType = _data.scopes[memberAgentRole.scopeId].stype;
+      //   senderScopeId = memberAgentRole.scopeId;
+      // }
 
-      BaseScope storage requestScope = _getAndCheckRequestScope(requests[i].scopeId, senderScopeId, senderScopeType);
-      if (policyEntity.roles.length() > 0) {
-        require(requestScope.stype > _data.scopes[policyEntity.scopeId].stype, "Illegal ScopeType");
-        require(
-          IACLGenerals(address(this)).isScopesCompatible(requests[i].scopeId, policyEntity.scopeId),
-          "Illegal Scope"
-        );
-      }
-      policyEntity.scopeId = requests[i].scopeId;
+      // BaseScope storage requestScope = _getCheckUpdateRequestScope(requests[i].scopeId, senderScopeId, senderScopeType);
+      // BaseScope storage currentScope = _data.scopes[policyEntity.scopeId];
+      // if (policyEntity.roles.length() > 0) {
+      //   require(requestScope.stype > currentScope.stype, "Illegal ScopeType");
+      //   require(
+      //     IACLGenerals(address(this)).isScopesCompatible(requests[i].scopeId, policyEntity.scopeId),
+      //     "Illegal Scope"
+      //   );
+      // }
+      // require(currentScope.referredByAgent > 0, "Illeagl Referred");
+      // unchecked {
+      //   currentScope.referredByAgent -= 1;
+      // }
+      // policyEntity.scopeId = requests[i].scopeId;
       emit PolicyScopeUpdated(sender, requests[i].id, requests[i].scopeId);
     }
     return true;
@@ -268,6 +274,29 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
       require(requests[i].roleLimit > policyEntity.roles.length(), "Illegal Limit");
       policyEntity.roleLimit = requests[i].roleLimit;
       emit PolicyRoleLimitUpdated(sender, requests[i].policyId, requests[i].roleLimit);
+    }
+    return true;
+  }
+
+  function policyRemove(MemberSignature calldata memberSign, bytes32[] calldata policies) external returns (bool) {
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(
+      memberSign,
+      IPolicyManagement.policyUpdateRoleLimit.selector
+    );
+    for (uint256 i = 0; i < policies.length; i++) {
+      PolicyEntity storage policyEntity = _doGetPolicyAndCheckAdminAccess(policies[i], senderId, functionId);
+      require(policyEntity.roles.length() == 0, "Illegal Remove");
+
+      delete policyEntity.adminId;
+      delete policyEntity.scopeId;
+      delete policyEntity.name;
+      delete policyEntity.roleLimit;
+      delete policyEntity.policyCode;
+      delete policyEntity.ptype;
+      delete policyEntity.acstat;
+      delete policyEntity.alstat;
+      delete policyEntity.roles;
+      emit PolicyRemoved(sender, policies[i]);
     }
     return true;
   }
@@ -400,7 +429,7 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
     bytes32 memberId,
     bytes32 functionId
   ) internal view returns (IACL.AdminAccessStatus) {
-    return LACLCommons.checkAdminAccess(_data, adminId, memberId, functionId);
+    return LACLAgentScope.checkAdminAccess(_data, adminId, memberId, functionId);
   }
 
   function _accessPermission(MemberSignature calldata memberSign, bytes4 selector)
@@ -443,7 +472,7 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
     bytes32 scopeId,
     bytes32 adminId
   ) internal view returns (bytes32 policyAdminId) {
-    return LACLCommons.getPolicyAdmin(_data, requestScopeType, requestScopeAdmin, scopeId, adminId);
+    return LACLAgentScope.getPolicyAdmin(_data, requestScopeType, requestScopeAdmin, scopeId, adminId);
   }
 
   function _doGetPolicyAndCheckAdminAccess(
@@ -451,15 +480,15 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
     bytes32 memberId,
     bytes32 functionId
   ) internal view returns (PolicyEntity storage) {
-    return LACLCommons.getPolicyAndCheckAdminAccess(_data, policyId, memberId, functionId);
+    return LACLAgentScope.getPolicyAndCheckAdminAccess(_data, policyId, memberId, functionId);
   }
 
-  function _getAndCheckRequestScope(
+  function _getCheckUpdateRequestScope(
     bytes32 requestScopeId,
     bytes32 senderScopeId,
     ScopeType senderScopeType
-  ) internal view returns (BaseScope storage) {
-    return LACLCommons.getAndCheckRequestScope(_data, requestScopeId, senderScopeId, senderScopeType);
+  ) internal returns (BaseScope storage) {
+    return LACLAgentScope.getCheckUpdateRequestScope(_data, requestScopeId, senderScopeId, senderScopeType);
   }
 
   function _doPolicyRegister(
@@ -477,7 +506,7 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
     );
 
     // checking requested type scope
-    BaseScope storage requestedScope = _getAndCheckRequestScope(request.scopeId, senderScopeId, senderScopeType);
+    BaseScope storage requestedScope = _getCheckUpdateRequestScope(request.scopeId, senderScopeId, senderScopeType);
 
     // create policy entity
     PolicyEntity storage policyEntity = _data.policies[newPolicyId];
@@ -500,6 +529,6 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
   }
 
   function getLibrary() external pure returns (address) {
-    return address(LACLCommons);
+    return address(LACLAgentScope);
   }
 }

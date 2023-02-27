@@ -63,6 +63,8 @@ interface IContextManagement is IACLCommons {
 
   event ContextFunctionLimitUpdated(address indexed sender, bytes32 indexed contextId, uint8 functionLimit);
 
+  event ContextRemoved(address indexed sender, bytes32 indexed contextId, bool isSoftDelete);
+
   function contextRegister(MemberSignature calldata memberSign, ContextRegisterRequest[] calldata requests)
     external
     returns (bool);
@@ -84,6 +86,10 @@ interface IContextManagement is IACLCommons {
     MemberSignature calldata memberSign,
     ContextUpdateFunctionLimitRequest[] calldata requests
   ) external returns (bool);
+
+  function contextRemove(MemberSignature calldata memberSign, bytes32[] calldata contexts)
+    external
+    returns (bool);
 
   function contextCheckId(bytes32 contextId) external view returns (bool);
 

@@ -8,7 +8,7 @@ import "../IACL.sol";
 import "../IACLGenerals.sol";
 import "../ACLStorage.sol";
 import "../../lib/acl/LACLStorage.sol";
-import "../../lib/acl/LACLCommons.sol";
+import "../../lib/acl/LACLAgentScope.sol";
 import "../../lib/cryptography/LECDSA.sol";
 import "../../lib/struct/LEnumerableSet.sol";
 import "../../lib/acl/LACLUtils.sol";
@@ -183,8 +183,13 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
       IFunctionManagement.functionUpdateActivityStatus.selector
     );
     for (uint256 i = 0; i < requests.length; i++) {
-      FunctionEntity storage functionEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
-      require(requests[i].acstat != ActivityStatus.NONE, "Illegal Activity");
+      FunctionEntity storage functionEntity = _data.functionReadSlot(requests[i].id);      
+      require(functionEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
+
+      IACL.AdminAccessStatus status = _doCheckAdminAccess(functionEntity.bs.adminId, senderId, functionId);
+      if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
+
+      require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
       functionEntity.bs.acstat = requests[i].acstat;
       emit FunctionActivityUpdated(sender, requests[i].id, requests[i].acstat);
     }
@@ -203,8 +208,10 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     for (uint256 i = 0; i < requests.length; i++) {
       FunctionEntity storage functionEntity = _data.functionReadSlot(requests[i].id);
       require(functionEntity.bs.acstat > ActivityStatus.DELETED, "Function Deleted");
+
       IACL.AdminAccessStatus status = _doCheckAdminAccess(functionEntity.bs.adminId, senderId, functionId);
       if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
+
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       functionEntity.bs.alstat = requests[i].alstat;
       emit FunctionAlterabilityUpdated(sender, requests[i].id, requests[i].alstat);
@@ -232,6 +239,42 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     }
     return true;
   }
+
+  function functionRemove(MemberSignature calldata memberSign, FunctionRemoveRequest[] calldata requests) external returns (bool) {
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(
+      memberSign,
+      IFunctionManagement.functionUpdatePolicyCode.selector
+    );
+
+    for (uint256 i = 0; i < requests.length; i++) {
+      FunctionEntity storage functionEntity = _data.functionReadSlot(requests[i].functionId);
+      IACL.AdminAccessStatus status = _doCheckAdminAccess(functionEntity.bs.adminId, senderId, functionId);
+      if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
+
+      if(requests[i].isSoftDelete) {
+        // Note: It's very important to prevent infinity lock state
+        require(functionEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
+        functionEntity.bs.acstat = ActivityStatus.DELETED;
+        emit FunctionRemoved(sender, requests[i].functionId, true);
+
+      } else {
+        require(functionEntity.bs.referredByAgent == 0, "Illegal Remove");
+
+        ContextEntity storage contextEntity = _data.contextReadSlot(functionEntity.contextId);
+        require(contextEntity.bs.alstat == AlterabilityStatus.UPGRADABLE, "Illegal Context Upgradable");
+        contextEntity.functions.remove(requests[i].functionId);
+
+        delete functionEntity.bs;
+        delete functionEntity.agentId;
+        delete functionEntity.contextId;
+        delete functionEntity.selector;
+        delete functionEntity.policyCode;
+        emit FunctionRemoved(sender, requests[i].functionId, false);
+      }      
+    }
+    return true;
+  }
+
 
   function functionCheckId(bytes32 functionId) external view returns (bool) {
     return _data.scopes[functionId].stype == ScopeType.FUNCTION;
@@ -313,18 +356,19 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
   }
 
   function _doGetAgentScopeInfo(bytes32 agentId) internal view returns (ScopeType, bytes32) {
-    AgentType atype = _data.agents[agentId].atype;
-    if (atype == AgentType.ROLE) {
-      RoleEntity storage roleEntity = _data.roleReadSlot(agentId);
-      BaseScope storage baseScope = _data.scopes[roleEntity.scopeId];
-      return (baseScope.stype, roleEntity.scopeId);
-    } else if (atype == AgentType.TYPE) {
-      TypeEntity storage typeEntity = _data.typeReadSlot(agentId);
-      BaseScope storage baseScope = _data.scopes[typeEntity.scopeId];
-      return (baseScope.stype, typeEntity.scopeId);
-    }
+    return LACLAgentScope.getAgentScopeInfo(_data, agentId);
+    // AgentType atype = _data.agents[agentId].atype;
+    // if (atype == AgentType.ROLE) {
+    //   RoleEntity storage roleEntity = _data.roleReadSlot(agentId);
+    //   BaseScope storage baseScope = _data.scopes[roleEntity.scopeId];
+    //   return (baseScope.stype, roleEntity.scopeId);
+    // } else if (atype == AgentType.TYPE) {
+    //   TypeEntity storage typeEntity = _data.typeReadSlot(agentId);
+    //   BaseScope storage baseScope = _data.scopes[typeEntity.scopeId];
+    //   return (baseScope.stype, typeEntity.scopeId);
+    // }
 
-    return (ScopeType.NONE, bytes32(0));
+    // return (ScopeType.NONE, bytes32(0));
   }
 
   function _doCheckSystemScope(bytes32 scopeId, bytes32 memberId) internal view returns (bool) {
@@ -344,7 +388,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     bytes32 memberId,
     bytes32 functionId
   ) internal view returns (IACL.AdminAccessStatus) {
-    return LACLCommons.checkAdminAccess(_data, adminId, memberId, functionId);
+    return LACLAgentScope.checkAdminAccess(_data, adminId, memberId, functionId);
   }
 
   function _accessPermission(MemberSignature calldata memberSign, bytes4 selector)
@@ -427,21 +471,22 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     bytes32 contextId,
     bytes32 adminId
   ) internal view returns (bytes32 functionAdminId) {
-    // checking requested functionAdmin admin
-    if (adminId != bytes32(0)) {
-      require(_data.agents[adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
+    return LACLAgentScope.getAndCheckFunctionAdmin(_data, contextAdminId, contextId, adminId);
+    // // checking requested functionAdmin admin
+    // if (adminId != bytes32(0)) {
+    //   require(_data.agents[adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
 
-      (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doGetAgentScopeInfo(adminId);
-      require(ScopeType.CONTEXT <= requestAdminScopeType, "Illegal Admin ScopeType");
-      if (ScopeType.CONTEXT == requestAdminScopeType) {
-        require(requestAdminScopeId == contextAdminId, "Illegal Admin Scope");
-      } else {
-        require(IACLGenerals(address(this)).isScopesCompatible(requestAdminScopeId, contextId), "Illegal Admin Scope");
-      }
-      functionAdminId = adminId;
-    } else {
-      functionAdminId = contextAdminId;
-    }
+    //   (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doGetAgentScopeInfo(adminId);
+    //   require(ScopeType.CONTEXT <= requestAdminScopeType, "Illegal Admin ScopeType");
+    //   if (ScopeType.CONTEXT == requestAdminScopeType) {
+    //     require(requestAdminScopeId == contextAdminId, "Illegal Admin Scope");
+    //   } else {
+    //     require(IACLGenerals(address(this)).isScopesCompatible(requestAdminScopeId, contextId), "Illegal Admin Scope");
+    //   }
+    //   functionAdminId = adminId;
+    // } else {
+    //   functionAdminId = contextAdminId;
+    // }
   }
 
   function _getContextMessageHash(
@@ -475,6 +520,6 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
   }
 
   function getLibrary() external pure returns (address) {
-    return address(LACLCommons);
+    return address(LACLAgentScope);
   }
 }

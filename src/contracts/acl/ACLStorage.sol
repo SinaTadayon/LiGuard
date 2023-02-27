@@ -43,9 +43,6 @@ abstract contract ACLStorage is BaseUUPSStorage, IACLCommons {
   bytes32 public constant PROFILE_PREDICT_CTX_MESSAGE_TYPEHASH =
     keccak256("ProfilePredictContext(string profile,address deployer,address subject,string realm)");
 
-  // bytes32 public constant PROFILE_REGISTER_MESSAGE_TYPEHASH =
-  //   keccak256("ProfileRegister(string name,address owner,uint256 expiredAt)");
-
   bytes32 public constant PROFILE_MEMBER_SIGNATURE_MESSAGE_TYPEHASH =
     keccak256("ProfileMemberSignature(string profile,address account,uint256 expiredAt)");
 
@@ -56,7 +53,8 @@ abstract contract ACLStorage is BaseUUPSStorage, IACLCommons {
     keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_SYSTEM_MASTER"));
   bytes32 internal constant _LIVELY_VERSE_ANONYMOUS_TYPE_ID =
     keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_ANONYMOUS"));
-  bytes32 internal constant _LIVELY_VERSE_ANY_TYPE_ID = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_ANY"));
+  bytes32 internal constant _LIVELY_VERSE_ANY_TYPE_ID = 
+    keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_ANY"));
   bytes32 internal constant _LIVELY_VERSE_SCOPE_MASTER_TYPE_ID =
     keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_SCOPE_MASTER"));
   bytes32 internal constant _LIVELY_VERSE_MEMBER_MASTER_TYPE_ID =
@@ -77,7 +75,8 @@ abstract contract ACLStorage is BaseUUPSStorage, IACLCommons {
     keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_MASTER"));
   bytes32 internal constant _LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID =
     keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER"));
-  bytes32 internal constant _LIVELY_PROFILE_ANY_TYPE_ID = keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_ANY"));
+  bytes32 internal constant _LIVELY_PROFILE_ANY_TYPE_ID = 
+    keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_ANY"));
   bytes32 internal constant _LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID =
     keccak256(abi.encodePacked("UNIVERSE.LIVELY_PROFILE"));
 

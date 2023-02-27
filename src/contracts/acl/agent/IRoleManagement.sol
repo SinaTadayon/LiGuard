@@ -80,6 +80,8 @@ interface IRoleManagement is IACLCommons {
 
   event RoleAlterabilityUpdated(address indexed sender, bytes32 indexed roleId, AlterabilityStatus alstat);
 
+  event RoleRemoved(address indexed sender, bytes32 indexed roleId);
+
   function roleRegister(MemberSignature calldata memberSign, RoleRegisterRequest[] calldata requests)
     external
     returns (bool);
@@ -112,6 +114,8 @@ interface IRoleManagement is IACLCommons {
   function roleUpdateMemberLimit(MemberSignature calldata memberSign, RoleUpdateMemberLimitRequest[] calldata requests)
     external
     returns (bool);
+
+  function roleRemove(MemberSignature calldata memberSign, bytes32[] calldata roles) external returns (bool);
 
   function roleCheckId(bytes32 roleId) external view returns (bool);
 

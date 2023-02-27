@@ -81,6 +81,8 @@ interface IPolicyManagement is IACLCommons {
 
   event PolicyScopeUpdated(address indexed sender, bytes32 indexed policyId, bytes32 indexed scopeId);
 
+  event PolicyRemoved(address indexed sender, bytes32 indexed policyId);
+
   function policyRegister(MemberSignature calldata memberSign, PolicyRegisterRequest[] calldata requests)
     external
     returns (bool);
@@ -115,6 +117,10 @@ interface IPolicyManagement is IACLCommons {
   ) external returns (bool);
 
   function policyUpdateRoleLimit(MemberSignature calldata memberSign, PolicyUpdateRoleLimitRequest[] calldata requests)
+    external
+    returns (bool);
+
+  function policyRemove(MemberSignature calldata memberSign, bytes32[] calldata policies)
     external
     returns (bool);
 

@@ -10,7 +10,7 @@ import "../IACL.sol";
 import "../IACLGenerals.sol";
 import "../scope/IFunctionManagement.sol";
 import "../../lib/acl/LACLStorage.sol";
-import "../../lib/acl/LACLCommons.sol";
+import "../../lib/acl/LACLAgentScope.sol";
 import "../../lib/struct/LEnumerableSet.sol";
 import "../../lib/acl/LACLUtils.sol";
 import "../../proxy/IProxy.sol";
@@ -168,6 +168,50 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
     return true;
   }
 
+  function memberRemove(MemberSignature calldata memberSign, bytes32[] calldata members) external returns (bool) {
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(
+      memberSign,
+      IMemberManagement.memberRemove.selector
+    );    
+
+    for (uint256 i = 0; i < members.length; i++) {
+      MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(members[i], senderId, functionId);
+      for (uint256 j = 0; j < memberEntity.types.length() && j < 16; j++) {
+        // check type
+        bytes32 typeId = memberEntity.types.at(j);
+        TypeEntity storage typeEntity = _data.typeReadSlot(typeId);
+        require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Type Updatable");
+
+        // check role
+        bytes32 roleId = typeEntity.members[members[i]];
+        RoleEntity storage roleEntity = _data.roleReadSlot(roleId);
+        require(roleEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Role Updatable");
+        require(roleEntity.memberCount > 0, "Illegal MemberCount");
+        unchecked { roleEntity.memberCount -= 1; }
+
+        // delete member from type
+        delete typeEntity.members[members[i]];
+
+        // delete type from member
+        memberEntity.types.remove(typeId);
+        emit MemberRoleRevoked(sender, members[i], roleId, typeId);
+      }
+
+      if(memberEntity.types.length() == 0) {
+        delete memberEntity.ba;
+        delete memberEntity.account;
+        delete memberEntity.limits;
+        delete memberEntity.types;
+        emit MemberRemoved(sender, members[i], true);
+
+      } else {
+        emit MemberRemoved(sender, members[i], false);        
+      }
+    }
+
+    return true;
+  }
+
   function memberCheckId(bytes32 memberId) external view returns (bool) {
     return _data.agents[memberId].atype == AgentType.MEMBER;
   }
@@ -285,7 +329,7 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
     bytes32 memberId,
     bytes32 functionId
   ) internal view returns (IACL.AdminAccessStatus) {
-    return LACLCommons.checkAdminAccess(_data, adminId, memberId, functionId);
+    return LACLAgentScope.checkAdminAccess(_data, adminId, memberId, functionId);
   }
 
   function _accessPermission(MemberSignature calldata memberSign, bytes4 selector)
@@ -391,27 +435,28 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
   }
 
   function _doCheckMemberRegisterLimits(MemberEntity storage memberEntity, GeneralLimit calldata limits) internal view {
-    require(memberEntity.limits.memberRegisterLimit >= limits.memberRegisterLimit, "Illegal MemberRegisterLimit");
-    require(memberEntity.limits.contextRegisterLimit >= limits.contextRegisterLimit, "Illegal ContextRegisterLimit");
-    require(memberEntity.limits.functionRegisterLimit >= limits.functionRegisterLimit, "Illegal FunctionRegisterLimit");
-    require(memberEntity.limits.profileRegisterLimit >= limits.profileRegisterLimit, "Illegal ProfileRegisterLimit");
-    require(memberEntity.limits.roleRegisterLimit >= limits.roleRegisterLimit, "Illegal RoleRegisterLimit");
-    require(memberEntity.limits.typeRegisterLimit >= limits.typeRegisterLimit, "Illegal TypeRegisterLimit");
-    require(memberEntity.limits.realmRegisterLimit >= limits.realmRegisterLimit, "Illegal RealmRegisterLimit");
-    require(memberEntity.limits.domainRegisterLimit >= limits.domainRegisterLimit, "Illegal DomainRegisterLimit");
-    require(memberEntity.limits.policyRegisterLimit >= limits.policyRegisterLimit, "Illegal PolicyRegisterLimit");
-    require(memberEntity.limits.memberLimit >= limits.memberLimit, "Illegal MemberLimit");
-    require(memberEntity.limits.contextLimit >= limits.contextLimit, "Illegal ContextLimit");
-    require(memberEntity.limits.realmLimit >= limits.realmLimit, "Illegal RealmLimit");
-    require(memberEntity.limits.domainLimit >= limits.domainLimit, "Illegal DomainLimit");
-    require(memberEntity.limits.callLimit >= limits.callLimit, "Illegal CallLimit");
-    require(memberEntity.limits.typeRoleLimit >= limits.typeRoleLimit, "Illegal TypeRoleLimit");
-    require(memberEntity.limits.typeLimit >= limits.typeLimit, "Illegal TypeLimit");
-    require(memberEntity.limits.policyRoleLimit >= limits.policyRoleLimit, "Illegal PolicyRoleLimit");
-    require(memberEntity.limits.functionLimit >= limits.functionLimit, "Illegal FunctionLimit");
+    LACLAgentScope.checkMemberRegisterLimits(memberEntity, limits);
+    // require(memberEntity.limits.memberRegisterLimit >= limits.memberRegisterLimit, "Illegal MemberRegisterLimit");
+    // require(memberEntity.limits.contextRegisterLimit >= limits.contextRegisterLimit, "Illegal ContextRegisterLimit");
+    // require(memberEntity.limits.functionRegisterLimit >= limits.functionRegisterLimit, "Illegal FunctionRegisterLimit");
+    // require(memberEntity.limits.profileRegisterLimit >= limits.profileRegisterLimit, "Illegal ProfileRegisterLimit");
+    // require(memberEntity.limits.roleRegisterLimit >= limits.roleRegisterLimit, "Illegal RoleRegisterLimit");
+    // require(memberEntity.limits.typeRegisterLimit >= limits.typeRegisterLimit, "Illegal TypeRegisterLimit");
+    // require(memberEntity.limits.realmRegisterLimit >= limits.realmRegisterLimit, "Illegal RealmRegisterLimit");
+    // require(memberEntity.limits.domainRegisterLimit >= limits.domainRegisterLimit, "Illegal DomainRegisterLimit");
+    // require(memberEntity.limits.policyRegisterLimit >= limits.policyRegisterLimit, "Illegal PolicyRegisterLimit");
+    // require(memberEntity.limits.memberLimit >= limits.memberLimit, "Illegal MemberLimit");
+    // require(memberEntity.limits.contextLimit >= limits.contextLimit, "Illegal ContextLimit");
+    // require(memberEntity.limits.realmLimit >= limits.realmLimit, "Illegal RealmLimit");
+    // require(memberEntity.limits.domainLimit >= limits.domainLimit, "Illegal DomainLimit");
+    // require(memberEntity.limits.callLimit >= limits.callLimit, "Illegal CallLimit");
+    // require(memberEntity.limits.typeRoleLimit >= limits.typeRoleLimit, "Illegal TypeRoleLimit");
+    // require(memberEntity.limits.typeLimit >= limits.typeLimit, "Illegal TypeLimit");
+    // require(memberEntity.limits.policyRoleLimit >= limits.policyRoleLimit, "Illegal PolicyRoleLimit");
+    // require(memberEntity.limits.functionLimit >= limits.functionLimit, "Illegal FunctionLimit");
   }
 
   function getLibrary() external pure returns (address) {
-    return address(LACLCommons);
+    return address(LACLAgentScope);
   }
 }

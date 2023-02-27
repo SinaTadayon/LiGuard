@@ -177,11 +177,10 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
         senderId,
         functionId
       );
-      ContextEntity storage contextEntity = _doGetContextEntityAndCheckAdminAccess(
-        requests[i].contextId,
-        senderId,
-        functionId
-      );
+      
+      ContextEntity storage contextEntity = _data.contextReadSlot(requests[i].contextId);
+      require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
+
       require(targetRealmEntity.contextLimit > targetRealmEntity.contexts.length(), "Illegal Move");
       realmEntity.contexts.remove(requests[i].contextId);
       targetRealmEntity.contexts.add(requests[i].contextId);
@@ -202,7 +201,12 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     );
 
     for (uint256 i = 0; i < requests.length; i++) {
-      RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
+      RealmEntity storage realmEntity = _data.realmReadSlot(requests[i].id);
+      require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
+
+      IACL.AdminAccessStatus status = _doCheckAdminAccess(realmEntity.bs.adminId, senderId, functionId);
+      if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
+
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
       realmEntity.bs.acstat = requests[i].acstat;
       emit RealmActivityUpdated(sender, requests[i].id, requests[i].acstat);
@@ -221,8 +225,11 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
 
     for (uint256 i = 0; i < requests.length; i++) {
       RealmEntity storage realmEntity = _data.realmReadSlot(requests[i].id);
+      require(realmEntity.bs.acstat > ActivityStatus.DELETED, "Realm Deleted");
+
       IACL.AdminAccessStatus status = _doCheckAdminAccess(realmEntity.bs.adminId, senderId, functionId);
       if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
+
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       realmEntity.bs.alstat = requests[i].alstat;
       emit RealmAlterabilityUpdated(sender, requests[i].id, requests[i].alstat);
@@ -244,6 +251,41 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
       require(requests[i].contextLimit > realmEntity.contexts.length(), "Illegal Limit");
       realmEntity.contextLimit = requests[i].contextLimit;
       emit RealmContextLimitUpdated(sender, requests[i].realmId, requests[i].contextLimit);
+    }
+    return true;
+  }
+
+  function realmRemove(MemberSignature calldata memberSign, bytes32[] calldata realms) external returns (bool) {
+     (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(
+      memberSign,
+      IRealmManagement.realmUpdateContextLimit.selector
+    );
+
+    for (uint256 i = 0; i < realms.length; i++) {
+      RealmEntity storage realmEntity = _data.realmReadSlot(realms[i]);
+    
+      IACL.AdminAccessStatus status = _doCheckAdminAccess(realmEntity.bs.adminId, senderId, functionId);
+      if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
+
+       if(realmEntity.bs.referredByAgent == 0) {
+        if(realmEntity.contexts.length() == 0) {
+          delete realmEntity.bs;
+          delete realmEntity.domainId;
+          delete realmEntity.contextLimit;
+          delete realmEntity.name;
+          delete realmEntity.contexts;
+          emit RealmRemoved(sender, realms[i], false);
+        
+        } else {
+          require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
+          realmEntity.bs.acstat = ActivityStatus.DELETED;
+          emit RealmRemoved(sender, realms[i], true);
+        }
+      } else {
+        revert("Illegal Remove");
+      }
+
+    
     }
     return true;
   }
@@ -392,22 +434,11 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     bytes32 functionId
   ) internal view returns (RealmEntity storage) {
     RealmEntity storage realmEntity = _data.realmReadSlot(realmId);
+    require(realmEntity.bs.acstat > ActivityStatus.DELETED, "Realm Deleted");
     require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
     IACL.AdminAccessStatus status = _doCheckAdminAccess(realmEntity.bs.adminId, senderId, functionId);
     if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
     return realmEntity;
-  }
-
-  function _doGetContextEntityAndCheckAdminAccess(
-    bytes32 contextId,
-    bytes32 senderId,
-    bytes32 functionId
-  ) internal view returns (ContextEntity storage) {
-    ContextEntity storage contextEntity = _data.contextReadSlot(contextId);
-    require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-    IACL.AdminAccessStatus status = _doCheckAdminAccess(contextEntity.bs.adminId, senderId, functionId);
-    if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
-    return contextEntity;
   }
 
   function _doGetMemberScopeInfoFromType(bytes32 typeId, bytes32 senderId) internal view returns (ScopeType, bytes32) {

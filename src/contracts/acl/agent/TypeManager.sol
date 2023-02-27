@@ -83,7 +83,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
       );
 
       // checking requested type scope
-      BaseScope storage requestedScope = _getAndCheckRequestScope(requests[i].scopeId, senderScopeId, senderScopeType);
+      BaseScope storage requestedScope = _getCheckUpdateRequestScope(requests[i].scopeId, senderScopeId, senderScopeType);
 
       // create new type
       TypeEntity storage newType = _data.typeWriteSlot(newTypeId);
@@ -158,7 +158,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
         senderScopeId = memberAgentRole.scopeId;
       }
 
-      BaseScope storage requestScope = _getAndCheckRequestScope(requests[i].scopeId, senderScopeId, senderScopeType);
+      BaseScope storage requestScope = _getCheckUpdateRequestScope(requests[i].scopeId, senderScopeId, senderScopeType);
       BaseScope storage currentScope = _data.scopes[typeEntity.scopeId];
       if (typeEntity.roles.length() > 0) {
         require(requestScope.stype > currentScope.stype, "Illegal ScopeType");
@@ -227,6 +227,33 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
       require(requests[i].roleLimit > typeEntity.roles.length(), "Illegal Limit");
       typeEntity.roleLimit = requests[i].roleLimit;
       emit TypeRoleLimitUpdated(sender, requests[i].typeId, requests[i].roleLimit);
+    }
+    return true;
+  }
+
+  function typeRemove(MemberSignature calldata memberSign, bytes32[] calldata types) external returns (bool) {
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(
+      memberSign,
+      ITypeManagement.typeUpdateRoleLimit.selector
+    );
+
+    for (uint256 i = 0; i < types.length; i++) {
+      TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(types[i], senderId, functionId);
+      require(typeEntity.roles.length() == 0, "Illegal Remove");
+
+      BaseScope storage typeScope = _data.scopes[typeEntity.scopeId];
+      require(typeScope.referredByAgent > 0, "Illeagl Referred");
+      unchecked {
+        typeScope.referredByAgent -= 1;
+      }
+
+      delete typeEntity.ba;
+      delete typeEntity.scopeId;
+      delete typeEntity.name;
+      delete typeEntity.roleLimit;
+      delete typeEntity.roles;
+
+      emit TypeRemoved(sender, types[i]);
     }
     return true;
   }
@@ -403,7 +430,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
     return typeEntity;
   }
 
-  function _getAndCheckRequestScope(
+  function _getCheckUpdateRequestScope(
     bytes32 requestScopeId,
     bytes32 senderScopeId,
     ScopeType senderScopeType

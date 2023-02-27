@@ -62,6 +62,8 @@ interface IDomainManagement is IACLCommons {
 
   event DomainAlterabilityUpdated(address indexed sender, bytes32 indexed domainId, AlterabilityStatus alstat);
 
+  event DomainRemoved(address indexed sender, bytes32 indexed domainId, bool isSoftDeleted);
+
   function domainRegister(MemberSignature calldata memberSign, DomainRegisterRequest[] calldata requests)
     external
     returns (bool);
@@ -87,6 +89,11 @@ interface IDomainManagement is IACLCommons {
     MemberSignature calldata memberSign,
     DomainUpdateRealmLimitRequest[] calldata requests
   ) external returns (bool);
+
+  function domainRemove(MemberSignature calldata memberSign, bytes32[] calldata domains)
+    external
+    returns (bool);
+
 
   function domainCheckId(bytes32 domainId) external view returns (bool);
 
