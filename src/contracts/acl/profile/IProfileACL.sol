@@ -10,12 +10,11 @@ pragma solidity 0.8.17;
  *
  */
 interface IProfileACL {
-
   enum ProfileAuthorizationStatus {
     PERMITTED,
     UNAUTHORIZED,
     POLICY_FORBIDDEN,
-    PROFILE_CALL_FORBIDDEN,    
+    PROFILE_CALL_FORBIDDEN,
     MEMBER_CALL_FORBIDDEN,
     ROLE_SCOPE_FORBIDDEN,
     MEMBER_NOT_FOUND,
@@ -25,11 +24,11 @@ interface IProfileACL {
     CONTEXT_NOT_FOUND,
     REALM_NOT_FOUND,
     DOMAIN_NOT_FOUND,
-    MEMBER_ACTIVITY_FORBIDDEN,    
+    MEMBER_ACTIVITY_FORBIDDEN,
     ROLE_ACTIVITY_FORBIDDEN,
-    TYPE_ACTIVITY_FORBIDDEN,    
+    TYPE_ACTIVITY_FORBIDDEN,
     FUNCTION_ACTIVITY_FORBIDDEN,
-    CONTEXT_ACTIVITY_FORBIDDEN,    
+    CONTEXT_ACTIVITY_FORBIDDEN,
     REALM_ACTIVITY_FORBIDDEN,
     DOMAIN_ACTIVITY_FORBIDDEN,
     UNIVERSE_ACTIVITY_FORBIDDEN,
@@ -68,7 +67,7 @@ interface IProfileACL {
     ROLE_ACTIVITY_FORBIDDEN,
     TYPE_ACTIVITY_FORBIDDEN
   }
-  
+
   error ProfileAdminAccessNotPermitted();
   error ProfileAdminAccessPolicyForbidden();
   error ProfileAdminAccessRoleNotFound();
@@ -81,10 +80,22 @@ interface IProfileACL {
 
   function profileHasAccess(bytes32 profileId, bytes32 functionId) external returns (ProfileAuthorizationStatus);
 
-  function profileHasMemberAccess(bytes32 profileId, bytes32 functionId, bytes32 memberId) external returns (ProfileAuthorizationStatus);
+  function profileHasMemberAccess(
+    bytes32 profileId,
+    bytes32 functionId,
+    bytes32 memberId
+  ) external returns (ProfileAuthorizationStatus);
 
-  function profileHasCSAccess(bytes32 profileId, address contractId, bytes4 selector) external returns (ProfileAuthorizationStatus);
+  function profileHasCSAccess(
+    bytes32 profileId,
+    address contractId,
+    bytes4 selector
+  ) external returns (ProfileAuthorizationStatus);
 
-  function profileHasAccountAccess(bytes32 profileId, address contractId, bytes4 selector, address accountId) external returns (ProfileAuthorizationStatus);
-  
+  function profileHasAccountAccess(
+    bytes32 profileId,
+    address contractId,
+    bytes4 selector,
+    address accountId
+  ) external returns (ProfileAuthorizationStatus);
 }

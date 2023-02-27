@@ -11,7 +11,7 @@ import "../lib/struct/LEnumerableSet.sol";
  * @dev
  *
  */
-interface IACLCommons{ 
+interface IACLCommons {
   enum AgentType {
     NONE,
     MEMBER,
@@ -35,7 +35,7 @@ interface IACLCommons{
 
   enum ScopeType {
     NONE,
-    FUNCTION, 
+    FUNCTION,
     CONTEXT,
     REALM,
     DOMAIN,
@@ -49,19 +49,19 @@ interface IACLCommons{
   }
 
   enum PolicyType {
-    UNLOCK,         // 0
-    SLOCK,          // soft lock, 1 - 63
-    MLOCK,          // medium lock, 64 - 127
-    RLOCK,          // restrict lock, 128 - 191
-    HLOCK,          // hard lock, 192 - 254
-    LOCK            // 255
+    UNLOCK, // 0
+    SLOCK, // soft lock, 1 - 63
+    MLOCK, // medium lock, 64 - 127
+    RLOCK, // restrict lock, 128 - 191
+    HLOCK, // hard lock, 192 - 254
+    LOCK // 255
   }
 
   struct BaseAgent {
     bytes32 adminId;
     AgentType atype;
     ActivityStatus acstat;
-    AlterabilityStatus alstat;      
+    AlterabilityStatus alstat;
   }
 
   struct BaseScope {
@@ -78,20 +78,20 @@ interface IACLCommons{
     string name;
     uint16 roleLimit;
     uint8 policyCode;
-    PolicyType ptype; 
+    PolicyType ptype;
     ActivityStatus acstat;
-    AlterabilityStatus alstat;   
+    AlterabilityStatus alstat;
     LEnumerableSet.Bytes32Set roles;
   }
 
   struct FunctionEntity {
-    BaseScope bs;    
+    BaseScope bs;
     bytes32 agentId;
     bytes32 contextId;
     bytes4 selector;
-    uint8 policyCode;        
+    uint8 policyCode;
   }
- 
+
   struct ContextEntity {
     BaseScope bs;
     bytes32 realmId;
@@ -119,7 +119,7 @@ interface IACLCommons{
   struct UniverseEntity {
     BaseScope bs;
     uint16 domainLimit;
-    string name;    
+    string name;
     LEnumerableSet.Bytes32Set domains;
   }
 
@@ -134,14 +134,14 @@ interface IACLCommons{
     uint16 domainLimit;
     uint16 callLimit;
     uint16 typeRoleLimit;
-    uint16 typeLimit;        
-    uint8 roleRegisterLimit;  
+    uint16 typeLimit;
+    uint8 roleRegisterLimit;
     uint8 typeRegisterLimit;
     uint8 realmRegisterLimit;
     uint8 domainRegisterLimit;
     uint8 policyRegisterLimit;
     uint8 policyRoleLimit;
-    uint8 functionLimit;  
+    uint8 functionLimit;
   }
 
   struct MemberEntity {
@@ -153,12 +153,12 @@ interface IACLCommons{
 
   struct MemberSignature {
     address account;
-    uint64 expiredAt;  
+    uint64 expiredAt;
     bytes signature;
   }
 
   struct RoleEntity {
-    BaseAgent ba;    
+    BaseAgent ba;
     bytes32 scopeId;
     bytes32 typeId;
     string name;
@@ -201,18 +201,18 @@ interface IACLCommons{
   }
 
   ////////////////////////////////////////////////////////////////////
-  // Profiles 
+  // Profiles
 
   struct ProfileMemberSignature {
     string profileName;
     address account;
-    uint64 expiredAt;  
+    uint64 expiredAt;
     bytes signature;
   }
 
   struct ProfileRegisterLimit {
     uint32 memberRegisterLimit;
-    uint32 roleRegisterLimit;  
+    uint32 roleRegisterLimit;
     uint32 typeRegisterLimit;
     uint32 functionRegisterLimit;
     uint32 contextRegisterLimit;
@@ -229,9 +229,9 @@ interface IACLCommons{
     uint16 domainLimit;
     uint16 memberCallLimit;
     uint16 typeRoleLimit;
-    uint16 typeLimit;    
+    uint16 typeLimit;
     uint16 policyRoleLimit;
-    uint8 functionLimit;  
+    uint8 functionLimit;
   }
 
   struct ProfileAccount {
@@ -242,7 +242,7 @@ interface IACLCommons{
     mapping(bytes32 => BaseAgent) agents;
     mapping(bytes32 => BaseScope) scopes;
     mapping(bytes32 => PolicyEntity) policies;
-    mapping(bytes32 => bytes32) rolePolicyMap;    
+    mapping(bytes32 => bytes32) rolePolicyMap;
     LEnumerableSet.Bytes32Set admins;
     bytes32 adminId;
     string name;
@@ -250,13 +250,13 @@ interface IACLCommons{
     ActivityStatus acstat;
     AlterabilityStatus alstat;
     ProfileRegisterLimit registerLimits;
-    ProfileLimit limits;    
+    ProfileLimit limits;
   }
 
   struct ProfileMemberEntity {
     BaseAgent ba;
-    address account;    
-    uint16 callLimit;    
+    address account;
+    uint16 callLimit;
     uint16 typeLimit;
     ProfileRegisterLimit registerLimits;
     LEnumerableSet.Bytes32Set types;

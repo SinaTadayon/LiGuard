@@ -12,7 +12,6 @@ import "./IAssetEntity.sol";
  *
  */
 interface IAssetManagerERC20 {
-
   struct AssetCreateRequest {
     bytes32 adminId;
     bytes32 agentId;
@@ -48,7 +47,13 @@ interface IAssetManagerERC20 {
 
   event TokenUpdated(address indexed sender, address indexed tokenId, address indexed assetSubjectId);
 
-  event TokenRegistered(address indexed sender, address indexed tokenId, address indexed assetSubjectId, string tokenName, string tokenSymbol);
+  event TokenRegistered(
+    address indexed sender,
+    address indexed tokenId,
+    address indexed assetSubjectId,
+    string tokenName,
+    string tokenSymbol
+  );
 
   event AssetCreated(address indexed sender, address indexed assetId, address indexed tokenId);
 

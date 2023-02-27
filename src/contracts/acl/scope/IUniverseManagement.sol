@@ -13,7 +13,6 @@ pragma solidity 0.8.17;
 import "../IACLCommons.sol";
 
 interface IUniverseManagement is IACLCommons {
- 
   struct UniverseInfo {
     bytes32 id;
     bytes32 adminId;
@@ -24,7 +23,7 @@ interface IUniverseManagement is IACLCommons {
     AgentType adminType;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
-  }  
+  }
 
   event UniverseAdminUpdated(address indexed sender, bytes32 indexed universeId, bytes32 indexed adminId);
 
@@ -34,9 +33,13 @@ interface IUniverseManagement is IACLCommons {
 
   event UniverseAlterabilityUpdated(address indexed sender, bytes32 indexed universeId, AlterabilityStatus alstat);
 
-  function universeUpdateActivityStatus(MemberSignature calldata memberSign, ActivityStatus acstat) external returns (ActivityStatus);
+  function universeUpdateActivityStatus(MemberSignature calldata memberSign, ActivityStatus acstat)
+    external
+    returns (ActivityStatus);
 
-  function universeUpdateAlterabilityStatus(MemberSignature calldata memberSign, AlterabilityStatus alstat) external returns (AlterabilityStatus);
+  function universeUpdateAlterabilityStatus(MemberSignature calldata memberSign, AlterabilityStatus alstat)
+    external
+    returns (AlterabilityStatus);
 
   function universeUpdateAdmin(MemberSignature calldata memberSign, bytes32 newAdminId) external returns (bool);
 
@@ -47,5 +50,4 @@ interface IUniverseManagement is IACLCommons {
   function universeGetDomains() external view returns (bytes32[] memory);
 
   function universeGetInfo() external view returns (UniverseInfo memory);
-
 }

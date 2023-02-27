@@ -11,11 +11,10 @@ import "../../IACLCommons.sol";
  * @dev
  *
  */
-interface IProfileRoleManagement is IACLCommons{
-
+interface IProfileRoleManagement is IACLCommons {
   struct ProfileRoleRegisterRequest {
     bytes32 adminId;
-    bytes32 scopeId;          
+    bytes32 scopeId;
     bytes32 typeId;
     string name;
     int32 memberLimit;
@@ -23,7 +22,7 @@ interface IProfileRoleManagement is IACLCommons{
 
   struct ProfileRoleGrantMembersRequest {
     bytes32 roleId;
-    bytes32[] members;    
+    bytes32[] members;
   }
 
   struct ProfileRoleRevokeMembersRequest {
@@ -45,58 +44,134 @@ interface IProfileRoleManagement is IACLCommons{
     AgentType adminType;
     AgentType atype;
     ActivityStatus acstat;
-    AlterabilityStatus alstat;   
-    string name;    
+    AlterabilityStatus alstat;
+    string name;
   }
 
-  event ProfileRoleRegistered (
+  event ProfileRoleRegistered(
     address indexed sender,
     bytes32 indexed profileId,
     bytes32 indexed roleId,
-    bytes32 typeId,    
+    bytes32 typeId,
     bytes32 adminId,
     bytes32 scopeId
   );
 
-  event ProfileRoleMemberDeleted(address indexed sender, bytes32 indexed profileId, bytes32 indexed memberId, bytes32 roleId, bytes32 typeId, address account);
+  event ProfileRoleMemberDeleted(
+    address indexed sender,
+    bytes32 indexed profileId,
+    bytes32 indexed memberId,
+    bytes32 roleId,
+    bytes32 typeId,
+    address account
+  );
 
-  event ProfileRoleMemberGranted(address indexed sender, bytes32 indexed profileId, bytes32 indexed roleId, bytes32 memberId, bytes32 typeId);
+  event ProfileRoleMemberGranted(
+    address indexed sender,
+    bytes32 indexed profileId,
+    bytes32 indexed roleId,
+    bytes32 memberId,
+    bytes32 typeId
+  );
 
-  event ProfileRoleMemberRevoked(address indexed sender, bytes32 indexed profileId, bytes32 indexed roleId, bytes32 memberId, bytes32 typeId);  
+  event ProfileRoleMemberRevoked(
+    address indexed sender,
+    bytes32 indexed profileId,
+    bytes32 indexed roleId,
+    bytes32 memberId,
+    bytes32 typeId
+  );
 
-  event ProfileRoleMemberLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed roleId, uint24 memberLimit);
+  event ProfileRoleMemberLimitUpdated(
+    address indexed sender,
+    bytes32 indexed profileId,
+    bytes32 indexed roleId,
+    uint24 memberLimit
+  );
 
-  event ProfileRoleAdminUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed roleId, bytes32 adminId);
+  event ProfileRoleAdminUpdated(
+    address indexed sender,
+    bytes32 indexed profileId,
+    bytes32 indexed roleId,
+    bytes32 adminId
+  );
 
-  event ProfileRoleScopeUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed roleId, bytes32 scopeId);
+  event ProfileRoleScopeUpdated(
+    address indexed sender,
+    bytes32 indexed profileId,
+    bytes32 indexed roleId,
+    bytes32 scopeId
+  );
 
-  event ProfileRoleActivityUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed roleId, ActivityStatus acstat);
+  event ProfileRoleActivityUpdated(
+    address indexed sender,
+    bytes32 indexed profileId,
+    bytes32 indexed roleId,
+    ActivityStatus acstat
+  );
 
-  event ProfileRoleAlterabilityUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed roleId, AlterabilityStatus alstat);
+  event ProfileRoleAlterabilityUpdated(
+    address indexed sender,
+    bytes32 indexed profileId,
+    bytes32 indexed roleId,
+    AlterabilityStatus alstat
+  );
 
-  function profileRoleRegister(ProfileMemberSignature calldata memberSign, ProfileRoleRegisterRequest[] calldata requests) external returns (bool);
+  function profileRoleRegister(
+    ProfileMemberSignature calldata memberSign,
+    ProfileRoleRegisterRequest[] calldata requests
+  ) external returns (bool);
 
-  function profileRoleGrantMembers(ProfileMemberSignature calldata memberSign, ProfileRoleGrantMembersRequest[] calldata requests) external returns (bool);
+  function profileRoleGrantMembers(
+    ProfileMemberSignature calldata memberSign,
+    ProfileRoleGrantMembersRequest[] calldata requests
+  ) external returns (bool);
 
-  function profileRoleRevokeMembers(ProfileMemberSignature calldata memberSign, ProfileRoleRevokeMembersRequest[] calldata requests) external returns (bool);
+  function profileRoleRevokeMembers(
+    ProfileMemberSignature calldata memberSign,
+    ProfileRoleRevokeMembersRequest[] calldata requests
+  ) external returns (bool);
 
-  function profileRoleUpdateAdmin(ProfileMemberSignature calldata memberSign, ProfileUpdateAdminRequest[] calldata requests) external returns (bool);
+  function profileRoleUpdateAdmin(
+    ProfileMemberSignature calldata memberSign,
+    ProfileUpdateAdminRequest[] calldata requests
+  ) external returns (bool);
 
-  function profileRoleUpdateScope(ProfileMemberSignature calldata memberSign, ProfileUpdateScopeRequest[] calldata requests) external returns (bool);  
+  function profileRoleUpdateScope(
+    ProfileMemberSignature calldata memberSign,
+    ProfileUpdateScopeRequest[] calldata requests
+  ) external returns (bool);
 
-  function profileRoleUpdateActivityStatus(ProfileMemberSignature calldata memberSign, ProfileUpdateActivityRequest[] calldata requests) external returns (bool);
+  function profileRoleUpdateActivityStatus(
+    ProfileMemberSignature calldata memberSign,
+    ProfileUpdateActivityRequest[] calldata requests
+  ) external returns (bool);
 
-  function profileRoleUpdateAlterabilityStatus(ProfileMemberSignature calldata memberSign, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool);
+  function profileRoleUpdateAlterabilityStatus(
+    ProfileMemberSignature calldata memberSign,
+    ProfileUpdateAlterabilityRequest[] calldata requests
+  ) external returns (bool);
 
-  function profileRoleUpdateMemberLimit(ProfileMemberSignature calldata memberSign, ProfileRoleUpdateMemberLimitRequest[] calldata requests) external returns (bool);
+  function profileRoleUpdateMemberLimit(
+    ProfileMemberSignature calldata memberSign,
+    ProfileRoleUpdateMemberLimitRequest[] calldata requests
+  ) external returns (bool);
 
   function profileRoleCheckId(bytes32 profileId, bytes32 roleId) external view returns (bool);
 
   function profileRoleCheckName(bytes32 profileId, string calldata roleName) external view returns (bool);
 
-  function profileRoleCheckAdmin(bytes32 profileId, bytes32 roleId, address account) external view returns (bool);
+  function profileRoleCheckAdmin(
+    bytes32 profileId,
+    bytes32 roleId,
+    address account
+  ) external view returns (bool);
 
-  function profileRoleHasAccount(bytes32 profileId, bytes32 roleId, address account) external view returns (bool);
+  function profileRoleHasAccount(
+    bytes32 profileId,
+    bytes32 roleId,
+    address account
+  ) external view returns (bool);
 
   function profileRoleGetInfo(bytes32 profileId, bytes32 roleId) external view returns (ProfileRoleInfo memory);
 }

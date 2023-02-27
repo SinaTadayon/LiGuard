@@ -49,11 +49,10 @@ library LAddress {
 
     uint256 size;
     assembly {
-        size := extcodesize(account)
+      size := extcodesize(account)
     }
     return size > 0;
   }
-
 
   /**
    * @dev Replacement for Solidity's `transfer`: sends `amount` wei to

@@ -13,26 +13,33 @@ import "../../acl/ACLStorage.sol";
  *
  */
 library LProfileStorage {
- 
-  function profileUniverseReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.UniverseEntity storage ge) {
+  function profileUniverseReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId)
+    internal
+    view
+    returns (IACLCommons.UniverseEntity storage ge)
+  {
     IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
-    if(bs.stype == IACLCommons.ScopeType.UNIVERSE) {
+    if (bs.stype == IACLCommons.ScopeType.UNIVERSE) {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), scopeId)
         mstore(add(ptr, 0x20), add(profileEntity.slot, 1))
         ge.slot := keccak256(ptr, 0x40)
       }
-    }  else if(bs.stype == IACLCommons.ScopeType.NONE) {
+    } else if (bs.stype == IACLCommons.ScopeType.NONE) {
       revert("GID Not Found");
     } else {
       revert("Illeagl GID Slot");
-    } 
+    }
   }
 
-  function profileUniverseWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.UniverseEntity storage ge) {
+  function profileUniverseWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId)
+    internal
+    view
+    returns (IACLCommons.UniverseEntity storage ge)
+  {
     IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
-    if(bs.stype == IACLCommons.ScopeType.NONE || bs.stype == IACLCommons.ScopeType.UNIVERSE) {
+    if (bs.stype == IACLCommons.ScopeType.NONE || bs.stype == IACLCommons.ScopeType.UNIVERSE) {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), scopeId)
@@ -41,193 +48,200 @@ library LProfileStorage {
       }
     } else {
       revert("Illegal GID Slot");
-    }  
+    }
   }
 
-  function profileFunctionReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.FunctionEntity storage fe) {
+  function profileFunctionReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId)
+    internal
+    view
+    returns (IACLCommons.FunctionEntity storage fe)
+  {
     IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
-    if(bs.stype == IACLCommons.ScopeType.FUNCTION) {
+    if (bs.stype == IACLCommons.ScopeType.FUNCTION) {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), scopeId)
         mstore(add(ptr, 0x20), add(profileEntity.slot, 1))
-        fe.slot := keccak256(ptr, 0x40)      
+        fe.slot := keccak256(ptr, 0x40)
       }
-    }  else if(bs.stype == IACLCommons.ScopeType.NONE) {
+    } else if (bs.stype == IACLCommons.ScopeType.NONE) {
       revert("FID Not Found");
     } else {
       revert("Illeagl FID Slot");
-    } 
+    }
   }
 
-  function profileFunctionTryReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.FunctionEntity storage fe, bool result) {
+  function profileFunctionTryReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId)
+    internal
+    view
+    returns (IACLCommons.FunctionEntity storage fe, bool result)
+  {
     IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
-    if(bs.stype == IACLCommons.ScopeType.FUNCTION) {
+    if (bs.stype == IACLCommons.ScopeType.FUNCTION) {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), scopeId)
         mstore(add(ptr, 0x20), add(profileEntity.slot, 1))
-        fe.slot := keccak256(ptr, 0x40)      
+        fe.slot := keccak256(ptr, 0x40)
       }
       result = true;
       return (fe, result);
-    }     
+    }
     assembly {
       fe.slot := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     }
     result = false;
   }
 
-  function profileFunctionWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.FunctionEntity storage fe) {
+  function profileFunctionWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId)
+    internal
+    view
+    returns (IACLCommons.FunctionEntity storage fe)
+  {
     IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
-    if(bs.stype == IACLCommons.ScopeType.NONE || bs.stype == IACLCommons.ScopeType.FUNCTION) {
+    if (bs.stype == IACLCommons.ScopeType.NONE || bs.stype == IACLCommons.ScopeType.FUNCTION) {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), scopeId)
         mstore(add(ptr, 0x20), add(profileEntity.slot, 1))
-        fe.slot := keccak256(ptr, 0x40)      
+        fe.slot := keccak256(ptr, 0x40)
       }
     } else {
       revert("Illegal FID Slot");
-    }  
+    }
   }
 
-  function profileFunctionTryWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.FunctionEntity storage fe, bool result) {
+  function profileFunctionTryWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId)
+    internal
+    view
+    returns (IACLCommons.FunctionEntity storage fe, bool result)
+  {
     IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
-    if(bs.stype == IACLCommons.ScopeType.NONE || bs.stype == IACLCommons.ScopeType.FUNCTION) {
+    if (bs.stype == IACLCommons.ScopeType.NONE || bs.stype == IACLCommons.ScopeType.FUNCTION) {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), scopeId)
         mstore(add(ptr, 0x20), add(profileEntity.slot, 1))
-        fe.slot := keccak256(ptr, 0x40)      
+        fe.slot := keccak256(ptr, 0x40)
       }
       result = true;
       return (fe, result);
-    }        
+    }
     assembly {
       fe.slot := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     }
     result = false;
   }
 
-  function profileContextReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.ContextEntity storage ce) {
+  function profileContextReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId)
+    internal
+    view
+    returns (IACLCommons.ContextEntity storage ce)
+  {
     IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
-    if(bs.stype == IACLCommons.ScopeType.CONTEXT) {
+    if (bs.stype == IACLCommons.ScopeType.CONTEXT) {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), scopeId)
         mstore(add(ptr, 0x20), add(profileEntity.slot, 1))
-        ce.slot := keccak256(ptr, 0x40)      
+        ce.slot := keccak256(ptr, 0x40)
       }
-    }  else if(bs.stype == IACLCommons.ScopeType.NONE) {
+    } else if (bs.stype == IACLCommons.ScopeType.NONE) {
       revert("CID Not Found");
     } else {
       revert("Illegal CID Slot");
-    } 
+    }
   }
 
-  function profileContextTryReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.ContextEntity storage ce, bool result) {
+  function profileContextTryReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId)
+    internal
+    view
+    returns (IACLCommons.ContextEntity storage ce, bool result)
+  {
     IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
-    if(bs.stype == IACLCommons.ScopeType.CONTEXT) {
+    if (bs.stype == IACLCommons.ScopeType.CONTEXT) {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), scopeId)
         mstore(add(ptr, 0x20), add(profileEntity.slot, 1))
-        ce.slot := keccak256(ptr, 0x40)      
+        ce.slot := keccak256(ptr, 0x40)
       }
       result = true;
       return (ce, result);
-    }     
+    }
     assembly {
       ce.slot := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     }
-    result = false;    
+    result = false;
   }
 
-  function profileContextWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.ContextEntity storage ce) {
+  function profileContextWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId)
+    internal
+    view
+    returns (IACLCommons.ContextEntity storage ce)
+  {
     IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
-    if(bs.stype == IACLCommons.ScopeType.NONE || bs.stype == IACLCommons.ScopeType.CONTEXT) {
+    if (bs.stype == IACLCommons.ScopeType.NONE || bs.stype == IACLCommons.ScopeType.CONTEXT) {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), scopeId)
         mstore(add(ptr, 0x20), add(profileEntity.slot, 1))
-        ce.slot := keccak256(ptr, 0x40)      
+        ce.slot := keccak256(ptr, 0x40)
       }
     } else {
       revert("Illegal CID Slot");
-    }  
+    }
   }
 
-  function profileContextTryWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.ContextEntity storage ce, bool result) {
+  function profileContextTryWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId)
+    internal
+    view
+    returns (IACLCommons.ContextEntity storage ce, bool result)
+  {
     IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
-    if(bs.stype == IACLCommons.ScopeType.NONE || bs.stype == IACLCommons.ScopeType.CONTEXT) {
+    if (bs.stype == IACLCommons.ScopeType.NONE || bs.stype == IACLCommons.ScopeType.CONTEXT) {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), scopeId)
         mstore(add(ptr, 0x20), add(profileEntity.slot, 1))
-        ce.slot := keccak256(ptr, 0x40)      
+        ce.slot := keccak256(ptr, 0x40)
       }
       result = true;
       return (ce, result);
-    }  
+    }
     assembly {
       ce.slot := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     }
     result = false;
   }
 
-  function profileRealmReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.RealmEntity storage re) {
+  function profileRealmReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId)
+    internal
+    view
+    returns (IACLCommons.RealmEntity storage re)
+  {
     IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
-    if(bs.stype == IACLCommons.ScopeType.REALM) {
+    if (bs.stype == IACLCommons.ScopeType.REALM) {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), scopeId)
         mstore(add(ptr, 0x20), add(profileEntity.slot, 1))
-        re.slot := keccak256(ptr, 0x40)      
+        re.slot := keccak256(ptr, 0x40)
       }
-    }  else if(bs.stype == IACLCommons.ScopeType.NONE) {
+    } else if (bs.stype == IACLCommons.ScopeType.NONE) {
       revert("RID Not Found");
     } else {
       revert("Illeagl RID Slot");
-    } 
-  }
-
-  function profileRealmTryReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.RealmEntity storage re, bool result) {
-    IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
-    if(bs.stype == IACLCommons.ScopeType.REALM) {
-      assembly {
-        let ptr := mload(0x40)
-        mstore(add(ptr, 0x00), scopeId)
-        mstore(add(ptr, 0x20), add(profileEntity.slot, 1))
-        re.slot := keccak256(ptr, 0x40)      
-      }
-      result = true;
-      return (re, result);
-    }      
-    assembly {
-      re.slot := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     }
-    result = false;
   }
 
-  function profileRealmWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.RealmEntity storage re) {
+  function profileRealmTryReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId)
+    internal
+    view
+    returns (IACLCommons.RealmEntity storage re, bool result)
+  {
     IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
-    if(bs.stype == IACLCommons.ScopeType.NONE || bs.stype == IACLCommons.ScopeType.REALM) {
-      assembly {
-        let ptr := mload(0x40)
-        mstore(add(ptr, 0x00), scopeId)
-        mstore(add(ptr, 0x20), add(profileEntity.slot, 1))
-        let slot := keccak256(ptr, 0x40)      
-        re.slot := slot
-      }
-    } else {
-      revert("Illeagl RID Slot");
-    }  
-  }
-
-  function profileRealmTryWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.RealmEntity storage re, bool result) {
-    IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
-    if(bs.stype == IACLCommons.ScopeType.NONE || bs.stype == IACLCommons.ScopeType.REALM) {
+    if (bs.stype == IACLCommons.ScopeType.REALM) {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), scopeId)
@@ -243,98 +257,161 @@ library LProfileStorage {
     result = false;
   }
 
-  function profileDomainReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.DomainEntity storage de) {
+  function profileRealmWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId)
+    internal
+    view
+    returns (IACLCommons.RealmEntity storage re)
+  {
     IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
-    if(bs.stype == IACLCommons.ScopeType.DOMAIN) {
+    if (bs.stype == IACLCommons.ScopeType.NONE || bs.stype == IACLCommons.ScopeType.REALM) {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), scopeId)
         mstore(add(ptr, 0x20), add(profileEntity.slot, 1))
-        de.slot := keccak256(ptr, 0x40)      
+        let slot := keccak256(ptr, 0x40)
+        re.slot := slot
       }
-    }  else if(bs.stype == IACLCommons.ScopeType.NONE) {
+    } else {
+      revert("Illeagl RID Slot");
+    }
+  }
+
+  function profileRealmTryWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId)
+    internal
+    view
+    returns (IACLCommons.RealmEntity storage re, bool result)
+  {
+    IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
+    if (bs.stype == IACLCommons.ScopeType.NONE || bs.stype == IACLCommons.ScopeType.REALM) {
+      assembly {
+        let ptr := mload(0x40)
+        mstore(add(ptr, 0x00), scopeId)
+        mstore(add(ptr, 0x20), add(profileEntity.slot, 1))
+        re.slot := keccak256(ptr, 0x40)
+      }
+      result = true;
+      return (re, result);
+    }
+    assembly {
+      re.slot := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+    }
+    result = false;
+  }
+
+  function profileDomainReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId)
+    internal
+    view
+    returns (IACLCommons.DomainEntity storage de)
+  {
+    IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
+    if (bs.stype == IACLCommons.ScopeType.DOMAIN) {
+      assembly {
+        let ptr := mload(0x40)
+        mstore(add(ptr, 0x00), scopeId)
+        mstore(add(ptr, 0x20), add(profileEntity.slot, 1))
+        de.slot := keccak256(ptr, 0x40)
+      }
+    } else if (bs.stype == IACLCommons.ScopeType.NONE) {
       revert("DID Not Found");
     } else {
       revert("Illegal DID Slot");
-    } 
+    }
   }
 
-  function profileDomainTryReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.DomainEntity storage de, bool result) {
+  function profileDomainTryReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId)
+    internal
+    view
+    returns (IACLCommons.DomainEntity storage de, bool result)
+  {
     IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
-    if(bs.stype == IACLCommons.ScopeType.DOMAIN) {
+    if (bs.stype == IACLCommons.ScopeType.DOMAIN) {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), scopeId)
         mstore(add(ptr, 0x20), add(profileEntity.slot, 1))
-        de.slot := keccak256(ptr, 0x40)      
+        de.slot := keccak256(ptr, 0x40)
       }
       result = true;
       return (de, result);
-    }  
+    }
     assembly {
       de.slot := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     }
     result = false;
   }
 
-
-  function profileDomainWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.DomainEntity storage de) {
+  function profileDomainWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId)
+    internal
+    view
+    returns (IACLCommons.DomainEntity storage de)
+  {
     IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
-    if(bs.stype == IACLCommons.ScopeType.NONE || bs.stype == IACLCommons.ScopeType.DOMAIN) {
+    if (bs.stype == IACLCommons.ScopeType.NONE || bs.stype == IACLCommons.ScopeType.DOMAIN) {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), scopeId)
         mstore(add(ptr, 0x20), add(profileEntity.slot, 1))
-        de.slot := keccak256(ptr, 0x40)      
+        de.slot := keccak256(ptr, 0x40)
       }
     } else {
       revert("Illegal DID Slot");
-    }  
+    }
   }
 
-  function profileDomainTryWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId) internal view returns (IACLCommons.DomainEntity storage de, bool result) {
+  function profileDomainTryWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId)
+    internal
+    view
+    returns (IACLCommons.DomainEntity storage de, bool result)
+  {
     IACLCommons.BaseScope storage bs = profileEntity.scopes[scopeId];
-    if(bs.stype == IACLCommons.ScopeType.NONE || bs.stype == IACLCommons.ScopeType.DOMAIN) {
+    if (bs.stype == IACLCommons.ScopeType.NONE || bs.stype == IACLCommons.ScopeType.DOMAIN) {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), scopeId)
         mstore(add(ptr, 0x20), add(profileEntity.slot, 1))
-        de.slot := keccak256(ptr, 0x40)      
+        de.slot := keccak256(ptr, 0x40)
       }
       result = true;
       return (de, result);
-    }        
+    }
     assembly {
       de.slot := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     }
     result = false;
   }
 
-
-  function profileMemberReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId) internal view returns (IACLCommons.ProfileMemberEntity storage me) {
+  function profileMemberReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId)
+    internal
+    view
+    returns (IACLCommons.ProfileMemberEntity storage me)
+  {
     IACLCommons.BaseAgent storage ba = profileEntity.agents[agentId];
-    if(ba.atype == IACLCommons.AgentType.MEMBER) {
+    if (ba.atype == IACLCommons.AgentType.MEMBER) {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), agentId)
         mstore(add(ptr, 0x20), add(profileEntity.slot, 0))
-        me.slot := keccak256(ptr, 0x40)      
+        me.slot := keccak256(ptr, 0x40)
       }
-    } else if(ba.atype == IACLCommons.AgentType.NONE) {
+    } else if (ba.atype == IACLCommons.AgentType.NONE) {
       revert("MID Not Found");
     } else {
       revert("Illegal MID Slot");
-    } 
+    }
   }
 
-  function profileMemberTryReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId) internal view returns (IACLCommons.ProfileMemberEntity storage me, bool result) {
+  function profileMemberTryReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId)
+    internal
+    view
+    returns (IACLCommons.ProfileMemberEntity storage me, bool result)
+  {
     IACLCommons.BaseAgent storage ba = profileEntity.agents[agentId];
-    if(ba.atype == IACLCommons.AgentType.MEMBER) {
+    if (ba.atype == IACLCommons.AgentType.MEMBER) {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), agentId)
         mstore(add(ptr, 0x20), add(profileEntity.slot, 0))
-        me.slot := keccak256(ptr, 0x40)      
+        me.slot := keccak256(ptr, 0x40)
       }
       result = true;
       return (me, result);
@@ -345,9 +422,13 @@ library LProfileStorage {
     result = false;
   }
 
-  function profileMemberWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId) internal view returns (IACLCommons.ProfileMemberEntity storage me) {
+  function profileMemberWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId)
+    internal
+    view
+    returns (IACLCommons.ProfileMemberEntity storage me)
+  {
     IACLCommons.BaseAgent storage ba = profileEntity.agents[agentId];
-    if(ba.atype == IACLCommons.AgentType.NONE || ba.atype == IACLCommons.AgentType.MEMBER) {
+    if (ba.atype == IACLCommons.AgentType.NONE || ba.atype == IACLCommons.AgentType.MEMBER) {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), agentId)
@@ -356,51 +437,63 @@ library LProfileStorage {
       }
     } else {
       revert("Illegal MID Slot");
-    }  
+    }
   }
 
-  function profileMemberTryWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId) internal view returns (IACLCommons.ProfileMemberEntity storage me, bool result) {
+  function profileMemberTryWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId)
+    internal
+    view
+    returns (IACLCommons.ProfileMemberEntity storage me, bool result)
+  {
     IACLCommons.BaseAgent storage ba = profileEntity.agents[agentId];
-    if(ba.atype == IACLCommons.AgentType.NONE || ba.atype == IACLCommons.AgentType.MEMBER) {
+    if (ba.atype == IACLCommons.AgentType.NONE || ba.atype == IACLCommons.AgentType.MEMBER) {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), agentId)
         mstore(add(ptr, 0x20), add(profileEntity.slot, 0))
-        me.slot := keccak256(ptr, 0x40)      
+        me.slot := keccak256(ptr, 0x40)
       }
       result = true;
       return (me, result);
-    }  
+    }
     assembly {
       me.slot := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     }
     result = false;
   }
 
-  function profileRoleReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId) internal view returns (IACLCommons.RoleEntity storage re) {
+  function profileRoleReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId)
+    internal
+    view
+    returns (IACLCommons.RoleEntity storage re)
+  {
     IACLCommons.BaseAgent storage ba = profileEntity.agents[agentId];
-    if(ba.atype == IACLCommons.AgentType.ROLE) {
+    if (ba.atype == IACLCommons.AgentType.ROLE) {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), agentId)
         mstore(add(ptr, 0x20), add(profileEntity.slot, 0))
-        re.slot := keccak256(ptr, 0x40)      
+        re.slot := keccak256(ptr, 0x40)
       }
-    }  else if(ba.atype == IACLCommons.AgentType.NONE) {
+    } else if (ba.atype == IACLCommons.AgentType.NONE) {
       revert("RoleId Not Found");
     } else {
       revert("Illegal RoleId Slot");
-    } 
+    }
   }
 
-  function profileRoleTryReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId) internal view returns (IACLCommons.RoleEntity storage re, bool result) {
+  function profileRoleTryReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId)
+    internal
+    view
+    returns (IACLCommons.RoleEntity storage re, bool result)
+  {
     IACLCommons.BaseAgent storage ba = profileEntity.agents[agentId];
-    if(ba.atype == IACLCommons.AgentType.ROLE) {
+    if (ba.atype == IACLCommons.AgentType.ROLE) {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), agentId)
         mstore(add(ptr, 0x20), add(profileEntity.slot, 0))
-        re.slot := keccak256(ptr, 0x40)      
+        re.slot := keccak256(ptr, 0x40)
       }
       result = true;
       return (re, result);
@@ -411,100 +504,124 @@ library LProfileStorage {
     result = false;
   }
 
-  function profileRoleWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId) internal view returns (IACLCommons.RoleEntity storage re) {
+  function profileRoleWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId)
+    internal
+    view
+    returns (IACLCommons.RoleEntity storage re)
+  {
     IACLCommons.BaseAgent storage ba = profileEntity.agents[agentId];
-    if(ba.atype == IACLCommons.AgentType.NONE || ba.atype == IACLCommons.AgentType.ROLE) {
+    if (ba.atype == IACLCommons.AgentType.NONE || ba.atype == IACLCommons.AgentType.ROLE) {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), agentId)
         mstore(add(ptr, 0x20), add(profileEntity.slot, 0))
-        let slot := keccak256(ptr, 0x40)      
+        let slot := keccak256(ptr, 0x40)
         re.slot := slot
       }
     } else {
       revert("Illegal RoleId Slot");
-    }  
+    }
   }
 
-  function profileRoleTryWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId) internal view returns (IACLCommons.RoleEntity storage re, bool result) {
+  function profileRoleTryWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId)
+    internal
+    view
+    returns (IACLCommons.RoleEntity storage re, bool result)
+  {
     IACLCommons.BaseAgent storage ba = profileEntity.agents[agentId];
-    if(ba.atype == IACLCommons.AgentType.NONE || ba.atype == IACLCommons.AgentType.ROLE) {
+    if (ba.atype == IACLCommons.AgentType.NONE || ba.atype == IACLCommons.AgentType.ROLE) {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), agentId)
         mstore(add(ptr, 0x20), add(profileEntity.slot, 0))
-        let slot := keccak256(ptr, 0x40)      
+        let slot := keccak256(ptr, 0x40)
         re.slot := slot
       }
       result = true;
       return (re, result);
-    }  
+    }
     assembly {
       re.slot := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     }
     result = false;
   }
 
-  function profileTypeReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId) internal view returns (IACLCommons.TypeEntity storage te) {
+  function profileTypeReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId)
+    internal
+    view
+    returns (IACLCommons.TypeEntity storage te)
+  {
     IACLCommons.BaseAgent storage ba = profileEntity.agents[agentId];
-    if(ba.atype == IACLCommons.AgentType.TYPE) {
+    if (ba.atype == IACLCommons.AgentType.TYPE) {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), agentId)
         mstore(add(ptr, 0x20), add(profileEntity.slot, 0))
-        te.slot := keccak256(ptr, 0x40)      
+        te.slot := keccak256(ptr, 0x40)
       }
-    }  else if(ba.atype == IACLCommons.AgentType.NONE) {
+    } else if (ba.atype == IACLCommons.AgentType.NONE) {
       revert("TID Not Found");
     } else {
       revert("Illegal TID Slot");
-    } 
+    }
   }
 
-  function profileTypeTryReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId) internal view returns (IACLCommons.TypeEntity storage te, bool result) {
+  function profileTypeTryReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId)
+    internal
+    view
+    returns (IACLCommons.TypeEntity storage te, bool result)
+  {
     IACLCommons.BaseAgent storage ba = profileEntity.agents[agentId];
-    if(ba.atype == IACLCommons.AgentType.TYPE) {
+    if (ba.atype == IACLCommons.AgentType.TYPE) {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), agentId)
         mstore(add(ptr, 0x20), add(profileEntity.slot, 0))
-        te.slot := keccak256(ptr, 0x40)      
+        te.slot := keccak256(ptr, 0x40)
       }
       result = true;
       return (te, result);
-    }  
+    }
     assembly {
       te.slot := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     }
-    result = false;    
+    result = false;
   }
 
-  function profileTypeWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId) internal view returns (IACLCommons.TypeEntity storage te) {
+  function profileTypeWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId)
+    internal
+    view
+    returns (IACLCommons.TypeEntity storage te)
+  {
     IACLCommons.BaseAgent storage ba = profileEntity.agents[agentId];
-    if(ba.atype == IACLCommons.AgentType.NONE || ba.atype == IACLCommons.AgentType.TYPE) {
+    if (ba.atype == IACLCommons.AgentType.NONE || ba.atype == IACLCommons.AgentType.TYPE) {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), agentId)
         mstore(add(ptr, 0x20), add(profileEntity.slot, 0))
-        te.slot := keccak256(ptr, 0x40)      
+        te.slot := keccak256(ptr, 0x40)
       }
     } else {
       revert("Illegal TID Slot");
-    }  
+    }
   }
 
-  function profileTypeTryWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId) internal view returns (IACLCommons.TypeEntity storage te, bool result) {
+  function profileTypeTryWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId)
+    internal
+    view
+    returns (IACLCommons.TypeEntity storage te, bool result)
+  {
     IACLCommons.BaseAgent storage ba = profileEntity.agents[agentId];
-    if(ba.atype == IACLCommons.AgentType.NONE || ba.atype == IACLCommons.AgentType.TYPE) {
+    if (ba.atype == IACLCommons.AgentType.NONE || ba.atype == IACLCommons.AgentType.TYPE) {
       assembly {
         let ptr := mload(0x40)
         mstore(add(ptr, 0x00), agentId)
         mstore(add(ptr, 0x20), add(profileEntity.slot, 0))
-        te.slot := keccak256(ptr, 0x40)      
+        te.slot := keccak256(ptr, 0x40)
       }
       result = true;
       return (te, result);
-    }  
+    }
     assembly {
       te.slot := 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
     }

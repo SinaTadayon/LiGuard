@@ -13,7 +13,7 @@ import "../IACLCommons.sol";
  */
 interface IProfileManagement is IACLCommons {
   struct ProfileRegisterRequest {
-    string name;    
+    string name;
     ProfileRegisterLimit registerLimits;
     ProfileLimit limits;
     address profileOwner;
@@ -33,7 +33,7 @@ interface IProfileManagement is IACLCommons {
   }
 
   struct ProfileInfo {
-    string name;    
+    string name;
     bytes32 adminId;
     address owner;
     ProfileRegisterLimit registerLimits;
@@ -43,7 +43,7 @@ interface IProfileManagement is IACLCommons {
     AlterabilityStatus alstat;
   }
 
-  event ProfileRegistered (
+  event ProfileRegistered(
     address indexed sender,
     bytes32 indexed profileId,
     address indexed profileOwner,
@@ -59,21 +59,45 @@ interface IProfileManagement is IACLCommons {
 
   event ProfileAlterabilityUpdated(address indexed sender, bytes32 indexed profileId, AlterabilityStatus alstat);
 
-  event ProfileLimitsUpdated(address indexed sender, bytes32 indexed profileId, ProfileLimit limit, ProfileRegisterLimit registerLimit);
-  
-  event ProfileOwnerAccountUpdated(address indexed sender, bytes32 indexed profileId, address indexed owner, address newOwner);
+  event ProfileLimitsUpdated(
+    address indexed sender,
+    bytes32 indexed profileId,
+    ProfileLimit limit,
+    ProfileRegisterLimit registerLimit
+  );
 
-  function profileRegister(MemberSignature calldata memberSign, ProfileRegisterRequest[] calldata request) external returns (bool);
+  event ProfileOwnerAccountUpdated(
+    address indexed sender,
+    bytes32 indexed profileId,
+    address indexed owner,
+    address newOwner
+  );
 
-  function profileUpdateLimits(MemberSignature calldata memberSign, ProfileUpdateLimitsRequest[] calldata requests) external returns (bool);
+  function profileRegister(MemberSignature calldata memberSign, ProfileRegisterRequest[] calldata request)
+    external
+    returns (bool);
 
-  function profileUpdateOwnerAccount(MemberSignature calldata memberSign, ProfileUpdateOwnerAccountRequest[] calldata requests) external returns (bool);
+  function profileUpdateLimits(MemberSignature calldata memberSign, ProfileUpdateLimitsRequest[] calldata requests)
+    external
+    returns (bool);
 
-  function profileUpdateActivityStatus(MemberSignature calldata memberSign, UpdateActivityRequest[] calldata requests) external returns (bool);
+  function profileUpdateOwnerAccount(
+    MemberSignature calldata memberSign,
+    ProfileUpdateOwnerAccountRequest[] calldata requests
+  ) external returns (bool);
 
-  function profileUpdateAlterabilityStatus(MemberSignature calldata memberSign, UpdateAlterabilityRequest[] calldata requests) external returns (bool);
+  function profileUpdateActivityStatus(MemberSignature calldata memberSign, UpdateActivityRequest[] calldata requests)
+    external
+    returns (bool);
 
-  function profileUpdateAdmin(MemberSignature calldata memberSign, UpdateAdminRequest[] calldata requests) external returns (bool);
+  function profileUpdateAlterabilityStatus(
+    MemberSignature calldata memberSign,
+    UpdateAlterabilityRequest[] calldata requests
+  ) external returns (bool);
+
+  function profileUpdateAdmin(MemberSignature calldata memberSign, UpdateAdminRequest[] calldata requests)
+    external
+    returns (bool);
 
   function profileCheckId(bytes32 profileId) external view returns (bool);
 
@@ -89,8 +113,7 @@ interface IProfileManagement is IACLCommons {
 
   function profileGetProfileAccount(address account) external view returns (bytes32[] memory);
 
-  function profileGetAdmins(bytes32 profileId) external view returns (bytes32[] memory); 
+  function profileGetAdmins(bytes32 profileId) external view returns (bytes32[] memory);
 
   function profileGetInfo(bytes32 profileId) external view returns (ProfileInfo memory);
- 
 }

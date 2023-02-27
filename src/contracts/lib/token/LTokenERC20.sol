@@ -24,17 +24,14 @@ library LTokenERC20 {
   string public constant LIB_NAME = "LTokenERC20";
   string public constant LIB_VERSION = "3.0.0";
 
-
   function lockToken(LivelyStorage.DataCollection storage data, IERC20Lock.LockTokenRequest memory lockRequest)
     external
     returns (bytes32)
   {
     require(
-      lockRequest.source != address(0) && 
-      lockRequest.dest != address(0) && 
-      lockRequest.source != lockRequest.dest, 
+      lockRequest.source != address(0) && lockRequest.dest != address(0) && lockRequest.source != lockRequest.dest,
       "Illegal Source/Dest Address"
-    );    
+    );
     require(lockRequest.claimAt > block.timestamp + 1 days, "Illegal Timestamp");
     require(lockRequest.amount > 0, "Illegal amount");
 
@@ -104,12 +101,7 @@ library LTokenERC20 {
     address dest,
     uint256 amount
   ) external {
-    require(
-      src != address(0) && 
-      dest != address(0) && 
-      src != dest, 
-      "Illegal Src/Dest Address"
-    );    
+    require(src != address(0) && dest != address(0) && src != dest, "Illegal Src/Dest Address");
     require(amount > 0, "Illegal Amount");
 
     uint256 srcBalance = data.accounts[src].balance;

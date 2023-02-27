@@ -17,7 +17,8 @@ const systemAdminKey = process.env.SYSTEM_ADMIN_KEY;
 const livelyAdminKey = process.env.LIVELY_ADMIN_KEY;
 const assetAdminKey = process.env.ASSET_ADMIN_KEY;
 
-const netAccounts = systemAdminKey && livelyAdminKey && assetAdminKey ? [systemAdminKey, livelyAdminKey, assetAdminKey] : [];
+const netAccounts =
+  systemAdminKey && livelyAdminKey && assetAdminKey ? [systemAdminKey, livelyAdminKey, assetAdminKey] : [];
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -118,10 +119,10 @@ const config: HardhatUserConfig = {
     systemAdmin: {
       default: 0,
     },
-    admin: {
+    livelyAdmin: {
       default: 1,
     },
-    assetManager: {
+    assetAdmin: {
       default: 2,
     },
   },

@@ -7,7 +7,6 @@ import "./IAssetManagerERC20.sol";
 import "../../proxy/BaseUUPSStorage.sol";
 import "../../lib/struct/LEnumerableSet.sol";
 
-
 /**
  * @title Abstract Asset Manager Storage ERC20 Contract
  * @author Sina Tadayon, https://github.com/SinaTadayon

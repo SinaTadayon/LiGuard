@@ -19,7 +19,6 @@ import "../../lib/math/LBasisPointsMath.sol";
 import "../../lib/math/LSafeMath.sol";
 import "../../lib/struct/LEnumerableSet.sol";
 
-
 /**
  * @title Lively ERC20 Token Contract
  * @author Sina Tadayon, https://github.com/SinaTadayon
@@ -110,7 +109,7 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
     return true;
   }
 
-  function updateTaxWhitelist(TaxWhitelistUpdateRequest[] calldata request) external returns(bool) {
+  function updateTaxWhitelist(TaxWhitelistUpdateRequest[] calldata request) external returns (bool) {
     _policyInterceptor(this.updateTaxWhitelist.selector, address(0), false, false);
     for (uint256 i = 0; i < request.length; i++) {
       _updateTaxWhitelist(request[i].account, request[i].isDeleted);
@@ -217,7 +216,7 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
       _data.accounts[account].balance = accountBalance - amount;
       _totalSupply -= amount;
     }
-        
+
     emit Burn(_msgSender(), account, amount, _totalSupply);
     return _totalSupply;
   }
@@ -280,13 +279,14 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
 
   function lockInfo(bytes32 lockId, address account) external view returns (LockInfo memory) {
     AssetLock storage lock = _data.locks[account][lockId];
-    return LockInfo({
-      amount: lock.amount, 
-      lockedAt: lock.lockedAt, 
-      claimedAt: lock.claimedAt, 
-      source: lock.source, 
-      stat: lock.status
-    });
+    return
+      LockInfo({
+        amount: lock.amount,
+        lockedAt: lock.lockedAt,
+        claimedAt: lock.claimedAt,
+        source: lock.source,
+        stat: lock.status
+      });
   }
 
   function decimals() external pure returns (uint8) {
@@ -323,37 +323,55 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
   {
     require(!_isTokenDistributed, "Token Already Distributed");
 
-    if(!IERC165(assetManager).supportsInterface(type(IAssetManagerERC20).interfaceId))
+    if (!IERC165(assetManager).supportsInterface(type(IAssetManagerERC20).interfaceId))
       revert("Illegal IAssetManagerERC20");
 
     _mint(_msgSender(), 5_000_000_000 * 10**18); // 5 billion tokens according to tokenomics
 
     for (uint256 i = 0; i < 7; i++) {
-      if(!IERC165(assets[i]).supportsInterface(type(IAssetEntity).interfaceId))
-        revert("Illegal IAssetEntity");
+      if (!IERC165(assets[i]).supportsInterface(type(IAssetEntity).interfaceId)) revert("Illegal IAssetEntity");
 
       require(IAssetEntity(assets[i]).assetToken() == address(this), "Illegal Asset Token");
-      if (keccak256(abi.encodePacked(IAssetEntity(assets[i]).assetName())) == keccak256(abi.encodePacked("LIVELY_AUDIO_VIDEO_PROGRAM_ASSET"))) {
+      if (
+        keccak256(abi.encodePacked(IAssetEntity(assets[i]).assetName())) ==
+        keccak256(abi.encodePacked("LIVELY_AUDIO_VIDEO_PROGRAM_ASSET"))
+      ) {
         _tokensDistributionValidation(assets[i]);
         _transfer(_msgSender(), assets[i], 500_000_000 * 10**18); // 10%
-      } else if (keccak256(abi.encodePacked(IAssetEntity(assets[i]).assetName())) == keccak256(abi.encodePacked("LIVELY_FOUNDING_TEAM_ASSET"))) {
+      } else if (
+        keccak256(abi.encodePacked(IAssetEntity(assets[i]).assetName())) ==
+        keccak256(abi.encodePacked("LIVELY_FOUNDING_TEAM_ASSET"))
+      ) {
         _tokensDistributionValidation(assets[i]);
         _transfer(_msgSender(), assets[i], 900_000_000 * 10**18); // 18%
-      } else if (keccak256(abi.encodePacked(IAssetEntity(assets[i]).assetName())) == keccak256(abi.encodePacked("LIVELY_TREASURY_ASSET"))) {
+      } else if (
+        keccak256(abi.encodePacked(IAssetEntity(assets[i]).assetName())) ==
+        keccak256(abi.encodePacked("LIVELY_TREASURY_ASSET"))
+      ) {
         _tokensDistributionValidation(assets[i]);
         _transfer(_msgSender(), assets[i], 750_000_000 * 10**18); // 15%
-      } else if (keccak256(abi.encodePacked(IAssetEntity(assets[i]).assetName())) == keccak256(abi.encodePacked("LIVELY_PUBLIC_SALE_ASSET"))) {
+      } else if (
+        keccak256(abi.encodePacked(IAssetEntity(assets[i]).assetName())) ==
+        keccak256(abi.encodePacked("LIVELY_PUBLIC_SALE_ASSET"))
+      ) {
         _tokensDistributionValidation(assets[i]);
         _transfer(_msgSender(), assets[i], 2_000_000_000 * 10**18); // 40%
       } else if (
-        keccak256(abi.encodePacked(IAssetEntity(assets[i]).assetName())) == keccak256(abi.encodePacked("LIVELY_VALIDATORS_REWARDS_ASSET"))
+        keccak256(abi.encodePacked(IAssetEntity(assets[i]).assetName())) ==
+        keccak256(abi.encodePacked("LIVELY_VALIDATORS_REWARDS_ASSET"))
       ) {
         _tokensDistributionValidation(assets[i]);
         _transfer(_msgSender(), assets[i], 300_000_000 * 10**18); // 6%
-      } else if (keccak256(abi.encodePacked(IAssetEntity(assets[i]).assetName())) == keccak256(abi.encodePacked("LIVELY_CROWD_FOUNDING_ASSET"))) {
+      } else if (
+        keccak256(abi.encodePacked(IAssetEntity(assets[i]).assetName())) ==
+        keccak256(abi.encodePacked("LIVELY_CROWD_FOUNDING_ASSET"))
+      ) {
         _tokensDistributionValidation(assets[i]);
         _transfer(_msgSender(), assets[i], 550_000_000 * 10**18); // 11%
-      } else if (keccak256(abi.encodePacked(IAssetEntity(assets[i]).assetName())) == keccak256(abi.encodePacked("LIVELY_TAX_TREASURY_ASSET"))) {
+      } else if (
+        keccak256(abi.encodePacked(IAssetEntity(assets[i]).assetName())) ==
+        keccak256(abi.encodePacked("LIVELY_TAX_TREASURY_ASSET"))
+      ) {
         require(_taxTreasury == address(0), "TaxTreasury Already Registered");
         _taxTreasury = assets[i];
       } else {
@@ -462,7 +480,7 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
     emit TokenLocked(
       lockId,
       _msgSender(),
-      lockRequest.source,      
+      lockRequest.source,
       lockRequest.dest,
       lockRequest.claimAt,
       lockRequest.amount

@@ -24,8 +24,6 @@ import "../../acl/policy/IPolicyManagement.sol";
 
 import "hardhat/console.sol";
 
-
-
 /**
  * @title ACL Manager Library
  * @author Sina Tadayon, https://github.com/SinaTadayon
@@ -39,7 +37,6 @@ library LACLManagerTest {
   string public constant LIB_NAME = "LACLManager";
   string public constant LIB_VERSION = "3.0.1";
 
-   
   function registerProxyFacet(ACLStorage.DataCollection storage data, address implementation) external {
     data.facetSet.add(address(this));
     IACLCommons.FacetEntity storage facetEntity = data.facets[address(this)];
@@ -64,16 +61,18 @@ library LACLManagerTest {
     data.selectors[IACLManager.aclRegisterFacet.selector] = address(this);
     data.selectors[IACLManager.aclUpgradeFacet.selector] = address(this);
     data.selectors[IACLManager.aclGetFacets.selector] = address(this);
-    data.selectors[IERC1822Proxiable.proxiableUUID.selector] = address(this); 
+    data.selectors[IERC1822Proxiable.proxiableUUID.selector] = address(this);
     data.selectors[bytes4(keccak256("initialize(string,string)"))] = address(this);
     data.selectors[bytes4(keccak256("initACL(address,address,address,address)"))] = address(this);
     data.selectors[bytes4(keccak256("getFirstInit()"))] = address(this);
     data.selectors[bytes4(keccak256("getLibrary()"))] = address(this);
   }
 
-  function aclRegisterFacet(ACLStorage.DataCollection storage data, IACLManager.FacetRegisterRequest calldata request) external returns (bool) {
-   
-    // require(  
+  function aclRegisterFacet(ACLStorage.DataCollection storage data, IACLManager.FacetRegisterRequest calldata request)
+    external
+    returns (bool)
+  {
+    // require(
     //   request.interfaceId != type(IACL).interfaceId ||
     //   request.interfaceId != type(IACLGenerals).interfaceId ||
     //   request.interfaceId != type(IACLManager).interfaceId ||
@@ -85,21 +84,21 @@ library LACLManagerTest {
     //   request.interfaceId != type(IUniverseManagement).interfaceId ||
     //   request.interfaceId != type(IMemberManagement).interfaceId ||
     //   request.interfaceId != type(IRoleManagement).interfaceId ||
-    //   request.interfaceId != type(ITypeManagement).interfaceId, 
+    //   request.interfaceId != type(ITypeManagement).interfaceId,
     //   "Illegal InterfaceId"
     // );
 
-    require(!data.facetSet.contains(request.facetId), "Facet Already Exist");    
+    require(!data.facetSet.contains(request.facetId), "Facet Already Exist");
     // require(IERC165(request.facetId).supportsInterface(request.interfaceId), "Illegal Interface");
-    for(uint j = 0; j < request.selectors.length; j++) {
+    for (uint256 j = 0; j < request.selectors.length; j++) {
       require(data.selectors[request.selectors[j]] == address(0), "Illegal Selector");
       data.selectors[request.selectors[j]] = request.facetId;
     }
     data.facetSet.add(request.facetId);
     IACLCommons.FacetEntity storage facetEntity = data.facets[request.facetId];
     facetEntity.subjectId = request.subjectId;
-    // facetEntity.interfaceId = request.interfaceId;      
+    // facetEntity.interfaceId = request.interfaceId;
 
-    return true;      
+    return true;
   }
 }

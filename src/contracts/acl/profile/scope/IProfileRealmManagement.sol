@@ -13,12 +13,11 @@ import "../../IACLCommons.sol";
  */
 
 interface IProfileRealmManagement is IACLCommons {
-
-  struct ProfileRealmRegisterRequest {  
+  struct ProfileRealmRegisterRequest {
     bytes32 domainId;
     bytes32 adminId;
     int64 contextLimit;
-    string name; 
+    string name;
   }
 
   struct ProfileRealmMoveContextRequest {
@@ -42,48 +41,104 @@ interface IProfileRealmManagement is IACLCommons {
     ActivityStatus acstat;
     AlterabilityStatus alstat;
     AgentType adminType;
-    string name;    
+    string name;
   }
 
   event ProfileRealmRegistered(
-    address indexed sender, 
-    bytes32 indexed profileId, 
-    bytes32 indexed realmId, 
+    address indexed sender,
+    bytes32 indexed profileId,
+    bytes32 indexed realmId,
     bytes32 domainId,
-    bytes32 adminId 
+    bytes32 adminId
   );
 
-  event ProfileRealmContextMoved(address indexed sender, bytes32 indexed profileId, bytes32 indexed realmId, bytes32 contextId, bytes32 newRealmId);
+  event ProfileRealmContextMoved(
+    address indexed sender,
+    bytes32 indexed profileId,
+    bytes32 indexed realmId,
+    bytes32 contextId,
+    bytes32 newRealmId
+  );
 
-  event ProfileRealmAdminUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed realmId, bytes32 adminId);
-  
-  event ProfileRealmContextLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed realmId, uint32 contextLimit);
-  
-  event ProfileRealmActivityUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed realmId, ActivityStatus acstat);
-  
-  event ProfileRealmAlterabilityUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed realmId, AlterabilityStatus alstat);
+  event ProfileRealmAdminUpdated(
+    address indexed sender,
+    bytes32 indexed profileId,
+    bytes32 indexed realmId,
+    bytes32 adminId
+  );
 
-  function profileRealmRegister(ProfileMemberSignature calldata memberSign, ProfileRealmRegisterRequest[] calldata requests) external returns (bool);
+  event ProfileRealmContextLimitUpdated(
+    address indexed sender,
+    bytes32 indexed profileId,
+    bytes32 indexed realmId,
+    uint32 contextLimit
+  );
 
-  function profileRealmUpdateAdmin(ProfileMemberSignature calldata memberSign, ProfileUpdateAdminRequest[] calldata requests) external returns (bool);
+  event ProfileRealmActivityUpdated(
+    address indexed sender,
+    bytes32 indexed profileId,
+    bytes32 indexed realmId,
+    ActivityStatus acstat
+  );
 
-  function profileRealmMoveContext(ProfileMemberSignature calldata memberSign, ProfileRealmMoveContextRequest[] calldata requests) external returns (bool);
+  event ProfileRealmAlterabilityUpdated(
+    address indexed sender,
+    bytes32 indexed profileId,
+    bytes32 indexed realmId,
+    AlterabilityStatus alstat
+  );
 
-  function profileRealmUpdateActivityStatus(ProfileMemberSignature calldata memberSign, ProfileUpdateActivityRequest[] calldata requests) external returns (bool);
+  function profileRealmRegister(
+    ProfileMemberSignature calldata memberSign,
+    ProfileRealmRegisterRequest[] calldata requests
+  ) external returns (bool);
 
-  function profileRealmUpdateAlterabilityStatus(ProfileMemberSignature calldata memberSign, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool);
+  function profileRealmUpdateAdmin(
+    ProfileMemberSignature calldata memberSign,
+    ProfileUpdateAdminRequest[] calldata requests
+  ) external returns (bool);
 
-  function profileRealmUpdateContextLimit(ProfileMemberSignature calldata memberSign, ProfileRealmUpdateContextLimitRequest[] calldata requests) external returns (bool);
+  function profileRealmMoveContext(
+    ProfileMemberSignature calldata memberSign,
+    ProfileRealmMoveContextRequest[] calldata requests
+  ) external returns (bool);
+
+  function profileRealmUpdateActivityStatus(
+    ProfileMemberSignature calldata memberSign,
+    ProfileUpdateActivityRequest[] calldata requests
+  ) external returns (bool);
+
+  function profileRealmUpdateAlterabilityStatus(
+    ProfileMemberSignature calldata memberSign,
+    ProfileUpdateAlterabilityRequest[] calldata requests
+  ) external returns (bool);
+
+  function profileRealmUpdateContextLimit(
+    ProfileMemberSignature calldata memberSign,
+    ProfileRealmUpdateContextLimitRequest[] calldata requests
+  ) external returns (bool);
 
   function profileRealmCheckId(bytes32 profileId, bytes32 realmId) external view returns (bool);
 
   function profileRealmCheckName(bytes32 profileId, string calldata realmName) external view returns (bool);
 
-  function profileRealmCheckAdmin(bytes32 profileId, bytes32 realmId, address account) external view returns (bool);
+  function profileRealmCheckAdmin(
+    bytes32 profileId,
+    bytes32 realmId,
+    address account
+  ) external view returns (bool);
 
-  function profileRealmHasFunction(bytes32 profileId, bytes32 realmId, bytes32 functionId) external view returns (bool);
+  function profileRealmHasFunction(
+    bytes32 profileId,
+    bytes32 realmId,
+    bytes32 functionId
+  ) external view returns (bool);
 
-  function profileRealmHasContext(bytes32 profileId, bytes32 realmId, bytes32 contextId) external view returns (bool);
+  function profileRealmHasContext(
+    bytes32 profileId,
+    bytes32 realmId,
+    bytes32 contextId
+  ) external view returns (bool);
 
   function profileRealmGetContexts(bytes32 profileId, bytes32 realmId) external view returns (bytes32[] memory);
 

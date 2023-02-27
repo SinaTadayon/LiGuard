@@ -1,2 +1,1 @@
-
-module.exports = [ "0x0FDF884a6076C16379D000935CBD0378e601FB3C", new Int8Array(0) ]
+module.exports = ["0x0FDF884a6076C16379D000935CBD0378e601FB3C", new Int8Array(0)];

@@ -13,7 +13,6 @@ pragma solidity 0.8.17;
 import "../../acl/IACLCommons.sol";
 
 interface IDomainManagementTest is IACLCommons {
-
   struct DomainRegisterRequest {
     bytes32 adminId;
     ActivityStatus acstat;
@@ -38,12 +37,8 @@ interface IDomainManagementTest is IACLCommons {
     string name;
   }
 
-  event DomainRegistered(
-    address indexed sender, 
-    bytes32 indexed domainId,
-    bytes32 indexed adminId
-  );
-  
+  event DomainRegistered(address indexed sender, bytes32 indexed domainId, bytes32 indexed adminId);
+
   event DomainAdminUpdated(address indexed sender, bytes32 indexed domainId, bytes32 indexed adminId);
 
   event DomainRealmLimitUpdated(address indexed sender, bytes32 indexed domainId, uint32 realmLimit);
@@ -79,5 +74,4 @@ interface IDomainManagementTest is IACLCommons {
   function domainGetRealms(bytes32 domainId) external view returns (bytes32[] memory);
 
   function domainGetInfo(bytes32 domainId) external view returns (DomainInfo memory);
-
 }

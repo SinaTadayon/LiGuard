@@ -34,16 +34,15 @@ contract ACLManagerTest is ACLStorage, BaseUUPSProxy, IACLManager {
 
   constructor() {}
 
-   function reInitialize(string calldata contractVersion) public onlyProxy onlyLocalAdmin reinitializer(2) {
-     _contractVersion = contractVersion;
-   }
-
+  function reInitialize(string calldata contractVersion) public onlyProxy onlyLocalAdmin reinitializer(2) {
+    _contractVersion = contractVersion;
+  }
 
   function getFirstInit() public view returns (bool) {
     return _firstInit;
   }
 
-   function aclGetFacet(bytes4 selector) external view returns (address) {
+  function aclGetFacet(bytes4 selector) external view returns (address) {
     return _data.selectors[selector];
   }
 
@@ -53,16 +52,17 @@ contract ACLManagerTest is ACLStorage, BaseUUPSProxy, IACLManager {
 
   function aclGetFacetInfo(address facetId) external view returns (FacetInfo memory) {
     FacetEntity storage facetEntity = _data.facets[facetId];
-    return FacetInfo({
-      subjectId: facetEntity.subjectId
-      // interfaceId: facetEntity.interfaceId
-    });
+    return
+      FacetInfo({
+        subjectId: facetEntity.subjectId
+        // interfaceId: facetEntity.interfaceId
+      });
   }
 
   /**
    * @dev See {IERC165-supportsInterface}.
    */
-  function supportsInterface(bytes4 interfaceId) public view override returns (bool) { 
+  function supportsInterface(bytes4 interfaceId) public view override returns (bool) {
     return
       interfaceId == type(IACL).interfaceId ||
       interfaceId == type(IACLGenerals).interfaceId ||
@@ -75,13 +75,13 @@ contract ACLManagerTest is ACLStorage, BaseUUPSProxy, IACLManager {
       interfaceId == type(IUniverseManagement).interfaceId ||
       interfaceId == type(IMemberManagement).interfaceId ||
       interfaceId == type(IRoleManagement).interfaceId ||
-      interfaceId == type(ITypeManagement).interfaceId ||      
+      interfaceId == type(ITypeManagement).interfaceId ||
       super.supportsInterface(interfaceId);
   }
 
   function aclRegisterFacet(FacetRegisterRequest[] calldata requests) external onlyProxy returns (bool) {
-    if(_firstInit) {
-      require(_getLocalAdmin() == _msgSender(), "Forbidden");      
+    if (_firstInit) {
+      require(_getLocalAdmin() == _msgSender(), "Forbidden");
       return _doAclRegisterFacet(requests);
     } else {
       require(_hasPermission(this.aclRegisterFacet.selector) == IACL.AuthorizationStatus.PERMITTED, "Access Denied");
@@ -90,25 +90,30 @@ contract ACLManagerTest is ACLStorage, BaseUUPSProxy, IACLManager {
   }
 
   function _doAclRegisterFacet(FacetRegisterRequest[] calldata requests) internal returns (bool) {
-    for(uint i = 0; i < requests.length; i++) {
+    for (uint256 i = 0; i < requests.length; i++) {
       LACLManagerTest.aclRegisterFacet(_data, requests[i]);
       emit ACLFacetRegistered(
-        _msgSender(), 
-        requests[i].facetId, 
+        _msgSender(),
+        requests[i].facetId,
         requests[i].subjectId
         // requests[i].interfaceId
       );
     }
-    if(_data.facetSet.length() >= 11) _firstInit = false;
-    return true;      
+    if (_data.facetSet.length() >= 11) _firstInit = false;
+    return true;
   }
 
-  function aclUpgradeFacet(FacetUpgradeRequest[] calldata requests) external onlyProxy aclCheck(this.aclUpgradeFacet.selector) returns (bool) {
-    for(uint i = 0; i < requests.length; i++) {      
+  function aclUpgradeFacet(FacetUpgradeRequest[] calldata requests)
+    external
+    onlyProxy
+    aclCheck(this.aclUpgradeFacet.selector)
+    returns (bool)
+  {
+    for (uint256 i = 0; i < requests.length; i++) {
       require(_data.facetSet.contains(requests[i].facetId), "Facet Not Found");
-      
+
       FacetEntity storage facetEntity = _data.facets[requests[i].facetId];
-      require(requests[i].subjectId != address(0) && facetEntity.subjectId != requests[i].subjectId, "Illegal Upgrade");            
+      require(requests[i].subjectId != address(0) && facetEntity.subjectId != requests[i].subjectId, "Illegal Upgrade");
 
       facetEntity.subjectId = requests[i].subjectId;
       // if(requests[i].interfaceId != bytes4(0) && facetEntity.interfaceId != requests[i].interfaceId) {
@@ -116,20 +121,30 @@ contract ACLManagerTest is ACLStorage, BaseUUPSProxy, IACLManager {
       //   facetEntity.interfaceId = requests[i].interfaceId;
       // }
 
-      for(uint j = 0; j < requests[i].functions.length; j++) {
+      for (uint256 j = 0; j < requests[i].functions.length; j++) {
         if (requests[i].functions[j].action == ActionType.REMOVE) {
-          for(uint z = 0; z < requests[i].functions[j].selectors.length; z++) {
+          for (uint256 z = 0; z < requests[i].functions[j].selectors.length; z++) {
             require(_data.selectors[requests[i].functions[j].selectors[z]] != address(0), "Selector Not Found");
             delete _data.selectors[requests[i].functions[j].selectors[z]];
-            emit ACLFacetFunctionUpgraded(msg.sender, requests[i].facetId, requests[i].functions[j].selectors[z], ActionType.REMOVE);
+            emit ACLFacetFunctionUpgraded(
+              msg.sender,
+              requests[i].facetId,
+              requests[i].functions[j].selectors[z],
+              ActionType.REMOVE
+            );
           }
         } else if (requests[i].functions[j].action == ActionType.ADD) {
-          for(uint z = 0; z < requests[i].functions[j].selectors.length; z++) {
+          for (uint256 z = 0; z < requests[i].functions[j].selectors.length; z++) {
             require(_data.selectors[requests[i].functions[j].selectors[z]] == address(0), "Illegal Selector");
             _data.selectors[requests[i].functions[j].selectors[z]] = requests[i].facetId;
-            emit ACLFacetFunctionUpgraded(msg.sender, requests[i].facetId, requests[i].functions[j].selectors[z], ActionType.ADD);
+            emit ACLFacetFunctionUpgraded(
+              msg.sender,
+              requests[i].facetId,
+              requests[i].functions[j].selectors[z],
+              ActionType.ADD
+            );
           }
-        } 
+        }
       }
       emit ACLFacetUpgraded(_msgSender(), requests[i].facetId, requests[i].subjectId);
     }

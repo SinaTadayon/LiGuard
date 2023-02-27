@@ -8,7 +8,6 @@ import "../../proxy/BaseUUPSStorage.sol";
 import "../../lib/LCounters.sol";
 import "../../lib/struct/LEnumerableSet.sol";
 
-
 /**
  * @title Abstract Lively ERC20 Token Storage Contract
  * @author Sina Tadayon, https://github.com/SinaTadayon
@@ -18,8 +17,6 @@ import "../../lib/struct/LEnumerableSet.sol";
 abstract contract LivelyStorage is BaseUUPSStorage {
   using LEnumerableSet for LEnumerableSet.AddressSet;
   using LCounters for LCounters.Counter;
-
-
 
   struct AccountInfo {
     uint256 balance;

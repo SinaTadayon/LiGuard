@@ -11,8 +11,7 @@ import "./IACLCommons.sol";
  * @dev
  *
  */
-interface IACLGenerals is IACLCommons{
-  
+interface IACLGenerals is IACLCommons {
   // Anonymouse type
   function getAnonymousType() external pure returns (bytes32);
 
@@ -27,7 +26,7 @@ interface IACLGenerals is IACLCommons{
 
   // member master type
   function getMemberMasterType() external pure returns (bytes32);
-  
+
   // system master type
   function getSystemMasterType() external pure returns (bytes32);
 
@@ -42,7 +41,7 @@ interface IACLGenerals is IACLCommons{
 
   // Universe Scope
   function getUniverseScope() external pure returns (bytes32);
- 
+
   // general
   function isAgentExist(bytes32 agentId) external view returns (bool);
 
@@ -52,6 +51,5 @@ interface IACLGenerals is IACLCommons{
 
   function getAgentBaseInfo(bytes32 agentId) external view returns (BaseAgent memory);
 
-  function isScopesCompatible(bytes32 destScopeId, bytes32 srcScopeId) external view returns (bool);  
-
+  function isScopesCompatible(bytes32 destScopeId, bytes32 srcScopeId) external view returns (bool);
 }

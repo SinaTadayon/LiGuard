@@ -1,5 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction, DeployOptions, DeployResult } from "hardhat-deploy/types";
+/* eslint-disable camelcase,node/no-unpublished-import */
 import {
   AccessControl,
   AccessControl__factory,
@@ -50,10 +51,8 @@ import {
   TypeManager,
   TypeManager__factory,
   UniverseManager,
-  UniverseManager__factory
+  UniverseManager__factory,
 } from "../../typechain/types";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/src/signers";
-import { ethers } from "ethers";
 import {
   ActivityStatus,
   AlterabilityStatus,
@@ -70,9 +69,10 @@ import {
   LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
   LIVELY_VERSE_SCOPE_MASTER_TYPE_ID,
   LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
-  LIVELY_VERSE_TYPE_MASTER_TYPE_ID
+  LIVELY_VERSE_TYPE_MASTER_TYPE_ID,
 } from "../utils/Utils";
 import { IACLCommons } from "../../typechain/types/acl/scope/FunctionManager";
+import { Signer } from "ethers";
 
 // main acl contracts name
 const MEMBER_MANAGER_CONTRACT_NAME_SUBJECT = "MemberManagerSubject";
@@ -170,10 +170,10 @@ export const TESTNET_TX_WAIT_BLOCK_COUNT = 1;
 export const MAINNET_TX_WAIT_BLOCK_COUNT = 7;
 
 export const EMPTY_MEMBER_SIGNATURE: IACLCommons.MemberSignatureStruct = {
-  account: ethers.constants.AddressZero,
+  account: "0x0000000000000000000000000000000000000000",
   expiredAt: 0,
-  signature: new Int8Array(0)
-}
+  signature: new Int8Array(0),
+};
 
 // Lively Guard Libraries
 let lACLCommons: DeployResult;
@@ -237,7 +237,7 @@ let aclManagerFirstInit: boolean;
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, ethers, getChainId } = hre;
   const { deploy } = deployments;
-  const [systemAdmin, livelyAdmin, assetAdmin] = await ethers.getSigners();
+  const {systemAdmin, livelyAdmin, assetAdmin} = await ethers.getNamedSigners();
   const chainId = await getChainId();
   console.log(`livelyAdmin address: ${livelyAdmin.address}`);
   console.log(`systemAdmin address: ${systemAdmin.address}`);
@@ -266,61 +266,55 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     skipIfAlreadyDeployed: true,
   });
 
-  // @ts-ignore
   await deployACLSubjects(systemAdmin, deploy);
 
-  // @ts-ignore
   await deployProfileSubjects(systemAdmin, deploy);
 
-  // @ts-ignore
-  await deployACLProxies(systemAdmin, deploy);
+  await deployACLProxies(systemAdmin, hre, deploy);
 
-  // @ts-ignore
-  await deployProfileProxies(systemAdmin, deploy);
+  await deployProfileProxies(systemAdmin, hre, deploy);
 
   aclManagerFirstInit = await aclManagerProxy.connect(systemAdmin).getFirstInit();
-  if(aclManagerFirstInit) {
-
-    // @ts-ignore
+  if (aclManagerFirstInit) {
     await registerACLFacets(hre, systemAdmin);
 
-    // @ts-ignore
     await registerProfileFacets(hre, systemAdmin);
 
-    // @ts-ignore
-    await initAclManager(hre, systemAdmin, livelyAdmin)
+    await initAclManager(hre, systemAdmin, livelyAdmin);
 
-    // @ts-ignore
     await registerACLContexts(hre, systemAdmin);
 
-    // @ts-ignore
     await registerProfileContexts(hre, systemAdmin);
 
-    // @ts-ignore
     await registerAclFunctions(hre, systemAdmin);
 
-    // @ts-ignore
     await registerProfileFunctions(hre, systemAdmin);
   }
 };
 
-async function initAclManager(hre: HardhatRuntimeEnvironment, systemAdmin: SignerWithAddress, livelyAdmin: SignerWithAddress) {
+async function initAclManager(hre: HardhatRuntimeEnvironment, systemAdmin: Signer, livelyAdmin: Signer) {
+  const livelyAdminAddress = await livelyAdmin.getAddress();
+  const systemAdminAddress = await systemAdmin.getAddress();
   // Acl Manager Init
   let txReceipt;
   console.log(`[ Initialize ACL Manager ]`);
-  const tx = await aclManagerProxy.connect(systemAdmin).initACL(
-    contextManagerProxyDeployed.address,
-    functionManagerProxyDeployed.address,
-    livelyAdmin.address,
-    systemAdmin.address
-  );
+  const tx = await aclManagerProxy
+    .connect(systemAdmin)
+    .initACL(
+      contextManagerProxyDeployed.address,
+      functionManagerProxyDeployed.address,
+      livelyAdminAddress,
+      systemAdminAddress
+    );
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log(
+    `txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`
+  );
   console.log();
 
   // attach proxies to function and context manager
@@ -328,11 +322,15 @@ async function initAclManager(hre: HardhatRuntimeEnvironment, systemAdmin: Signe
   contextManagerDelegateProxy = ContextManager__factory.connect(aclManagerProxy.address, systemAdmin);
 }
 
-async function deployACLSubjects(systemAdmin: SignerWithAddress, deploy: (name: string, options: DeployOptions) => Promise<DeployResult>) {
+async function deployACLSubjects(
+  systemAdmin: Signer,
+  deploy: (name: string, options: DeployOptions) => Promise<DeployResult>
+) {
+  const systemAdminAddress = await systemAdmin.getAddress();
   // deploy memberManager subject
   memberManagerSubjectDeployed = await deploy(MEMBER_MANAGER_CONTRACT_NAME_SUBJECT, {
     contract: MEMBER_MANAGER_CONTRACT_NAME,
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [],
     log: true,
     skipIfAlreadyDeployed: true,
@@ -344,7 +342,7 @@ async function deployACLSubjects(systemAdmin: SignerWithAddress, deploy: (name: 
   // deploy roleManager subject
   roleManagerSubjectDeployed = await deploy(ROLE_MANAGER_CONTRACT_NAME_SUBJECT, {
     contract: ROLE_MANAGER_CONTRACT_NAME,
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [],
     log: true,
     skipIfAlreadyDeployed: true,
@@ -356,7 +354,7 @@ async function deployACLSubjects(systemAdmin: SignerWithAddress, deploy: (name: 
   // deploy typeManager subject
   typeManagerSubjectDeployed = await deploy(TYPE_MANAGER_CONTRACT_NAME_SUBJECT, {
     contract: TYPE_MANAGER_CONTRACT_NAME,
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [],
     log: true,
     skipIfAlreadyDeployed: true,
@@ -368,7 +366,7 @@ async function deployACLSubjects(systemAdmin: SignerWithAddress, deploy: (name: 
   // deploy functionManager subject
   functionManagerSubjectDeployed = await deploy(FUNCTION_MANAGER_CONTRACT_NAME_SUBJECT, {
     contract: FUNCTION_MANAGER_CONTRACT_NAME,
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [],
     log: true,
     skipIfAlreadyDeployed: true,
@@ -380,7 +378,7 @@ async function deployACLSubjects(systemAdmin: SignerWithAddress, deploy: (name: 
   // deploy contextManager subject
   contextManagerSubjectDeployed = await deploy(CONTEXT_MANAGER_CONTRACT_NAME_SUBJECT, {
     contract: CONTEXT_MANAGER_CONTRACT_NAME,
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [],
     log: true,
     skipIfAlreadyDeployed: true,
@@ -392,7 +390,7 @@ async function deployACLSubjects(systemAdmin: SignerWithAddress, deploy: (name: 
   // deploy realmManager subject
   realmManagerSubjectDeployed = await deploy(REALM_MANAGER_CONTRACT_NAME_SUBJECT, {
     contract: REALM_MANAGER_CONTRACT_NAME,
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [],
     log: true,
     skipIfAlreadyDeployed: true,
@@ -404,7 +402,7 @@ async function deployACLSubjects(systemAdmin: SignerWithAddress, deploy: (name: 
   // deploy domainManager subject
   domainManagerSubjectDeployed = await deploy(DOMAIN_MANAGER_CONTRACT_NAME_SUBJECT, {
     contract: DOMAIN_MANAGER_CONTRACT_NAME,
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [],
     log: true,
     skipIfAlreadyDeployed: true,
@@ -416,7 +414,7 @@ async function deployACLSubjects(systemAdmin: SignerWithAddress, deploy: (name: 
   // deploy universeManager subject
   universeManagerSubjectDeployed = await deploy(UNIVERSE_MANAGER_CONTRACT_NAME_SUBJECT, {
     contract: UNIVERSE_MANAGER_CONTRACT_NAME,
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [],
     log: true,
     skipIfAlreadyDeployed: true,
@@ -428,7 +426,7 @@ async function deployACLSubjects(systemAdmin: SignerWithAddress, deploy: (name: 
   // deploy profileManager subject
   profileManagerSubjectDeployed = await deploy(PROFILE_MANAGER_CONTRACT_NAME_SUBJECT, {
     contract: PROFILE_MANAGER_CONTRACT_NAME,
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [],
     log: true,
     skipIfAlreadyDeployed: true,
@@ -440,7 +438,7 @@ async function deployACLSubjects(systemAdmin: SignerWithAddress, deploy: (name: 
   // deploy policyManager subject
   policyManagerSubjectDeployed = await deploy(POLICY_MANAGER_CONTRACT_NAME_SUBJECT, {
     contract: POLICY_MANAGER_CONTRACT_NAME,
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [],
     log: true,
     skipIfAlreadyDeployed: true,
@@ -452,18 +450,22 @@ async function deployACLSubjects(systemAdmin: SignerWithAddress, deploy: (name: 
   // deploy accessControl subject
   accessControlSubjectDeployed = await deploy(ACCESS_CONTROL_CONTRACT_NAME_SUBJECT, {
     contract: ACCESS_CONTROL_CONTRACT_NAME,
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [],
     log: true,
     skipIfAlreadyDeployed: true,
   });
 }
 
-async function deployProfileSubjects(systemAdmin: SignerWithAddress, deploy: (name: string, options: DeployOptions) => Promise<DeployResult>) {
+async function deployProfileSubjects(
+  systemAdmin: Signer,
+  deploy: (name: string, options: DeployOptions) => Promise<DeployResult>
+) {
+  const systemAdminAddress = await systemAdmin.getAddress();
   // deploy profileMemberManager subject
   profileMemberManagerSubjectDeployed = await deploy(PROFILE_MEMBER_MANAGER_CONTRACT_NAME_SUBJECT, {
     contract: PROFILE_MEMBER_MANAGER_CONTRACT_NAME,
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [],
     log: true,
     skipIfAlreadyDeployed: true,
@@ -475,7 +477,7 @@ async function deployProfileSubjects(systemAdmin: SignerWithAddress, deploy: (na
   // deploy profileRoleManager subject
   profileRoleManagerSubjectDeployed = await deploy(PROFILE_ROLE_MANAGER_CONTRACT_NAME_SUBJECT, {
     contract: PROFILE_ROLE_MANAGER_CONTRACT_NAME,
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [],
     log: true,
     skipIfAlreadyDeployed: true,
@@ -487,7 +489,7 @@ async function deployProfileSubjects(systemAdmin: SignerWithAddress, deploy: (na
   // deploy profileTypeManager subject
   profileTypeManagerSubjectDeployed = await deploy(PROFILE_TYPE_MANAGER_CONTRACT_NAME_SUBJECT, {
     contract: PROFILE_TYPE_MANAGER_CONTRACT_NAME,
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [],
     log: true,
     skipIfAlreadyDeployed: true,
@@ -499,7 +501,7 @@ async function deployProfileSubjects(systemAdmin: SignerWithAddress, deploy: (na
   // deploy profileFunctionManager subject
   profileFunctionManagerSubjectDeployed = await deploy(PROFILE_FUNCTION_MANAGER_CONTRACT_NAME_SUBJECT, {
     contract: PROFILE_FUNCTION_MANAGER_CONTRACT_NAME,
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [],
     log: true,
     skipIfAlreadyDeployed: true,
@@ -511,7 +513,7 @@ async function deployProfileSubjects(systemAdmin: SignerWithAddress, deploy: (na
   // deploy profileContextManager subject
   profileContextManagerSubjectDeployed = await deploy(PROFILE_CONTEXT_MANAGER_CONTRACT_NAME_SUBJECT, {
     contract: PROFILE_CONTEXT_MANAGER_CONTRACT_NAME,
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [],
     log: true,
     skipIfAlreadyDeployed: true,
@@ -523,7 +525,7 @@ async function deployProfileSubjects(systemAdmin: SignerWithAddress, deploy: (na
   // deploy profileRealmManager subject
   profileRealmManagerSubjectDeployed = await deploy(PROFILE_REALM_MANAGER_CONTRACT_NAME_SUBJECT, {
     contract: PROFILE_REALM_MANAGER_CONTRACT_NAME,
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [],
     log: true,
     skipIfAlreadyDeployed: true,
@@ -535,7 +537,7 @@ async function deployProfileSubjects(systemAdmin: SignerWithAddress, deploy: (na
   // deploy profileDomainManager subject
   profileDomainManagerSubjectDeployed = await deploy(PROFILE_DOMAIN_MANAGER_CONTRACT_NAME_SUBJECT, {
     contract: PROFILE_DOMAIN_MANAGER_CONTRACT_NAME,
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [],
     log: true,
     skipIfAlreadyDeployed: true,
@@ -547,7 +549,7 @@ async function deployProfileSubjects(systemAdmin: SignerWithAddress, deploy: (na
   // deploy profileUniverseManager subject
   profileUniverseManagerSubjectDeployed = await deploy(PROFILE_UNIVERSE_MANAGER_CONTRACT_NAME_SUBJECT, {
     contract: PROFILE_UNIVERSE_MANAGER_CONTRACT_NAME,
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [],
     log: true,
     skipIfAlreadyDeployed: true,
@@ -559,7 +561,7 @@ async function deployProfileSubjects(systemAdmin: SignerWithAddress, deploy: (na
   // deploy policyUniverseManager subject
   profilePolicyManagerSubjectDeployed = await deploy(PROFILE_POLICY_MANAGER_CONTRACT_NAME_SUBJECT, {
     contract: PROFILE_POLICY_MANAGER_CONTRACT_NAME,
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [],
     log: true,
     skipIfAlreadyDeployed: true,
@@ -571,7 +573,7 @@ async function deployProfileSubjects(systemAdmin: SignerWithAddress, deploy: (na
   // deploy profileAccessControl subject
   profileAccessControlSubjectDeployed = await deploy(PROFILE_ACCESS_CONTROL_CONTRACT_NAME_SUBJECT, {
     contract: PROFILE_ACCESS_CONTROL_CONTRACT_NAME,
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [],
     log: true,
     skipIfAlreadyDeployed: true,
@@ -580,7 +582,7 @@ async function deployProfileSubjects(systemAdmin: SignerWithAddress, deploy: (na
   // deploy aclManager subject
   aclManagerSubjectDeployed = await deploy(ACL_MANAGER_CONTRACT_NAME_SUBJECT, {
     contract: ACL_MANAGER_CONTRACT_NAME,
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [],
     log: true,
     skipIfAlreadyDeployed: true,
@@ -588,19 +590,20 @@ async function deployProfileSubjects(systemAdmin: SignerWithAddress, deploy: (na
       LACLCommons: lACLCommons.address,
     },
   });
-
 }
 
-async function deployACLProxies(systemAdmin: SignerWithAddress, deploy: (name: string, options: DeployOptions) => Promise<DeployResult>) {
+async function deployACLProxies(
+  systemAdmin: Signer,
+  hre: HardhatRuntimeEnvironment,
+  deploy: (name: string, options: DeployOptions) => Promise<DeployResult>
+) {
+  const systemAdminAddress = await systemAdmin.getAddress();
   // deploy aclManager proxy
-  let iface = new ethers.utils.Interface(aclManagerSubjectDeployed.abi);
-  let data = iface.encodeFunctionData("initialize", [
-    ACL_MANAGER_CONTRACT_NAME,
-    CONTRACTS_VERSION,
-  ]);
+  let iface = new hre.ethers.utils.Interface(aclManagerSubjectDeployed.abi);
+  let data = iface.encodeFunctionData("initialize", [ACL_MANAGER_CONTRACT_NAME, CONTRACTS_VERSION]);
   aclManagerProxyDeployed = await deploy(ACL_MANAGER_CONTRACT_NAME_PROXY, {
     contract: "ACLManagerProxy",
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [aclManagerSubjectDeployed.address, data],
     log: true,
     skipIfAlreadyDeployed: true,
@@ -608,7 +611,7 @@ async function deployACLProxies(systemAdmin: SignerWithAddress, deploy: (name: s
   aclManagerProxy = ACLManager__factory.connect(aclManagerProxyDeployed.address, systemAdmin);
 
   // deploy memberManager proxy
-  iface = new ethers.utils.Interface(memberManagerSubjectDeployed.abi);
+  iface = new hre.ethers.utils.Interface(memberManagerSubjectDeployed.abi);
   data = iface.encodeFunctionData("initialize", [
     MEMBER_MANAGER_CONTRACT_NAME,
     CONTRACTS_VERSION,
@@ -616,14 +619,14 @@ async function deployACLProxies(systemAdmin: SignerWithAddress, deploy: (name: s
   ]);
   memberManagerProxyDeployed = await deploy(MEMBER_MANAGER_CONTRACT_NAME_PROXY, {
     contract: "ACLProxy",
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [memberManagerSubjectDeployed.address, data],
     log: true,
     skipIfAlreadyDeployed: true,
   });
 
   // deploy roleManager proxy
-  iface = new ethers.utils.Interface(roleManagerSubjectDeployed.abi);
+  iface = new hre.ethers.utils.Interface(roleManagerSubjectDeployed.abi);
   data = iface.encodeFunctionData("initialize", [
     ROLE_MANAGER_CONTRACT_NAME,
     CONTRACTS_VERSION,
@@ -631,14 +634,14 @@ async function deployACLProxies(systemAdmin: SignerWithAddress, deploy: (name: s
   ]);
   roleManagerProxyDeployed = await deploy(ROLE_MANAGER_CONTRACT_NAME_PROXY, {
     contract: "ACLProxy",
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [roleManagerSubjectDeployed.address, data],
     log: true,
     skipIfAlreadyDeployed: true,
   });
 
   // deploy typeManager proxy
-  iface = new ethers.utils.Interface(typeManagerSubjectDeployed.abi);
+  iface = new hre.ethers.utils.Interface(typeManagerSubjectDeployed.abi);
   data = iface.encodeFunctionData("initialize", [
     TYPE_MANAGER_CONTRACT_NAME,
     CONTRACTS_VERSION,
@@ -646,14 +649,14 @@ async function deployACLProxies(systemAdmin: SignerWithAddress, deploy: (name: s
   ]);
   typeManagerProxyDeployed = await deploy(TYPE_MANAGER_CONTRACT_NAME_PROXY, {
     contract: "ACLProxy",
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [typeManagerSubjectDeployed.address, data],
     log: true,
     skipIfAlreadyDeployed: true,
   });
 
   // deploy functionManager proxy
-  iface = new ethers.utils.Interface(functionManagerSubjectDeployed.abi);
+  iface = new hre.ethers.utils.Interface(functionManagerSubjectDeployed.abi);
   data = iface.encodeFunctionData("initialize", [
     FUNCTION_MANAGER_CONTRACT_NAME,
     CONTRACTS_VERSION,
@@ -661,14 +664,14 @@ async function deployACLProxies(systemAdmin: SignerWithAddress, deploy: (name: s
   ]);
   functionManagerProxyDeployed = await deploy(FUNCTION_MANAGER_CONTRACT_NAME_PROXY, {
     contract: "ACLProxy",
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [functionManagerSubjectDeployed.address, data],
     log: true,
     skipIfAlreadyDeployed: true,
   });
 
   // deploy contextManager proxy
-  iface = new ethers.utils.Interface(contextManagerSubjectDeployed.abi);
+  iface = new hre.ethers.utils.Interface(contextManagerSubjectDeployed.abi);
   data = iface.encodeFunctionData("initialize", [
     CONTEXT_MANAGER_CONTRACT_NAME,
     CONTRACTS_VERSION,
@@ -676,14 +679,14 @@ async function deployACLProxies(systemAdmin: SignerWithAddress, deploy: (name: s
   ]);
   contextManagerProxyDeployed = await deploy(CONTEXT_MANAGER_CONTRACT_NAME_PROXY, {
     contract: "ACLProxy",
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [contextManagerSubjectDeployed.address, data],
     log: true,
     skipIfAlreadyDeployed: true,
   });
 
   // deploy realmManager proxy
-  iface = new ethers.utils.Interface(realmManagerSubjectDeployed.abi);
+  iface = new hre.ethers.utils.Interface(realmManagerSubjectDeployed.abi);
   data = iface.encodeFunctionData("initialize", [
     REALM_MANAGER_CONTRACT_NAME,
     CONTRACTS_VERSION,
@@ -691,14 +694,14 @@ async function deployACLProxies(systemAdmin: SignerWithAddress, deploy: (name: s
   ]);
   realmManagerProxyDeployed = await deploy(REALM_MANAGER_CONTRACT_NAME_PROXY, {
     contract: "ACLProxy",
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [realmManagerSubjectDeployed.address, data],
     log: true,
     skipIfAlreadyDeployed: true,
   });
 
   // deploy domainManager proxy
-  iface = new ethers.utils.Interface(domainManagerSubjectDeployed.abi);
+  iface = new hre.ethers.utils.Interface(domainManagerSubjectDeployed.abi);
   data = iface.encodeFunctionData("initialize", [
     DOMAIN_MANAGER_CONTRACT_NAME,
     CONTRACTS_VERSION,
@@ -706,14 +709,14 @@ async function deployACLProxies(systemAdmin: SignerWithAddress, deploy: (name: s
   ]);
   domainManagerProxyDeployed = await deploy(DOMAIN_MANAGER_CONTRACT_NAME_PROXY, {
     contract: "ACLProxy",
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [domainManagerSubjectDeployed.address, data],
     log: true,
     skipIfAlreadyDeployed: true,
   });
 
   // deploy universeManager proxy
-  iface = new ethers.utils.Interface(universeManagerSubjectDeployed.abi);
+  iface = new hre.ethers.utils.Interface(universeManagerSubjectDeployed.abi);
   data = iface.encodeFunctionData("initialize", [
     UNIVERSE_MANAGER_CONTRACT_NAME,
     CONTRACTS_VERSION,
@@ -721,14 +724,14 @@ async function deployACLProxies(systemAdmin: SignerWithAddress, deploy: (name: s
   ]);
   universeManagerProxyDeployed = await deploy(UNIVERSE_MANAGER_CONTRACT_NAME_PROXY, {
     contract: "ACLProxy",
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [universeManagerSubjectDeployed.address, data],
     log: true,
     skipIfAlreadyDeployed: true,
   });
 
   // deploy profileManager proxy
-  iface = new ethers.utils.Interface(profileManagerSubjectDeployed.abi);
+  iface = new hre.ethers.utils.Interface(profileManagerSubjectDeployed.abi);
   data = iface.encodeFunctionData("initialize", [
     PROFILE_MANAGER_CONTRACT_NAME,
     CONTRACTS_VERSION,
@@ -736,14 +739,14 @@ async function deployACLProxies(systemAdmin: SignerWithAddress, deploy: (name: s
   ]);
   profileManagerProxyDeployed = await deploy(PROFILE_MANAGER_CONTRACT_NAME_PROXY, {
     contract: "ACLProxy",
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [profileManagerSubjectDeployed.address, data],
     log: true,
     skipIfAlreadyDeployed: true,
   });
 
   // deploy policyManager proxy
-  iface = new ethers.utils.Interface(policyManagerSubjectDeployed.abi);
+  iface = new hre.ethers.utils.Interface(policyManagerSubjectDeployed.abi);
   data = iface.encodeFunctionData("initialize", [
     POLICY_MANAGER_CONTRACT_NAME,
     CONTRACTS_VERSION,
@@ -751,14 +754,14 @@ async function deployACLProxies(systemAdmin: SignerWithAddress, deploy: (name: s
   ]);
   policyManagerProxyDeployed = await deploy(POLICY_MANAGER_CONTRACT_NAME_PROXY, {
     contract: "ACLProxy",
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [policyManagerSubjectDeployed.address, data],
     log: true,
     skipIfAlreadyDeployed: true,
   });
 
   // deploy accessControl proxy
-  iface = new ethers.utils.Interface(accessControlSubjectDeployed.abi);
+  iface = new hre.ethers.utils.Interface(accessControlSubjectDeployed.abi);
   data = iface.encodeFunctionData("initialize", [
     ACCESS_CONTROL_CONTRACT_NAME,
     CONTRACTS_VERSION,
@@ -766,16 +769,21 @@ async function deployACLProxies(systemAdmin: SignerWithAddress, deploy: (name: s
   ]);
   accessControlProxyDeployed = await deploy(ACCESS_CONTROL_CONTRACT_NAME_PROXY, {
     contract: "ACLProxy",
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [accessControlSubjectDeployed.address, data],
     log: true,
     skipIfAlreadyDeployed: true,
   });
 }
 
-async function deployProfileProxies(systemAdmin: SignerWithAddress, deploy: (name: string, options: DeployOptions) => Promise<DeployResult>) {
+async function deployProfileProxies(
+  systemAdmin: Signer,
+  hre: HardhatRuntimeEnvironment,
+  deploy: (name: string, options: DeployOptions) => Promise<DeployResult>
+) {
+  const systemAdminAddress = await systemAdmin.getAddress();
   // deploy profileMemberManager proxy
-  let iface = new ethers.utils.Interface(profileMemberManagerSubjectDeployed.abi);
+  let iface = new hre.ethers.utils.Interface(profileMemberManagerSubjectDeployed.abi);
   let data = iface.encodeFunctionData("initialize", [
     PROFILE_MEMBER_MANAGER_CONTRACT_NAME,
     CONTRACTS_VERSION,
@@ -783,14 +791,14 @@ async function deployProfileProxies(systemAdmin: SignerWithAddress, deploy: (nam
   ]);
   profileMemberManagerProxyDeployed = await deploy(PROFILE_MEMBER_MANAGER_CONTRACT_NAME_PROXY, {
     contract: "ACLProxy",
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [profileMemberManagerSubjectDeployed.address, data],
     log: true,
     skipIfAlreadyDeployed: true,
   });
 
   // deploy profileRoleManager proxy
-  iface = new ethers.utils.Interface(profileRoleManagerSubjectDeployed.abi);
+  iface = new hre.ethers.utils.Interface(profileRoleManagerSubjectDeployed.abi);
   data = iface.encodeFunctionData("initialize", [
     PROFILE_ROLE_MANAGER_CONTRACT_NAME,
     CONTRACTS_VERSION,
@@ -798,14 +806,14 @@ async function deployProfileProxies(systemAdmin: SignerWithAddress, deploy: (nam
   ]);
   profileRoleManagerProxyDeployed = await deploy(PROFILE_ROLE_MANAGER_CONTRACT_NAME_PROXY, {
     contract: "ACLProxy",
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [profileRoleManagerSubjectDeployed.address, data],
     log: true,
     skipIfAlreadyDeployed: true,
   });
 
   // deploy profileTypeManager proxy
-  iface = new ethers.utils.Interface(profileTypeManagerSubjectDeployed.abi);
+  iface = new hre.ethers.utils.Interface(profileTypeManagerSubjectDeployed.abi);
   data = iface.encodeFunctionData("initialize", [
     PROFILE_TYPE_MANAGER_CONTRACT_NAME,
     CONTRACTS_VERSION,
@@ -813,14 +821,14 @@ async function deployProfileProxies(systemAdmin: SignerWithAddress, deploy: (nam
   ]);
   profileTypeManagerProxyDeployed = await deploy(PROFILE_TYPE_MANAGER_CONTRACT_NAME_PROXY, {
     contract: "ACLProxy",
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [profileTypeManagerSubjectDeployed.address, data],
     log: true,
     skipIfAlreadyDeployed: true,
   });
 
   // deploy profileFunctionManager proxy
-  iface = new ethers.utils.Interface(profileFunctionManagerSubjectDeployed.abi);
+  iface = new hre.ethers.utils.Interface(profileFunctionManagerSubjectDeployed.abi);
   data = iface.encodeFunctionData("initialize", [
     PROFILE_FUNCTION_MANAGER_CONTRACT_NAME,
     CONTRACTS_VERSION,
@@ -828,14 +836,14 @@ async function deployProfileProxies(systemAdmin: SignerWithAddress, deploy: (nam
   ]);
   profileFunctionManagerProxyDeployed = await deploy(PROFILE_FUNCTION_MANAGER_CONTRACT_NAME_PROXY, {
     contract: "ACLProxy",
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [profileFunctionManagerSubjectDeployed.address, data],
     log: true,
     skipIfAlreadyDeployed: true,
   });
 
   // deploy profileContextManager proxy
-  iface = new ethers.utils.Interface(profileContextManagerSubjectDeployed.abi);
+  iface = new hre.ethers.utils.Interface(profileContextManagerSubjectDeployed.abi);
   data = iface.encodeFunctionData("initialize", [
     PROFILE_CONTEXT_MANAGER_CONTRACT_NAME,
     CONTRACTS_VERSION,
@@ -843,14 +851,14 @@ async function deployProfileProxies(systemAdmin: SignerWithAddress, deploy: (nam
   ]);
   profileContextManagerProxyDeployed = await deploy(PROFILE_CONTEXT_MANAGER_CONTRACT_NAME_PROXY, {
     contract: "ACLProxy",
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [profileContextManagerSubjectDeployed.address, data],
     log: true,
     skipIfAlreadyDeployed: true,
   });
 
   // deploy profileRealmManager proxy
-  iface = new ethers.utils.Interface(profileRealmManagerSubjectDeployed.abi);
+  iface = new hre.ethers.utils.Interface(profileRealmManagerSubjectDeployed.abi);
   data = iface.encodeFunctionData("initialize", [
     PROFILE_REALM_MANAGER_CONTRACT_NAME,
     CONTRACTS_VERSION,
@@ -858,14 +866,14 @@ async function deployProfileProxies(systemAdmin: SignerWithAddress, deploy: (nam
   ]);
   profileRealmManagerProxyDeployed = await deploy(PROFILE_REALM_MANAGER_CONTRACT_NAME_PROXY, {
     contract: "ACLProxy",
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [profileRealmManagerSubjectDeployed.address, data],
     log: true,
     skipIfAlreadyDeployed: true,
   });
 
   // deploy profileDomainManager proxy
-  iface = new ethers.utils.Interface(profileDomainManagerSubjectDeployed.abi);
+  iface = new hre.ethers.utils.Interface(profileDomainManagerSubjectDeployed.abi);
   data = iface.encodeFunctionData("initialize", [
     PROFILE_DOMAIN_MANAGER_CONTRACT_NAME,
     CONTRACTS_VERSION,
@@ -873,14 +881,14 @@ async function deployProfileProxies(systemAdmin: SignerWithAddress, deploy: (nam
   ]);
   profileDomainManagerProxyDeployed = await deploy(PROFILE_DOMAIN_MANAGER_CONTRACT_NAME_PROXY, {
     contract: "ACLProxy",
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [profileDomainManagerSubjectDeployed.address, data],
     log: true,
     skipIfAlreadyDeployed: true,
   });
 
   // deploy profileUniverseManager proxy
-  iface = new ethers.utils.Interface(profileUniverseManagerSubjectDeployed.abi);
+  iface = new hre.ethers.utils.Interface(profileUniverseManagerSubjectDeployed.abi);
   data = iface.encodeFunctionData("initialize", [
     PROFILE_UNIVERSE_MANAGER_CONTRACT_NAME,
     CONTRACTS_VERSION,
@@ -888,14 +896,14 @@ async function deployProfileProxies(systemAdmin: SignerWithAddress, deploy: (nam
   ]);
   profileUniverseManagerProxyDeployed = await deploy(PROFILE_UNIVERSE_MANAGER_CONTRACT_NAME_PROXY, {
     contract: "ACLProxy",
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [profileUniverseManagerSubjectDeployed.address, data],
     log: true,
     skipIfAlreadyDeployed: true,
   });
 
   // deploy profilePolicyManager proxy
-  iface = new ethers.utils.Interface(profilePolicyManagerSubjectDeployed.abi);
+  iface = new hre.ethers.utils.Interface(profilePolicyManagerSubjectDeployed.abi);
   data = iface.encodeFunctionData("initialize", [
     PROFILE_POLICY_MANAGER_CONTRACT_NAME,
     CONTRACTS_VERSION,
@@ -903,14 +911,14 @@ async function deployProfileProxies(systemAdmin: SignerWithAddress, deploy: (nam
   ]);
   profilePolicyManagerProxyDeployed = await deploy(PROFILE_POLICY_MANAGER_CONTRACT_NAME_PROXY, {
     contract: "ACLProxy",
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [profilePolicyManagerSubjectDeployed.address, data],
     log: true,
     skipIfAlreadyDeployed: true,
   });
 
   // deploy profileAccessControl proxy
-  iface = new ethers.utils.Interface(profileAccessControlSubjectDeployed.abi);
+  iface = new hre.ethers.utils.Interface(profileAccessControlSubjectDeployed.abi);
   data = iface.encodeFunctionData("initialize", [
     PROFILE_ACCESS_CONTROL_CONTRACT_NAME,
     CONTRACTS_VERSION,
@@ -918,26 +926,26 @@ async function deployProfileProxies(systemAdmin: SignerWithAddress, deploy: (nam
   ]);
   profileAccessControlProxyDeployed = await deploy(PROFILE_ACCESS_CONTROL_CONTRACT_NAME_PROXY, {
     contract: "ACLProxy",
-    from: systemAdmin.address,
+    from: systemAdminAddress,
     args: [profileAccessControlSubjectDeployed.address, data],
     log: true,
     skipIfAlreadyDeployed: true,
   });
 }
 
-async function registerACLFacets(hre: HardhatRuntimeEnvironment, systemAdmin: SignerWithAddress) {
+async function registerACLFacets(hre: HardhatRuntimeEnvironment, systemAdmin: Signer) {
   // acl facets
-  const memberIface = new ethers.utils.Interface(MemberManager__factory.abi);
-  const roleIface = new ethers.utils.Interface(RoleManager__factory.abi);
-  const typeIface = new ethers.utils.Interface(TypeManager__factory.abi);
-  const functionIface = new ethers.utils.Interface(FunctionManager__factory.abi);
-  const contextIface = new ethers.utils.Interface(ContextManager__factory.abi);
-  const realmIface = new ethers.utils.Interface(RealmManager__factory.abi);
-  const domainIface = new ethers.utils.Interface(DomainManager__factory.abi);
-  const universeIface = new ethers.utils.Interface(UniverseManager__factory.abi);
-  const policyIface = new ethers.utils.Interface(PolicyManager__factory.abi);
-  const profileIface = new ethers.utils.Interface(ProfileManager__factory.abi);
-  const accessControlIface = new ethers.utils.Interface(AccessControl__factory.abi);
+  const memberIface = new hre.ethers.utils.Interface(MemberManager__factory.abi);
+  const roleIface = new hre.ethers.utils.Interface(RoleManager__factory.abi);
+  const typeIface = new hre.ethers.utils.Interface(TypeManager__factory.abi);
+  const functionIface = new hre.ethers.utils.Interface(FunctionManager__factory.abi);
+  const contextIface = new hre.ethers.utils.Interface(ContextManager__factory.abi);
+  const realmIface = new hre.ethers.utils.Interface(RealmManager__factory.abi);
+  const domainIface = new hre.ethers.utils.Interface(DomainManager__factory.abi);
+  const universeIface = new hre.ethers.utils.Interface(UniverseManager__factory.abi);
+  const policyIface = new hre.ethers.utils.Interface(PolicyManager__factory.abi);
+  const profileIface = new hre.ethers.utils.Interface(ProfileManager__factory.abi);
+  const accessControlIface = new hre.ethers.utils.Interface(AccessControl__factory.abi);
   const facetRequests: IACLManager.FacetRegisterRequestStruct[] = [
     {
       facetId: memberManagerProxyDeployed.address,
@@ -954,7 +962,7 @@ async function registerACLFacets(hre: HardhatRuntimeEnvironment, systemAdmin: Si
         memberIface.getSighash("memberHasType"),
         memberIface.getSighash("memberGetTypes"),
         memberIface.getSighash("memberGetInfo"),
-      ]
+      ],
     },
     {
       facetId: roleManagerProxyDeployed.address,
@@ -973,7 +981,7 @@ async function registerACLFacets(hre: HardhatRuntimeEnvironment, systemAdmin: Si
         roleIface.getSighash("roleCheckAdmin"),
         roleIface.getSighash("roleHasAccount"),
         roleIface.getSighash("roleGetInfo"),
-      ]
+      ],
     },
     {
       facetId: typeManagerProxyDeployed.address,
@@ -992,7 +1000,7 @@ async function registerACLFacets(hre: HardhatRuntimeEnvironment, systemAdmin: Si
         typeIface.getSighash("typeHasRole"),
         typeIface.getSighash("typeGetRoles"),
         typeIface.getSighash("typeGetInfo"),
-      ]
+      ],
     },
     {
       facetId: policyManagerProxyDeployed.address,
@@ -1017,7 +1025,7 @@ async function registerACLFacets(hre: HardhatRuntimeEnvironment, systemAdmin: Si
         policyIface.getSighash("policyGetInfoByRole"),
         policyIface.getSighash("policyGetInfo"),
         policyIface.getSighash("policyGetRoles"),
-      ]
+      ],
     },
     {
       facetId: profileManagerProxyDeployed.address,
@@ -1038,7 +1046,7 @@ async function registerACLFacets(hre: HardhatRuntimeEnvironment, systemAdmin: Si
         profileIface.getSighash("profileGetProfileAccount"),
         profileIface.getSighash("profileGetAdmins"),
         profileIface.getSighash("profileGetInfo"),
-      ]
+      ],
     },
     {
       facetId: functionManagerProxyDeployed.address,
@@ -1055,7 +1063,7 @@ async function registerACLFacets(hre: HardhatRuntimeEnvironment, systemAdmin: Si
         functionIface.getSighash("functionCheckAdmin"),
         functionIface.getSighash("functionCheckAgent"),
         functionIface.getSighash("functionGetInfo"),
-      ]
+      ],
     },
     {
       facetId: contextManagerProxyDeployed.address,
@@ -1073,7 +1081,7 @@ async function registerACLFacets(hre: HardhatRuntimeEnvironment, systemAdmin: Si
         contextIface.getSighash("contextHasSelector"),
         contextIface.getSighash("contextGetFunctions"),
         contextIface.getSighash("contextGetInfo"),
-      ]
+      ],
     },
     {
       facetId: realmManagerProxyDeployed.address,
@@ -1092,7 +1100,7 @@ async function registerACLFacets(hre: HardhatRuntimeEnvironment, systemAdmin: Si
         realmIface.getSighash("realmHasContext"),
         realmIface.getSighash("realmGetContexts"),
         realmIface.getSighash("realmGetInfo"),
-      ]
+      ],
     },
     {
       facetId: domainManagerProxyDeployed.address,
@@ -1112,7 +1120,7 @@ async function registerACLFacets(hre: HardhatRuntimeEnvironment, systemAdmin: Si
         domainIface.getSighash("domainHasRealm"),
         domainIface.getSighash("domainGetRealms"),
         domainIface.getSighash("domainGetInfo"),
-      ]
+      ],
     },
     {
       facetId: universeManagerProxyDeployed.address,
@@ -1125,7 +1133,7 @@ async function registerACLFacets(hre: HardhatRuntimeEnvironment, systemAdmin: Si
         universeIface.getSighash("universeCheckAdmin"),
         universeIface.getSighash("universeGetDomains"),
         universeIface.getSighash("universeGetInfo"),
-      ]
+      ],
     },
     {
       facetId: accessControlProxyDeployed.address,
@@ -1150,9 +1158,9 @@ async function registerACLFacets(hre: HardhatRuntimeEnvironment, systemAdmin: Si
         accessControlIface.getSighash("getScopeBaseInfo"),
         accessControlIface.getSighash("getAgentBaseInfo"),
         accessControlIface.getSighash("isScopesCompatible"),
-      ]
-    }
-  ]
+      ],
+    },
+  ];
 
   let txReceipt;
   console.log(`[ Register ACL Facets ]`);
@@ -1163,23 +1171,24 @@ async function registerACLFacets(hre: HardhatRuntimeEnvironment, systemAdmin: Si
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log(
+    `txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`
+  );
   console.log();
 }
 
-async function registerProfileFacets(hre: HardhatRuntimeEnvironment, systemAdmin: SignerWithAddress) {
-
+async function registerProfileFacets(hre: HardhatRuntimeEnvironment, systemAdmin: Signer) {
   // profile facets
-  const profileMemberIface = new ethers.utils.Interface(ProfileMemberManager__factory.abi);
-  const profileRoleIface = new ethers.utils.Interface(ProfileRoleManager__factory.abi);
-  const profileTypeIface = new ethers.utils.Interface(ProfileTypeManager__factory.abi);
-  const profileFunctionIface = new ethers.utils.Interface(ProfileFunctionManager__factory.abi);
-  const profileContextIface = new ethers.utils.Interface(ProfileContextManager__factory.abi);
-  const profileRealmIface = new ethers.utils.Interface(ProfileRealmManager__factory.abi);
-  const profileDomainIface = new ethers.utils.Interface(ProfileDomainManager__factory.abi);
-  const profileUniverseIface = new ethers.utils.Interface(ProfileUniverseManager__factory.abi);
-  const profilePolicyIface = new ethers.utils.Interface(ProfilePolicyManager__factory.abi);
-  const profileAccessControlIface = new ethers.utils.Interface(ProfileAccessControl__factory.abi);
+  const profileMemberIface = new hre.ethers.utils.Interface(ProfileMemberManager__factory.abi);
+  const profileRoleIface = new hre.ethers.utils.Interface(ProfileRoleManager__factory.abi);
+  const profileTypeIface = new hre.ethers.utils.Interface(ProfileTypeManager__factory.abi);
+  const profileFunctionIface = new hre.ethers.utils.Interface(ProfileFunctionManager__factory.abi);
+  const profileContextIface = new hre.ethers.utils.Interface(ProfileContextManager__factory.abi);
+  const profileRealmIface = new hre.ethers.utils.Interface(ProfileRealmManager__factory.abi);
+  const profileDomainIface = new hre.ethers.utils.Interface(ProfileDomainManager__factory.abi);
+  const profileUniverseIface = new hre.ethers.utils.Interface(ProfileUniverseManager__factory.abi);
+  const profilePolicyIface = new hre.ethers.utils.Interface(ProfilePolicyManager__factory.abi);
+  const profileAccessControlIface = new hre.ethers.utils.Interface(ProfileAccessControl__factory.abi);
   const profileFacetRequests: IACLManager.FacetRegisterRequestStruct[] = [
     {
       facetId: profileMemberManagerProxyDeployed.address,
@@ -1197,8 +1206,8 @@ async function registerProfileFacets(hre: HardhatRuntimeEnvironment, systemAdmin
         profileMemberIface.getSighash("profileMemberCheckAdmin"),
         profileMemberIface.getSighash("profileMemberHasType"),
         profileMemberIface.getSighash("profileMemberGetTypes"),
-        profileMemberIface.getSighash("profileMemberGetInfo")
-      ]
+        profileMemberIface.getSighash("profileMemberGetInfo"),
+      ],
     },
     {
       facetId: profileRoleManagerProxyDeployed.address,
@@ -1216,8 +1225,8 @@ async function registerProfileFacets(hre: HardhatRuntimeEnvironment, systemAdmin
         profileRoleIface.getSighash("profileRoleCheckName"),
         profileRoleIface.getSighash("profileRoleCheckAdmin"),
         profileRoleIface.getSighash("profileRoleHasAccount"),
-        profileRoleIface.getSighash("profileRoleGetInfo")
-      ]
+        profileRoleIface.getSighash("profileRoleGetInfo"),
+      ],
     },
     {
       facetId: profileTypeManagerProxyDeployed.address,
@@ -1236,7 +1245,7 @@ async function registerProfileFacets(hre: HardhatRuntimeEnvironment, systemAdmin
         profileTypeIface.getSighash("profileTypeHasRole"),
         profileTypeIface.getSighash("profileTypeGetRoles"),
         profileTypeIface.getSighash("profileTypeGetInfo"),
-      ]
+      ],
     },
     {
       facetId: profilePolicyManagerProxyDeployed.address,
@@ -1260,8 +1269,8 @@ async function registerProfileFacets(hre: HardhatRuntimeEnvironment, systemAdmin
         profilePolicyIface.getSighash("profilePolicyHasRole"),
         profilePolicyIface.getSighash("profilePolicyGetInfoByRole"),
         profilePolicyIface.getSighash("profilePolicyGetInfo"),
-        profilePolicyIface.getSighash("profilePolicyGetRoles")
-      ]
+        profilePolicyIface.getSighash("profilePolicyGetRoles"),
+      ],
     },
     {
       facetId: profileFunctionManagerProxyDeployed.address,
@@ -1278,7 +1287,7 @@ async function registerProfileFacets(hre: HardhatRuntimeEnvironment, systemAdmin
         profileFunctionIface.getSighash("profileFunctionCheckAdmin"),
         profileFunctionIface.getSighash("profileFunctionCheckAgent"),
         profileFunctionIface.getSighash("profileFunctionGetInfo"),
-      ]
+      ],
     },
     {
       facetId: profileContextManagerProxyDeployed.address,
@@ -1295,8 +1304,8 @@ async function registerProfileFacets(hre: HardhatRuntimeEnvironment, systemAdmin
         profileContextIface.getSighash("profileContextHasFunction"),
         profileContextIface.getSighash("profileContextHasSelector"),
         profileContextIface.getSighash("profileContextGetFunctions"),
-        profileContextIface.getSighash("profileContextGetInfo")
-      ]
+        profileContextIface.getSighash("profileContextGetInfo"),
+      ],
     },
     {
       facetId: profileRealmManagerProxyDeployed.address,
@@ -1314,8 +1323,8 @@ async function registerProfileFacets(hre: HardhatRuntimeEnvironment, systemAdmin
         profileRealmIface.getSighash("profileRealmHasFunction"),
         profileRealmIface.getSighash("profileRealmHasContext"),
         profileRealmIface.getSighash("profileRealmGetContexts"),
-        profileRealmIface.getSighash("profileRealmGetInfo")
-      ]
+        profileRealmIface.getSighash("profileRealmGetInfo"),
+      ],
     },
     {
       facetId: profileDomainManagerProxyDeployed.address,
@@ -1334,8 +1343,8 @@ async function registerProfileFacets(hre: HardhatRuntimeEnvironment, systemAdmin
         profileDomainIface.getSighash("profileDomainHasContext"),
         profileDomainIface.getSighash("profileDomainHasRealm"),
         profileDomainIface.getSighash("profileDomainGetRealms"),
-        profileDomainIface.getSighash("profileDomainGetInfo")
-      ]
+        profileDomainIface.getSighash("profileDomainGetInfo"),
+      ],
     },
     {
       facetId: profileUniverseManagerProxyDeployed.address,
@@ -1347,8 +1356,8 @@ async function registerProfileFacets(hre: HardhatRuntimeEnvironment, systemAdmin
         profileUniverseIface.getSighash("profileUniverseUpdateDomainLimit"),
         profileUniverseIface.getSighash("profileUniverseCheckAdmin"),
         profileUniverseIface.getSighash("profileUniverseGetDomains"),
-        profileUniverseIface.getSighash("profileUniverseGetInfo")
-      ]
+        profileUniverseIface.getSighash("profileUniverseGetInfo"),
+      ],
     },
     {
       facetId: profileAccessControlProxyDeployed.address,
@@ -1368,343 +1377,353 @@ async function registerProfileFacets(hre: HardhatRuntimeEnvironment, systemAdmin
         profileAccessControlIface.getSighash("profileIsScopeExist"),
         profileAccessControlIface.getSighash("profileScopeBaseInfo"),
         profileAccessControlIface.getSighash("profileAgentBaseInfo"),
-        profileAccessControlIface.getSighash("profileIsScopesCompatible")
-      ]
-    }
-  ]
+        profileAccessControlIface.getSighash("profileIsScopesCompatible"),
+      ],
+    },
+  ];
 
   let txReceipt;
   console.log(`[ Register Profile Facets ]`);
-  const tx =  await aclManagerProxy.connect(systemAdmin).aclRegisterFacet(profileFacetRequests);
+  const tx = await aclManagerProxy.connect(systemAdmin).aclRegisterFacet(profileFacetRequests);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log(
+    `txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`
+  );
   console.log();
 }
 
-async function registerACLContexts(hre: HardhatRuntimeEnvironment, systemAdmin: SignerWithAddress) {
+async function registerACLContexts(hre: HardhatRuntimeEnvironment, systemAdmin: Signer) {
   // acl contexts
   const contextRequests: IContextManagement.ContextRegisterRequestStruct[] = [
     {
       realmId: LIVELY_VERSE_ACL_REALM_ID,
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      salt: ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: MEMBER_MANAGER_CONTRACT_NAME,
       version: CONTRACTS_VERSION,
       contractId: memberManagerProxyDeployed.address,
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       functionLimit: 32,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPGRADABLE,
-      signature: new Int8Array(0)
+      signature: new Int8Array(0),
     },
     {
       realmId: LIVELY_VERSE_ACL_REALM_ID,
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      salt: ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: ROLE_MANAGER_CONTRACT_NAME,
       version: CONTRACTS_VERSION,
       contractId: roleManagerProxyDeployed.address,
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       functionLimit: 32,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPGRADABLE,
-      signature: new Int8Array(0)
+      signature: new Int8Array(0),
     },
     {
       realmId: LIVELY_VERSE_ACL_REALM_ID,
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      salt: ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: TYPE_MANAGER_CONTRACT_NAME,
       version: CONTRACTS_VERSION,
       contractId: typeManagerProxyDeployed.address,
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       functionLimit: 32,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPGRADABLE,
-      signature: new Int8Array(0)
+      signature: new Int8Array(0),
     },
     {
       realmId: LIVELY_VERSE_ACL_REALM_ID,
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      salt: ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: REALM_MANAGER_CONTRACT_NAME,
       version: CONTRACTS_VERSION,
       contractId: realmManagerProxyDeployed.address,
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       functionLimit: 32,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPGRADABLE,
-      signature: new Int8Array(0)
+      signature: new Int8Array(0),
     },
     {
       realmId: LIVELY_VERSE_ACL_REALM_ID,
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      salt: ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: DOMAIN_MANAGER_CONTRACT_NAME,
       version: CONTRACTS_VERSION,
       contractId: domainManagerProxyDeployed.address,
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       functionLimit: 32,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPGRADABLE,
-      signature: new Int8Array(0)
+      signature: new Int8Array(0),
     },
     {
       realmId: LIVELY_VERSE_ACL_REALM_ID,
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      salt: ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: UNIVERSE_MANAGER_CONTRACT_NAME,
       version: CONTRACTS_VERSION,
       contractId: universeManagerProxyDeployed.address,
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       functionLimit: 32,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPGRADABLE,
-      signature: new Int8Array(0)
+      signature: new Int8Array(0),
     },
     {
       realmId: LIVELY_VERSE_ACL_REALM_ID,
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      salt: ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: POLICY_MANAGER_CONTRACT_NAME,
       version: CONTRACTS_VERSION,
       contractId: policyManagerProxyDeployed.address,
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       functionLimit: 32,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPGRADABLE,
-      signature: new Int8Array(0)
+      signature: new Int8Array(0),
     },
     {
       realmId: LIVELY_VERSE_ACL_REALM_ID,
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      salt: ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: PROFILE_MANAGER_CONTRACT_NAME,
       version: CONTRACTS_VERSION,
       contractId: profileManagerProxyDeployed.address,
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       functionLimit: 32,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPGRADABLE,
-      signature: new Int8Array(0)
+      signature: new Int8Array(0),
     },
     {
       realmId: LIVELY_VERSE_ACL_REALM_ID,
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      salt: ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: ACCESS_CONTROL_CONTRACT_NAME,
       version: CONTRACTS_VERSION,
       contractId: accessControlProxyDeployed.address,
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       functionLimit: 32,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPGRADABLE,
-      signature: new Int8Array(0)
+      signature: new Int8Array(0),
     },
     {
       realmId: LIVELY_VERSE_ACL_REALM_ID,
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      salt: ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: ACL_MANAGER_CONTRACT_NAME,
       version: CONTRACTS_VERSION,
       contractId: aclManagerProxyDeployed.address,
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       functionLimit: 32,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPGRADABLE,
-      signature: new Int8Array(0)
+      signature: new Int8Array(0),
     },
   ];
 
   let txReceipt;
   console.log(`[ Register ACL Contexts ]`);
-  const tx =  await contextManagerDelegateProxy.connect(systemAdmin).contextRegister(EMPTY_MEMBER_SIGNATURE, contextRequests)
+  const tx = await contextManagerDelegateProxy
+    .connect(systemAdmin)
+    .contextRegister(EMPTY_MEMBER_SIGNATURE, contextRequests);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log(
+    `txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`
+  );
   console.log();
 }
 
-async function registerProfileContexts(hre: HardhatRuntimeEnvironment, systemAdmin: SignerWithAddress) {
+async function registerProfileContexts(hre: HardhatRuntimeEnvironment, systemAdmin: Signer) {
   // acl profile contexts
   const profileContextRequests: IContextManagement.ContextRegisterRequestStruct[] = [
     {
       realmId: LIVELY_VERSE_ACL_REALM_ID,
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      salt: ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: PROFILE_MEMBER_MANAGER_CONTRACT_NAME,
       version: CONTRACTS_VERSION,
       contractId: profileMemberManagerProxyDeployed.address,
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       functionLimit: 32,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPGRADABLE,
-      signature: new Int8Array(0)
+      signature: new Int8Array(0),
     },
     {
       realmId: LIVELY_VERSE_ACL_REALM_ID,
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      salt: ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: PROFILE_ROLE_MANAGER_CONTRACT_NAME,
       version: CONTRACTS_VERSION,
       contractId: profileRoleManagerProxyDeployed.address,
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       functionLimit: -1,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPGRADABLE,
-      signature: new Int8Array(0)
+      signature: new Int8Array(0),
     },
     {
       realmId: LIVELY_VERSE_ACL_REALM_ID,
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      salt: ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: PROFILE_TYPE_MANAGER_CONTRACT_NAME,
       version: CONTRACTS_VERSION,
       contractId: profileTypeManagerProxyDeployed.address,
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       functionLimit: 32,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPGRADABLE,
-      signature: new Int8Array(0)
+      signature: new Int8Array(0),
     },
     {
       realmId: LIVELY_VERSE_ACL_REALM_ID,
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      salt: ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: PROFILE_FUNCTION_MANAGER_CONTRACT_NAME,
       version: CONTRACTS_VERSION,
       contractId: profileFunctionManagerProxyDeployed.address,
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       functionLimit: 32,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPGRADABLE,
-      signature: new Int8Array(0)
+      signature: new Int8Array(0),
     },
     {
       realmId: LIVELY_VERSE_ACL_REALM_ID,
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      salt: ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: PROFILE_CONTEXT_MANAGER_CONTRACT_NAME,
       version: CONTRACTS_VERSION,
       contractId: profileContextManagerProxyDeployed.address,
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       functionLimit: 32,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPGRADABLE,
-      signature: new Int8Array(0)
+      signature: new Int8Array(0),
     },
     {
       realmId: LIVELY_VERSE_ACL_REALM_ID,
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      salt: ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: PROFILE_REALM_MANAGER_CONTRACT_NAME,
       version: CONTRACTS_VERSION,
       contractId: profileRealmManagerProxyDeployed.address,
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       functionLimit: 32,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPGRADABLE,
-      signature: new Int8Array(0)
+      signature: new Int8Array(0),
     },
     {
       realmId: LIVELY_VERSE_ACL_REALM_ID,
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      salt: ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: PROFILE_DOMAIN_MANAGER_CONTRACT_NAME,
       version: CONTRACTS_VERSION,
       contractId: profileDomainManagerProxyDeployed.address,
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       functionLimit: 32,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPGRADABLE,
-      signature: new Int8Array(0)
+      signature: new Int8Array(0),
     },
     {
       realmId: LIVELY_VERSE_ACL_REALM_ID,
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      salt: ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: PROFILE_UNIVERSE_MANAGER_CONTRACT_NAME,
       version: CONTRACTS_VERSION,
       contractId: profileUniverseManagerProxyDeployed.address,
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       functionLimit: 32,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPGRADABLE,
-      signature: new Int8Array(0)
+      signature: new Int8Array(0),
     },
     {
       realmId: LIVELY_VERSE_ACL_REALM_ID,
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      salt: ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: PROFILE_POLICY_MANAGER_CONTRACT_NAME,
       version: CONTRACTS_VERSION,
       contractId: profilePolicyManagerProxyDeployed.address,
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       functionLimit: 32,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPGRADABLE,
-      signature: new Int8Array(0)
+      signature: new Int8Array(0),
     },
     {
       realmId: LIVELY_VERSE_ACL_REALM_ID,
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
-      salt: ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: PROFILE_ACCESS_CONTROL_CONTRACT_NAME,
       version: CONTRACTS_VERSION,
       contractId: profileAccessControlProxyDeployed.address,
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       functionLimit: 32,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPGRADABLE,
-      signature: new Int8Array(0)
+      signature: new Int8Array(0),
     },
   ];
 
   let txReceipt;
   console.log(`[ Register Profile Contexts ]`);
-  const tx =  await contextManagerDelegateProxy.connect(systemAdmin).contextRegister(EMPTY_MEMBER_SIGNATURE, profileContextRequests)
+  const tx = await contextManagerDelegateProxy
+    .connect(systemAdmin)
+    .contextRegister(EMPTY_MEMBER_SIGNATURE, profileContextRequests);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log(
+    `txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`
+  );
   console.log();
 }
 
-async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin: SignerWithAddress) {
+async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin: Signer) {
   // Member functions
-  const memberIface = new ethers.utils.Interface(MemberManager__factory.abi);
+  const memberIface = new hre.ethers.utils.Interface(MemberManager__factory.abi);
   const memberFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -1712,7 +1731,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: memberIface.getSighash("memberRegister"),
       policyCode: 250,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -1720,7 +1739,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: memberIface.getSighash("memberUpdateActivityStatus"),
       policyCode: 96,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -1728,7 +1747,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: memberIface.getSighash("memberUpdateAlterabilityStatus"),
       policyCode: 130,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -1736,7 +1755,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: memberIface.getSighash("memberUpdateAdmin"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -1744,7 +1763,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: memberIface.getSighash("memberUpdateGeneralLimit"),
       policyCode: 46,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -1752,7 +1771,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: memberIface.getSighash("upgradeTo"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -1760,7 +1779,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: memberIface.getSighash("setSafeModeStatus"),
       policyCode: 16,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -1768,7 +1787,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: memberIface.getSighash("setUpdatabilityStatus"),
       policyCode: 90,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -1776,7 +1795,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: memberIface.getSighash("setLocalAdmin"),
       policyCode: 60,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -1784,7 +1803,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: memberIface.getSighash("setAccessControlManager"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -1792,37 +1811,41 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: memberIface.getSighash("withdrawBalance"),
       policyCode: 250,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
-  ]
+  ];
   const memberFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
     {
       signature: new Int8Array(0),
-      realmId: ethers.constants.HashZero,
-      salt: ethers.constants.HashZero,
+      realmId: hre.ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: "",
       version: "",
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       contractId: memberManagerProxyDeployed.address,
-      functions: memberFunctionRequests
-    }
-  ]
+      functions: memberFunctionRequests,
+    },
+  ];
 
   let txReceipt;
   console.log(`[ Register Member Functions ]`);
-  let tx = await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(EMPTY_MEMBER_SIGNATURE, memberFunctionRegisterRequest);
+  let tx = await functionManagerDelegateProxy
+    .connect(systemAdmin)
+    .functionRegister(EMPTY_MEMBER_SIGNATURE, memberFunctionRegisterRequest);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log(
+    `txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`
+  );
   console.log();
 
   // Role functions
-  const roleIface = new ethers.utils.Interface(RoleManager__factory.abi);
+  const roleIface = new hre.ethers.utils.Interface(RoleManager__factory.abi);
   const roleFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -1830,7 +1853,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: roleIface.getSighash("roleRegister"),
       policyCode: 250,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -1838,7 +1861,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: roleIface.getSighash("roleGrantMembers"),
       policyCode: 96,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -1846,7 +1869,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: roleIface.getSighash("roleRevokeMembers"),
       policyCode: 120,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -1854,7 +1877,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: roleIface.getSighash("roleUpdateAdmin"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -1862,7 +1885,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: roleIface.getSighash("roleUpdateScope"),
       policyCode: 46,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -1870,7 +1893,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: roleIface.getSighash("roleUpdateActivityStatus"),
       policyCode: 100,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -1878,7 +1901,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: roleIface.getSighash("roleUpdateAlterabilityStatus"),
       policyCode: 130,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -1886,7 +1909,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: roleIface.getSighash("roleUpdateMemberLimit"),
       policyCode: 24,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -1894,7 +1917,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: roleIface.getSighash("upgradeTo"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -1902,7 +1925,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: roleIface.getSighash("setSafeModeStatus"),
       policyCode: 16,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -1910,7 +1933,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: roleIface.getSighash("setUpdatabilityStatus"),
       policyCode: 90,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -1918,7 +1941,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: roleIface.getSighash("setLocalAdmin"),
       policyCode: 60,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -1926,7 +1949,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: roleIface.getSighash("setAccessControlManager"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -1934,35 +1957,39 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: roleIface.getSighash("withdrawBalance"),
       policyCode: 230,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
-  ]
+  ];
   const roleFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
     {
       signature: new Int8Array(0),
-      realmId: ethers.constants.HashZero,
-      salt: ethers.constants.HashZero,
+      realmId: hre.ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: "",
       version: "",
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       contractId: roleManagerProxyDeployed.address,
-      functions: roleFunctionRequests
-    }
-  ]
+      functions: roleFunctionRequests,
+    },
+  ];
   console.log(`[ Register Role Functions ]`);
-  tx = await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(EMPTY_MEMBER_SIGNATURE, roleFunctionRegisterRequest);
+  tx = await functionManagerDelegateProxy
+    .connect(systemAdmin)
+    .functionRegister(EMPTY_MEMBER_SIGNATURE, roleFunctionRegisterRequest);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log(
+    `txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`
+  );
   console.log();
 
   // Type functions
-  const typeIface = new ethers.utils.Interface(TypeManager__factory.abi);
+  const typeIface = new hre.ethers.utils.Interface(TypeManager__factory.abi);
   const typeFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -1970,7 +1997,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: typeIface.getSighash("typeRegister"),
       policyCode: 250,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -1978,7 +2005,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: typeIface.getSighash("typeUpdateAdmin"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -1986,7 +2013,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: typeIface.getSighash("typeUpdateScope"),
       policyCode: 56,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -1994,7 +2021,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: typeIface.getSighash("typeUpdateActivityStatus"),
       policyCode: 96,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2002,7 +2029,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: typeIface.getSighash("typeUpdateAlterabilityStatus"),
       policyCode: 130,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2010,7 +2037,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: typeIface.getSighash("typeUpdateRoleLimit"),
       policyCode: 24,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2018,7 +2045,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: typeIface.getSighash("upgradeTo"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2026,7 +2053,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: typeIface.getSighash("setSafeModeStatus"),
       policyCode: 16,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2034,7 +2061,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: typeIface.getSighash("setUpdatabilityStatus"),
       policyCode: 90,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2042,7 +2069,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: typeIface.getSighash("setLocalAdmin"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2050,7 +2077,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: typeIface.getSighash("setAccessControlManager"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2058,35 +2085,39 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: typeIface.getSighash("withdrawBalance"),
       policyCode: 230,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
-  ]
+  ];
   const typeFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
     {
       signature: new Int8Array(0),
-      realmId: ethers.constants.HashZero,
-      salt: ethers.constants.HashZero,
+      realmId: hre.ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: "",
       version: "",
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       contractId: typeManagerProxyDeployed.address,
-      functions: typeFunctionRequests
-    }
-  ]
+      functions: typeFunctionRequests,
+    },
+  ];
   console.log(`[ Register Type Functions ]`);
-  tx = await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(EMPTY_MEMBER_SIGNATURE, typeFunctionRegisterRequest);
+  tx = await functionManagerDelegateProxy
+    .connect(systemAdmin)
+    .functionRegister(EMPTY_MEMBER_SIGNATURE, typeFunctionRegisterRequest);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log(
+    `txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`
+  );
   console.log();
 
   // Function functions
-  const functionIface = new ethers.utils.Interface(FunctionManager__factory.abi);
+  const functionIface = new hre.ethers.utils.Interface(FunctionManager__factory.abi);
   const functionFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2094,7 +2125,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: functionIface.getSighash("functionUpdateAdmin"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2102,7 +2133,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: functionIface.getSighash("functionUpdateAgent"),
       policyCode: 24,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2110,7 +2141,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: functionIface.getSighash("functionUpdateActivityStatus"),
       policyCode: 130,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2118,7 +2149,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: functionIface.getSighash("functionUpdateAlterabilityStatus"),
       policyCode: 96,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2126,7 +2157,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: functionIface.getSighash("functionUpdatePolicyCode"),
       policyCode: 56,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2134,7 +2165,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: functionIface.getSighash("upgradeTo"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2142,7 +2173,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: functionIface.getSighash("setSafeModeStatus"),
       policyCode: 16,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2150,7 +2181,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: functionIface.getSighash("setUpdatabilityStatus"),
       policyCode: 90,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2158,7 +2189,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: functionIface.getSighash("setLocalAdmin"),
       policyCode: 60,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2166,7 +2197,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: functionIface.getSighash("setAccessControlManager"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2174,35 +2205,39 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: functionIface.getSighash("withdrawBalance"),
       policyCode: 230,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
-  ]
+  ];
   const functionFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
     {
       signature: new Int8Array(0),
-      realmId: ethers.constants.HashZero,
-      salt: ethers.constants.HashZero,
+      realmId: hre.ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: "",
       version: "",
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       contractId: functionManagerProxyDeployed.address,
-      functions: functionFunctionRequests
-    }
-  ]
+      functions: functionFunctionRequests,
+    },
+  ];
   console.log(`[ Register Function Functions ]`);
-  tx =   await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(EMPTY_MEMBER_SIGNATURE, functionFunctionRegisterRequest);
+  tx = await functionManagerDelegateProxy
+    .connect(systemAdmin)
+    .functionRegister(EMPTY_MEMBER_SIGNATURE, functionFunctionRegisterRequest);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log(
+    `txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`
+  );
   console.log();
 
   // Context functions
-  const contextIface = new ethers.utils.Interface(ContextManager__factory.abi);
+  const contextIface = new hre.ethers.utils.Interface(ContextManager__factory.abi);
   const contextFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2210,7 +2245,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: contextIface.getSighash("contextUpdateActivityStatus"),
       policyCode: 130,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2218,7 +2253,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: contextIface.getSighash("contextUpdateAlterabilityStatus"),
       policyCode: 96,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2226,7 +2261,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: contextIface.getSighash("contextUpdateAdmin"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2234,7 +2269,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: contextIface.getSighash("contextUpdateFunctionLimit"),
       policyCode: 24,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2242,7 +2277,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: contextIface.getSighash("upgradeTo"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2250,7 +2285,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: contextIface.getSighash("setSafeModeStatus"),
       policyCode: 16,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2258,7 +2293,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: contextIface.getSighash("setUpdatabilityStatus"),
       policyCode: 90,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2266,7 +2301,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: contextIface.getSighash("setLocalAdmin"),
       policyCode: 60,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2274,7 +2309,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: contextIface.getSighash("setAccessControlManager"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2282,35 +2317,39 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: contextIface.getSighash("withdrawBalance"),
       policyCode: 230,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
-  ]
+  ];
   const contextFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
     {
       signature: new Int8Array(0),
-      realmId: ethers.constants.HashZero,
-      salt: ethers.constants.HashZero,
+      realmId: hre.ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: "",
       version: "",
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       contractId: contextManagerProxyDeployed.address,
-      functions: contextFunctionRequests
-    }
-  ]
+      functions: contextFunctionRequests,
+    },
+  ];
   console.log(`[ Register Context Functions ]`);
-  tx = await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(EMPTY_MEMBER_SIGNATURE, contextFunctionRegisterRequest);
+  tx = await functionManagerDelegateProxy
+    .connect(systemAdmin)
+    .functionRegister(EMPTY_MEMBER_SIGNATURE, contextFunctionRegisterRequest);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log(
+    `txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`
+  );
   console.log();
 
   // Realm functions
-  const realmIface = new ethers.utils.Interface(RealmManager__factory.abi);
+  const realmIface = new hre.ethers.utils.Interface(RealmManager__factory.abi);
   const realmFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2318,7 +2357,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: realmIface.getSighash("realmRegister"),
       policyCode: 250,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2326,7 +2365,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: realmIface.getSighash("realmUpdateAdmin"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2334,7 +2373,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: realmIface.getSighash("realmUpdateActivityStatus"),
       policyCode: 130,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2342,7 +2381,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: realmIface.getSighash("realmUpdateAlterabilityStatus"),
       policyCode: 96,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2350,7 +2389,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: realmIface.getSighash("realmUpdateContextLimit"),
       policyCode: 24,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2358,7 +2397,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: realmIface.getSighash("realmMoveContext"),
       policyCode: 36,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2366,7 +2405,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: realmIface.getSighash("upgradeTo"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2374,7 +2413,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: realmIface.getSighash("setSafeModeStatus"),
       policyCode: 16,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2382,7 +2421,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: realmIface.getSighash("setUpdatabilityStatus"),
       policyCode: 90,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2390,7 +2429,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: realmIface.getSighash("setLocalAdmin"),
       policyCode: 60,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2398,7 +2437,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: realmIface.getSighash("setAccessControlManager"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2406,35 +2445,39 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: realmIface.getSighash("withdrawBalance"),
       policyCode: 230,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
-  ]
+  ];
   const realmFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
     {
       signature: new Int8Array(0),
-      realmId: ethers.constants.HashZero,
-      salt: ethers.constants.HashZero,
+      realmId: hre.ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: "",
       version: "",
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       contractId: realmManagerProxyDeployed.address,
-      functions: realmFunctionRequests
-    }
-  ]
+      functions: realmFunctionRequests,
+    },
+  ];
   console.log(`[ Register Realm Functions ]`);
-  tx = await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(EMPTY_MEMBER_SIGNATURE, realmFunctionRegisterRequest);
+  tx = await functionManagerDelegateProxy
+    .connect(systemAdmin)
+    .functionRegister(EMPTY_MEMBER_SIGNATURE, realmFunctionRegisterRequest);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log(
+    `txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`
+  );
   console.log();
 
   // Domain functions
-  const domainIface = new ethers.utils.Interface(DomainManager__factory.abi);
+  const domainIface = new hre.ethers.utils.Interface(DomainManager__factory.abi);
   const domainFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2442,7 +2485,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: domainIface.getSighash("domainRegister"),
       policyCode: 250,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2450,7 +2493,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: domainIface.getSighash("domainUpdateActivityStatus"),
       policyCode: 130,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2458,7 +2501,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: domainIface.getSighash("domainUpdateAlterabilityStatus"),
       policyCode: 96,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2466,7 +2509,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: domainIface.getSighash("domainUpdateAdmin"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2474,7 +2517,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: domainIface.getSighash("domainUpdateRealmLimit"),
       policyCode: 46,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2482,7 +2525,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: domainIface.getSighash("domainMoveRealm"),
       policyCode: 24,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2490,7 +2533,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: domainIface.getSighash("upgradeTo"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2498,7 +2541,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: domainIface.getSighash("setSafeModeStatus"),
       policyCode: 16,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2506,7 +2549,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: domainIface.getSighash("setUpdatabilityStatus"),
       policyCode: 90,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2514,7 +2557,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: domainIface.getSighash("setLocalAdmin"),
       policyCode: 60,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2522,7 +2565,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: domainIface.getSighash("setAccessControlManager"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2530,35 +2573,39 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: domainIface.getSighash("withdrawBalance"),
       policyCode: 230,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
-  ]
+  ];
   const domainFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
     {
       signature: new Int8Array(0),
-      realmId: ethers.constants.HashZero,
-      salt: ethers.constants.HashZero,
+      realmId: hre.ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: "",
       version: "",
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       contractId: domainManagerProxyDeployed.address,
-      functions: domainFunctionRequests
-    }
-  ]
+      functions: domainFunctionRequests,
+    },
+  ];
   console.log(`[ Register Domain Functions ]`);
-  tx = await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(EMPTY_MEMBER_SIGNATURE, domainFunctionRegisterRequest);
+  tx = await functionManagerDelegateProxy
+    .connect(systemAdmin)
+    .functionRegister(EMPTY_MEMBER_SIGNATURE, domainFunctionRegisterRequest);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log(
+    `txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`
+  );
   console.log();
 
   // Universe functions
-  const universeIface = new ethers.utils.Interface(UniverseManager__factory.abi);
+  const universeIface = new hre.ethers.utils.Interface(UniverseManager__factory.abi);
   const universeFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
     {
       adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
@@ -2566,7 +2613,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: universeIface.getSighash("universeUpdateActivityStatus"),
       policyCode: 48,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
@@ -2574,7 +2621,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: universeIface.getSighash("universeUpdateAlterabilityStatus"),
       policyCode: 30,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
@@ -2582,7 +2629,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: universeIface.getSighash("universeUpdateAdmin"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
@@ -2590,7 +2637,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: universeIface.getSighash("universeUpdateDomainLimit"),
       policyCode: 24,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
@@ -2598,7 +2645,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: universeIface.getSighash("upgradeTo"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
@@ -2606,7 +2653,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: universeIface.getSighash("setSafeModeStatus"),
       policyCode: 16,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
@@ -2614,7 +2661,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: universeIface.getSighash("setUpdatabilityStatus"),
       policyCode: 90,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
@@ -2622,7 +2669,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: universeIface.getSighash("setLocalAdmin"),
       policyCode: 60,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
@@ -2630,7 +2677,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: universeIface.getSighash("setAccessControlManager"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
@@ -2638,35 +2685,39 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: universeIface.getSighash("withdrawBalance"),
       policyCode: 230,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
-  ]
+  ];
   const universeFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
     {
       signature: new Int8Array(0),
-      realmId: ethers.constants.HashZero,
-      salt: ethers.constants.HashZero,
+      realmId: hre.ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: "",
       version: "",
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       contractId: universeManagerProxyDeployed.address,
-      functions: universeFunctionRequests
-    }
-  ]
+      functions: universeFunctionRequests,
+    },
+  ];
   console.log(`[ Register Universe Functions ]`);
-  tx = await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(EMPTY_MEMBER_SIGNATURE, universeFunctionRegisterRequest);
+  tx = await functionManagerDelegateProxy
+    .connect(systemAdmin)
+    .functionRegister(EMPTY_MEMBER_SIGNATURE, universeFunctionRegisterRequest);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log(
+    `txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`
+  );
   console.log();
 
   // Profile Manager functions
-  const profileIface = new ethers.utils.Interface(ProfileManager__factory.abi);
+  const profileIface = new hre.ethers.utils.Interface(ProfileManager__factory.abi);
   const profileManagerFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2674,7 +2725,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: profileIface.getSighash("profileRegister"),
       policyCode: 250,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2682,7 +2733,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: profileIface.getSighash("profileUpdateLimits"),
       policyCode: 100,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2690,7 +2741,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: profileIface.getSighash("profileUpdateOwnerAccount"),
       policyCode: 32,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2698,7 +2749,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: profileIface.getSighash("profileUpdateAdmin"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2706,7 +2757,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: profileIface.getSighash("profileUpdateActivityStatus"),
       policyCode: 130,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2714,7 +2765,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: profileIface.getSighash("profileUpdateAlterabilityStatus"),
       policyCode: 96,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2722,7 +2773,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: profileIface.getSighash("upgradeTo"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2730,7 +2781,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: profileIface.getSighash("setSafeModeStatus"),
       policyCode: 16,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2738,7 +2789,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: profileIface.getSighash("setUpdatabilityStatus"),
       policyCode: 90,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2746,7 +2797,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: profileIface.getSighash("setLocalAdmin"),
       policyCode: 60,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2754,7 +2805,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: profileIface.getSighash("setAccessControlManager"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2762,35 +2813,39 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: profileIface.getSighash("withdrawBalance"),
       policyCode: 230,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
-  ]
+  ];
   const profileManagerFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
     {
       signature: new Int8Array(0),
-      realmId: ethers.constants.HashZero,
-      salt: ethers.constants.HashZero,
+      realmId: hre.ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: "",
       version: "",
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       contractId: profileManagerProxyDeployed.address,
-      functions: profileManagerFunctionRequests
-    }
-  ]
+      functions: profileManagerFunctionRequests,
+    },
+  ];
   console.log(`[ Register Profile Functions ]`);
-  tx = await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(EMPTY_MEMBER_SIGNATURE, profileManagerFunctionRegisterRequest);
+  tx = await functionManagerDelegateProxy
+    .connect(systemAdmin)
+    .functionRegister(EMPTY_MEMBER_SIGNATURE, profileManagerFunctionRegisterRequest);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log(
+    `txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`
+  );
   console.log();
 
   // Policy functions
-  const policyIface = new ethers.utils.Interface(PolicyManager__factory.abi);
+  const policyIface = new hre.ethers.utils.Interface(PolicyManager__factory.abi);
   const policyFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2798,7 +2853,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: policyIface.getSighash("policyRegister"),
       policyCode: 250,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2806,7 +2861,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: policyIface.getSighash("policyAddRoles"),
       policyCode: 100,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2814,7 +2869,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: policyIface.getSighash("policyRemoveRoles"),
       policyCode: 150,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2822,7 +2877,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: policyIface.getSighash("policyUpdateCodes"),
       policyCode: 32,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2830,7 +2885,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: policyIface.getSighash("policyUpdateAdmin"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2838,7 +2893,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: policyIface.getSighash("policyUpdateScope"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2846,7 +2901,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: policyIface.getSighash("policyUpdateActivityStatus"),
       policyCode: 130,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2854,7 +2909,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: policyIface.getSighash("policyUpdateAlterabilityStatus"),
       policyCode: 96,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
@@ -2862,7 +2917,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: policyIface.getSighash("policyUpdateRoleLimit"),
       policyCode: 24,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2870,7 +2925,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: policyIface.getSighash("upgradeTo"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2878,7 +2933,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: policyIface.getSighash("setSafeModeStatus"),
       policyCode: 16,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2886,7 +2941,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: policyIface.getSighash("setUpdatabilityStatus"),
       policyCode: 90,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2894,7 +2949,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: policyIface.getSighash("setLocalAdmin"),
       policyCode: 60,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2902,7 +2957,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: policyIface.getSighash("setAccessControlManager"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2910,35 +2965,39 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: policyIface.getSighash("withdrawBalance"),
       policyCode: 230,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
-  ]
+  ];
   const policyFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
     {
       signature: new Int8Array(0),
-      realmId: ethers.constants.HashZero,
-      salt: ethers.constants.HashZero,
+      realmId: hre.ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: "",
       version: "",
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       contractId: policyManagerProxyDeployed.address,
-      functions: policyFunctionRequests
-    }
-  ]
+      functions: policyFunctionRequests,
+    },
+  ];
   console.log(`[ Register Policy Functions ]`);
-  tx = await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(EMPTY_MEMBER_SIGNATURE, policyFunctionRegisterRequest);
+  tx = await functionManagerDelegateProxy
+    .connect(systemAdmin)
+    .functionRegister(EMPTY_MEMBER_SIGNATURE, policyFunctionRegisterRequest);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log(
+    `txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`
+  );
   console.log();
 
   // Access Control functions
-  const accessControlIface = new ethers.utils.Interface(AccessControl__factory.abi);
+  const accessControlIface = new hre.ethers.utils.Interface(AccessControl__factory.abi);
   const accessControlFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2946,7 +3005,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: accessControlIface.getSighash("upgradeTo"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2954,7 +3013,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: accessControlIface.getSighash("setSafeModeStatus"),
       policyCode: 16,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2962,7 +3021,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: accessControlIface.getSighash("setUpdatabilityStatus"),
       policyCode: 90,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2970,7 +3029,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: accessControlIface.getSighash("setLocalAdmin"),
       policyCode: 60,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2978,7 +3037,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: accessControlIface.getSighash("setAccessControlManager"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -2986,35 +3045,39 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: accessControlIface.getSighash("withdrawBalance"),
       policyCode: 230,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
-  ]
+  ];
   const accessControlFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
     {
       signature: new Int8Array(0),
-      realmId: ethers.constants.HashZero,
-      salt: ethers.constants.HashZero,
+      realmId: hre.ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: "",
       version: "",
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       contractId: accessControlProxyDeployed.address,
-      functions: accessControlFunctionRequests
-    }
-  ]
+      functions: accessControlFunctionRequests,
+    },
+  ];
   console.log(`[ Register AccessControl Functions ]`);
-  tx = await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(EMPTY_MEMBER_SIGNATURE, accessControlFunctionRegisterRequest);
+  tx = await functionManagerDelegateProxy
+    .connect(systemAdmin)
+    .functionRegister(EMPTY_MEMBER_SIGNATURE, accessControlFunctionRegisterRequest);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log(
+    `txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`
+  );
   console.log();
 
   // Acl Manager functions
-  const aclManagerIface = new ethers.utils.Interface(ACLManager__factory.abi);
+  const aclManagerIface = new hre.ethers.utils.Interface(ACLManager__factory.abi);
   const aclManagerFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
     {
       adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
@@ -3022,7 +3085,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: aclManagerIface.getSighash("aclRegisterFacet"),
       policyCode: 250,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
@@ -3030,7 +3093,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: aclManagerIface.getSighash("aclUpgradeFacet"),
       policyCode: 255,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
@@ -3038,7 +3101,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: aclManagerIface.getSighash("upgradeTo"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
@@ -3046,7 +3109,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: aclManagerIface.getSighash("setSafeModeStatus"),
       policyCode: 16,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
@@ -3054,7 +3117,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: aclManagerIface.getSighash("setUpdatabilityStatus"),
       policyCode: 90,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
@@ -3062,7 +3125,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: aclManagerIface.getSighash("setLocalAdmin"),
       policyCode: 60,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
@@ -3070,7 +3133,7 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: aclManagerIface.getSighash("setAccessControlManager"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
@@ -3078,38 +3141,41 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       selector: aclManagerIface.getSighash("withdrawBalance"),
       policyCode: 230,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
-  ]
+  ];
   const aclManagerFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
     {
       signature: new Int8Array(0),
-      realmId: ethers.constants.HashZero,
-      salt: ethers.constants.HashZero,
+      realmId: hre.ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: "",
       version: "",
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       contractId: aclManagerProxy.address,
-      functions: aclManagerFunctionRequests
-    }
-  ]
+      functions: aclManagerFunctionRequests,
+    },
+  ];
   console.log(`[ Register AclManager Functions ]`);
-  tx = await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(EMPTY_MEMBER_SIGNATURE, aclManagerFunctionRegisterRequest);
+  tx = await functionManagerDelegateProxy
+    .connect(systemAdmin)
+    .functionRegister(EMPTY_MEMBER_SIGNATURE, aclManagerFunctionRegisterRequest);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log(
+    `txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`
+  );
   console.log();
 }
 
-async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAdmin: SignerWithAddress) {
-
+async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAdmin: Signer) {
   // Profile Member functions
-  const profileMemberIface = new ethers.utils.Interface(ProfileMemberManager__factory.abi);
+  const profileMemberIface = new hre.ethers.utils.Interface(ProfileMemberManager__factory.abi);
   const profileMemberFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3117,7 +3183,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileMemberIface.getSighash("profileMemberRegister"),
       policyCode: 250,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3125,7 +3191,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileMemberIface.getSighash("profileMemberUpdateTypeLimit"),
       policyCode: 96,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3133,7 +3199,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileMemberIface.getSighash("profileMemberUpdateRegisterLimit"),
       policyCode: 130,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3141,7 +3207,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileMemberIface.getSighash("profileMemberUpdateCallLimit"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3149,7 +3215,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileMemberIface.getSighash("profileMemberUpdateActivityStatus"),
       policyCode: 46,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3157,7 +3223,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileMemberIface.getSighash("profileMemberUpdateAlterabilityStatus"),
       policyCode: 46,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3165,7 +3231,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileMemberIface.getSighash("profileMemberUpdateAdmin"),
       policyCode: 46,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3173,7 +3239,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileMemberIface.getSighash("upgradeTo"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3181,7 +3247,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileMemberIface.getSighash("setSafeModeStatus"),
       policyCode: 16,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3189,7 +3255,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileMemberIface.getSighash("setUpdatabilityStatus"),
       policyCode: 90,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3197,7 +3263,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileMemberIface.getSighash("setLocalAdmin"),
       policyCode: 60,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3205,7 +3271,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileMemberIface.getSighash("setAccessControlManager"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3213,36 +3279,40 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileMemberIface.getSighash("withdrawBalance"),
       policyCode: 250,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
-  ]
+  ];
   const profileMemberFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
     {
       signature: new Int8Array(0),
-      realmId: ethers.constants.HashZero,
-      salt: ethers.constants.HashZero,
+      realmId: hre.ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: "",
       version: "",
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       contractId: profileMemberManagerProxyDeployed.address,
-      functions: profileMemberFunctionRequests
-    }
-  ]
+      functions: profileMemberFunctionRequests,
+    },
+  ];
   let txReceipt;
   console.log(`[ Register Profile Member Functions ]`);
-  let tx =   await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(EMPTY_MEMBER_SIGNATURE, profileMemberFunctionRegisterRequest);
+  let tx = await functionManagerDelegateProxy
+    .connect(systemAdmin)
+    .functionRegister(EMPTY_MEMBER_SIGNATURE, profileMemberFunctionRegisterRequest);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log(
+    `txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`
+  );
   console.log();
 
   // Profile Role functions
-  const profileRoleIface = new ethers.utils.Interface(ProfileRoleManager__factory.abi);
+  const profileRoleIface = new hre.ethers.utils.Interface(ProfileRoleManager__factory.abi);
   const profileRoleFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3250,7 +3320,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileRoleIface.getSighash("profileRoleRegister"),
       policyCode: 250,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3258,7 +3328,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileRoleIface.getSighash("profileRoleGrantMembers"),
       policyCode: 96,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3266,7 +3336,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileRoleIface.getSighash("profileRoleRevokeMembers"),
       policyCode: 120,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3274,7 +3344,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileRoleIface.getSighash("profileRoleUpdateAdmin"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3282,7 +3352,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileRoleIface.getSighash("profileRoleUpdateScope"),
       policyCode: 46,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3290,7 +3360,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileRoleIface.getSighash("profileRoleUpdateActivityStatus"),
       policyCode: 100,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3298,7 +3368,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileRoleIface.getSighash("profileRoleUpdateAlterabilityStatus"),
       policyCode: 130,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3306,7 +3376,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileRoleIface.getSighash("profileRoleUpdateMemberLimit"),
       policyCode: 24,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3314,7 +3384,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileRoleIface.getSighash("upgradeTo"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3322,7 +3392,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileRoleIface.getSighash("setSafeModeStatus"),
       policyCode: 16,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3330,7 +3400,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileRoleIface.getSighash("setUpdatabilityStatus"),
       policyCode: 90,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3338,7 +3408,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileRoleIface.getSighash("setLocalAdmin"),
       policyCode: 60,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3346,7 +3416,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileRoleIface.getSighash("setAccessControlManager"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3354,35 +3424,39 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileRoleIface.getSighash("withdrawBalance"),
       policyCode: 230,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
-  ]
+  ];
   const profileRoleFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
     {
       signature: new Int8Array(0),
-      realmId: ethers.constants.HashZero,
-      salt: ethers.constants.HashZero,
+      realmId: hre.ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: "",
       version: "",
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       contractId: profileRoleManagerProxyDeployed.address,
-      functions: profileRoleFunctionRequests
-    }
-  ]
+      functions: profileRoleFunctionRequests,
+    },
+  ];
   console.log(`[ Register Profile Role Functions ]`);
-  tx = await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(EMPTY_MEMBER_SIGNATURE, profileRoleFunctionRegisterRequest);
+  tx = await functionManagerDelegateProxy
+    .connect(systemAdmin)
+    .functionRegister(EMPTY_MEMBER_SIGNATURE, profileRoleFunctionRegisterRequest);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log(
+    `txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`
+  );
   console.log();
 
   // Profile Type functions
-  const profileTypeIface = new ethers.utils.Interface(ProfileTypeManager__factory.abi);
+  const profileTypeIface = new hre.ethers.utils.Interface(ProfileTypeManager__factory.abi);
   const profileTypeFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3390,7 +3464,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileTypeIface.getSighash("profileTypeRegister"),
       policyCode: 250,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3398,7 +3472,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileTypeIface.getSighash("profileTypeUpdateAdmin"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3406,7 +3480,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileTypeIface.getSighash("profileTypeUpdateScope"),
       policyCode: 56,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3414,7 +3488,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileTypeIface.getSighash("profileTypeUpdateActivityStatus"),
       policyCode: 96,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3422,7 +3496,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileTypeIface.getSighash("profileTypeUpdateAlterabilityStatus"),
       policyCode: 130,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3430,7 +3504,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileTypeIface.getSighash("profileTypeUpdateRoleLimit"),
       policyCode: 24,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3438,7 +3512,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileTypeIface.getSighash("upgradeTo"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3446,7 +3520,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileTypeIface.getSighash("setSafeModeStatus"),
       policyCode: 16,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3454,7 +3528,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileTypeIface.getSighash("setUpdatabilityStatus"),
       policyCode: 90,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3462,7 +3536,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileTypeIface.getSighash("setLocalAdmin"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3470,7 +3544,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileTypeIface.getSighash("setAccessControlManager"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3478,35 +3552,39 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileTypeIface.getSighash("withdrawBalance"),
       policyCode: 230,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
-  ]
+  ];
   const profileTypeFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
     {
       signature: new Int8Array(0),
-      realmId: ethers.constants.HashZero,
-      salt: ethers.constants.HashZero,
+      realmId: hre.ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: "",
       version: "",
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       contractId: profileTypeManagerProxyDeployed.address,
-      functions: profileTypeFunctionRequests
-    }
-  ]
+      functions: profileTypeFunctionRequests,
+    },
+  ];
   console.log(`[ Register Profile Type Functions ]`);
-  tx = await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(EMPTY_MEMBER_SIGNATURE, profileTypeFunctionRegisterRequest);
+  tx = await functionManagerDelegateProxy
+    .connect(systemAdmin)
+    .functionRegister(EMPTY_MEMBER_SIGNATURE, profileTypeFunctionRegisterRequest);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log(
+    `txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`
+  );
   console.log();
 
   // Profile Function funtions
-  const profileFunctionIface = new ethers.utils.Interface(ProfileFunctionManager__factory.abi);
+  const profileFunctionIface = new hre.ethers.utils.Interface(ProfileFunctionManager__factory.abi);
   const profileFunctionFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3514,7 +3592,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileFunctionIface.getSighash("profileFunctionRegister"),
       policyCode: 250,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3522,7 +3600,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileFunctionIface.getSighash("profileFunctionUpdateAdmin"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3530,7 +3608,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileFunctionIface.getSighash("profileFunctionUpdateAgent"),
       policyCode: 24,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3538,7 +3616,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileFunctionIface.getSighash("profileFunctionUpdateActivityStatus"),
       policyCode: 130,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3546,7 +3624,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileFunctionIface.getSighash("profileFunctionUpdateAlterabilityStatus"),
       policyCode: 96,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3554,7 +3632,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileFunctionIface.getSighash("profileFunctionUpdatePolicyCode"),
       policyCode: 56,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3562,7 +3640,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileFunctionIface.getSighash("upgradeTo"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3570,7 +3648,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileFunctionIface.getSighash("setSafeModeStatus"),
       policyCode: 16,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3578,7 +3656,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileFunctionIface.getSighash("setUpdatabilityStatus"),
       policyCode: 90,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3586,7 +3664,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileFunctionIface.getSighash("setLocalAdmin"),
       policyCode: 60,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3594,7 +3672,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileFunctionIface.getSighash("setAccessControlManager"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3602,35 +3680,39 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileFunctionIface.getSighash("withdrawBalance"),
       policyCode: 230,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
-  ]
+  ];
   const profileFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
     {
       signature: new Int8Array(0),
-      realmId: ethers.constants.HashZero,
-      salt: ethers.constants.HashZero,
+      realmId: hre.ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: "",
       version: "",
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       contractId: profileFunctionManagerProxyDeployed.address,
-      functions: profileFunctionFunctionRequests
-    }
-  ]
+      functions: profileFunctionFunctionRequests,
+    },
+  ];
   console.log(`[ Register Profile Function Functions ]`);
-  tx = await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(EMPTY_MEMBER_SIGNATURE, profileFunctionRegisterRequest);
+  tx = await functionManagerDelegateProxy
+    .connect(systemAdmin)
+    .functionRegister(EMPTY_MEMBER_SIGNATURE, profileFunctionRegisterRequest);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log(
+    `txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`
+  );
   console.log();
 
   // Profile Context functions
-  const profileContextIface = new ethers.utils.Interface(ProfileContextManager__factory.abi);
+  const profileContextIface = new hre.ethers.utils.Interface(ProfileContextManager__factory.abi);
   const profileContextFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3638,7 +3720,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileContextIface.getSighash("profileContextRegister"),
       policyCode: 250,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3646,7 +3728,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileContextIface.getSighash("profileContextUpdateActivityStatus"),
       policyCode: 130,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3654,7 +3736,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileContextIface.getSighash("profileContextUpdateAlterabilityStatus"),
       policyCode: 96,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3662,7 +3744,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileContextIface.getSighash("profileContextUpdateAdmin"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3670,7 +3752,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileContextIface.getSighash("profileContextUpdateFunctionLimit"),
       policyCode: 24,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3678,7 +3760,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileContextIface.getSighash("upgradeTo"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3686,7 +3768,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileContextIface.getSighash("setSafeModeStatus"),
       policyCode: 16,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3694,7 +3776,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileContextIface.getSighash("setUpdatabilityStatus"),
       policyCode: 90,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3702,7 +3784,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileContextIface.getSighash("setLocalAdmin"),
       policyCode: 60,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3710,7 +3792,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileContextIface.getSighash("setAccessControlManager"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3718,35 +3800,39 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileContextIface.getSighash("withdrawBalance"),
       policyCode: 230,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
-  ]
+  ];
   const profileContextFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
     {
       signature: new Int8Array(0),
-      realmId: ethers.constants.HashZero,
-      salt: ethers.constants.HashZero,
+      realmId: hre.ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: "",
       version: "",
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       contractId: profileContextManagerProxyDeployed.address,
-      functions: profileContextFunctionRequests
-    }
-  ]
+      functions: profileContextFunctionRequests,
+    },
+  ];
   console.log(`[ Register Profile Context Functions ]`);
-  tx = await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(EMPTY_MEMBER_SIGNATURE, profileContextFunctionRegisterRequest);
+  tx = await functionManagerDelegateProxy
+    .connect(systemAdmin)
+    .functionRegister(EMPTY_MEMBER_SIGNATURE, profileContextFunctionRegisterRequest);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log(
+    `txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`
+  );
   console.log();
 
   // Profile Realm functions
-  const profileRealmIface = new ethers.utils.Interface(ProfileRealmManager__factory.abi);
+  const profileRealmIface = new hre.ethers.utils.Interface(ProfileRealmManager__factory.abi);
   const profileRealmFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3754,7 +3840,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileRealmIface.getSighash("profileRealmRegister"),
       policyCode: 250,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3762,7 +3848,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileRealmIface.getSighash("profileRealmUpdateAdmin"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3770,7 +3856,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileRealmIface.getSighash("profileRealmUpdateActivityStatus"),
       policyCode: 130,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3778,7 +3864,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileRealmIface.getSighash("profileRealmUpdateAlterabilityStatus"),
       policyCode: 96,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3786,7 +3872,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileRealmIface.getSighash("profileRealmUpdateContextLimit"),
       policyCode: 24,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3794,7 +3880,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileRealmIface.getSighash("profileRealmMoveContext"),
       policyCode: 36,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3802,7 +3888,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileRealmIface.getSighash("upgradeTo"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3810,7 +3896,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileRealmIface.getSighash("setSafeModeStatus"),
       policyCode: 16,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3818,7 +3904,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileRealmIface.getSighash("setUpdatabilityStatus"),
       policyCode: 90,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3826,7 +3912,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileRealmIface.getSighash("setLocalAdmin"),
       policyCode: 60,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3834,7 +3920,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileRealmIface.getSighash("setAccessControlManager"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3842,35 +3928,39 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileRealmIface.getSighash("withdrawBalance"),
       policyCode: 230,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
-  ]
+  ];
   const profileRealmFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
     {
       signature: new Int8Array(0),
-      realmId: ethers.constants.HashZero,
-      salt: ethers.constants.HashZero,
+      realmId: hre.ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: "",
       version: "",
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       contractId: profileRealmManagerProxyDeployed.address,
-      functions: profileRealmFunctionRequests
-    }
-  ]
+      functions: profileRealmFunctionRequests,
+    },
+  ];
   console.log(`[ Register Profile Realm Functions ]`);
-  tx = await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(EMPTY_MEMBER_SIGNATURE, profileRealmFunctionRegisterRequest);
+  tx = await functionManagerDelegateProxy
+    .connect(systemAdmin)
+    .functionRegister(EMPTY_MEMBER_SIGNATURE, profileRealmFunctionRegisterRequest);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log(
+    `txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`
+  );
   console.log();
 
   // Profile Domain functions
-  const profileDomainIface = new ethers.utils.Interface(ProfileDomainManager__factory.abi);
+  const profileDomainIface = new hre.ethers.utils.Interface(ProfileDomainManager__factory.abi);
   const profileDomainFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3878,7 +3968,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileDomainIface.getSighash("profileDomainRegister"),
       policyCode: 250,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3886,7 +3976,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileDomainIface.getSighash("profileDomainUpdateActivityStatus"),
       policyCode: 130,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3894,7 +3984,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileDomainIface.getSighash("profileDomainUpdateAlterabilityStatus"),
       policyCode: 96,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3902,7 +3992,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileDomainIface.getSighash("profileDomainUpdateAdmin"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3910,7 +4000,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileDomainIface.getSighash("profileDomainUpdateRealmLimit"),
       policyCode: 46,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -3918,7 +4008,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileDomainIface.getSighash("profileDomainMoveRealm"),
       policyCode: 24,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3926,7 +4016,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileDomainIface.getSighash("upgradeTo"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3934,7 +4024,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileDomainIface.getSighash("setSafeModeStatus"),
       policyCode: 16,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3942,7 +4032,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileDomainIface.getSighash("setUpdatabilityStatus"),
       policyCode: 90,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3950,7 +4040,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileDomainIface.getSighash("setLocalAdmin"),
       policyCode: 60,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3958,7 +4048,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileDomainIface.getSighash("setAccessControlManager"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -3966,35 +4056,39 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileDomainIface.getSighash("withdrawBalance"),
       policyCode: 230,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
-  ]
+  ];
   const profileDomainFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
     {
       signature: new Int8Array(0),
-      realmId: ethers.constants.HashZero,
-      salt: ethers.constants.HashZero,
+      realmId: hre.ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: "",
       version: "",
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       contractId: profileDomainManagerProxyDeployed.address,
-      functions: profileDomainFunctionRequests
-    }
-  ]
+      functions: profileDomainFunctionRequests,
+    },
+  ];
   console.log(`[ Register Profile Domain Functions ]`);
-  tx = await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(EMPTY_MEMBER_SIGNATURE, profileDomainFunctionRegisterRequest);
+  tx = await functionManagerDelegateProxy
+    .connect(systemAdmin)
+    .functionRegister(EMPTY_MEMBER_SIGNATURE, profileDomainFunctionRegisterRequest);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log(
+    `txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`
+  );
   console.log();
 
   // Profile Universe functions
-  const profileUniverseIface = new ethers.utils.Interface(ProfileUniverseManager__factory.abi);
+  const profileUniverseIface = new hre.ethers.utils.Interface(ProfileUniverseManager__factory.abi);
   const profileUniverseFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -4002,7 +4096,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileUniverseIface.getSighash("profileUniverseUpdateActivityStatus"),
       policyCode: 48,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -4010,7 +4104,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileUniverseIface.getSighash("profileUniverseUpdateAlterabilityStatus"),
       policyCode: 30,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -4018,7 +4112,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileUniverseIface.getSighash("profileUniverseUpdateAdmin"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -4026,7 +4120,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileUniverseIface.getSighash("profileUniverseUpdateDomainLimit"),
       policyCode: 24,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -4034,7 +4128,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileUniverseIface.getSighash("upgradeTo"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -4042,7 +4136,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileUniverseIface.getSighash("setSafeModeStatus"),
       policyCode: 16,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -4050,7 +4144,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileUniverseIface.getSighash("setUpdatabilityStatus"),
       policyCode: 90,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -4058,7 +4152,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileUniverseIface.getSighash("setLocalAdmin"),
       policyCode: 60,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -4066,7 +4160,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileUniverseIface.getSighash("setAccessControlManager"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -4074,35 +4168,39 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileUniverseIface.getSighash("withdrawBalance"),
       policyCode: 230,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
-  ]
+  ];
   const profileUniverseFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
     {
       signature: new Int8Array(0),
-      realmId: ethers.constants.HashZero,
-      salt: ethers.constants.HashZero,
+      realmId: hre.ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: "",
       version: "",
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       contractId: profileUniverseManagerProxyDeployed.address,
-      functions: profileUniverseFunctionRequests
-    }
-  ]
+      functions: profileUniverseFunctionRequests,
+    },
+  ];
   console.log(`[ Register Profile Universe Functions ]`);
-  tx = await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(EMPTY_MEMBER_SIGNATURE, profileUniverseFunctionRegisterRequest);
+  tx = await functionManagerDelegateProxy
+    .connect(systemAdmin)
+    .functionRegister(EMPTY_MEMBER_SIGNATURE, profileUniverseFunctionRegisterRequest);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log(
+    `txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`
+  );
   console.log();
 
   // Profile Access Control functions
-  const profileAccessControlIface = new ethers.utils.Interface(ProfileAccessControl__factory.abi);
+  const profileAccessControlIface = new hre.ethers.utils.Interface(ProfileAccessControl__factory.abi);
   const profileAccessControlFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -4110,7 +4208,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileAccessControlIface.getSighash("upgradeTo"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -4118,7 +4216,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileAccessControlIface.getSighash("setSafeModeStatus"),
       policyCode: 16,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -4126,7 +4224,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileAccessControlIface.getSighash("setUpdatabilityStatus"),
       policyCode: 90,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -4134,7 +4232,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileAccessControlIface.getSighash("setLocalAdmin"),
       policyCode: 60,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -4142,7 +4240,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileAccessControlIface.getSighash("setAccessControlManager"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -4150,35 +4248,39 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profileAccessControlIface.getSighash("withdrawBalance"),
       policyCode: 230,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
-  ]
+  ];
   const profileAccessControlFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
     {
       signature: new Int8Array(0),
-      realmId: ethers.constants.HashZero,
-      salt: ethers.constants.HashZero,
+      realmId: hre.ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: "",
       version: "",
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       contractId: profileAccessControlProxyDeployed.address,
-      functions: profileAccessControlFunctionRequests
-    }
-  ]
+      functions: profileAccessControlFunctionRequests,
+    },
+  ];
   console.log(`[ Register Profile AccessControl Functions ]`);
-  tx =   await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(EMPTY_MEMBER_SIGNATURE, profileAccessControlFunctionRegisterRequest);
+  tx = await functionManagerDelegateProxy
+    .connect(systemAdmin)
+    .functionRegister(EMPTY_MEMBER_SIGNATURE, profileAccessControlFunctionRegisterRequest);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log(
+    `txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`
+  );
   console.log();
 
   // Profile Policy functions
-  const profilePolicyIface = new ethers.utils.Interface(ProfilePolicyManager__factory.abi);
+  const profilePolicyIface = new hre.ethers.utils.Interface(ProfilePolicyManager__factory.abi);
   const profilePolicyFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -4186,7 +4288,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profilePolicyIface.getSighash("profilePolicyRegister"),
       policyCode: 250,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -4194,7 +4296,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profilePolicyIface.getSighash("profilePolicyAddRoles"),
       policyCode: 100,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -4202,7 +4304,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profilePolicyIface.getSighash("profilePolicyRemoveRoles"),
       policyCode: 150,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -4210,7 +4312,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profilePolicyIface.getSighash("profilePolicyUpdateCodes"),
       policyCode: 32,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -4218,7 +4320,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profilePolicyIface.getSighash("profilePolicyUpdateAdmin"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -4226,7 +4328,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profilePolicyIface.getSighash("profilePolicyUpdateScope"),
       policyCode: 130,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -4234,7 +4336,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profilePolicyIface.getSighash("profilePolicyUpdateActivityStatus"),
       policyCode: 96,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -4242,7 +4344,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profilePolicyIface.getSighash("profilePolicyUpdateAlterabilityStatus"),
       policyCode: 24,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
@@ -4250,7 +4352,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profilePolicyIface.getSighash("profilePolicyUpdateRoleLimit"),
       policyCode: 36,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -4258,7 +4360,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profilePolicyIface.getSighash("upgradeTo"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -4266,7 +4368,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profilePolicyIface.getSighash("setSafeModeStatus"),
       policyCode: 16,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -4274,7 +4376,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profilePolicyIface.getSighash("setUpdatabilityStatus"),
       policyCode: 90,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -4282,7 +4384,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profilePolicyIface.getSighash("setLocalAdmin"),
       policyCode: 60,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -4290,7 +4392,7 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profilePolicyIface.getSighash("setAccessControlManager"),
       policyCode: 0,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
     {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -4298,33 +4400,37 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       selector: profilePolicyIface.getSighash("withdrawBalance"),
       policyCode: 230,
       acstat: ActivityStatus.ENABLED,
-      alstat: AlterabilityStatus.UPDATABLE
+      alstat: AlterabilityStatus.UPDATABLE,
     },
-  ]
+  ];
   const profilePolicyFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
     {
       signature: new Int8Array(0),
-      realmId: ethers.constants.HashZero,
-      salt: ethers.constants.HashZero,
+      realmId: hre.ethers.constants.HashZero,
+      salt: hre.ethers.constants.HashZero,
       name: "",
       version: "",
-      subject: ethers.constants.AddressZero,
-      deployer: ethers.constants.AddressZero,
+      subject: hre.ethers.constants.AddressZero,
+      deployer: hre.ethers.constants.AddressZero,
       contractId: profilePolicyManagerProxyDeployed.address,
-      functions: profilePolicyFunctionRequests
-    }
-  ]
+      functions: profilePolicyFunctionRequests,
+    },
+  ];
   console.log(`[ Register Profile Policy Functions ]`);
-  tx = await functionManagerDelegateProxy.connect(systemAdmin).functionRegister(EMPTY_MEMBER_SIGNATURE, profilePolicyFunctionRegisterRequest);
+  tx = await functionManagerDelegateProxy
+    .connect(systemAdmin)
+    .functionRegister(EMPTY_MEMBER_SIGNATURE, profilePolicyFunctionRegisterRequest);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
   } else {
     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
   }
-  console.log(`txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`);
+  console.log(
+    `txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`
+  );
   console.log();
 }
 
-func.tags = [ ACL_MANAGER_CONTRACT_NAME_PROXY ];
+func.tags = [ACL_MANAGER_CONTRACT_NAME_PROXY];
 export default func;

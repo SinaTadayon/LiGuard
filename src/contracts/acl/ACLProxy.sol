@@ -36,14 +36,13 @@ contract ACLProxy is ACLStorage, BaseProxy {
 
   function _fallback() internal override {
     address facetId = _data.selectors[msg.sig];
-    address subjectId = _data.facets[facetId].subjectId;  
-    if(facetId == address(0)) {
-      _delegate(_implementation());  
+    address subjectId = _data.facets[facetId].subjectId;
+    if (facetId == address(0)) {
+      _delegate(_implementation());
     } else {
       _delegate(subjectId);
     }
   }
-
 
   /**
    * @dev This is a virtual function that should be overridden so it returns the address to which the fallback function

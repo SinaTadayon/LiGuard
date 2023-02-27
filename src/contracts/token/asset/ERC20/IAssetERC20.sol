@@ -34,5 +34,4 @@ interface IAssetERC20 {
   function tokenIncreaseAllowance(address spender, uint256 amount) external returns (uint256);
 
   function tokenDecreaseAllowance(address spender, uint256 amount) external returns (uint256);
-
 }

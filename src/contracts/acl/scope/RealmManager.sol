@@ -19,8 +19,8 @@ import "../../proxy/BaseUUPSProxy.sol";
  * @author Sina Tadayon, https://github.com/SinaTadayon
  * @dev
  *
- */ 
-contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {  
+ */
+contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
   using LACLStorage for DataCollection;
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
 
@@ -30,7 +30,7 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     string calldata contractName,
     string calldata contractVersion,
     address accessControlManager
-  ) public onlyProxy onlyLocalAdmin initializer {        
+  ) public onlyProxy onlyLocalAdmin initializer {
     __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
 
     emit Initialized(
@@ -47,38 +47,46 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
    * @dev See {IERC165-supportsInterface}.
    */
   function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-    return
-      interfaceId == type(IRealmManagement).interfaceId ||
-      super.supportsInterface(interfaceId);
+    return interfaceId == type(IRealmManagement).interfaceId || super.supportsInterface(interfaceId);
   }
 
-  function realmRegister(MemberSignature calldata memberSign, RealmRegisterRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IRealmManagement.realmRegister.selector);
-    
+  function realmRegister(MemberSignature calldata memberSign, RealmRegisterRequest[] calldata requests)
+    external
+    returns (bool)
+  {
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(
+      memberSign,
+      IRealmManagement.realmRegister.selector
+    );
+
     // check and set
     MemberEntity storage memberEntity = _data.memberReadSlot(senderId);
-    unchecked { 
-      require(int16(uint16(memberEntity.limits.realmRegisterLimit)) - int8(uint8(requests.length)) >= 0, "Illegal RegisterLimit");
-      memberEntity.limits.realmRegisterLimit -= uint8(requests.length); 
+    unchecked {
+      require(
+        int16(uint16(memberEntity.limits.realmRegisterLimit)) - int8(uint8(requests.length)) >= 0,
+        "Illegal RegisterLimit"
+      );
+      memberEntity.limits.realmRegisterLimit -= uint8(requests.length);
     }
 
     // fetch scope type and scope id of sender
-    (ScopeType memberScopeType, bytes32 memberScopeId) = _doGetMemberScopeInfoFromType(_LIVELY_VERSE_SCOPE_MASTER_TYPE_ID, senderId);    
-    
-    for(uint i = 0; i < requests.length; i++) {
+    (ScopeType memberScopeType, bytes32 memberScopeId) = _doGetMemberScopeInfoFromType(
+      _LIVELY_VERSE_SCOPE_MASTER_TYPE_ID,
+      senderId
+    );
+
+    for (uint256 i = 0; i < requests.length; i++) {
       bytes32 newRealmId = LACLUtils.generateId(requests[i].name);
       require(_data.scopes[newRealmId].stype == ScopeType.NONE, "Already Exist");
       require(
-        requests[i].acstat > ActivityStatus.DELETED && 
-        requests[i].alstat > AlterabilityStatus.NONE,
+        requests[i].acstat > ActivityStatus.DELETED && requests[i].alstat > AlterabilityStatus.NONE,
         "Illegal Activity/Alterability"
       );
 
       // check sender scopes
       require(memberScopeType >= ScopeType.DOMAIN, "Illegal ScopeType");
-      if(memberScopeType == ScopeType.DOMAIN) {
+      if (memberScopeType == ScopeType.DOMAIN) {
         require(memberScopeId == requests[i].domainId, "Illegal Domain Scope");
-
       } else {
         require(memberScopeId == _LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID, "Illegal Universe Scope");
       }
@@ -90,7 +98,7 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
       {
         // check access admin realm
         IACL.AdminAccessStatus status = _doCheckAdminAccess(domainEntity.bs.adminId, senderId, functionId);
-        if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);  
+        if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
       }
 
       // add to domain
@@ -105,39 +113,44 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
         newRealm.bs.adminId = requests[i].adminId;
         newRealm.name = requests[i].name;
         newRealm.domainId = requests[i].domainId;
-        newRealm.contextLimit = requests[i].contextLimit >=0 ? uint32(uint64(requests[i].contextLimit)) : memberEntity.limits.contextLimit;
+        newRealm.contextLimit = requests[i].contextLimit >= 0
+          ? uint32(uint64(requests[i].contextLimit))
+          : memberEntity.limits.contextLimit;
         newRealm.bs.adminId = _getRealmAdmin(domainEntity.bs.adminId, requests[i].domainId, requests[i].adminId);
       }
-       
-      emit RealmRegistered(
-        sender,
-        newRealmId,
-        requests[i].domainId,
-        requests[i].adminId
-      );
+
+      emit RealmRegistered(sender, newRealmId, requests[i].domainId, requests[i].adminId);
     }
 
     return true;
   }
 
-  function realmUpdateAdmin(MemberSignature calldata memberSign, UpdateAdminRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IRealmManagement.realmUpdateAdmin.selector);
-    
-    for(uint i = 0; i < requests.length; i++) {
+  function realmUpdateAdmin(MemberSignature calldata memberSign, UpdateAdminRequest[] calldata requests)
+    external
+    returns (bool)
+  {
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(
+      memberSign,
+      IRealmManagement.realmUpdateAdmin.selector
+    );
+
+    for (uint256 i = 0; i < requests.length; i++) {
       RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
 
-      // checking requested type admin 
-      if(requests[i].adminId != bytes32(0)) {        
+      // checking requested type admin
+      if (requests[i].adminId != bytes32(0)) {
         require(_data.agents[requests[i].adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
         (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(requests[i].adminId);
         require(ScopeType.REALM <= requestAdminScopeType, "Illegal Admin ScopeType");
-        if(ScopeType.REALM == requestAdminScopeType) {
+        if (ScopeType.REALM == requestAdminScopeType) {
           require(requestAdminScopeId == requests[i].id, "Illegal Admin Scope");
         } else {
-          require(IACLGenerals(address(this)).isScopesCompatible(requestAdminScopeId, requests[i].id), "Illegal Admin Scope");
+          require(
+            IACLGenerals(address(this)).isScopesCompatible(requestAdminScopeId, requests[i].id),
+            "Illegal Admin Scope"
+          );
         }
         realmEntity.bs.adminId = requests[i].adminId;
-
       } else {
         realmEntity.bs.adminId = _data.scopes[realmEntity.domainId].adminId;
       }
@@ -147,15 +160,29 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     return true;
   }
 
-  function realmMoveContext(MemberSignature calldata memberSign, RealmMoveContextRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IRealmManagement.realmMoveContext.selector);
+  function realmMoveContext(MemberSignature calldata memberSign, RealmMoveContextRequest[] calldata requests)
+    external
+    returns (bool)
+  {
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(
+      memberSign,
+      IRealmManagement.realmMoveContext.selector
+    );
 
-    for(uint i = 0; i < requests.length; i++) {
+    for (uint256 i = 0; i < requests.length; i++) {
       RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].realmId, senderId, functionId);
       require(realmEntity.contexts.contains(requests[i].contextId), "Context Not Found");
-      RealmEntity storage targetRealmEntity = _doGetEntityAndCheckAdminAccess(requests[i].targetRealmId, senderId, functionId);
-      ContextEntity storage contextEntity = _doGetContextEntityAndCheckAdminAccess(requests[i].contextId, senderId, functionId);
-      require(targetRealmEntity.contextLimit > targetRealmEntity.contexts.length(), "Illegal Move" );
+      RealmEntity storage targetRealmEntity = _doGetEntityAndCheckAdminAccess(
+        requests[i].targetRealmId,
+        senderId,
+        functionId
+      );
+      ContextEntity storage contextEntity = _doGetContextEntityAndCheckAdminAccess(
+        requests[i].contextId,
+        senderId,
+        functionId
+      );
+      require(targetRealmEntity.contextLimit > targetRealmEntity.contexts.length(), "Illegal Move");
       realmEntity.contexts.remove(requests[i].contextId);
       targetRealmEntity.contexts.add(requests[i].contextId);
       contextEntity.realmId = requests[i].targetRealmId;
@@ -165,39 +192,57 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     return true;
   }
 
-  function realmUpdateActivityStatus(MemberSignature calldata memberSign, UpdateActivityRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IRealmManagement.realmUpdateActivityStatus.selector);
+  function realmUpdateActivityStatus(MemberSignature calldata memberSign, UpdateActivityRequest[] calldata requests)
+    external
+    returns (bool)
+  {
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(
+      memberSign,
+      IRealmManagement.realmUpdateActivityStatus.selector
+    );
 
-    for(uint i = 0; i < requests.length; i++) {
-      RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);      
-      require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");  
+    for (uint256 i = 0; i < requests.length; i++) {
+      RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
+      require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
       realmEntity.bs.acstat = requests[i].acstat;
       emit RealmActivityUpdated(sender, requests[i].id, requests[i].acstat);
     }
     return true;
   }
 
-  function realmUpdateAlterabilityStatus(MemberSignature calldata memberSign, UpdateAlterabilityRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IRealmManagement.realmUpdateAlterabilityStatus.selector);
+  function realmUpdateAlterabilityStatus(
+    MemberSignature calldata memberSign,
+    UpdateAlterabilityRequest[] calldata requests
+  ) external returns (bool) {
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(
+      memberSign,
+      IRealmManagement.realmUpdateAlterabilityStatus.selector
+    );
 
-    for(uint i = 0; i < requests.length; i++) {      
+    for (uint256 i = 0; i < requests.length; i++) {
       RealmEntity storage realmEntity = _data.realmReadSlot(requests[i].id);
       IACL.AdminAccessStatus status = _doCheckAdminAccess(realmEntity.bs.adminId, senderId, functionId);
-      if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);  
+      if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       realmEntity.bs.alstat = requests[i].alstat;
       emit RealmAlterabilityUpdated(sender, requests[i].id, requests[i].alstat);
     }
-    return true;  
+    return true;
   }
 
-  function realmUpdateContextLimit(MemberSignature calldata memberSign, RealmUpdateContextLimitRequest[] calldata requests) external returns (bool) {
-    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(memberSign, IRealmManagement.realmUpdateContextLimit.selector);
+  function realmUpdateContextLimit(
+    MemberSignature calldata memberSign,
+    RealmUpdateContextLimitRequest[] calldata requests
+  ) external returns (bool) {
+    (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(
+      memberSign,
+      IRealmManagement.realmUpdateContextLimit.selector
+    );
 
     for (uint256 i = 0; i < requests.length; i++) {
       RealmEntity storage realmEntity = _doGetEntityAndCheckAdminAccess(requests[i].realmId, senderId, functionId);
       require(requests[i].contextLimit > realmEntity.contexts.length(), "Illegal Limit");
-      realmEntity.contextLimit = requests[i].contextLimit;      
+      realmEntity.contextLimit = requests[i].contextLimit;
       emit RealmContextLimitUpdated(sender, requests[i].realmId, requests[i].contextLimit);
     }
     return true;
@@ -211,46 +256,45 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     return _data.scopes[LACLUtils.generateId(realmName)].stype == ScopeType.REALM;
   }
 
-   function realmCheckAdmin(bytes32 realmId, address account) external view returns (bool) {
+  function realmCheckAdmin(bytes32 realmId, address account) external view returns (bool) {
     (RealmEntity storage realmEntity, bool result) = _data.realmTryReadSlot(realmId);
-    if(!result) return false;  
+    if (!result) return false;
 
     bytes32 realmAdminId = realmEntity.bs.adminId;
     AgentType agentType = _data.agents[realmAdminId].atype;
     bytes32 memberId = LACLUtils.accountGenerateId(account);
 
-    if(agentType == AgentType.ROLE) {
+    if (agentType == AgentType.ROLE) {
       (RoleEntity storage roleEntity, bool result0) = _data.roleTryReadSlot(realmAdminId);
-      if(!result0) return false;
+      if (!result0) return false;
 
       (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(roleEntity.typeId);
-      if(!result1) return false;  
+      if (!result1) return false;
 
       return typeEntity.members[memberId] == realmAdminId;
-    
-    } else if(agentType == AgentType.TYPE) {
+    } else if (agentType == AgentType.TYPE) {
       (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(realmAdminId);
-      if(!result1) return false;  
+      if (!result1) return false;
 
-      return typeEntity.members[memberId] != bytes32(0);  
+      return typeEntity.members[memberId] != bytes32(0);
     }
-  
+
     return false;
-  } 
+  }
 
   function realmHasFunction(bytes32 realmId, bytes32 functionId) external view returns (bool) {
     (FunctionEntity storage fe, bool result) = _data.functionTryReadSlot(functionId);
-    if(!result) return false;
+    if (!result) return false;
 
     (ContextEntity storage ce, bool result1) = _data.contextTryReadSlot(fe.contextId);
-    if(!result1) return false;
+    if (!result1) return false;
 
     return ce.realmId == realmId;
   }
 
   function realmHasContext(bytes32 realmId, bytes32 contextId) external view returns (bool) {
     (RealmEntity storage re, bool result) = _data.realmTryReadSlot(realmId);
-    if(!result) return false;  
+    if (!result) return false;
     return re.contexts.contains(contextId);
   }
 
@@ -262,33 +306,35 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
 
   function realmGetInfo(bytes32 realmId) external view returns (RealmInfo memory) {
     (RealmEntity storage re, bool result) = _data.realmTryReadSlot(realmId);
-    if(!result) {
-      return RealmInfo ({
-        domainId: bytes32(0),
-        adminId: bytes32(0),
-        contextLimit: 0, 
-        contextCount: 0,
-        referredByAgent: 0,
-        stype: ScopeType.NONE,
-        acstat: ActivityStatus.NONE, 
-        alstat: AlterabilityStatus.NONE, 
-        adminType: AgentType.NONE,
-        name: ""
-      });
+    if (!result) {
+      return
+        RealmInfo({
+          domainId: bytes32(0),
+          adminId: bytes32(0),
+          contextLimit: 0,
+          contextCount: 0,
+          referredByAgent: 0,
+          stype: ScopeType.NONE,
+          acstat: ActivityStatus.NONE,
+          alstat: AlterabilityStatus.NONE,
+          adminType: AgentType.NONE,
+          name: ""
+        });
     }
 
-    return RealmInfo ({
-      domainId: re.domainId,
-      adminId: re.bs.adminId,
-      contextLimit: re.contextLimit, 
-      contextCount: uint32(re.contexts.length()),
-      referredByAgent: re.bs.referredByAgent,   
-      stype: re.bs.stype,
-      acstat: re.bs.acstat, 
-      alstat: re.bs.alstat, 
-      adminType: _data.agents[re.bs.adminId].atype,
-      name: re.name
-    });
+    return
+      RealmInfo({
+        domainId: re.domainId,
+        adminId: re.bs.adminId,
+        contextLimit: re.contextLimit,
+        contextCount: uint32(re.contexts.length()),
+        referredByAgent: re.bs.referredByAgent,
+        stype: re.bs.stype,
+        acstat: re.bs.acstat,
+        alstat: re.bs.alstat,
+        adminType: _data.agents[re.bs.adminId].atype,
+        name: re.name
+      });
   }
 
   function _doAgentGetScopeInfo(bytes32 agentId) internal view returns (ScopeType, bytes32) {
@@ -297,77 +343,97 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
       RoleEntity storage roleEntity = _data.roleReadSlot(agentId);
       BaseScope storage baseScope = _data.scopes[roleEntity.scopeId];
       return (baseScope.stype, roleEntity.scopeId);
-
-    } else if(atype == AgentType.TYPE) {
+    } else if (atype == AgentType.TYPE) {
       TypeEntity storage typeEntity = _data.typeReadSlot(agentId);
       BaseScope storage baseScope = _data.scopes[typeEntity.scopeId];
       return (baseScope.stype, typeEntity.scopeId);
     }
 
-    return (ScopeType.NONE, bytes32(0));  
+    return (ScopeType.NONE, bytes32(0));
   }
 
-  function _doCheckAdminAccess(bytes32 adminId, bytes32 memberId, bytes32 functionId) internal view returns (IACL.AdminAccessStatus) {
+  function _doCheckAdminAccess(
+    bytes32 adminId,
+    bytes32 memberId,
+    bytes32 functionId
+  ) internal view returns (IACL.AdminAccessStatus) {
     return LACLCommons.checkAdminAccess(_data, adminId, memberId, functionId);
   }
-   
- function _accessPermission(MemberSignature calldata memberSign, bytes4 selector) internal returns (bytes32, bytes32, address) {
-    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");  
+
+  function _accessPermission(MemberSignature calldata memberSign, bytes4 selector)
+    internal
+    returns (
+      bytes32,
+      bytes32,
+      address
+    )
+  {
+    require(IProxy(address(this)).safeModeStatus() == IBaseProxy.ProxySafeModeStatus.DISABLED, "Rejected");
     address signer;
 
-    if(memberSign.signature.length > 0) {
+    if (memberSign.signature.length > 0) {
       require(memberSign.expiredAt > block.timestamp, "Expired Signature");
       signer = LACLUtils.getMemeberSignerAddress(memberSign, MEMBER_SIGNATURE_MESSAGE_TYPEHASH);
     } else {
       signer = msg.sender;
     }
-    
+
     address functionFacetId = _data.selectors[selector];
-    bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector); 
+    bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector);
     bytes32 senderId = LACLUtils.accountGenerateId(signer);
     IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
-    if(status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
+    if (status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
     return (functionId, senderId, signer);
   }
 
-  function _doGetEntityAndCheckAdminAccess(bytes32 realmId, bytes32 senderId, bytes32 functionId) internal view returns (RealmEntity storage) {
+  function _doGetEntityAndCheckAdminAccess(
+    bytes32 realmId,
+    bytes32 senderId,
+    bytes32 functionId
+  ) internal view returns (RealmEntity storage) {
     RealmEntity storage realmEntity = _data.realmReadSlot(realmId);
-    require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");    
+    require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
     IACL.AdminAccessStatus status = _doCheckAdminAccess(realmEntity.bs.adminId, senderId, functionId);
-    if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);  
+    if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
     return realmEntity;
-  }  
+  }
 
-  function _doGetContextEntityAndCheckAdminAccess(bytes32 contextId, bytes32 senderId, bytes32 functionId) internal view returns (ContextEntity storage) {
+  function _doGetContextEntityAndCheckAdminAccess(
+    bytes32 contextId,
+    bytes32 senderId,
+    bytes32 functionId
+  ) internal view returns (ContextEntity storage) {
     ContextEntity storage contextEntity = _data.contextReadSlot(contextId);
     require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
     IACL.AdminAccessStatus status = _doCheckAdminAccess(contextEntity.bs.adminId, senderId, functionId);
-    if(status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
+    if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
     return contextEntity;
   }
 
   function _doGetMemberScopeInfoFromType(bytes32 typeId, bytes32 senderId) internal view returns (ScopeType, bytes32) {
     TypeEntity storage agentAdminType = _data.typeReadSlot(typeId);
     bytes32 memberRoleId = agentAdminType.members[senderId];
-    RoleEntity storage memberAgentRole =  _data.roleReadSlot(memberRoleId);
+    RoleEntity storage memberAgentRole = _data.roleReadSlot(memberRoleId);
     return (_data.scopes[memberAgentRole.scopeId].stype, memberAgentRole.scopeId);
-  } 
+  }
 
-  function _getRealmAdmin(bytes32 requestScopeAdmin, bytes32 domainId, bytes32 adminId) internal view returns (bytes32 realmAdminId) {
-     // checking requested context admin 
-    if(adminId != bytes32(0)) {
+  function _getRealmAdmin(
+    bytes32 requestScopeAdmin,
+    bytes32 domainId,
+    bytes32 adminId
+  ) internal view returns (bytes32 realmAdminId) {
+    // checking requested context admin
+    if (adminId != bytes32(0)) {
       require(_data.agents[adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
 
       (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(adminId);
       require(ScopeType.DOMAIN <= requestAdminScopeType, "Illegal Admin ScopeType");
-      if(ScopeType.DOMAIN == requestAdminScopeType){
+      if (ScopeType.DOMAIN == requestAdminScopeType) {
         require(requestAdminScopeId == domainId, "Illegal Admin Scope");
-
       } else {
         require(requestAdminScopeId == _LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID, "Illegal Admin Scope");
       }
       realmAdminId = adminId;
-
     } else {
       realmAdminId = requestScopeAdmin;
     }

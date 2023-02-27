@@ -12,7 +12,6 @@ import "../IACLCommons.sol";
  *
  */
 interface IMemberManagement is IACLCommons {
-
   struct MemberRegisterRequest {
     bytes32 roleId;
     bytes32 adminId;
@@ -39,13 +38,12 @@ interface IMemberManagement is IACLCommons {
   }
 
   event MemberRegistered(
-    address indexed sender, 
-    bytes32 indexed memberId, 
+    address indexed sender,
+    bytes32 indexed memberId,
     address indexed account,
     bytes32 roleId,
     bytes32 adminId,
     GeneralLimit limits
-     
   );
 
   event MemberGeneralLimitUpdated(address indexed sender, bytes32 indexed memberId, GeneralLimit limits);
@@ -56,15 +54,27 @@ interface IMemberManagement is IACLCommons {
 
   event MemberAlterabilityUpdated(address indexed sender, bytes32 indexed memberId, AlterabilityStatus alstat);
 
-  function memberRegister(MemberSignature calldata memberSign, MemberRegisterRequest[] calldata requests) external returns (bool);
+  function memberRegister(MemberSignature calldata memberSign, MemberRegisterRequest[] calldata requests)
+    external
+    returns (bool);
 
-  function memberUpdateActivityStatus(MemberSignature calldata memberSign, UpdateActivityRequest[] calldata requests) external returns (bool);
+  function memberUpdateActivityStatus(MemberSignature calldata memberSign, UpdateActivityRequest[] calldata requests)
+    external
+    returns (bool);
 
-  function memberUpdateAlterabilityStatus(MemberSignature calldata memberSign, UpdateAlterabilityRequest[] calldata requests) external returns (bool);
+  function memberUpdateAlterabilityStatus(
+    MemberSignature calldata memberSign,
+    UpdateAlterabilityRequest[] calldata requests
+  ) external returns (bool);
 
-  function memberUpdateAdmin(MemberSignature calldata memberSign, UpdateAdminRequest[] calldata requests) external returns (bool);
+  function memberUpdateAdmin(MemberSignature calldata memberSign, UpdateAdminRequest[] calldata requests)
+    external
+    returns (bool);
 
-  function memberUpdateGeneralLimit(MemberSignature calldata memberSign, MemberUpdateGeneralLimitRequest[] calldata requests) external returns (bool);
+  function memberUpdateGeneralLimit(
+    MemberSignature calldata memberSign,
+    MemberUpdateGeneralLimitRequest[] calldata requests
+  ) external returns (bool);
 
   function memberCheckId(bytes32 memberId) external view returns (bool);
 

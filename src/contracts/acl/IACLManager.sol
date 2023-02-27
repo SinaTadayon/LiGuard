@@ -11,9 +11,8 @@ import "./IACLCommons.sol";
  * @dev
  *
  */
-interface IACLManager is IACLCommons{
-
-   // Request Types
+interface IACLManager is IACLCommons {
+  // Request Types
   struct FacetSelectorUpgradeRequest {
     ActionType action;
     bytes4[] selectors;
@@ -35,30 +34,17 @@ interface IACLManager is IACLCommons{
     address subjectId;
   }
 
-  event ACLFacetRegistered(
-    address indexed sender, 
-    address indexed facetId, 
-    address indexed subjectId
-  );
+  event ACLFacetRegistered(address indexed sender, address indexed facetId, address indexed subjectId);
 
-  event ACLFacetUpgraded(
-    address indexed sender, 
-    address indexed facetId, 
-    address indexed subjectId
-  );
+  event ACLFacetUpgraded(address indexed sender, address indexed facetId, address indexed subjectId);
 
-  event ACLFacetFunctionUpgraded(
-    address indexed sender, 
-    address indexed facetId, 
-    bytes4 selector,
-    ActionType action
-  );
+  event ACLFacetFunctionUpgraded(address indexed sender, address indexed facetId, bytes4 selector, ActionType action);
 
   event ACLInitialized(
     address indexed sender,
     address indexed admin,
     address indexed systemAdmin,
-    address contextManager, 
+    address contextManager,
     address functionManager
   );
 

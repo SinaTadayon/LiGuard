@@ -11,8 +11,7 @@ import "../IACLCommons.sol";
  * @dev
  *
  */
-interface IContextManagement is IACLCommons{
-  
+interface IContextManagement is IACLCommons {
   struct ContextRegisterRequest {
     bytes32 realmId;
     bytes32 adminId;
@@ -28,7 +27,7 @@ interface IContextManagement is IACLCommons{
     bytes signature;
   }
 
-   struct ContextUpdateFunctionLimitRequest {
+  struct ContextUpdateFunctionLimitRequest {
     bytes32 contextId;
     uint8 functionLimit;
   }
@@ -64,15 +63,27 @@ interface IContextManagement is IACLCommons{
 
   event ContextFunctionLimitUpdated(address indexed sender, bytes32 indexed contextId, uint8 functionLimit);
 
-  function contextRegister(MemberSignature calldata memberSign, ContextRegisterRequest[] calldata requests) external returns (bool);
+  function contextRegister(MemberSignature calldata memberSign, ContextRegisterRequest[] calldata requests)
+    external
+    returns (bool);
 
-  function contextUpdateActivityStatus(MemberSignature calldata memberSign, UpdateActivityRequest[] calldata requests) external returns (bool);
+  function contextUpdateActivityStatus(MemberSignature calldata memberSign, UpdateActivityRequest[] calldata requests)
+    external
+    returns (bool);
 
-  function contextUpdateAlterabilityStatus(MemberSignature calldata memberSign, UpdateAlterabilityRequest[] calldata requests) external returns (bool);
+  function contextUpdateAlterabilityStatus(
+    MemberSignature calldata memberSign,
+    UpdateAlterabilityRequest[] calldata requests
+  ) external returns (bool);
 
-  function contextUpdateAdmin(MemberSignature calldata memberSign, UpdateAdminRequest[] calldata requests) external returns (bool);
+  function contextUpdateAdmin(MemberSignature calldata memberSign, UpdateAdminRequest[] calldata requests)
+    external
+    returns (bool);
 
-  function contextUpdateFunctionLimit(MemberSignature calldata memberSign, ContextUpdateFunctionLimitRequest[] calldata requests) external returns (bool);
+  function contextUpdateFunctionLimit(
+    MemberSignature calldata memberSign,
+    ContextUpdateFunctionLimitRequest[] calldata requests
+  ) external returns (bool);
 
   function contextCheckId(bytes32 contextId) external view returns (bool);
 
@@ -87,5 +98,4 @@ interface IContextManagement is IACLCommons{
   function contextGetFunctions(bytes32 contextId) external view returns (bytes32[] memory);
 
   function contextGetInfo(bytes32 contextId) external view returns (ContextInfo memory);
-
 }

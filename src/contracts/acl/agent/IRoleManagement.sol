@@ -11,15 +11,14 @@ import "../IACLCommons.sol";
  * @dev
  *
  */
-interface IRoleManagement is IACLCommons{
-
+interface IRoleManagement is IACLCommons {
   struct RoleRegisterRequest {
-    bytes32 adminId;          
-    bytes32 scopeId;          
+    bytes32 adminId;
+    bytes32 scopeId;
     bytes32 typeId;
     int32 memberLimit;
     ActivityStatus acstat;
-    AlterabilityStatus alstat;   
+    AlterabilityStatus alstat;
     string name;
   }
 
@@ -47,8 +46,8 @@ interface IRoleManagement is IACLCommons{
     AgentType adminType;
     AgentType atype;
     ActivityStatus acstat;
-    AlterabilityStatus alstat;   
-    string name;    
+    AlterabilityStatus alstat;
+    string name;
   }
 
   event RoleRegistered(
@@ -59,11 +58,17 @@ interface IRoleManagement is IACLCommons{
     bytes32 scopeId
   );
 
-  event RoleMemberDeleted(address indexed sender, bytes32 indexed roleId, bytes32 indexed memberId, bytes32 typeId, address account);
+  event RoleMemberDeleted(
+    address indexed sender,
+    bytes32 indexed roleId,
+    bytes32 indexed memberId,
+    bytes32 typeId,
+    address account
+  );
 
   event RoleMemberGranted(address indexed sender, bytes32 indexed roleId, bytes32 indexed memberId, bytes32 typeId);
 
-  event RoleMemberRevoked(address indexed sender, bytes32 indexed roleId, bytes32 indexed memberId, bytes32 typeId);  
+  event RoleMemberRevoked(address indexed sender, bytes32 indexed roleId, bytes32 indexed memberId, bytes32 typeId);
 
   event RoleMemberLimitUpdated(address indexed sender, bytes32 indexed roleId, uint24 memberLimit);
 
@@ -75,21 +80,38 @@ interface IRoleManagement is IACLCommons{
 
   event RoleAlterabilityUpdated(address indexed sender, bytes32 indexed roleId, AlterabilityStatus alstat);
 
-  function roleRegister(MemberSignature calldata memberSign, RoleRegisterRequest[] calldata requests) external returns (bool);
+  function roleRegister(MemberSignature calldata memberSign, RoleRegisterRequest[] calldata requests)
+    external
+    returns (bool);
 
-  function roleGrantMembers(MemberSignature calldata memberSign, RoleGrantMembersRequest[] calldata requests) external returns (bool);
+  function roleGrantMembers(MemberSignature calldata memberSign, RoleGrantMembersRequest[] calldata requests)
+    external
+    returns (bool);
 
-  function roleRevokeMembers(MemberSignature calldata memberSign, RoleRevokeMembersRequest[] calldata requests) external returns (bool);
+  function roleRevokeMembers(MemberSignature calldata memberSign, RoleRevokeMembersRequest[] calldata requests)
+    external
+    returns (bool);
 
-  function roleUpdateAdmin(MemberSignature calldata memberSign, UpdateAdminRequest[] calldata requests) external returns (bool);
+  function roleUpdateAdmin(MemberSignature calldata memberSign, UpdateAdminRequest[] calldata requests)
+    external
+    returns (bool);
 
-  function roleUpdateScope(MemberSignature calldata memberSign, UpdateScopeRequest[] calldata requests) external returns (bool);
+  function roleUpdateScope(MemberSignature calldata memberSign, UpdateScopeRequest[] calldata requests)
+    external
+    returns (bool);
 
-  function roleUpdateActivityStatus(MemberSignature calldata memberSign, UpdateActivityRequest[] calldata requests) external returns (bool);
+  function roleUpdateActivityStatus(MemberSignature calldata memberSign, UpdateActivityRequest[] calldata requests)
+    external
+    returns (bool);
 
-  function roleUpdateAlterabilityStatus(MemberSignature calldata memberSign, UpdateAlterabilityRequest[] calldata requests) external returns (bool);
+  function roleUpdateAlterabilityStatus(
+    MemberSignature calldata memberSign,
+    UpdateAlterabilityRequest[] calldata requests
+  ) external returns (bool);
 
-  function roleUpdateMemberLimit(MemberSignature calldata memberSign, RoleUpdateMemberLimitRequest[] calldata requests) external returns (bool);
+  function roleUpdateMemberLimit(MemberSignature calldata memberSign, RoleUpdateMemberLimitRequest[] calldata requests)
+    external
+    returns (bool);
 
   function roleCheckId(bytes32 roleId) external view returns (bool);
 

@@ -30,56 +30,95 @@ library LProfileRolePolicy {
   string public constant LIB_NAME = "LProfileRolePolicy";
   string public constant LIB_VERSION = "3.0.0";
 
-  bytes32 public constant LIVELY_VERSE_ANONYMOUS_TYPE_ID             = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_ANONYMOUS"));
-  bytes32 public constant LIVELY_VERSE_ANY_TYPE_ID                   = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_ANY"));
+  bytes32 public constant LIVELY_VERSE_ANONYMOUS_TYPE_ID =
+    keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_ANONYMOUS"));
+  bytes32 public constant LIVELY_VERSE_ANY_TYPE_ID = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_ANY"));
 
-  bytes32 public constant LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID         = keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_MASTER"));
-  bytes32 public constant LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID         = keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER"));
-  bytes32 public constant LIVELY_PROFILE_ANY_TYPE_ID                   = keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_ANY"));
-  bytes32 public constant LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID      = keccak256(abi.encodePacked("UNIVERSE.LIVELY_PROFILE"));
-  bytes32 public constant LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID   = keccak256(abi.encodePacked("ROLE.LIVELY_PROFILE.LIVELY_MASTER_ADMIN"));
-  bytes32 public constant LIVELY_PROFILE_SYSTEM_MASTER_ADMIN_ROLE_ID   = keccak256(abi.encodePacked("ROLE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER_ADMIN"));
+  bytes32 public constant LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID =
+    keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_MASTER"));
+  bytes32 public constant LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID =
+    keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER"));
+  bytes32 public constant LIVELY_PROFILE_ANY_TYPE_ID = keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_ANY"));
+  bytes32 public constant LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID =
+    keccak256(abi.encodePacked("UNIVERSE.LIVELY_PROFILE"));
+  bytes32 public constant LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID =
+    keccak256(abi.encodePacked("ROLE.LIVELY_PROFILE.LIVELY_MASTER_ADMIN"));
+  bytes32 public constant LIVELY_PROFILE_SYSTEM_MASTER_ADMIN_ROLE_ID =
+    keccak256(abi.encodePacked("ROLE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER_ADMIN"));
 
-
-  function profileCheckAdminAccess(IACLCommons.ProfileEntity storage profileEntity, IACLCommons.FunctionEntity storage functionEntity, bytes32 adminId, bytes32 senderId) external view returns (IProfileACL.ProfileAdminAccessStatus) {
+  function profileCheckAdminAccess(
+    IACLCommons.ProfileEntity storage profileEntity,
+    IACLCommons.FunctionEntity storage functionEntity,
+    bytes32 adminId,
+    bytes32 senderId
+  ) external view returns (IProfileACL.ProfileAdminAccessStatus) {
     return _doProfileCheckAdminAccess(profileEntity, functionEntity, adminId, senderId);
   }
 
-  function profileAgentGetScopeInfo(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId) external view returns (IACLCommons.ScopeType, bytes32) {
+  function profileAgentGetScopeInfo(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId)
+    external
+    view
+    returns (IACLCommons.ScopeType, bytes32)
+  {
     return _doAgentGetScopeInfo(profileEntity, agentId);
   }
 
-  function profileCheckMemberForRoleRegister(IACLCommons.ProfileEntity storage profileEntity, uint16 requestLength, bytes32 senderId) external {
+  function profileCheckMemberForRoleRegister(
+    IACLCommons.ProfileEntity storage profileEntity,
+    uint16 requestLength,
+    bytes32 senderId
+  ) external {
     IACLCommons.ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(senderId);
     require(profileMemberEntity.ba.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
     require(profileEntity.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Profile Updatable");
     unchecked {
-      require(int32(profileMemberEntity.registerLimits.roleRegisterLimit) - int16(requestLength) >= 0, "Illegal Member RoleRegisterLimit");
-      require(int32(profileEntity.registerLimits.roleRegisterLimit) - int16(requestLength) >= 0, "Illegal Profile RoleRegisterLimit");
-      profileMemberEntity.registerLimits.roleRegisterLimit -= requestLength; 
+      require(
+        int32(profileMemberEntity.registerLimits.roleRegisterLimit) - int16(requestLength) >= 0,
+        "Illegal Member RoleRegisterLimit"
+      );
+      require(
+        int32(profileEntity.registerLimits.roleRegisterLimit) - int16(requestLength) >= 0,
+        "Illegal Profile RoleRegisterLimit"
+      );
+      profileMemberEntity.registerLimits.roleRegisterLimit -= requestLength;
       profileEntity.registerLimits.roleRegisterLimit -= requestLength;
     }
   }
 
-  function profileCheckMemberForPolicyRegister(IACLCommons.ProfileEntity storage profileEntity, uint16 requestLength, bytes32 senderId) external {
+  function profileCheckMemberForPolicyRegister(
+    IACLCommons.ProfileEntity storage profileEntity,
+    uint16 requestLength,
+    bytes32 senderId
+  ) external {
     // check profile and type limitations and update it
     IACLCommons.ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(senderId);
     require(profileMemberEntity.ba.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
     require(profileEntity.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Profile Updatable");
     unchecked {
-      require(int32(uint32(profileMemberEntity.registerLimits.policyRegisterLimit)) - int16(requestLength) >= 0, "Illegal Member PolicyRegisterLimit");
-      require(int32(uint32(profileEntity.registerLimits.policyRegisterLimit)) - int16(requestLength) >= 0, "Illegal Profile PolicyRegisterLimit");
-      profileMemberEntity.registerLimits.policyRegisterLimit -= requestLength; 
-      profileEntity.registerLimits.policyRegisterLimit -= requestLength;  
+      require(
+        int32(uint32(profileMemberEntity.registerLimits.policyRegisterLimit)) - int16(requestLength) >= 0,
+        "Illegal Member PolicyRegisterLimit"
+      );
+      require(
+        int32(uint32(profileEntity.registerLimits.policyRegisterLimit)) - int16(requestLength) >= 0,
+        "Illegal Profile PolicyRegisterLimit"
+      );
+      profileMemberEntity.registerLimits.policyRegisterLimit -= requestLength;
+      profileEntity.registerLimits.policyRegisterLimit -= requestLength;
     }
   }
 
-  function profileRoleRegister(IProfileRoleManagement.ProfileRoleRegisterRequest calldata request, IACLCommons.ProfileEntity storage profileEntity, IACLCommons.FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId) external returns (bytes32, bytes32) {
+  function profileRoleRegister(
+    IProfileRoleManagement.ProfileRoleRegisterRequest calldata request,
+    IACLCommons.ProfileEntity storage profileEntity,
+    IACLCommons.FunctionEntity storage functionEntity,
+    bytes32 profileId,
+    bytes32 senderId
+  ) external returns (bytes32, bytes32) {
     bytes32 newRoleId = LACLUtils.generateId(request.name);
-    require(profileEntity.agents[newRoleId].atype == IACLCommons.AgentType.NONE, "Already Exist");   
+    require(profileEntity.agents[newRoleId].atype == IACLCommons.AgentType.NONE, "Already Exist");
     require(
-      request.typeId != LIVELY_VERSE_ANONYMOUS_TYPE_ID && 
-      request.typeId != LIVELY_PROFILE_ANY_TYPE_ID,
+      request.typeId != LIVELY_VERSE_ANONYMOUS_TYPE_ID && request.typeId != LIVELY_PROFILE_ANY_TYPE_ID,
       "Illegal Type"
     );
 
@@ -87,17 +126,27 @@ library LProfileRolePolicy {
     IACLCommons.TypeEntity storage typeEntity = profileEntity.profileTypeReadSlot(request.typeId);
     require(typeEntity.ba.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Type Updatable");
     require(typeEntity.roles.length() < typeEntity.roleLimit, "Illegal Register");
-    
+
     {
       // check access
-      IProfileACL.ProfileAdminAccessStatus status = _doProfileCheckAdminAccess(profileEntity, functionEntity, typeEntity.ba.adminId, senderId);
-      if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
+      IProfileACL.ProfileAdminAccessStatus status = _doProfileCheckAdminAccess(
+        profileEntity,
+        functionEntity,
+        typeEntity.ba.adminId,
+        senderId
+      );
+      if (status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
     }
-  
+
     // check and get requested scope type
-    IACLCommons.ScopeType requestScopeType = _doProfileCheckRoleRequestScope(profileEntity, request.scopeId, typeEntity.scopeId, profileId);
-    
-    // add role to type 
+    IACLCommons.ScopeType requestScopeType = _doProfileCheckRoleRequestScope(
+      profileEntity,
+      request.scopeId,
+      typeEntity.scopeId,
+      profileId
+    );
+
+    // add role to type
     typeEntity.roles.add(newRoleId);
 
     // create role entity
@@ -107,19 +156,40 @@ library LProfileRolePolicy {
     newRole.ba.alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
     newRole.name = request.name;
     newRole.scopeId = request.scopeId;
-    newRole.memberLimit = request.memberLimit >= 0 ? uint24(uint32(request.memberLimit)) : profileEntity.limits.memberLimit;
+    newRole.memberLimit = request.memberLimit >= 0
+      ? uint24(uint32(request.memberLimit))
+      : profileEntity.limits.memberLimit;
     newRole.typeId = request.typeId;
-    newRole.ba.adminId = _doProfileGetRoleAdmin(profileEntity, requestScopeType, typeEntity.ba.adminId, request.scopeId, request.adminId, profileId);
+    newRole.ba.adminId = _doProfileGetRoleAdmin(
+      profileEntity,
+      requestScopeType,
+      typeEntity.ba.adminId,
+      request.scopeId,
+      request.adminId,
+      profileId
+    );
 
     return (newRoleId, newRole.ba.adminId);
   }
 
-  function profilePolicyRegister(IACLCommons.ProfileEntity storage profileEntity, IProfilePolicyManagement.ProfilePolicyRegisterRequest calldata request, bytes32 profileId, IACLCommons.ScopeType senderScopeType, bytes32 senderScopeId) external returns (bytes32){
+  function profilePolicyRegister(
+    IACLCommons.ProfileEntity storage profileEntity,
+    IProfilePolicyManagement.ProfilePolicyRegisterRequest calldata request,
+    bytes32 profileId,
+    IACLCommons.ScopeType senderScopeType,
+    bytes32 senderScopeId
+  ) external returns (bytes32) {
     bytes32 newPolicyId = LACLUtils.generateId(request.name);
-    require(profileEntity.policies[newPolicyId].acstat == IACLCommons.ActivityStatus.NONE , "Already Exist");
-    
+    require(profileEntity.policies[newPolicyId].acstat == IACLCommons.ActivityStatus.NONE, "Already Exist");
+
     // // checking requested type scope
-    IACLCommons.BaseScope storage requestedScope = _doProfileGetAndCheckRequestScope(profileEntity, request.scopeId, senderScopeId, senderScopeType, profileId);
+    IACLCommons.BaseScope storage requestedScope = _doProfileGetAndCheckRequestScope(
+      profileEntity,
+      request.scopeId,
+      senderScopeId,
+      senderScopeType,
+      profileId
+    );
 
     // create policy entity
     IACLCommons.PolicyEntity storage policyEntity = profileEntity.policies[newPolicyId];
@@ -129,22 +199,49 @@ library LProfileRolePolicy {
     policyEntity.alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
     policyEntity.name = request.name;
     policyEntity.scopeId = request.scopeId;
-    policyEntity.roleLimit = request.roleLimit >= 0 ? uint16(uint24(request.roleLimit)) : profileEntity.limits.policyRoleLimit;
-    policyEntity.adminId = _doProfileGetPolicyAdmin(profileEntity, requestedScope.stype, requestedScope.adminId, request.scopeId, request.adminId, profileId);
+    policyEntity.roleLimit = request.roleLimit >= 0
+      ? uint16(uint24(request.roleLimit))
+      : profileEntity.limits.policyRoleLimit;
+    policyEntity.adminId = _doProfileGetPolicyAdmin(
+      profileEntity,
+      requestedScope.stype,
+      requestedScope.adminId,
+      request.scopeId,
+      request.adminId,
+      profileId
+    );
     return newPolicyId;
   }
 
-  function profileGetPolicyAdmin(IACLCommons.ProfileEntity storage profileEntity, IACLCommons.ScopeType requestScopeType, bytes32 requestScopeAdmin, bytes32 scopeId, bytes32 adminId, bytes32 profileId) external view returns (bytes32 policyAdminId) {
+  function profileGetPolicyAdmin(
+    IACLCommons.ProfileEntity storage profileEntity,
+    IACLCommons.ScopeType requestScopeType,
+    bytes32 requestScopeAdmin,
+    bytes32 scopeId,
+    bytes32 adminId,
+    bytes32 profileId
+  ) external view returns (bytes32 policyAdminId) {
     return _doProfileGetPolicyAdmin(profileEntity, requestScopeType, requestScopeAdmin, scopeId, adminId, profileId);
   }
 
-  function profilePolicyUpdateScope(IACLCommons.ProfileEntity storage profileEntity, IProfilePolicyManagement.ProfileUpdateScopeRequest calldata request, IACLCommons.FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId) external {
+  function profilePolicyUpdateScope(
+    IACLCommons.ProfileEntity storage profileEntity,
+    IProfilePolicyManagement.ProfileUpdateScopeRequest calldata request,
+    IACLCommons.FunctionEntity storage functionEntity,
+    bytes32 profileId,
+    bytes32 senderId
+  ) external {
     IACLCommons.ScopeType senderScopeType;
     bytes32 senderScopeId;
-    IACLCommons.PolicyEntity storage policyEntity = _doProfileGetPolicyAndCheckAdminAccess(profileEntity, functionEntity, request.entityId, senderId);    
+    IACLCommons.PolicyEntity storage policyEntity = _doProfileGetPolicyAndCheckAdminAccess(
+      profileEntity,
+      functionEntity,
+      request.entityId,
+      senderId
+    );
 
     IACLCommons.AgentType adminAgentType = profileEntity.agents[policyEntity.adminId].atype;
-    if(adminAgentType == IACLCommons.AgentType.ROLE) {
+    if (adminAgentType == IACLCommons.AgentType.ROLE) {
       IACLCommons.RoleEntity storage roleEntity = profileEntity.profileRoleReadSlot(policyEntity.adminId);
       senderScopeId = roleEntity.scopeId;
       senderScopeType = profileEntity.scopes[roleEntity.scopeId].stype;
@@ -155,16 +252,32 @@ library LProfileRolePolicy {
       senderScopeType = profileEntity.scopes[memberAgentRole.scopeId].stype;
       senderScopeId = memberAgentRole.scopeId;
     }
-    
-    IACLCommons.BaseScope storage requestScope = _doProfileGetAndCheckRequestScope(profileEntity, request.scopeId, senderScopeId, senderScopeType, profileId);
-    if(policyEntity.roles.length() > 0) {        
+
+    IACLCommons.BaseScope storage requestScope = _doProfileGetAndCheckRequestScope(
+      profileEntity,
+      request.scopeId,
+      senderScopeId,
+      senderScopeType,
+      profileId
+    );
+    if (policyEntity.roles.length() > 0) {
       require(requestScope.stype > profileEntity.scopes[policyEntity.scopeId].stype, "Illegal ScopeType");
-      require(IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, request.scopeId, policyEntity.scopeId), "Illegal Scope");
-    }    
+      require(
+        IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, request.scopeId, policyEntity.scopeId),
+        "Illegal Scope"
+      );
+    }
     policyEntity.scopeId = request.scopeId;
   }
 
-  function profilePolicyAddRoles(IACLCommons.ProfileEntity storage profileEntity, IACLCommons.PolicyEntity storage policyEntity, bytes32 profileId, bytes32 policyId, bytes32 roleId, IACLCommons.ScopeType policyScopeType) external {
+  function profilePolicyAddRoles(
+    IACLCommons.ProfileEntity storage profileEntity,
+    IACLCommons.PolicyEntity storage policyEntity,
+    bytes32 profileId,
+    bytes32 policyId,
+    bytes32 roleId,
+    IACLCommons.ScopeType policyScopeType
+  ) external {
     require(profileEntity.rolePolicyMap[roleId] == bytes32(0), "Already Exist");
     require(policyEntity.adminId != roleId, "Illegal Role");
     require(policyEntity.roleLimit > policyEntity.roles.length(), "Illegal Limit");
@@ -172,290 +285,408 @@ library LProfileRolePolicy {
 
     IACLCommons.ScopeType roleScopeType = profileEntity.scopes[roleEntity.scopeId].stype;
     require(roleScopeType <= policyScopeType, "Illegal Role ScopeType");
-    if(roleScopeType == policyScopeType) {
+    if (roleScopeType == policyScopeType) {
       require(roleEntity.scopeId == policyEntity.scopeId, "Illegal Role Scope");
     } else {
-      require(IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, policyEntity.scopeId, roleEntity.scopeId), "Illegal Role Scope");
+      require(
+        IProfileACLGenerals(address(this)).profileIsScopesCompatible(
+          profileId,
+          policyEntity.scopeId,
+          roleEntity.scopeId
+        ),
+        "Illegal Role Scope"
+      );
     }
 
     profileEntity.rolePolicyMap[roleId] = policyId;
     policyEntity.roles.add(roleId);
-
   }
 
-  function profilePolicyCheckAdmin(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 policyId, address account) external view returns (bool) {
+  function profilePolicyCheckAdmin(
+    ACLStorage.DataCollection storage data,
+    bytes32 profileId,
+    bytes32 policyId,
+    address account
+  ) external view returns (bool) {
     IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
-    if(profileEntity.acstat == IACLCommons.ActivityStatus.NONE) return false;
-    
+    if (profileEntity.acstat == IACLCommons.ActivityStatus.NONE) return false;
+
     IACLCommons.PolicyEntity storage policyEntity = profileEntity.policies[policyId];
-    if(policyEntity.adminId == bytes32(0)) return false;
-    
+    if (policyEntity.adminId == bytes32(0)) return false;
+
     bytes32 policyAdminId = policyEntity.adminId;
     IACLCommons.AgentType agentType = profileEntity.agents[policyAdminId].atype;
     bytes32 memberId = LACLUtils.accountGenerateId(account);
 
-    if(agentType == IACLCommons.AgentType.ROLE) {
+    if (agentType == IACLCommons.AgentType.ROLE) {
       (IACLCommons.RoleEntity storage roleEntity, bool result) = profileEntity.profileRoleTryReadSlot(policyAdminId);
-      if(!result) return false;
+      if (!result) return false;
 
-      (IACLCommons.TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(roleEntity.typeId);
-      if(!result1) return false;  
+      (IACLCommons.TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(
+        roleEntity.typeId
+      );
+      if (!result1) return false;
 
       return typeEntity.members[memberId] == policyAdminId;
-    
-    } else if(agentType == IACLCommons.AgentType.TYPE) {
+    } else if (agentType == IACLCommons.AgentType.TYPE) {
       (IACLCommons.TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(policyAdminId);
-      if(!result1) return false;  
+      if (!result1) return false;
 
-      return typeEntity.members[memberId] != bytes32(0);  
+      return typeEntity.members[memberId] != bytes32(0);
     }
     return true;
   }
 
-  function profilePolicyGetInfo(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 policyId) external view returns (IProfilePolicyManagement.ProfilePolicyInfo memory) {
+  function profilePolicyGetInfo(
+    ACLStorage.DataCollection storage data,
+    bytes32 profileId,
+    bytes32 policyId
+  ) external view returns (IProfilePolicyManagement.ProfilePolicyInfo memory) {
     IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
-    if(profileEntity.policies[policyId].acstat == IACLCommons.ActivityStatus.NONE || profileEntity.acstat == IACLCommons.ActivityStatus.NONE) {
-      return IProfilePolicyManagement.ProfilePolicyInfo ({
-        adminId: bytes32(0),
-        scopeId: bytes32(0),
-        name: "",
-        roleLimit: 0,
-        roleCount: 0,
-        policyCode: 0,
-        adminType: IACLCommons.AgentType.NONE,
-        scopeType: IACLCommons.ScopeType.NONE,
-        ptype: IACLCommons.PolicyType.UNLOCK, 
-        acstat: IACLCommons.ActivityStatus.NONE, 
-        alstat: IACLCommons.AlterabilityStatus.NONE
-      });
+    if (
+      profileEntity.policies[policyId].acstat == IACLCommons.ActivityStatus.NONE ||
+      profileEntity.acstat == IACLCommons.ActivityStatus.NONE
+    ) {
+      return
+        IProfilePolicyManagement.ProfilePolicyInfo({
+          adminId: bytes32(0),
+          scopeId: bytes32(0),
+          name: "",
+          roleLimit: 0,
+          roleCount: 0,
+          policyCode: 0,
+          adminType: IACLCommons.AgentType.NONE,
+          scopeType: IACLCommons.ScopeType.NONE,
+          ptype: IACLCommons.PolicyType.UNLOCK,
+          acstat: IACLCommons.ActivityStatus.NONE,
+          alstat: IACLCommons.AlterabilityStatus.NONE
+        });
     }
 
-    return IProfilePolicyManagement.ProfilePolicyInfo ({
-      adminId: profileEntity.policies[policyId].adminId,
-      scopeId: profileEntity.policies[policyId].scopeId,
-      name: profileEntity.policies[policyId].name,
-      roleLimit: profileEntity.policies[policyId].roleLimit,
-      roleCount: uint16(profileEntity.policies[policyId].roles.length()),
-      policyCode: profileEntity.policies[policyId].policyCode,
-      adminType: profileEntity.agents[profileEntity.policies[policyId].adminId].atype,
-      scopeType: profileEntity.scopes[profileEntity.policies[policyId].scopeId].stype,
-      ptype: profileEntity.policies[policyId].ptype, 
-      acstat: profileEntity.policies[policyId].acstat, 
-      alstat: profileEntity.policies[policyId].alstat
-    });
+    return
+      IProfilePolicyManagement.ProfilePolicyInfo({
+        adminId: profileEntity.policies[policyId].adminId,
+        scopeId: profileEntity.policies[policyId].scopeId,
+        name: profileEntity.policies[policyId].name,
+        roleLimit: profileEntity.policies[policyId].roleLimit,
+        roleCount: uint16(profileEntity.policies[policyId].roles.length()),
+        policyCode: profileEntity.policies[policyId].policyCode,
+        adminType: profileEntity.agents[profileEntity.policies[policyId].adminId].atype,
+        scopeType: profileEntity.scopes[profileEntity.policies[policyId].scopeId].stype,
+        ptype: profileEntity.policies[policyId].ptype,
+        acstat: profileEntity.policies[policyId].acstat,
+        alstat: profileEntity.policies[policyId].alstat
+      });
   }
 
-  function profilePolicyUpdateAlterabilityStatus(IACLCommons.ProfileEntity storage profileEntity, IProfilePolicyManagement.ProfileUpdateAlterabilityRequest calldata request, IACLCommons.FunctionEntity storage functionEntity, bytes32 senderId) external {
-      IACLCommons.PolicyEntity storage policyEntity = profileEntity.policies[request.entityId];
-      require(policyEntity.adminId != bytes32(0), "Not Found");      
-      IProfileACL.ProfileAdminAccessStatus status = _doProfileCheckAdminAccess(profileEntity, functionEntity, policyEntity.adminId, senderId);
-      if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
-      require(request.alstat != IACLCommons.AlterabilityStatus.NONE, "Illegal Alterability");
-      policyEntity.alstat = request.alstat;
-
+  function profilePolicyUpdateAlterabilityStatus(
+    IACLCommons.ProfileEntity storage profileEntity,
+    IProfilePolicyManagement.ProfileUpdateAlterabilityRequest calldata request,
+    IACLCommons.FunctionEntity storage functionEntity,
+    bytes32 senderId
+  ) external {
+    IACLCommons.PolicyEntity storage policyEntity = profileEntity.policies[request.entityId];
+    require(policyEntity.adminId != bytes32(0), "Not Found");
+    IProfileACL.ProfileAdminAccessStatus status = _doProfileCheckAdminAccess(
+      profileEntity,
+      functionEntity,
+      policyEntity.adminId,
+      senderId
+    );
+    if (status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
+    require(request.alstat != IACLCommons.AlterabilityStatus.NONE, "Illegal Alterability");
+    policyEntity.alstat = request.alstat;
   }
 
   function profileGetPolicyType(uint8 policyCode) external pure returns (IACLCommons.PolicyType) {
     return _doProfileGetPolicyType(policyCode);
   }
 
-  function profileRoleGetInfo(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 roleId) external view returns (IProfileRoleManagement.ProfileRoleInfo memory) {
+  function profileRoleGetInfo(
+    ACLStorage.DataCollection storage data,
+    bytes32 profileId,
+    bytes32 roleId
+  ) external view returns (IProfileRoleManagement.ProfileRoleInfo memory) {
     IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
     (IACLCommons.RoleEntity storage roleEntity, bool result) = profileEntity.profileRoleTryReadSlot(roleId);
-    if(!result || profileEntity.acstat == IACLCommons.ActivityStatus.NONE) {
-      return IProfileRoleManagement.ProfileRoleInfo ({
-        scopeId: bytes32(0),
-        typeId: bytes32(0),
-        adminId: bytes32(0),
-        memberLimit: 0,
-        memberCount: 0,
-        adminType: IACLCommons.AgentType.NONE,
-        atype: IACLCommons.AgentType.NONE,
-        acstat: IACLCommons.ActivityStatus.NONE,
-        alstat: IACLCommons.AlterabilityStatus.NONE,
-        name: ""
-      });
+    if (!result || profileEntity.acstat == IACLCommons.ActivityStatus.NONE) {
+      return
+        IProfileRoleManagement.ProfileRoleInfo({
+          scopeId: bytes32(0),
+          typeId: bytes32(0),
+          adminId: bytes32(0),
+          memberLimit: 0,
+          memberCount: 0,
+          adminType: IACLCommons.AgentType.NONE,
+          atype: IACLCommons.AgentType.NONE,
+          acstat: IACLCommons.ActivityStatus.NONE,
+          alstat: IACLCommons.AlterabilityStatus.NONE,
+          name: ""
+        });
     }
-    return IProfileRoleManagement.ProfileRoleInfo ({
-      scopeId: roleEntity.scopeId,
-      typeId: roleEntity.typeId,
-      adminId: roleEntity.ba.adminId,
-      memberLimit: roleEntity.memberLimit,
-      memberCount: roleEntity.memberCount,
-      adminType: profileEntity.agents[roleEntity.ba.adminId].atype,
-      atype: roleEntity.ba.atype,
-      acstat: roleEntity.ba.acstat,
-      alstat: roleEntity.ba.alstat,
-      name: roleEntity.name
-    });
+    return
+      IProfileRoleManagement.ProfileRoleInfo({
+        scopeId: roleEntity.scopeId,
+        typeId: roleEntity.typeId,
+        adminId: roleEntity.ba.adminId,
+        memberLimit: roleEntity.memberLimit,
+        memberCount: roleEntity.memberCount,
+        adminType: profileEntity.agents[roleEntity.ba.adminId].atype,
+        atype: roleEntity.ba.atype,
+        acstat: roleEntity.ba.acstat,
+        alstat: roleEntity.ba.alstat,
+        name: roleEntity.name
+      });
   }
 
-  function profileRoleHasAccount(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 roleId, address account) external view returns (bool) {
+  function profileRoleHasAccount(
+    ACLStorage.DataCollection storage data,
+    bytes32 profileId,
+    bytes32 roleId,
+    address account
+  ) external view returns (bool) {
     IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
-    if(profileEntity.acstat == IACLCommons.ActivityStatus.NONE) return false;
+    if (profileEntity.acstat == IACLCommons.ActivityStatus.NONE) return false;
     bytes32 memberId = LACLUtils.accountGenerateId(account);
 
     (IACLCommons.RoleEntity storage roleEntity, bool result) = profileEntity.profileRoleTryReadSlot(roleId);
-    if(!result) return false;
+    if (!result) return false;
 
     (IACLCommons.TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(roleEntity.typeId);
-    if(!result1) return false;  
+    if (!result1) return false;
 
     return typeEntity.members[memberId] != bytes32(0);
   }
 
-  function profileRoleCheckAdmin(ACLStorage.DataCollection storage data, bytes32 profileId, bytes32 roleId, address account) external view returns (bool) {
+  function profileRoleCheckAdmin(
+    ACLStorage.DataCollection storage data,
+    bytes32 profileId,
+    bytes32 roleId,
+    address account
+  ) external view returns (bool) {
     IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
-    if(profileEntity.acstat == IACLCommons.ActivityStatus.NONE) return false;
-    if (profileEntity.agents[roleId].atype != IACLCommons.AgentType.ROLE) return false;    
-    
+    if (profileEntity.acstat == IACLCommons.ActivityStatus.NONE) return false;
+    if (profileEntity.agents[roleId].atype != IACLCommons.AgentType.ROLE) return false;
+
     bytes32 roleAdminId = profileEntity.agents[roleId].adminId;
     IACLCommons.AgentType adminAgenType = profileEntity.agents[roleAdminId].atype;
     bytes32 memberId = LACLUtils.accountGenerateId(account);
 
-    if(adminAgenType == IACLCommons.AgentType.ROLE) {
+    if (adminAgenType == IACLCommons.AgentType.ROLE) {
       (IACLCommons.RoleEntity storage roleEntity, bool result) = profileEntity.profileRoleTryReadSlot(roleAdminId);
-      if(!result) return false;
+      if (!result) return false;
 
-      (IACLCommons.TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(roleEntity.typeId);
-      if(!result1) return false;  
+      (IACLCommons.TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(
+        roleEntity.typeId
+      );
+      if (!result1) return false;
 
       return typeEntity.members[memberId] == roleAdminId;
-
-    
-    } else if(adminAgenType == IACLCommons.AgentType.TYPE) {
+    } else if (adminAgenType == IACLCommons.AgentType.TYPE) {
       (IACLCommons.TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(roleAdminId);
-      if(!result1) return false;  
+      if (!result1) return false;
 
-      return typeEntity.members[memberId] != bytes32(0);  
+      return typeEntity.members[memberId] != bytes32(0);
     }
-  
+
     return false;
   }
 
-  function profileRoleUpdateScope(IProfileRoleManagement.ProfileUpdateScopeRequest calldata request, IACLCommons.ProfileEntity storage profileEntity, IACLCommons.FunctionEntity storage functionEntity, bytes32 profileId, bytes32 senderId) external returns (bool) {    
-
-    IACLCommons.RoleEntity storage roleEntity = _doProfileGetRoleEntityAndCheckAdminAccess(profileEntity, functionEntity, request.entityId, senderId);
+  function profileRoleUpdateScope(
+    IProfileRoleManagement.ProfileUpdateScopeRequest calldata request,
+    IACLCommons.ProfileEntity storage profileEntity,
+    IACLCommons.FunctionEntity storage functionEntity,
+    bytes32 profileId,
+    bytes32 senderId
+  ) external returns (bool) {
+    IACLCommons.RoleEntity storage roleEntity = _doProfileGetRoleEntityAndCheckAdminAccess(
+      profileEntity,
+      functionEntity,
+      request.entityId,
+      senderId
+    );
     IACLCommons.TypeEntity storage typeEntity = profileEntity.profileTypeReadSlot(roleEntity.typeId);
     _doProfileCheckRoleRequestScope(profileEntity, request.scopeId, typeEntity.scopeId, profileId);
     IACLCommons.BaseScope storage oldScope = profileEntity.scopes[roleEntity.scopeId];
     require(oldScope.referredByAgent > 0, "Illeagl Referred");
-    unchecked { oldScope.referredByAgent -= 1; }
+    unchecked {
+      oldScope.referredByAgent -= 1;
+    }
     roleEntity.scopeId = request.scopeId;
 
     return true;
   }
 
-  function profileGetRoleEntityAndCheckAdminAccess(IACLCommons.ProfileEntity storage profileEntity, IACLCommons.FunctionEntity storage functionEntity, bytes32 roleId, bytes32 senderId) external view returns (IACLCommons.RoleEntity storage) {
+  function profileGetRoleEntityAndCheckAdminAccess(
+    IACLCommons.ProfileEntity storage profileEntity,
+    IACLCommons.FunctionEntity storage functionEntity,
+    bytes32 roleId,
+    bytes32 senderId
+  ) external view returns (IACLCommons.RoleEntity storage) {
     return _doProfileGetRoleEntityAndCheckAdminAccess(profileEntity, functionEntity, roleId, senderId);
   }
 
-  function updateProfileAccount(ACLStorage.DataCollection storage data, IACLCommons.ProfileMemberEntity storage profileMemberEntity, bytes32 profileId, bytes32 typeId, bool isRevoke) external {
+  function updateProfileAccount(
+    ACLStorage.DataCollection storage data,
+    IACLCommons.ProfileMemberEntity storage profileMemberEntity,
+    bytes32 profileId,
+    bytes32 typeId,
+    bool isRevoke
+  ) external {
     return _updateProfileAccount(data, profileMemberEntity, profileId, typeId, isRevoke);
   }
 
-  function profileGetRoleAdmin(IACLCommons.ProfileEntity storage profileEntity, IACLCommons.ScopeType requestScopeType, bytes32 requestScopeAdmin, bytes32 scopeId, bytes32 adminId, bytes32 profileId) external view returns (bytes32 roleAdminId) {
+  function profileGetRoleAdmin(
+    IACLCommons.ProfileEntity storage profileEntity,
+    IACLCommons.ScopeType requestScopeType,
+    bytes32 requestScopeAdmin,
+    bytes32 scopeId,
+    bytes32 adminId,
+    bytes32 profileId
+  ) external view returns (bytes32 roleAdminId) {
     return _doProfileGetRoleAdmin(profileEntity, requestScopeType, requestScopeAdmin, scopeId, adminId, profileId);
   }
 
-  function _doProfileGetAndCheckRequestScope(IACLCommons.ProfileEntity storage profileEntity, bytes32 requestScopeId, bytes32 senderScopeId, IACLCommons.ScopeType senderScopeType, bytes32 profileId) private view returns (IACLCommons.BaseScope storage){
+  function _doProfileGetAndCheckRequestScope(
+    IACLCommons.ProfileEntity storage profileEntity,
+    bytes32 requestScopeId,
+    bytes32 senderScopeId,
+    IACLCommons.ScopeType senderScopeType,
+    bytes32 profileId
+  ) private view returns (IACLCommons.BaseScope storage) {
     // checking requested type scope
     IACLCommons.BaseScope storage requestedScope = profileEntity.scopes[requestScopeId];
-    require(requestedScope.stype != IACLCommons.ScopeType.NONE , "Scope Not Found");
-    require(requestedScope.acstat > IACLCommons.ActivityStatus.DELETED , "Deleted");
-  
+    require(requestedScope.stype != IACLCommons.ScopeType.NONE, "Scope Not Found");
+    require(requestedScope.acstat > IACLCommons.ActivityStatus.DELETED, "Deleted");
+
     require(requestedScope.stype <= senderScopeType, "Illegal ScopeType");
-    if(requestedScope.stype == senderScopeType) {
+    if (requestedScope.stype == senderScopeType) {
       require(requestScopeId == senderScopeId, "Illegal Scope");
-    } else {        
-      require(IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, senderScopeId, requestScopeId), "Illegal Scope");
-    }      
+    } else {
+      require(
+        IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, senderScopeId, requestScopeId),
+        "Illegal Scope"
+      );
+    }
 
     return requestedScope;
   }
 
-  function _doProfileGetPolicyAndCheckAdminAccess(IACLCommons.ProfileEntity storage profileEntity, IACLCommons.FunctionEntity storage functionEntity, bytes32 policyId, bytes32 memberId) private view returns (IACLCommons.PolicyEntity storage) {
+  function _doProfileGetPolicyAndCheckAdminAccess(
+    IACLCommons.ProfileEntity storage profileEntity,
+    IACLCommons.FunctionEntity storage functionEntity,
+    bytes32 policyId,
+    bytes32 memberId
+  ) private view returns (IACLCommons.PolicyEntity storage) {
     IACLCommons.PolicyEntity storage policyEntity = profileEntity.policies[policyId];
-    require(policyEntity.adminId != bytes32(0), "Not Found");      
+    require(policyEntity.adminId != bytes32(0), "Not Found");
     require(policyEntity.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-    IProfileACL.ProfileAdminAccessStatus status = _doProfileCheckAdminAccess(profileEntity, functionEntity, policyEntity.adminId, memberId);
-    if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
+    IProfileACL.ProfileAdminAccessStatus status = _doProfileCheckAdminAccess(
+      profileEntity,
+      functionEntity,
+      policyEntity.adminId,
+      memberId
+    );
+    if (status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
     return policyEntity;
   }
 
-  function _doProfileGetPolicyAdmin(IACLCommons.ProfileEntity storage profileEntity, IACLCommons.ScopeType requestScopeType, bytes32 requestScopeAdmin, bytes32 scopeId, bytes32 adminId, bytes32 profileId) private view returns (bytes32 policyAdminId) {
-    // checking requested type admin       
-    if(adminId != bytes32(0)) {
+  function _doProfileGetPolicyAdmin(
+    IACLCommons.ProfileEntity storage profileEntity,
+    IACLCommons.ScopeType requestScopeType,
+    bytes32 requestScopeAdmin,
+    bytes32 scopeId,
+    bytes32 adminId,
+    bytes32 profileId
+  ) private view returns (bytes32 policyAdminId) {
+    // checking requested type admin
+    if (adminId != bytes32(0)) {
       require(profileEntity.agents[adminId].atype == IACLCommons.AgentType.ROLE, "Illegal Admin AgentType");
-      (IACLCommons.ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(profileEntity, adminId);
+      (IACLCommons.ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(
+        profileEntity,
+        adminId
+      );
       require(requestScopeType <= requestAdminScopeType, "Illegal Admin ScopeType");
-      if(requestScopeType == requestAdminScopeType) {
+      if (requestScopeType == requestAdminScopeType) {
         require(requestAdminScopeId == scopeId, "Illegal Admin Scope");
       } else {
-        require(IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, requestAdminScopeId, scopeId), "Illegal Admin Scope");
+        require(
+          IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, requestAdminScopeId, scopeId),
+          "Illegal Admin Scope"
+        );
       }
       policyAdminId = adminId;
-
     } else {
       policyAdminId = requestScopeAdmin;
-    }      
+    }
   }
 
   function _doProfileGetPolicyType(uint8 policyCode) private pure returns (IACLCommons.PolicyType) {
-    if(policyCode == 0) {
+    if (policyCode == 0) {
       return IACLCommons.PolicyType.UNLOCK;
-
-    } else if(policyCode <= 63) {
+    } else if (policyCode <= 63) {
       return IACLCommons.PolicyType.SLOCK;
-
-    } else if(policyCode <= 127) {
+    } else if (policyCode <= 127) {
       return IACLCommons.PolicyType.MLOCK;
-
-    } else if(policyCode <= 191) {
+    } else if (policyCode <= 191) {
       return IACLCommons.PolicyType.RLOCK;
-
-    } else if(policyCode <= 254) {
+    } else if (policyCode <= 254) {
       return IACLCommons.PolicyType.HLOCK;
-
     } else {
       return IACLCommons.PolicyType.LOCK;
-    } 
+    }
   }
 
-  function _doProfileGetRoleEntityAndCheckAdminAccess(IACLCommons.ProfileEntity storage profileEntity, IACLCommons.FunctionEntity storage functionEntity, bytes32 roleId, bytes32 senderId) private view returns (IACLCommons.RoleEntity storage) {
+  function _doProfileGetRoleEntityAndCheckAdminAccess(
+    IACLCommons.ProfileEntity storage profileEntity,
+    IACLCommons.FunctionEntity storage functionEntity,
+    bytes32 roleId,
+    bytes32 senderId
+  ) private view returns (IACLCommons.RoleEntity storage) {
     IACLCommons.RoleEntity storage roleEntity = profileEntity.profileRoleReadSlot(roleId);
     require(roleEntity.ba.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Updatable");
 
     // check access admin role
-    IProfileACL.ProfileAdminAccessStatus status = _doProfileCheckAdminAccess(profileEntity, functionEntity, roleEntity.ba.adminId, senderId);
-    if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
+    IProfileACL.ProfileAdminAccessStatus status = _doProfileCheckAdminAccess(
+      profileEntity,
+      functionEntity,
+      roleEntity.ba.adminId,
+      senderId
+    );
+    if (status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
     return roleEntity;
   }
 
-  function _updateProfileAccount(ACLStorage.DataCollection storage data, IACLCommons.ProfileMemberEntity storage profileMemberEntity, bytes32 profileId, bytes32 typeId, bool isRevoke) private {
+  function _updateProfileAccount(
+    ACLStorage.DataCollection storage data,
+    IACLCommons.ProfileMemberEntity storage profileMemberEntity,
+    bytes32 profileId,
+    bytes32 typeId,
+    bool isRevoke
+  ) private {
     IACLCommons.ProfileAccount storage profileAccount = data.profileAccounts[profileMemberEntity.account];
     require(profileAccount.profiles.length > 0, "ProfileAccount Not Found");
     bool findFlag = false;
-    for (uint i = 0; i < profileAccount.profiles.length; i++) {
-      if(profileAccount.profiles[i] == profileId) {
+    for (uint256 i = 0; i < profileAccount.profiles.length; i++) {
+      if (profileAccount.profiles[i] == profileId) {
         findFlag = true;
-        if(!isRevoke) {
-          if((profileMemberEntity.types.contains(LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID) || 
-            profileMemberEntity.types.contains(LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID)) &&
-            (typeId == LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID || typeId == LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID)) 
-          {
-            revert ("Illegal GrantMemberType");
-          }      
-        
-        } else {          
-          if(profileAccount.profiles.length > 1) {
-            if(i < profileAccount.profiles.length - 1)
-              profileAccount.profiles[i] = profileAccount.profiles[profileAccount.profiles.length - 1];                
+        if (!isRevoke) {
+          if (
+            (profileMemberEntity.types.contains(LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID) ||
+              profileMemberEntity.types.contains(LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID)) &&
+            (typeId == LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID || typeId == LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID)
+          ) {
+            revert("Illegal GrantMemberType");
+          }
+        } else {
+          if (profileAccount.profiles.length > 1) {
+            if (i < profileAccount.profiles.length - 1)
+              profileAccount.profiles[i] = profileAccount.profiles[profileAccount.profiles.length - 1];
             profileAccount.profiles.pop();
           } else {
             profileAccount.profiles.pop();
             delete profileAccount.profiles;
-          }          
+          }
         }
         break;
       }
@@ -464,101 +695,137 @@ library LProfileRolePolicy {
     require(findFlag, "Illegal ProfileAccount");
   }
 
-  function _doProfileGetRoleAdmin(IACLCommons.ProfileEntity storage profileEntity, IACLCommons.ScopeType requestScopeType, bytes32 requestScopeAdmin, bytes32 scopeId, bytes32 adminId, bytes32 profileId) private view returns (bytes32 roleAdminId) {
-    // checking requested type admin       
-    if(adminId != bytes32(0)) {
+  function _doProfileGetRoleAdmin(
+    IACLCommons.ProfileEntity storage profileEntity,
+    IACLCommons.ScopeType requestScopeType,
+    bytes32 requestScopeAdmin,
+    bytes32 scopeId,
+    bytes32 adminId,
+    bytes32 profileId
+  ) private view returns (bytes32 roleAdminId) {
+    // checking requested type admin
+    if (adminId != bytes32(0)) {
       require(profileEntity.agents[adminId].atype > IACLCommons.AgentType.MEMBER, "Illegal Admin AgentType");
-      (IACLCommons.ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(profileEntity, adminId);
+      (IACLCommons.ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(
+        profileEntity,
+        adminId
+      );
       require(requestScopeType <= requestAdminScopeType, "Illegal Admin ScopeType");
-      if(requestScopeType == requestAdminScopeType) {
+      if (requestScopeType == requestAdminScopeType) {
         require(requestAdminScopeId == scopeId, "Illegal Admin Scope");
       } else {
-        require(IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, requestAdminScopeId, scopeId), "Illegal Admin Scope");
+        require(
+          IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, requestAdminScopeId, scopeId),
+          "Illegal Admin Scope"
+        );
       }
       roleAdminId = adminId;
-
     } else {
       roleAdminId = requestScopeAdmin;
-    }     
+    }
   }
 
-  function _doProfileCheckRoleRequestScope(IACLCommons.ProfileEntity storage profileEntity, bytes32 requestScopeId, bytes32 typeScopeId, bytes32 profileId) private returns(IACLCommons.ScopeType) {
+  function _doProfileCheckRoleRequestScope(
+    IACLCommons.ProfileEntity storage profileEntity,
+    bytes32 requestScopeId,
+    bytes32 typeScopeId,
+    bytes32 profileId
+  ) private returns (IACLCommons.ScopeType) {
     // checking requested role scope
     IACLCommons.BaseScope storage requestScope = profileEntity.scopes[requestScopeId];
-    require(requestScope.stype != IACLCommons.ScopeType.NONE , "Scope Not Found");
-    require(requestScope.acstat > IACLCommons.ActivityStatus.DELETED , "Scope Deleted");
+    require(requestScope.stype != IACLCommons.ScopeType.NONE, "Scope Not Found");
+    require(requestScope.acstat > IACLCommons.ActivityStatus.DELETED, "Scope Deleted");
 
     // increase referred count to target scope
-    requestScope.referredByAgent +=1;
-    
+    requestScope.referredByAgent += 1;
+
     // checking requested role type scope with role scope
     IACLCommons.ScopeType typeScopeType = profileEntity.scopes[typeScopeId].stype;
     require(typeScopeType >= requestScope.stype, "Illegal ScopeType");
     if (typeScopeType == requestScope.stype) {
       require(typeScopeId == requestScopeId, "Illegal Scope");
     } else {
-      require(IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, typeScopeId, requestScopeId), "Illegal Scope");
+      require(
+        IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, typeScopeId, requestScopeId),
+        "Illegal Scope"
+      );
     }
 
     return requestScope.stype;
   }
 
-  function _doProfileCheckAdminAccess(IACLCommons.ProfileEntity storage profileEntity, IACLCommons.FunctionEntity storage functionEntity, bytes32 adminId, bytes32 senderId) private view returns (IProfileACL.ProfileAdminAccessStatus) {
+  function _doProfileCheckAdminAccess(
+    IACLCommons.ProfileEntity storage profileEntity,
+    IACLCommons.FunctionEntity storage functionEntity,
+    bytes32 adminId,
+    bytes32 senderId
+  ) private view returns (IProfileACL.ProfileAdminAccessStatus) {
     // owners always access to all entities to modify those
-    if(profileEntity.admins.contains(senderId)) return IProfileACL.ProfileAdminAccessStatus.PERMITTED;
+    if (profileEntity.admins.contains(senderId)) return IProfileACL.ProfileAdminAccessStatus.PERMITTED;
 
     IACLCommons.AgentType adminAgentType = profileEntity.agents[adminId].atype;
-    if(adminAgentType == IACLCommons.AgentType.ROLE) {
+    if (adminAgentType == IACLCommons.AgentType.ROLE) {
       (IACLCommons.RoleEntity storage roleEntity, bool result) = profileEntity.profileRoleTryReadSlot(adminId);
-      if(!result) return IProfileACL.ProfileAdminAccessStatus.ROLE_NOT_FOUND;
-      if(roleEntity.ba.acstat != IACLCommons.ActivityStatus.ENABLED) return IProfileACL.ProfileAdminAccessStatus.ROLE_ACTIVITY_FORBIDDEN;
+      if (!result) return IProfileACL.ProfileAdminAccessStatus.ROLE_NOT_FOUND;
+      if (roleEntity.ba.acstat != IACLCommons.ActivityStatus.ENABLED)
+        return IProfileACL.ProfileAdminAccessStatus.ROLE_ACTIVITY_FORBIDDEN;
 
-      (IACLCommons.TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(roleEntity.typeId);
-      if(!result1) return IProfileACL.ProfileAdminAccessStatus.TYPE_NOT_FOUND;
-      if(typeEntity.ba.acstat != IACLCommons.ActivityStatus.ENABLED) return IProfileACL.ProfileAdminAccessStatus.TYPE_ACTIVITY_FORBIDDEN;
-      
+      (IACLCommons.TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(
+        roleEntity.typeId
+      );
+      if (!result1) return IProfileACL.ProfileAdminAccessStatus.TYPE_NOT_FOUND;
+      if (typeEntity.ba.acstat != IACLCommons.ActivityStatus.ENABLED)
+        return IProfileACL.ProfileAdminAccessStatus.TYPE_ACTIVITY_FORBIDDEN;
+
       if (typeEntity.members[senderId] != adminId) return IProfileACL.ProfileAdminAccessStatus.NOT_PERMITTED;
-      
+
       IACLCommons.PolicyEntity storage policyEntity = profileEntity.policies[profileEntity.rolePolicyMap[adminId]];
-      if(policyEntity.acstat == IACLCommons.ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
-        return IProfileACL.ProfileAdminAccessStatus.POLICY_FORBIDDEN;
+      if (
+        policyEntity.acstat == IACLCommons.ActivityStatus.ENABLED &&
+        policyEntity.policyCode >= functionEntity.policyCode
+      ) return IProfileACL.ProfileAdminAccessStatus.POLICY_FORBIDDEN;
 
       return IProfileACL.ProfileAdminAccessStatus.PERMITTED;
-   
-    } else if(adminAgentType == IACLCommons.AgentType.TYPE) { 
+    } else if (adminAgentType == IACLCommons.AgentType.TYPE) {
       (IACLCommons.TypeEntity storage typeEntity, bool result1) = profileEntity.profileTypeTryReadSlot(adminId);
-      if(!result1) return IProfileACL.ProfileAdminAccessStatus.TYPE_NOT_FOUND;
-      if(typeEntity.ba.acstat != IACLCommons.ActivityStatus.ENABLED) return IProfileACL.ProfileAdminAccessStatus.TYPE_ACTIVITY_FORBIDDEN;
+      if (!result1) return IProfileACL.ProfileAdminAccessStatus.TYPE_NOT_FOUND;
+      if (typeEntity.ba.acstat != IACLCommons.ActivityStatus.ENABLED)
+        return IProfileACL.ProfileAdminAccessStatus.TYPE_ACTIVITY_FORBIDDEN;
 
       bytes32 roleId = typeEntity.members[senderId];
       (IACLCommons.RoleEntity storage roleEntity, bool result2) = profileEntity.profileRoleTryReadSlot(roleId);
-      if(!result2) return IProfileACL.ProfileAdminAccessStatus.ROLE_NOT_FOUND;
-      if(roleEntity.ba.acstat != IACLCommons.ActivityStatus.ENABLED) return IProfileACL.ProfileAdminAccessStatus.ROLE_ACTIVITY_FORBIDDEN;
-      
+      if (!result2) return IProfileACL.ProfileAdminAccessStatus.ROLE_NOT_FOUND;
+      if (roleEntity.ba.acstat != IACLCommons.ActivityStatus.ENABLED)
+        return IProfileACL.ProfileAdminAccessStatus.ROLE_ACTIVITY_FORBIDDEN;
+
       IACLCommons.PolicyEntity storage policyEntity = profileEntity.policies[profileEntity.rolePolicyMap[roleId]];
-      if(policyEntity.acstat == IACLCommons.ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)  
-        return IProfileACL.ProfileAdminAccessStatus.POLICY_FORBIDDEN;
+      if (
+        policyEntity.acstat == IACLCommons.ActivityStatus.ENABLED &&
+        policyEntity.policyCode >= functionEntity.policyCode
+      ) return IProfileACL.ProfileAdminAccessStatus.POLICY_FORBIDDEN;
 
       return IProfileACL.ProfileAdminAccessStatus.PERMITTED;
-    } 
+    }
 
     return IProfileACL.ProfileAdminAccessStatus.NOT_PERMITTED;
   }
 
-  function _doAgentGetScopeInfo(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId) private view returns (IACLCommons.ScopeType, bytes32) {
+  function _doAgentGetScopeInfo(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId)
+    private
+    view
+    returns (IACLCommons.ScopeType, bytes32)
+  {
     IACLCommons.AgentType atype = profileEntity.agents[agentId].atype;
     if (atype == IACLCommons.AgentType.ROLE) {
       IACLCommons.RoleEntity storage roleEntity = profileEntity.profileRoleReadSlot(agentId);
       IACLCommons.BaseScope storage baseScope = profileEntity.scopes[roleEntity.scopeId];
       return (baseScope.stype, roleEntity.scopeId);
-
-    } else if(atype == IACLCommons.AgentType.TYPE) {
+    } else if (atype == IACLCommons.AgentType.TYPE) {
       IACLCommons.TypeEntity storage typeEntity = profileEntity.profileTypeReadSlot(agentId);
       IACLCommons.BaseScope storage baseScope = profileEntity.scopes[typeEntity.scopeId];
       return (baseScope.stype, typeEntity.scopeId);
     }
 
-    return (IACLCommons.ScopeType.NONE, bytes32(0));  
+    return (IACLCommons.ScopeType.NONE, bytes32(0));
   }
-
 }

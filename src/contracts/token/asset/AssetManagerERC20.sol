@@ -51,15 +51,14 @@ contract AssetManagerERC20 is AssetManagerStorageERC20, BaseUUPSProxy, IAssetMan
 
   function registerToken(AssetTokenActionRequest[] calldata requests) external returns (bool) {
     _policyInterceptor(this.registerToken.selector);
-    
-    for (uint i = 0; i < requests.length; i++) {    
+
+    for (uint256 i = 0; i < requests.length; i++) {
       require(!_data.tokensSet.contains(requests[i].tokenId), "Already Registered");
       require(requests[i].assetSignature.length > 0, "Illegal Signature");
 
-      if(!IERC165(requests[i].tokenId).supportsInterface(type(IERC20).interfaceId))
-        revert("Illegal ERC20");
+      if (!IERC165(requests[i].tokenId).supportsInterface(type(IERC20).interfaceId)) revert("Illegal ERC20");
 
-      if(!IERC165(requests[i].assetSubjectId).supportsInterface(type(IAssetEntity).interfaceId))
+      if (!IERC165(requests[i].assetSubjectId).supportsInterface(type(IAssetEntity).interfaceId))
         revert("Illegal IAssetEntity");
 
       string memory tokenName = IERC20(requests[i].tokenId).name();
@@ -77,12 +76,12 @@ contract AssetManagerERC20 is AssetManagerStorageERC20, BaseUUPSProxy, IAssetMan
   function updateToken(AssetTokenActionRequest[] calldata requests) external returns (bool) {
     _policyInterceptor(this.updateToken.selector);
 
-    for (uint i = 0; i < requests.length; i++) {
+    for (uint256 i = 0; i < requests.length; i++) {
       require(_data.tokensSet.contains(requests[i].tokenId), "Not Found");
-    
-      if(!IERC165(requests[i].assetSubjectId).supportsInterface(type(IAssetEntity).interfaceId))
+
+      if (!IERC165(requests[i].assetSubjectId).supportsInterface(type(IAssetEntity).interfaceId))
         revert("Illegal IAssetEntity");
-        
+
       require(requests[i].assetSignature.length > 0, "Illegal Signature");
       _data.tokens[requests[i].tokenId].assetSubjectId = requests[i].assetSubjectId;
       _data.tokens[requests[i].tokenId].assetSignature = requests[i].assetSignature;
@@ -90,11 +89,11 @@ contract AssetManagerERC20 is AssetManagerStorageERC20, BaseUUPSProxy, IAssetMan
     }
     return true;
   }
-  
+
   function createAsset(AssetCreateRequest[] calldata requests) external returns (bool) {
     _policyInterceptor(this.createAsset.selector);
 
-    for (uint i = 0; i < requests.length; i++) {
+    for (uint256 i = 0; i < requests.length; i++) {
       require(bytes(requests[i].assetName).length > 0, "Illegal Name");
       require(bytes(requests[i].assetVersion).length > 0, "Illegal Version");
       require(requests[i].tokenId != address(0), "Illegal TokenId");
@@ -105,7 +104,7 @@ contract AssetManagerERC20 is AssetManagerStorageERC20, BaseUUPSProxy, IAssetMan
       require(
         !tokenData.assets.contains(tokenData.assetSubjectId.predictDeterministicAddress(requests[i].salt)),
         "Already Exists"
-      );    
+      );
 
       IAssetEntity.AssetInitRequest memory initRequest = IAssetEntity.AssetInitRequest({
         contractName: requests[i].assetName,
@@ -122,11 +121,10 @@ contract AssetManagerERC20 is AssetManagerStorageERC20, BaseUUPSProxy, IAssetMan
         signature: tokenData.assetSignature
       });
 
-
-      if(newAsset == address(0)) {
+      if (newAsset == address(0)) {
         newAsset = tokenData.assetSubjectId.cloneDeterministic(requests[i].salt);
-      } 
-      
+      }
+
       IAssetEntity(payable(newAsset)).assetInitialize(initRequest);
       tokenData.assets.add(newAsset);
 
@@ -135,13 +133,12 @@ contract AssetManagerERC20 is AssetManagerStorageERC20, BaseUUPSProxy, IAssetMan
     return true;
   }
 
-
   function registerAsset(AssetActionRequest[] calldata requests) external returns (bool) {
     _policyInterceptor(this.registerAsset.selector);
-    for (uint i = 0; i < requests.length; i++) {      
+    for (uint256 i = 0; i < requests.length; i++) {
       require(requests[i].assetId != address(0), "Illegal AssetId");
 
-      if(!IERC165(requests[i].assetId).supportsInterface(type(IAssetEntity).interfaceId))
+      if (!IERC165(requests[i].assetId).supportsInterface(type(IAssetEntity).interfaceId))
         revert("Illegal IAssetEntity");
 
       require(_data.tokensSet.contains(requests[i].tokenId), "Not Found");
@@ -158,9 +155,9 @@ contract AssetManagerERC20 is AssetManagerStorageERC20, BaseUUPSProxy, IAssetMan
     return true;
   }
 
-function removeAsset(AssetActionRequest[] calldata requests) external returns (bool) {
+  function removeAsset(AssetActionRequest[] calldata requests) external returns (bool) {
     _policyInterceptor(this.removeAsset.selector);
-    for (uint i = 0; i < requests.length; i++) {
+    for (uint256 i = 0; i < requests.length; i++) {
       require(requests[i].assetId != address(0), "Illegal AssetId");
       require(_data.tokensSet.contains(requests[i].tokenId), "TokenId Not Found");
 
@@ -178,10 +175,10 @@ function removeAsset(AssetActionRequest[] calldata requests) external returns (b
 
   function setSafeModeAssets(AssetTokenSafeModeRequest[] calldata requests) external returns (bool) {
     _policyInterceptor(this.setSafeModeAssets.selector);
-    for (uint i = 0; i < requests.length; i++) {
+    for (uint256 i = 0; i < requests.length; i++) {
       require(_data.tokensSet.contains(requests[i].tokenId), "Not Found");
       TokenData storage tokenData = _data.tokens[requests[i].tokenId];
-      for (uint j = 0; j < tokenData.assets.length(); j++) {
+      for (uint256 j = 0; j < tokenData.assets.length(); j++) {
         IAssetEntity(tokenData.assets.at(j)).assetSetSafeMode(requests[i].status);
       }
     }
@@ -198,13 +195,13 @@ function removeAsset(AssetActionRequest[] calldata requests) external returns (b
 
   function getTokenInfo(address tokenId) external view returns (TokenInfo memory) {
     TokenData storage tokenData = _data.tokens[tokenId];
-    return TokenInfo({
-      assetSubjectId: tokenData.assetSubjectId,
-      assets: tokenData.assets.values(),
-      assetSignature: tokenData.assetSignature
-    });
+    return
+      TokenInfo({
+        assetSubjectId: tokenData.assetSubjectId,
+        assets: tokenData.assets.values(),
+        assetSignature: tokenData.assetSignature
+      });
   }
-
 
   function isAssetExists(address assetId) external view returns (bool) {
     return _data.tokens[IAssetEntity(assetId).assetToken()].assets.contains(assetId);

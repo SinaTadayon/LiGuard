@@ -9,7 +9,7 @@ pragma solidity 0.8.17;
  * @dev
  *
  */
-abstract contract Message {  
+abstract contract Message {
   function _msgSender() internal view virtual returns (address) {
     return msg.sender;
   }

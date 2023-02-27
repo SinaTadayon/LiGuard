@@ -12,7 +12,6 @@ import "./IBaseProxy.sol";
  *
  */
 interface IProxy is IBaseProxy {
-
   /**
    * @dev Emitted when the admin account has changed.
    */

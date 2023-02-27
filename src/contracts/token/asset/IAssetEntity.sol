@@ -44,7 +44,7 @@ interface IAssetEntity {
     string version;
     address token;
     address accessControl;
-    uint16  initVersion;
+    uint16 initVersion;
     AssetType atype;
     AssetSafeModeStatus status;
   }
@@ -75,9 +75,9 @@ interface IAssetEntity {
 
   function assetAccessControl() external view returns (address);
 
-  function assetInitVersion() external view returns (uint16); 
+  function assetInitVersion() external view returns (uint16);
 
-  function assetBalance() external view returns (uint256); 
+  function assetBalance() external view returns (uint256);
 
-  function assetInfo() external view returns (AssetInfo memory); 
+  function assetInfo() external view returns (AssetInfo memory);
 }

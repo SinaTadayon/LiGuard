@@ -11,10 +11,9 @@ import "../IACLCommons.sol";
  * @dev
  *
  */
-interface ITypeManagement is IACLCommons{
-
+interface ITypeManagement is IACLCommons {
   struct TypeRegisterRequest {
-    bytes32 adminId;          
+    bytes32 adminId;
     bytes32 scopeId;
     int24 roleLimit;
     ActivityStatus acstat;
@@ -39,12 +38,7 @@ interface ITypeManagement is IACLCommons{
     string name;
   }
 
-  event TypeRegistered(
-    address indexed sender,
-    bytes32 indexed typeId,
-    bytes32 indexed scopeId,
-    bytes32 adminId
-  );
+  event TypeRegistered(address indexed sender, bytes32 indexed typeId, bytes32 indexed scopeId, bytes32 adminId);
 
   event TypeActivityUpdated(address indexed sender, bytes32 indexed typeId, ActivityStatus acstat);
 
@@ -56,17 +50,30 @@ interface ITypeManagement is IACLCommons{
 
   event TypeAdminUpdated(address indexed sender, bytes32 indexed typeId, bytes32 indexed adminId);
 
-  function typeRegister(MemberSignature calldata memberSign, TypeRegisterRequest[] calldata requests) external returns (bool);
+  function typeRegister(MemberSignature calldata memberSign, TypeRegisterRequest[] calldata requests)
+    external
+    returns (bool);
 
-  function typeUpdateAdmin(MemberSignature calldata memberSign, UpdateAdminRequest[] calldata requests) external returns (bool);
+  function typeUpdateAdmin(MemberSignature calldata memberSign, UpdateAdminRequest[] calldata requests)
+    external
+    returns (bool);
 
-  function typeUpdateScope(MemberSignature calldata memberSign, UpdateScopeRequest[] calldata requests) external returns (bool);  
+  function typeUpdateScope(MemberSignature calldata memberSign, UpdateScopeRequest[] calldata requests)
+    external
+    returns (bool);
 
-  function typeUpdateActivityStatus(MemberSignature calldata memberSign, UpdateActivityRequest[] calldata requests) external returns (bool);
+  function typeUpdateActivityStatus(MemberSignature calldata memberSign, UpdateActivityRequest[] calldata requests)
+    external
+    returns (bool);
 
-  function typeUpdateAlterabilityStatus(MemberSignature calldata memberSign, UpdateAlterabilityRequest[] calldata requests) external returns (bool);
+  function typeUpdateAlterabilityStatus(
+    MemberSignature calldata memberSign,
+    UpdateAlterabilityRequest[] calldata requests
+  ) external returns (bool);
 
-  function typeUpdateRoleLimit(MemberSignature calldata memberSign, TypeUpdateRoleLimitRequest[] calldata requests) external returns (bool);
+  function typeUpdateRoleLimit(MemberSignature calldata memberSign, TypeUpdateRoleLimitRequest[] calldata requests)
+    external
+    returns (bool);
 
   function typeCheckId(bytes32 typeId) external view returns (bool);
 

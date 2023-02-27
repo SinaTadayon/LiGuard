@@ -13,7 +13,6 @@ pragma solidity 0.8.17;
 import "../IACLCommons.sol";
 
 interface IDomainManagement is IACLCommons {
-
   struct DomainRegisterRequest {
     bytes32 adminId;
     int24 realmLimit;
@@ -37,7 +36,7 @@ interface IDomainManagement is IACLCommons {
     bytes32 adminId;
     bytes32 universeId;
     uint16 realmLimit;
-    uint16 realmCount;    
+    uint16 realmCount;
     uint32 referredByAgent;
     ScopeType stype;
     AgentType adminType;
@@ -46,14 +45,15 @@ interface IDomainManagement is IACLCommons {
     string name;
   }
 
-  event DomainRegistered(
-    address indexed sender, 
+  event DomainRegistered(address indexed sender, bytes32 indexed domainId, bytes32 indexed adminId);
+
+  event DomainRealmMoved(
+    address indexed sender,
     bytes32 indexed domainId,
-    bytes32 indexed adminId
+    bytes32 indexed realmId,
+    bytes32 newDomainId
   );
 
-  event DomainRealmMoved(address indexed sender, bytes32 indexed domainId, bytes32 indexed realmId, bytes32 newDomainId);
-  
   event DomainAdminUpdated(address indexed sender, bytes32 indexed domainId, bytes32 indexed adminId);
 
   event DomainRealmLimitUpdated(address indexed sender, bytes32 indexed domainId, uint16 realmLimit);
@@ -62,17 +62,31 @@ interface IDomainManagement is IACLCommons {
 
   event DomainAlterabilityUpdated(address indexed sender, bytes32 indexed domainId, AlterabilityStatus alstat);
 
-  function domainRegister(MemberSignature calldata memberSign, DomainRegisterRequest[] calldata requests) external returns (bool);
+  function domainRegister(MemberSignature calldata memberSign, DomainRegisterRequest[] calldata requests)
+    external
+    returns (bool);
 
-  function domainUpdateActivityStatus(MemberSignature calldata memberSign, UpdateActivityRequest[] calldata requests) external returns (bool);
+  function domainUpdateActivityStatus(MemberSignature calldata memberSign, UpdateActivityRequest[] calldata requests)
+    external
+    returns (bool);
 
-  function domainUpdateAlterabilityStatus(MemberSignature calldata memberSign, UpdateAlterabilityRequest[] calldata requests) external returns (bool);
+  function domainUpdateAlterabilityStatus(
+    MemberSignature calldata memberSign,
+    UpdateAlterabilityRequest[] calldata requests
+  ) external returns (bool);
 
-  function domainUpdateAdmin(MemberSignature calldata memberSign, UpdateAdminRequest[] calldata requests) external returns (bool);
+  function domainUpdateAdmin(MemberSignature calldata memberSign, UpdateAdminRequest[] calldata requests)
+    external
+    returns (bool);
 
-  function domainMoveRealm(MemberSignature calldata memberSign, DomainMoveRealmRequest[] calldata requests) external returns (bool);
+  function domainMoveRealm(MemberSignature calldata memberSign, DomainMoveRealmRequest[] calldata requests)
+    external
+    returns (bool);
 
-  function domainUpdateRealmLimit(MemberSignature calldata memberSign, DomainUpdateRealmLimitRequest[] calldata requests) external returns (bool);
+  function domainUpdateRealmLimit(
+    MemberSignature calldata memberSign,
+    DomainUpdateRealmLimitRequest[] calldata requests
+  ) external returns (bool);
 
   function domainCheckId(bytes32 domainId) external view returns (bool);
 
@@ -89,5 +103,4 @@ interface IDomainManagement is IACLCommons {
   function domainGetRealms(bytes32 domainId) external view returns (bytes32[] memory);
 
   function domainGetInfo(bytes32 domainId) external view returns (DomainInfo memory);
-
 }

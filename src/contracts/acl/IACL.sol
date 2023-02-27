@@ -10,7 +10,6 @@ pragma solidity 0.8.17;
  *
  */
 interface IACL {
-
   enum AuthorizationStatus {
     PERMITTED,
     UNAUTHORIZED,
@@ -24,11 +23,11 @@ interface IACL {
     CONTEXT_NOT_FOUND,
     REALM_NOT_FOUND,
     DOMAIN_NOT_FOUND,
-    MEMBER_ACTIVITY_FORBIDDEN,    
+    MEMBER_ACTIVITY_FORBIDDEN,
     ROLE_ACTIVITY_FORBIDDEN,
-    TYPE_ACTIVITY_FORBIDDEN,    
+    TYPE_ACTIVITY_FORBIDDEN,
     FUNCTION_ACTIVITY_FORBIDDEN,
-    CONTEXT_ACTIVITY_FORBIDDEN,    
+    CONTEXT_ACTIVITY_FORBIDDEN,
     REALM_ACTIVITY_FORBIDDEN,
     DOMAIN_ACTIVITY_FORBIDDEN,
     UNIVERSE_ACTIVITY_FORBIDDEN
@@ -66,7 +65,7 @@ interface IACL {
     ROLE_ACTIVITY_FORBIDDEN,
     TYPE_ACTIVITY_FORBIDDEN
   }
-  
+
   error AdminAccessNotPermitted();
   error AdminAccessPolicyForbidden();
   error AdminAccessRoleNotFound();
@@ -77,14 +76,15 @@ interface IACL {
 
   error SetAdminForbidden(AdminAccessStatus);
 
-
-
   function hasAccess(bytes32 functionId) external returns (AuthorizationStatus);
 
   function hasMemberAccess(bytes32 functionId, bytes32 memberId) external returns (AuthorizationStatus);
 
   function hasCSAccess(address contractId, bytes4 selector) external returns (AuthorizationStatus);
-  
-  function hasAccountAccess(address contractId, bytes4 selector, address accountId) external returns (AuthorizationStatus);
 
+  function hasAccountAccess(
+    address contractId,
+    bytes4 selector,
+    address accountId
+  ) external returns (AuthorizationStatus);
 }

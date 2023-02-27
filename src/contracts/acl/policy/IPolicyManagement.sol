@@ -20,24 +20,24 @@ interface IPolicyManagement is IACLCommons {
     int24 roleLimit;
     ActivityStatus acstat;
     AlterabilityStatus alstat;
-    string name;    
+    string name;
   }
 
   struct PolicyAddRolesRequest {
     bytes32 policyId;
     bytes32[] roles;
   }
-  
+
   struct PolicyRemoveRolesRequest {
     bytes32 policyId;
     bytes32[] roles;
   }
 
-  struct PolicyUpdateCodeRequest { 
+  struct PolicyUpdateCodeRequest {
     bytes32 policyId;
     uint8 policyCode;
   }
-  
+
   struct PolicyUpdateRoleLimitRequest {
     bytes32 policyId;
     uint16 roleLimit;
@@ -81,23 +81,42 @@ interface IPolicyManagement is IACLCommons {
 
   event PolicyScopeUpdated(address indexed sender, bytes32 indexed policyId, bytes32 indexed scopeId);
 
-  function policyRegister(MemberSignature calldata memberSign, PolicyRegisterRequest[] calldata requests) external returns (bool);
+  function policyRegister(MemberSignature calldata memberSign, PolicyRegisterRequest[] calldata requests)
+    external
+    returns (bool);
 
-  function policyAddRoles(MemberSignature calldata memberSign, PolicyAddRolesRequest[] calldata requests) external returns (bool);
+  function policyAddRoles(MemberSignature calldata memberSign, PolicyAddRolesRequest[] calldata requests)
+    external
+    returns (bool);
 
-  function policyRemoveRoles(MemberSignature calldata memberSign, PolicyRemoveRolesRequest[] calldata requests) external returns (bool);
+  function policyRemoveRoles(MemberSignature calldata memberSign, PolicyRemoveRolesRequest[] calldata requests)
+    external
+    returns (bool);
 
-  function policyUpdateCodes(MemberSignature calldata memberSign, PolicyUpdateCodeRequest[] calldata requests) external returns (bool);
+  function policyUpdateCodes(MemberSignature calldata memberSign, PolicyUpdateCodeRequest[] calldata requests)
+    external
+    returns (bool);
 
-  function policyUpdateAdmin(MemberSignature calldata memberSign, UpdateAdminRequest[] calldata requests) external returns (bool); 
+  function policyUpdateAdmin(MemberSignature calldata memberSign, UpdateAdminRequest[] calldata requests)
+    external
+    returns (bool);
 
-  function policyUpdateScope(MemberSignature calldata memberSign, UpdateScopeRequest[] calldata requests) external returns (bool);  
+  function policyUpdateScope(MemberSignature calldata memberSign, UpdateScopeRequest[] calldata requests)
+    external
+    returns (bool);
 
-  function policyUpdateActivityStatus(MemberSignature calldata memberSign, UpdateActivityRequest[] calldata requests) external returns (bool);
+  function policyUpdateActivityStatus(MemberSignature calldata memberSign, UpdateActivityRequest[] calldata requests)
+    external
+    returns (bool);
 
-  function policyUpdateAlterabilityStatus(MemberSignature calldata memberSign, UpdateAlterabilityRequest[] calldata requests) external returns (bool);
+  function policyUpdateAlterabilityStatus(
+    MemberSignature calldata memberSign,
+    UpdateAlterabilityRequest[] calldata requests
+  ) external returns (bool);
 
-  function policyUpdateRoleLimit(MemberSignature calldata memberSign, PolicyUpdateRoleLimitRequest[] calldata requests) external returns (bool);
+  function policyUpdateRoleLimit(MemberSignature calldata memberSign, PolicyUpdateRoleLimitRequest[] calldata requests)
+    external
+    returns (bool);
 
   function policyCheckId(bytes32 policyId) external view returns (bool);
 

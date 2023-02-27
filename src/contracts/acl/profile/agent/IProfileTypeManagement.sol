@@ -12,7 +12,6 @@ import "../../IACLCommons.sol";
  *
  */
 interface IProfileTypeManagement is IACLCommons {
-
   struct ProfileTypeRegisterRequest {
     bytes32 adminId;
     bytes32 scopeId;
@@ -45,37 +44,92 @@ interface IProfileTypeManagement is IACLCommons {
     bytes32 adminId
   );
 
-  event ProfileTypeActivityUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed typeId, ActivityStatus acstat);
+  event ProfileTypeActivityUpdated(
+    address indexed sender,
+    bytes32 indexed profileId,
+    bytes32 indexed typeId,
+    ActivityStatus acstat
+  );
 
-  event ProfileTypeAlterabilityUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed typeId, AlterabilityStatus alstat);
+  event ProfileTypeAlterabilityUpdated(
+    address indexed sender,
+    bytes32 indexed profileId,
+    bytes32 indexed typeId,
+    AlterabilityStatus alstat
+  );
 
-  event ProfileTypeRoleLimitUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed typeId, uint16 roleLimit);
+  event ProfileTypeRoleLimitUpdated(
+    address indexed sender,
+    bytes32 indexed profileId,
+    bytes32 indexed typeId,
+    uint16 roleLimit
+  );
 
-  event ProfileTypeScopeUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed typeId, bytes32 scopeId);
+  event ProfileTypeScopeUpdated(
+    address indexed sender,
+    bytes32 indexed profileId,
+    bytes32 indexed typeId,
+    bytes32 scopeId
+  );
 
-  event ProfileTypeAdminUpdated(address indexed sender, bytes32 indexed profileId, bytes32 indexed typeId, bytes32 adminId);
+  event ProfileTypeAdminUpdated(
+    address indexed sender,
+    bytes32 indexed profileId,
+    bytes32 indexed typeId,
+    bytes32 adminId
+  );
 
-  function profileTypeRegister(ProfileMemberSignature calldata memberSign, ProfileTypeRegisterRequest[] calldata requests) external returns (bool);
+  function profileTypeRegister(
+    ProfileMemberSignature calldata memberSign,
+    ProfileTypeRegisterRequest[] calldata requests
+  ) external returns (bool);
 
-  function profileTypeUpdateAdmin(ProfileMemberSignature calldata memberSign, ProfileUpdateAdminRequest[] calldata requests) external returns (bool);
+  function profileTypeUpdateAdmin(
+    ProfileMemberSignature calldata memberSign,
+    ProfileUpdateAdminRequest[] calldata requests
+  ) external returns (bool);
 
-  function profileTypeUpdateScope(ProfileMemberSignature calldata memberSign, ProfileUpdateScopeRequest[] calldata requests) external returns (bool);
+  function profileTypeUpdateScope(
+    ProfileMemberSignature calldata memberSign,
+    ProfileUpdateScopeRequest[] calldata requests
+  ) external returns (bool);
 
-  function profileTypeUpdateActivityStatus(ProfileMemberSignature calldata memberSign, ProfileUpdateActivityRequest[] calldata requests) external returns (bool);
+  function profileTypeUpdateActivityStatus(
+    ProfileMemberSignature calldata memberSign,
+    ProfileUpdateActivityRequest[] calldata requests
+  ) external returns (bool);
 
-  function profileTypeUpdateAlterabilityStatus(ProfileMemberSignature calldata memberSign, ProfileUpdateAlterabilityRequest[] calldata requests) external returns (bool);
+  function profileTypeUpdateAlterabilityStatus(
+    ProfileMemberSignature calldata memberSign,
+    ProfileUpdateAlterabilityRequest[] calldata requests
+  ) external returns (bool);
 
-  function profileTypeUpdateRoleLimit(ProfileMemberSignature calldata memberSign, ProfileTypeUpdateRoleLimitRequest[] calldata requests) external returns (bool);
+  function profileTypeUpdateRoleLimit(
+    ProfileMemberSignature calldata memberSign,
+    ProfileTypeUpdateRoleLimitRequest[] calldata requests
+  ) external returns (bool);
 
   function profileTypeCheckId(bytes32 profileId, bytes32 typeId) external view returns (bool);
 
   function profileTypeCheckName(bytes32 profileId, string calldata typeName) external view returns (bool);
 
-  function profileTypeCheckAdmin(bytes32 profileId, bytes32 typeId, address account) external view returns (bool);
+  function profileTypeCheckAdmin(
+    bytes32 profileId,
+    bytes32 typeId,
+    address account
+  ) external view returns (bool);
 
-  function profileTypeHasAccount(bytes32 profileId, bytes32 typeId, address account) external view returns (bool);
+  function profileTypeHasAccount(
+    bytes32 profileId,
+    bytes32 typeId,
+    address account
+  ) external view returns (bool);
 
-  function profileTypeHasRole(bytes32 profileId, bytes32 typeId, bytes32 roleId) external view returns (bool);
+  function profileTypeHasRole(
+    bytes32 profileId,
+    bytes32 typeId,
+    bytes32 roleId
+  ) external view returns (bool);
 
   function profileTypeGetRoles(bytes32 profileId, bytes32 typeId) external view returns (bytes32[] memory);
 
