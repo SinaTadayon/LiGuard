@@ -182,7 +182,7 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
       require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
       require(contextEntity.bs.referredByAgent == 0, "Illegal Referred");
 
-      (, bytes32 contextAdminScopeId) = _doAgentGetScopeInfo(realmEntity.bs.adminId);
+      (, bytes32 contextAdminScopeId) = _doAgentGetScopeInfo(contextEntity.bs.adminId);
       require(
         IACLGenerals(address(this)).isScopesCompatible(contextAdminScopeId, requests[i].targetRealmId),
         "Illegal Admin Scope"

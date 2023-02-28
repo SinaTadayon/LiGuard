@@ -551,7 +551,7 @@ contract ProfileRealmManager is ACLStorage, BaseUUPSProxy, IProfileRealmManageme
     require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
     require(contextEntity.bs.referredByAgent == 0, "Illegal Referred");
 
-    (, bytes32 contextAdminScopeId) = _doAgentGetScopeInfo(profileEntity, realmEntity.bs.adminId);
+    (, bytes32 contextAdminScopeId) = _doAgentGetScopeInfo(profileEntity, contextEntity.bs.adminId);
     require(
       IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, contextAdminScopeId, request.targetRealmId),
       "Illegal Admin Scope"
