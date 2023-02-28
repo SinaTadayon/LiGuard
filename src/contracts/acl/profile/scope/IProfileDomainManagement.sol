@@ -86,6 +86,8 @@ interface IProfileDomainManagement is IACLCommons {
     AlterabilityStatus alstat
   );
 
+  event ProfileDomainRemoved(address indexed sender, bytes32 indexed profileId, bytes32 indexed domainId, bool isSoftDeleted);
+
   function profileDomainRegister(
     ProfileMemberSignature calldata memberSign,
     ProfileDomainRegisterRequest[] calldata requests
@@ -115,6 +117,11 @@ interface IProfileDomainManagement is IACLCommons {
     ProfileMemberSignature calldata memberSign,
     ProfileDomainUpdateRealmLimitRequest[] calldata requests
   ) external returns (bool);
+
+  function profileDomainRemove(ProfileMemberSignature calldata memberSign, bytes32[] calldata domains)
+    external
+    returns (bool);
+
 
   function profileDomainCheckId(bytes32 profileId, bytes32 domainId) external view returns (bool);
 

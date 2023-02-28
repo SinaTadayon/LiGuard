@@ -215,7 +215,7 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
   ) external returns (bool) {
     (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(
       memberSign,
-      IContextManagement.contextUpdateFunctionLimit.selector
+      IContextManagement.contextRemove.selector
     );
 
     for (uint256 i = 0; i < contexts.length; i++) {

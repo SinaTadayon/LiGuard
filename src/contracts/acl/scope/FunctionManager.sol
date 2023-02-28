@@ -243,7 +243,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
   function functionRemove(MemberSignature calldata memberSign, FunctionRemoveRequest[] calldata requests) external returns (bool) {
     (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(
       memberSign,
-      IFunctionManagement.functionUpdatePolicyCode.selector
+      IFunctionManagement.functionRemove.selector
     );
 
     for (uint256 i = 0; i < requests.length; i++) {

@@ -214,6 +214,13 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
       
       RealmEntity storage realmEntity = _data.realmReadSlot(requests[i].realmId);
       require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Realm Updatable");
+      require(realmEntity.bs.referredByAgent == 0, "Illeagl Referred");
+
+      bytes32 realmAdminScopeId = _doAgentGetScopeInfo(realmEntity.bs.adminId);
+      require(
+        IACLGenerals(address(this)).isScopesCompatible(realmAdminScopeId, requests[i].targetDomainId),
+        "Illegal Admin Scope"
+      );    
       
       require(targetDomainEntity.realmLimit > targetDomainEntity.realms.length(), "Illegal Move");
       domainEntity.realms.remove(requests[i].realmId);
@@ -245,7 +252,7 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
   function domainRemove(MemberSignature calldata memberSign, bytes32[] calldata domains) external returns (bool) {
     (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(
       memberSign,
-      IDomainManagement.domainUpdateRealmLimit.selector
+      IDomainManagement.domainRemove.selector
     );
 
     for (uint256 i = 0; i < domains.length; i++) {

@@ -79,7 +79,7 @@ library LACLAgentScope {
     if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
 
      // check and get requested scope type
-    IACLCommons.ScopeType requestScopeType = _doRoleCheckUpdateRequestScope(data, request.scopeId, typeEntity.scopeId);
+    IACLCommons.ScopeType requestScopeType = _doRoleCheckRequestScope(data, request.scopeId, typeEntity.scopeId);
 
     // add role to type
     typeEntity.roles.add(newRoleId);
@@ -163,8 +163,8 @@ library LACLAgentScope {
     return requestedScope;
   }
 
-  function checkUpdateRoleRequestScope(ACLStorage.DataCollection storage data, bytes32 requestScopeId, bytes32 typeScopeId) external returns (IACLCommons.ScopeType) { 
-    return _doRoleCheckUpdateRequestScope(data, requestScopeId, typeScopeId);
+  function roleCheckRequestScope(ACLStorage.DataCollection storage data, bytes32 requestScopeId, bytes32 typeScopeId) external returns (IACLCommons.ScopeType) { 
+    return _doRoleCheckRequestScope(data, requestScopeId, typeScopeId);
   }
 
   function _doGetPolicyAndCheckAdminAccess(
@@ -181,7 +181,7 @@ library LACLAgentScope {
     return policyEntity;
   }
 
-   function _doRoleCheckUpdateRequestScope(ACLStorage.DataCollection storage data, bytes32 requestScopeId, bytes32 typeScopeId) private returns (IACLCommons.ScopeType) {
+   function _doRoleCheckRequestScope(ACLStorage.DataCollection storage data, bytes32 requestScopeId, bytes32 typeScopeId) private returns (IACLCommons.ScopeType) {
     // checking requested role scope
     IACLCommons.BaseScope storage requestScope = data.scopes[requestScopeId];
     require(requestScope.stype != IACLCommons.ScopeType.NONE, "Scope Not Found");

@@ -477,6 +477,55 @@ library LProfileCommons {
     return false;
   }
 
+  function updateProfileAccount(
+    ACLStorage.DataCollection storage data,
+    IACLCommons.ProfileMemberEntity storage profileMemberEntity,
+    bytes32 profileId,
+    bytes32 typeId,
+    bool isRevoke
+  ) external {
+    return _updateProfileAccount(data, profileMemberEntity, profileId, typeId, isRevoke);
+  }
+
+   function _updateProfileAccount(
+    ACLStorage.DataCollection storage data,
+    IACLCommons.ProfileMemberEntity storage profileMemberEntity,
+    bytes32 profileId,
+    bytes32 typeId,
+    bool isRevoke
+  ) private {
+    IACLCommons.ProfileAccount storage profileAccount = data.profileAccounts[profileMemberEntity.account];
+    require(profileAccount.profiles.length > 0, "ProfileAccount Not Found");
+    bool findFlag = false;
+    for (uint256 i = 0; i < profileAccount.profiles.length; i++) {
+      if (profileAccount.profiles[i] == profileId) {
+        findFlag = true;
+        if (!isRevoke) {
+          if (
+            (profileMemberEntity.types.contains(LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID) ||
+              profileMemberEntity.types.contains(LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID)) &&
+            (typeId == LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID || typeId == LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID)
+          ) {
+            revert("Illegal GrantMemberType");
+          }
+        } else {
+          if (profileAccount.profiles.length > 1) {
+            if (i < profileAccount.profiles.length - 1)
+              profileAccount.profiles[i] = profileAccount.profiles[profileAccount.profiles.length - 1];
+            profileAccount.profiles.pop();
+          } else {
+            profileAccount.profiles.pop();
+            delete profileAccount.profiles;
+          }
+        }
+        break;
+      }
+    }
+
+    require(findFlag, "Illegal ProfileAccount");
+  }
+
+
   function _doProfileGetAndCheckRequestScope(
     IACLCommons.ProfileEntity storage profileEntity,
     bytes32 requestScopeId,

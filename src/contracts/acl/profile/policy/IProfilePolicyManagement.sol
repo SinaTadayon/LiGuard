@@ -121,6 +121,8 @@ interface IProfilePolicyManagement is IACLCommons {
     bytes32 scopeId
   );
 
+  event ProfilePolicyRemoved(address indexed sender, bytes32 indexed profieId, bytes32 indexed policyId);
+
   function profilePolicyRegister(
     ProfileMemberSignature calldata memberSign,
     ProfilePolicyRegisterRequest[] calldata requests
@@ -165,6 +167,8 @@ interface IProfilePolicyManagement is IACLCommons {
     ProfileMemberSignature calldata memberSign,
     ProfilePolicyUpdateRoleLimitRequest[] calldata requests
   ) external returns (bool);
+
+  function profilePolicyRemove(ProfileMemberSignature calldata memberSign, bytes32[] calldata policies) external returns (bool);
 
   function profilePolicyCheckId(bytes32 profileId, bytes32 policyId) external view returns (bool);
 

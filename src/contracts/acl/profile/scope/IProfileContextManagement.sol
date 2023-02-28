@@ -82,6 +82,8 @@ interface IProfileContextManagement is IACLCommons {
     uint8 functionLimit
   );
 
+  event ProfileContextRemoved(address indexed sender, bytes32 indexed profileId, bytes32 indexed contextId, bool isSoftDelete);
+
   function profileContextRegister(
     ProfileMemberSignature calldata memberSign,
     ProfileContextRegisterRequest[] calldata requests
@@ -106,6 +108,10 @@ interface IProfileContextManagement is IACLCommons {
     ProfileMemberSignature calldata memberSign,
     ProfileContextUpdateFunctionLimitRequest[] calldata requests
   ) external returns (bool);
+
+  function profileContextRemove(ProfileMemberSignature calldata memberSign, bytes32[] calldata contexts)
+    external
+    returns (bool);
 
   function profileContextCheckId(bytes32 profileId, bytes32 contextId) external view returns (bool);
 

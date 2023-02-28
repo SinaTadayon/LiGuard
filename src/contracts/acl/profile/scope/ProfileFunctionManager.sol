@@ -199,12 +199,17 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
       address sender
     ) = _accessPermission(memberSign, IProfileFunctionManagement.profileFunctionUpdateActivityStatus.selector);
     for (uint256 i = 0; i < requests.length; i++) {
-      FunctionEntity storage functionData = _doGetEntityAndCheckAdminAccess(
+      FunctionEntity storage functionData = profileEntity.profileFunctionReadSlot(requests[i].entityId);
+      require(functionData.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
+
+      IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(
         profileEntity,
         functionEntity,
-        requests[i].entityId,
+        functionData.bs.adminId,
         senderId
       );
+      if (status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
+
       require(requests[i].acstat != ActivityStatus.NONE, "Illegal Activity");
       functionData.bs.acstat = requests[i].acstat;
       emit ProfileFunctionActivityUpdated(sender, profileId, requests[i].entityId, requests[i].acstat);
@@ -226,6 +231,7 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
     for (uint256 i = 0; i < requests.length; i++) {
       FunctionEntity storage functionData = profileEntity.profileFunctionReadSlot(requests[i].entityId);
       require(functionData.bs.acstat > ActivityStatus.DELETED, "Function Deleted");
+
       IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(
         profileEntity,
         functionEntity,
@@ -233,6 +239,7 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
         senderId
       );
       if (status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
+      
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       functionData.bs.alstat = requests[i].alstat;
       emit ProfileFunctionAlterabilityUpdated(sender, profileId, requests[i].entityId, requests[i].alstat);
@@ -260,6 +267,50 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
       );
       functionEntityData.policyCode = requests[i].policyCode;
       emit ProfileFunctionPolicyUpdated(sender, profileId, requests[i].functionId, requests[i].policyCode);
+    }
+    return true;
+  }
+
+  function profileFunctionRemove(ProfileMemberSignature calldata memberSign, ProfileFunctionRemoveRequest[] calldata requests) external returns (bool) {
+    (
+      ProfileEntity storage profileEntity,
+      FunctionEntity storage functionEntity,
+      bytes32 profileId,
+      bytes32 senderId,
+      address sender
+    ) = _accessPermission(memberSign, IProfileFunctionManagement.profileFunctionRemove.selector);
+    for (uint256 i = 0; i < requests.length; i++) {
+      FunctionEntity storage functionEntityReq = profileEntity.profileFunctionReadSlot(requests[i].functionId);
+      IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(
+        profileEntity,
+        functionEntity,
+        functionEntityReq.bs.adminId,
+        senderId
+      );
+      if (status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
+
+      if(requests[i].isSoftDelete) {
+        // Note: It's very important to prevent infinity lock state
+        require(functionEntityReq.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
+        functionEntityReq.bs.acstat = ActivityStatus.DELETED;
+        emit ProfileFunctionRemoved(sender, profileId, requests[i].functionId, true);
+
+      } else {
+        require(functionEntityReq.bs.referredByAgent == 0, "Illegal Remove");
+
+        ContextEntity storage contextEntity = profileEntity.profileContextReadSlot(functionEntityReq.contextId);
+        require(contextEntity.bs.alstat == AlterabilityStatus.UPGRADABLE, "Illegal Context Upgradable");
+        contextEntity.functions.remove(requests[i].functionId);
+
+        delete functionEntityReq.bs;
+        delete functionEntityReq.agentId;
+        delete functionEntityReq.contextId;
+        delete functionEntityReq.selector;
+        delete functionEntityReq.policyCode;
+        emit ProfileFunctionRemoved(sender, profileId, requests[i].functionId, false);
+      }      
+
+      emit ProfileFunctionRemoved(sender, profileId, requests[i].functionId, requests[i].isSoftDelete);
     }
     return true;
   }

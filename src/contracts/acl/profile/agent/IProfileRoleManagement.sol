@@ -117,6 +117,8 @@ interface IProfileRoleManagement is IACLCommons {
     AlterabilityStatus alstat
   );
 
+  event ProfileRoleRemoved(address indexed sender, bytes32 indexed profileId, bytes32 indexed roleId);
+
   function profileRoleRegister(
     ProfileMemberSignature calldata memberSign,
     ProfileRoleRegisterRequest[] calldata requests
@@ -156,6 +158,8 @@ interface IProfileRoleManagement is IACLCommons {
     ProfileMemberSignature calldata memberSign,
     ProfileRoleUpdateMemberLimitRequest[] calldata requests
   ) external returns (bool);
+
+  function profileRoleRemove(ProfileMemberSignature calldata memberSign, bytes32[] calldata roles) external returns (bool);
 
   function profileRoleCheckId(bytes32 profileId, bytes32 roleId) external view returns (bool);
 

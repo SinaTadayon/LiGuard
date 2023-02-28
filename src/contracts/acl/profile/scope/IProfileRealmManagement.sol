@@ -88,6 +88,8 @@ interface IProfileRealmManagement is IACLCommons {
     AlterabilityStatus alstat
   );
 
+  event ProfileRealmRemoved(address indexed sender, bytes32 indexed profileId, bytes32 indexed realmId, bool isSoftDeleted);
+
   function profileRealmRegister(
     ProfileMemberSignature calldata memberSign,
     ProfileRealmRegisterRequest[] calldata requests
@@ -117,6 +119,10 @@ interface IProfileRealmManagement is IACLCommons {
     ProfileMemberSignature calldata memberSign,
     ProfileRealmUpdateContextLimitRequest[] calldata requests
   ) external returns (bool);
+
+  function profileRealmRemove(ProfileMemberSignature calldata memberSign, bytes32[] calldata realms)
+    external
+    returns (bool);
 
   function profileRealmCheckId(bytes32 profileId, bytes32 realmId) external view returns (bool);
 

@@ -139,7 +139,7 @@ library LProfileRolePolicy {
     }
 
     // check and get requested scope type
-    IACLCommons.ScopeType requestScopeType = _doProfileCheckRoleRequestScope(
+    IACLCommons.ScopeType requestScopeType = _doProfileRoleCheckRequestScope(
       profileEntity,
       request.scopeId,
       typeEntity.scopeId,
@@ -183,7 +183,7 @@ library LProfileRolePolicy {
     require(profileEntity.policies[newPolicyId].acstat == IACLCommons.ActivityStatus.NONE, "Already Exist");
 
     // // checking requested type scope
-    IACLCommons.BaseScope storage requestedScope = _doProfileGetAndCheckRequestScope(
+    IACLCommons.BaseScope storage requestedScope = _doProfilePolicyCheckRequestScope(
       profileEntity,
       request.scopeId,
       senderScopeId,
@@ -253,20 +253,27 @@ library LProfileRolePolicy {
       senderScopeId = memberAgentRole.scopeId;
     }
 
-    IACLCommons.BaseScope storage requestScope = _doProfileGetAndCheckRequestScope(
+    IACLCommons.BaseScope storage requestScope = _doProfilePolicyCheckRequestScope(
       profileEntity,
       request.scopeId,
       senderScopeId,
       senderScopeType,
       profileId
     );
+    IACLCommons.BaseScope storage currentScope = profileEntity.scopes[policyEntity.scopeId];
     if (policyEntity.roles.length() > 0) {
-      require(requestScope.stype > profileEntity.scopes[policyEntity.scopeId].stype, "Illegal ScopeType");
+      require(requestScope.stype > currentScope.stype, "Illegal ScopeType");
       require(
         IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, request.scopeId, policyEntity.scopeId),
         "Illegal Scope"
       );
     }
+
+    require(currentScope.referredByAgent > 0, "Illeagl Referred");
+    unchecked {
+      currentScope.referredByAgent -= 1;
+    }
+
     policyEntity.scopeId = request.scopeId;
   }
 
@@ -506,7 +513,7 @@ library LProfileRolePolicy {
       senderId
     );
     IACLCommons.TypeEntity storage typeEntity = profileEntity.profileTypeReadSlot(roleEntity.typeId);
-    _doProfileCheckRoleRequestScope(profileEntity, request.scopeId, typeEntity.scopeId, profileId);
+    _doProfileRoleCheckRequestScope(profileEntity, request.scopeId, typeEntity.scopeId, profileId);
     IACLCommons.BaseScope storage oldScope = profileEntity.scopes[roleEntity.scopeId];
     require(oldScope.referredByAgent > 0, "Illeagl Referred");
     unchecked {
@@ -545,31 +552,6 @@ library LProfileRolePolicy {
     bytes32 profileId
   ) external view returns (bytes32 roleAdminId) {
     return _doProfileGetRoleAdmin(profileEntity, requestScopeType, requestScopeAdmin, scopeId, adminId, profileId);
-  }
-
-  function _doProfileGetAndCheckRequestScope(
-    IACLCommons.ProfileEntity storage profileEntity,
-    bytes32 requestScopeId,
-    bytes32 senderScopeId,
-    IACLCommons.ScopeType senderScopeType,
-    bytes32 profileId
-  ) private view returns (IACLCommons.BaseScope storage) {
-    // checking requested type scope
-    IACLCommons.BaseScope storage requestedScope = profileEntity.scopes[requestScopeId];
-    require(requestedScope.stype != IACLCommons.ScopeType.NONE, "Scope Not Found");
-    require(requestedScope.acstat > IACLCommons.ActivityStatus.DELETED, "Deleted");
-
-    require(requestedScope.stype <= senderScopeType, "Illegal ScopeType");
-    if (requestedScope.stype == senderScopeType) {
-      require(requestScopeId == senderScopeId, "Illegal Scope");
-    } else {
-      require(
-        IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, senderScopeId, requestScopeId),
-        "Illegal Scope"
-      );
-    }
-
-    return requestedScope;
   }
 
   function _doProfileGetPolicyAndCheckAdminAccess(
@@ -725,7 +707,7 @@ library LProfileRolePolicy {
     }
   }
 
-  function _doProfileCheckRoleRequestScope(
+  function _doProfileRoleCheckRequestScope(
     IACLCommons.ProfileEntity storage profileEntity,
     bytes32 requestScopeId,
     bytes32 typeScopeId,
@@ -753,6 +735,35 @@ library LProfileRolePolicy {
 
     return requestScope.stype;
   }
+
+  function _doProfilePolicyCheckRequestScope(
+    IACLCommons.ProfileEntity storage profileEntity,
+    bytes32 requestScopeId,
+    bytes32 senderScopeId,
+    IACLCommons.ScopeType senderScopeType,
+    bytes32 profileId
+  ) private returns (IACLCommons.BaseScope storage) {
+    // checking requested type scope
+    IACLCommons.BaseScope storage requestScope = profileEntity.scopes[requestScopeId];
+    require(requestScope.stype != IACLCommons.ScopeType.NONE, "Scope Not Found");
+    require(requestScope.acstat > IACLCommons.ActivityStatus.DELETED, "Deleted");
+
+    // increase referred count to target scope
+    requestScope.referredByAgent += 1;
+
+    require(requestScope.stype <= senderScopeType, "Illegal ScopeType");
+    if (requestScope.stype == senderScopeType) {
+      require(requestScopeId == senderScopeId, "Illegal Scope");
+    } else {
+      require(
+        IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, senderScopeId, requestScopeId),
+        "Illegal Scope"
+      );
+    }
+
+    return requestScope;
+  }
+
 
   function _doProfileCheckAdminAccess(
     IACLCommons.ProfileEntity storage profileEntity,

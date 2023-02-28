@@ -252,8 +252,10 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
     for (uint256 i = 0; i < requests.length; i++) {
       PolicyEntity storage policyEntity = _data.policies[requests[i].id];
       require(policyEntity.adminId != bytes32(0), "Not Found");
+
       IACL.AdminAccessStatus status = _doCheckAdminAccess(policyEntity.adminId, senderId, functionId);
       if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
+      
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       policyEntity.alstat = requests[i].alstat;
       emit PolicyAlterabilityUpdated(sender, requests[i].id, requests[i].alstat);
@@ -281,11 +283,22 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
   function policyRemove(MemberSignature calldata memberSign, bytes32[] calldata policies) external returns (bool) {
     (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(
       memberSign,
-      IPolicyManagement.policyUpdateRoleLimit.selector
+      IPolicyManagement.policyRemove.selector
     );
     for (uint256 i = 0; i < policies.length; i++) {
-      PolicyEntity storage policyEntity = _doGetPolicyAndCheckAdminAccess(policies[i], senderId, functionId);
+      IACLCommons.PolicyEntity storage policyEntity = _data.policies[policies[i]];
+      require(policyEntity.adminId != bytes32(0), "Not Found");
+    
+      IACL.AdminAccessStatus status = _doCheckAdminAccess(policyEntity.adminId, senderId, functionId);
+      if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
+
       require(policyEntity.roles.length() == 0, "Illegal Remove");
+
+      BaseScope storage policyScope = _data.scopes[policyEntity.scopeId];
+      require(policyScope.referredByAgent > 0, "Illeagl Referred");
+      unchecked {
+        policyScope.referredByAgent -= 1;
+      }
 
       delete policyEntity.adminId;
       delete policyEntity.scopeId;

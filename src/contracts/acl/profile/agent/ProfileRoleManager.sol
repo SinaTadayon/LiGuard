@@ -235,6 +235,49 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
     return true;
   }
 
+  function profileRoleRemove(ProfileMemberSignature calldata memberSign, bytes32[] calldata roles) external returns (bool) {
+    (
+      ProfileEntity storage profileEntity,
+      FunctionEntity storage functionEntity,
+      bytes32 profileId,
+      bytes32 senderId,
+      address sender
+    ) = _accessPermission(memberSign, IProfileRoleManagement.profileRoleRemove.selector);
+    for (uint256 i = 0; i < roles.length; i++) {
+      RoleEntity storage roleEntity = profileEntity.profileRoleReadSlot(roles[i]);
+  
+      // check access admin role
+      IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(
+        profileEntity,
+        functionEntity,
+        roleEntity.ba.adminId,
+        senderId
+      );
+      if (status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
+
+      // check type
+      TypeEntity storage typeEntity = profileEntity.profileTypeReadSlot(roleEntity.typeId);
+      require(typeEntity.ba.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Type Updatable");
+      typeEntity.roles.remove(roles[i]);
+
+      BaseScope storage roleScope = profileEntity.scopes[roleEntity.scopeId];
+      require(roleScope.referredByAgent > 0, "Illeagl Referred");
+      unchecked {
+        roleScope.referredByAgent -= 1;
+      }
+
+      delete roleEntity.name;
+      delete roleEntity.memberCount;
+      delete roleEntity.memberLimit;
+      delete roleEntity.typeId;
+      delete roleEntity.scopeId;
+      delete roleEntity.ba;
+
+      emit ProfileRoleRemoved(sender, profileId, roles[i]);
+    }
+    return true;
+  }
+
   function profileRoleCheckId(bytes32 profileId, bytes32 roleId) external view returns (bool) {
     return _data.profiles[profileId].agents[roleId].atype == AgentType.ROLE;
   }

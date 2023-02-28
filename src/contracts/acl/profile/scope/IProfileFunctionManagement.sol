@@ -41,6 +41,11 @@ interface IProfileFunctionManagement is IACLCommons {
     bytes32 agentId;
   }
 
+  struct ProfileFunctionRemoveRequest {
+    bytes32 functionId;
+    bool isSoftDelete;
+  }
+
   struct ProfileFunctionInfo {
     bytes32 adminId;
     bytes32 agentId;
@@ -99,6 +104,8 @@ interface IProfileFunctionManagement is IACLCommons {
     uint8 policyCode
   );
 
+  event ProfileFunctionRemoved(address indexed sender, bytes32 indexed profileId, bytes32 indexed functionId, bool isSoftDeleted);
+
   function profileFunctionRegister(
     ProfileMemberSignature calldata memberSign,
     ProfileFunctionRegisterRequest[] calldata requests
@@ -128,6 +135,10 @@ interface IProfileFunctionManagement is IACLCommons {
     ProfileMemberSignature calldata memberSign,
     ProfileFunctionUpdatePolicyRequest[] calldata requests
   ) external returns (bool);
+
+  function profileFunctionRemove(ProfileMemberSignature calldata memberSign, ProfileFunctionRemoveRequest[] calldata requests)
+    external
+    returns (bool);
 
   function profileFunctionCheckId(bytes32 profileId, bytes32 functionId) external view returns (bool);
 

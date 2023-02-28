@@ -135,12 +135,17 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
       address sender
     ) = _accessPermission(memberSign, IProfileContextManagement.profileContextUpdateActivityStatus.selector);
     for (uint256 i = 0; i < requests.length; i++) {
-      ContextEntity storage contextEntity = _doGetEntityAndCheckAdminAccess(
+      ContextEntity storage contextEntity = profileEntity.profileContextReadSlot(requests[i].entityId);      
+      require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
+
+      IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(
         profileEntity,
         functionEntity,
-        requests[i].entityId,
+        contextEntity.bs.adminId,
         senderId
       );
+      if (status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
+
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
       contextEntity.bs.acstat = requests[i].acstat;
       emit ProfileContextActivityUpdated(sender, profileId, requests[i].entityId, requests[i].acstat);
@@ -161,6 +166,8 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
     ) = _accessPermission(memberSign, IProfileContextManagement.profileContextUpdateAlterabilityStatus.selector);
     for (uint256 i = 0; i < requests.length; i++) {
       ContextEntity storage contextEntity = profileEntity.profileContextReadSlot(requests[i].entityId);
+      require(contextEntity.bs.acstat > ActivityStatus.DELETED, "Context Deleted");
+
       IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(
         profileEntity,
         functionEntity,
@@ -168,6 +175,7 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
         senderId
       );
       if (status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
+      
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       contextEntity.bs.alstat = requests[i].alstat;
       emit ProfileContextAlterabilityUpdated(sender, profileId, requests[i].entityId, requests[i].alstat);
@@ -248,6 +256,47 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
     }
     return true;
   }
+
+  function profileContextRemove(ProfileMemberSignature calldata memberSign, bytes32[] calldata contexts) external returns (bool) {
+    (
+      ProfileEntity storage profileEntity,
+      FunctionEntity storage functionEntity,
+      bytes32 profileId,
+      bytes32 senderId,
+      address sender
+    ) = _accessPermission(memberSign, IProfileContextManagement.profileContextRemove.selector);
+    for (uint256 i = 0; i < contexts.length; i++) {
+      ContextEntity storage contextEntity = profileEntity.profileContextReadSlot(contexts[i]);
+      IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(
+        profileEntity,
+        functionEntity,
+        contextEntity.bs.adminId,
+        senderId
+      );
+      if (status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
+
+      if(contextEntity.bs.referredByAgent == 0) {
+        if(contextEntity.functions.length() == 0) {
+          delete contextEntity.bs;
+          delete contextEntity.realmId;
+          delete contextEntity.contractId;
+          delete contextEntity.functionLimit;
+          delete contextEntity.functions;
+          emit ProfileContextRemoved(sender, profileId, contexts[i], false);
+
+        } else {
+          require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
+          contextEntity.bs.acstat = ActivityStatus.DELETED;
+          emit ProfileContextRemoved(sender, profileId, contexts[i], true);
+        }
+      } else {
+        revert("Illegal Remove");
+      }
+    }
+    return true;
+
+  }
+
 
   function profileContextCheckId(bytes32 profileId, bytes32 contextId) external view returns (bool) {
     return _data.profiles[profileId].scopes[contextId].stype == ScopeType.CONTEXT;
@@ -425,6 +474,7 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
     bytes32 senderId
   ) internal view returns (ContextEntity storage) {
     ContextEntity storage contextEntity = profileEntity.profileContextReadSlot(contextId);
+    require(contextEntity.bs.acstat > ActivityStatus.DELETED, "Context Deleted");
     require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
     IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(
       profileEntity,

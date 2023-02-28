@@ -180,6 +180,13 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
       
       ContextEntity storage contextEntity = _data.contextReadSlot(requests[i].contextId);
       require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
+      require(contextEntity.bs.referredByAgent == 0, "Illegal Referred");
+
+      (, bytes32 contextAdminScopeId) = _doAgentGetScopeInfo(realmEntity.bs.adminId);
+      require(
+        IACLGenerals(address(this)).isScopesCompatible(contextAdminScopeId, requests[i].targetRealmId),
+        "Illegal Admin Scope"
+      );    
 
       require(targetRealmEntity.contextLimit > targetRealmEntity.contexts.length(), "Illegal Move");
       realmEntity.contexts.remove(requests[i].contextId);
@@ -258,7 +265,7 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
   function realmRemove(MemberSignature calldata memberSign, bytes32[] calldata realms) external returns (bool) {
      (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(
       memberSign,
-      IRealmManagement.realmUpdateContextLimit.selector
+      IRealmManagement.realmRemove.selector
     );
 
     for (uint256 i = 0; i < realms.length; i++) {
@@ -284,8 +291,6 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
       } else {
         revert("Illegal Remove");
       }
-
-    
     }
     return true;
   }

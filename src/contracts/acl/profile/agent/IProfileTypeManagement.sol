@@ -79,6 +79,8 @@ interface IProfileTypeManagement is IACLCommons {
     bytes32 adminId
   );
 
+  event ProfileTypeRemoved(address indexed sender, bytes32 indexed profileId, bytes32 indexed typeId);
+
   function profileTypeRegister(
     ProfileMemberSignature calldata memberSign,
     ProfileTypeRegisterRequest[] calldata requests
@@ -108,6 +110,10 @@ interface IProfileTypeManagement is IACLCommons {
     ProfileMemberSignature calldata memberSign,
     ProfileTypeUpdateRoleLimitRequest[] calldata requests
   ) external returns (bool);
+
+  function profileTypeRemove(ProfileMemberSignature calldata memberSign, bytes32[] calldata types)
+    external
+    returns (bool);  
 
   function profileTypeCheckId(bytes32 profileId, bytes32 typeId) external view returns (bool);
 

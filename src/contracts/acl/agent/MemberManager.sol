@@ -175,7 +175,10 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
     );    
 
     for (uint256 i = 0; i < members.length; i++) {
-      MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(members[i], senderId, functionId);
+      MemberEntity storage memberEntity = _data.memberReadSlot(members[i]);
+      IACL.AdminAccessStatus status = _doCheckAdminAccess(memberEntity.ba.adminId, senderId, functionId);
+      if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
+
       for (uint256 j = 0; j < memberEntity.types.length() && j < 16; j++) {
         // check type
         bytes32 typeId = memberEntity.types.at(j);
@@ -186,6 +189,9 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
         bytes32 roleId = typeEntity.members[members[i]];
         RoleEntity storage roleEntity = _data.roleReadSlot(roleId);
         require(roleEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Role Updatable");
+        if (roleId == LACLAgentScope.LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID) {
+          require(roleEntity.memberCount > 1, "Illegal Member Revoke");
+        }
         require(roleEntity.memberCount > 0, "Illegal MemberCount");
         unchecked { roleEntity.memberCount -= 1; }
 

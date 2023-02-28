@@ -296,7 +296,10 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
     );
 
     for (uint256 i = 0; i < roles.length; i++) {      
-      RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(roles[i], senderId, functionId);
+      RoleEntity storage roleEntity = _data.roleReadSlot(roles[i]);
+      IACL.AdminAccessStatus status = _doCheckAdminAccess(roleEntity.ba.adminId, senderId, functionId);
+      if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
+
       require(roleEntity.memberCount == 0, "Illegal MemberCount");
 
       // check type
@@ -468,7 +471,7 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
   }
 
   function _checkUpdateRequestScope(bytes32 requestScopeId, bytes32 typeScopeId) internal returns (ScopeType) {
-    return LACLAgentScope.checkUpdateRoleRequestScope(_data, requestScopeId, typeScopeId);
+    return LACLAgentScope.roleCheckRequestScope(_data, requestScopeId, typeScopeId);    
     // // checking requested role scope
     // BaseScope storage requestScope = _data.scopes[requestScopeId];
     // require(requestScope.stype != ScopeType.NONE, "Scope Not Found");

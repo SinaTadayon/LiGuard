@@ -279,6 +279,48 @@ contract ProfilePolicyManager is ACLStorage, BaseUUPSProxy, IProfilePolicyManage
     return true;
   }
 
+  function profilePolicyRemove(ProfileMemberSignature calldata memberSign, bytes32[] calldata policies) external returns (bool) {
+    (
+      ProfileEntity storage profileEntity,
+      FunctionEntity storage functionEntity,
+      bytes32 profileId,
+      bytes32 senderId,
+      address sender
+    ) = _accessPermission(memberSign, IProfilePolicyManagement.profilePolicyRemove.selector);
+    for (uint256 i = 0; i < policies.length; i++) {
+      PolicyEntity storage policyEntity = profileEntity.policies[policies[i]];
+      require(policyEntity.adminId != bytes32(0), "Not Found");
+      IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(
+        profileEntity,
+        functionEntity,
+        policyEntity.adminId,
+        senderId
+      );
+      if (status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
+
+      require(policyEntity.roles.length() == 0, "Illegal Remove");
+
+      BaseScope storage policyScope = profileEntity.scopes[policyEntity.scopeId];
+      require(policyScope.referredByAgent > 0, "Illeagl Referred");
+      unchecked {
+        policyScope.referredByAgent -= 1;
+      }
+
+      delete policyEntity.adminId;
+      delete policyEntity.scopeId;
+      delete policyEntity.name;
+      delete policyEntity.roleLimit;
+      delete policyEntity.policyCode;
+      delete policyEntity.ptype;
+      delete policyEntity.acstat;
+      delete policyEntity.alstat;
+      delete policyEntity.roles;
+
+      emit ProfilePolicyRemoved(sender, profileId, policies[i]);
+    }
+    return true;
+  }
+
   function profilePolicyCheckId(bytes32 profileId, bytes32 policyId) external view returns (bool) {
     return _data.profiles[profileId].policies[policyId].adminId != bytes32(0);
   }

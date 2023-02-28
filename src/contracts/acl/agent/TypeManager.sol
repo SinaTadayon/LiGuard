@@ -234,11 +234,14 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
   function typeRemove(MemberSignature calldata memberSign, bytes32[] calldata types) external returns (bool) {
     (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(
       memberSign,
-      ITypeManagement.typeUpdateRoleLimit.selector
+      ITypeManagement.typeRemove.selector
     );
 
     for (uint256 i = 0; i < types.length; i++) {
-      TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(types[i], senderId, functionId);
+      TypeEntity storage typeEntity = _data.typeReadSlot(types[i]);          
+      IACL.AdminAccessStatus status = _doCheckAdminAccess(typeEntity.ba.adminId, senderId, functionId);
+      if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
+
       require(typeEntity.roles.length() == 0, "Illegal Remove");
 
       BaseScope storage typeScope = _data.scopes[typeEntity.scopeId];

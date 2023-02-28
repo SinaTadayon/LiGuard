@@ -221,6 +221,43 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
     return true;
   }
 
+  function profileTypeRemove(ProfileMemberSignature calldata memberSign, bytes32[] calldata types) external returns (bool) {
+    (
+      ProfileEntity storage profileEntity,
+      FunctionEntity storage functionEntity,
+      bytes32 profileId,
+      bytes32 senderId,
+      address sender
+    ) = _accessPermission(memberSign, IProfileTypeManagement.profileTypeRemove.selector);
+    for (uint256 i = 0; i < types.length; i++) {
+      TypeEntity storage typeEntity = profileEntity.profileTypeReadSlot(types[i]);
+      IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(
+        profileEntity,
+        functionEntity,
+        typeEntity.ba.adminId,
+        senderId
+      );
+      if (status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
+
+      require(typeEntity.roles.length() == 0, "Illegal Remove");
+
+      BaseScope storage typeScope = _data.scopes[typeEntity.scopeId];
+      require(typeScope.referredByAgent > 0, "Illeagl Referred");
+      unchecked {
+        typeScope.referredByAgent -= 1;
+      }
+
+      delete typeEntity.ba;
+      delete typeEntity.scopeId;
+      delete typeEntity.name;
+      delete typeEntity.roleLimit;
+      delete typeEntity.roles;
+
+      emit ProfileTypeRemoved(sender, profileId, types[i]);
+    }
+    return true;
+  }
+
   function profileTypeCheckId(bytes32 profileId, bytes32 typeId) external view returns (bool) {
     return _data.profiles[profileId].agents[typeId].atype == AgentType.TYPE;
   }
