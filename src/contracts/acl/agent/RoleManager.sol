@@ -293,7 +293,7 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
       IACL.AdminAccessStatus status = _doCheckAdminAccess(roleEntity.ba.adminId, senderId, functionId);
       if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
 
-      require(roleEntity.memberCount == 0, "Illegal MemberCount");
+      require(roleEntity.memberCount == 0, "Illegal Remove");
 
       // check type
       TypeEntity storage typeEntity = _data.typeReadSlot(roleEntity.typeId);

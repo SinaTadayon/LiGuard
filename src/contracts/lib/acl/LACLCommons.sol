@@ -231,6 +231,7 @@ library LACLCommons {
     profileMemberEntity.ba.alstat = IACLCommons.AlterabilityStatus.DISABLED;
     profileEntity.admins.remove(ownerId);
 
+    // remove from profileAccount
     IACLCommons.ProfileAccount storage profileAccount = data.profileAccounts[profileEntity.owner];
     for (uint256 j = 0; j < profileAccount.profiles.length; j++) {
       if (profileAccount.profiles[j] == request.profileId) {

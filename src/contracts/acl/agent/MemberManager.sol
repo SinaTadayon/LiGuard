@@ -90,11 +90,22 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
 
     for (uint256 i = 0; i < requests.length; i++) {
       MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
+      require(!_doRoleHasMember(LACLAgentScope.LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID, requests[i].id) , "Illegal Member");
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
       memberEntity.ba.acstat = requests[i].acstat;
       emit MemberActivityUpdated(sender, requests[i].id, requests[i].acstat);
     }
     return true;
+  }
+
+   function _doRoleHasMember(bytes32 roleId, bytes32 memberId) internal view returns (bool) {
+    (RoleEntity storage roleEntity, bool result) = _data.roleTryReadSlot(roleId);
+    if (!result) return false;
+
+    (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(roleEntity.typeId);
+    if (!result1) return false;
+
+    return typeEntity.members[memberId] == roleId;
   }
 
   function memberUpdateAlterabilityStatus(

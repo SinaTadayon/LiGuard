@@ -136,6 +136,8 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
       address sender
     ) = _accessPermission(memberSign, IProfileRoleManagement.profileRoleUpdateActivityStatus.selector);
     for (uint256 i = 0; i < requests.length; i++) {
+      require(requests[i].entityId != LProfileRolePolicy.LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID, "Illegal Role");
+      
       RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(
         profileEntity,
         functionEntity,
@@ -161,6 +163,8 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
       address sender
     ) = _accessPermission(memberSign, IProfileRoleManagement.profileRoleUpdateAlterabilityStatus.selector);
     for (uint256 i = 0; i < requests.length; i++) {
+      require(requests[i].entityId != LProfileRolePolicy.LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID, "Illegal Role");
+      
       RoleEntity storage roleEntity = profileEntity.profileRoleReadSlot(requests[i].entityId);
       IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(
         profileEntity,
@@ -169,6 +173,7 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
         senderId
       );
       if (status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
+      
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       roleEntity.ba.alstat = requests[i].alstat;
       emit ProfileRoleAlterabilityUpdated(sender, profileId, requests[i].entityId, requests[i].alstat);
@@ -253,7 +258,8 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
         roleEntity.ba.adminId,
         senderId
       );
-      if (status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
+      if (status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);      
+      require(roleEntity.memberCount == 0, "Illegal Remove");
 
       // check type
       TypeEntity storage typeEntity = profileEntity.profileTypeReadSlot(roleEntity.typeId);
@@ -407,7 +413,7 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
       ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(request.members[j]);
       require(profileMemberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
       if (request.roleId == LProfileRolePolicy.LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID) {
-        require(roleEntity.memberCount > 1, "Illegal Admin Revoke");
+        require(request.members[j] != LACLUtils.accountGenerateId(profileEntity.owner), "Illegal Owner Revoke");
       }
 
       require(typeEntity.members[request.members[j]] != bytes32(0), "Not Found");
@@ -426,12 +432,14 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
 
       if (profileMemberEntity.types.length() == 0) {
         _updateProfileAccount(profileId, roleEntity.typeId, profileMemberEntity, true);
+
         delete profileMemberEntity.ba;
         delete profileMemberEntity.callLimit;
         delete profileMemberEntity.typeLimit;
         delete profileMemberEntity.account;
         delete profileMemberEntity.registerLimits;
         delete profileMemberEntity.types;
+
         emit ProfileRoleMemberDeleted(
           sender,
           profileId,
@@ -464,14 +472,15 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
 
     for (uint256 j = 0; j < request.members.length; j++) {
       require(roleEntity.memberCount < roleEntity.memberLimit, "Illegal Grant");
+      if (request.roleId == LProfileRolePolicy.LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID) {
+        require(request.members[j] != LACLUtils.accountGenerateId(profileEntity.owner), "Illegal Owner Revoke");
+      }
+
       ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(request.members[j]);
       if (profileMemberEntity.types.contains(roleEntity.typeId)) {
         {
           bytes32 currentRoleId = typeEntity.members[request.members[j]];
           require(currentRoleId != request.roleId, "Already Exist");
-          if (request.roleId == LProfileRolePolicy.LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID) {
-            require(roleEntity.memberCount > 1, "Illegal Admin Revoke");
-          }
           RoleEntity storage currentRoleEntity = _doGetEntityAndCheckAdminAccess(
             profileEntity,
             functionEntity,

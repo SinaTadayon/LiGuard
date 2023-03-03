@@ -156,12 +156,15 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
       address sender
     ) = _accessPermission(memberSign, IProfileTypeManagement.profileTypeUpdateActivityStatus.selector);
     for (uint256 i = 0; i < requests.length; i++) {
+      require(requests[i].entityId != _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID, "Illegal Type");
+
       TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(
         profileEntity,
         functionEntity,
         requests[i].entityId,
         senderId
       );
+      
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
       typeEntity.ba.acstat = requests[i].acstat;
       emit ProfileTypeActivityUpdated(sender, profileId, requests[i].entityId, requests[i].acstat);
@@ -238,7 +241,6 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
         senderId
       );
       if (status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
-
       require(typeEntity.roles.length() == 0, "Illegal Remove");
 
       BaseScope storage typeScope = _data.scopes[typeEntity.scopeId];
