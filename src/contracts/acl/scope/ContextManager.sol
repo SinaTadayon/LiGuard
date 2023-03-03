@@ -221,24 +221,26 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     for (uint256 i = 0; i < contexts.length; i++) {
       ContextEntity storage contextEntity = _data.contextReadSlot(contexts[i]);      
       IACL.AdminAccessStatus status = _doCheckAdminAccess(contextEntity.bs.adminId, senderId, functionId);
-      if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
+      if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);      
+      if(contextEntity.functions.length() == 0) {
+        require(contextEntity.bs.referredByAgent == 0, "Illegal Remove");
+        
+        // check realm
+        RealmEntity storage realmEntity = _data.realmReadSlot(contextEntity.realmId);
+        require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Realm Updatable");
+        realmEntity.contexts.remove(contexts[i]);
 
-      if(contextEntity.bs.referredByAgent == 0) {
-        if(contextEntity.functions.length() == 0) {
-          delete contextEntity.bs;
-          delete contextEntity.realmId;
-          delete contextEntity.contractId;
-          delete contextEntity.functionLimit;
-          delete contextEntity.functions;
-          emit ContextRemoved(sender, contexts[i], false);
+        delete contextEntity.bs;
+        delete contextEntity.realmId;
+        delete contextEntity.contractId;
+        delete contextEntity.functionLimit;
+        delete contextEntity.functions;
+        emit ContextRemoved(sender, contexts[i], false);
 
-        } else {
-          require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-          contextEntity.bs.acstat = ActivityStatus.DELETED;
-          emit ContextRemoved(sender, contexts[i], true);
-        }
       } else {
-        revert("Illegal Remove");
+        require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
+        contextEntity.bs.acstat = ActivityStatus.DELETED;
+        emit ContextRemoved(sender, contexts[i], true);
       }
     }
     return true;
@@ -379,7 +381,13 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector);
     bytes32 senderId = LACLUtils.accountGenerateId(signer);
     IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
-    if (status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
+    if (status != IACL.AuthorizationStatus.PERMITTED) {
+      if(status == IACL.AuthorizationStatus.CONTEXT_ACTIVITY_FORBIDDEN && IContextManagement.contextUpdateActivityStatus.selector == selector) {
+        return (functionId, senderId, signer);    
+      }
+      LACLUtils.generateAuthorizationError(status);
+    }
+
     return (functionId, senderId, signer);
   }
 

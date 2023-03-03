@@ -238,23 +238,25 @@ contract ProfileDomainManager is ACLStorage, BaseUUPSProxy, IProfileDomainManage
         senderId
       );
       if (status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
+      if(domainEntity.realms.length() == 0) {
+        require(domainEntity.bs.referredByAgent == 0, "Illegal Remove");
+       
+        // check universe
+        UniverseEntity storage universeEntity = profileEntity.profileUniverseReadSlot(domainEntity.universeId);
+        require(universeEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Universe Updatable");
+        universeEntity.domains.remove(domains[i]);
 
-      if(domainEntity.bs.referredByAgent == 0) {
-        if(domainEntity.realms.length() == 0) {
-          delete domainEntity.bs;
-          delete domainEntity.universeId;
-          delete domainEntity.realmLimit;
-          delete domainEntity.name;
-          delete domainEntity.realms;
-          emit ProfileDomainRemoved(sender, profileId, domains[i], false);
-        
-        } else {
-          require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-          domainEntity.bs.acstat = ActivityStatus.DELETED;
-          emit ProfileDomainRemoved(sender, profileId, domains[i], true);
-        }
+        delete domainEntity.bs;
+        delete domainEntity.universeId;
+        delete domainEntity.realmLimit;
+        delete domainEntity.name;
+        delete domainEntity.realms;
+        emit ProfileDomainRemoved(sender, profileId, domains[i], false);
+      
       } else {
-        revert("Illegal Remove");
+        require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
+        domainEntity.bs.acstat = ActivityStatus.DELETED;
+        emit ProfileDomainRemoved(sender, profileId, domains[i], true);
       }
     }
     return true;

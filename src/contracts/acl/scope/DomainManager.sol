@@ -259,23 +259,25 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
       DomainEntity storage domainEntity = _data.domainReadSlot(domains[i]);
       IACL.AdminAccessStatus status = _doCheckAdminAccess(domainEntity.bs.adminId, senderId, functionId);
       if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
+      if(domainEntity.realms.length() == 0) {
+        require(domainEntity.bs.referredByAgent == 0, "Illegal Remove");
 
-      if(domainEntity.bs.referredByAgent == 0) {
-        if(domainEntity.realms.length() == 0) {
-          delete domainEntity.bs;
-          delete domainEntity.universeId;
-          delete domainEntity.realmLimit;
-          delete domainEntity.name;
-          delete domainEntity.realms;
-          emit DomainRemoved(sender, domains[i], false);
-        
-        } else {
-          require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-          domainEntity.bs.acstat = ActivityStatus.DELETED;
-          emit DomainRemoved(sender, domains[i], true);
-        }
+        // check universe
+        UniverseEntity storage universeEntity = _data.universeReadSlot(domainEntity.universeId);
+        require(universeEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Universe Updatable");
+        universeEntity.domains.remove(domains[i]);
+
+        delete domainEntity.bs;
+        delete domainEntity.universeId;
+        delete domainEntity.realmLimit;
+        delete domainEntity.name;
+        delete domainEntity.realms;
+        emit DomainRemoved(sender, domains[i], false);
+      
       } else {
-        revert("Illegal Remove");
+        require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
+        domainEntity.bs.acstat = ActivityStatus.DELETED;
+        emit DomainRemoved(sender, domains[i], true);
       }
     }
 
@@ -427,7 +429,12 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector);
     bytes32 senderId = LACLUtils.accountGenerateId(signer);
     IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
-    if (status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
+    if (status != IACL.AuthorizationStatus.PERMITTED) {
+      if(status == IACL.AuthorizationStatus.DOMAIN_ACTIVITY_FORBIDDEN && IDomainManagement.domainUpdateActivityStatus.selector == selector ) {
+        return (functionId, senderId, signer);    
+      }
+      LACLUtils.generateAuthorizationError(status);
+    }
     return (functionId, senderId, signer);
   }
 

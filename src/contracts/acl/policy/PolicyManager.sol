@@ -186,39 +186,8 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
       memberSign,
       IPolicyManagement.policyUpdateScope.selector
     );
-    // ScopeType senderScopeType;
-    // bytes32 senderScopeId;
     for (uint256 i = 0; i < requests.length; i++) {
-      LACLAgentScope.updatePolicyScope(_data, requests[i], functionId, senderId);
-      // PolicyEntity storage policyEntity = _doGetPolicyAndCheckAdminAccess(requests[i].id, senderId, functionId);
-
-      // AgentType adminAgentType = _data.agents[policyEntity.adminId].atype;
-      // if (adminAgentType == AgentType.ROLE) {
-      //   RoleEntity storage roleEntity = _data.roleReadSlot(policyEntity.adminId);
-      //   senderScopeId = roleEntity.scopeId;
-      //   senderScopeType = _data.scopes[roleEntity.scopeId].stype;
-      // } else {
-      //   TypeEntity storage agentType = _data.typeReadSlot(policyEntity.adminId);
-      //   bytes32 memberRoleId = agentType.members[senderId];
-      //   RoleEntity storage memberAgentRole = _data.roleReadSlot(memberRoleId);
-      //   senderScopeType = _data.scopes[memberAgentRole.scopeId].stype;
-      //   senderScopeId = memberAgentRole.scopeId;
-      // }
-
-      // BaseScope storage requestScope = _getCheckUpdateRequestScope(requests[i].scopeId, senderScopeId, senderScopeType);
-      // BaseScope storage currentScope = _data.scopes[policyEntity.scopeId];
-      // if (policyEntity.roles.length() > 0) {
-      //   require(requestScope.stype > currentScope.stype, "Illegal ScopeType");
-      //   require(
-      //     IACLGenerals(address(this)).isScopesCompatible(requests[i].scopeId, policyEntity.scopeId),
-      //     "Illegal Scope"
-      //   );
-      // }
-      // require(currentScope.referredByAgent > 0, "Illeagl Referred");
-      // unchecked {
-      //   currentScope.referredByAgent -= 1;
-      // }
-      // policyEntity.scopeId = requests[i].scopeId;
+      LACLAgentScope.updatePolicyScope(_data, requests[i], functionId, senderId); 
       emit PolicyScopeUpdated(sender, requests[i].id, requests[i].scopeId);
     }
     return true;

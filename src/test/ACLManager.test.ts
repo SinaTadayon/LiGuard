@@ -74,7 +74,7 @@ import {
   RoleManager,
   RoleManager__factory,
   TypeManager,
-  TypeManager__factory,
+  TypeManager__factory, LACLAgentScope, LACLAgentScope__factory
 } from "../../typechain/types";
 import { InitializedEventObject } from "../../typechain/types/acl/ACLManager";
 import { ACLManagerLibraryAddresses } from "../../typechain/types/factories/acl/ACLManager__factory";
@@ -140,6 +140,7 @@ import { RealmManagerLibraryAddresses } from "../../typechain/types/factories/ac
 import { UniverseManagerLibraryAddresses } from "../../typechain/types/factories/acl/scope/UniverseManger.sol/UniverseManager__factory";
 import { ProfileTypeManagerLibraryAddresses } from "../../typechain/types/factories/acl/profile/agent/ProfileTypeManager__factory";
 import { ProfileUniverseManagerLibraryAddresses } from "../../typechain/types/factories/acl/profile/scope/ProfileUniverseManger.sol/ProfileUniverseManager__factory";
+import { MockContract } from "ethereum-waffle";
 // ethers.utils.keccak256(ethers.utils.toUtf8Bytes("src/contracts/lib/acl/ContextManagementLib.sol:ContextManagementLib")) => 0x0304621006bd13fe54dc5f6b75a37ec856740450109fd223c2bfb60db9095cad => __$0304621006bd13fe54dc5f6b75a37ec856$__ ( library placeholder)
 const { provider, deployMockContract } = waffle;
 
@@ -155,11 +156,13 @@ describe("Lively Guard Tests", function () {
   let userWallet2: Wallet;
   let userWallet3: Wallet;
   let lACLCommons: LACLCommons;
+  let lACLAgentScope: LACLAgentScope;
   let lProfileCommons: LProfileCommons;
   let lProfileRolePolicy: LProfileRolePolicy;
 
   // acl libraries
   let linkCommonLibraryAddresses: unknown;
+  let linkAgentScopeLibraryAddresses: unknown;
 
   // profiles libraries
   let linkProfileCommonLibraryAddresses: unknown;
@@ -292,21 +295,12 @@ describe("Lively Guard Tests", function () {
   let domainManagerDelegateProxyTest: DomainManagerTest;
   let linkLibraryAddressesTest: ACLManagerTestLibraryAddresses;
 
+  let mockTestProxy: MockContract;
+
   this.beforeAll(async () => {
     [livelyAdmin, systemAdmin, user1, user2, user3] = await ethers.getSigners();
     [livelyAdminWallet, systemAdminWallet, userWallet1, userWallet2, userWallet3] = waffle.provider.getWallets();
     networkChainId = await provider.send("eth_chainId", []);
-
-    // console.log(`lively admin address: ${livelyAdminWallet.address}`);
-    // console.log(`system admin address: ${systemAdminWallet.address}`);
-    // console.log(`acl admin address: ${aclAdminWallet.address}`);
-    // console.log(`user1 address: ${userWallet1.address}`);
-    // console.log(`user2 address: ${userWallet2.address}`);
-    // console.log(`user3 address: ${userWallet3.address}`);
-    // adminAddress = await livelyAdmin.getAddress();
-    // let userAddress1 = userWallet1.address;
-    // userAddress2 = await user2.getAddress();
-    // console.log(`livelyAdmin address: ${adminAddress}`);
   });
 
   describe("Libraries Deployments Test", function () {
@@ -321,6 +315,19 @@ describe("Lively Guard Tests", function () {
       expect(lACLCommons.address).not.null;
       expect(await lACLCommons.LIB_NAME()).to.be.equal("LACLCommons");
       expect(await lACLCommons.LIB_VERSION()).to.be.equal("3.0.0");
+    });
+
+    it("Should LACLAgentScope deploy success", async () => {
+      // given
+      const aclFactory = new LACLAgentScope__factory(systemAdmin);
+
+      // when
+      lACLAgentScope = await aclFactory.deploy();
+
+      // then
+      expect(lACLAgentScope.address).not.null;
+      expect(await lACLAgentScope.LIB_NAME()).to.be.equal("LACLAgentScope");
+      expect(await lACLAgentScope.LIB_VERSION()).to.be.equal("3.0.0");
     });
 
     it("Should LProfileCommons deploy success", async () => {
@@ -356,12 +363,16 @@ describe("Lively Guard Tests", function () {
       linkCommonLibraryAddresses = {
         "src/contracts/lib/acl/LACLCommons.sol:LACLCommons": lACLCommons.address,
       };
+
+      linkAgentScopeLibraryAddresses = {
+        "src/contracts/lib/acl/LACLAgentScope.sol:LACLAgentScope": lACLAgentScope.address,
+      }
     });
 
     it("Should MemberManager subject deploy success", async () => {
       // given
       const memberManagerFactory = new MemberManager__factory(
-        <MemberManagerLibraryAddresses>linkCommonLibraryAddresses,
+        <MemberManagerLibraryAddresses>linkAgentScopeLibraryAddresses,
         systemAdmin
       );
 
@@ -375,12 +386,13 @@ describe("Lively Guard Tests", function () {
       expect(await memberManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await memberManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await memberManagerSubject.initVersion()).to.be.equal(0);
+      expect(await memberManagerSubject.getLibrary()).to.be.equal(lACLAgentScope.address);
     });
 
     it("Should RoleManager subject deploy success", async () => {
       // given
       const roleManagerFactory = new RoleManager__factory(
-        <RoleManagerLibraryAddresses>linkCommonLibraryAddresses,
+        <RoleManagerLibraryAddresses>linkAgentScopeLibraryAddresses,
         systemAdmin
       );
 
@@ -394,6 +406,7 @@ describe("Lively Guard Tests", function () {
       expect(await roleManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await roleManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await roleManagerSubject.initVersion()).to.be.equal(0);
+      expect(await roleManagerSubject.getLibrary()).to.be.equal(lACLAgentScope.address);
     });
 
     it("Should TypeManager subject deploy success", async () => {
@@ -413,12 +426,13 @@ describe("Lively Guard Tests", function () {
       expect(await typeManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await typeManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await typeManagerSubject.initVersion()).to.be.equal(0);
+      expect(await typeManagerSubject.getLibrary()).to.be.equal(lACLCommons.address);
     });
 
     it("Should FunctionManager subject deploy success", async () => {
       // given
       const functionManagerFactory = new FunctionManager__factory(
-        <FunctionManagerLibraryAddresses>linkCommonLibraryAddresses,
+        <FunctionManagerLibraryAddresses>linkAgentScopeLibraryAddresses,
         systemAdmin
       );
 
@@ -432,6 +446,7 @@ describe("Lively Guard Tests", function () {
       expect(await functionManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await functionManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await functionManagerSubject.initVersion()).to.be.equal(0);
+      expect(await functionManagerSubject.getLibrary()).to.be.equal(lACLAgentScope.address);
     });
 
     it("Should ContextManager subject deploy success", async () => {
@@ -451,6 +466,7 @@ describe("Lively Guard Tests", function () {
       expect(await contextManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await contextManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await contextManagerSubject.initVersion()).to.be.equal(0);
+      expect(await contextManagerSubject.getLibrary()).to.be.equal(lACLCommons.address);
     });
 
     it("Should RealmManager subject deploy success", async () => {
@@ -470,6 +486,7 @@ describe("Lively Guard Tests", function () {
       expect(await realmManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await realmManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await realmManagerSubject.initVersion()).to.be.equal(0);
+      expect(await realmManagerSubject.getLibrary()).to.be.equal(lACLCommons.address);
     });
 
     it("Should DomainManager subject deploy success", async () => {
@@ -489,6 +506,7 @@ describe("Lively Guard Tests", function () {
       expect(await domainManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await domainManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await domainManagerSubject.initVersion()).to.be.equal(0);
+      expect(await domainManagerSubject.getLibrary()).to.be.equal(lACLCommons.address);
     });
 
     it("Should UniverseManager subject deploy success", async () => {
@@ -508,12 +526,13 @@ describe("Lively Guard Tests", function () {
       expect(await universeManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await universeManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await universeManagerSubject.initVersion()).to.be.equal(0);
+      expect(await universeManagerSubject.getLibrary()).to.be.equal(lACLCommons.address);
     });
 
     it("Should PolicyManager subject deploy success", async () => {
       // given
       const policyManagerFactory = new PolicyManager__factory(
-        <PolicyManagerLibraryAddresses>linkCommonLibraryAddresses,
+        <PolicyManagerLibraryAddresses>linkAgentScopeLibraryAddresses,
         systemAdmin
       );
 
@@ -527,6 +546,7 @@ describe("Lively Guard Tests", function () {
       expect(await policyManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await policyManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await policyManagerSubject.initVersion()).to.be.equal(0);
+      expect(await policyManagerSubject.getLibrary()).to.be.equal(lACLAgentScope.address);
     });
 
     it("Should ProfileManager subject deploy success", async () => {
@@ -594,6 +614,7 @@ describe("Lively Guard Tests", function () {
       expect(await profileMemberManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await profileMemberManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await profileMemberManagerSubject.initVersion()).to.be.equal(0);
+      expect(await profileMemberManagerSubject.getLibrary()).to.be.equal(lProfileCommons.address);
     });
 
     it("Should ProfileRoleManager subject deploy success", async () => {
@@ -613,6 +634,7 @@ describe("Lively Guard Tests", function () {
       expect(await profileRoleManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await profileRoleManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await profileRoleManagerSubject.initVersion()).to.be.equal(0);
+      expect(await profileRoleManagerSubject.getLibrary()).to.be.equal(lProfileRolePolicy.address);
     });
 
     it("Should ProfileTypeManager subject deploy success", async () => {
@@ -632,6 +654,7 @@ describe("Lively Guard Tests", function () {
       expect(await profileTypeManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await profileTypeManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await profileTypeManagerSubject.initVersion()).to.be.equal(0);
+      expect(await profileTypeManagerSubject.getLibrary()).to.be.equal(lProfileCommons.address);
     });
 
     it("Should ProfileFunctionManager subject deploy success", async () => {
@@ -651,6 +674,7 @@ describe("Lively Guard Tests", function () {
       expect(await profileFunctionManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await profileFunctionManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await profileFunctionManagerSubject.initVersion()).to.be.equal(0);
+      expect(await profileFunctionManagerSubject.getLibrary()).to.be.equal(lProfileCommons.address);
     });
 
     it("Should ProfileContextManager subject deploy success", async () => {
@@ -670,6 +694,7 @@ describe("Lively Guard Tests", function () {
       expect(await profileContextManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await profileContextManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await profileContextManagerSubject.initVersion()).to.be.equal(0);
+      expect(await profileContextManagerSubject.getLibrary()).to.be.equal(lProfileCommons.address);
     });
 
     it("Should ProfileRealmManager subject deploy success", async () => {
@@ -689,6 +714,7 @@ describe("Lively Guard Tests", function () {
       expect(await profileRealmManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await profileRealmManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await profileRealmManagerSubject.initVersion()).to.be.equal(0);
+      expect(await profileRealmManagerSubject.getLibrary()).to.be.equal(lProfileCommons.address);
     });
 
     it("Should ProfileDomainManager subject deploy success", async () => {
@@ -708,6 +734,7 @@ describe("Lively Guard Tests", function () {
       expect(await profileDomainManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await profileDomainManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await profileDomainManagerSubject.initVersion()).to.be.equal(0);
+      expect(await profileDomainManagerSubject.getLibrary()).to.be.equal(lProfileCommons.address);
     });
 
     it("Should ProfileUniverseManager subject deploy success", async () => {
@@ -727,6 +754,7 @@ describe("Lively Guard Tests", function () {
       expect(await profileUniverseManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await profileUniverseManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await profileUniverseManagerSubject.initVersion()).to.be.equal(0);
+      expect(await profileUniverseManagerSubject.getLibrary()).to.be.equal(lProfileCommons.address);
     });
 
     it("Should ProfilePolicyManager subject deploy success", async () => {
@@ -746,6 +774,7 @@ describe("Lively Guard Tests", function () {
       expect(await profilePolicyManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await profilePolicyManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await profilePolicyManagerSubject.initVersion()).to.be.equal(0);
+      expect(await profilePolicyManagerSubject.getLibrary()).to.be.equal(lProfileRolePolicy.address);
     });
 
     it("Should ProfileAccessControl subject deploy success", async () => {
@@ -1907,6 +1936,7 @@ describe("Lively Guard Tests", function () {
             memberIface.getSighash("memberUpdateAlterabilityStatus"),
             memberIface.getSighash("memberUpdateAdmin"),
             memberIface.getSighash("memberUpdateGeneralLimit"),
+            memberIface.getSighash("memberRemove"),
             memberIface.getSighash("memberCheckId"),
             memberIface.getSighash("memberCheckAccount"),
             memberIface.getSighash("memberCheckAdmin"),
@@ -1927,6 +1957,7 @@ describe("Lively Guard Tests", function () {
             roleIface.getSighash("roleUpdateActivityStatus"),
             roleIface.getSighash("roleUpdateAlterabilityStatus"),
             roleIface.getSighash("roleUpdateMemberLimit"),
+            roleIface.getSighash("roleRemove"),
             roleIface.getSighash("roleCheckId"),
             roleIface.getSighash("roleCheckName"),
             roleIface.getSighash("roleCheckAdmin"),
@@ -1944,6 +1975,7 @@ describe("Lively Guard Tests", function () {
             typeIface.getSighash("typeUpdateActivityStatus"),
             typeIface.getSighash("typeUpdateAlterabilityStatus"),
             typeIface.getSighash("typeUpdateRoleLimit"),
+            typeIface.getSighash("typeRemove"),
             typeIface.getSighash("typeCheckId"),
             typeIface.getSighash("typeCheckName"),
             typeIface.getSighash("typeCheckAdmin"),
@@ -1966,6 +1998,7 @@ describe("Lively Guard Tests", function () {
             policyIface.getSighash("policyUpdateActivityStatus"),
             policyIface.getSighash("policyUpdateAlterabilityStatus"),
             policyIface.getSighash("policyUpdateRoleLimit"),
+            policyIface.getSighash("policyRemove"),
             policyIface.getSighash("policyCheckId"),
             policyIface.getSighash("policyCheckName"),
             policyIface.getSighash("policyCheckAdmin"),
@@ -2009,6 +2042,7 @@ describe("Lively Guard Tests", function () {
             functionIface.getSighash("functionUpdateActivityStatus"),
             functionIface.getSighash("functionUpdateAlterabilityStatus"),
             functionIface.getSighash("functionUpdatePolicyCode"),
+            functionIface.getSighash("functionRemove"),
             functionIface.getSighash("functionCheckId"),
             functionIface.getSighash("functionCheckSelector"),
             functionIface.getSighash("functionCheckAdmin"),
@@ -2025,6 +2059,7 @@ describe("Lively Guard Tests", function () {
             contextIface.getSighash("contextUpdateAlterabilityStatus"),
             contextIface.getSighash("contextUpdateAdmin"),
             contextIface.getSighash("contextUpdateFunctionLimit"),
+            contextIface.getSighash("contextRemove"),
             contextIface.getSighash("contextCheckId"),
             contextIface.getSighash("contextCheckAccount"),
             contextIface.getSighash("contextCheckAdmin"),
@@ -2044,6 +2079,7 @@ describe("Lively Guard Tests", function () {
             realmIface.getSighash("realmUpdateActivityStatus"),
             realmIface.getSighash("realmUpdateAlterabilityStatus"),
             realmIface.getSighash("realmUpdateContextLimit"),
+            realmIface.getSighash("realmRemove"),
             realmIface.getSighash("realmCheckId"),
             realmIface.getSighash("realmCheckName"),
             realmIface.getSighash("realmCheckAdmin"),
@@ -2063,6 +2099,7 @@ describe("Lively Guard Tests", function () {
             domainIface.getSighash("domainUpdateAdmin"),
             domainIface.getSighash("domainMoveRealm"),
             domainIface.getSighash("domainUpdateRealmLimit"),
+            domainIface.getSighash("domainRemove"),
             domainIface.getSighash("domainCheckId"),
             domainIface.getSighash("domainCheckName"),
             domainIface.getSighash("domainCheckAdmin"),
@@ -2178,6 +2215,7 @@ describe("Lively Guard Tests", function () {
             profileMemberIface.getSighash("profileMemberUpdateActivityStatus"),
             profileMemberIface.getSighash("profileMemberUpdateAlterabilityStatus"),
             profileMemberIface.getSighash("profileMemberUpdateAdmin"),
+            profileMemberIface.getSighash("profileMemberRemove"),
             profileMemberIface.getSighash("profileMemberCheckId"),
             profileMemberIface.getSighash("profileMemberCheckAccount"),
             profileMemberIface.getSighash("profileMemberCheckAdmin"),
@@ -2198,6 +2236,7 @@ describe("Lively Guard Tests", function () {
             profileRoleIface.getSighash("profileRoleUpdateActivityStatus"),
             profileRoleIface.getSighash("profileRoleUpdateAlterabilityStatus"),
             profileRoleIface.getSighash("profileRoleUpdateMemberLimit"),
+            profileRoleIface.getSighash("profileRoleRemove"),
             profileRoleIface.getSighash("profileRoleCheckId"),
             profileRoleIface.getSighash("profileRoleCheckName"),
             profileRoleIface.getSighash("profileRoleCheckAdmin"),
@@ -2215,6 +2254,7 @@ describe("Lively Guard Tests", function () {
             profileTypeIface.getSighash("profileTypeUpdateActivityStatus"),
             profileTypeIface.getSighash("profileTypeUpdateAlterabilityStatus"),
             profileTypeIface.getSighash("profileTypeUpdateRoleLimit"),
+            profileTypeIface.getSighash("profileTypeRemove"),
             profileTypeIface.getSighash("profileTypeCheckId"),
             profileTypeIface.getSighash("profileTypeCheckName"),
             profileTypeIface.getSighash("profileTypeCheckAdmin"),
@@ -2237,6 +2277,7 @@ describe("Lively Guard Tests", function () {
             profilePolicyIface.getSighash("profilePolicyUpdateActivityStatus"),
             profilePolicyIface.getSighash("profilePolicyUpdateAlterabilityStatus"),
             profilePolicyIface.getSighash("profilePolicyUpdateRoleLimit"),
+            profilePolicyIface.getSighash("profilePolicyRemove"),
             profilePolicyIface.getSighash("profilePolicyCheckId"),
             profilePolicyIface.getSighash("profilePolicyCheckName"),
             profilePolicyIface.getSighash("profilePolicyCheckAdmin"),
@@ -2259,6 +2300,7 @@ describe("Lively Guard Tests", function () {
             profileFunctionIface.getSighash("profileFunctionUpdateActivityStatus"),
             profileFunctionIface.getSighash("profileFunctionUpdateAlterabilityStatus"),
             profileFunctionIface.getSighash("profileFunctionUpdatePolicyCode"),
+            profileFunctionIface.getSighash("profileFunctionRemove"),
             profileFunctionIface.getSighash("profileFunctionCheckId"),
             profileFunctionIface.getSighash("profileFunctionCheckSelector"),
             profileFunctionIface.getSighash("profileFunctionCheckAdmin"),
@@ -2275,6 +2317,7 @@ describe("Lively Guard Tests", function () {
             profileContextIface.getSighash("profileContextUpdateAlterabilityStatus"),
             profileContextIface.getSighash("profileContextUpdateAdmin"),
             profileContextIface.getSighash("profileContextUpdateFunctionLimit"),
+            profileContextIface.getSighash("profileContextRemove"),
             profileContextIface.getSighash("profileContextCheckId"),
             profileContextIface.getSighash("profileContextCheckAccount"),
             profileContextIface.getSighash("profileContextCheckAdmin"),
@@ -2294,6 +2337,7 @@ describe("Lively Guard Tests", function () {
             profileRealmIface.getSighash("profileRealmUpdateActivityStatus"),
             profileRealmIface.getSighash("profileRealmUpdateAlterabilityStatus"),
             profileRealmIface.getSighash("profileRealmUpdateContextLimit"),
+            profileRealmIface.getSighash("profileRealmRemove"),
             profileRealmIface.getSighash("profileRealmCheckId"),
             profileRealmIface.getSighash("profileRealmCheckName"),
             profileRealmIface.getSighash("profileRealmCheckAdmin"),
@@ -2313,6 +2357,7 @@ describe("Lively Guard Tests", function () {
             profileDomainIface.getSighash("profileDomainUpdateAdmin"),
             profileDomainIface.getSighash("profileDomainMoveRealm"),
             profileDomainIface.getSighash("profileDomainUpdateRealmLimit"),
+            profileDomainIface.getSighash("profileDomainRemove"),
             profileDomainIface.getSighash("profileDomainCheckId"),
             profileDomainIface.getSighash("profileDomainCheckName"),
             profileDomainIface.getSighash("profileDomainCheckAdmin"),
@@ -3103,6 +3148,12 @@ describe("Lively Guard Tests", function () {
           [memberManagerProxy.address, memberIface.getSighash("memberUpdateGeneralLimit")]
         )
       );
+      const memberRemoveFunctionId = ethers.utils.keccak256(
+        ethers.utils.solidityPack(
+          ["address", "bytes4"],
+          [memberManagerProxy.address, memberIface.getSighash("memberRemove")]
+        )
+      );
       const upgradeToFunctionId = ethers.utils.keccak256(
         ethers.utils.solidityPack(
           ["address", "bytes4"],
@@ -3178,6 +3229,14 @@ describe("Lively Guard Tests", function () {
           agentId: LIVELY_VERSE_ANY_TYPE_ID,
           selector: memberIface.getSighash("memberUpdateGeneralLimit"),
           policyCode: 46,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
+        },
+        {
+          adminId: LIVELY_VERSE_ACL_TYPE_ID,
+          agentId: LIVELY_VERSE_ANY_TYPE_ID,
+          selector: memberIface.getSighash("memberRemove"),
+          policyCode: 16,
           acstat: ActivityStatus.ENABLED,
           alstat: AlterabilityStatus.UPDATABLE,
         },
@@ -3292,6 +3351,14 @@ describe("Lively Guard Tests", function () {
           systemAdminWallet.address,
           memberContextId,
           memberUpdateGeneralLimitFunctionId,
+          LIVELY_VERSE_ACL_TYPE_ID,
+          LIVELY_VERSE_ANY_TYPE_ID
+        )
+        .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+        .withArgs(
+          systemAdminWallet.address,
+          memberContextId,
+          memberRemoveFunctionId,
           LIVELY_VERSE_ACL_TYPE_ID,
           LIVELY_VERSE_ANY_TYPE_ID
         )
@@ -3416,6 +3483,12 @@ describe("Lively Guard Tests", function () {
           [roleManagerProxy.address, roleIface.getSighash("roleUpdateMemberLimit")]
         )
       );
+      const roleRemoveFunctionId = ethers.utils.keccak256(
+        ethers.utils.solidityPack(
+          ["address", "bytes4"],
+          [roleManagerProxy.address, roleIface.getSighash("roleRemove")]
+        )
+      );
       const upgradeToFunctionId = ethers.utils.keccak256(
         ethers.utils.solidityPack(["address", "bytes4"], [roleManagerProxy.address, roleIface.getSighash("upgradeTo")])
       );
@@ -3512,6 +3585,14 @@ describe("Lively Guard Tests", function () {
           agentId: LIVELY_VERSE_ANY_TYPE_ID,
           selector: roleIface.getSighash("roleUpdateMemberLimit"),
           policyCode: 24,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
+        },
+        {
+          adminId: LIVELY_VERSE_ACL_TYPE_ID,
+          agentId: LIVELY_VERSE_ANY_TYPE_ID,
+          selector: roleIface.getSighash("roleRemove"),
+          policyCode: 16,
           acstat: ActivityStatus.ENABLED,
           alstat: AlterabilityStatus.UPDATABLE,
         },
@@ -3663,6 +3744,14 @@ describe("Lively Guard Tests", function () {
         .withArgs(
           systemAdminWallet.address,
           roleContextId,
+          roleRemoveFunctionId,
+          LIVELY_VERSE_ACL_TYPE_ID,
+          LIVELY_VERSE_ANY_TYPE_ID
+        )
+        .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+        .withArgs(
+          systemAdminWallet.address,
+          roleContextId,
           upgradeToFunctionId,
           LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
           LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID
@@ -3767,6 +3856,12 @@ describe("Lively Guard Tests", function () {
           [typeManagerProxy.address, typeIface.getSighash("typeUpdateRoleLimit")]
         )
       );
+      const typeRemoveFunctionId = ethers.utils.keccak256(
+        ethers.utils.solidityPack(
+          ["address", "bytes4"],
+          [typeManagerProxy.address, typeIface.getSighash("typeRemove")]
+        )
+      );
       const upgradeToFunctionId = ethers.utils.keccak256(
         ethers.utils.solidityPack(["address", "bytes4"], [typeManagerProxy.address, typeIface.getSighash("upgradeTo")])
       );
@@ -3847,6 +3942,14 @@ describe("Lively Guard Tests", function () {
           agentId: LIVELY_VERSE_ANY_TYPE_ID,
           selector: typeIface.getSighash("typeUpdateRoleLimit"),
           policyCode: 24,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
+        },
+        {
+          adminId: LIVELY_VERSE_ACL_TYPE_ID,
+          agentId: LIVELY_VERSE_ANY_TYPE_ID,
+          selector: typeIface.getSighash("typeRemove"),
+          policyCode: 16,
           acstat: ActivityStatus.ENABLED,
           alstat: AlterabilityStatus.UPDATABLE,
         },
@@ -3974,6 +4077,14 @@ describe("Lively Guard Tests", function () {
         .withArgs(
           systemAdminWallet.address,
           typeContextId,
+          typeRemoveFunctionId,
+          LIVELY_VERSE_ACL_TYPE_ID,
+          LIVELY_VERSE_ANY_TYPE_ID
+        )
+        .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+        .withArgs(
+          systemAdminWallet.address,
+          typeContextId,
           upgradeToFunctionId,
           LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
           LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID
@@ -4072,6 +4183,12 @@ describe("Lively Guard Tests", function () {
           [functionManagerProxy.address, functionIface.getSighash("functionUpdatePolicyCode")]
         )
       );
+      const functionRemoveFunctionId = ethers.utils.keccak256(
+        ethers.utils.solidityPack(
+          ["address", "bytes4"],
+          [functionManagerProxy.address, functionIface.getSighash("functionRemove")]
+        )
+      );
       const upgradeToFunctionId = ethers.utils.keccak256(
         ethers.utils.solidityPack(
           ["address", "bytes4"],
@@ -4147,6 +4264,14 @@ describe("Lively Guard Tests", function () {
           agentId: LIVELY_VERSE_ANY_TYPE_ID,
           selector: functionIface.getSighash("functionUpdatePolicyCode"),
           policyCode: 56,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
+        },
+        {
+          adminId: LIVELY_VERSE_ACL_TYPE_ID,
+          agentId: LIVELY_VERSE_ANY_TYPE_ID,
+          selector: functionIface.getSighash("functionRemove"),
+          policyCode: 16,
           acstat: ActivityStatus.ENABLED,
           alstat: AlterabilityStatus.UPDATABLE,
         },
@@ -4266,6 +4391,14 @@ describe("Lively Guard Tests", function () {
         .withArgs(
           systemAdminWallet.address,
           functionContextId,
+          functionRemoveFunctionId,
+          LIVELY_VERSE_ACL_TYPE_ID,
+          LIVELY_VERSE_ANY_TYPE_ID
+        )
+        .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+        .withArgs(
+          systemAdminWallet.address,
+          functionContextId,
           upgradeToFunctionId,
           LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
           LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID
@@ -4359,6 +4492,12 @@ describe("Lively Guard Tests", function () {
           [contextManagerProxy.address, contextIface.getSighash("contextUpdateFunctionLimit")]
         )
       );
+      const contextRemoveFunctionId = ethers.utils.keccak256(
+        ethers.utils.solidityPack(
+          ["address", "bytes4"],
+          [contextManagerProxy.address, contextIface.getSighash("contextRemove")]
+        )
+      );
       const upgradeToFunctionId = ethers.utils.keccak256(
         ethers.utils.solidityPack(
           ["address", "bytes4"],
@@ -4425,6 +4564,14 @@ describe("Lively Guard Tests", function () {
           adminId: LIVELY_VERSE_ACL_TYPE_ID,
           agentId: LIVELY_VERSE_ANY_TYPE_ID,
           selector: contextIface.getSighash("contextUpdateFunctionLimit"),
+          policyCode: 24,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
+        },
+        {
+          adminId: LIVELY_VERSE_ACL_TYPE_ID,
+          agentId: LIVELY_VERSE_ANY_TYPE_ID,
+          selector: contextIface.getSighash("contextRemove"),
           policyCode: 24,
           acstat: ActivityStatus.ENABLED,
           alstat: AlterabilityStatus.UPDATABLE,
@@ -4539,6 +4686,14 @@ describe("Lively Guard Tests", function () {
         .withArgs(
           systemAdminWallet.address,
           contextContextId,
+          contextRemoveFunctionId,
+          LIVELY_VERSE_ACL_TYPE_ID,
+          LIVELY_VERSE_ANY_TYPE_ID
+        )
+        .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+        .withArgs(
+          systemAdminWallet.address,
+          contextContextId,
           upgradeToFunctionId,
           LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
           LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID
@@ -4645,6 +4800,12 @@ describe("Lively Guard Tests", function () {
           [realmManagerProxy.address, realmIface.getSighash("realmMoveContext")]
         )
       );
+      const realmRemoveFunctionId = ethers.utils.keccak256(
+        ethers.utils.solidityPack(
+          ["address", "bytes4"],
+          [realmManagerProxy.address, realmIface.getSighash("realmRemove")]
+        )
+      );
       const upgradeToFunctionId = ethers.utils.keccak256(
         ethers.utils.solidityPack(
           ["address", "bytes4"],
@@ -4728,6 +4889,14 @@ describe("Lively Guard Tests", function () {
           agentId: LIVELY_VERSE_ANY_TYPE_ID,
           selector: realmIface.getSighash("realmMoveContext"),
           policyCode: 36,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
+        },
+        {
+          adminId: LIVELY_VERSE_ACL_TYPE_ID,
+          agentId: LIVELY_VERSE_ANY_TYPE_ID,
+          selector: realmIface.getSighash("realmRemove"),
+          policyCode: 16,
           acstat: ActivityStatus.ENABLED,
           alstat: AlterabilityStatus.UPDATABLE,
         },
@@ -4857,6 +5026,14 @@ describe("Lively Guard Tests", function () {
         .withArgs(
           systemAdminWallet.address,
           realmContextId,
+          realmRemoveFunctionId,
+          LIVELY_VERSE_ACL_TYPE_ID,
+          LIVELY_VERSE_ANY_TYPE_ID
+        )
+        .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+        .withArgs(
+          systemAdminWallet.address,
+          realmContextId,
           upgradeToFunctionId,
           LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
           LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID
@@ -4961,6 +5138,12 @@ describe("Lively Guard Tests", function () {
           [domainManagerProxy.address, domainIface.getSighash("domainMoveRealm")]
         )
       );
+      const domainRemoveFunctionId = ethers.utils.keccak256(
+        ethers.utils.solidityPack(
+          ["address", "bytes4"],
+          [domainManagerProxy.address, domainIface.getSighash("domainRemove")]
+        )
+      );
       const upgradeToFunctionId = ethers.utils.keccak256(
         ethers.utils.solidityPack(
           ["address", "bytes4"],
@@ -5044,6 +5227,14 @@ describe("Lively Guard Tests", function () {
           agentId: LIVELY_VERSE_ANY_TYPE_ID,
           selector: domainIface.getSighash("domainMoveRealm"),
           policyCode: 24,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
+        },
+        {
+          adminId: LIVELY_VERSE_ACL_TYPE_ID,
+          agentId: LIVELY_VERSE_ANY_TYPE_ID,
+          selector: domainIface.getSighash("domainRemove"),
+          policyCode: 16,
           acstat: ActivityStatus.ENABLED,
           alstat: AlterabilityStatus.UPDATABLE,
         },
@@ -5164,6 +5355,14 @@ describe("Lively Guard Tests", function () {
           systemAdminWallet.address,
           domainContextId,
           domainMoveRealmFunctionId,
+          LIVELY_VERSE_ACL_TYPE_ID,
+          LIVELY_VERSE_ANY_TYPE_ID
+        )
+        .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+        .withArgs(
+          systemAdminWallet.address,
+          domainContextId,
+          domainRemoveFunctionId,
           LIVELY_VERSE_ACL_TYPE_ID,
           LIVELY_VERSE_ANY_TYPE_ID
         )
@@ -5994,6 +6193,12 @@ describe("Lively Guard Tests", function () {
           [policyManagerProxy.address, policyIface.getSighash("policyUpdateRoleLimit")]
         )
       );
+      const policyRemoveFunctionId = ethers.utils.keccak256(
+        ethers.utils.solidityPack(
+          ["address", "bytes4"],
+          [policyManagerProxy.address, policyIface.getSighash("policyRemove")]
+        )
+      );
       const upgradeToFunctionId = ethers.utils.keccak256(
         ethers.utils.solidityPack(
           ["address", "bytes4"],
@@ -6101,6 +6306,14 @@ describe("Lively Guard Tests", function () {
           agentId: LIVELY_VERSE_ANY_TYPE_ID,
           selector: policyIface.getSighash("policyUpdateRoleLimit"),
           policyCode: 24,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
+        },
+        {
+          adminId: LIVELY_VERSE_ACL_TYPE_ID,
+          agentId: LIVELY_VERSE_ANY_TYPE_ID,
+          selector: policyIface.getSighash("policyRemove"),
+          policyCode: 16,
           acstat: ActivityStatus.ENABLED,
           alstat: AlterabilityStatus.UPDATABLE,
         },
@@ -6246,6 +6459,14 @@ describe("Lively Guard Tests", function () {
           systemAdminWallet.address,
           policyContextId,
           policyUpdateRoleLimitFunctionId,
+          LIVELY_VERSE_ACL_TYPE_ID,
+          LIVELY_VERSE_ANY_TYPE_ID
+        )
+        .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+        .withArgs(
+          systemAdminWallet.address,
+          policyContextId,
+          policyRemoveFunctionId,
           LIVELY_VERSE_ACL_TYPE_ID,
           LIVELY_VERSE_ANY_TYPE_ID
         )
@@ -6681,6 +6902,12 @@ describe("Lively Guard Tests", function () {
           [profileMemberManagerProxy.address, profileMemberIface.getSighash("profileMemberUpdateAdmin")]
         )
       );
+      const profileMemberRemoveFunctionId = ethers.utils.keccak256(
+        ethers.utils.solidityPack(
+          ["address", "bytes4"],
+          [profileMemberManagerProxy.address, profileMemberIface.getSighash("profileMemberRemove")]
+        )
+      );
       const upgradeToFunctionId = ethers.utils.keccak256(
         ethers.utils.solidityPack(
           ["address", "bytes4"],
@@ -6772,6 +6999,14 @@ describe("Lively Guard Tests", function () {
           agentId: LIVELY_PROFILE_ANY_TYPE_ID,
           selector: profileMemberIface.getSighash("profileMemberUpdateAdmin"),
           policyCode: 46,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
+        },
+        {
+          adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+          agentId: LIVELY_PROFILE_ANY_TYPE_ID,
+          selector: profileMemberIface.getSighash("profileMemberRemove"),
+          policyCode: 16,
           acstat: ActivityStatus.ENABLED,
           alstat: AlterabilityStatus.UPDATABLE,
         },
@@ -6909,6 +7144,14 @@ describe("Lively Guard Tests", function () {
         .withArgs(
           systemAdminWallet.address,
           profileMemberContextId,
+          profileMemberRemoveFunctionId,
+          LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+          LIVELY_PROFILE_ANY_TYPE_ID
+        )
+        .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+        .withArgs(
+          systemAdminWallet.address,
+          profileMemberContextId,
           upgradeToFunctionId,
           LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
           LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID
@@ -7027,6 +7270,12 @@ describe("Lively Guard Tests", function () {
           [profileRoleManagerProxy.address, profileRoleIface.getSighash("profileRoleUpdateMemberLimit")]
         )
       );
+      const profileRoleRemoveFunctionId = ethers.utils.keccak256(
+        ethers.utils.solidityPack(
+          ["address", "bytes4"],
+          [profileRoleManagerProxy.address, profileRoleIface.getSighash("profileRoleRemove")]
+        )
+      );
       const upgradeToFunctionId = ethers.utils.keccak256(
         ethers.utils.solidityPack(
           ["address", "bytes4"],
@@ -7126,6 +7375,14 @@ describe("Lively Guard Tests", function () {
           agentId: LIVELY_PROFILE_ANY_TYPE_ID,
           selector: profileRoleIface.getSighash("profileRoleUpdateMemberLimit"),
           policyCode: 24,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
+        },
+        {
+          adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+          agentId: LIVELY_PROFILE_ANY_TYPE_ID,
+          selector: profileRoleIface.getSighash("profileRoleRemove"),
+          policyCode: 16,
           acstat: ActivityStatus.ENABLED,
           alstat: AlterabilityStatus.UPDATABLE,
         },
@@ -7271,6 +7528,14 @@ describe("Lively Guard Tests", function () {
         .withArgs(
           systemAdminWallet.address,
           profileRoleContextId,
+          profileRoleRemoveFunctionId,
+          LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+          LIVELY_PROFILE_ANY_TYPE_ID
+        )
+        .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+        .withArgs(
+          systemAdminWallet.address,
+          profileRoleContextId,
           upgradeToFunctionId,
           LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
           LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID
@@ -7376,6 +7641,12 @@ describe("Lively Guard Tests", function () {
           [profileTypeManagerProxy.address, profileTypeIface.getSighash("profileTypeUpdateRoleLimit")]
         )
       );
+      const profileTypeRemoveFunctionId = ethers.utils.keccak256(
+        ethers.utils.solidityPack(
+          ["address", "bytes4"],
+          [profileTypeManagerProxy.address, profileTypeIface.getSighash("profileTypeRemove")]
+        )
+      );
       const upgradeToFunctionId = ethers.utils.keccak256(
         ethers.utils.solidityPack(
           ["address", "bytes4"],
@@ -7459,6 +7730,14 @@ describe("Lively Guard Tests", function () {
           agentId: LIVELY_PROFILE_ANY_TYPE_ID,
           selector: profileTypeIface.getSighash("profileTypeUpdateRoleLimit"),
           policyCode: 24,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
+        },
+        {
+          adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+          agentId: LIVELY_PROFILE_ANY_TYPE_ID,
+          selector: profileTypeIface.getSighash("profileTypeRemove"),
+          policyCode: 16,
           acstat: ActivityStatus.ENABLED,
           alstat: AlterabilityStatus.UPDATABLE,
         },
@@ -7588,6 +7867,14 @@ describe("Lively Guard Tests", function () {
         .withArgs(
           systemAdminWallet.address,
           profileTypeContextId,
+          profileTypeRemoveFunctionId,
+          LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+          LIVELY_PROFILE_ANY_TYPE_ID
+        )
+        .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+        .withArgs(
+          systemAdminWallet.address,
+          profileTypeContextId,
           upgradeToFunctionId,
           LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
           LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID
@@ -7696,6 +7983,12 @@ describe("Lively Guard Tests", function () {
           [profileFunctionManagerProxy.address, profileFunctionIface.getSighash("profileFunctionUpdatePolicyCode")]
         )
       );
+      const profileFunctionRemoveFunctionId = ethers.utils.keccak256(
+        ethers.utils.solidityPack(
+          ["address", "bytes4"],
+          [profileFunctionManagerProxy.address, profileFunctionIface.getSighash("profileFunctionRemove")]
+        )
+      );
       const upgradeToFunctionId = ethers.utils.keccak256(
         ethers.utils.solidityPack(
           ["address", "bytes4"],
@@ -7779,6 +8072,14 @@ describe("Lively Guard Tests", function () {
           agentId: LIVELY_PROFILE_ANY_TYPE_ID,
           selector: profileFunctionIface.getSighash("profileFunctionUpdatePolicyCode"),
           policyCode: 56,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
+        },
+        {
+          adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+          agentId: LIVELY_PROFILE_ANY_TYPE_ID,
+          selector: profileFunctionIface.getSighash("profileFunctionRemove"),
+          policyCode: 16,
           acstat: ActivityStatus.ENABLED,
           alstat: AlterabilityStatus.UPDATABLE,
         },
@@ -7908,6 +8209,14 @@ describe("Lively Guard Tests", function () {
         .withArgs(
           systemAdminWallet.address,
           profileFunctionContextId,
+          profileFunctionRemoveFunctionId,
+          LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+          LIVELY_PROFILE_ANY_TYPE_ID
+        )
+        .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+        .withArgs(
+          systemAdminWallet.address,
+          profileFunctionContextId,
           upgradeToFunctionId,
           LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
           LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID
@@ -8011,6 +8320,12 @@ describe("Lively Guard Tests", function () {
           [profileContextManagerProxy.address, profileContextIface.getSighash("profileContextUpdateFunctionLimit")]
         )
       );
+      const profileContextRemoveFunctionId = ethers.utils.keccak256(
+        ethers.utils.solidityPack(
+          ["address", "bytes4"],
+          [profileContextManagerProxy.address, profileContextIface.getSighash("profileContextRemove")]
+        )
+      );
       const upgradeToFunctionId = ethers.utils.keccak256(
         ethers.utils.solidityPack(
           ["address", "bytes4"],
@@ -8086,6 +8401,14 @@ describe("Lively Guard Tests", function () {
           agentId: LIVELY_PROFILE_ANY_TYPE_ID,
           selector: profileContextIface.getSighash("profileContextUpdateFunctionLimit"),
           policyCode: 24,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
+        },
+        {
+          adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+          agentId: LIVELY_PROFILE_ANY_TYPE_ID,
+          selector: profileContextIface.getSighash("profileContextRemove"),
+          policyCode: 16,
           acstat: ActivityStatus.ENABLED,
           alstat: AlterabilityStatus.UPDATABLE,
         },
@@ -8207,6 +8530,14 @@ describe("Lively Guard Tests", function () {
         .withArgs(
           systemAdminWallet.address,
           profileContextContextId,
+          profileContextRemoveFunctionId,
+          LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+          LIVELY_VERSE_ANY_TYPE_ID
+        )
+        .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+        .withArgs(
+          systemAdminWallet.address,
+          profileContextContextId,
           upgradeToFunctionId,
           LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
           LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID
@@ -8316,6 +8647,12 @@ describe("Lively Guard Tests", function () {
           [profileRealmManagerProxy.address, profileRealmIface.getSighash("profileRealmMoveContext")]
         )
       );
+      const profileRealmRemoveFunctionId = ethers.utils.keccak256(
+        ethers.utils.solidityPack(
+          ["address", "bytes4"],
+          [profileRealmManagerProxy.address, profileRealmIface.getSighash("profileRealmRemove")]
+        )
+      );
       const upgradeToFunctionId = ethers.utils.keccak256(
         ethers.utils.solidityPack(
           ["address", "bytes4"],
@@ -8399,6 +8736,14 @@ describe("Lively Guard Tests", function () {
           agentId: LIVELY_PROFILE_ANY_TYPE_ID,
           selector: profileRealmIface.getSighash("profileRealmMoveContext"),
           policyCode: 36,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
+        },
+        {
+          adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+          agentId: LIVELY_PROFILE_ANY_TYPE_ID,
+          selector: profileRealmIface.getSighash("profileRealmRemove"),
+          policyCode: 16,
           acstat: ActivityStatus.ENABLED,
           alstat: AlterabilityStatus.UPDATABLE,
         },
@@ -8528,6 +8873,14 @@ describe("Lively Guard Tests", function () {
         .withArgs(
           systemAdminWallet.address,
           profileRealmContextId,
+          profileRealmRemoveFunctionId,
+          LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+          LIVELY_PROFILE_ANY_TYPE_ID
+        )
+        .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+        .withArgs(
+          systemAdminWallet.address,
+          profileRealmContextId,
           upgradeToFunctionId,
           LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
           LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID
@@ -8634,6 +8987,12 @@ describe("Lively Guard Tests", function () {
           [profileDomainManagerProxy.address, profileDomainIface.getSighash("profileDomainMoveRealm")]
         )
       );
+      const profileDomainRemoveFunctionId = ethers.utils.keccak256(
+        ethers.utils.solidityPack(
+          ["address", "bytes4"],
+          [profileDomainManagerProxy.address, profileDomainIface.getSighash("profileDomainRemove")]
+        )
+      );
       const upgradeToFunctionId = ethers.utils.keccak256(
         ethers.utils.solidityPack(
           ["address", "bytes4"],
@@ -8717,6 +9076,14 @@ describe("Lively Guard Tests", function () {
           agentId: LIVELY_PROFILE_ANY_TYPE_ID,
           selector: profileDomainIface.getSighash("profileDomainMoveRealm"),
           policyCode: 24,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
+        },
+        {
+          adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+          agentId: LIVELY_PROFILE_ANY_TYPE_ID,
+          selector: profileDomainIface.getSighash("profileDomainRemove"),
+          policyCode: 16,
           acstat: ActivityStatus.ENABLED,
           alstat: AlterabilityStatus.UPDATABLE,
         },
@@ -8839,6 +9206,14 @@ describe("Lively Guard Tests", function () {
           systemAdminWallet.address,
           profileDomainContextId,
           profileDomainMoveRealmFunctionId,
+          LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+          LIVELY_PROFILE_ANY_TYPE_ID
+        )
+        .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+        .withArgs(
+          systemAdminWallet.address,
+          profileDomainContextId,
+          profileDomainRemoveFunctionId,
           LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
           LIVELY_PROFILE_ANY_TYPE_ID
         )
@@ -9402,6 +9777,12 @@ describe("Lively Guard Tests", function () {
           [profilePolicyManagerProxy.address, profilePolicyIface.getSighash("profilePolicyUpdateRoleLimit")]
         )
       );
+      const profilePolicyRemoveFunctionId = ethers.utils.keccak256(
+        ethers.utils.solidityPack(
+          ["address", "bytes4"],
+          [profilePolicyManagerProxy.address, profilePolicyIface.getSighash("profilePolicyRemove")]
+        )
+      );
       const upgradeToFunctionId = ethers.utils.keccak256(
         ethers.utils.solidityPack(
           ["address", "bytes4"],
@@ -9509,6 +9890,14 @@ describe("Lively Guard Tests", function () {
           agentId: LIVELY_PROFILE_ANY_TYPE_ID,
           selector: profilePolicyIface.getSighash("profilePolicyUpdateRoleLimit"),
           policyCode: 36,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
+        },
+        {
+          adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+          agentId: LIVELY_PROFILE_ANY_TYPE_ID,
+          selector: profilePolicyIface.getSighash("profilePolicyRemove"),
+          policyCode: 16,
           acstat: ActivityStatus.ENABLED,
           alstat: AlterabilityStatus.UPDATABLE,
         },
@@ -9654,6 +10043,14 @@ describe("Lively Guard Tests", function () {
           systemAdminWallet.address,
           profilePolicyContextId,
           profilePolicyUpdateRoleLimitFunctionId,
+          LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+          LIVELY_PROFILE_ANY_TYPE_ID
+        )
+        .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
+        .withArgs(
+          systemAdminWallet.address,
+          profilePolicyContextId,
+          profilePolicyRemoveFunctionId,
           LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
           LIVELY_PROFILE_ANY_TYPE_ID
         )
@@ -10044,6 +10441,87 @@ describe("Lively Guard Tests", function () {
   });
 
   describe("Agent Tests", function () {
+    it("Should disable activity of LIVELY_VERSE_LIVELY_MASTER_TYPE_ID success", async () => {
+      // given
+      const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [
+        {
+          id: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
+          acstat: ActivityStatus.DISABLED,
+        },
+      ];
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(typeManagerDelegateProxy.connect(livelyAdmin).typeUpdateActivityStatus(memberSignature, requests))
+        .to.emit(typeManagerDelegateProxy, "TypeActivityUpdated")
+        .withArgs(livelyAdminWallet.address, LIVELY_VERSE_LIVELY_MASTER_TYPE_ID, ActivityStatus.DISABLED);
+    });
+
+    it("Should enable activity of LIVELY_VERSE_LIVELY_MASTER_TYPE_ID success", async () => {
+      // given
+      const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [
+        {
+          id: LIVELY_VERSE_LIVELY_MASTER_TYPE_ID,
+          acstat: ActivityStatus.ENABLED,
+        },
+      ];
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(typeManagerDelegateProxy.connect(livelyAdmin).typeUpdateActivityStatus(memberSignature, requests))
+        .to.emit(typeManagerDelegateProxy, "TypeActivityUpdated")
+        .withArgs(livelyAdminWallet.address, LIVELY_VERSE_LIVELY_MASTER_TYPE_ID, ActivityStatus.ENABLED);
+    });
+
+    it("Should disabled activity of LIVELY_VERSE_LIVELY_MASTER_ADMIN_ID success", async () => {
+      // given
+      const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [
+        {
+          id: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+          acstat: ActivityStatus.DISABLED,
+        },
+      ];
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleUpdateActivityStatus(memberSignature, requests))
+        .to.emit(roleManagerDelegateProxy, "RoleActivityUpdated")
+        .withArgs(livelyAdminWallet.address, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID, ActivityStatus.DISABLED);
+    });
+
+    it("Should enabled activity of LIVELY_VERSE_LIVELY_MASTER_ADMIN_ID success", async () => {
+      // given
+      const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [
+        {
+          id: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+          acstat: ActivityStatus.ENABLED,
+        },
+      ];
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleUpdateActivityStatus(memberSignature, requests))
+        .to.emit(roleManagerDelegateProxy, "RoleActivityUpdated")
+        .withArgs(livelyAdminWallet.address, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID, ActivityStatus.ENABLED);
+
+    });
+
     it("Should register test type with expired memberSignature failed", async () => {
       // given
       const realmContextId = ethers.utils.keccak256(realmManagerProxy.address);
@@ -10136,6 +10614,115 @@ describe("Lively Guard Tests", function () {
       const realmContextId = ethers.utils.keccak256(realmManagerProxy.address);
       aclTypeTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_TYPE_TEST_NAME));
 
+      const typeRegisterRequests: ITypeManagement.TypeRegisterRequestStruct[] = [
+        {
+          adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+          scopeId: realmContextId,
+          roleLimit: 2,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
+          name: ACL_TYPE_TEST_NAME,
+        },
+      ];
+
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(typeManagerDelegateProxy.connect(livelyAdmin).typeRegister(memberSignature, typeRegisterRequests))
+        .to.emit(typeManagerDelegateProxy, "TypeRegistered")
+        .withArgs(livelyAdminWallet.address, aclTypeTestId, realmContextId, LIVELY_VERSE_ACL_ADMIN_ROLE_ID);
+
+      // then
+      expect(await typeManagerDelegateProxy.typeCheckId(aclTypeTestId)).to.be.true;
+
+      // and
+      const typeInfo: ITypeManagement.TypeInfoStruct = await typeManagerDelegateProxy.typeGetInfo(aclTypeTestId);
+      expect(typeInfo.name).to.be.equal(ACL_TYPE_TEST_NAME);
+      expect(typeInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_ADMIN_ROLE_ID);
+      expect(typeInfo.scopeId).to.be.equal(realmContextId);
+      expect(typeInfo.roleLimit).to.be.equal(2);
+      expect(typeInfo.roleCount).to.be.equal(0);
+      expect(typeInfo.adminType).to.be.equal(AgentType.ROLE);
+      expect(typeInfo.atype).to.be.equal(AgentType.TYPE);
+      expect(typeInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+      expect(typeInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+
+      // and
+      expect(await typeManagerDelegateProxy.typeCheckId(aclTypeTestId)).to.be.true;
+      expect(await typeManagerDelegateProxy.typeCheckName(ACL_TYPE_TEST_NAME)).to.be.true;
+      expect(await typeManagerDelegateProxy.typeCheckAdmin(aclTypeTestId, livelyAdminWallet.address)).to.be.true;
+
+      // and
+      const realmContextInfo: IContextManagement.ContextInfoStruct = await contextManagerDelegateProxy.contextGetInfo(
+        realmContextId
+      );
+      expect(realmContextInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
+      expect(realmContextInfo.adminType).to.be.equal(AgentType.TYPE);
+      expect(realmContextInfo.contractId).to.be.equal(realmManagerProxy.address);
+      expect(realmContextInfo.realmId).to.be.equal(LIVELY_VERSE_ACL_REALM_ID);
+      expect(realmContextInfo.functionLimit).to.be.equal(32);
+      expect(realmContextInfo.functionCount).to.be.equal(13);
+      expect(realmContextInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+      expect(realmContextInfo.alstat).to.be.equal(AlterabilityStatus.UPGRADABLE);
+      expect(realmContextInfo.referredByAgent).to.be.equal(2);
+    });
+
+    it("Should remove ACL_TYPE_TEST success", async () => {
+      // given
+      const realmContextId = ethers.utils.keccak256(realmManagerProxy.address);
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(typeManagerDelegateProxy.connect(livelyAdmin).typeRemove(memberSignature, [aclTypeTestId]))
+        .to.emit(typeManagerDelegateProxy, "TypeRemoved")
+        .withArgs(livelyAdminWallet.address, aclTypeTestId);
+
+      // then
+      expect(await typeManagerDelegateProxy.typeCheckId(aclTypeTestId)).to.be.false;
+
+      // and
+      const typeInfo: ITypeManagement.TypeInfoStruct = await typeManagerDelegateProxy.typeGetInfo(aclTypeTestId);
+      expect(typeInfo.name).to.be.empty;
+      expect(typeInfo.adminId).to.be.equal(ethers.constants.HashZero);
+      expect(typeInfo.scopeId).to.be.equal(ethers.constants.HashZero);
+      expect(typeInfo.roleLimit).to.be.equal(0);
+      expect(typeInfo.roleCount).to.be.equal(0);
+      expect(typeInfo.adminType).to.be.equal(AgentType.NONE);
+      expect(typeInfo.atype).to.be.equal(AgentType.NONE);
+      expect(typeInfo.acstat).to.be.equal(ActivityStatus.NONE);
+      expect(typeInfo.alstat).to.be.equal(AlterabilityStatus.NONE);
+
+      // and
+      expect(await typeManagerDelegateProxy.typeCheckId(aclTypeTestId)).to.be.false;
+      expect(await typeManagerDelegateProxy.typeCheckName(ACL_TYPE_TEST_NAME)).to.be.false;
+      expect(await typeManagerDelegateProxy.typeCheckAdmin(aclTypeTestId, livelyAdminWallet.address)).to.be.false;
+
+      // and
+      const realmContextInfo: IContextManagement.ContextInfoStruct = await contextManagerDelegateProxy.contextGetInfo(
+        realmContextId
+      );
+      expect(realmContextInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
+      expect(realmContextInfo.adminType).to.be.equal(AgentType.TYPE);
+      expect(realmContextInfo.contractId).to.be.equal(realmManagerProxy.address);
+      expect(realmContextInfo.realmId).to.be.equal(LIVELY_VERSE_ACL_REALM_ID);
+      expect(realmContextInfo.functionLimit).to.be.equal(32);
+      expect(realmContextInfo.functionCount).to.be.equal(13);
+      expect(realmContextInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+      expect(realmContextInfo.alstat).to.be.equal(AlterabilityStatus.UPGRADABLE);
+      expect(realmContextInfo.referredByAgent).to.be.equal(1);
+    });
+
+    it("Should register ACL_TYPE_TEST success", async () => {
+      // given
+      const realmContextId = ethers.utils.keccak256(realmManagerProxy.address);
       const typeRegisterRequests: ITypeManagement.TypeRegisterRequestStruct[] = [
         {
           adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
@@ -10428,7 +11015,7 @@ describe("Lively Guard Tests", function () {
       expect(await typeManagerDelegateProxy.typeCheckAdmin(aclTypeTestId, livelyAdminWallet.address)).to.be.true;
     });
 
-    it("Should register aclRoleTest in ACL type with illegal scope failed", async () => {
+    it("Should register aclRoleTest in ACL_TYPE_TEST type with illegal scope failed", async () => {
       // given
       aclRoleTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_TEST_NAME));
       const roleRegisterRequests: IRoleManagement.RoleRegisterRequestStruct[] = [
@@ -10481,8 +11068,9 @@ describe("Lively Guard Tests", function () {
         .withArgs(livelyAdminWallet.address, aclTypeTestId, memberRegisterFunctionId);
     });
 
-    it("Should register aclRoleTest4 in ACL type success", async () => {
+    it("Should register aclRoleTest4 in ACL_TYPE_TEST type success", async () => {
       // given
+      const memberContextId = ethers.utils.keccak256(memberManagerProxy.address);
       const memberRegisterFunctionId = ethers.utils.keccak256(
         ethers.utils.solidityPack(
           ["address", "bytes4"],
@@ -10545,6 +11133,167 @@ describe("Lively Guard Tests", function () {
       expect(await roleManagerDelegateProxy.roleCheckId(aclRoleTestId4)).to.be.true;
       expect(await roleManagerDelegateProxy.roleCheckName(ACL_ROLE_TEST_NAME_4)).to.be.true;
       expect(await roleManagerDelegateProxy.roleCheckAdmin(aclRoleTestId4, livelyAdminWallet.address)).to.be.true;
+
+      // and
+      const functionInfo: IFunctionManagement.FunctionInfoStruct = await functionManagerDelegateProxy.functionGetInfo(
+        memberRegisterFunctionId
+      );
+      expect(functionInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
+      expect(functionInfo.agentId).to.be.equal(LIVELY_VERSE_ANY_TYPE_ID);
+      expect(functionInfo.contextId).to.be.equal(memberContextId);
+      expect(functionInfo.adminType).to.be.equal(AgentType.TYPE);
+      expect(functionInfo.agentType).to.be.equal(AgentType.TYPE);
+      expect(functionInfo.policyCode).to.be.equal(250);
+      expect(functionInfo.selector).to.be.equal(memberIface.getSighash("memberRegister"));
+      expect(functionInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+      expect(functionInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+      expect(functionInfo.referredByAgent).to.be.equal(2);
+    });
+
+    it("Should remove aclRoleTest4 success", async () => {
+      // given
+      const memberContextId = ethers.utils.keccak256(memberManagerProxy.address);
+      const memberRegisterFunctionId = ethers.utils.keccak256(
+        ethers.utils.solidityPack(
+          ["address", "bytes4"],
+          [memberManagerProxy.address, memberIface.getSighash("memberRegister")]
+        )
+      );
+      const expiredAt = BigNumber.from(Date.now() + 10000);
+      const signature = generateMemberSignatureManually(
+        livelyAdminWallet.address,
+        aclManagerProxy.address,
+        livelyAdminWallet,
+        networkChainId,
+        expiredAt
+      );
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: livelyAdminWallet.address,
+        expiredAt,
+        signature,
+      };
+
+      // when
+      await expect(roleManagerDelegateProxy.connect(systemAdmin).roleRemove(memberSignature, [aclRoleTestId4]))
+        .to.emit(roleManagerDelegateProxy, "RoleRemoved")
+        .withArgs(livelyAdminWallet.address, aclRoleTestId4);
+
+      // then
+      expect(await roleManagerDelegateProxy.roleCheckId(aclRoleTestId4)).to.be.false;
+
+      // and
+      const roleInfo: IRoleManagement.RoleInfoStruct = await roleManagerDelegateProxy.roleGetInfo(aclRoleTestId4);
+      expect(roleInfo.name).to.be.empty;
+      expect(roleInfo.adminId).to.be.equal(ethers.constants.HashZero);
+      expect(roleInfo.scopeId).to.be.equal(ethers.constants.HashZero);
+      expect(roleInfo.typeId).to.be.equal(ethers.constants.HashZero);
+      expect(roleInfo.memberLimit).to.be.equal(0);
+      expect(roleInfo.memberCount).to.be.equal(0);
+      expect(roleInfo.adminType).to.be.equal(AgentType.NONE);
+      expect(roleInfo.acstat).to.be.equal(ActivityStatus.NONE);
+      expect(roleInfo.alstat).to.be.equal(AlterabilityStatus.NONE);
+
+      // and
+      expect(await roleManagerDelegateProxy.roleCheckId(aclRoleTestId4)).to.be.false;
+      expect(await roleManagerDelegateProxy.roleCheckName(ACL_ROLE_TEST_NAME_4)).to.be.false;
+      expect(await roleManagerDelegateProxy.roleCheckAdmin(aclRoleTestId4, livelyAdminWallet.address)).to.be.false;
+
+      // and
+      const functionInfo: IFunctionManagement.FunctionInfoStruct = await functionManagerDelegateProxy.functionGetInfo(
+        memberRegisterFunctionId
+      );
+      expect(functionInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
+      expect(functionInfo.agentId).to.be.equal(LIVELY_VERSE_ANY_TYPE_ID);
+      expect(functionInfo.contextId).to.be.equal(memberContextId);
+      expect(functionInfo.adminType).to.be.equal(AgentType.TYPE);
+      expect(functionInfo.agentType).to.be.equal(AgentType.TYPE);
+      expect(functionInfo.policyCode).to.be.equal(250);
+      expect(functionInfo.selector).to.be.equal(memberIface.getSighash("memberRegister"));
+      expect(functionInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+      expect(functionInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+      expect(functionInfo.referredByAgent).to.be.equal(1);
+    });
+
+    it("Should register aclRoleTest4 in ACL_TYPE_TEST type success", async () => {
+      // given
+      const memberContextId = ethers.utils.keccak256(memberManagerProxy.address);
+      const memberRegisterFunctionId = ethers.utils.keccak256(
+        ethers.utils.solidityPack(
+          ["address", "bytes4"],
+          [memberManagerProxy.address, memberIface.getSighash("memberRegister")]
+        )
+      );
+      aclRoleTestId4 = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_TEST_NAME_4));
+      const roleRegisterRequests: IRoleManagement.RoleRegisterRequestStruct[] = [
+        {
+          adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+          scopeId: memberRegisterFunctionId,
+          typeId: aclTypeTestId,
+          memberLimit: 2,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
+          name: ACL_ROLE_TEST_NAME_4,
+        },
+      ];
+      const expiredAt = BigNumber.from(Date.now() + 10000);
+      const signature = generateMemberSignatureManually(
+        livelyAdminWallet.address,
+        aclManagerProxy.address,
+        livelyAdminWallet,
+        networkChainId,
+        expiredAt
+      );
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: livelyAdminWallet.address,
+        expiredAt,
+        signature,
+      };
+
+      // when
+      await expect(roleManagerDelegateProxy.connect(systemAdmin).roleRegister(memberSignature, roleRegisterRequests))
+        .to.emit(roleManagerDelegateProxy, "RoleRegistered")
+        .withArgs(
+          livelyAdminWallet.address,
+          aclRoleTestId4,
+          aclTypeTestId,
+          LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
+          memberRegisterFunctionId
+        );
+
+      // then
+      expect(await roleManagerDelegateProxy.roleCheckId(aclRoleTestId4)).to.be.true;
+
+      // and
+      const roleInfo: IRoleManagement.RoleInfoStruct = await roleManagerDelegateProxy.roleGetInfo(aclRoleTestId4);
+      expect(roleInfo.name).to.be.equal(ACL_ROLE_TEST_NAME_4);
+      expect(roleInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_ADMIN_ROLE_ID);
+      expect(roleInfo.scopeId).to.be.equal(memberRegisterFunctionId);
+      expect(roleInfo.typeId).to.be.equal(aclTypeTestId);
+      expect(roleInfo.memberLimit).to.be.equal(2);
+      expect(roleInfo.memberCount).to.be.equal(0);
+      expect(roleInfo.adminType).to.be.equal(AgentType.ROLE);
+      expect(roleInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+      expect(roleInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+
+      // and
+      expect(await roleManagerDelegateProxy.roleCheckId(aclRoleTestId4)).to.be.true;
+      expect(await roleManagerDelegateProxy.roleCheckName(ACL_ROLE_TEST_NAME_4)).to.be.true;
+      expect(await roleManagerDelegateProxy.roleCheckAdmin(aclRoleTestId4, livelyAdminWallet.address)).to.be.true;
+
+      // and
+      const functionInfo: IFunctionManagement.FunctionInfoStruct = await functionManagerDelegateProxy.functionGetInfo(
+        memberRegisterFunctionId
+      );
+      expect(functionInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
+      expect(functionInfo.agentId).to.be.equal(LIVELY_VERSE_ANY_TYPE_ID);
+      expect(functionInfo.contextId).to.be.equal(memberContextId);
+      expect(functionInfo.adminType).to.be.equal(AgentType.TYPE);
+      expect(functionInfo.agentType).to.be.equal(AgentType.TYPE);
+      expect(functionInfo.policyCode).to.be.equal(250);
+      expect(functionInfo.selector).to.be.equal(memberIface.getSighash("memberRegister"));
+      expect(functionInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+      expect(functionInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+      expect(functionInfo.referredByAgent).to.be.equal(2);
     });
 
     it("Should update scope ACL_TYPE_TEST failed", async () => {
@@ -11426,7 +12175,7 @@ describe("Lively Guard Tests", function () {
       ).revertedWith("Illegal Grant");
     });
 
-    it("Should aclRoleTest grant systemAdmin to aclRoleTestId role success", async () => {
+    it("Should grant systemAdmin to aclRoleTestId role success", async () => {
       // given
       const systemAdminId = ethers.utils.keccak256(systemAdminWallet.address);
       const requests: IRoleManagement.RoleGrantMembersRequestStruct[] = [
@@ -11447,6 +12196,8 @@ describe("Lively Guard Tests", function () {
 
       // when
       await expect(roleManagerDelegateProxy.connect(livelyAdmin).roleGrantMembers(memberSignature, requests))
+        .to.emit(roleManagerDelegateProxy, "RoleMemberGranted")
+        .withArgs(livelyAdminWallet.address, LIVELY_VERSE_ACL_ADMIN_ROLE_ID, systemAdminId, LIVELY_VERSE_ACL_TYPE_ID)
         .to.emit(roleManagerDelegateProxy, "RoleMemberGranted")
         .withArgs(livelyAdminWallet.address, aclRoleTestId, systemAdminId, aclTypeTestId);
     });
@@ -11983,6 +12734,140 @@ describe("Lively Guard Tests", function () {
       expect(memberInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
     });
 
+    it("Should remove user3 member success", async () => {
+      // given
+      const roleMemberUserId3 = ethers.utils.keccak256(userWallet3.address);
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(memberManagerDelegateProxy.connect(livelyAdmin).memberRemove(memberSignature, [roleMemberUserId3]))
+        .to.emit(memberManagerDelegateProxy, "MemberRoleRevoked")
+        .withArgs(livelyAdminWallet.address, roleMemberUserId3, aclRoleTestId, aclTypeTestId)
+        .to.emit(memberManagerDelegateProxy, "MemberRemoved")
+        .withArgs(livelyAdminWallet.address, roleMemberUserId3, true);
+
+      // then
+      expect(await memberManagerDelegateProxy.memberCheckId(roleMemberUserId3)).to.be.false;
+
+      // and
+      const memberInfo: IMemberManagement.MemberInfoStruct = await memberManagerDelegateProxy.memberGetInfo(
+        roleMemberUserId3
+      );
+      expect(memberInfo.account).to.be.equal(ethers.constants.AddressZero);
+      expect(memberInfo.adminId).to.be.equal(ethers.constants.HashZero);
+      expect(memberInfo.adminType).to.be.equal(AgentType.NONE);
+      expect(memberInfo.atype).to.be.equal(AgentType.NONE);
+      expect(memberInfo.typeCount).to.be.equal(0);
+      expect(memberInfo.limits.memberLimit).to.be.equal(0);
+      expect(memberInfo.limits.memberRegisterLimit).to.be.equal(0);
+      expect(memberInfo.limits.contextRegisterLimit).to.be.equal(0);
+      expect(memberInfo.limits.functionRegisterLimit).to.be.equal(0);
+      expect(memberInfo.limits.profileRegisterLimit).to.be.equal(0);
+      expect(memberInfo.limits.contextLimit).to.be.equal(0);
+      expect(memberInfo.limits.realmLimit).to.be.equal(0);
+      expect(memberInfo.limits.domainLimit).to.be.equal(0);
+      expect(memberInfo.limits.callLimit).to.be.equal(0);
+      expect(memberInfo.limits.typeRoleLimit).to.be.equal(0);
+      expect(memberInfo.limits.typeLimit).to.be.equal(0);
+      expect(memberInfo.limits.roleRegisterLimit).to.be.equal(0);
+      expect(memberInfo.limits.typeRegisterLimit).to.be.equal(0);
+      expect(memberInfo.limits.realmRegisterLimit).to.be.equal(0);
+      expect(memberInfo.limits.domainRegisterLimit).to.be.equal(0);
+      expect(memberInfo.limits.policyRegisterLimit).to.be.equal(0);
+      expect(memberInfo.limits.policyRoleLimit).to.be.equal(0);
+      expect(memberInfo.limits.functionLimit).to.be.equal(0);
+      expect(memberInfo.acstat).to.be.equal(ActivityStatus.NONE);
+      expect(memberInfo.alstat).to.be.equal(AlterabilityStatus.NONE);
+    });
+
+    it("Should register user3 member to aclRoleTest success", async () => {
+      // given
+      const roleMemberUserId3 = ethers.utils.keccak256(userWallet3.address);
+      const requests: IMemberManagement.MemberRegisterRequestStruct[] = [
+        {
+          adminId: ethers.constants.HashZero,
+          roleId: aclRoleTestId,
+          account: userWallet3.address,
+          limits: {
+            memberLimit: 8,
+            memberRegisterLimit: 8,
+            contextRegisterLimit: 8,
+            functionRegisterLimit: 8,
+            profileRegisterLimit: 8,
+            contextLimit: 8,
+            realmLimit: 8,
+            domainLimit: 8,
+            callLimit: 2,
+            typeRoleLimit: 8,
+            typeLimit: 1,
+            roleRegisterLimit: 8,
+            typeRegisterLimit: 8,
+            realmRegisterLimit: 8,
+            domainRegisterLimit: 8,
+            policyRegisterLimit: 8,
+            policyRoleLimit: 8,
+            functionLimit: 8,
+          },
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
+        },
+      ];
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(memberManagerDelegateProxy.connect(user1).memberRegister(memberSignature, requests))
+        .to.emit(memberManagerDelegateProxy, "MemberRegistered")
+        .withArgs(
+          userWallet1.address,
+          roleMemberUserId3,
+          userWallet3.address,
+          aclRoleTestId,
+          LIVELY_VERSE_MEMBER_MASTER_TYPE_ID,
+          [8, 8, 8, 8, 8, 8, 8, 8, 2, 8, 1, 8, 8, 8, 8, 8, 8, 8]
+        );
+
+      // then
+      expect(await memberManagerDelegateProxy.memberCheckId(roleMemberUserId3)).to.be.true;
+
+      // and
+      const memberInfo: IMemberManagement.MemberInfoStruct = await memberManagerDelegateProxy.memberGetInfo(
+        roleMemberUserId3
+      );
+      expect(memberInfo.account).to.be.equal(userWallet3.address);
+      expect(memberInfo.adminId).to.be.equal(LIVELY_VERSE_MEMBER_MASTER_TYPE_ID);
+      expect(memberInfo.adminType).to.be.equal(AgentType.TYPE);
+      expect(memberInfo.atype).to.be.equal(AgentType.MEMBER);
+      expect(memberInfo.typeCount).to.be.equal(1);
+      expect(memberInfo.limits.memberLimit).to.be.equal(8);
+      expect(memberInfo.limits.memberRegisterLimit).to.be.equal(8);
+      expect(memberInfo.limits.contextRegisterLimit).to.be.equal(8);
+      expect(memberInfo.limits.functionRegisterLimit).to.be.equal(8);
+      expect(memberInfo.limits.profileRegisterLimit).to.be.equal(8);
+      expect(memberInfo.limits.contextLimit).to.be.equal(8);
+      expect(memberInfo.limits.realmLimit).to.be.equal(8);
+      expect(memberInfo.limits.domainLimit).to.be.equal(8);
+      expect(memberInfo.limits.callLimit).to.be.equal(2);
+      expect(memberInfo.limits.typeRoleLimit).to.be.equal(8);
+      expect(memberInfo.limits.typeLimit).to.be.equal(1);
+      expect(memberInfo.limits.roleRegisterLimit).to.be.equal(8);
+      expect(memberInfo.limits.typeRegisterLimit).to.be.equal(8);
+      expect(memberInfo.limits.realmRegisterLimit).to.be.equal(8);
+      expect(memberInfo.limits.domainRegisterLimit).to.be.equal(8);
+      expect(memberInfo.limits.policyRegisterLimit).to.be.equal(8);
+      expect(memberInfo.limits.policyRoleLimit).to.be.equal(8);
+      expect(memberInfo.limits.functionLimit).to.be.equal(8);
+      expect(memberInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+      expect(memberInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+    });
+
     it("Should grant user3 to system admin role failed", async () => {
       // given
       const userId3 = ethers.utils.keccak256(userWallet3.address);
@@ -12305,14 +13190,14 @@ describe("Lively Guard Tests", function () {
       expect(memberInfo.atype).to.be.equal(AgentType.MEMBER);
       expect(memberInfo.typeCount).to.be.equal(1);
       expect(memberInfo.limits.memberLimit).to.be.equal(16);
-      expect(memberInfo.limits.memberRegisterLimit).to.be.equal(15);
+      expect(memberInfo.limits.memberRegisterLimit).to.be.equal(14);
       expect(memberInfo.limits.contextRegisterLimit).to.be.equal(16);
       expect(memberInfo.limits.functionRegisterLimit).to.be.equal(16);
       expect(memberInfo.limits.profileRegisterLimit).to.be.equal(16);
       expect(memberInfo.limits.contextLimit).to.be.equal(16);
       expect(memberInfo.limits.realmLimit).to.be.equal(16);
       expect(memberInfo.limits.domainLimit).to.be.equal(16);
-      expect(memberInfo.limits.callLimit).to.be.equal(30);
+      expect(memberInfo.limits.callLimit).to.be.equal(29);
       expect(memberInfo.limits.typeRoleLimit).to.be.equal(16);
       expect(memberInfo.limits.typeLimit).to.be.equal(15);
       expect(memberInfo.limits.roleRegisterLimit).to.be.equal(16);
@@ -12352,7 +13237,7 @@ describe("Lively Guard Tests", function () {
       expect(await memberManagerDelegateProxy.memberCheckAdmin(userId1, userWallet2.address)).to.be.true;
     });
 
-    it("Should user1 activity enable with itself failed", async () => {
+    it("Should user1 activity enable by itself failed", async () => {
       // given
       const userId1 = ethers.utils.keccak256(userWallet1.address);
       const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [
@@ -12370,7 +13255,7 @@ describe("Lively Guard Tests", function () {
       // when
       await expect(
         memberManagerDelegateProxy.connect(user1).memberUpdateActivityStatus(memberSignature, requests)
-      ).to.revertedWith("MemberActivityForbidden()");
+      ).to.revertedWith("ACLMemberActivityForbidden()")
     });
 
     it("Should user1 activity enable with user2 success", async () => {
@@ -12413,6 +13298,34 @@ describe("Lively Guard Tests", function () {
       await expect(roleManagerDelegateProxy.connect(systemAdmin).roleUpdateScope(memberSignature, roleRegisterRequests))
         .to.emit(roleManagerDelegateProxy, "RoleScopeUpdated")
         .withArgs(systemAdminWallet.address, aclRoleTestId, LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);
+    });
+
+    it("Should remove ACL_TYPE_TEST failed", async () => {
+      // given
+      aclTypeTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_TYPE_TEST_NAME));
+
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(typeManagerDelegateProxy.connect(systemAdmin).typeRemove(memberSignature, [aclTypeTestId]))
+        .to.revertedWith("Illegal Remove")
+    });
+
+    it("Should remove aclRoleTest failed", async () => {
+      // given
+      const emptyMemberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(roleManagerDelegateProxy.connect(systemAdmin).roleRemove(emptyMemberSignature, [aclRoleTestId]))
+        .to.revertedWith("Illegal MemberCount");
     });
   });
 
@@ -12470,6 +13383,141 @@ describe("Lively Guard Tests", function () {
       expect(await policyManagerDelegateProxy.policyCheckId(aclPolicyTestId)).to.be.true;
       expect(await policyManagerDelegateProxy.policyCheckName(ACL_POLICY_TEST_NAME)).to.be.true;
       expect(await policyManagerDelegateProxy.policyCheckAdmin(aclPolicyTestId, livelyAdminWallet.address)).to.be.true;
+
+      // and
+      const memberContextInfo: IContextManagement.ContextInfoStruct = await contextManagerDelegateProxy.contextGetInfo(
+        memberContextId
+      );
+      expect(memberContextInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
+      expect(memberContextInfo.adminType).to.be.equal(AgentType.TYPE);
+      expect(memberContextInfo.contractId).to.be.equal(memberManagerProxy.address);
+      expect(memberContextInfo.realmId).to.be.equal(LIVELY_VERSE_ACL_REALM_ID);
+      expect(memberContextInfo.functionLimit).to.be.equal(32);
+      expect(memberContextInfo.functionCount).to.be.equal(12);
+      expect(memberContextInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+      expect(memberContextInfo.alstat).to.be.equal(AlterabilityStatus.UPGRADABLE);
+      expect(memberContextInfo.referredByAgent).to.be.equal(1);
+    });
+
+    it("Should remove aclPolicyTest success", async () => {
+      // given
+      const memberContextId = ethers.utils.keccak256(memberManagerProxy.address);
+      aclPolicyTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_POLICY_TEST_NAME));
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyRemove(memberSignature, [aclPolicyTestId]))
+        .to.emit(policyManagerDelegateProxy, "PolicyRemoved")
+        .withArgs(livelyAdminWallet.address, aclPolicyTestId);
+
+      // then
+      expect(await policyManagerDelegateProxy.policyCheckId(aclPolicyTestId)).to.be.false;
+
+      // and
+      const policyInfo: IPolicyManagement.PolicyInfoStruct = await policyManagerDelegateProxy.policyGetInfo(
+        aclPolicyTestId
+      );
+      expect(policyInfo.name).to.be.empty;
+      expect(policyInfo.adminId).to.be.equal(ethers.constants.HashZero);
+      expect(policyInfo.scopeId).to.be.equal(ethers.constants.HashZero);
+      expect(policyInfo.roleLimit).to.be.equal(0);
+      expect(policyInfo.roleCount).to.be.equal(0);
+      expect(policyInfo.ptype).to.be.equal(PolicyType.UNLOCK);
+      expect(policyInfo.policyCode).to.be.equal(0);
+      expect(policyInfo.acstat).to.be.equal(ActivityStatus.NONE);
+      expect(policyInfo.alstat).to.be.equal(AlterabilityStatus.NONE);
+
+      // and
+      expect(await policyManagerDelegateProxy.policyCheckId(aclPolicyTestId)).to.be.false;
+      expect(await policyManagerDelegateProxy.policyCheckName(ACL_POLICY_TEST_NAME)).to.be.false;
+      expect(await policyManagerDelegateProxy.policyCheckAdmin(aclPolicyTestId, livelyAdminWallet.address)).to.be.false;
+
+      // and
+      const memberContextInfo: IContextManagement.ContextInfoStruct = await contextManagerDelegateProxy.contextGetInfo(
+        memberContextId
+      );
+      expect(memberContextInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
+      expect(memberContextInfo.adminType).to.be.equal(AgentType.TYPE);
+      expect(memberContextInfo.contractId).to.be.equal(memberManagerProxy.address);
+      expect(memberContextInfo.realmId).to.be.equal(LIVELY_VERSE_ACL_REALM_ID);
+      expect(memberContextInfo.functionLimit).to.be.equal(32);
+      expect(memberContextInfo.functionCount).to.be.equal(12);
+      expect(memberContextInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+      expect(memberContextInfo.alstat).to.be.equal(AlterabilityStatus.UPGRADABLE);
+      expect(memberContextInfo.referredByAgent).to.be.equal(0);
+    });
+
+    it("Should register aclPolicyTest in ACL policy success", async () => {
+      // given
+      const memberContextId = ethers.utils.keccak256(memberManagerProxy.address);
+      aclPolicyTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_POLICY_TEST_NAME));
+      const requests: IPolicyManagement.PolicyRegisterRequestStruct[] = [
+        {
+          adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+          scopeId: memberContextId,
+          roleLimit: 2,
+          policyCode: 80,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
+          name: ACL_POLICY_TEST_NAME,
+        },
+      ];
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(policyManagerDelegateProxy.connect(livelyAdmin).policyRegister(memberSignature, requests))
+        .to.emit(policyManagerDelegateProxy, "PolicyRegistered")
+        .withArgs(
+          livelyAdminWallet.address,
+          aclPolicyTestId,
+          memberContextId,
+          LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+          80
+        );
+
+      // then
+      expect(await policyManagerDelegateProxy.policyCheckId(aclPolicyTestId)).to.be.true;
+
+      // and
+      const policyInfo: IPolicyManagement.PolicyInfoStruct = await policyManagerDelegateProxy.policyGetInfo(
+        aclPolicyTestId
+      );
+      expect(policyInfo.name).to.be.equal(ACL_POLICY_TEST_NAME);
+      expect(policyInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
+      expect(policyInfo.scopeId).to.be.equal(memberContextId);
+      expect(policyInfo.roleLimit).to.be.equal(2);
+      expect(policyInfo.roleCount).to.be.equal(0);
+      expect(policyInfo.ptype).to.be.equal(PolicyType.MLOCK);
+      expect(policyInfo.policyCode).to.be.equal(80);
+      expect(policyInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+      expect(policyInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+
+      // and
+      expect(await policyManagerDelegateProxy.policyCheckId(aclPolicyTestId)).to.be.true;
+      expect(await policyManagerDelegateProxy.policyCheckName(ACL_POLICY_TEST_NAME)).to.be.true;
+      expect(await policyManagerDelegateProxy.policyCheckAdmin(aclPolicyTestId, livelyAdminWallet.address)).to.be.true;
+
+      // and
+      const memberContextInfo: IContextManagement.ContextInfoStruct = await contextManagerDelegateProxy.contextGetInfo(
+        memberContextId
+      );
+      expect(memberContextInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
+      expect(memberContextInfo.adminType).to.be.equal(AgentType.TYPE);
+      expect(memberContextInfo.contractId).to.be.equal(memberManagerProxy.address);
+      expect(memberContextInfo.realmId).to.be.equal(LIVELY_VERSE_ACL_REALM_ID);
+      expect(memberContextInfo.functionLimit).to.be.equal(32);
+      expect(memberContextInfo.functionCount).to.be.equal(12);
+      expect(memberContextInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+      expect(memberContextInfo.alstat).to.be.equal(AlterabilityStatus.UPGRADABLE);
+      expect(memberContextInfo.referredByAgent).to.be.equal(1);
     });
 
     it("Should add aclRoleTestId4 to aclPolicyTest success", async () => {
@@ -13072,10 +14120,192 @@ describe("Lively Guard Tests", function () {
       expect(await policyManagerDelegateProxy.policyCheckRoleAccess(aclRoleTestId, memberRegisterFunctionId)).to.be
         .true;
     });
+
+    it("Should remove aclPolicyTest failed", async () => {
+      // given
+      aclPolicyTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_POLICY_TEST_NAME));
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(policyManagerDelegateProxy.connect(systemAdmin).policyRemove(memberSignature, [aclPolicyTestId]))
+        .to.revertedWith("Illegal Remove");
+    });
   });
 
   describe("Scope Test", function () {
     // function manager tests
+    it("Should hard remove policyRemoveFunction success", async () => {
+      // given
+      const policyIface = new ethers.utils.Interface(PolicyManager__factory.abi);
+      const policyRemoveFunctionId = ethers.utils.keccak256(
+        ethers.utils.solidityPack(
+          ["address", "bytes4"],
+          [policyManagerProxy.address, policyIface.getSighash("policyRemove")]
+        )
+      );
+      const requests: IFunctionManagement.FunctionRemoveRequestStruct[] = [
+        {
+          functionId: policyRemoveFunctionId,
+          isSoftDelete: false,
+        },
+      ];
+
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(
+        functionManagerDelegateProxy.connect(livelyAdmin).functionRemove(memberSignature, requests)
+      ).to.emit(functionManagerDelegateProxy, "FunctionRemoved")
+        .withArgs(livelyAdminWallet.address, policyRemoveFunctionId, false);
+
+      // and
+      const functionInfo: IFunctionManagement.FunctionInfoStruct = await functionManagerDelegateProxy.functionGetInfo(
+        policyRemoveFunctionId
+      );
+      expect(functionInfo.adminId).to.be.equal(ethers.constants.HashZero);
+      expect(functionInfo.agentId).to.be.equal(ethers.constants.HashZero);
+      expect(functionInfo.contextId).to.be.equal(ethers.constants.HashZero);
+      expect(functionInfo.adminType).to.be.equal(AgentType.NONE);
+      expect(functionInfo.agentType).to.be.equal(AgentType.NONE);
+      expect(functionInfo.policyCode).to.be.equal(0);
+      expect(functionInfo.selector).to.be.equal("0x00000000");
+      expect(functionInfo.acstat).to.be.equal(ActivityStatus.NONE);
+      expect(functionInfo.alstat).to.be.equal(AlterabilityStatus.NONE);
+      expect(functionInfo.referredByAgent).to.be.equal(0);
+    });
+
+    it("Should soft remove memberRemoveFunction success", async () => {
+      // given
+      const memberContextId = ethers.utils.keccak256(memberManagerProxy.address);
+      const memberRemoveFunctionId = ethers.utils.keccak256(
+        ethers.utils.solidityPack(
+          ["address", "bytes4"],
+          [memberManagerProxy.address, memberIface.getSighash("memberRemove")]
+        )
+      );
+      const requests: IFunctionManagement.FunctionRemoveRequestStruct[] = [
+        {
+          functionId: memberRemoveFunctionId,
+          isSoftDelete: true,
+        },
+      ];
+
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(
+        functionManagerDelegateProxy.connect(livelyAdmin).functionRemove(memberSignature, requests)
+      ).to.emit(functionManagerDelegateProxy, "FunctionRemoved")
+        .withArgs(livelyAdminWallet.address, memberRemoveFunctionId, true);
+
+      // and
+      const functionInfo: IFunctionManagement.FunctionInfoStruct = await functionManagerDelegateProxy.functionGetInfo(
+        memberRemoveFunctionId
+      );
+      expect(functionInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
+      expect(functionInfo.agentId).to.be.equal(LIVELY_VERSE_ANY_TYPE_ID);
+      expect(functionInfo.contextId).to.be.equal(memberContextId);
+      expect(functionInfo.adminType).to.be.equal(AgentType.TYPE);
+      expect(functionInfo.agentType).to.be.equal(AgentType.TYPE);
+      expect(functionInfo.policyCode).to.be.equal(16);
+      expect(functionInfo.selector).to.be.equal(memberIface.getSighash("memberRemove"));
+      expect(functionInfo.acstat).to.be.equal(ActivityStatus.DELETED);
+      expect(functionInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+      expect(functionInfo.referredByAgent).to.be.equal(0);
+    });
+
+    it("Should disable alterability of memberRemoveFunction when softDeleted failed", async () => {
+      // given
+      const memberRemoveFunctionId = ethers.utils.keccak256(
+        ethers.utils.solidityPack(
+          ["address", "bytes4"],
+          [memberManagerProxy.address, memberIface.getSighash("memberRemove")]
+        )
+      );
+      const requests: IACLCommonsRoles.UpdateAlterabilityRequestStruct[] = [
+        {
+          id: memberRemoveFunctionId,
+          alstat: AlterabilityStatus.DISABLED,
+        },
+      ];
+
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(
+        functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateAlterabilityStatus(memberSignature, requests)
+      )
+        .to.revertedWith("Function Deleted");
+    });
+
+    it("Should enable activity of memberRemoveFunction success", async () => {
+      // given
+      const memberContextId = ethers.utils.keccak256(memberManagerProxy.address);
+      const memberRemoveFunctionId = ethers.utils.keccak256(
+        ethers.utils.solidityPack(
+          ["address", "bytes4"],
+          [memberManagerProxy.address, memberIface.getSighash("memberRemove")]
+        )
+      );
+      const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [
+        {
+          id: memberRemoveFunctionId,
+          acstat: ActivityStatus.ENABLED,
+        },
+      ];
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(
+        functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateActivityStatus(memberSignature, requests)
+      )
+        .to.emit(functionManagerDelegateProxy, "FunctionActivityUpdated")
+        .withArgs(livelyAdminWallet.address, memberRemoveFunctionId, ActivityStatus.ENABLED);
+
+      // then
+      expect(
+        await functionManagerDelegateProxy.functionCheckSelector(
+          memberManagerProxy.address,
+          memberIface.getSighash("memberRemove")
+        )
+      ).to.be.true;
+
+      // and
+      const functionInfo: IFunctionManagement.FunctionInfoStruct = await functionManagerDelegateProxy.functionGetInfo(
+        memberRemoveFunctionId
+      );
+      expect(functionInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
+      expect(functionInfo.agentId).to.be.equal(LIVELY_VERSE_ANY_TYPE_ID);
+      expect(functionInfo.contextId).to.be.equal(memberContextId);
+      expect(functionInfo.adminType).to.be.equal(AgentType.TYPE);
+      expect(functionInfo.agentType).to.be.equal(AgentType.TYPE);
+      expect(functionInfo.policyCode).to.be.equal(16);
+      expect(functionInfo.selector).to.be.equal(memberIface.getSighash("memberRemove"));
+      expect(functionInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+      expect(functionInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+      expect(functionInfo.referredByAgent).to.be.equal(0);
+    });
+
     it("Should disable alterability of memberRegisterFunction success", async () => {
       // given
       const memberRegisterFunctionId = ethers.utils.keccak256(
@@ -13750,6 +14980,185 @@ describe("Lively Guard Tests", function () {
     });
 
     // context manager test
+    it("Should register test context success", async() => {
+      // given
+      const baseUUPSProxy = await deployments.getArtifact("UUPSUpgradeableTest");
+      mockTestProxy = await deployMockContract(systemAdmin, baseUUPSProxy.abi);
+      const testContextId = ethers.utils.keccak256(mockTestProxy.address);
+      const contextRequests: IContextManagement.ContextRegisterRequestStruct[] = [
+        {
+          realmId: LIVELY_VERSE_ACL_REALM_ID,
+          adminId: LIVELY_VERSE_ACL_TYPE_ID,
+          salt: ethers.constants.HashZero,
+          name: "testContext",
+          version: CONTRACTS_VERSION,
+          contractId: mockTestProxy.address,
+          subject: ethers.constants.AddressZero,
+          deployer: ethers.constants.AddressZero,
+          functionLimit: 32,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPGRADABLE,
+          signature: new Int8Array(0),
+        },
+      ];
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(contextManagerDelegateProxy.connect(systemAdmin).contextRegister(memberSignature, contextRequests))
+        .to.emit(contextManagerDelegateProxy, "ContextRegistered")
+        .withArgs(
+          systemAdminWallet.address,
+          testContextId,
+          mockTestProxy.address,
+          LIVELY_VERSE_ACL_REALM_ID,
+          ethers.constants.AddressZero,
+          ethers.constants.AddressZero,
+          LIVELY_VERSE_ACL_TYPE_ID
+        )
+
+      // then
+      expect(await contextManagerDelegateProxy.contextCheckId(testContextId)).to.be.true;
+
+      // and
+      const contextInfo: IContextManagement.ContextInfoStruct = await contextManagerDelegateProxy.contextGetInfo(
+        testContextId
+      );
+      expect(contextInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
+      expect(contextInfo.adminType).to.be.equal(AgentType.TYPE);
+      expect(contextInfo.contractId).to.be.equal(mockTestProxy.address);
+      expect(contextInfo.realmId).to.be.equal(LIVELY_VERSE_ACL_REALM_ID);
+      expect(contextInfo.functionLimit).to.be.equal(32);
+      expect(contextInfo.functionCount).to.be.equal(0);
+      expect(contextInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+      expect(contextInfo.alstat).to.be.equal(AlterabilityStatus.UPGRADABLE);
+      expect(contextInfo.referredByAgent).to.be.equal(0);
+    });
+
+    it("Should remove hard remove test context success", async() => {
+      const testContextId = ethers.utils.keccak256(mockTestProxy.address);
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(contextManagerDelegateProxy.connect(livelyAdmin).contextRemove(memberSignature, [testContextId]))
+        .to.emit(contextManagerDelegateProxy, "ContextRemoved")
+        .withArgs(livelyAdminWallet.address, testContextId, false)
+
+      // then
+      expect(await contextManagerDelegateProxy.contextCheckId(testContextId)).to.be.false;
+
+      // and
+      const contextInfo: IContextManagement.ContextInfoStruct = await contextManagerDelegateProxy.contextGetInfo(
+        testContextId
+      );
+      expect(contextInfo.adminId).to.be.equal(ethers.constants.HashZero);
+      expect(contextInfo.adminType).to.be.equal(AgentType.NONE);
+      expect(contextInfo.contractId).to.be.equal(ethers.constants.AddressZero);
+      expect(contextInfo.realmId).to.be.equal(ethers.constants.HashZero);
+      expect(contextInfo.functionLimit).to.be.equal(0);
+      expect(contextInfo.functionCount).to.be.equal(0);
+      expect(contextInfo.acstat).to.be.equal(ActivityStatus.NONE);
+      expect(contextInfo.alstat).to.be.equal(AlterabilityStatus.NONE);
+      expect(contextInfo.referredByAgent).to.be.equal(0);
+    });
+
+    it("Should remove soft remove profileManager context success", async() => {
+      const profileContextId = ethers.utils.keccak256(profileManagerProxy.address);
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(contextManagerDelegateProxy.connect(livelyAdmin).contextRemove(memberSignature, [profileContextId]))
+        .to.emit(contextManagerDelegateProxy, "ContextRemoved")
+        .withArgs(livelyAdminWallet.address, profileContextId, true)
+
+      // then
+      expect(await contextManagerDelegateProxy.contextCheckId(profileContextId)).to.be.true;
+
+      // and
+      const contextInfo: IContextManagement.ContextInfoStruct = await contextManagerDelegateProxy.contextGetInfo(
+        profileContextId
+      );
+      expect(contextInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
+      expect(contextInfo.adminType).to.be.equal(AgentType.TYPE);
+      expect(contextInfo.contractId).to.be.equal(profileManagerProxy.address);
+      expect(contextInfo.realmId).to.be.equal(LIVELY_VERSE_ACL_REALM_ID);
+      expect(contextInfo.functionLimit).to.be.equal(32);
+      expect(contextInfo.functionCount).to.be.equal(12);
+      expect(contextInfo.acstat).to.be.equal(ActivityStatus.DELETED);
+      expect(contextInfo.alstat).to.be.equal(AlterabilityStatus.UPGRADABLE);
+      expect(contextInfo.referredByAgent).to.be.equal(0);
+    });
+
+    it("Should disable alterability of profileManager context when softDeleted failed", async () => {
+      // given
+      const profileManagerContextId = ethers.utils.keccak256(profileManagerProxy.address);
+      const requests: IACLCommonsRoles.UpdateAlterabilityRequestStruct[] = [
+        {
+          id: profileManagerContextId,
+          alstat: AlterabilityStatus.DISABLED,
+        },
+      ];
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(
+        contextManagerDelegateProxy.connect(livelyAdmin).contextUpdateAlterabilityStatus(memberSignature, requests)
+      )
+        .to.revertedWith("Context Deleted");
+    });
+
+    it("Should enable activity of profileManager context success", async () => {
+      // given
+      const profileManagerContextId = ethers.utils.keccak256(profileManagerProxy.address);
+      const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [
+        {
+          id: profileManagerContextId,
+          acstat: ActivityStatus.ENABLED,
+        },
+      ];
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(
+        contextManagerDelegateProxy.connect(livelyAdmin).contextUpdateActivityStatus(memberSignature, requests)
+      )
+        .to.emit(contextManagerDelegateProxy, "ContextActivityUpdated")
+        .withArgs(livelyAdminWallet.address, profileManagerContextId, ActivityStatus.ENABLED);
+
+      // and
+      const contextInfo: IContextManagement.ContextInfoStruct = await contextManagerDelegateProxy.contextGetInfo(
+        profileManagerContextId
+      );
+      expect(contextInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
+      expect(contextInfo.adminType).to.be.equal(AgentType.TYPE);
+      expect(contextInfo.contractId).to.be.equal(profileManagerProxy.address);
+      expect(contextInfo.realmId).to.be.equal(LIVELY_VERSE_ACL_REALM_ID);
+      expect(contextInfo.functionLimit).to.be.equal(32);
+      expect(contextInfo.functionCount).to.be.equal(12);
+      expect(contextInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+      expect(contextInfo.alstat).to.be.equal(AlterabilityStatus.UPGRADABLE);
+      expect(contextInfo.referredByAgent).to.be.equal(0);
+    });
+
     it("Should disable alterability of memberContext success", async () => {
       // given
       const memberContextId = ethers.utils.keccak256(memberManagerProxy.address);
@@ -13897,7 +15306,7 @@ describe("Lively Guard Tests", function () {
       expect(memberContextInfo.contractId).to.be.equal(memberManagerProxy.address);
       expect(memberContextInfo.realmId).to.be.equal(LIVELY_VERSE_ACL_REALM_ID);
       expect(memberContextInfo.functionLimit).to.be.equal(32);
-      expect(memberContextInfo.functionCount).to.be.equal(11);
+      expect(memberContextInfo.functionCount).to.be.equal(12);
       expect(memberContextInfo.acstat).to.be.equal(ActivityStatus.DISABLED);
       expect(memberContextInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
       expect(memberContextInfo.referredByAgent).to.be.equal(0);
@@ -13943,7 +15352,7 @@ describe("Lively Guard Tests", function () {
 
       // and
       const functionIds = await contextManagerDelegateProxy.contextGetFunctions(memberContextId);
-      expect(functionIds.length).to.be.equal(11);
+      expect(functionIds.length).to.be.equal(12);
     });
 
     it("Should update admin of memberContext success", async () => {
@@ -14000,7 +15409,7 @@ describe("Lively Guard Tests", function () {
       expect(memberContextInfo.contractId).to.be.equal(memberManagerProxy.address);
       expect(memberContextInfo.realmId).to.be.equal(LIVELY_VERSE_ACL_REALM_ID);
       expect(memberContextInfo.functionLimit).to.be.equal(25);
-      expect(memberContextInfo.functionCount).to.be.equal(11);
+      expect(memberContextInfo.functionCount).to.be.equal(12);
       expect(memberContextInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
       expect(memberContextInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
       expect(memberContextInfo.referredByAgent).to.be.equal(0);
@@ -14064,6 +15473,198 @@ describe("Lively Guard Tests", function () {
         LIVELY_VERSE_ACL_DOMAIN_ID,
         aclDomainTestId,
       ]);
+    });
+
+    it("Should hard remove aclDomainTest success", async () => {
+      // given
+      aclDomainTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_DOMAIN_TEST_NAME));
+      const expiredAt = BigNumber.from(Date.now() + 10000);
+      const signature = generateMemberSignatureManually(
+        livelyAdminWallet.address,
+        aclManagerProxy.address,
+        livelyAdminWallet,
+        networkChainId,
+        expiredAt
+      );
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: livelyAdminWallet.address,
+        expiredAt,
+        signature,
+      };
+
+      // when
+      await expect(domainManagerDelegateProxy.connect(systemAdmin).domainRemove(memberSignature, [aclDomainTestId]))
+        .to.emit(domainManagerDelegateProxy, "DomainRemoved")
+        .withArgs(livelyAdminWallet.address, aclDomainTestId, false);
+
+      // then
+      expect(await domainManagerDelegateProxy.domainCheckId(aclDomainTestId)).to.be.false;
+
+      // and
+      const domainInfo: IDomainManagement.DomainInfoStruct = await domainManagerDelegateProxy.domainGetInfo(
+        aclDomainTestId
+      );
+      expect(domainInfo.name).to.be.empty;
+      expect(domainInfo.universeId).to.be.equal(ethers.constants.HashZero);
+      expect(domainInfo.adminId).to.be.equal(ethers.constants.HashZero);
+      expect(domainInfo.adminType).to.be.equal(AgentType.NONE);
+      expect(domainInfo.realmLimit).to.be.equal(0);
+      expect(domainInfo.realmCount).to.be.equal(0);
+      expect(domainInfo.referredByAgent).to.be.equal(0);
+      expect(domainInfo.stype).to.be.equal(ScopeType.NONE);
+      expect(domainInfo.acstat).to.be.equal(ActivityStatus.NONE);
+      expect(domainInfo.alstat).to.be.equal(AlterabilityStatus.NONE);
+
+      // and
+      expect(await domainManagerDelegateProxy.domainCheckId(aclDomainTestId)).to.be.false;
+      expect(await domainManagerDelegateProxy.domainCheckName(ACL_DOMAIN_TEST_NAME)).to.be.false
+      expect(await domainManagerDelegateProxy.domainCheckAdmin(aclDomainTestId, livelyAdminWallet.address)).to.be.false;
+      expect(await universeManagerDelegateProxy.universeGetDomains()).to.be.eqls([
+        LIVELY_VERSE_ACL_DOMAIN_ID,
+      ]);
+    });
+
+    it("Should register aclDomainTest in ACL Universe success", async () => {
+      // given
+      aclDomainTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_DOMAIN_TEST_NAME));
+      const requests: IDomainManagement.DomainRegisterRequestStruct[] = [
+        {
+          adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+          realmLimit: 1,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.DISABLED,
+          name: ACL_DOMAIN_TEST_NAME,
+        },
+      ];
+      const expiredAt = BigNumber.from(Date.now() + 10000);
+      const signature = generateMemberSignatureManually(
+        livelyAdminWallet.address,
+        aclManagerProxy.address,
+        livelyAdminWallet,
+        networkChainId,
+        expiredAt
+      );
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: livelyAdminWallet.address,
+        expiredAt,
+        signature,
+      };
+
+      // when
+      await expect(domainManagerDelegateProxy.connect(systemAdmin).domainRegister(memberSignature, requests))
+        .to.emit(domainManagerDelegateProxy, "DomainRegistered")
+        .withArgs(livelyAdminWallet.address, aclDomainTestId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
+
+      // then
+      expect(await domainManagerDelegateProxy.domainCheckId(aclDomainTestId)).to.be.true;
+
+      // and
+      const domainInfo: IDomainManagement.DomainInfoStruct = await domainManagerDelegateProxy.domainGetInfo(
+        aclDomainTestId
+      );
+      expect(domainInfo.name).to.be.equal(ACL_DOMAIN_TEST_NAME);
+      expect(domainInfo.universeId).to.be.equal(LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);
+      expect(domainInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
+      expect(domainInfo.adminType).to.be.equal(AgentType.ROLE);
+      expect(domainInfo.realmLimit).to.be.equal(1);
+      expect(domainInfo.realmCount).to.be.equal(0);
+      expect(domainInfo.referredByAgent).to.be.equal(0);
+      expect(domainInfo.stype).to.be.equal(ScopeType.DOMAIN);
+      expect(domainInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+      expect(domainInfo.alstat).to.be.equal(AlterabilityStatus.DISABLED);
+
+      // and
+      expect(await domainManagerDelegateProxy.domainCheckId(aclDomainTestId)).to.be.true;
+      expect(await domainManagerDelegateProxy.domainCheckName(ACL_DOMAIN_TEST_NAME)).to.be.true;
+      expect(await domainManagerDelegateProxy.domainCheckAdmin(aclDomainTestId, livelyAdminWallet.address)).to.be.true;
+      expect(await universeManagerDelegateProxy.universeGetDomains()).to.be.eqls([
+        LIVELY_VERSE_ACL_DOMAIN_ID,
+        aclDomainTestId,
+      ]);
+    });
+
+    it("Should soft remove main aclDomain success", async () => {
+      // given
+      const expiredAt = BigNumber.from(Date.now() + 10000);
+      const signature = generateMemberSignatureManually(
+        livelyAdminWallet.address,
+        aclManagerProxy.address,
+        livelyAdminWallet,
+        networkChainId,
+        expiredAt
+      );
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: livelyAdminWallet.address,
+        expiredAt,
+        signature,
+      };
+
+      // when
+      await expect(domainManagerDelegateProxy.connect(systemAdmin).domainRemove(memberSignature, [LIVELY_VERSE_ACL_DOMAIN_ID]))
+        .to.emit(domainManagerDelegateProxy, "DomainRemoved")
+        .withArgs(livelyAdminWallet.address, LIVELY_VERSE_ACL_DOMAIN_ID, true);
+
+      // then
+      expect(await domainManagerDelegateProxy.domainCheckId(LIVELY_VERSE_ACL_DOMAIN_ID)).to.be.true;
+
+      // and
+      const domainInfo: IDomainManagement.DomainInfoStruct = await domainManagerDelegateProxy.domainGetInfo(
+        LIVELY_VERSE_ACL_DOMAIN_ID
+      );
+      expect(domainInfo.name).to.be.equal("DOMAIN.LIVELY_VERSE.LIVELY_GUARD");
+      expect(domainInfo.universeId).to.be.equal(LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);
+      expect(domainInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
+      expect(domainInfo.adminType).to.be.equal(AgentType.TYPE);
+      expect(domainInfo.realmLimit).to.be.equal(3);
+      expect(domainInfo.realmCount).to.be.equal(1);
+      expect(domainInfo.referredByAgent).to.be.equal(2);
+      expect(domainInfo.stype).to.be.equal(ScopeType.DOMAIN);
+      expect(domainInfo.acstat).to.be.equal(ActivityStatus.DELETED);
+      expect(domainInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+
+    });
+
+    it("Should update alterability of main aclDomain when softDelete failed", async () => {
+      // given
+      const requests: IACLCommonsRoles.UpdateAlterabilityRequestStruct[] = [
+        {
+          id: aclDomainTestId,
+          alstat: AlterabilityStatus.UPDATABLE,
+        },
+      ];
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(
+        domainManagerDelegateProxy.connect(livelyAdmin).domainUpdateAlterabilityStatus(memberSignature, requests)
+      )
+        .to.revertedWith("ACLDomainActivityForbidden()")
+    });
+
+    it("Should enable activity of main aclDomain success", async () => {
+      // given
+      const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [
+        {
+          id: LIVELY_VERSE_ACL_DOMAIN_ID,
+          acstat: ActivityStatus.ENABLED,
+        },
+      ];
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(
+        domainManagerDelegateProxy.connect(livelyAdmin).domainUpdateActivityStatus(memberSignature, requests)
+      )
+        .to.emit(domainManagerDelegateProxy, "DomainActivityUpdated")
+        .withArgs(livelyAdminWallet.address, LIVELY_VERSE_ACL_DOMAIN_ID, ActivityStatus.ENABLED);
     });
 
     it("Should update admin of aclDomainTest when alterability disabled failed", async () => {
@@ -14298,6 +15899,184 @@ describe("Lively Guard Tests", function () {
     });
 
     // realm manager tests
+    it("Should register aclRealmTest to aclDomainTestId success", async () => {
+      // given
+      const memberRegisterFunctionId = ethers.utils.keccak256(
+        ethers.utils.solidityPack(
+          ["address", "bytes4"],
+          [memberManagerProxy.address, memberIface.getSighash("memberRegister")]
+        )
+      );
+      aclRealmTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_REALM_TEST_NAME));
+      const requests: IRealmManagement.RealmRegisterRequestStruct[] = [
+        {
+          domainId: aclDomainTestId,
+          adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
+          contextLimit: 1,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.DISABLED,
+          name: ACL_REALM_TEST_NAME,
+        },
+      ];
+      const expiredAt = BigNumber.from(Date.now() + 10000);
+      const signature = generateMemberSignatureManually(
+        userWallet1.address,
+        aclManagerProxy.address,
+        userWallet1,
+        networkChainId,
+        expiredAt
+      );
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: userWallet1.address,
+        expiredAt,
+        signature,
+      };
+
+      // when
+      await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmRegister(memberSignature, requests))
+        .to.emit(realmManagerDelegateProxy, "RealmRegistered")
+        .withArgs(userWallet1.address, aclRealmTestId, aclDomainTestId, LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
+
+      // then
+      expect(await realmManagerDelegateProxy.realmCheckId(aclRealmTestId)).to.be.true;
+
+      // and
+      const realmInfo: IRealmManagement.RealmInfoStruct = await realmManagerDelegateProxy.realmGetInfo(aclRealmTestId);
+      expect(realmInfo.name).to.be.equal(ACL_REALM_TEST_NAME);
+      expect(realmInfo.domainId).to.be.equal(aclDomainTestId);
+      expect(realmInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
+      expect(realmInfo.adminType).to.be.equal(AgentType.ROLE);
+      expect(realmInfo.contextLimit).to.be.equal(1);
+      expect(realmInfo.contextCount).to.be.equal(0);
+      expect(realmInfo.referredByAgent).to.be.equal(0);
+      expect(realmInfo.stype).to.be.equal(ScopeType.REALM);
+      expect(realmInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+      expect(realmInfo.alstat).to.be.equal(AlterabilityStatus.DISABLED);
+
+      // and
+      expect(await realmManagerDelegateProxy.realmCheckId(aclRealmTestId)).to.be.true;
+      expect(await realmManagerDelegateProxy.realmCheckName(ACL_REALM_TEST_NAME)).to.be.true;
+      expect(await realmManagerDelegateProxy.realmCheckAdmin(aclRealmTestId, livelyAdminWallet.address)).to.be.true;
+      expect(await realmManagerDelegateProxy.realmHasFunction(LIVELY_VERSE_ACL_REALM_ID, memberRegisterFunctionId)).to
+        .be.true;
+      expect(
+        await realmManagerDelegateProxy.realmHasContext(
+          LIVELY_VERSE_ACL_REALM_ID,
+          ethers.utils.keccak256(memberManagerProxy.address)
+        )
+      ).to.be.true;
+
+      //
+      const contexts = await realmManagerDelegateProxy.realmGetContexts(LIVELY_VERSE_ACL_REALM_ID);
+      expect(contexts.length).to.be.equal(22);
+    });
+
+    it("Should hard remove aclRealmTest success", async () => {
+      // given
+      const emptyMemberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmRemove(emptyMemberSignature, [aclRealmTestId]))
+        .to.emit(realmManagerDelegateProxy, "RealmRemoved")
+        .withArgs(livelyAdminWallet.address, aclRealmTestId, false);
+
+      // then
+      expect(await realmManagerDelegateProxy.realmCheckId(aclRealmTestId)).to.be.false;
+
+      // and
+      const realmInfo: IRealmManagement.RealmInfoStruct = await realmManagerDelegateProxy.realmGetInfo(aclRealmTestId);
+      expect(realmInfo.name).to.be.empty;
+      expect(realmInfo.domainId).to.be.equal(ethers.constants.HashZero);
+      expect(realmInfo.adminId).to.be.equal(ethers.constants.HashZero);
+      expect(realmInfo.adminType).to.be.equal(AgentType.NONE);
+      expect(realmInfo.contextLimit).to.be.equal(0);
+      expect(realmInfo.contextCount).to.be.equal(0);
+      expect(realmInfo.referredByAgent).to.be.equal(0);
+      expect(realmInfo.stype).to.be.equal(ScopeType.NONE);
+      expect(realmInfo.acstat).to.be.equal(ActivityStatus.NONE);
+      expect(realmInfo.alstat).to.be.equal(AlterabilityStatus.NONE);
+
+      // and
+      expect(await realmManagerDelegateProxy.realmCheckId(aclRealmTestId)).to.be.false;
+      expect(await realmManagerDelegateProxy.realmCheckName(ACL_REALM_TEST_NAME)).to.be.false;
+      expect(await realmManagerDelegateProxy.realmCheckAdmin(aclRealmTestId, livelyAdminWallet.address)).to.be.false;
+    });
+
+    it("Should soft remove aclRealm main success", async () => {
+      // given
+      const emptyMemberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmRemove(emptyMemberSignature, [LIVELY_VERSE_ACL_REALM_ID]))
+        .to.emit(realmManagerDelegateProxy, "RealmRemoved")
+        .withArgs(livelyAdminWallet.address, LIVELY_VERSE_ACL_REALM_ID, true);
+
+      // then
+      expect(await realmManagerDelegateProxy.realmCheckId(LIVELY_VERSE_ACL_REALM_ID)).to.be.true;
+
+      // and
+      const realmInfo: IRealmManagement.RealmInfoStruct = await realmManagerDelegateProxy.realmGetInfo(LIVELY_VERSE_ACL_REALM_ID);
+      expect(realmInfo.name).to.be.equal("REALM.LIVELY_VERSE.LIVELY_GUARD.ACL");
+      expect(realmInfo.domainId).to.be.equal(LIVELY_VERSE_ACL_DOMAIN_ID);
+      expect(realmInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
+      expect(realmInfo.adminType).to.be.equal(AgentType.TYPE);
+      expect(realmInfo.contextLimit).to.be.equal(128);
+      expect(realmInfo.contextCount).to.be.equal(22);
+      expect(realmInfo.referredByAgent).to.be.equal(1);
+      expect(realmInfo.stype).to.be.equal(ScopeType.REALM);
+      expect(realmInfo.acstat).to.be.equal(ActivityStatus.DELETED);
+      expect(realmInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+    });
+
+    it("Should update alterability of aclRealmT when softDeleted failed", async () => {
+      // given
+      const requests: IACLCommonsRoles.UpdateAlterabilityRequestStruct[] = [
+        {
+          id: LIVELY_VERSE_ACL_REALM_ID,
+          alstat: AlterabilityStatus.UPDATABLE,
+        },
+      ];
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(
+        realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateAlterabilityStatus(memberSignature, requests)
+      )
+        .to.revertedWith("ACLRealmActivityForbidden()");
+    });
+
+    it("Should enable activity of aclRealmTest success", async () => {
+      // given
+      const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [
+        {
+          id: LIVELY_VERSE_ACL_REALM_ID,
+          acstat: ActivityStatus.ENABLED,
+        },
+      ];
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateActivityStatus(memberSignature, requests))
+        .to.emit(realmManagerDelegateProxy, "RealmActivityUpdated")
+        .withArgs(livelyAdminWallet.address, LIVELY_VERSE_ACL_REALM_ID, ActivityStatus.ENABLED);
+    });
+
     it("Should register aclRealmTest to aclDomainTestId success", async () => {
       // given
       const memberRegisterFunctionId = ethers.utils.keccak256(
@@ -14633,7 +16412,7 @@ describe("Lively Guard Tests", function () {
       expect(memberContextInfo.contractId).to.be.equal(memberManagerProxy.address);
       expect(memberContextInfo.realmId).to.be.equal(aclRealmTestId);
       expect(memberContextInfo.functionLimit).to.be.equal(25);
-      expect(memberContextInfo.functionCount).to.be.equal(11);
+      expect(memberContextInfo.functionCount).to.be.equal(12);
       expect(memberContextInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
       expect(memberContextInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
       expect(memberContextInfo.referredByAgent).to.be.equal(0);
@@ -14749,7 +16528,7 @@ describe("Lively Guard Tests", function () {
       expect(universeInfo.acstat).to.be.equal(ActivityStatus.DISABLED);
       expect(universeInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
       expect(universeInfo.stype).to.be.equal(ScopeType.UNIVERSE);
-      expect(universeInfo.referredByAgent).to.be.equal(18);
+      expect(universeInfo.referredByAgent).to.be.equal(19);
     });
 
     it("Should register aclDomainTest2 in Universe failed", async () => {
@@ -14902,7 +16681,7 @@ describe("Lively Guard Tests", function () {
       expect(universeInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
       expect(universeInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
       expect(universeInfo.stype).to.be.equal(ScopeType.UNIVERSE);
-      expect(universeInfo.referredByAgent).to.be.equal(19);
+      expect(universeInfo.referredByAgent).to.be.equal(20);
 
       // and
       expect(await universeManagerDelegateProxy.universeCheckAdmin(userWallet1.address)).to.be.false;
@@ -15052,7 +16831,11 @@ describe("Lively Guard Tests", function () {
       const domainFunctionUpgradeRequests: IACLManager.FacetSelectorUpgradeRequestStruct[] = [
         {
           action: ActionType.REMOVE,
-          selectors: [domainIface.getSighash("domainRegister"), domainIface.getSighash("domainMoveRealm")],
+          selectors: [
+            domainIface.getSighash("domainRegister"),
+            domainIface.getSighash("domainMoveRealm"),
+            domainIface.getSighash("domainRemove"),
+          ],
         },
         {
           action: ActionType.ADD,
@@ -15063,7 +16846,10 @@ describe("Lively Guard Tests", function () {
       const aclFunctionUpgradeRequests: IACLManager.FacetSelectorUpgradeRequestStruct[] = [
         {
           action: ActionType.REMOVE,
-          selectors: [aclIface.getSighash("initialize"), aclIface.getSighash("initACL")],
+          selectors: [
+            aclIface.getSighash("initialize"),
+            aclIface.getSighash("initACL")
+          ],
         },
         {
           action: ActionType.ADD,
@@ -15100,6 +16886,13 @@ describe("Lively Guard Tests", function () {
           systemAdminWallet.address,
           domainManagerProxy.address,
           domainIface.getSighash("domainMoveRealm"),
+          ActionType.REMOVE
+        )
+        .to.emit(aclManagerProxy, "ACLFacetFunctionUpgraded")
+        .withArgs(
+          systemAdminWallet.address,
+          domainManagerProxy.address,
+          domainIface.getSighash("domainRemove"),
           ActionType.REMOVE
         )
         .to.emit(aclManagerProxy, "ACLFacetFunctionUpgraded")
@@ -15161,7 +16954,7 @@ describe("Lively Guard Tests", function () {
       expect(await aclManagerProxy.getLibrary()).to.be.equal(lACLManagerTest.address);
     });
 
-    it("Should delete activity of domainRegister in domainContext by livelyAdmin success", async () => {
+    it("Should delete of domain old functions in domainContext by livelyAdmin success", async () => {
       // given
       const domainIface = new ethers.utils.Interface(DomainManager__factory.abi);
       const domainRegisterFunctionId = ethers.utils.keccak256(
@@ -15170,56 +16963,31 @@ describe("Lively Guard Tests", function () {
           [domainManagerProxy.address, domainIface.getSighash("domainRegister")]
         )
       );
-      const domainContextId = ethers.utils.keccak256(domainManagerProxy.address);
-      const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [
-        {
-          id: domainRegisterFunctionId,
-          acstat: ActivityStatus.DELETED,
-        },
-      ];
-      const memberSignature: IACLCommons.MemberSignatureStruct = {
-        account: ethers.constants.AddressZero,
-        expiredAt: 0,
-        signature: new Int8Array(0),
-      };
-
-      // when
-      await expect(
-        functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateActivityStatus(memberSignature, requests)
-      )
-        .to.emit(functionManagerDelegateProxy, "FunctionActivityUpdated")
-        .withArgs(livelyAdminWallet.address, domainRegisterFunctionId, ActivityStatus.DELETED);
-
-      // then
-      const functionInfo: IFunctionManagement.FunctionInfoStruct = await functionManagerDelegateProxy.functionGetInfo(
-        domainRegisterFunctionId
-      );
-      expect(functionInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
-      expect(functionInfo.agentId).to.be.equal(LIVELY_VERSE_SCOPE_MASTER_TYPE_ID);
-      expect(functionInfo.contextId).to.be.equal(domainContextId);
-      expect(functionInfo.adminType).to.be.equal(AgentType.TYPE);
-      expect(functionInfo.agentType).to.be.equal(AgentType.TYPE);
-      expect(functionInfo.policyCode).to.be.equal(250);
-      expect(functionInfo.selector).to.be.equal(domainIface.getSighash("domainRegister"));
-      expect(functionInfo.acstat).to.be.equal(ActivityStatus.DELETED);
-      expect(functionInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
-      expect(functionInfo.referredByAgent).to.be.equal(0);
-    });
-
-    it("Should delete activity of domainMoveRealm in domainContext by livelyAdmin success", async () => {
-      // given
-      const domainIface = new ethers.utils.Interface(DomainManager__factory.abi);
       const domainMoveRealmFunctionId = ethers.utils.keccak256(
         ethers.utils.solidityPack(
           ["address", "bytes4"],
           [domainManagerProxy.address, domainIface.getSighash("domainMoveRealm")]
         )
       );
+      const domainRemoveFunctionId = ethers.utils.keccak256(
+        ethers.utils.solidityPack(
+          ["address", "bytes4"],
+          [domainManagerProxy.address, domainIface.getSighash("domainRemove")]
+        )
+      );
       const domainContextId = ethers.utils.keccak256(domainManagerProxy.address);
-      const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [
+      const requests: IFunctionManagement.FunctionRemoveRequestStruct[] = [
         {
-          id: domainMoveRealmFunctionId,
-          acstat: ActivityStatus.DELETED,
+          functionId: domainRegisterFunctionId,
+          isSoftDelete: false,
+        },
+        {
+          functionId: domainMoveRealmFunctionId,
+          isSoftDelete: false,
+        },
+        {
+          functionId: domainRemoveFunctionId,
+          isSoftDelete: false,
         },
       ];
       const memberSignature: IACLCommons.MemberSignatureStruct = {
@@ -15230,25 +16998,40 @@ describe("Lively Guard Tests", function () {
 
       // when
       await expect(
-        functionManagerDelegateProxy.connect(livelyAdmin).functionUpdateActivityStatus(memberSignature, requests)
+        functionManagerDelegateProxy.connect(livelyAdmin).functionRemove(memberSignature, requests)
       )
-        .to.emit(functionManagerDelegateProxy, "FunctionActivityUpdated")
-        .withArgs(livelyAdminWallet.address, domainMoveRealmFunctionId, ActivityStatus.DELETED);
+        .to.emit(functionManagerDelegateProxy, "FunctionRemoved")
+        .withArgs(livelyAdminWallet.address, domainRegisterFunctionId, false)
+        .to.emit(functionManagerDelegateProxy, "FunctionRemoved")
+        .withArgs(livelyAdminWallet.address, domainMoveRealmFunctionId, false)
+        .to.emit(functionManagerDelegateProxy, "FunctionRemoved")
+        .withArgs(livelyAdminWallet.address, domainRemoveFunctionId, false);
 
       // then
       const functionInfo: IFunctionManagement.FunctionInfoStruct = await functionManagerDelegateProxy.functionGetInfo(
-        domainMoveRealmFunctionId
+        domainRegisterFunctionId
       );
-      expect(functionInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
-      expect(functionInfo.agentId).to.be.equal(LIVELY_VERSE_ANY_TYPE_ID);
-      expect(functionInfo.contextId).to.be.equal(domainContextId);
-      expect(functionInfo.adminType).to.be.equal(AgentType.TYPE);
-      expect(functionInfo.agentType).to.be.equal(AgentType.TYPE);
-      expect(functionInfo.policyCode).to.be.equal(24);
-      expect(functionInfo.selector).to.be.equal(domainIface.getSighash("domainMoveRealm"));
-      expect(functionInfo.acstat).to.be.equal(ActivityStatus.DELETED);
-      expect(functionInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+      expect(functionInfo.adminId).to.be.equal(ethers.constants.HashZero);
+      expect(functionInfo.agentId).to.be.equal(ethers.constants.HashZero);
+      expect(functionInfo.contextId).to.be.equal(ethers.constants.HashZero);
+      expect(functionInfo.adminType).to.be.equal(AgentType.NONE);
+      expect(functionInfo.agentType).to.be.equal(AgentType.NONE);
+      expect(functionInfo.policyCode).to.be.equal(0);
+      expect(functionInfo.selector).to.be.equal("0x00000000");
+      expect(functionInfo.acstat).to.be.equal(ActivityStatus.NONE);
+      expect(functionInfo.alstat).to.be.equal(AlterabilityStatus.NONE);
       expect(functionInfo.referredByAgent).to.be.equal(0);
+
+      // expect(functionInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
+      // expect(functionInfo.agentId).to.be.equal(LIVELY_VERSE_SCOPE_MASTER_TYPE_ID);
+      // expect(functionInfo.contextId).to.be.equal(domainContextId);
+      // expect(functionInfo.adminType).to.be.equal(AgentType.TYPE);
+      // expect(functionInfo.agentType).to.be.equal(AgentType.TYPE);
+      // expect(functionInfo.policyCode).to.be.equal(250);
+      // expect(functionInfo.selector).to.be.equal(domainIface.getSighash("domainRegister"));
+      // expect(functionInfo.acstat).to.be.equal(ActivityStatus.DELETED);
+      // expect(functionInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+      // expect(functionInfo.referredByAgent).to.be.equal(0);
     });
 
     it("Should register new domainRegister2 in domainContext by livelyAdmin success", async () => {

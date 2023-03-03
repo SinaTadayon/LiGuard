@@ -334,6 +334,29 @@ library LACLCommons {
     return profileEntity.adminId;
   }
 
+  function realmGetAdmin(
+    ACLStorage.DataCollection storage data,
+    bytes32 requestScopeAdmin,
+    bytes32 domainId,
+    bytes32 adminId
+  ) external view returns (bytes32 realmAdminId) {
+    // checking requested context admin
+    if (adminId != bytes32(0)) {
+      require(data.agents[adminId].atype > IACLCommons.AgentType.MEMBER, "Illegal Admin AgentType");
+
+      (IACLCommons.ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(data, adminId);
+      require(IACLCommons.ScopeType.DOMAIN <= requestAdminScopeType, "Illegal Admin ScopeType");
+      if (IACLCommons.ScopeType.DOMAIN == requestAdminScopeType) {
+        require(requestAdminScopeId == domainId, "Illegal Admin Scope");
+      } else {
+        require(requestAdminScopeId == LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID, "Illegal Admin Scope");
+      }
+      realmAdminId = adminId;
+    } else {
+      realmAdminId = requestScopeAdmin;
+    }
+  }
+  
   function _doAgentGetScopeInfo(ACLStorage.DataCollection storage data, bytes32 agentId)
     private
     view

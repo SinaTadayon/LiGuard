@@ -356,19 +356,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
   }
 
   function _doGetAgentScopeInfo(bytes32 agentId) internal view returns (ScopeType, bytes32) {
-    return LACLAgentScope.getAgentScopeInfo(_data, agentId);
-    // AgentType atype = _data.agents[agentId].atype;
-    // if (atype == AgentType.ROLE) {
-    //   RoleEntity storage roleEntity = _data.roleReadSlot(agentId);
-    //   BaseScope storage baseScope = _data.scopes[roleEntity.scopeId];
-    //   return (baseScope.stype, roleEntity.scopeId);
-    // } else if (atype == AgentType.TYPE) {
-    //   TypeEntity storage typeEntity = _data.typeReadSlot(agentId);
-    //   BaseScope storage baseScope = _data.scopes[typeEntity.scopeId];
-    //   return (baseScope.stype, typeEntity.scopeId);
-    // }
-
-    // return (ScopeType.NONE, bytes32(0));
+    return LACLAgentScope.getAgentScopeInfo(_data, agentId);   
   }
 
   function _doCheckSystemScope(bytes32 scopeId, bytes32 memberId) internal view returns (bool) {
@@ -413,7 +401,12 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector);
     bytes32 senderId = LACLUtils.accountGenerateId(signer);
     IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
-    if (status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
+    if (status != IACL.AuthorizationStatus.PERMITTED) {
+      if(status == IACL.AuthorizationStatus.FUNCTION_ACTIVITY_FORBIDDEN && IFunctionManagement.functionUpdateActivityStatus.selector == selector ) {
+        return (functionId, senderId, signer);    
+      }
+      LACLUtils.generateAuthorizationError(status);
+    }
     return (functionId, senderId, signer);
   }
 
@@ -471,22 +464,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     bytes32 contextId,
     bytes32 adminId
   ) internal view returns (bytes32 functionAdminId) {
-    return LACLAgentScope.getAndCheckFunctionAdmin(_data, contextAdminId, contextId, adminId);
-    // // checking requested functionAdmin admin
-    // if (adminId != bytes32(0)) {
-    //   require(_data.agents[adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
-
-    //   (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doGetAgentScopeInfo(adminId);
-    //   require(ScopeType.CONTEXT <= requestAdminScopeType, "Illegal Admin ScopeType");
-    //   if (ScopeType.CONTEXT == requestAdminScopeType) {
-    //     require(requestAdminScopeId == contextAdminId, "Illegal Admin Scope");
-    //   } else {
-    //     require(IACLGenerals(address(this)).isScopesCompatible(requestAdminScopeId, contextId), "Illegal Admin Scope");
-    //   }
-    //   functionAdminId = adminId;
-    // } else {
-    //   functionAdminId = contextAdminId;
-    // }
+    return LACLAgentScope.getAndCheckFunctionAdmin(_data, contextAdminId, contextId, adminId);   
   }
 
   function _getContextMessageHash(

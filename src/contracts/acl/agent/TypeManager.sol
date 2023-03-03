@@ -117,7 +117,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
     );
 
     for (uint256 i = 0; i < requests.length; i++) {
-      TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
+      TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, ITypeManagement.typeUpdateAdmin.selector);
 
       // checking requested type admin
       typeEntity.ba.adminId = _getTypeAdmin(
@@ -143,7 +143,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
     ScopeType senderScopeType;
     bytes32 senderScopeId;
     for (uint256 i = 0; i < requests.length; i++) {
-      TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
+      TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, ITypeManagement.typeUpdateScope.selector);
 
       AgentType adminAgentType = _data.agents[typeEntity.ba.adminId].atype;
       if (adminAgentType == AgentType.ROLE) {
@@ -186,7 +186,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
       ITypeManagement.typeUpdateActivityStatus.selector
     );
     for (uint256 i = 0; i < requests.length; i++) {
-      TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
+      TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, ITypeManagement.typeUpdateActivityStatus.selector);
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
       typeEntity.ba.acstat = requests[i].acstat;
       emit TypeActivityUpdated(sender, requests[i].id, requests[i].acstat);
@@ -223,7 +223,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
     );
 
     for (uint256 i = 0; i < requests.length; i++) {
-      TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].typeId, senderId, functionId);
+      TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].typeId, senderId, functionId, ITypeManagement.typeUpdateRoleLimit.selector);
       require(requests[i].roleLimit > typeEntity.roles.length(), "Illegal Limit");
       typeEntity.roleLimit = requests[i].roleLimit;
       emit TypeRoleLimitUpdated(sender, requests[i].typeId, requests[i].roleLimit);
@@ -388,7 +388,12 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector);
     bytes32 senderId = LACLUtils.accountGenerateId(signer);
     IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
-    if (status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
+    if (status != IACL.AuthorizationStatus.PERMITTED) {
+      if(status == IACL.AuthorizationStatus.TYPE_ACTIVITY_FORBIDDEN && selector == ITypeManagement.typeUpdateActivityStatus.selector) {
+        return (functionId, senderId, signer);    
+      }
+      LACLUtils.generateAuthorizationError(status);
+    }
     return (functionId, senderId, signer);
   }
 
@@ -424,12 +429,19 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
   function _doGetEntityAndCheckAdminAccess(
     bytes32 typeId,
     bytes32 senderId,
-    bytes32 functionId
+    bytes32 functionId,
+    bytes4 selector
   ) internal view returns (TypeEntity storage) {
     TypeEntity storage typeEntity = _data.typeReadSlot(typeId);
     require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
     IACL.AdminAccessStatus status = _doCheckAdminAccess(typeEntity.ba.adminId, senderId, functionId);
-    if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
+    if (status != IACL.AdminAccessStatus.PERMITTED) {
+      if(status == IACL.AdminAccessStatus.TYPE_ACTIVITY_FORBIDDEN && selector == ITypeManagement.typeUpdateActivityStatus.selector) {
+        return typeEntity;
+      }
+      LACLUtils.generateAdminAccessError(status);
+    }
+
     return typeEntity;
   }
 

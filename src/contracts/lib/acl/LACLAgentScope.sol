@@ -34,7 +34,7 @@ library LACLAgentScope {
   using LEnumerableSet for LEnumerableSet.AddressSet;
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
 
-  string public constant LIB_NAME = "LACLMemberPolicy";
+  string public constant LIB_NAME = "LACLAgentScope";
   string public constant LIB_VERSION = "3.0.0";
 
   bytes32 public constant LIVELY_VERSE_ANONYMOUS_TYPE_ID =

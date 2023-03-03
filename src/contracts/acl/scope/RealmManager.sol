@@ -273,23 +273,25 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     
       IACL.AdminAccessStatus status = _doCheckAdminAccess(realmEntity.bs.adminId, senderId, functionId);
       if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
+      if(realmEntity.contexts.length() == 0) {
+        require(realmEntity.bs.referredByAgent == 0, "Illegal Remove");
 
-       if(realmEntity.bs.referredByAgent == 0) {
-        if(realmEntity.contexts.length() == 0) {
-          delete realmEntity.bs;
-          delete realmEntity.domainId;
-          delete realmEntity.contextLimit;
-          delete realmEntity.name;
-          delete realmEntity.contexts;
-          emit RealmRemoved(sender, realms[i], false);
-        
-        } else {
-          require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-          realmEntity.bs.acstat = ActivityStatus.DELETED;
-          emit RealmRemoved(sender, realms[i], true);
-        }
+        // check domain
+        DomainEntity storage domainEntity = _data.domainReadSlot(realmEntity.domainId);
+        require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Domain Updatable");
+        domainEntity.realms.remove(realms[i]);
+
+        delete realmEntity.bs;
+        delete realmEntity.domainId;
+        delete realmEntity.contextLimit;
+        delete realmEntity.name;
+        delete realmEntity.contexts;
+        emit RealmRemoved(sender, realms[i], false);
+      
       } else {
-        revert("Illegal Remove");
+        require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
+        realmEntity.bs.acstat = ActivityStatus.DELETED;
+        emit RealmRemoved(sender, realms[i], true);
       }
     }
     return true;
@@ -384,7 +386,7 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
       });
   }
 
-  function _doAgentGetScopeInfo(bytes32 agentId) internal view returns (ScopeType, bytes32) {
+  function _doAgentGetScopeInfo(bytes32 agentId) internal view returns (ScopeType, bytes32) {   
     AgentType atype = _data.agents[agentId].atype;
     if (atype == AgentType.ROLE) {
       RoleEntity storage roleEntity = _data.roleReadSlot(agentId);
@@ -429,7 +431,12 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector);
     bytes32 senderId = LACLUtils.accountGenerateId(signer);
     IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
-    if (status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
+    if (status != IACL.AuthorizationStatus.PERMITTED) {
+      if(status == IACL.AuthorizationStatus.REALM_ACTIVITY_FORBIDDEN && selector == IRealmManagement.realmUpdateActivityStatus.selector ) {
+        return (functionId, senderId, signer);    
+      }
+      LACLUtils.generateAuthorizationError(status);
+    }
     return (functionId, senderId, signer);
   }
 
@@ -458,21 +465,7 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     bytes32 domainId,
     bytes32 adminId
   ) internal view returns (bytes32 realmAdminId) {
-    // checking requested context admin
-    if (adminId != bytes32(0)) {
-      require(_data.agents[adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
-
-      (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(adminId);
-      require(ScopeType.DOMAIN <= requestAdminScopeType, "Illegal Admin ScopeType");
-      if (ScopeType.DOMAIN == requestAdminScopeType) {
-        require(requestAdminScopeId == domainId, "Illegal Admin Scope");
-      } else {
-        require(requestAdminScopeId == _LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID, "Illegal Admin Scope");
-      }
-      realmAdminId = adminId;
-    } else {
-      realmAdminId = requestScopeAdmin;
-    }
+    return LACLCommons.realmGetAdmin(_data, requestScopeAdmin, domainId, adminId);   
   }
 
   function getLibrary() external pure returns (address) {

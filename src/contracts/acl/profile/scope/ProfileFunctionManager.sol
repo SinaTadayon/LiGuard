@@ -210,7 +210,7 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
       );
       if (status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
 
-      require(requests[i].acstat != ActivityStatus.NONE, "Illegal Activity");
+      require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
       functionData.bs.acstat = requests[i].acstat;
       emit ProfileFunctionActivityUpdated(sender, profileId, requests[i].entityId, requests[i].acstat);
     }

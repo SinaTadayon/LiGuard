@@ -273,24 +273,26 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
         contextEntity.bs.adminId,
         senderId
       );
-      if (status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
+      if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
+      if(contextEntity.functions.length() == 0) {
+        require(contextEntity.bs.referredByAgent == 0, "Illegal Remove");
 
-      if(contextEntity.bs.referredByAgent == 0) {
-        if(contextEntity.functions.length() == 0) {
-          delete contextEntity.bs;
-          delete contextEntity.realmId;
-          delete contextEntity.contractId;
-          delete contextEntity.functionLimit;
-          delete contextEntity.functions;
-          emit ProfileContextRemoved(sender, profileId, contexts[i], false);
+        // check realm
+        RealmEntity storage realmEntity = profileEntity.profileRealmReadSlot(contextEntity.realmId);
+        require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Realm Updatable");
+        realmEntity.contexts.remove(contexts[i]);
 
-        } else {
-          require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-          contextEntity.bs.acstat = ActivityStatus.DELETED;
-          emit ProfileContextRemoved(sender, profileId, contexts[i], true);
-        }
+        delete contextEntity.bs;
+        delete contextEntity.realmId;
+        delete contextEntity.contractId;
+        delete contextEntity.functionLimit;
+        delete contextEntity.functions;
+        emit ProfileContextRemoved(sender, profileId, contexts[i], false);
+
       } else {
-        revert("Illegal Remove");
+        require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
+        contextEntity.bs.acstat = ActivityStatus.DELETED;
+        emit ProfileContextRemoved(sender, profileId, contexts[i], true);
       }
     }
     return true;

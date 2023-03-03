@@ -260,6 +260,13 @@ contract ProfileRealmManager is ACLStorage, BaseUUPSProxy, IProfileRealmManageme
     
       if(realmEntity.bs.referredByAgent == 0) {
         if(realmEntity.contexts.length() == 0) {
+          require(realmEntity.bs.referredByAgent == 0, "Illegal Remove");
+
+          // check domain
+          DomainEntity storage domainEntity = profileEntity.profileDomainReadSlot(realmEntity.domainId);
+          require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Domain Updatable");
+          domainEntity.realms.remove(realms[i]);
+
           delete realmEntity.bs;
           delete realmEntity.domainId;
           delete realmEntity.contextLimit;
