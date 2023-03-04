@@ -222,8 +222,9 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
       ContextEntity storage contextEntity = _data.contextReadSlot(contexts[i]);      
       IACL.AdminAccessStatus status = _doCheckAdminAccess(contextEntity.bs.adminId, senderId, functionId);
       if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);      
-      if(contextEntity.functions.length() == 0) {
-        require(contextEntity.bs.referredByAgent == 0, "Illegal Remove");
+      
+      require(contextEntity.functions.length() == 0, "Illegal Remove");
+      if(contextEntity.bs.referredByAgent == 0) {
         
         // check realm
         RealmEntity storage realmEntity = _data.realmReadSlot(contextEntity.realmId);
@@ -407,22 +408,22 @@ contract ContextManager is ACLStorage, BaseUUPSProxy, IContextManagement {
   function _getContextAdmin(
     bytes32 realmId,
     bytes32 scopeId,
-    bytes32 requestScopeAdmin,
-    bytes32 adminId
+    bytes32 realmAdminId,
+    bytes32 requestAdminId
   ) internal view returns (bytes32 contextAdminId) {
     // checking requested context admin
-    if (adminId != bytes32(0)) {
-      require(_data.agents[adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
-      (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(adminId);
+    if (requestAdminId != bytes32(0)) {
+      require(_data.agents[requestAdminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
+      (ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doAgentGetScopeInfo(requestAdminId);
       require(ScopeType.REALM <= requestAdminScopeType, "Illegal Admin ScopeType");
       if (ScopeType.REALM == requestAdminScopeType) {
         require(requestAdminScopeId == realmId, "Illegal Admin Scope");
       } else {
         require(IACLGenerals(address(this)).isScopesCompatible(requestAdminScopeId, scopeId), "Illegal Admin Scope");
       }
-      contextAdminId = adminId;
+      contextAdminId = requestAdminId;
     } else {
-      contextAdminId = requestScopeAdmin;
+      contextAdminId = realmAdminId;
     }
   }
 

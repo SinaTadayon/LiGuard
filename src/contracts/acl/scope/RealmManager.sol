@@ -273,8 +273,8 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     
       IACL.AdminAccessStatus status = _doCheckAdminAccess(realmEntity.bs.adminId, senderId, functionId);
       if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
-      if(realmEntity.contexts.length() == 0) {
-        require(realmEntity.bs.referredByAgent == 0, "Illegal Remove");
+      require(realmEntity.contexts.length() == 0, "Illegal Remove");
+      if(realmEntity.bs.referredByAgent == 0) {
 
         // check domain
         DomainEntity storage domainEntity = _data.domainReadSlot(realmEntity.domainId);

@@ -274,8 +274,8 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
         senderId
       );
       if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
-      if(contextEntity.functions.length() == 0) {
-        require(contextEntity.bs.referredByAgent == 0, "Illegal Remove");
+      require(contextEntity.functions.length() == 0, "Illegal Remove");
+      if(contextEntity.bs.referredByAgent == 0) {
 
         // check realm
         RealmEntity storage realmEntity = profileEntity.profileRealmReadSlot(contextEntity.realmId);

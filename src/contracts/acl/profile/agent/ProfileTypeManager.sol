@@ -243,7 +243,7 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
       if (status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
       require(typeEntity.roles.length() == 0, "Illegal Remove");
 
-      BaseScope storage typeScope = _data.scopes[typeEntity.scopeId];
+      BaseScope storage typeScope = profileEntity.scopes[typeEntity.scopeId];
       require(typeScope.referredByAgent > 0, "Illeagl Referred");
       unchecked {
         typeScope.referredByAgent -= 1;

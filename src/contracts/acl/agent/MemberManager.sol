@@ -98,16 +98,6 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
     return true;
   }
 
-   function _doRoleHasMember(bytes32 roleId, bytes32 memberId) internal view returns (bool) {
-    (RoleEntity storage roleEntity, bool result) = _data.roleTryReadSlot(roleId);
-    if (!result) return false;
-
-    (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(roleEntity.typeId);
-    if (!result1) return false;
-
-    return typeEntity.members[memberId] == roleId;
-  }
-
   function memberUpdateAlterabilityStatus(
     MemberSignature calldata memberSign,
     UpdateAlterabilityRequest[] calldata requests
@@ -453,6 +443,16 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
 
   function _doCheckMemberRegisterLimits(MemberEntity storage memberEntity, GeneralLimit calldata limits) internal view {
     LACLAgentScope.checkMemberRegisterLimits(memberEntity, limits);  
+  }
+
+  function _doRoleHasMember(bytes32 roleId, bytes32 memberId) internal view returns (bool) {
+    (RoleEntity storage roleEntity, bool result) = _data.roleTryReadSlot(roleId);
+    if (!result) return false;
+
+    (TypeEntity storage typeEntity, bool result1) = _data.typeTryReadSlot(roleEntity.typeId);
+    if (!result1) return false;
+
+    return typeEntity.members[memberId] == roleId;
   }
 
   function getLibrary() external pure returns (address) {

@@ -41,11 +41,6 @@ interface IProfileFunctionManagement is IACLCommons {
     bytes32 agentId;
   }
 
-  struct ProfileFunctionRemoveRequest {
-    bytes32 functionId;
-    bool isSoftDelete;
-  }
-
   struct ProfileFunctionInfo {
     bytes32 adminId;
     bytes32 agentId;
@@ -136,7 +131,7 @@ interface IProfileFunctionManagement is IACLCommons {
     ProfileFunctionUpdatePolicyRequest[] calldata requests
   ) external returns (bool);
 
-  function profileFunctionRemove(ProfileMemberSignature calldata memberSign, ProfileFunctionRemoveRequest[] calldata requests)
+  function profileFunctionRemove(ProfileMemberSignature calldata memberSign, bytes32[] calldata functions)
     external
     returns (bool);
 

@@ -380,20 +380,20 @@ library LACLAgentScope {
      ACLStorage.DataCollection storage data,
     bytes32 contextAdminId,
     bytes32 contextId,
-    bytes32 adminId
+    bytes32 requestAdminId
   ) private view returns (bytes32 functionAdminId) {
     // checking requested functionAdmin admin
-    if (adminId != bytes32(0)) {
-      require(data.agents[adminId].atype > IACLCommons.AgentType.MEMBER, "Illegal Admin AgentType");
+    if (requestAdminId != bytes32(0)) {
+      require(data.agents[requestAdminId].atype > IACLCommons.AgentType.MEMBER, "Illegal Admin AgentType");
 
-      (IACLCommons.ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doGetAgentScopeInfo(data, adminId);
+      (IACLCommons.ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doGetAgentScopeInfo(data, requestAdminId);
       require(IACLCommons.ScopeType.CONTEXT <= requestAdminScopeType, "Illegal Admin ScopeType");
       if (IACLCommons.ScopeType.CONTEXT == requestAdminScopeType) {
         require(requestAdminScopeId == contextAdminId, "Illegal Admin Scope");
       } else {
         require(IACLGenerals(address(this)).isScopesCompatible(requestAdminScopeId, contextId), "Illegal Admin Scope");
       }
-      functionAdminId = adminId;
+      functionAdminId = requestAdminId;
     } else {
       functionAdminId = contextAdminId;
     }

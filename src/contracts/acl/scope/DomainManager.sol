@@ -259,8 +259,9 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
       DomainEntity storage domainEntity = _data.domainReadSlot(domains[i]);
       IACL.AdminAccessStatus status = _doCheckAdminAccess(domainEntity.bs.adminId, senderId, functionId);
       if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
-      if(domainEntity.realms.length() == 0) {
-        require(domainEntity.bs.referredByAgent == 0, "Illegal Remove");
+      
+      require(domainEntity.realms.length() == 0, "Illegal Remove");
+      if(domainEntity.bs.referredByAgent == 0) {
 
         // check universe
         UniverseEntity storage universeEntity = _data.universeReadSlot(domainEntity.universeId);

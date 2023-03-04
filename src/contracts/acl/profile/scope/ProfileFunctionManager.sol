@@ -271,7 +271,7 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
     return true;
   }
 
-  function profileFunctionRemove(ProfileMemberSignature calldata memberSign, ProfileFunctionRemoveRequest[] calldata requests) external returns (bool) {
+  function profileFunctionRemove(ProfileMemberSignature calldata memberSign, bytes32[] calldata functions) external returns (bool) {
     (
       ProfileEntity storage profileEntity,
       FunctionEntity storage functionEntity,
@@ -279,8 +279,8 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
       bytes32 senderId,
       address sender
     ) = _accessPermission(memberSign, IProfileFunctionManagement.profileFunctionRemove.selector);
-    for (uint256 i = 0; i < requests.length; i++) {
-      FunctionEntity storage functionEntityReq = profileEntity.profileFunctionReadSlot(requests[i].functionId);
+    for (uint256 i = 0; i < functions.length; i++) {
+      FunctionEntity storage functionEntityReq = profileEntity.profileFunctionReadSlot(functions[i]);
       IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(
         profileEntity,
         functionEntity,
@@ -289,28 +289,24 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
       );
       if (status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
 
-      if(requests[i].isSoftDelete) {
-        // Note: It's very important to prevent infinity lock state
-        require(functionEntityReq.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-        functionEntityReq.bs.acstat = ActivityStatus.DELETED;
-        emit ProfileFunctionRemoved(sender, profileId, requests[i].functionId, true);
-
-      } else {
-        require(functionEntityReq.bs.referredByAgent == 0, "Illegal Remove");
-
+      if(functionEntityReq.bs.referredByAgent == 0) {
         ContextEntity storage contextEntity = profileEntity.profileContextReadSlot(functionEntityReq.contextId);
         require(contextEntity.bs.alstat == AlterabilityStatus.UPGRADABLE, "Illegal Context Upgradable");
-        contextEntity.functions.remove(requests[i].functionId);
+        contextEntity.functions.remove(functions[i]);
 
         delete functionEntityReq.bs;
         delete functionEntityReq.agentId;
         delete functionEntityReq.contextId;
         delete functionEntityReq.selector;
         delete functionEntityReq.policyCode;
-        emit ProfileFunctionRemoved(sender, profileId, requests[i].functionId, false);
+        emit ProfileFunctionRemoved(sender, profileId, functions[i], false);
+        
+      } else {
+        // Note: It's very important to prevent infinity lock state
+        require(functionEntityReq.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
+        functionEntityReq.bs.acstat = ActivityStatus.DELETED;
+        emit ProfileFunctionRemoved(sender, profileId, functions[i], true);
       }      
-
-      emit ProfileFunctionRemoved(sender, profileId, requests[i].functionId, requests[i].isSoftDelete);
     }
     return true;
   }

@@ -812,6 +812,8 @@ describe("Lively Guard Tests", function () {
       expect(await aclManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await aclManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await aclManagerSubject.initVersion()).to.be.equal(0);
+      expect(await aclManagerSubject.getLibrary()).to.be.equal(lACLCommons.address);
+
     });
 
     it("Should initialize raise exception", async () => {
@@ -10522,6 +10524,38 @@ describe("Lively Guard Tests", function () {
 
     });
 
+    it("Should disabled livelyAdmin activity failed", async () => {
+      // given
+      const livelyAdminId = ethers.utils.keccak256(livelyAdminWallet.address);
+      const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [
+        {
+          id: livelyAdminId,
+          acstat: ActivityStatus.DISABLED,
+        },
+      ];
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(
+        memberManagerDelegateProxy.connect(livelyAdmin).memberUpdateActivityStatus(memberSignature, requests)
+      )
+        .to.revertedWith("Illegal Member");
+
+      // and
+      const memberInfo: IMemberManagement.MemberInfoStruct = await memberManagerDelegateProxy.memberGetInfo(livelyAdminId);
+      expect(memberInfo.account).to.be.equal(livelyAdminWallet.address);
+      expect(memberInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
+      expect(memberInfo.adminType).to.be.equal(AgentType.ROLE);
+      expect(memberInfo.atype).to.be.equal(AgentType.MEMBER);
+      expect(memberInfo.typeCount).to.be.equal(7);
+      expect(memberInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
+      expect(memberInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+    });
+
     it("Should register test type with expired memberSignature failed", async () => {
       // given
       const realmContextId = ethers.utils.keccak256(realmManagerProxy.address);
@@ -10720,7 +10754,7 @@ describe("Lively Guard Tests", function () {
       expect(realmContextInfo.referredByAgent).to.be.equal(1);
     });
 
-    it("Should register ACL_TYPE_TEST success", async () => {
+    it("Should again register ACL_TYPE_TEST success", async () => {
       // given
       const realmContextId = ethers.utils.keccak256(realmManagerProxy.address);
       const typeRegisterRequests: ITypeManagement.TypeRegisterRequestStruct[] = [
@@ -13325,7 +13359,7 @@ describe("Lively Guard Tests", function () {
 
       // when
       await expect(roleManagerDelegateProxy.connect(systemAdmin).roleRemove(emptyMemberSignature, [aclRoleTestId]))
-        .to.revertedWith("Illegal MemberCount");
+        .to.revertedWith("Illegal Remove");
     });
   });
 
@@ -13451,7 +13485,7 @@ describe("Lively Guard Tests", function () {
       expect(memberContextInfo.referredByAgent).to.be.equal(0);
     });
 
-    it("Should register aclPolicyTest in ACL policy success", async () => {
+    it("Should again register aclPolicyTest in ACL policy success", async () => {
       // given
       const memberContextId = ethers.utils.keccak256(memberManagerProxy.address);
       aclPolicyTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_POLICY_TEST_NAME));
@@ -14147,12 +14181,6 @@ describe("Lively Guard Tests", function () {
           [policyManagerProxy.address, policyIface.getSighash("policyRemove")]
         )
       );
-      const requests: IFunctionManagement.FunctionRemoveRequestStruct[] = [
-        {
-          functionId: policyRemoveFunctionId,
-          isSoftDelete: false,
-        },
-      ];
 
       const memberSignature: IACLCommons.MemberSignatureStruct = {
         account: ethers.constants.AddressZero,
@@ -14162,7 +14190,7 @@ describe("Lively Guard Tests", function () {
 
       // when
       await expect(
-        functionManagerDelegateProxy.connect(livelyAdmin).functionRemove(memberSignature, requests)
+        functionManagerDelegateProxy.connect(livelyAdmin).functionRemove(memberSignature, [policyRemoveFunctionId])
       ).to.emit(functionManagerDelegateProxy, "FunctionRemoved")
         .withArgs(livelyAdminWallet.address, policyRemoveFunctionId, false);
 
@@ -14182,6 +14210,33 @@ describe("Lively Guard Tests", function () {
       expect(functionInfo.referredByAgent).to.be.equal(0);
     });
 
+    it("Should update scope aclRoleTest3 to memberRemoveFunction success", async () => {
+      // given
+      aclRoleTestId3 = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_TEST_NAME_3));
+      const memberRemoveFunctionId = ethers.utils.keccak256(
+        ethers.utils.solidityPack(
+          ["address", "bytes4"],
+          [memberManagerProxy.address, memberIface.getSighash("memberRemove")]
+        )
+      );
+      const roleRegisterRequests: IACLCommonsRoles.UpdateScopeRequestStruct[] = [
+        {
+          id: aclRoleTestId3,
+          scopeId: memberRemoveFunctionId,
+        },
+      ];
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(roleManagerDelegateProxy.connect(systemAdmin).roleUpdateScope(memberSignature, roleRegisterRequests))
+        .to.emit(roleManagerDelegateProxy, "RoleScopeUpdated")
+        .withArgs(systemAdminWallet.address, aclRoleTestId3, memberRemoveFunctionId);
+    });
+
     it("Should soft remove memberRemoveFunction success", async () => {
       // given
       const memberContextId = ethers.utils.keccak256(memberManagerProxy.address);
@@ -14191,12 +14246,6 @@ describe("Lively Guard Tests", function () {
           [memberManagerProxy.address, memberIface.getSighash("memberRemove")]
         )
       );
-      const requests: IFunctionManagement.FunctionRemoveRequestStruct[] = [
-        {
-          functionId: memberRemoveFunctionId,
-          isSoftDelete: true,
-        },
-      ];
 
       const memberSignature: IACLCommons.MemberSignatureStruct = {
         account: ethers.constants.AddressZero,
@@ -14206,7 +14255,7 @@ describe("Lively Guard Tests", function () {
 
       // when
       await expect(
-        functionManagerDelegateProxy.connect(livelyAdmin).functionRemove(memberSignature, requests)
+        functionManagerDelegateProxy.connect(livelyAdmin).functionRemove(memberSignature, [memberRemoveFunctionId])
       ).to.emit(functionManagerDelegateProxy, "FunctionRemoved")
         .withArgs(livelyAdminWallet.address, memberRemoveFunctionId, true);
 
@@ -14223,7 +14272,7 @@ describe("Lively Guard Tests", function () {
       expect(functionInfo.selector).to.be.equal(memberIface.getSighash("memberRemove"));
       expect(functionInfo.acstat).to.be.equal(ActivityStatus.DELETED);
       expect(functionInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
-      expect(functionInfo.referredByAgent).to.be.equal(0);
+      expect(functionInfo.referredByAgent).to.be.equal(1);
     });
 
     it("Should disable alterability of memberRemoveFunction when softDeleted failed", async () => {
@@ -14303,7 +14352,7 @@ describe("Lively Guard Tests", function () {
       expect(functionInfo.selector).to.be.equal(memberIface.getSighash("memberRemove"));
       expect(functionInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
       expect(functionInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
-      expect(functionInfo.referredByAgent).to.be.equal(0);
+      expect(functionInfo.referredByAgent).to.be.equal(1);
     });
 
     it("Should disable alterability of memberRegisterFunction success", async () => {
@@ -15069,8 +15118,27 @@ describe("Lively Guard Tests", function () {
       expect(contextInfo.referredByAgent).to.be.equal(0);
     });
 
-    it("Should remove soft remove profileManager context success", async() => {
-      const profileContextId = ethers.utils.keccak256(profileManagerProxy.address);
+    it("Should register again test context success", async() => {
+      // given
+      const baseUUPSProxy = await deployments.getArtifact("UUPSUpgradeableTest");
+      mockTestProxy = await deployMockContract(systemAdmin, baseUUPSProxy.abi);
+      const testContextId = ethers.utils.keccak256(mockTestProxy.address);
+      const contextRequests: IContextManagement.ContextRegisterRequestStruct[] = [
+        {
+          realmId: LIVELY_VERSE_ACL_REALM_ID,
+          adminId: LIVELY_VERSE_ACL_TYPE_ID,
+          salt: ethers.constants.HashZero,
+          name: "testContext",
+          version: CONTRACTS_VERSION,
+          contractId: mockTestProxy.address,
+          subject: ethers.constants.AddressZero,
+          deployer: ethers.constants.AddressZero,
+          functionLimit: 32,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPGRADABLE,
+          signature: new Int8Array(0),
+        },
+      ];
       const memberSignature: IACLCommons.MemberSignatureStruct = {
         account: ethers.constants.AddressZero,
         expiredAt: 0,
@@ -15078,34 +15146,95 @@ describe("Lively Guard Tests", function () {
       };
 
       // when
-      await expect(contextManagerDelegateProxy.connect(livelyAdmin).contextRemove(memberSignature, [profileContextId]))
-        .to.emit(contextManagerDelegateProxy, "ContextRemoved")
-        .withArgs(livelyAdminWallet.address, profileContextId, true)
+      await expect(contextManagerDelegateProxy.connect(systemAdmin).contextRegister(memberSignature, contextRequests))
+        .to.emit(contextManagerDelegateProxy, "ContextRegistered")
+        .withArgs(
+          systemAdminWallet.address,
+          testContextId,
+          mockTestProxy.address,
+          LIVELY_VERSE_ACL_REALM_ID,
+          ethers.constants.AddressZero,
+          ethers.constants.AddressZero,
+          LIVELY_VERSE_ACL_TYPE_ID
+        )
 
       // then
-      expect(await contextManagerDelegateProxy.contextCheckId(profileContextId)).to.be.true;
+      expect(await contextManagerDelegateProxy.contextCheckId(testContextId)).to.be.true;
 
       // and
       const contextInfo: IContextManagement.ContextInfoStruct = await contextManagerDelegateProxy.contextGetInfo(
-        profileContextId
+        testContextId
       );
       expect(contextInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
       expect(contextInfo.adminType).to.be.equal(AgentType.TYPE);
-      expect(contextInfo.contractId).to.be.equal(profileManagerProxy.address);
+      expect(contextInfo.contractId).to.be.equal(mockTestProxy.address);
       expect(contextInfo.realmId).to.be.equal(LIVELY_VERSE_ACL_REALM_ID);
       expect(contextInfo.functionLimit).to.be.equal(32);
-      expect(contextInfo.functionCount).to.be.equal(12);
-      expect(contextInfo.acstat).to.be.equal(ActivityStatus.DELETED);
+      expect(contextInfo.functionCount).to.be.equal(0);
+      expect(contextInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
       expect(contextInfo.alstat).to.be.equal(AlterabilityStatus.UPGRADABLE);
       expect(contextInfo.referredByAgent).to.be.equal(0);
     });
 
-    it("Should disable alterability of profileManager context when softDeleted failed", async () => {
+    it("Should update scope aclRoleTest3 to testContextId success", async () => {
       // given
-      const profileManagerContextId = ethers.utils.keccak256(profileManagerProxy.address);
+      aclRoleTestId3 = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_TEST_NAME_3));
+      const testContextId = ethers.utils.keccak256(mockTestProxy.address);
+      const roleRegisterRequests: IACLCommonsRoles.UpdateScopeRequestStruct[] = [
+        {
+          id: aclRoleTestId3,
+          scopeId: testContextId,
+        },
+      ];
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(roleManagerDelegateProxy.connect(systemAdmin).roleUpdateScope(memberSignature, roleRegisterRequests))
+        .to.emit(roleManagerDelegateProxy, "RoleScopeUpdated")
+        .withArgs(systemAdminWallet.address, aclRoleTestId3, testContextId);
+    });
+
+    it("Should remove soft remove testContextId success", async() => {
+      const testContextId = ethers.utils.keccak256(mockTestProxy.address);
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(contextManagerDelegateProxy.connect(livelyAdmin).contextRemove(memberSignature, [testContextId]))
+        .to.emit(contextManagerDelegateProxy, "ContextRemoved")
+        .withArgs(livelyAdminWallet.address, testContextId, true)
+
+      // then
+      expect(await contextManagerDelegateProxy.contextCheckId(testContextId)).to.be.true;
+
+      // and
+      const contextInfo: IContextManagement.ContextInfoStruct = await contextManagerDelegateProxy.contextGetInfo(
+        testContextId
+      );
+      expect(contextInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
+      expect(contextInfo.adminType).to.be.equal(AgentType.TYPE);
+      expect(contextInfo.contractId).to.be.equal(mockTestProxy.address);
+      expect(contextInfo.realmId).to.be.equal(LIVELY_VERSE_ACL_REALM_ID);
+      expect(contextInfo.functionLimit).to.be.equal(32);
+      expect(contextInfo.functionCount).to.be.equal(0);
+      expect(contextInfo.acstat).to.be.equal(ActivityStatus.DELETED);
+      expect(contextInfo.alstat).to.be.equal(AlterabilityStatus.UPGRADABLE);
+      expect(contextInfo.referredByAgent).to.be.equal(1);
+    });
+
+    it("Should disable alterability of testContextId when softDeleted failed", async () => {
+      // given
+      const testContextId = ethers.utils.keccak256(mockTestProxy.address);
       const requests: IACLCommonsRoles.UpdateAlterabilityRequestStruct[] = [
         {
-          id: profileManagerContextId,
+          id: testContextId,
           alstat: AlterabilityStatus.DISABLED,
         },
       ];
@@ -15122,12 +15251,12 @@ describe("Lively Guard Tests", function () {
         .to.revertedWith("Context Deleted");
     });
 
-    it("Should enable activity of profileManager context success", async () => {
+    it("Should enable activity of testContextId success", async () => {
       // given
-      const profileManagerContextId = ethers.utils.keccak256(profileManagerProxy.address);
+      const testContextId = ethers.utils.keccak256(mockTestProxy.address);
       const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [
         {
-          id: profileManagerContextId,
+          id: testContextId,
           acstat: ActivityStatus.ENABLED,
         },
       ];
@@ -15142,21 +15271,21 @@ describe("Lively Guard Tests", function () {
         contextManagerDelegateProxy.connect(livelyAdmin).contextUpdateActivityStatus(memberSignature, requests)
       )
         .to.emit(contextManagerDelegateProxy, "ContextActivityUpdated")
-        .withArgs(livelyAdminWallet.address, profileManagerContextId, ActivityStatus.ENABLED);
+        .withArgs(livelyAdminWallet.address, testContextId, ActivityStatus.ENABLED);
 
       // and
       const contextInfo: IContextManagement.ContextInfoStruct = await contextManagerDelegateProxy.contextGetInfo(
-        profileManagerContextId
+        testContextId
       );
       expect(contextInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
       expect(contextInfo.adminType).to.be.equal(AgentType.TYPE);
-      expect(contextInfo.contractId).to.be.equal(profileManagerProxy.address);
+      expect(contextInfo.contractId).to.be.equal(mockTestProxy.address);
       expect(contextInfo.realmId).to.be.equal(LIVELY_VERSE_ACL_REALM_ID);
       expect(contextInfo.functionLimit).to.be.equal(32);
-      expect(contextInfo.functionCount).to.be.equal(12);
+      expect(contextInfo.functionCount).to.be.equal(0);
       expect(contextInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
       expect(contextInfo.alstat).to.be.equal(AlterabilityStatus.UPGRADABLE);
-      expect(contextInfo.referredByAgent).to.be.equal(0);
+      expect(contextInfo.referredByAgent).to.be.equal(1);
     });
 
     it("Should disable alterability of memberContext success", async () => {
@@ -15424,7 +15553,7 @@ describe("Lively Guard Tests", function () {
           adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
           realmLimit: 1,
           acstat: ActivityStatus.ENABLED,
-          alstat: AlterabilityStatus.DISABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
           name: ACL_DOMAIN_TEST_NAME,
         },
       ];
@@ -15463,7 +15592,7 @@ describe("Lively Guard Tests", function () {
       expect(domainInfo.referredByAgent).to.be.equal(0);
       expect(domainInfo.stype).to.be.equal(ScopeType.DOMAIN);
       expect(domainInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
-      expect(domainInfo.alstat).to.be.equal(AlterabilityStatus.DISABLED);
+      expect(domainInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
 
       // and
       expect(await domainManagerDelegateProxy.domainCheckId(aclDomainTestId)).to.be.true;
@@ -15524,7 +15653,7 @@ describe("Lively Guard Tests", function () {
       ]);
     });
 
-    it("Should register aclDomainTest in ACL Universe success", async () => {
+    it("Should register again aclDomainTest in ACL Universe success", async () => {
       // given
       aclDomainTestId = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_DOMAIN_TEST_NAME));
       const requests: IDomainManagement.DomainRegisterRequestStruct[] = [
@@ -15532,7 +15661,7 @@ describe("Lively Guard Tests", function () {
           adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
           realmLimit: 1,
           acstat: ActivityStatus.ENABLED,
-          alstat: AlterabilityStatus.DISABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
           name: ACL_DOMAIN_TEST_NAME,
         },
       ];
@@ -15571,7 +15700,7 @@ describe("Lively Guard Tests", function () {
       expect(domainInfo.referredByAgent).to.be.equal(0);
       expect(domainInfo.stype).to.be.equal(ScopeType.DOMAIN);
       expect(domainInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
-      expect(domainInfo.alstat).to.be.equal(AlterabilityStatus.DISABLED);
+      expect(domainInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
 
       // and
       expect(await domainManagerDelegateProxy.domainCheckId(aclDomainTestId)).to.be.true;
@@ -15583,7 +15712,28 @@ describe("Lively Guard Tests", function () {
       ]);
     });
 
-    it("Should soft remove main aclDomain success", async () => {
+    it("Should update scope aclRoleTest3 to aclDomainTest success", async () => {
+      // given
+      aclRoleTestId3 = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_TEST_NAME_3));
+      const roleRegisterRequests: IACLCommonsRoles.UpdateScopeRequestStruct[] = [
+        {
+          id: aclRoleTestId3,
+          scopeId: aclDomainTestId,
+        },
+      ];
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(roleManagerDelegateProxy.connect(systemAdmin).roleUpdateScope(memberSignature, roleRegisterRequests))
+        .to.emit(roleManagerDelegateProxy, "RoleScopeUpdated")
+        .withArgs(systemAdminWallet.address, aclRoleTestId3, aclDomainTestId);
+    });
+
+    it("Should soft remove aclDomainTest success", async () => {
       // given
       const expiredAt = BigNumber.from(Date.now() + 10000);
       const signature = generateMemberSignatureManually(
@@ -15600,31 +15750,30 @@ describe("Lively Guard Tests", function () {
       };
 
       // when
-      await expect(domainManagerDelegateProxy.connect(systemAdmin).domainRemove(memberSignature, [LIVELY_VERSE_ACL_DOMAIN_ID]))
+      await expect(domainManagerDelegateProxy.connect(systemAdmin).domainRemove(memberSignature, [aclDomainTestId]))
         .to.emit(domainManagerDelegateProxy, "DomainRemoved")
-        .withArgs(livelyAdminWallet.address, LIVELY_VERSE_ACL_DOMAIN_ID, true);
+        .withArgs(livelyAdminWallet.address, aclDomainTestId, true);
 
       // then
-      expect(await domainManagerDelegateProxy.domainCheckId(LIVELY_VERSE_ACL_DOMAIN_ID)).to.be.true;
+      expect(await domainManagerDelegateProxy.domainCheckId(aclDomainTestId)).to.be.true;
 
       // and
       const domainInfo: IDomainManagement.DomainInfoStruct = await domainManagerDelegateProxy.domainGetInfo(
-        LIVELY_VERSE_ACL_DOMAIN_ID
+        aclDomainTestId
       );
-      expect(domainInfo.name).to.be.equal("DOMAIN.LIVELY_VERSE.LIVELY_GUARD");
+      expect(domainInfo.name).to.be.equal(ACL_DOMAIN_TEST_NAME);
       expect(domainInfo.universeId).to.be.equal(LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);
-      expect(domainInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
-      expect(domainInfo.adminType).to.be.equal(AgentType.TYPE);
-      expect(domainInfo.realmLimit).to.be.equal(3);
-      expect(domainInfo.realmCount).to.be.equal(1);
-      expect(domainInfo.referredByAgent).to.be.equal(2);
+      expect(domainInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
+      expect(domainInfo.adminType).to.be.equal(AgentType.ROLE);
+      expect(domainInfo.realmLimit).to.be.equal(1);
+      expect(domainInfo.realmCount).to.be.equal(0);
+      expect(domainInfo.referredByAgent).to.be.equal(1);
       expect(domainInfo.stype).to.be.equal(ScopeType.DOMAIN);
       expect(domainInfo.acstat).to.be.equal(ActivityStatus.DELETED);
       expect(domainInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
-
     });
 
-    it("Should update alterability of main aclDomain when softDelete failed", async () => {
+    it("Should update alterability of aclDomainTest when softDelete failed", async () => {
       // given
       const requests: IACLCommonsRoles.UpdateAlterabilityRequestStruct[] = [
         {
@@ -15642,14 +15791,14 @@ describe("Lively Guard Tests", function () {
       await expect(
         domainManagerDelegateProxy.connect(livelyAdmin).domainUpdateAlterabilityStatus(memberSignature, requests)
       )
-        .to.revertedWith("ACLDomainActivityForbidden()")
+        .to.revertedWith("Domain Deleted")
     });
 
-    it("Should enable activity of main aclDomain success", async () => {
+    it("Should enable activity of aclDomainTest success", async () => {
       // given
       const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [
         {
-          id: LIVELY_VERSE_ACL_DOMAIN_ID,
+          id: aclDomainTestId,
           acstat: ActivityStatus.ENABLED,
         },
       ];
@@ -15664,7 +15813,29 @@ describe("Lively Guard Tests", function () {
         domainManagerDelegateProxy.connect(livelyAdmin).domainUpdateActivityStatus(memberSignature, requests)
       )
         .to.emit(domainManagerDelegateProxy, "DomainActivityUpdated")
-        .withArgs(livelyAdminWallet.address, LIVELY_VERSE_ACL_DOMAIN_ID, ActivityStatus.ENABLED);
+        .withArgs(livelyAdminWallet.address, aclDomainTestId, ActivityStatus.ENABLED);
+    });
+
+    it("Should disable of aclDomainTest success", async () => {
+      // given
+      const requests: IACLCommonsRoles.UpdateAlterabilityRequestStruct[] = [
+        {
+          id: aclDomainTestId,
+          alstat: AlterabilityStatus.DISABLED,
+        },
+      ];
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(
+        domainManagerDelegateProxy.connect(livelyAdmin).domainUpdateAlterabilityStatus(memberSignature, requests)
+      )
+        .to.emit(domainManagerDelegateProxy, "DomainAlterabilityUpdated")
+        .withArgs(livelyAdminWallet.address, aclDomainTestId, AlterabilityStatus.DISABLED);
     });
 
     it("Should update admin of aclDomainTest when alterability disabled failed", async () => {
@@ -15779,7 +15950,7 @@ describe("Lively Guard Tests", function () {
       expect(domainInfo.adminType).to.be.equal(AgentType.ROLE);
       expect(domainInfo.realmLimit).to.be.equal(1);
       expect(domainInfo.realmCount).to.be.equal(0);
-      expect(domainInfo.referredByAgent).to.be.equal(0);
+      expect(domainInfo.referredByAgent).to.be.equal(1);
       expect(domainInfo.stype).to.be.equal(ScopeType.DOMAIN);
       expect(domainInfo.acstat).to.be.equal(ActivityStatus.DISABLED);
       expect(domainInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
@@ -15860,7 +16031,7 @@ describe("Lively Guard Tests", function () {
       expect(domainInfo.adminType).to.be.equal(AgentType.TYPE);
       expect(domainInfo.realmLimit).to.be.equal(2);
       expect(domainInfo.realmCount).to.be.equal(0);
-      expect(domainInfo.referredByAgent).to.be.equal(0);
+      expect(domainInfo.referredByAgent).to.be.equal(1);
       expect(domainInfo.stype).to.be.equal(ScopeType.DOMAIN);
       expect(domainInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
       expect(domainInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
@@ -15914,7 +16085,7 @@ describe("Lively Guard Tests", function () {
           adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
           contextLimit: 1,
           acstat: ActivityStatus.ENABLED,
-          alstat: AlterabilityStatus.DISABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
           name: ACL_REALM_TEST_NAME,
         },
       ];
@@ -15951,7 +16122,7 @@ describe("Lively Guard Tests", function () {
       expect(realmInfo.referredByAgent).to.be.equal(0);
       expect(realmInfo.stype).to.be.equal(ScopeType.REALM);
       expect(realmInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
-      expect(realmInfo.alstat).to.be.equal(AlterabilityStatus.DISABLED);
+      expect(realmInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
 
       // and
       expect(await realmManagerDelegateProxy.realmCheckId(aclRealmTestId)).to.be.true;
@@ -15968,7 +16139,7 @@ describe("Lively Guard Tests", function () {
 
       //
       const contexts = await realmManagerDelegateProxy.realmGetContexts(LIVELY_VERSE_ACL_REALM_ID);
-      expect(contexts.length).to.be.equal(22);
+      expect(contexts.length).to.be.equal(23);
     });
 
     it("Should hard remove aclRealmTest success", async () => {
@@ -16006,78 +16177,7 @@ describe("Lively Guard Tests", function () {
       expect(await realmManagerDelegateProxy.realmCheckAdmin(aclRealmTestId, livelyAdminWallet.address)).to.be.false;
     });
 
-    it("Should soft remove aclRealm main success", async () => {
-      // given
-      const emptyMemberSignature: IACLCommons.MemberSignatureStruct = {
-        account: ethers.constants.AddressZero,
-        expiredAt: 0,
-        signature: new Int8Array(0),
-      };
-
-      // when
-      await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmRemove(emptyMemberSignature, [LIVELY_VERSE_ACL_REALM_ID]))
-        .to.emit(realmManagerDelegateProxy, "RealmRemoved")
-        .withArgs(livelyAdminWallet.address, LIVELY_VERSE_ACL_REALM_ID, true);
-
-      // then
-      expect(await realmManagerDelegateProxy.realmCheckId(LIVELY_VERSE_ACL_REALM_ID)).to.be.true;
-
-      // and
-      const realmInfo: IRealmManagement.RealmInfoStruct = await realmManagerDelegateProxy.realmGetInfo(LIVELY_VERSE_ACL_REALM_ID);
-      expect(realmInfo.name).to.be.equal("REALM.LIVELY_VERSE.LIVELY_GUARD.ACL");
-      expect(realmInfo.domainId).to.be.equal(LIVELY_VERSE_ACL_DOMAIN_ID);
-      expect(realmInfo.adminId).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
-      expect(realmInfo.adminType).to.be.equal(AgentType.TYPE);
-      expect(realmInfo.contextLimit).to.be.equal(128);
-      expect(realmInfo.contextCount).to.be.equal(22);
-      expect(realmInfo.referredByAgent).to.be.equal(1);
-      expect(realmInfo.stype).to.be.equal(ScopeType.REALM);
-      expect(realmInfo.acstat).to.be.equal(ActivityStatus.DELETED);
-      expect(realmInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
-    });
-
-    it("Should update alterability of aclRealmT when softDeleted failed", async () => {
-      // given
-      const requests: IACLCommonsRoles.UpdateAlterabilityRequestStruct[] = [
-        {
-          id: LIVELY_VERSE_ACL_REALM_ID,
-          alstat: AlterabilityStatus.UPDATABLE,
-        },
-      ];
-      const memberSignature: IACLCommons.MemberSignatureStruct = {
-        account: ethers.constants.AddressZero,
-        expiredAt: 0,
-        signature: new Int8Array(0),
-      };
-
-      // when
-      await expect(
-        realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateAlterabilityStatus(memberSignature, requests)
-      )
-        .to.revertedWith("ACLRealmActivityForbidden()");
-    });
-
-    it("Should enable activity of aclRealmTest success", async () => {
-      // given
-      const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [
-        {
-          id: LIVELY_VERSE_ACL_REALM_ID,
-          acstat: ActivityStatus.ENABLED,
-        },
-      ];
-      const memberSignature: IACLCommons.MemberSignatureStruct = {
-        account: ethers.constants.AddressZero,
-        expiredAt: 0,
-        signature: new Int8Array(0),
-      };
-
-      // when
-      await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateActivityStatus(memberSignature, requests))
-        .to.emit(realmManagerDelegateProxy, "RealmActivityUpdated")
-        .withArgs(livelyAdminWallet.address, LIVELY_VERSE_ACL_REALM_ID, ActivityStatus.ENABLED);
-    });
-
-    it("Should register aclRealmTest to aclDomainTestId success", async () => {
+    it("Should register again aclRealmTest to aclDomainTestId success", async () => {
       // given
       const memberRegisterFunctionId = ethers.utils.keccak256(
         ethers.utils.solidityPack(
@@ -16092,7 +16192,7 @@ describe("Lively Guard Tests", function () {
           adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
           contextLimit: 1,
           acstat: ActivityStatus.ENABLED,
-          alstat: AlterabilityStatus.DISABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
           name: ACL_REALM_TEST_NAME,
         },
       ];
@@ -16129,7 +16229,7 @@ describe("Lively Guard Tests", function () {
       expect(realmInfo.referredByAgent).to.be.equal(0);
       expect(realmInfo.stype).to.be.equal(ScopeType.REALM);
       expect(realmInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
-      expect(realmInfo.alstat).to.be.equal(AlterabilityStatus.DISABLED);
+      expect(realmInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
 
       // and
       expect(await realmManagerDelegateProxy.realmCheckId(aclRealmTestId)).to.be.true;
@@ -16146,7 +16246,121 @@ describe("Lively Guard Tests", function () {
 
       //
       const contexts = await realmManagerDelegateProxy.realmGetContexts(LIVELY_VERSE_ACL_REALM_ID);
-      expect(contexts.length).to.be.equal(22);
+      expect(contexts.length).to.be.equal(23);
+    });
+
+    it("Should update scope aclRoleTest3 to aclRealmTest success", async () => {
+      // given
+      aclRoleTestId3 = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_TEST_NAME_3));
+      const roleRequests: IACLCommonsRoles.UpdateScopeRequestStruct[] = [
+        {
+          id: aclRoleTestId3,
+          scopeId: aclRealmTestId,
+        },
+      ];
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(roleManagerDelegateProxy.connect(systemAdmin).roleUpdateScope(memberSignature, roleRequests))
+        .to.emit(roleManagerDelegateProxy, "RoleScopeUpdated")
+        .withArgs(systemAdminWallet.address, aclRoleTestId3, aclRealmTestId);
+    });
+
+    it("Should soft remove aclRealmTest success", async () => {
+      // given
+      const emptyMemberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmRemove(emptyMemberSignature, [aclRealmTestId]))
+        .to.emit(realmManagerDelegateProxy, "RealmRemoved")
+        .withArgs(livelyAdminWallet.address, aclRealmTestId, true);
+
+      // then
+      expect(await realmManagerDelegateProxy.realmCheckId(aclRealmTestId)).to.be.true;
+
+      // and
+      const realmInfo: IRealmManagement.RealmInfoStruct = await realmManagerDelegateProxy.realmGetInfo(aclRealmTestId);
+      expect(realmInfo.name).to.be.equal(ACL_REALM_TEST_NAME);
+      expect(realmInfo.domainId).to.be.equal(aclDomainTestId);
+      expect(realmInfo.adminId).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
+      expect(realmInfo.adminType).to.be.equal(AgentType.ROLE);
+      expect(realmInfo.contextLimit).to.be.equal(1);
+      expect(realmInfo.contextCount).to.be.equal(0);
+      expect(realmInfo.referredByAgent).to.be.equal(1);
+      expect(realmInfo.stype).to.be.equal(ScopeType.REALM);
+      expect(realmInfo.acstat).to.be.equal(ActivityStatus.DELETED);
+      expect(realmInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+    });
+
+    it("Should update alterability of aclRealmTest when softDeleted failed", async () => {
+      // given
+      const requests: IACLCommonsRoles.UpdateAlterabilityRequestStruct[] = [
+        {
+          id: aclRealmTestId,
+          alstat: AlterabilityStatus.UPDATABLE,
+        },
+      ];
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(
+        realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateAlterabilityStatus(memberSignature, requests)
+      )
+        .to.revertedWith("Realm Deleted");
+    });
+
+    it("Should enable activity of aclRealmTest success", async () => {
+      // given
+      const requests: IACLCommonsRoles.UpdateActivityRequestStruct[] = [
+        {
+          id: aclRealmTestId,
+          acstat: ActivityStatus.ENABLED,
+        },
+      ];
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateActivityStatus(memberSignature, requests))
+        .to.emit(realmManagerDelegateProxy, "RealmActivityUpdated")
+        .withArgs(livelyAdminWallet.address, aclRealmTestId, ActivityStatus.ENABLED);
+    });
+
+    it("Should disable alterability of aclRealmTest success", async () => {
+      // given
+      const requests: IACLCommonsRoles.UpdateAlterabilityRequestStruct[] = [
+        {
+          id: aclRealmTestId,
+          alstat: AlterabilityStatus.DISABLED,
+        },
+      ];
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(
+        realmManagerDelegateProxy.connect(livelyAdmin).realmUpdateAlterabilityStatus(memberSignature, requests)
+      )
+        .to.emit(realmManagerDelegateProxy, "RealmAlterabilityUpdated")
+        .withArgs(livelyAdminWallet.address, aclRealmTestId, AlterabilityStatus.DISABLED);
     });
 
     it("Should update admin of aclRealmTest when alterability disabled failed", async () => {
@@ -16258,7 +16472,7 @@ describe("Lively Guard Tests", function () {
       expect(realmInfo.adminType).to.be.equal(AgentType.ROLE);
       expect(realmInfo.contextLimit).to.be.equal(1);
       expect(realmInfo.contextCount).to.be.equal(0);
-      expect(realmInfo.referredByAgent).to.be.equal(0);
+      expect(realmInfo.referredByAgent).to.be.equal(1);
       expect(realmInfo.stype).to.be.equal(ScopeType.REALM);
       expect(realmInfo.acstat).to.be.equal(ActivityStatus.DISABLED);
       expect(realmInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
@@ -16336,10 +16550,31 @@ describe("Lively Guard Tests", function () {
       expect(realmInfo.adminType).to.be.equal(AgentType.TYPE);
       expect(realmInfo.contextLimit).to.be.equal(5);
       expect(realmInfo.contextCount).to.be.equal(0);
-      expect(realmInfo.referredByAgent).to.be.equal(0);
+      expect(realmInfo.referredByAgent).to.be.equal(1);
       expect(realmInfo.stype).to.be.equal(ScopeType.REALM);
       expect(realmInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
       expect(realmInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
+    });
+
+    it("Should update scope aclRoleTest3 to Universe success", async () => {
+      // given
+      aclRoleTestId3 = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_ROLE_TEST_NAME_3));
+      const roleRequests: IACLCommonsRoles.UpdateScopeRequestStruct[] = [
+        {
+          id: aclRoleTestId3,
+          scopeId: LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID,
+        },
+      ];
+      const memberSignature: IACLCommons.MemberSignatureStruct = {
+        account: ethers.constants.AddressZero,
+        expiredAt: 0,
+        signature: new Int8Array(0),
+      };
+
+      // when
+      await expect(roleManagerDelegateProxy.connect(systemAdmin).roleUpdateScope(memberSignature, roleRequests))
+        .to.emit(roleManagerDelegateProxy, "RoleScopeUpdated")
+        .withArgs(systemAdminWallet.address, aclRoleTestId3, LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);
     });
 
     it("Should move realm from aclDomainTestId to ACL domain success", async () => {
@@ -16528,7 +16763,7 @@ describe("Lively Guard Tests", function () {
       expect(universeInfo.acstat).to.be.equal(ActivityStatus.DISABLED);
       expect(universeInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
       expect(universeInfo.stype).to.be.equal(ScopeType.UNIVERSE);
-      expect(universeInfo.referredByAgent).to.be.equal(19);
+      expect(universeInfo.referredByAgent).to.be.equal(20);
     });
 
     it("Should register aclDomainTest2 in Universe failed", async () => {
@@ -16681,7 +16916,7 @@ describe("Lively Guard Tests", function () {
       expect(universeInfo.acstat).to.be.equal(ActivityStatus.ENABLED);
       expect(universeInfo.alstat).to.be.equal(AlterabilityStatus.UPDATABLE);
       expect(universeInfo.stype).to.be.equal(ScopeType.UNIVERSE);
-      expect(universeInfo.referredByAgent).to.be.equal(20);
+      expect(universeInfo.referredByAgent).to.be.equal(21);
 
       // and
       expect(await universeManagerDelegateProxy.universeCheckAdmin(userWallet1.address)).to.be.false;
@@ -16976,20 +17211,6 @@ describe("Lively Guard Tests", function () {
         )
       );
       const domainContextId = ethers.utils.keccak256(domainManagerProxy.address);
-      const requests: IFunctionManagement.FunctionRemoveRequestStruct[] = [
-        {
-          functionId: domainRegisterFunctionId,
-          isSoftDelete: false,
-        },
-        {
-          functionId: domainMoveRealmFunctionId,
-          isSoftDelete: false,
-        },
-        {
-          functionId: domainRemoveFunctionId,
-          isSoftDelete: false,
-        },
-      ];
       const memberSignature: IACLCommons.MemberSignatureStruct = {
         account: ethers.constants.AddressZero,
         expiredAt: 0,
@@ -16998,7 +17219,7 @@ describe("Lively Guard Tests", function () {
 
       // when
       await expect(
-        functionManagerDelegateProxy.connect(livelyAdmin).functionRemove(memberSignature, requests)
+        functionManagerDelegateProxy.connect(livelyAdmin).functionRemove(memberSignature, [domainRegisterFunctionId, domainMoveRealmFunctionId, domainRemoveFunctionId])
       )
         .to.emit(functionManagerDelegateProxy, "FunctionRemoved")
         .withArgs(livelyAdminWallet.address, domainRegisterFunctionId, false)

@@ -638,7 +638,7 @@ library LProfileCommons {
     IProfileContextManagement.ProfileContextRegisterRequest calldata request,
     bytes32 profileId,
     bytes32 scopeId,
-    bytes32 requestScopeAdmin
+    bytes32 realmAdminId
   ) private view returns (bytes32 contextAdminId) {
     // checking requested context admin
     if (request.adminId != bytes32(0)) {
@@ -658,7 +658,7 @@ library LProfileCommons {
       }
       contextAdminId = request.adminId;
     } else {
-      contextAdminId = requestScopeAdmin;
+      contextAdminId = realmAdminId;
     }
   }
 
@@ -726,16 +726,16 @@ library LProfileCommons {
     IACLCommons.ProfileEntity storage profileEntity,
     bytes32 contextAdminId,
     bytes32 contextId,
-    bytes32 adminId,
+    bytes32 requestAdminId,
     bytes32 profileId
   ) private view returns (bytes32 functionAdminId) {
     // checking requested functionAdmin admin
-    if (adminId != bytes32(0)) {
-      require(profileEntity.agents[adminId].atype > IACLCommons.AgentType.MEMBER, "Illegal Admin AgentType");
+    if (requestAdminId != bytes32(0)) {
+      require(profileEntity.agents[requestAdminId].atype > IACLCommons.AgentType.MEMBER, "Illegal Admin AgentType");
 
       (IACLCommons.ScopeType requestAdminFuncType, bytes32 requestAdminFuncId) = _doGetAgentScopeInfo(
         profileEntity,
-        adminId
+        requestAdminId
       );
       require(IACLCommons.ScopeType.CONTEXT <= requestAdminFuncType, "Illegal Admin ScopeType");
 
@@ -747,7 +747,7 @@ library LProfileCommons {
           "Illegal Admin Scope"
         );
       }
-      functionAdminId = adminId;
+      functionAdminId = requestAdminId;
     } else {
       functionAdminId = contextAdminId;
     }

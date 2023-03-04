@@ -240,36 +240,35 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     return true;
   }
 
-  function functionRemove(MemberSignature calldata memberSign, FunctionRemoveRequest[] calldata requests) external returns (bool) {
+  function functionRemove(MemberSignature calldata memberSign, bytes32[] calldata functions) external returns (bool) {
     (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(
       memberSign,
       IFunctionManagement.functionRemove.selector
     );
 
-    for (uint256 i = 0; i < requests.length; i++) {
-      FunctionEntity storage functionEntity = _data.functionReadSlot(requests[i].functionId);
+    for (uint256 i = 0; i < functions.length; i++) {
+      FunctionEntity storage functionEntity = _data.functionReadSlot(functions[i]);
       IACL.AdminAccessStatus status = _doCheckAdminAccess(functionEntity.bs.adminId, senderId, functionId);
       if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
 
-      if(requests[i].isSoftDelete) {
-        // Note: It's very important to prevent infinity lock state
-        require(functionEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-        functionEntity.bs.acstat = ActivityStatus.DELETED;
-        emit FunctionRemoved(sender, requests[i].functionId, true);
-
-      } else {
-        require(functionEntity.bs.referredByAgent == 0, "Illegal Remove");
-
+      if(functionEntity.bs.referredByAgent == 0) {        
         ContextEntity storage contextEntity = _data.contextReadSlot(functionEntity.contextId);
         require(contextEntity.bs.alstat == AlterabilityStatus.UPGRADABLE, "Illegal Context Upgradable");
-        contextEntity.functions.remove(requests[i].functionId);
+        contextEntity.functions.remove(functions[i]);
 
         delete functionEntity.bs;
         delete functionEntity.agentId;
         delete functionEntity.contextId;
         delete functionEntity.selector;
         delete functionEntity.policyCode;
-        emit FunctionRemoved(sender, requests[i].functionId, false);
+        emit FunctionRemoved(sender, functions[i], false);
+
+      } else {
+        // Note: It's very important to prevent infinity lock state
+        require(functionEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
+        functionEntity.bs.acstat = ActivityStatus.DELETED;
+        emit FunctionRemoved(sender, functions[i], true);
+
       }      
     }
     return true;

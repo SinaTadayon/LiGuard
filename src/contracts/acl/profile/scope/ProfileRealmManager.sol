@@ -258,31 +258,26 @@ contract ProfileRealmManager is ACLStorage, BaseUUPSProxy, IProfileRealmManageme
       );
       if (status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
     
+      require(realmEntity.contexts.length() == 0, "Illegal Remove");
       if(realmEntity.bs.referredByAgent == 0) {
-        if(realmEntity.contexts.length() == 0) {
-          require(realmEntity.bs.referredByAgent == 0, "Illegal Remove");
 
-          // check domain
-          DomainEntity storage domainEntity = profileEntity.profileDomainReadSlot(realmEntity.domainId);
-          require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Domain Updatable");
-          domainEntity.realms.remove(realms[i]);
+        // check domain
+        DomainEntity storage domainEntity = profileEntity.profileDomainReadSlot(realmEntity.domainId);
+        require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Domain Updatable");
+        domainEntity.realms.remove(realms[i]);
 
-          delete realmEntity.bs;
-          delete realmEntity.domainId;
-          delete realmEntity.contextLimit;
-          delete realmEntity.name;
-          delete realmEntity.contexts;
-          emit ProfileRealmRemoved(sender, profileId, realms[i], false);
-        
-        } else {
-          require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-          realmEntity.bs.acstat = ActivityStatus.DELETED;
-          emit ProfileRealmRemoved(sender, profileId, realms[i], true);
-        }
+        delete realmEntity.bs;
+        delete realmEntity.domainId;
+        delete realmEntity.contextLimit;
+        delete realmEntity.name;
+        delete realmEntity.contexts;
+        emit ProfileRealmRemoved(sender, profileId, realms[i], false);
+      
       } else {
-        revert("Illegal Remove");
+        require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
+        realmEntity.bs.acstat = ActivityStatus.DELETED;
+        emit ProfileRealmRemoved(sender, profileId, realms[i], true);
       }
-
     }
     return true;
   }
@@ -419,24 +414,6 @@ contract ProfileRealmManager is ACLStorage, BaseUUPSProxy, IProfileRealmManageme
 
     return (ScopeType.NONE, bytes32(0));
   }
-
-  // function _doGetContextEntityAndCheckAdminAccess(
-  //   ProfileEntity storage profileEntity,
-  //   FunctionEntity storage functionEntity,
-  //   bytes32 contextId,
-  //   bytes32 senderId
-  // ) internal view returns (ContextEntity storage) {
-  //   ContextEntity storage contextEntity = profileEntity.profileContextReadSlot(contextId);
-  //   require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-  //   IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(
-  //     profileEntity,
-  //     functionEntity,
-  //     contextEntity.bs.adminId,
-  //     senderId
-  //   );
-  //   if (status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
-  //   return contextEntity;
-  // }
 
   function _doCheckAdminAccess(
     ProfileEntity storage profileEntity,

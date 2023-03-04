@@ -238,8 +238,9 @@ contract ProfileDomainManager is ACLStorage, BaseUUPSProxy, IProfileDomainManage
         senderId
       );
       if (status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
-      if(domainEntity.realms.length() == 0) {
-        require(domainEntity.bs.referredByAgent == 0, "Illegal Remove");
+      
+      require(domainEntity.realms.length() == 0, "Illegal Remove");
+      if(domainEntity.bs.referredByAgent == 0) {
        
         // check universe
         UniverseEntity storage universeEntity = profileEntity.profileUniverseReadSlot(domainEntity.universeId);
