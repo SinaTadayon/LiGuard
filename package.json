@@ -9,6 +9,7 @@
     "copy-typechain": "copyfiles -u 2 \"./build/typechain/types/**/*\" export/",
     "console": "yarn run hardhat console",
     "start": "yarn run hardhat node",
+    "run": "yarn run hardhat run",
     "guide": "yarn run hardhat help",
     "info": "npm-scripts-info",
     "test": "yarn run hardhat test",

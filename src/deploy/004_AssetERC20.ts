@@ -68,13 +68,16 @@ const ACL_ROLE_LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_NAME =
   "ROLE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.AUDIO_VIDEO_PROGRAM_ASSET_ADMIN";
 const ACL_ROLE_LIVELY_FOUNDING_TEAM_ASSET_NAME =
   "ROLE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.FOUNDING_TEAM_ASSET_ADMIN";
-const ACL_ROLE_LIVELY_TREASURY_ASSET_NAME = "ROLE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.TREASURY_ASSET_ADMIN";
-const ACL_ROLE_LIVELY_PUBLIC_SALE_ASSET_NAME = "ROLE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.PUBLIC_SALE_ASSET_ADMIN";
+const ACL_ROLE_LIVELY_TREASURY_ASSET_NAME =
+  "ROLE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.TREASURY_ASSET_ADMIN";
+const ACL_ROLE_LIVELY_PUBLIC_SALE_ASSET_NAME =
+  "ROLE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.PUBLIC_SALE_ASSET_ADMIN";
 const ACL_ROLE_LIVELY_VALIDATOR_REWARDS_ASSET_NAME =
   "ROLE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.VALIDATORS_REWARDS_ASSET_ADMIN";
 const ACL_ROLE_LIVELY_CROWD_FOUNDING_ASSET_NAME =
   "ROLE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.CROWD_FOUNDING_ASSET_ADMIN";
-const ACL_ROLE_LIVELY_TAX_TREASURY_ASSET_NAME = "ROLE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.TAX_TREASURY_ASSET_ADMIN";
+const ACL_ROLE_LIVELY_TAX_TREASURY_ASSET_NAME =
+  "ROLE.LIVELY_VERSE.TOKENS.LIVELY_TOKEN_ERC20.TAX_TREASURY_ASSET_ADMIN";
 
 const ACL_ROLE_LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_ADMIN_ID = ethers.utils.keccak256(
   ethers.utils.toUtf8Bytes(ACL_ROLE_LIVELY_AUDIO_VIDEO_PROGRAM_ASSET_NAME)
@@ -327,7 +330,7 @@ async function registerLivelyTokenAssets(
   let txReceipt;
   console.log(`[ Register LIVELY_AUDIO_VIDEO_PROGRAM Asset ]`);
   let tx = await assetManagerProxy.connect(assetAdmin).createAsset(createAudioVideoProgramAssetRequest);
-  console.log(`salt: ${saltValue}`);
+  console.log(`salt: ${saltValue}, address: ${assetAudioVideoProgramAddress}`);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
@@ -363,7 +366,7 @@ async function registerLivelyTokenAssets(
   assetFoundingTeamId = ethers.utils.keccak256(assetFoundingTeamAddress);
   console.log(`[ Register LIVELY_FOUNDING_TEAM Asset ]`);
   tx = await assetManagerProxy.connect(assetAdmin).createAsset(createFoundingTeamAssetRequest);
-  console.log(`salt: ${saltValue}`);
+  console.log(`salt: ${saltValue}, address: ${assetFoundingTeamAddress}`);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
@@ -399,7 +402,7 @@ async function registerLivelyTokenAssets(
   assetTreasuryId = ethers.utils.keccak256(assetTreasuryAddress);
   console.log(`[ Register LIVELY_TREASURY Asset ]`);
   tx = await assetManagerProxy.connect(assetAdmin).createAsset(createTreasuryAssetRequest);
-  console.log(`salt: ${saltValue}`);
+  console.log(`salt: ${saltValue}, address: ${assetTreasuryAddress}`);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
@@ -435,7 +438,7 @@ async function registerLivelyTokenAssets(
   assetPublicSaleId = ethers.utils.keccak256(assetPublicSaleAddress);
   console.log(`[ Register LIVELY_PUBLIC_SALE Asset ]`);
   tx = await assetManagerProxy.connect(assetAdmin).createAsset(createPublicSalesAssetRequest);
-  console.log(`salt: ${saltValue}`);
+  console.log(`salt: ${saltValue}, address: ${assetPublicSaleAddress}`);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
@@ -471,7 +474,7 @@ async function registerLivelyTokenAssets(
   assetValidatorsRewardsId = ethers.utils.keccak256(assetValidatorsRewardsAddress);
   console.log(`[ Register LIVELY_VALIDATOR_REWARDS Asset ]`);
   tx = await assetManagerProxy.connect(assetAdmin).createAsset(createValidatorRewardAssetRequest);
-  console.log(`salt: ${saltValue}`);
+  console.log(`salt: ${saltValue}, address: ${assetValidatorsRewardsAddress}`);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
@@ -507,7 +510,7 @@ async function registerLivelyTokenAssets(
   assetCrowdFoundingId = ethers.utils.keccak256(assetCrowdFoundingAddress);
   console.log(`[ Register LIVELY_CROWD_FOUNDING Asset ]`);
   tx = await assetManagerProxy.connect(assetAdmin).createAsset(createCrowdFoundingAssetRequest);
-  console.log(`salt: ${saltValue}`);
+  console.log(`salt: ${saltValue}, address: ${assetCrowdFoundingAddress}`);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
@@ -543,7 +546,7 @@ async function registerLivelyTokenAssets(
   assetTaxTreasuryId = ethers.utils.keccak256(assetTaxTreasuryAddress);
   console.log(`[ Register LIVELY_TAX_TREASURY Asset ]`);
   tx = await assetManagerProxy.connect(assetAdmin).createAsset(createTaxTreasuryAssetRequest);
-  console.log(`salt: ${saltValue}`);
+  console.log(`salt: ${saltValue}, address: ${assetTaxTreasuryAddress}`);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
