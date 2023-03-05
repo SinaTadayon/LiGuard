@@ -95,9 +95,20 @@ interface IProfileMemberManagement is IACLCommons {
     AlterabilityStatus alstat
   );
 
-  event ProfileMemberRoleRevoked(address indexed sender, bytes32 indexed profileId, bytes32 indexed memberId, bytes32 roleId, bytes32 typeId);
+  event ProfileMemberRoleRevoked(
+    address indexed sender,
+    bytes32 indexed profileId,
+    bytes32 indexed memberId,
+    bytes32 roleId,
+    bytes32 typeId
+  );
 
-  event ProfileMemberRemoved(address indexed sender, bytes32 indexed profileId, bytes32 indexed memberId, bool isCompleted);
+  event ProfileMemberRemoved(
+    address indexed sender,
+    bytes32 indexed profileId,
+    bytes32 indexed memberId,
+    bool isCompleted
+  );
 
   function profileMemberRegister(
     ProfileMemberSignature calldata memberSign,
@@ -134,7 +145,9 @@ interface IProfileMemberManagement is IACLCommons {
     ProfileUpdateAdminRequest[] calldata requests
   ) external returns (bool);
 
-  function profileMemberRemove(ProfileMemberSignature calldata memberSign, bytes32[] calldata members) external returns (bool);
+  function profileMemberRemove(ProfileMemberSignature calldata memberSign, bytes32[] calldata members)
+    external
+    returns (bool);
 
   function profileMemberCheckId(bytes32 profileId, bytes32 memberId) external view returns (bool);
 

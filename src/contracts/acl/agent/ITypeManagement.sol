@@ -77,9 +77,7 @@ interface ITypeManagement is IACLCommons {
     external
     returns (bool);
 
-  function typeRemove(MemberSignature calldata memberSign, bytes32[] calldata types)
-    external
-    returns (bool);  
+  function typeRemove(MemberSignature calldata memberSign, bytes32[] calldata types) external returns (bool);
 
   function typeCheckId(bytes32 typeId) external view returns (bool);
 

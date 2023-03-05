@@ -6,6 +6,7 @@ import {
   AccessControl__factory,
   ACLManager,
   ACLManager__factory,
+  AssetManagerERC20,
   ContextManager,
   ContextManager__factory,
   DomainManager,
@@ -15,7 +16,9 @@ import {
   IACLManager,
   IContextManagement,
   IFunctionManagement,
+  LACLAgentScope,
   LACLCommons,
+  LivelyToken,
   LProfileCommons,
   LProfileRolePolicy,
   MemberManager,
@@ -73,6 +76,8 @@ import {
 } from "../utils/Utils";
 import { IACLCommons } from "../../typechain/types/acl/scope/FunctionManager";
 import { Signer } from "ethers";
+import { IACLCommons as IACLCommonsRoles } from "../../typechain/types/acl/agent/IRoleManagement";
+import { ethers } from "hardhat";
 
 // main acl contracts name
 const MEMBER_MANAGER_CONTRACT_NAME_SUBJECT = "MemberManagerSubject";
@@ -177,6 +182,7 @@ export const EMPTY_MEMBER_SIGNATURE: IACLCommons.MemberSignatureStruct = {
 
 // Lively Guard Libraries
 let lACLCommons: DeployResult;
+let lACLAgentScope: DeployResult;
 let lProfileCommons: DeployResult;
 let lProfileRolePolicy: DeployResult;
 
@@ -237,7 +243,7 @@ let aclManagerFirstInit: boolean;
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, ethers, getChainId } = hre;
   const { deploy } = deployments;
-  const {systemAdmin, livelyAdmin, assetAdmin} = await ethers.getNamedSigners();
+  const { systemAdmin, livelyAdmin, assetAdmin } = await ethers.getNamedSigners();
   const chainId = await getChainId();
   console.log(`livelyAdmin address: ${livelyAdmin.address}`);
   console.log(`systemAdmin address: ${systemAdmin.address}`);
@@ -247,6 +253,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   lACLCommons = await deploy("LACLCommons", {
     contract: "LACLCommons",
+    from: systemAdmin.address,
+    log: true,
+    skipIfAlreadyDeployed: true,
+  });
+
+  lACLAgentScope = await deploy("LACLAgentScope", {
+    contract: "LACLAgentScope",
     from: systemAdmin.address,
     log: true,
     skipIfAlreadyDeployed: true,
@@ -289,6 +302,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     await registerAclFunctions(hre, systemAdmin);
 
     await registerProfileFunctions(hre, systemAdmin);
+
+    const contextManagerDelegateProxy = ContextManager__factory.connect(aclManagerProxy.address, systemAdmin);
+    await upgradableContextsToUpdatable(livelyAdmin, contextManagerDelegateProxy, hre);
   }
 };
 
@@ -335,7 +351,7 @@ async function deployACLSubjects(
     log: true,
     skipIfAlreadyDeployed: true,
     libraries: {
-      LACLCommons: lACLCommons.address,
+      LACLAgentScope: lACLAgentScope.address,
     },
   });
 
@@ -347,7 +363,7 @@ async function deployACLSubjects(
     log: true,
     skipIfAlreadyDeployed: true,
     libraries: {
-      LACLCommons: lACLCommons.address,
+      LACLAgentScope: lACLAgentScope.address,
     },
   });
 
@@ -371,7 +387,7 @@ async function deployACLSubjects(
     log: true,
     skipIfAlreadyDeployed: true,
     libraries: {
-      LACLCommons: lACLCommons.address,
+      LACLAgentScope: lACLAgentScope.address,
     },
   });
 
@@ -443,7 +459,7 @@ async function deployACLSubjects(
     log: true,
     skipIfAlreadyDeployed: true,
     libraries: {
-      LACLCommons: lACLCommons.address,
+      LACLAgentScope: lACLAgentScope.address,
     },
   });
 
@@ -956,6 +972,7 @@ async function registerACLFacets(hre: HardhatRuntimeEnvironment, systemAdmin: Si
         memberIface.getSighash("memberUpdateAlterabilityStatus"),
         memberIface.getSighash("memberUpdateAdmin"),
         memberIface.getSighash("memberUpdateGeneralLimit"),
+        memberIface.getSighash("memberRemove"),
         memberIface.getSighash("memberCheckId"),
         memberIface.getSighash("memberCheckAccount"),
         memberIface.getSighash("memberCheckAdmin"),
@@ -976,6 +993,7 @@ async function registerACLFacets(hre: HardhatRuntimeEnvironment, systemAdmin: Si
         roleIface.getSighash("roleUpdateActivityStatus"),
         roleIface.getSighash("roleUpdateAlterabilityStatus"),
         roleIface.getSighash("roleUpdateMemberLimit"),
+        roleIface.getSighash("roleRemove"),
         roleIface.getSighash("roleCheckId"),
         roleIface.getSighash("roleCheckName"),
         roleIface.getSighash("roleCheckAdmin"),
@@ -993,6 +1011,7 @@ async function registerACLFacets(hre: HardhatRuntimeEnvironment, systemAdmin: Si
         typeIface.getSighash("typeUpdateActivityStatus"),
         typeIface.getSighash("typeUpdateAlterabilityStatus"),
         typeIface.getSighash("typeUpdateRoleLimit"),
+        typeIface.getSighash("typeRemove"),
         typeIface.getSighash("typeCheckId"),
         typeIface.getSighash("typeCheckName"),
         typeIface.getSighash("typeCheckAdmin"),
@@ -1015,6 +1034,7 @@ async function registerACLFacets(hre: HardhatRuntimeEnvironment, systemAdmin: Si
         policyIface.getSighash("policyUpdateActivityStatus"),
         policyIface.getSighash("policyUpdateAlterabilityStatus"),
         policyIface.getSighash("policyUpdateRoleLimit"),
+        policyIface.getSighash("policyRemove"),
         policyIface.getSighash("policyCheckId"),
         policyIface.getSighash("policyCheckName"),
         policyIface.getSighash("policyCheckAdmin"),
@@ -1058,6 +1078,7 @@ async function registerACLFacets(hre: HardhatRuntimeEnvironment, systemAdmin: Si
         functionIface.getSighash("functionUpdateActivityStatus"),
         functionIface.getSighash("functionUpdateAlterabilityStatus"),
         functionIface.getSighash("functionUpdatePolicyCode"),
+        functionIface.getSighash("functionRemove"),
         functionIface.getSighash("functionCheckId"),
         functionIface.getSighash("functionCheckSelector"),
         functionIface.getSighash("functionCheckAdmin"),
@@ -1074,6 +1095,7 @@ async function registerACLFacets(hre: HardhatRuntimeEnvironment, systemAdmin: Si
         contextIface.getSighash("contextUpdateAlterabilityStatus"),
         contextIface.getSighash("contextUpdateAdmin"),
         contextIface.getSighash("contextUpdateFunctionLimit"),
+        contextIface.getSighash("contextRemove"),
         contextIface.getSighash("contextCheckId"),
         contextIface.getSighash("contextCheckAccount"),
         contextIface.getSighash("contextCheckAdmin"),
@@ -1093,6 +1115,7 @@ async function registerACLFacets(hre: HardhatRuntimeEnvironment, systemAdmin: Si
         realmIface.getSighash("realmUpdateActivityStatus"),
         realmIface.getSighash("realmUpdateAlterabilityStatus"),
         realmIface.getSighash("realmUpdateContextLimit"),
+        realmIface.getSighash("realmRemove"),
         realmIface.getSighash("realmCheckId"),
         realmIface.getSighash("realmCheckName"),
         realmIface.getSighash("realmCheckAdmin"),
@@ -1112,6 +1135,7 @@ async function registerACLFacets(hre: HardhatRuntimeEnvironment, systemAdmin: Si
         domainIface.getSighash("domainUpdateAdmin"),
         domainIface.getSighash("domainMoveRealm"),
         domainIface.getSighash("domainUpdateRealmLimit"),
+        domainIface.getSighash("domainRemove"),
         domainIface.getSighash("domainCheckId"),
         domainIface.getSighash("domainCheckName"),
         domainIface.getSighash("domainCheckAdmin"),
@@ -1201,6 +1225,7 @@ async function registerProfileFacets(hre: HardhatRuntimeEnvironment, systemAdmin
         profileMemberIface.getSighash("profileMemberUpdateActivityStatus"),
         profileMemberIface.getSighash("profileMemberUpdateAlterabilityStatus"),
         profileMemberIface.getSighash("profileMemberUpdateAdmin"),
+        profileMemberIface.getSighash("profileMemberRemove"),
         profileMemberIface.getSighash("profileMemberCheckId"),
         profileMemberIface.getSighash("profileMemberCheckAccount"),
         profileMemberIface.getSighash("profileMemberCheckAdmin"),
@@ -1221,6 +1246,7 @@ async function registerProfileFacets(hre: HardhatRuntimeEnvironment, systemAdmin
         profileRoleIface.getSighash("profileRoleUpdateActivityStatus"),
         profileRoleIface.getSighash("profileRoleUpdateAlterabilityStatus"),
         profileRoleIface.getSighash("profileRoleUpdateMemberLimit"),
+        profileRoleIface.getSighash("profileRoleRemove"),
         profileRoleIface.getSighash("profileRoleCheckId"),
         profileRoleIface.getSighash("profileRoleCheckName"),
         profileRoleIface.getSighash("profileRoleCheckAdmin"),
@@ -1238,6 +1264,7 @@ async function registerProfileFacets(hre: HardhatRuntimeEnvironment, systemAdmin
         profileTypeIface.getSighash("profileTypeUpdateActivityStatus"),
         profileTypeIface.getSighash("profileTypeUpdateAlterabilityStatus"),
         profileTypeIface.getSighash("profileTypeUpdateRoleLimit"),
+        profileTypeIface.getSighash("profileTypeRemove"),
         profileTypeIface.getSighash("profileTypeCheckId"),
         profileTypeIface.getSighash("profileTypeCheckName"),
         profileTypeIface.getSighash("profileTypeCheckAdmin"),
@@ -1260,6 +1287,7 @@ async function registerProfileFacets(hre: HardhatRuntimeEnvironment, systemAdmin
         profilePolicyIface.getSighash("profilePolicyUpdateActivityStatus"),
         profilePolicyIface.getSighash("profilePolicyUpdateAlterabilityStatus"),
         profilePolicyIface.getSighash("profilePolicyUpdateRoleLimit"),
+        profilePolicyIface.getSighash("profilePolicyRemove"),
         profilePolicyIface.getSighash("profilePolicyCheckId"),
         profilePolicyIface.getSighash("profilePolicyCheckName"),
         profilePolicyIface.getSighash("profilePolicyCheckAdmin"),
@@ -1282,6 +1310,7 @@ async function registerProfileFacets(hre: HardhatRuntimeEnvironment, systemAdmin
         profileFunctionIface.getSighash("profileFunctionUpdateActivityStatus"),
         profileFunctionIface.getSighash("profileFunctionUpdateAlterabilityStatus"),
         profileFunctionIface.getSighash("profileFunctionUpdatePolicyCode"),
+        profileFunctionIface.getSighash("profileFunctionRemove"),
         profileFunctionIface.getSighash("profileFunctionCheckId"),
         profileFunctionIface.getSighash("profileFunctionCheckSelector"),
         profileFunctionIface.getSighash("profileFunctionCheckAdmin"),
@@ -1298,6 +1327,7 @@ async function registerProfileFacets(hre: HardhatRuntimeEnvironment, systemAdmin
         profileContextIface.getSighash("profileContextUpdateAlterabilityStatus"),
         profileContextIface.getSighash("profileContextUpdateAdmin"),
         profileContextIface.getSighash("profileContextUpdateFunctionLimit"),
+        profileContextIface.getSighash("profileContextRemove"),
         profileContextIface.getSighash("profileContextCheckId"),
         profileContextIface.getSighash("profileContextCheckAccount"),
         profileContextIface.getSighash("profileContextCheckAdmin"),
@@ -1317,6 +1347,7 @@ async function registerProfileFacets(hre: HardhatRuntimeEnvironment, systemAdmin
         profileRealmIface.getSighash("profileRealmUpdateActivityStatus"),
         profileRealmIface.getSighash("profileRealmUpdateAlterabilityStatus"),
         profileRealmIface.getSighash("profileRealmUpdateContextLimit"),
+        profileRealmIface.getSighash("profileRealmRemove"),
         profileRealmIface.getSighash("profileRealmCheckId"),
         profileRealmIface.getSighash("profileRealmCheckName"),
         profileRealmIface.getSighash("profileRealmCheckAdmin"),
@@ -1336,6 +1367,7 @@ async function registerProfileFacets(hre: HardhatRuntimeEnvironment, systemAdmin
         profileDomainIface.getSighash("profileDomainUpdateAdmin"),
         profileDomainIface.getSighash("profileDomainMoveRealm"),
         profileDomainIface.getSighash("profileDomainUpdateRealmLimit"),
+        profileDomainIface.getSighash("profileDomainRemove"),
         profileDomainIface.getSighash("profileDomainCheckId"),
         profileDomainIface.getSighash("profileDomainCheckName"),
         profileDomainIface.getSighash("profileDomainCheckAdmin"),
@@ -1766,6 +1798,14 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       alstat: AlterabilityStatus.UPDATABLE,
     },
     {
+      adminId: LIVELY_VERSE_ACL_TYPE_ID,
+      agentId: LIVELY_VERSE_ANY_TYPE_ID,
+      selector: memberIface.getSighash("memberRemove"),
+      policyCode: 16,
+      acstat: ActivityStatus.ENABLED,
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
       selector: memberIface.getSighash("upgradeTo"),
@@ -1912,6 +1952,14 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       alstat: AlterabilityStatus.UPDATABLE,
     },
     {
+      adminId: LIVELY_VERSE_ACL_TYPE_ID,
+      agentId: LIVELY_VERSE_ANY_TYPE_ID,
+      selector: roleIface.getSighash("roleRemove"),
+      policyCode: 16,
+      acstat: ActivityStatus.ENABLED,
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
       selector: roleIface.getSighash("upgradeTo"),
@@ -2040,6 +2088,14 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       alstat: AlterabilityStatus.UPDATABLE,
     },
     {
+      adminId: LIVELY_VERSE_ACL_TYPE_ID,
+      agentId: LIVELY_VERSE_ANY_TYPE_ID,
+      selector: typeIface.getSighash("typeRemove"),
+      policyCode: 16,
+      acstat: ActivityStatus.ENABLED,
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
       selector: typeIface.getSighash("upgradeTo"),
@@ -2160,6 +2216,14 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       alstat: AlterabilityStatus.UPDATABLE,
     },
     {
+      adminId: LIVELY_VERSE_ACL_TYPE_ID,
+      agentId: LIVELY_VERSE_ANY_TYPE_ID,
+      selector: functionIface.getSighash("functionRemove"),
+      policyCode: 16,
+      acstat: ActivityStatus.ENABLED,
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
       selector: functionIface.getSighash("upgradeTo"),
@@ -2267,6 +2331,14 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       adminId: LIVELY_VERSE_ACL_TYPE_ID,
       agentId: LIVELY_VERSE_ANY_TYPE_ID,
       selector: contextIface.getSighash("contextUpdateFunctionLimit"),
+      policyCode: 24,
+      acstat: ActivityStatus.ENABLED,
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
+      adminId: LIVELY_VERSE_ACL_TYPE_ID,
+      agentId: LIVELY_VERSE_ANY_TYPE_ID,
+      selector: contextIface.getSighash("contextRemove"),
       policyCode: 24,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPDATABLE,
@@ -2400,6 +2472,14 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       alstat: AlterabilityStatus.UPDATABLE,
     },
     {
+      adminId: LIVELY_VERSE_ACL_TYPE_ID,
+      agentId: LIVELY_VERSE_ANY_TYPE_ID,
+      selector: realmIface.getSighash("realmRemove"),
+      policyCode: 16,
+      acstat: ActivityStatus.ENABLED,
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
       selector: realmIface.getSighash("upgradeTo"),
@@ -2524,6 +2604,14 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       agentId: LIVELY_VERSE_ANY_TYPE_ID,
       selector: domainIface.getSighash("domainMoveRealm"),
       policyCode: 24,
+      acstat: ActivityStatus.ENABLED,
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
+      adminId: LIVELY_VERSE_ACL_TYPE_ID,
+      agentId: LIVELY_VERSE_ANY_TYPE_ID,
+      selector: domainIface.getSighash("domainRemove"),
+      policyCode: 16,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPDATABLE,
     },
@@ -2920,6 +3008,14 @@ async function registerAclFunctions(hre: HardhatRuntimeEnvironment, systemAdmin:
       alstat: AlterabilityStatus.UPDATABLE,
     },
     {
+      adminId: LIVELY_VERSE_ACL_TYPE_ID,
+      agentId: LIVELY_VERSE_ANY_TYPE_ID,
+      selector: policyIface.getSighash("policyRemove"),
+      policyCode: 16,
+      acstat: ActivityStatus.ENABLED,
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
       selector: policyIface.getSighash("upgradeTo"),
@@ -3234,6 +3330,14 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       alstat: AlterabilityStatus.UPDATABLE,
     },
     {
+      adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+      agentId: LIVELY_PROFILE_ANY_TYPE_ID,
+      selector: profileMemberIface.getSighash("profileMemberRemove"),
+      policyCode: 16,
+      acstat: ActivityStatus.ENABLED,
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
       selector: profileMemberIface.getSighash("upgradeTo"),
@@ -3379,6 +3483,14 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       alstat: AlterabilityStatus.UPDATABLE,
     },
     {
+      adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+      agentId: LIVELY_PROFILE_ANY_TYPE_ID,
+      selector: profileRoleIface.getSighash("profileRoleRemove"),
+      policyCode: 16,
+      acstat: ActivityStatus.ENABLED,
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
       selector: profileRoleIface.getSighash("upgradeTo"),
@@ -3503,6 +3615,14 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       agentId: LIVELY_PROFILE_ANY_TYPE_ID,
       selector: profileTypeIface.getSighash("profileTypeUpdateRoleLimit"),
       policyCode: 24,
+      acstat: ActivityStatus.ENABLED,
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
+      adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+      agentId: LIVELY_PROFILE_ANY_TYPE_ID,
+      selector: profileTypeIface.getSighash("profileTypeRemove"),
+      policyCode: 16,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPDATABLE,
     },
@@ -3635,6 +3755,14 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       alstat: AlterabilityStatus.UPDATABLE,
     },
     {
+      adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+      agentId: LIVELY_PROFILE_ANY_TYPE_ID,
+      selector: profileFunctionIface.getSighash("profileFunctionRemove"),
+      policyCode: 16,
+      acstat: ActivityStatus.ENABLED,
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
       selector: profileFunctionIface.getSighash("upgradeTo"),
@@ -3751,6 +3879,14 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       agentId: LIVELY_PROFILE_ANY_TYPE_ID,
       selector: profileContextIface.getSighash("profileContextUpdateFunctionLimit"),
       policyCode: 24,
+      acstat: ActivityStatus.ENABLED,
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
+      adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+      agentId: LIVELY_PROFILE_ANY_TYPE_ID,
+      selector: profileContextIface.getSighash("profileContextRemove"),
+      policyCode: 16,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPDATABLE,
     },
@@ -3883,6 +4019,14 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       alstat: AlterabilityStatus.UPDATABLE,
     },
     {
+      adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+      agentId: LIVELY_PROFILE_ANY_TYPE_ID,
+      selector: profileRealmIface.getSighash("profileRealmRemove"),
+      policyCode: 16,
+      acstat: ActivityStatus.ENABLED,
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
       selector: profileRealmIface.getSighash("upgradeTo"),
@@ -4007,6 +4151,14 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       agentId: LIVELY_PROFILE_ANY_TYPE_ID,
       selector: profileDomainIface.getSighash("profileDomainMoveRealm"),
       policyCode: 24,
+      acstat: ActivityStatus.ENABLED,
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
+      adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+      agentId: LIVELY_PROFILE_ANY_TYPE_ID,
+      selector: profileDomainIface.getSighash("profileDomainRemove"),
+      policyCode: 16,
       acstat: ActivityStatus.ENABLED,
       alstat: AlterabilityStatus.UPDATABLE,
     },
@@ -4355,6 +4507,14 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
       alstat: AlterabilityStatus.UPDATABLE,
     },
     {
+      adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+      agentId: LIVELY_PROFILE_ANY_TYPE_ID,
+      selector: profilePolicyIface.getSighash("profilePolicyRemove"),
+      policyCode: 16,
+      acstat: ActivityStatus.ENABLED,
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
       adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
       agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
       selector: profilePolicyIface.getSighash("upgradeTo"),
@@ -4420,6 +4580,118 @@ async function registerProfileFunctions(hre: HardhatRuntimeEnvironment, systemAd
   tx = await functionManagerDelegateProxy
     .connect(systemAdmin)
     .functionRegister(EMPTY_MEMBER_SIGNATURE, profilePolicyFunctionRegisterRequest);
+  console.log(`txHash: ${tx.hash} . . .`);
+  if (hre.network.name === "polygon" || hre.network.name === "bsc") {
+    txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
+  } else {
+    txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
+  }
+  console.log(
+    `txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`
+  );
+  console.log();
+}
+
+async function upgradableContextsToUpdatable(
+  livelyAdmin: Signer,
+  contextManagerDelegateProxy: ContextManager,
+  hre: HardhatRuntimeEnvironment
+) {
+  const requests: IACLCommonsRoles.UpdateAlterabilityRequestStruct[] = [
+    {
+      id: ethers.utils.keccak256(memberManagerProxyDeployed.address),
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
+      id: ethers.utils.keccak256(roleManagerProxyDeployed.address),
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
+      id: ethers.utils.keccak256(typeManagerProxyDeployed.address),
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
+      id: ethers.utils.keccak256(functionManagerProxyDeployed.address),
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
+      id: ethers.utils.keccak256(contextManagerProxyDeployed.address),
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
+      id: ethers.utils.keccak256(realmManagerProxyDeployed.address),
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
+      id: ethers.utils.keccak256(domainManagerProxyDeployed.address),
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
+      id: ethers.utils.keccak256(universeManagerProxyDeployed.address),
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
+      id: ethers.utils.keccak256(policyManagerProxyDeployed.address),
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
+      id: ethers.utils.keccak256(profileManagerProxyDeployed.address),
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
+      id: ethers.utils.keccak256(accessControlProxyDeployed.address),
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
+      id: ethers.utils.keccak256(profileMemberManagerProxyDeployed.address),
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
+      id: ethers.utils.keccak256(profileRoleManagerProxyDeployed.address),
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
+      id: ethers.utils.keccak256(profileTypeManagerProxyDeployed.address),
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
+      id: ethers.utils.keccak256(profileFunctionManagerProxyDeployed.address),
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
+      id: ethers.utils.keccak256(profileContextManagerProxyDeployed.address),
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
+      id: ethers.utils.keccak256(profileRealmManagerProxyDeployed.address),
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
+      id: ethers.utils.keccak256(profileDomainManagerProxyDeployed.address),
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
+      id: ethers.utils.keccak256(profileUniverseManagerProxyDeployed.address),
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
+      id: ethers.utils.keccak256(profilePolicyManagerProxyDeployed.address),
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
+      id: ethers.utils.keccak256(profileAccessControlProxyDeployed.address),
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
+      id: ethers.utils.keccak256(aclManagerProxyDeployed.address),
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+  ];
+  let txReceipt;
+  console.log(`[ LivelyGuard Upgradable Contexts To Updatable ]`);
+  const tx = await contextManagerDelegateProxy
+    .connect(livelyAdmin)
+    .contextUpdateAlterabilityStatus(EMPTY_MEMBER_SIGNATURE, requests);
   console.log(`txHash: ${tx.hash} . . .`);
   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
     txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);

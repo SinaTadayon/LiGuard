@@ -8,6 +8,9 @@ import {
   AssetERC20__factory,
   AssetManagerERC20,
   AssetManagerERC20__factory,
+  ContextManager,
+  ContextManager__factory,
+  FunctionManager,
   IAssetManagerERC20,
   IMemberManagement,
   IRoleManagement,
@@ -119,7 +122,7 @@ let assetTaxTreasuryAddress: string;
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, ethers } = hre;
   const { deploy } = deployments;
-  const {systemAdmin, assetAdmin} = await ethers.getNamedSigners();
+  const { systemAdmin, assetAdmin } = await ethers.getNamedSigners();
   const aclManagerProxyDeployed = await deployments.get(ACL_MANAGER_CONTRACT_NAME_PROXY);
   const assetManagerProxyDeployed = await deployments.get(ASSET_MANAGER_ERC20_PROXY);
   const livelyTokenProxyDeployed = await deployments.get(LIVELY_TOKEN_PROXY);
@@ -154,6 +157,15 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     await registerAssetRoles(assetAdmin, hre);
 
     await updateAssetRolesScope(assetAdmin, hre);
+
+    const contextManagerDelegateProxy = ContextManager__factory.connect(aclManagerProxy.address, systemAdmin);
+    await allUpgradableContextsToUpdatable(
+      assetAdmin,
+      livelyTokenProxy,
+      assetManagerProxy,
+      contextManagerDelegateProxy,
+      hre
+    );
 
     await distributeLivelyToken(assetAdmin, livelyTokenProxy, assetManagerProxy, hre);
   }
@@ -848,6 +860,73 @@ async function distributeLivelyToken(
 
   assetContract = await factory.attach(assetTaxTreasuryAddress);
   console.log(`assetTaxTreasury balance: ${await assetContract.assetBalance()}`);
+}
+
+async function allUpgradableContextsToUpdatable(
+  assetAdmin: Signer,
+  livelyTokenProxy: LivelyToken,
+  assetManagerProxy: AssetManagerERC20,
+  contextManagerDelegateProxy: ContextManager,
+  hre: HardhatRuntimeEnvironment
+) {
+  const requests: IACLCommonsRoles.UpdateAlterabilityRequestStruct[] = [
+    // Lively Token
+    {
+      id: ethers.utils.keccak256(livelyTokenProxy.address),
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+
+    // asset manager
+    {
+      id: ethers.utils.keccak256(assetManagerProxy.address),
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+
+    // assets
+    {
+      id: ethers.utils.keccak256(assetAudioVideoProgramAddress),
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
+      id: ethers.utils.keccak256(assetFoundingTeamAddress),
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
+      id: ethers.utils.keccak256(assetTreasuryAddress),
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
+      id: ethers.utils.keccak256(assetPublicSaleAddress),
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
+      id: ethers.utils.keccak256(assetValidatorsRewardsAddress),
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
+      id: ethers.utils.keccak256(assetCrowdFoundingAddress),
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+    {
+      id: ethers.utils.keccak256(assetTaxTreasuryAddress),
+      alstat: AlterabilityStatus.UPDATABLE,
+    },
+  ];
+  let txReceipt;
+  console.log(`[ Token And Assets Upgradable Contexts To Updatable ]`);
+  const tx = await contextManagerDelegateProxy
+    .connect(assetAdmin)
+    .contextUpdateAlterabilityStatus(EMPTY_MEMBER_SIGNATURE, requests);
+  console.log(`txHash: ${tx.hash} . . .`);
+  if (hre.network.name === "polygon" || hre.network.name === "bsc") {
+    txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
+  } else {
+    txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
+  }
+  console.log(
+    `txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`
+  );
+  console.log();
 }
 
 func.dependencies = [ACL_MANAGER_CONTRACT_NAME_PROXY, LIVELY_TOKEN_PROXY, ASSET_MANAGER_ERC20_PROXY];

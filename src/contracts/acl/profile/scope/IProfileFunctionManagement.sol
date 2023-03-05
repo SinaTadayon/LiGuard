@@ -99,7 +99,12 @@ interface IProfileFunctionManagement is IACLCommons {
     uint8 policyCode
   );
 
-  event ProfileFunctionRemoved(address indexed sender, bytes32 indexed profileId, bytes32 indexed functionId, bool isSoftDeleted);
+  event ProfileFunctionRemoved(
+    address indexed sender,
+    bytes32 indexed profileId,
+    bytes32 indexed functionId,
+    bool isSoftDeleted
+  );
 
   function profileFunctionRegister(
     ProfileMemberSignature calldata memberSign,

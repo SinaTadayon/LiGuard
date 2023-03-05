@@ -91,9 +91,7 @@ interface IRealmManagement is IACLCommons {
     RealmUpdateContextLimitRequest[] calldata requests
   ) external returns (bool);
 
-  function realmRemove(MemberSignature calldata memberSign, bytes32[] calldata realms)
-    external
-    returns (bool);
+  function realmRemove(MemberSignature calldata memberSign, bytes32[] calldata realms) external returns (bool);
 
   function realmCheckId(bytes32 realmId) external view returns (bool);
 

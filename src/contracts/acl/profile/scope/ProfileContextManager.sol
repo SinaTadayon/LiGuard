@@ -135,7 +135,7 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
       address sender
     ) = _accessPermission(memberSign, IProfileContextManagement.profileContextUpdateActivityStatus.selector);
     for (uint256 i = 0; i < requests.length; i++) {
-      ContextEntity storage contextEntity = profileEntity.profileContextReadSlot(requests[i].entityId);      
+      ContextEntity storage contextEntity = profileEntity.profileContextReadSlot(requests[i].entityId);
       require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
 
       IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(
@@ -175,7 +175,7 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
         senderId
       );
       if (status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
-      
+
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       contextEntity.bs.alstat = requests[i].alstat;
       emit ProfileContextAlterabilityUpdated(sender, profileId, requests[i].entityId, requests[i].alstat);
@@ -257,7 +257,10 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
     return true;
   }
 
-  function profileContextRemove(ProfileMemberSignature calldata memberSign, bytes32[] calldata contexts) external returns (bool) {
+  function profileContextRemove(ProfileMemberSignature calldata memberSign, bytes32[] calldata contexts)
+    external
+    returns (bool)
+  {
     (
       ProfileEntity storage profileEntity,
       FunctionEntity storage functionEntity,
@@ -273,10 +276,9 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
         contextEntity.bs.adminId,
         senderId
       );
-      if(status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
+      if (status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
       require(contextEntity.functions.length() == 0, "Illegal Remove");
-      if(contextEntity.bs.referredByAgent == 0) {
-
+      if (contextEntity.bs.referredByAgent == 0) {
         // check realm
         RealmEntity storage realmEntity = profileEntity.profileRealmReadSlot(contextEntity.realmId);
         require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Realm Updatable");
@@ -288,7 +290,6 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
         delete contextEntity.functionLimit;
         delete contextEntity.functions;
         emit ProfileContextRemoved(sender, profileId, contexts[i], false);
-
       } else {
         require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
         contextEntity.bs.acstat = ActivityStatus.DELETED;
@@ -296,9 +297,7 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
       }
     }
     return true;
-
   }
-
 
   function profileContextCheckId(bytes32 profileId, bytes32 contextId) external view returns (bool) {
     return _data.profiles[profileId].scopes[contextId].stype == ScopeType.CONTEXT;

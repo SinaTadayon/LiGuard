@@ -239,7 +239,7 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
         senderId
       );
       if (status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
-      
+
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       functionData.bs.alstat = requests[i].alstat;
       emit ProfileFunctionAlterabilityUpdated(sender, profileId, requests[i].entityId, requests[i].alstat);
@@ -271,7 +271,10 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
     return true;
   }
 
-  function profileFunctionRemove(ProfileMemberSignature calldata memberSign, bytes32[] calldata functions) external returns (bool) {
+  function profileFunctionRemove(ProfileMemberSignature calldata memberSign, bytes32[] calldata functions)
+    external
+    returns (bool)
+  {
     (
       ProfileEntity storage profileEntity,
       FunctionEntity storage functionEntity,
@@ -289,7 +292,7 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
       );
       if (status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
 
-      if(functionEntityReq.bs.referredByAgent == 0) {
+      if (functionEntityReq.bs.referredByAgent == 0) {
         ContextEntity storage contextEntity = profileEntity.profileContextReadSlot(functionEntityReq.contextId);
         require(contextEntity.bs.alstat == AlterabilityStatus.UPGRADABLE, "Illegal Context Upgradable");
         contextEntity.functions.remove(functions[i]);
@@ -300,13 +303,12 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
         delete functionEntityReq.selector;
         delete functionEntityReq.policyCode;
         emit ProfileFunctionRemoved(sender, profileId, functions[i], false);
-        
       } else {
         // Note: It's very important to prevent infinity lock state
         require(functionEntityReq.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
         functionEntityReq.bs.acstat = ActivityStatus.DELETED;
         emit ProfileFunctionRemoved(sender, profileId, functions[i], true);
-      }      
+      }
     }
     return true;
   }

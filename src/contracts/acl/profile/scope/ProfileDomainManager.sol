@@ -221,7 +221,10 @@ contract ProfileDomainManager is ACLStorage, BaseUUPSProxy, IProfileDomainManage
     return true;
   }
 
-  function profileDomainRemove(ProfileMemberSignature calldata memberSign, bytes32[] calldata domains) external returns (bool) {
+  function profileDomainRemove(ProfileMemberSignature calldata memberSign, bytes32[] calldata domains)
+    external
+    returns (bool)
+  {
     (
       ProfileEntity storage profileEntity,
       FunctionEntity storage functionEntity,
@@ -238,10 +241,9 @@ contract ProfileDomainManager is ACLStorage, BaseUUPSProxy, IProfileDomainManage
         senderId
       );
       if (status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
-      
+
       require(domainEntity.realms.length() == 0, "Illegal Remove");
-      if(domainEntity.bs.referredByAgent == 0) {
-       
+      if (domainEntity.bs.referredByAgent == 0) {
         // check universe
         UniverseEntity storage universeEntity = profileEntity.profileUniverseReadSlot(domainEntity.universeId);
         require(universeEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Universe Updatable");
@@ -253,7 +255,6 @@ contract ProfileDomainManager is ACLStorage, BaseUUPSProxy, IProfileDomainManage
         delete domainEntity.name;
         delete domainEntity.realms;
         emit ProfileDomainRemoved(sender, profileId, domains[i], false);
-      
       } else {
         require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
         domainEntity.bs.acstat = ActivityStatus.DELETED;
@@ -517,18 +518,22 @@ contract ProfileDomainManager is ACLStorage, BaseUUPSProxy, IProfileDomainManage
       request.targetDomainId,
       senderId
     );
-    
+
     RealmEntity storage realmEntity = profileEntity.profileRealmReadSlot(request.realmId);
     require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
     require(realmEntity.bs.referredByAgent == 0, "Illegal Referred");
 
     bytes32 realmAdminScopeId = _doAgentGetScopeInfo(profileEntity, realmEntity.bs.adminId);
     require(
-      IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, realmAdminScopeId, request.targetDomainId),
+      IProfileACLGenerals(address(this)).profileIsScopesCompatible(
+        profileId,
+        realmAdminScopeId,
+        request.targetDomainId
+      ),
       "Illegal Admin Scope"
-    );    
+    );
     require(targetDomainEntity.realmLimit > targetDomainEntity.realms.length(), "Illegal Move");
-    
+
     domainEntity.realms.remove(request.realmId);
     targetDomainEntity.realms.add(request.realmId);
     realmEntity.domainId = request.targetDomainId;

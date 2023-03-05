@@ -168,7 +168,9 @@ interface IProfilePolicyManagement is IACLCommons {
     ProfilePolicyUpdateRoleLimitRequest[] calldata requests
   ) external returns (bool);
 
-  function profilePolicyRemove(ProfileMemberSignature calldata memberSign, bytes32[] calldata policies) external returns (bool);
+  function profilePolicyRemove(ProfileMemberSignature calldata memberSign, bytes32[] calldata policies)
+    external
+    returns (bool);
 
   function profilePolicyCheckId(bytes32 profileId, bytes32 policyId) external view returns (bool);
 

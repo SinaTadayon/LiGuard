@@ -164,7 +164,7 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
         requests[i].entityId,
         senderId
       );
-      
+
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
       typeEntity.ba.acstat = requests[i].acstat;
       emit ProfileTypeActivityUpdated(sender, profileId, requests[i].entityId, requests[i].acstat);
@@ -224,7 +224,10 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
     return true;
   }
 
-  function profileTypeRemove(ProfileMemberSignature calldata memberSign, bytes32[] calldata types) external returns (bool) {
+  function profileTypeRemove(ProfileMemberSignature calldata memberSign, bytes32[] calldata types)
+    external
+    returns (bool)
+  {
     (
       ProfileEntity storage profileEntity,
       FunctionEntity storage functionEntity,

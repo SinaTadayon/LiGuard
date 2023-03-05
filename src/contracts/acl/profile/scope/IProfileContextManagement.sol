@@ -82,7 +82,12 @@ interface IProfileContextManagement is IACLCommons {
     uint8 functionLimit
   );
 
-  event ProfileContextRemoved(address indexed sender, bytes32 indexed profileId, bytes32 indexed contextId, bool isSoftDelete);
+  event ProfileContextRemoved(
+    address indexed sender,
+    bytes32 indexed profileId,
+    bytes32 indexed contextId,
+    bool isSoftDelete
+  );
 
   function profileContextRegister(
     ProfileMemberSignature calldata memberSign,

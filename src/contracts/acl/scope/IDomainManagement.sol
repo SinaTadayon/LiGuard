@@ -90,10 +90,7 @@ interface IDomainManagement is IACLCommons {
     DomainUpdateRealmLimitRequest[] calldata requests
   ) external returns (bool);
 
-  function domainRemove(MemberSignature calldata memberSign, bytes32[] calldata domains)
-    external
-    returns (bool);
-
+  function domainRemove(MemberSignature calldata memberSign, bytes32[] calldata domains) external returns (bool);
 
   function domainCheckId(bytes32 domainId) external view returns (bool);
 

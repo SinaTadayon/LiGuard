@@ -183,7 +183,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
       IFunctionManagement.functionUpdateActivityStatus.selector
     );
     for (uint256 i = 0; i < requests.length; i++) {
-      FunctionEntity storage functionEntity = _data.functionReadSlot(requests[i].id);      
+      FunctionEntity storage functionEntity = _data.functionReadSlot(requests[i].id);
       require(functionEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
 
       IACL.AdminAccessStatus status = _doCheckAdminAccess(functionEntity.bs.adminId, senderId, functionId);
@@ -251,7 +251,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
       IACL.AdminAccessStatus status = _doCheckAdminAccess(functionEntity.bs.adminId, senderId, functionId);
       if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
 
-      if(functionEntity.bs.referredByAgent == 0) {        
+      if (functionEntity.bs.referredByAgent == 0) {
         ContextEntity storage contextEntity = _data.contextReadSlot(functionEntity.contextId);
         require(contextEntity.bs.alstat == AlterabilityStatus.UPGRADABLE, "Illegal Context Upgradable");
         contextEntity.functions.remove(functions[i]);
@@ -262,18 +262,15 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
         delete functionEntity.selector;
         delete functionEntity.policyCode;
         emit FunctionRemoved(sender, functions[i], false);
-
       } else {
         // Note: It's very important to prevent infinity lock state
         require(functionEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
         functionEntity.bs.acstat = ActivityStatus.DELETED;
         emit FunctionRemoved(sender, functions[i], true);
-
-      }      
+      }
     }
     return true;
   }
-
 
   function functionCheckId(bytes32 functionId) external view returns (bool) {
     return _data.scopes[functionId].stype == ScopeType.FUNCTION;
@@ -355,7 +352,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
   }
 
   function _doGetAgentScopeInfo(bytes32 agentId) internal view returns (ScopeType, bytes32) {
-    return LACLAgentScope.getAgentScopeInfo(_data, agentId);   
+    return LACLAgentScope.getAgentScopeInfo(_data, agentId);
   }
 
   function _doCheckSystemScope(bytes32 scopeId, bytes32 memberId) internal view returns (bool) {
@@ -401,8 +398,11 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(signer);
     IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
     if (status != IACL.AuthorizationStatus.PERMITTED) {
-      if(status == IACL.AuthorizationStatus.FUNCTION_ACTIVITY_FORBIDDEN && IFunctionManagement.functionUpdateActivityStatus.selector == selector ) {
-        return (functionId, senderId, signer);    
+      if (
+        status == IACL.AuthorizationStatus.FUNCTION_ACTIVITY_FORBIDDEN &&
+        IFunctionManagement.functionUpdateActivityStatus.selector == selector
+      ) {
+        return (functionId, senderId, signer);
       }
       LACLUtils.generateAuthorizationError(status);
     }
@@ -463,7 +463,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     bytes32 contextId,
     bytes32 adminId
   ) internal view returns (bytes32 functionAdminId) {
-    return LACLAgentScope.getAndCheckFunctionAdmin(_data, contextAdminId, contextId, adminId);   
+    return LACLAgentScope.getAndCheckFunctionAdmin(_data, contextAdminId, contextId, adminId);
   }
 
   function _getContextMessageHash(

@@ -83,7 +83,11 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
       );
 
       // checking requested type scope
-      BaseScope storage requestedScope = _getCheckUpdateRequestScope(requests[i].scopeId, senderScopeId, senderScopeType);
+      BaseScope storage requestedScope = _getCheckUpdateRequestScope(
+        requests[i].scopeId,
+        senderScopeId,
+        senderScopeType
+      );
 
       // create new type
       TypeEntity storage newType = _data.typeWriteSlot(newTypeId);
@@ -117,7 +121,12 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
     );
 
     for (uint256 i = 0; i < requests.length; i++) {
-      TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, ITypeManagement.typeUpdateAdmin.selector);
+      TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(
+        requests[i].id,
+        senderId,
+        functionId,
+        ITypeManagement.typeUpdateAdmin.selector
+      );
 
       // checking requested type admin
       typeEntity.ba.adminId = _getTypeAdmin(
@@ -143,7 +152,12 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
     ScopeType senderScopeType;
     bytes32 senderScopeId;
     for (uint256 i = 0; i < requests.length; i++) {
-      TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, ITypeManagement.typeUpdateScope.selector);
+      TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(
+        requests[i].id,
+        senderId,
+        functionId,
+        ITypeManagement.typeUpdateScope.selector
+      );
 
       AgentType adminAgentType = _data.agents[typeEntity.ba.adminId].atype;
       if (adminAgentType == AgentType.ROLE) {
@@ -186,7 +200,12 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
       ITypeManagement.typeUpdateActivityStatus.selector
     );
     for (uint256 i = 0; i < requests.length; i++) {
-      TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId, ITypeManagement.typeUpdateActivityStatus.selector);
+      TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(
+        requests[i].id,
+        senderId,
+        functionId,
+        ITypeManagement.typeUpdateActivityStatus.selector
+      );
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
       typeEntity.ba.acstat = requests[i].acstat;
       emit TypeActivityUpdated(sender, requests[i].id, requests[i].acstat);
@@ -223,7 +242,12 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
     );
 
     for (uint256 i = 0; i < requests.length; i++) {
-      TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(requests[i].typeId, senderId, functionId, ITypeManagement.typeUpdateRoleLimit.selector);
+      TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(
+        requests[i].typeId,
+        senderId,
+        functionId,
+        ITypeManagement.typeUpdateRoleLimit.selector
+      );
       require(requests[i].roleLimit > typeEntity.roles.length(), "Illegal Limit");
       typeEntity.roleLimit = requests[i].roleLimit;
       emit TypeRoleLimitUpdated(sender, requests[i].typeId, requests[i].roleLimit);
@@ -238,7 +262,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
     );
 
     for (uint256 i = 0; i < types.length; i++) {
-      TypeEntity storage typeEntity = _data.typeReadSlot(types[i]);          
+      TypeEntity storage typeEntity = _data.typeReadSlot(types[i]);
       IACL.AdminAccessStatus status = _doCheckAdminAccess(typeEntity.ba.adminId, senderId, functionId);
       if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
 
@@ -389,8 +413,11 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(signer);
     IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
     if (status != IACL.AuthorizationStatus.PERMITTED) {
-      if(status == IACL.AuthorizationStatus.TYPE_ACTIVITY_FORBIDDEN && selector == ITypeManagement.typeUpdateActivityStatus.selector) {
-        return (functionId, senderId, signer);    
+      if (
+        status == IACL.AuthorizationStatus.TYPE_ACTIVITY_FORBIDDEN &&
+        selector == ITypeManagement.typeUpdateActivityStatus.selector
+      ) {
+        return (functionId, senderId, signer);
       }
       LACLUtils.generateAuthorizationError(status);
     }
@@ -436,7 +463,10 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
     require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
     IACL.AdminAccessStatus status = _doCheckAdminAccess(typeEntity.ba.adminId, senderId, functionId);
     if (status != IACL.AdminAccessStatus.PERMITTED) {
-      if(status == IACL.AdminAccessStatus.TYPE_ACTIVITY_FORBIDDEN && selector == ITypeManagement.typeUpdateActivityStatus.selector) {
+      if (
+        status == IACL.AdminAccessStatus.TYPE_ACTIVITY_FORBIDDEN &&
+        selector == ITypeManagement.typeUpdateActivityStatus.selector
+      ) {
         return typeEntity;
       }
       LACLUtils.generateAdminAccessError(status);

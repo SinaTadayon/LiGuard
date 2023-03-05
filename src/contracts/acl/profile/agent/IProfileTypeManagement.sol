@@ -113,7 +113,7 @@ interface IProfileTypeManagement is IACLCommons {
 
   function profileTypeRemove(ProfileMemberSignature calldata memberSign, bytes32[] calldata types)
     external
-    returns (bool);  
+    returns (bool);
 
   function profileTypeCheckId(bytes32 profileId, bytes32 typeId) external view returns (bool);
 

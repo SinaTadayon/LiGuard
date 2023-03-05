@@ -187,7 +187,7 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
       IPolicyManagement.policyUpdateScope.selector
     );
     for (uint256 i = 0; i < requests.length; i++) {
-      LACLAgentScope.updatePolicyScope(_data, requests[i], functionId, senderId); 
+      LACLAgentScope.updatePolicyScope(_data, requests[i], functionId, senderId);
       emit PolicyScopeUpdated(sender, requests[i].id, requests[i].scopeId);
     }
     return true;
@@ -224,7 +224,7 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
 
       IACL.AdminAccessStatus status = _doCheckAdminAccess(policyEntity.adminId, senderId, functionId);
       if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
-      
+
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       policyEntity.alstat = requests[i].alstat;
       emit PolicyAlterabilityUpdated(sender, requests[i].id, requests[i].alstat);
@@ -257,7 +257,7 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
     for (uint256 i = 0; i < policies.length; i++) {
       IACLCommons.PolicyEntity storage policyEntity = _data.policies[policies[i]];
       require(policyEntity.adminId != bytes32(0), "Not Found");
-    
+
       IACL.AdminAccessStatus status = _doCheckAdminAccess(policyEntity.adminId, senderId, functionId);
       if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
 

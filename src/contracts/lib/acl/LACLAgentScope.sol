@@ -39,12 +39,11 @@ library LACLAgentScope {
 
   bytes32 public constant LIVELY_VERSE_ANONYMOUS_TYPE_ID =
     keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_ANONYMOUS"));
-  bytes32 public constant LIVELY_VERSE_ANY_TYPE_ID = 
-    keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_ANY"));
+  bytes32 public constant LIVELY_VERSE_ANY_TYPE_ID = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_ANY"));
 
   bytes32 public constant LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID =
     keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_MASTER_ADMIN"));
-  
+
   function checkAdminAccess(
     ACLStorage.DataCollection storage data,
     bytes32 adminId,
@@ -54,10 +53,13 @@ library LACLAgentScope {
     return _doCheckAdminAccess(data, adminId, memberId, functionId);
   }
 
-  function aclRegisterRole(ACLStorage.DataCollection storage data, IRoleManagement.RoleRegisterRequest calldata request, bytes32 functionId, bytes32 senderId, uint24 memberLimit)
-    external
-    returns (bytes32, bytes32)
-  {
+  function aclRegisterRole(
+    ACLStorage.DataCollection storage data,
+    IRoleManagement.RoleRegisterRequest calldata request,
+    bytes32 functionId,
+    bytes32 senderId,
+    uint24 memberLimit
+  ) external returns (bytes32, bytes32) {
     bytes32 newRoleId = LACLUtils.generateId(request.name);
     require(data.agents[newRoleId].atype == IACLCommons.AgentType.NONE, "Role Already Exist");
     require(
@@ -78,7 +80,7 @@ library LACLAgentScope {
     IACL.AdminAccessStatus status = _doCheckAdminAccess(data, typeEntity.ba.adminId, senderId, functionId);
     if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
 
-     // check and get requested scope type
+    // check and get requested scope type
     IACLCommons.ScopeType requestScopeType = _doRoleCheckRequestScope(data, request.scopeId, typeEntity.scopeId);
 
     // add role to type
@@ -91,7 +93,7 @@ library LACLAgentScope {
     newRole.ba.alstat = request.alstat;
     newRole.name = request.name;
     newRole.scopeId = request.scopeId;
-    newRole.memberLimit = request.memberLimit >= 0 ? uint24(uint32(request.memberLimit)): memberLimit;
+    newRole.memberLimit = request.memberLimit >= 0 ? uint24(uint32(request.memberLimit)) : memberLimit;
     newRole.typeId = request.typeId;
     newRole.ba.adminId = _getRoleAdmin(data, requestScopeType, typeEntity.ba.adminId, request.scopeId, request.adminId);
 
@@ -163,7 +165,11 @@ library LACLAgentScope {
     return requestedScope;
   }
 
-  function roleCheckRequestScope(ACLStorage.DataCollection storage data, bytes32 requestScopeId, bytes32 typeScopeId) external returns (IACLCommons.ScopeType) { 
+  function roleCheckRequestScope(
+    ACLStorage.DataCollection storage data,
+    bytes32 requestScopeId,
+    bytes32 typeScopeId
+  ) external returns (IACLCommons.ScopeType) {
     return _doRoleCheckRequestScope(data, requestScopeId, typeScopeId);
   }
 
@@ -181,7 +187,11 @@ library LACLAgentScope {
     return policyEntity;
   }
 
-   function _doRoleCheckRequestScope(ACLStorage.DataCollection storage data, bytes32 requestScopeId, bytes32 typeScopeId) private returns (IACLCommons.ScopeType) {
+  function _doRoleCheckRequestScope(
+    ACLStorage.DataCollection storage data,
+    bytes32 requestScopeId,
+    bytes32 typeScopeId
+  ) private returns (IACLCommons.ScopeType) {
     // checking requested role scope
     IACLCommons.BaseScope storage requestScope = data.scopes[requestScopeId];
     require(requestScope.stype != IACLCommons.ScopeType.NONE, "Scope Not Found");
@@ -202,10 +212,20 @@ library LACLAgentScope {
     return requestScope.stype;
   }
 
-  function updatePolicyScope(ACLStorage.DataCollection storage data, IPolicyManagement.UpdateScopeRequest calldata request, bytes32 functionId, bytes32 senderId) external {
+  function updatePolicyScope(
+    ACLStorage.DataCollection storage data,
+    IPolicyManagement.UpdateScopeRequest calldata request,
+    bytes32 functionId,
+    bytes32 senderId
+  ) external {
     IACLCommons.ScopeType senderScopeType;
     bytes32 senderScopeId;
-    IACLCommons.PolicyEntity storage policyEntity = _doGetPolicyAndCheckAdminAccess(data, request.id, senderId, functionId);
+    IACLCommons.PolicyEntity storage policyEntity = _doGetPolicyAndCheckAdminAccess(
+      data,
+      request.id,
+      senderId,
+      functionId
+    );
     IACLCommons.AgentType adminAgentType = data.agents[policyEntity.adminId].atype;
     if (adminAgentType == IACLCommons.AgentType.ROLE) {
       IACLCommons.RoleEntity storage roleEntity = data.roleReadSlot(policyEntity.adminId);
@@ -219,14 +239,16 @@ library LACLAgentScope {
       senderScopeId = memberAgentRole.scopeId;
     }
 
-    IACLCommons.BaseScope storage requestScope = _getCheckUpdateRequestScope(data, request.scopeId, senderScopeId, senderScopeType);
+    IACLCommons.BaseScope storage requestScope = _getCheckUpdateRequestScope(
+      data,
+      request.scopeId,
+      senderScopeId,
+      senderScopeType
+    );
     IACLCommons.BaseScope storage currentScope = data.scopes[policyEntity.scopeId];
     if (policyEntity.roles.length() > 0) {
       require(requestScope.stype > currentScope.stype, "Illegal ScopeType");
-      require(
-        IACLGenerals(address(this)).isScopesCompatible(request.scopeId, policyEntity.scopeId),
-        "Illegal Scope"
-      );
+      require(IACLGenerals(address(this)).isScopesCompatible(request.scopeId, policyEntity.scopeId), "Illegal Scope");
     }
     require(currentScope.referredByAgent > 0, "Illeagl Referred");
     unchecked {
@@ -235,10 +257,14 @@ library LACLAgentScope {
     policyEntity.scopeId = request.scopeId;
   }
 
-  function getAgentScopeInfo(ACLStorage.DataCollection storage data, bytes32 agentId) external view returns (IACLCommons.ScopeType, bytes32) {
+  function getAgentScopeInfo(ACLStorage.DataCollection storage data, bytes32 agentId)
+    external
+    view
+    returns (IACLCommons.ScopeType, bytes32)
+  {
     return _doGetAgentScopeInfo(data, agentId);
   }
- 
+
   function getRoleAdmin(
     ACLStorage.DataCollection storage data,
     IACLCommons.ScopeType requestScopeType,
@@ -249,7 +275,10 @@ library LACLAgentScope {
     return _getRoleAdmin(data, requestScopeType, requestScopeAdmin, scopeId, adminId);
   }
 
-  function checkMemberRegisterLimits(IACLCommons.MemberEntity storage memberEntity, IACLCommons.GeneralLimit calldata limits) external view {
+  function checkMemberRegisterLimits(
+    IACLCommons.MemberEntity storage memberEntity,
+    IACLCommons.GeneralLimit calldata limits
+  ) external view {
     require(memberEntity.limits.memberRegisterLimit >= limits.memberRegisterLimit, "Illegal MemberRegisterLimit");
     require(memberEntity.limits.contextRegisterLimit >= limits.contextRegisterLimit, "Illegal ContextRegisterLimit");
     require(memberEntity.limits.functionRegisterLimit >= limits.functionRegisterLimit, "Illegal FunctionRegisterLimit");
@@ -268,7 +297,7 @@ library LACLAgentScope {
     require(memberEntity.limits.typeLimit >= limits.typeLimit, "Illegal TypeLimit");
     require(memberEntity.limits.policyRoleLimit >= limits.policyRoleLimit, "Illegal PolicyRoleLimit");
     require(memberEntity.limits.functionLimit >= limits.functionLimit, "Illegal FunctionLimit");
-  } 
+  }
 
   function _doCheckAdminAccess(
     ACLStorage.DataCollection storage data,
@@ -324,7 +353,6 @@ library LACLAgentScope {
     return IACL.AdminAccessStatus.NOT_PERMITTED;
   }
 
-
   function _getRoleAdmin(
     ACLStorage.DataCollection storage data,
     IACLCommons.ScopeType requestScopeType,
@@ -349,7 +377,7 @@ library LACLAgentScope {
   }
 
   function getAndCheckFunctionAdmin(
-     ACLStorage.DataCollection storage data,
+    ACLStorage.DataCollection storage data,
     bytes32 contextAdminId,
     bytes32 contextId,
     bytes32 adminId
@@ -357,7 +385,7 @@ library LACLAgentScope {
     return _doGetAndCheckFunctionAdmin(data, contextAdminId, contextId, adminId);
   }
 
-  function _doGetAgentScopeInfo(ACLStorage.DataCollection storage data, bytes32 agentId) 
+  function _doGetAgentScopeInfo(ACLStorage.DataCollection storage data, bytes32 agentId)
     private
     view
     returns (IACLCommons.ScopeType, bytes32)
@@ -377,7 +405,7 @@ library LACLAgentScope {
   }
 
   function _doGetAndCheckFunctionAdmin(
-     ACLStorage.DataCollection storage data,
+    ACLStorage.DataCollection storage data,
     bytes32 contextAdminId,
     bytes32 contextId,
     bytes32 requestAdminId
@@ -386,7 +414,10 @@ library LACLAgentScope {
     if (requestAdminId != bytes32(0)) {
       require(data.agents[requestAdminId].atype > IACLCommons.AgentType.MEMBER, "Illegal Admin AgentType");
 
-      (IACLCommons.ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doGetAgentScopeInfo(data, requestAdminId);
+      (IACLCommons.ScopeType requestAdminScopeType, bytes32 requestAdminScopeId) = _doGetAgentScopeInfo(
+        data,
+        requestAdminId
+      );
       require(IACLCommons.ScopeType.CONTEXT <= requestAdminScopeType, "Illegal Admin ScopeType");
       if (IACLCommons.ScopeType.CONTEXT == requestAdminScopeType) {
         require(requestAdminScopeId == contextAdminId, "Illegal Admin Scope");
@@ -398,5 +429,4 @@ library LACLAgentScope {
       functionAdminId = contextAdminId;
     }
   }
- 
 }

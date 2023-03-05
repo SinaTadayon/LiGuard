@@ -103,9 +103,7 @@ interface IFunctionManagement is IACLCommons {
     FunctionUpdatePolicyRequest[] calldata requests
   ) external returns (bool);
 
-  function functionRemove(MemberSignature calldata memberSign, bytes32[] calldata functions)
-    external
-    returns (bool);
+  function functionRemove(MemberSignature calldata memberSign, bytes32[] calldata functions) external returns (bool);
 
   function functionCheckId(bytes32 functionId) external view returns (bool);
 

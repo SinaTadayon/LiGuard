@@ -239,7 +239,10 @@ contract ProfileRealmManager is ACLStorage, BaseUUPSProxy, IProfileRealmManageme
     return true;
   }
 
-  function profileRealmRemove(ProfileMemberSignature calldata memberSign, bytes32[] calldata realms) external returns (bool) {
+  function profileRealmRemove(ProfileMemberSignature calldata memberSign, bytes32[] calldata realms)
+    external
+    returns (bool)
+  {
     (
       ProfileEntity storage profileEntity,
       FunctionEntity storage functionEntity,
@@ -257,10 +260,9 @@ contract ProfileRealmManager is ACLStorage, BaseUUPSProxy, IProfileRealmManageme
         senderId
       );
       if (status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
-    
-      require(realmEntity.contexts.length() == 0, "Illegal Remove");
-      if(realmEntity.bs.referredByAgent == 0) {
 
+      require(realmEntity.contexts.length() == 0, "Illegal Remove");
+      if (realmEntity.bs.referredByAgent == 0) {
         // check domain
         DomainEntity storage domainEntity = profileEntity.profileDomainReadSlot(realmEntity.domainId);
         require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Domain Updatable");
@@ -272,7 +274,6 @@ contract ProfileRealmManager is ACLStorage, BaseUUPSProxy, IProfileRealmManageme
         delete realmEntity.name;
         delete realmEntity.contexts;
         emit ProfileRealmRemoved(sender, profileId, realms[i], false);
-      
       } else {
         require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
         realmEntity.bs.acstat = ActivityStatus.DELETED;
@@ -281,7 +282,6 @@ contract ProfileRealmManager is ACLStorage, BaseUUPSProxy, IProfileRealmManageme
     }
     return true;
   }
-
 
   function profileRealmCheckId(bytes32 profileId, bytes32 realmId) external view returns (bool) {
     return _data.profiles[profileId].scopes[realmId].stype == ScopeType.REALM;
@@ -530,17 +530,21 @@ contract ProfileRealmManager is ACLStorage, BaseUUPSProxy, IProfileRealmManageme
       request.targetRealmId,
       senderId
     );
-    
+
     ContextEntity storage contextEntity = profileEntity.profileContextReadSlot(request.contextId);
     require(contextEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
     require(contextEntity.bs.referredByAgent == 0, "Illegal Referred");
 
     (, bytes32 contextAdminScopeId) = _doAgentGetScopeInfo(profileEntity, contextEntity.bs.adminId);
     require(
-      IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, contextAdminScopeId, request.targetRealmId),
+      IProfileACLGenerals(address(this)).profileIsScopesCompatible(
+        profileId,
+        contextAdminScopeId,
+        request.targetRealmId
+      ),
       "Illegal Admin Scope"
-    );    
-    
+    );
+
     require(targetRealmEntity.contextLimit > targetRealmEntity.contexts.length(), "Illegal Move");
     realmEntity.contexts.remove(request.contextId);
     targetRealmEntity.contexts.add(request.contextId);

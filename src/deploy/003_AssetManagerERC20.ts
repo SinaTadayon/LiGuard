@@ -46,7 +46,7 @@ let memberManagerDelegateProxy: MemberManager;
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, ethers } = hre;
   const { deploy } = deployments;
-  const {systemAdmin, livelyAdmin} = await ethers.getNamedSigners();
+  const { systemAdmin, livelyAdmin } = await ethers.getNamedSigners();
   const aclManagerProxy = await deployments.get(ACL_MANAGER_CONTRACT_NAME_PROXY);
 
   functionManagerDelegateProxy = FunctionManager__factory.connect(aclManagerProxy.address, systemAdmin);

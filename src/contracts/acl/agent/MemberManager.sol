@@ -90,7 +90,10 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
 
     for (uint256 i = 0; i < requests.length; i++) {
       MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
-      require(!_doRoleHasMember(LACLAgentScope.LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID, requests[i].id) , "Illegal Member");
+      require(
+        !_doRoleHasMember(LACLAgentScope.LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID, requests[i].id),
+        "Illegal Member"
+      );
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
       memberEntity.ba.acstat = requests[i].acstat;
       emit MemberActivityUpdated(sender, requests[i].id, requests[i].acstat);
@@ -173,7 +176,7 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
     (bytes32 functionId, bytes32 senderId, address sender) = _accessPermission(
       memberSign,
       IMemberManagement.memberRemove.selector
-    );    
+    );
 
     for (uint256 i = 0; i < members.length; i++) {
       MemberEntity storage memberEntity = _data.memberReadSlot(members[i]);
@@ -194,7 +197,9 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
           require(roleEntity.memberCount > 1, "Illegal Member Revoke");
         }
         require(roleEntity.memberCount > 0, "Illegal MemberCount");
-        unchecked { roleEntity.memberCount -= 1; }
+        unchecked {
+          roleEntity.memberCount -= 1;
+        }
 
         // delete member from type
         delete typeEntity.members[members[i]];
@@ -204,15 +209,14 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
         emit MemberRoleRevoked(sender, members[i], roleId, typeId);
       }
 
-      if(memberEntity.types.length() == 0) {
+      if (memberEntity.types.length() == 0) {
         delete memberEntity.ba;
         delete memberEntity.account;
         delete memberEntity.limits;
         delete memberEntity.types;
         emit MemberRemoved(sender, members[i], true);
-
       } else {
-        emit MemberRemoved(sender, members[i], false);        
+        emit MemberRemoved(sender, members[i], false);
       }
     }
 
@@ -361,7 +365,7 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
     bytes32 functionId = LACLUtils.functionGenerateId(functionFacetId, selector);
     bytes32 senderId = LACLUtils.accountGenerateId(signer);
     IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
-    if (status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);  
+    if (status != IACL.AuthorizationStatus.PERMITTED) LACLUtils.generateAuthorizationError(status);
     return (functionId, senderId, signer);
   }
 
@@ -442,7 +446,7 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
   }
 
   function _doCheckMemberRegisterLimits(MemberEntity storage memberEntity, GeneralLimit calldata limits) internal view {
-    LACLAgentScope.checkMemberRegisterLimits(memberEntity, limits);  
+    LACLAgentScope.checkMemberRegisterLimits(memberEntity, limits);
   }
 
   function _doRoleHasMember(bytes32 roleId, bytes32 memberId) internal view returns (bool) {

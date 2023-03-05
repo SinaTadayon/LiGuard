@@ -99,7 +99,7 @@ let typeManagerDelegateProxy: TypeManager;
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, ethers } = hre;
   const { deploy } = deployments;
-  const {systemAdmin, livelyAdmin, assetAdmin} = await ethers.getNamedSigners();
+  const { systemAdmin, livelyAdmin, assetAdmin } = await ethers.getNamedSigners();
   const aclManagerProxy = await deployments.get(ACL_MANAGER_CONTRACT_NAME_PROXY);
 
   functionManagerDelegateProxy = FunctionManager__factory.connect(aclManagerProxy.address, systemAdmin);

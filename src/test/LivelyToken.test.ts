@@ -77,6 +77,8 @@ import {
   ProfileUniverseManager__factory,
   ProfilePolicyManager__factory,
   ProfileAccessControl__factory,
+  LACLAgentScope__factory,
+  LACLAgentScope,
 } from "../../typechain/types";
 import { LivelyTokenLibraryAddresses } from "../../typechain/types/factories/token/lively/LivelyToken__factory";
 import {
@@ -224,11 +226,13 @@ describe("Lively Token Tests", function () {
   let accessControlProxy: AccessControl;
   let accessControlDelegateProxy: AccessControl;
   let lACLCommons: LACLCommons;
+  let lACLAgentScope: LACLAgentScope;
   let lProfileCommons: LProfileCommons;
   let lProfileRolePolicy: LProfileRolePolicy;
 
   // acl libraries
   let linkCommonLibraryAddresses: unknown;
+  let linkAgentScopeLibraryAddresses: unknown;
 
   // profiles libraries
   let linkProfileCommonLibraryAddresses: unknown;
@@ -432,15 +436,21 @@ describe("Lively Token Tests", function () {
     it("ACL Deploy Libraries", async () => {
       // given
       const libFactory = new LACLCommons__factory(systemAdmin);
-      const libFactory1 = new LProfileCommons__factory(systemAdmin);
-      const libFactory2 = new LProfileRolePolicy__factory(systemAdmin);
+      const libFactory1 = new LACLAgentScope__factory(systemAdmin);
+      const libFactory2 = new LProfileCommons__factory(systemAdmin);
+      const libFactory3 = new LProfileRolePolicy__factory(systemAdmin);
 
       lACLCommons = await libFactory.deploy();
-      lProfileCommons = await libFactory1.deploy();
-      lProfileRolePolicy = await libFactory2.deploy();
+      lACLAgentScope = await libFactory1.deploy();
+      lProfileCommons = await libFactory2.deploy();
+      lProfileRolePolicy = await libFactory3.deploy();
 
       linkCommonLibraryAddresses = {
         "src/contracts/lib/acl/LACLCommons.sol:LACLCommons": lACLCommons.address,
+      };
+
+      linkAgentScopeLibraryAddresses = {
+        "src/contracts/lib/acl/LACLAgentScope.sol:LACLAgentScope": lACLAgentScope.address,
       };
 
       linkProfileCommonLibraryAddresses = {
@@ -455,11 +465,11 @@ describe("Lively Token Tests", function () {
     it("ACL Deploy Subjects", async () => {
       // given
       const memberManagerFactory = new MemberManager__factory(
-        <MemberManagerLibraryAddresses>linkCommonLibraryAddresses,
+        <MemberManagerLibraryAddresses>linkAgentScopeLibraryAddresses,
         systemAdmin
       );
       const roleManagerFactory = new RoleManager__factory(
-        <RoleManagerLibraryAddresses>linkCommonLibraryAddresses,
+        <RoleManagerLibraryAddresses>linkAgentScopeLibraryAddresses,
         systemAdmin
       );
       const typeManagerFactory = new TypeManager__factory(
@@ -467,7 +477,7 @@ describe("Lively Token Tests", function () {
         systemAdmin
       );
       const functionManagerFactory = new FunctionManager__factory(
-        <FunctionManagerLibraryAddresses>linkCommonLibraryAddresses,
+        <FunctionManagerLibraryAddresses>linkAgentScopeLibraryAddresses,
         systemAdmin
       );
       const contextManagerFactory = new ContextManager__factory(
@@ -487,7 +497,7 @@ describe("Lively Token Tests", function () {
         systemAdmin
       );
       const policyManagerFactory = new PolicyManager__factory(
-        <PolicyManagerLibraryAddresses>linkCommonLibraryAddresses,
+        <PolicyManagerLibraryAddresses>linkAgentScopeLibraryAddresses,
         systemAdmin
       );
       const profileManagerFactory = new ProfileManager__factory(
@@ -833,6 +843,7 @@ describe("Lively Token Tests", function () {
             memberIface.getSighash("memberUpdateAlterabilityStatus"),
             memberIface.getSighash("memberUpdateAdmin"),
             memberIface.getSighash("memberUpdateGeneralLimit"),
+            memberIface.getSighash("memberRemove"),
             memberIface.getSighash("memberCheckId"),
             memberIface.getSighash("memberCheckAccount"),
             memberIface.getSighash("memberCheckAdmin"),
@@ -853,6 +864,7 @@ describe("Lively Token Tests", function () {
             roleIface.getSighash("roleUpdateActivityStatus"),
             roleIface.getSighash("roleUpdateAlterabilityStatus"),
             roleIface.getSighash("roleUpdateMemberLimit"),
+            roleIface.getSighash("roleRemove"),
             roleIface.getSighash("roleCheckId"),
             roleIface.getSighash("roleCheckName"),
             roleIface.getSighash("roleCheckAdmin"),
@@ -870,6 +882,7 @@ describe("Lively Token Tests", function () {
             typeIface.getSighash("typeUpdateActivityStatus"),
             typeIface.getSighash("typeUpdateAlterabilityStatus"),
             typeIface.getSighash("typeUpdateRoleLimit"),
+            typeIface.getSighash("typeRemove"),
             typeIface.getSighash("typeCheckId"),
             typeIface.getSighash("typeCheckName"),
             typeIface.getSighash("typeCheckAdmin"),
@@ -892,6 +905,7 @@ describe("Lively Token Tests", function () {
             policyIface.getSighash("policyUpdateActivityStatus"),
             policyIface.getSighash("policyUpdateAlterabilityStatus"),
             policyIface.getSighash("policyUpdateRoleLimit"),
+            policyIface.getSighash("policyRemove"),
             policyIface.getSighash("policyCheckId"),
             policyIface.getSighash("policyCheckName"),
             policyIface.getSighash("policyCheckAdmin"),
@@ -935,6 +949,7 @@ describe("Lively Token Tests", function () {
             functionIface.getSighash("functionUpdateActivityStatus"),
             functionIface.getSighash("functionUpdateAlterabilityStatus"),
             functionIface.getSighash("functionUpdatePolicyCode"),
+            functionIface.getSighash("functionRemove"),
             functionIface.getSighash("functionCheckId"),
             functionIface.getSighash("functionCheckSelector"),
             functionIface.getSighash("functionCheckAdmin"),
@@ -951,6 +966,7 @@ describe("Lively Token Tests", function () {
             contextIface.getSighash("contextUpdateAlterabilityStatus"),
             contextIface.getSighash("contextUpdateAdmin"),
             contextIface.getSighash("contextUpdateFunctionLimit"),
+            contextIface.getSighash("contextRemove"),
             contextIface.getSighash("contextCheckId"),
             contextIface.getSighash("contextCheckAccount"),
             contextIface.getSighash("contextCheckAdmin"),
@@ -970,6 +986,7 @@ describe("Lively Token Tests", function () {
             realmIface.getSighash("realmUpdateActivityStatus"),
             realmIface.getSighash("realmUpdateAlterabilityStatus"),
             realmIface.getSighash("realmUpdateContextLimit"),
+            realmIface.getSighash("realmRemove"),
             realmIface.getSighash("realmCheckId"),
             realmIface.getSighash("realmCheckName"),
             realmIface.getSighash("realmCheckAdmin"),
@@ -989,6 +1006,7 @@ describe("Lively Token Tests", function () {
             domainIface.getSighash("domainUpdateAdmin"),
             domainIface.getSighash("domainMoveRealm"),
             domainIface.getSighash("domainUpdateRealmLimit"),
+            domainIface.getSighash("domainRemove"),
             domainIface.getSighash("domainCheckId"),
             domainIface.getSighash("domainCheckName"),
             domainIface.getSighash("domainCheckAdmin"),
@@ -1063,6 +1081,7 @@ describe("Lively Token Tests", function () {
             profileMemberIface.getSighash("profileMemberUpdateActivityStatus"),
             profileMemberIface.getSighash("profileMemberUpdateAlterabilityStatus"),
             profileMemberIface.getSighash("profileMemberUpdateAdmin"),
+            profileMemberIface.getSighash("profileMemberRemove"),
             profileMemberIface.getSighash("profileMemberCheckId"),
             profileMemberIface.getSighash("profileMemberCheckAccount"),
             profileMemberIface.getSighash("profileMemberCheckAdmin"),
@@ -1083,6 +1102,7 @@ describe("Lively Token Tests", function () {
             profileRoleIface.getSighash("profileRoleUpdateActivityStatus"),
             profileRoleIface.getSighash("profileRoleUpdateAlterabilityStatus"),
             profileRoleIface.getSighash("profileRoleUpdateMemberLimit"),
+            profileRoleIface.getSighash("profileRoleRemove"),
             profileRoleIface.getSighash("profileRoleCheckId"),
             profileRoleIface.getSighash("profileRoleCheckName"),
             profileRoleIface.getSighash("profileRoleCheckAdmin"),
@@ -1100,6 +1120,7 @@ describe("Lively Token Tests", function () {
             profileTypeIface.getSighash("profileTypeUpdateActivityStatus"),
             profileTypeIface.getSighash("profileTypeUpdateAlterabilityStatus"),
             profileTypeIface.getSighash("profileTypeUpdateRoleLimit"),
+            profileTypeIface.getSighash("profileTypeRemove"),
             profileTypeIface.getSighash("profileTypeCheckId"),
             profileTypeIface.getSighash("profileTypeCheckName"),
             profileTypeIface.getSighash("profileTypeCheckAdmin"),
@@ -1122,6 +1143,7 @@ describe("Lively Token Tests", function () {
             profilePolicyIface.getSighash("profilePolicyUpdateActivityStatus"),
             profilePolicyIface.getSighash("profilePolicyUpdateAlterabilityStatus"),
             profilePolicyIface.getSighash("profilePolicyUpdateRoleLimit"),
+            profilePolicyIface.getSighash("profilePolicyRemove"),
             profilePolicyIface.getSighash("profilePolicyCheckId"),
             profilePolicyIface.getSighash("profilePolicyCheckName"),
             profilePolicyIface.getSighash("profilePolicyCheckAdmin"),
@@ -1144,6 +1166,7 @@ describe("Lively Token Tests", function () {
             profileFunctionIface.getSighash("profileFunctionUpdateActivityStatus"),
             profileFunctionIface.getSighash("profileFunctionUpdateAlterabilityStatus"),
             profileFunctionIface.getSighash("profileFunctionUpdatePolicyCode"),
+            profileFunctionIface.getSighash("profileFunctionRemove"),
             profileFunctionIface.getSighash("profileFunctionCheckId"),
             profileFunctionIface.getSighash("profileFunctionCheckSelector"),
             profileFunctionIface.getSighash("profileFunctionCheckAdmin"),
@@ -1160,6 +1183,7 @@ describe("Lively Token Tests", function () {
             profileContextIface.getSighash("profileContextUpdateAlterabilityStatus"),
             profileContextIface.getSighash("profileContextUpdateAdmin"),
             profileContextIface.getSighash("profileContextUpdateFunctionLimit"),
+            profileContextIface.getSighash("profileContextRemove"),
             profileContextIface.getSighash("profileContextCheckId"),
             profileContextIface.getSighash("profileContextCheckAccount"),
             profileContextIface.getSighash("profileContextCheckAdmin"),
@@ -1179,6 +1203,7 @@ describe("Lively Token Tests", function () {
             profileRealmIface.getSighash("profileRealmUpdateActivityStatus"),
             profileRealmIface.getSighash("profileRealmUpdateAlterabilityStatus"),
             profileRealmIface.getSighash("profileRealmUpdateContextLimit"),
+            profileRealmIface.getSighash("profileRealmRemove"),
             profileRealmIface.getSighash("profileRealmCheckId"),
             profileRealmIface.getSighash("profileRealmCheckName"),
             profileRealmIface.getSighash("profileRealmCheckAdmin"),
@@ -1198,6 +1223,7 @@ describe("Lively Token Tests", function () {
             profileDomainIface.getSighash("profileDomainUpdateAdmin"),
             profileDomainIface.getSighash("profileDomainMoveRealm"),
             profileDomainIface.getSighash("profileDomainUpdateRealmLimit"),
+            profileDomainIface.getSighash("profileDomainRemove"),
             profileDomainIface.getSighash("profileDomainCheckId"),
             profileDomainIface.getSighash("profileDomainCheckName"),
             profileDomainIface.getSighash("profileDomainCheckAdmin"),
@@ -1612,6 +1638,14 @@ describe("Lively Token Tests", function () {
           alstat: AlterabilityStatus.UPDATABLE,
         },
         {
+          adminId: LIVELY_VERSE_ACL_TYPE_ID,
+          agentId: LIVELY_VERSE_ANY_TYPE_ID,
+          selector: memberIface.getSighash("memberRemove"),
+          policyCode: 16,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
+        },
+        {
           adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
           agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
           selector: memberIface.getSighash("upgradeTo"),
@@ -1745,6 +1779,14 @@ describe("Lively Token Tests", function () {
           alstat: AlterabilityStatus.UPDATABLE,
         },
         {
+          adminId: LIVELY_VERSE_ACL_TYPE_ID,
+          agentId: LIVELY_VERSE_ANY_TYPE_ID,
+          selector: roleIface.getSighash("roleRemove"),
+          policyCode: 16,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
+        },
+        {
           adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
           agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
           selector: roleIface.getSighash("upgradeTo"),
@@ -1862,6 +1904,14 @@ describe("Lively Token Tests", function () {
           alstat: AlterabilityStatus.UPDATABLE,
         },
         {
+          adminId: LIVELY_VERSE_ACL_TYPE_ID,
+          agentId: LIVELY_VERSE_ANY_TYPE_ID,
+          selector: typeIface.getSighash("typeRemove"),
+          policyCode: 16,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
+        },
+        {
           adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
           agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
           selector: typeIface.getSighash("upgradeTo"),
@@ -1973,6 +2023,14 @@ describe("Lively Token Tests", function () {
           alstat: AlterabilityStatus.UPDATABLE,
         },
         {
+          adminId: LIVELY_VERSE_ACL_TYPE_ID,
+          agentId: LIVELY_VERSE_ANY_TYPE_ID,
+          selector: functionIface.getSighash("functionRemove"),
+          policyCode: 16,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
+        },
+        {
           adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
           agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
           selector: functionIface.getSighash("upgradeTo"),
@@ -2069,6 +2127,14 @@ describe("Lively Token Tests", function () {
           adminId: LIVELY_VERSE_ACL_TYPE_ID,
           agentId: LIVELY_VERSE_ANY_TYPE_ID,
           selector: contextIface.getSighash("contextUpdateFunctionLimit"),
+          policyCode: 24,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
+        },
+        {
+          adminId: LIVELY_VERSE_ACL_TYPE_ID,
+          agentId: LIVELY_VERSE_ANY_TYPE_ID,
+          selector: contextIface.getSighash("contextRemove"),
           policyCode: 24,
           acstat: ActivityStatus.ENABLED,
           alstat: AlterabilityStatus.UPDATABLE,
@@ -2187,6 +2253,14 @@ describe("Lively Token Tests", function () {
           agentId: LIVELY_VERSE_ANY_TYPE_ID,
           selector: realmIface.getSighash("realmMoveContext"),
           policyCode: 36,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
+        },
+        {
+          adminId: LIVELY_VERSE_ACL_TYPE_ID,
+          agentId: LIVELY_VERSE_ANY_TYPE_ID,
+          selector: realmIface.getSighash("realmRemove"),
+          policyCode: 16,
           acstat: ActivityStatus.ENABLED,
           alstat: AlterabilityStatus.UPDATABLE,
         },
@@ -2310,6 +2384,14 @@ describe("Lively Token Tests", function () {
           alstat: AlterabilityStatus.UPDATABLE,
         },
         {
+          adminId: LIVELY_VERSE_ACL_TYPE_ID,
+          agentId: LIVELY_VERSE_ANY_TYPE_ID,
+          selector: domainIface.getSighash("domainRemove"),
+          policyCode: 16,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
+        },
+        {
           adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
           agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
           selector: domainIface.getSighash("upgradeTo"),
@@ -2371,6 +2453,7 @@ describe("Lively Token Tests", function () {
           functions: domainFunctionRequests,
         },
       ];
+
       await functionManagerDelegateProxy
         .connect(systemAdmin)
         .functionRegister(emptyMemberSignature, domainFunctionRegisterRequest);
@@ -2825,6 +2908,14 @@ describe("Lively Token Tests", function () {
           alstat: AlterabilityStatus.UPDATABLE,
         },
         {
+          adminId: LIVELY_VERSE_ACL_TYPE_ID,
+          agentId: LIVELY_VERSE_ANY_TYPE_ID,
+          selector: policyIface.getSighash("policyRemove"),
+          policyCode: 16,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
+        },
+        {
           adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
           agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
           selector: policyIface.getSighash("upgradeTo"),
@@ -2948,6 +3039,14 @@ describe("Lively Token Tests", function () {
           agentId: LIVELY_PROFILE_ANY_TYPE_ID,
           selector: profileMemberIface.getSighash("profileMemberUpdateAdmin"),
           policyCode: 46,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
+        },
+        {
+          adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+          agentId: LIVELY_PROFILE_ANY_TYPE_ID,
+          selector: profileMemberIface.getSighash("profileMemberRemove"),
+          policyCode: 16,
           acstat: ActivityStatus.ENABLED,
           alstat: AlterabilityStatus.UPDATABLE,
         },
@@ -3085,6 +3184,14 @@ describe("Lively Token Tests", function () {
           alstat: AlterabilityStatus.UPDATABLE,
         },
         {
+          adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+          agentId: LIVELY_PROFILE_ANY_TYPE_ID,
+          selector: profileRoleIface.getSighash("profileRoleRemove"),
+          policyCode: 16,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
+        },
+        {
           adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
           agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
           selector: profileRoleIface.getSighash("upgradeTo"),
@@ -3149,6 +3256,7 @@ describe("Lively Token Tests", function () {
       await functionManagerDelegateProxy
         .connect(systemAdmin)
         .functionRegister(emptyMemberSignature, profileRoleFunctionRegisterRequest);
+
       // Profile Type functions
       const profileTypeIface = new ethers.utils.Interface(ProfileTypeManager__factory.abi);
       const profileTypeFunctionRequests: IFunctionManagement.FunctionRequestStruct[] = [
@@ -3197,6 +3305,14 @@ describe("Lively Token Tests", function () {
           agentId: LIVELY_PROFILE_ANY_TYPE_ID,
           selector: profileTypeIface.getSighash("profileTypeUpdateRoleLimit"),
           policyCode: 24,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
+        },
+        {
+          adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+          agentId: LIVELY_PROFILE_ANY_TYPE_ID,
+          selector: profileTypeIface.getSighash("profileTypeRemove"),
+          policyCode: 16,
           acstat: ActivityStatus.ENABLED,
           alstat: AlterabilityStatus.UPDATABLE,
         },
@@ -3320,6 +3436,14 @@ describe("Lively Token Tests", function () {
           alstat: AlterabilityStatus.UPDATABLE,
         },
         {
+          adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+          agentId: LIVELY_PROFILE_ANY_TYPE_ID,
+          selector: profileFunctionIface.getSighash("profileFunctionRemove"),
+          policyCode: 16,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
+        },
+        {
           adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
           agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
           selector: profileFunctionIface.getSighash("upgradeTo"),
@@ -3425,6 +3549,14 @@ describe("Lively Token Tests", function () {
           agentId: LIVELY_PROFILE_ANY_TYPE_ID,
           selector: profileContextIface.getSighash("profileContextUpdateFunctionLimit"),
           policyCode: 24,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
+        },
+        {
+          adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+          agentId: LIVELY_PROFILE_ANY_TYPE_ID,
+          selector: profileContextIface.getSighash("profileContextRemove"),
+          policyCode: 16,
           acstat: ActivityStatus.ENABLED,
           alstat: AlterabilityStatus.UPDATABLE,
         },
@@ -3546,6 +3678,14 @@ describe("Lively Token Tests", function () {
           alstat: AlterabilityStatus.UPDATABLE,
         },
         {
+          adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+          agentId: LIVELY_PROFILE_ANY_TYPE_ID,
+          selector: profileRealmIface.getSighash("profileRealmRemove"),
+          policyCode: 16,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
+        },
+        {
           adminId: LIVELY_VERSE_ACL_ADMIN_ROLE_ID,
           agentId: LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID,
           selector: profileRealmIface.getSighash("upgradeTo"),
@@ -3659,6 +3799,14 @@ describe("Lively Token Tests", function () {
           agentId: LIVELY_PROFILE_ANY_TYPE_ID,
           selector: profileDomainIface.getSighash("profileDomainMoveRealm"),
           policyCode: 24,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
+        },
+        {
+          adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+          agentId: LIVELY_PROFILE_ANY_TYPE_ID,
+          selector: profileDomainIface.getSighash("profileDomainRemove"),
+          policyCode: 16,
           acstat: ActivityStatus.ENABLED,
           alstat: AlterabilityStatus.UPDATABLE,
         },
@@ -3972,6 +4120,14 @@ describe("Lively Token Tests", function () {
           agentId: LIVELY_PROFILE_ANY_TYPE_ID,
           selector: profilePolicyIface.getSighash("profilePolicyUpdateRoleLimit"),
           policyCode: 36,
+          acstat: ActivityStatus.ENABLED,
+          alstat: AlterabilityStatus.UPDATABLE,
+        },
+        {
+          adminId: LIVELY_VERSE_PROFILE_MASTER_TYPE_ID,
+          agentId: LIVELY_PROFILE_ANY_TYPE_ID,
+          selector: profilePolicyIface.getSighash("profilePolicyRemove"),
+          policyCode: 16,
           acstat: ActivityStatus.ENABLED,
           alstat: AlterabilityStatus.UPDATABLE,
         },

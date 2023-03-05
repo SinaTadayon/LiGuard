@@ -41,8 +41,7 @@ library LACLCommons {
     keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_SYSTEM_MASTER"));
   bytes32 public constant LIVELY_VERSE_ANONYMOUS_TYPE_ID =
     keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_ANONYMOUS"));
-  bytes32 public constant LIVELY_VERSE_ANY_TYPE_ID = 
-    keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_ANY"));
+  bytes32 public constant LIVELY_VERSE_ANY_TYPE_ID = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_ANY"));
   bytes32 public constant LIVELY_VERSE_SCOPE_MASTER_TYPE_ID =
     keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_SCOPE_MASTER"));
   bytes32 public constant LIVELY_VERSE_MEMBER_MASTER_TYPE_ID =
@@ -55,8 +54,7 @@ library LACLCommons {
     keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_PROFILE_MASTER"));
 
   // Universe Scope ID
-  bytes32 private constant LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID = 
-    keccak256(abi.encodePacked("UNIVERSE.LIVELY_VERSE"));
+  bytes32 private constant LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID = keccak256(abi.encodePacked("UNIVERSE.LIVELY_VERSE"));
 
   // General Roles ID
   bytes32 public constant LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID =
@@ -79,8 +77,7 @@ library LACLCommons {
     keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_MASTER"));
   bytes32 public constant LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID =
     keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER"));
-  bytes32 public constant LIVELY_PROFILE_ANY_TYPE_ID = 
-    keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_ANY"));
+  bytes32 public constant LIVELY_PROFILE_ANY_TYPE_ID = keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_ANY"));
   bytes32 public constant LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID =
     keccak256(abi.encodePacked("ROLE.LIVELY_PROFILE.LIVELY_MASTER_ADMIN"));
   bytes32 public constant LIVELY_PROFILE_SYSTEM_MASTER_ADMIN_ROLE_ID =
@@ -141,7 +138,6 @@ library LACLCommons {
     return true;
   }
 
- 
   function initACLAgents(
     ACLStorage.DataCollection storage data,
     address livelyAdmin,
@@ -357,7 +353,7 @@ library LACLCommons {
       realmAdminId = requestScopeAdmin;
     }
   }
-  
+
   function _doAgentGetScopeInfo(ACLStorage.DataCollection storage data, bytes32 agentId)
     private
     view

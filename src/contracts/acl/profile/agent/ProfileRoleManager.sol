@@ -137,7 +137,7 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
     ) = _accessPermission(memberSign, IProfileRoleManagement.profileRoleUpdateActivityStatus.selector);
     for (uint256 i = 0; i < requests.length; i++) {
       require(requests[i].entityId != LProfileRolePolicy.LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID, "Illegal Role");
-      
+
       RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(
         profileEntity,
         functionEntity,
@@ -164,7 +164,7 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
     ) = _accessPermission(memberSign, IProfileRoleManagement.profileRoleUpdateAlterabilityStatus.selector);
     for (uint256 i = 0; i < requests.length; i++) {
       require(requests[i].entityId != LProfileRolePolicy.LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID, "Illegal Role");
-      
+
       RoleEntity storage roleEntity = profileEntity.profileRoleReadSlot(requests[i].entityId);
       IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(
         profileEntity,
@@ -173,7 +173,7 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
         senderId
       );
       if (status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
-      
+
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
       roleEntity.ba.alstat = requests[i].alstat;
       emit ProfileRoleAlterabilityUpdated(sender, profileId, requests[i].entityId, requests[i].alstat);
@@ -240,7 +240,10 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
     return true;
   }
 
-  function profileRoleRemove(ProfileMemberSignature calldata memberSign, bytes32[] calldata roles) external returns (bool) {
+  function profileRoleRemove(ProfileMemberSignature calldata memberSign, bytes32[] calldata roles)
+    external
+    returns (bool)
+  {
     (
       ProfileEntity storage profileEntity,
       FunctionEntity storage functionEntity,
@@ -250,7 +253,7 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
     ) = _accessPermission(memberSign, IProfileRoleManagement.profileRoleRemove.selector);
     for (uint256 i = 0; i < roles.length; i++) {
       RoleEntity storage roleEntity = profileEntity.profileRoleReadSlot(roles[i]);
-  
+
       // check access admin role
       IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(
         profileEntity,
@@ -258,7 +261,7 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
         roleEntity.ba.adminId,
         senderId
       );
-      if (status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);      
+      if (status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
       require(roleEntity.memberCount == 0, "Illegal Remove");
 
       // check type

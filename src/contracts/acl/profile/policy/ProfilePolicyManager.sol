@@ -279,7 +279,10 @@ contract ProfilePolicyManager is ACLStorage, BaseUUPSProxy, IProfilePolicyManage
     return true;
   }
 
-  function profilePolicyRemove(ProfileMemberSignature calldata memberSign, bytes32[] calldata policies) external returns (bool) {
+  function profilePolicyRemove(ProfileMemberSignature calldata memberSign, bytes32[] calldata policies)
+    external
+    returns (bool)
+  {
     (
       ProfileEntity storage profileEntity,
       FunctionEntity storage functionEntity,

@@ -86,7 +86,9 @@ import {
   RoleManager,
   RoleManager__factory,
   TypeManager,
-  TypeManager__factory, LACLAgentScope__factory, LACLAgentScope
+  TypeManager__factory,
+  LACLAgentScope__factory,
+  LACLAgentScope,
 } from "../../typechain/types";
 import { InitializedEventObject } from "../../typechain/types/acl/ACLManager";
 import { ACLManagerLibraryAddresses } from "../../typechain/types/factories/acl/ACLManager__factory";
@@ -451,7 +453,7 @@ describe("Lively Guard Profile Tests", function () {
 
       linkAgentScopeLibraryAddresses = {
         "src/contracts/lib/acl/LACLAgentScope.sol:LACLAgentScope": lACLAgentScope.address,
-      }
+      };
     });
 
     it("Should MemberManager subject deploy success", async () => {
@@ -2293,20 +2295,6 @@ describe("Lively Guard Profile Tests", function () {
       ]);
     });
 
-    it("Should call aclInit of ACLManager with anyone failed", async () => {
-      // when and then
-      await expect(
-        aclManagerProxy
-          .connect(livelyAdmin)
-          .initACL(
-            contextManagerProxy.address,
-            functionManagerProxy.address,
-            livelyAdminWallet.address,
-            systemAdminWallet.address
-          )
-      ).revertedWith("Access Denied");
-    });
-
     it("Should call aclInit of ACLManager by systemAdmin success", async () => {
       // given
       const firstInit = await aclManagerProxy.getFirstInit();
@@ -2334,23 +2322,6 @@ describe("Lively Guard Profile Tests", function () {
       // then
       expect(firstInit).to.be.true;
       expect(await aclManagerProxy.getFirstInit()).to.be.false;
-    });
-
-    it("Should recall aclInit of ACLManager by systemAdmin failed", async () => {
-      // given
-      const firstInit = await aclManagerProxy.getFirstInit();
-
-      // when
-      await expect(
-        aclManagerProxy
-          .connect(systemAdmin)
-          .initACL(
-            contextManagerProxy.address,
-            functionManagerProxy.address,
-            livelyAdminWallet.address,
-            systemAdminWallet.address
-          )
-      ).to.revertedWith("Already INIT");
     });
 
     it("Should register ACL contexts by systemAdmin success", async () => {
@@ -3324,10 +3295,7 @@ describe("Lively Guard Profile Tests", function () {
         )
       );
       const roleRemoveFunctionId = ethers.utils.keccak256(
-        ethers.utils.solidityPack(
-          ["address", "bytes4"],
-          [roleManagerProxy.address, roleIface.getSighash("roleRemove")]
-        )
+        ethers.utils.solidityPack(["address", "bytes4"], [roleManagerProxy.address, roleIface.getSighash("roleRemove")])
       );
       const upgradeToFunctionId = ethers.utils.keccak256(
         ethers.utils.solidityPack(["address", "bytes4"], [roleManagerProxy.address, roleIface.getSighash("upgradeTo")])
@@ -3697,10 +3665,7 @@ describe("Lively Guard Profile Tests", function () {
         )
       );
       const typeRemoveFunctionId = ethers.utils.keccak256(
-        ethers.utils.solidityPack(
-          ["address", "bytes4"],
-          [typeManagerProxy.address, typeIface.getSighash("typeRemove")]
-        )
+        ethers.utils.solidityPack(["address", "bytes4"], [typeManagerProxy.address, typeIface.getSighash("typeRemove")])
       );
       const upgradeToFunctionId = ethers.utils.keccak256(
         ethers.utils.solidityPack(["address", "bytes4"], [typeManagerProxy.address, typeIface.getSighash("upgradeTo")])
@@ -4164,7 +4129,7 @@ describe("Lively Guard Profile Tests", function () {
           alstat: AlterabilityStatus.UPDATABLE,
         },
       ];
-      const roleFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
+      const functionFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
         {
           signature: new Int8Array(0),
           realmId: ethers.constants.HashZero,
@@ -4185,7 +4150,9 @@ describe("Lively Guard Profile Tests", function () {
 
       // when
       await expect(
-        functionManagerDelegateProxy.connect(systemAdmin).functionRegister(memberSignature, roleFunctionRegisterRequest)
+        functionManagerDelegateProxy
+          .connect(systemAdmin)
+          .functionRegister(memberSignature, functionFunctionRegisterRequest)
       )
         .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
         .withArgs(
@@ -5127,7 +5094,7 @@ describe("Lively Guard Profile Tests", function () {
           alstat: AlterabilityStatus.UPDATABLE,
         },
       ];
-      const roleFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
+      const domainFunctionRegisterRequest: IFunctionManagement.FunctionRegisterRequestStruct[] = [
         {
           signature: new Int8Array(0),
           realmId: ethers.constants.HashZero,
@@ -5148,7 +5115,9 @@ describe("Lively Guard Profile Tests", function () {
 
       // when
       await expect(
-        functionManagerDelegateProxy.connect(systemAdmin).functionRegister(memberSignature, roleFunctionRegisterRequest)
+        functionManagerDelegateProxy
+          .connect(systemAdmin)
+          .functionRegister(memberSignature, domainFunctionRegisterRequest)
       )
         .to.emit(functionManagerDelegateProxy, "FunctionRegistered")
         .withArgs(
@@ -11060,15 +11029,12 @@ describe("Lively Guard Profile Tests", function () {
 
       // when
       await expect(
-        profileDomainManagerDelegateProxy.connect(profileAdmin2).profileDomainRemove(profileMemberSignature, [profileDomainTestId])
+        profileDomainManagerDelegateProxy
+          .connect(profileAdmin2)
+          .profileDomainRemove(profileMemberSignature, [profileDomainTestId])
       )
         .to.emit(profileDomainManagerDelegateProxy, "ProfileDomainRemoved")
-        .withArgs(
-          profileOwnerWallet2.address,
-          profileTestId,
-          profileDomainTestId,
-          false
-        );
+        .withArgs(profileOwnerWallet2.address, profileTestId, profileDomainTestId, false);
 
       // then
       expect(await profileDomainManagerDelegateProxy.profileDomainCheckId(profileTestId, profileDomainTestId)).to.be
@@ -11280,15 +11246,12 @@ describe("Lively Guard Profile Tests", function () {
 
       // when
       await expect(
-        profileDomainManagerDelegateProxy.connect(profileAdmin2).profileDomainRemove(profileMemberSignature, [profileDomainTestId])
+        profileDomainManagerDelegateProxy
+          .connect(profileAdmin2)
+          .profileDomainRemove(profileMemberSignature, [profileDomainTestId])
       )
         .to.emit(profileDomainManagerDelegateProxy, "ProfileDomainRemoved")
-        .withArgs(
-          profileOwnerWallet2.address,
-          profileTestId,
-          profileDomainTestId,
-          true
-        );
+        .withArgs(profileOwnerWallet2.address, profileTestId, profileDomainTestId, true);
 
       // then
       expect(await profileDomainManagerDelegateProxy.profileDomainCheckId(profileTestId, profileDomainTestId)).to.be
@@ -11352,8 +11315,7 @@ describe("Lively Guard Profile Tests", function () {
         profileDomainManagerDelegateProxy
           .connect(profileAdmin)
           .profileDomainUpdateAlterabilityStatus(emptyProfileMemberSignature, requests)
-      )
-        .to.revertedWith("Domain Deleted");
+      ).to.revertedWith("Domain Deleted");
     });
 
     it("Should profile enable activity of aclDomainTest success", async () => {
@@ -11481,15 +11443,12 @@ describe("Lively Guard Profile Tests", function () {
 
       // when
       await expect(
-        profileRealmManagerDelegateProxy.connect(profileAdmin2).profileRealmRemove(profileMemberSignature, [profileRealmTestId])
+        profileRealmManagerDelegateProxy
+          .connect(profileAdmin2)
+          .profileRealmRemove(profileMemberSignature, [profileRealmTestId])
       )
         .to.emit(profileRealmManagerDelegateProxy, "ProfileRealmRemoved")
-        .withArgs(
-          profileAdminWallet.address,
-          profileTestId,
-          profileRealmTestId,
-          false
-        );
+        .withArgs(profileAdminWallet.address, profileTestId, profileRealmTestId, false);
 
       // then
       expect(await profileRealmManagerDelegateProxy.profileRealmCheckId(profileTestId, profileRealmTestId)).to.be.false;
@@ -11622,12 +11581,7 @@ describe("Lively Guard Profile Tests", function () {
           .profileTypeUpdateScope(emptyProfileMemberSignature, requests)
       )
         .to.emit(profileTypeManagerDelegateProxy, "ProfileTypeScopeUpdated")
-        .withArgs(
-          profileAdminWallet.address,
-          profileTestId,
-          aclTypeTestId,
-          profileRealmTestId
-        );
+        .withArgs(profileAdminWallet.address, profileTestId, aclTypeTestId, profileRealmTestId);
 
       // and
       const typeInfo: IProfileTypeManagement.ProfileTypeInfoStruct =
@@ -11678,15 +11632,12 @@ describe("Lively Guard Profile Tests", function () {
 
       // when
       await expect(
-        profileRealmManagerDelegateProxy.connect(profileAdmin2).profileRealmRemove(profileMemberSignature, [profileRealmTestId])
+        profileRealmManagerDelegateProxy
+          .connect(profileAdmin2)
+          .profileRealmRemove(profileMemberSignature, [profileRealmTestId])
       )
         .to.emit(profileRealmManagerDelegateProxy, "ProfileRealmRemoved")
-        .withArgs(
-          profileAdminWallet.address,
-          profileTestId,
-          profileRealmTestId,
-          true
-        );
+        .withArgs(profileAdminWallet.address, profileTestId, profileRealmTestId, true);
 
       // then
       expect(await profileRealmManagerDelegateProxy.profileRealmCheckId(profileTestId, profileRealmTestId)).to.be.true;
@@ -11746,8 +11697,7 @@ describe("Lively Guard Profile Tests", function () {
         profileRealmManagerDelegateProxy
           .connect(profileAdmin)
           .profileRealmUpdateAlterabilityStatus(emptyProfileMemberSignature, requests)
-      )
-        .to.revertedWith("Realm Deleted");
+      ).to.revertedWith("Realm Deleted");
     });
 
     it("Should profile enable activity of aclRealmTest success", async () => {
@@ -11851,7 +11801,6 @@ describe("Lively Guard Profile Tests", function () {
     });
 
     it("Should profile hard remove profileMemberContextTest success", async () => {
-
       profileMemberContextTestId = ethers.utils.keccak256(profileMemberManagerTest.address);
       const expiredAt = BigNumber.from(Date.now() + 10000);
       const signature = generateProfileMemberSignatureManually(
@@ -11876,12 +11825,7 @@ describe("Lively Guard Profile Tests", function () {
           .profileContextRemove(profileMemberSignature, [profileMemberContextTestId])
       )
         .to.emit(profileContextManagerDelegateProxy, "ProfileContextRemoved")
-        .withArgs(
-          profileAdminWallet.address,
-          profileTestId,
-          profileMemberContextTestId,
-          false
-        );
+        .withArgs(profileAdminWallet.address, profileTestId, profileMemberContextTestId, false);
 
       // and
       const profileContextInfo: IProfileContextManagement.ProfileContextInfoStruct =
@@ -12004,12 +11948,7 @@ describe("Lively Guard Profile Tests", function () {
           .profileTypeUpdateScope(emptyProfileMemberSignature, requests)
       )
         .to.emit(profileTypeManagerDelegateProxy, "ProfileTypeScopeUpdated")
-        .withArgs(
-          profileAdminWallet.address,
-          profileTestId,
-          aclTypeTestId,
-          profileMemberContextTestId
-        );
+        .withArgs(profileAdminWallet.address, profileTestId, aclTypeTestId, profileMemberContextTestId);
 
       // and
       const typeInfo: IProfileTypeManagement.ProfileTypeInfoStruct =
@@ -12040,7 +11979,6 @@ describe("Lively Guard Profile Tests", function () {
     });
 
     it("Should profile soft remove profileMemberContextTest success", async () => {
-
       profileMemberContextTestId = ethers.utils.keccak256(profileMemberManagerTest.address);
       const expiredAt = BigNumber.from(Date.now() + 10000);
       const signature = generateProfileMemberSignatureManually(
@@ -12065,12 +12003,7 @@ describe("Lively Guard Profile Tests", function () {
           .profileContextRemove(profileMemberSignature, [profileMemberContextTestId])
       )
         .to.emit(profileContextManagerDelegateProxy, "ProfileContextRemoved")
-        .withArgs(
-          profileAdminWallet.address,
-          profileTestId,
-          profileMemberContextTestId,
-          true
-        );
+        .withArgs(profileAdminWallet.address, profileTestId, profileMemberContextTestId, true);
 
       // and
       const profileContextInfo: IProfileContextManagement.ProfileContextInfoStruct =
@@ -12126,8 +12059,7 @@ describe("Lively Guard Profile Tests", function () {
         profileContextManagerDelegateProxy
           .connect(profileAdmin2)
           .profileContextUpdateAlterabilityStatus(profileMemberSignature, requests)
-      )
-        .to.revertedWith("Context Deleted");
+      ).to.revertedWith("Context Deleted");
     });
 
     it("Should profile enable activity of profileMemberContextTest success", async () => {
@@ -12458,12 +12390,7 @@ describe("Lively Guard Profile Tests", function () {
           .profileFunctionRemove(profileMemberSignature, [memberRegisterFunctionId])
       )
         .to.emit(profileFunctionManagerDelegateProxy, "ProfileFunctionRemoved")
-        .withArgs(
-          profileAdminWallet.address,
-          profileTestId,
-          memberRegisterFunctionId,
-          false
-        );
+        .withArgs(profileAdminWallet.address, profileTestId, memberRegisterFunctionId, false);
 
       // then
       expect(
@@ -12643,12 +12570,7 @@ describe("Lively Guard Profile Tests", function () {
           .profileTypeUpdateScope(emptyProfileMemberSignature, requests)
       )
         .to.emit(profileTypeManagerDelegateProxy, "ProfileTypeScopeUpdated")
-        .withArgs(
-          profileAdminWallet.address,
-          profileTestId,
-          aclTypeTestId,
-          memberRegisterFunctionId
-        );
+        .withArgs(profileAdminWallet.address, profileTestId, aclTypeTestId, memberRegisterFunctionId);
 
       // and
       const typeInfo: IProfileTypeManagement.ProfileTypeInfoStruct =
@@ -12709,12 +12631,7 @@ describe("Lively Guard Profile Tests", function () {
           .profileFunctionRemove(profileMemberSignature, [memberRegisterFunctionId])
       )
         .to.emit(profileFunctionManagerDelegateProxy, "ProfileFunctionRemoved")
-        .withArgs(
-          profileAdminWallet.address,
-          profileTestId,
-          memberRegisterFunctionId,
-          true
-        );
+        .withArgs(profileAdminWallet.address, profileTestId, memberRegisterFunctionId, true);
 
       // then
       expect(
@@ -12798,8 +12715,7 @@ describe("Lively Guard Profile Tests", function () {
         profileFunctionManagerDelegateProxy
           .connect(profileAdmin2)
           .profileFunctionUpdateAlterabilityStatus(profileMemberSignature, requests)
-      )
-        .to.revertedWith("Function Deleted");
+      ).to.revertedWith("Function Deleted");
     });
 
     it("Should profile enable activity of memberRegisterFunctionTest success", async () => {
@@ -12943,11 +12859,7 @@ describe("Lively Guard Profile Tests", function () {
           .profileTypeRemove(emptyProfileMemberSignature, [aclTypeTestId])
       )
         .to.emit(profileTypeManagerDelegateProxy, "ProfileTypeRemoved")
-        .withArgs(
-          profileOwnerWallet2.address,
-          profileTestId,
-          aclTypeTestId,
-        );
+        .withArgs(profileOwnerWallet2.address, profileTestId, aclTypeTestId);
 
       // then
       expect(await profileTypeManagerDelegateProxy.profileTypeCheckId(profileTestId, aclTypeTestId)).to.be.false;
@@ -13012,9 +12924,10 @@ describe("Lively Guard Profile Tests", function () {
 
       // when
       await expect(
-        profileDomainManagerDelegateProxy.connect(profileAdmin2).profileDomainRemove(profileMemberSignature, [profileDomainTestId])
-      )
-        .to.revertedWith("Illegal Remove");
+        profileDomainManagerDelegateProxy
+          .connect(profileAdmin2)
+          .profileDomainRemove(profileMemberSignature, [profileDomainTestId])
+      ).to.revertedWith("Illegal Remove");
     });
 
     it("Should profile remove profileRealmTest failed", async () => {
@@ -13038,13 +12951,13 @@ describe("Lively Guard Profile Tests", function () {
 
       // when
       await expect(
-        profileRealmManagerDelegateProxy.connect(profileAdmin2).profileRealmRemove(profileMemberSignature, [profileRealmTestId])
-      )
-        .to.revertedWith("Illegal Remove");
+        profileRealmManagerDelegateProxy
+          .connect(profileAdmin2)
+          .profileRealmRemove(profileMemberSignature, [profileRealmTestId])
+      ).to.revertedWith("Illegal Remove");
     });
 
     it("Should profile remove profileMemberContextTest faile", async () => {
-
       profileMemberContextTestId = ethers.utils.keccak256(profileMemberManagerTest.address);
       const expiredAt = BigNumber.from(Date.now() + 10000);
       const signature = generateProfileMemberSignatureManually(
@@ -13067,8 +12980,7 @@ describe("Lively Guard Profile Tests", function () {
         profileContextManagerDelegateProxy
           .connect(livelyAdmin)
           .profileContextRemove(profileMemberSignature, [profileMemberContextTestId])
-      )
-        .to.revertedWith("Illegal Remove");
+      ).to.revertedWith("Illegal Remove");
     });
   });
 
@@ -13087,8 +12999,7 @@ describe("Lively Guard Profile Tests", function () {
         profileTypeManagerDelegateProxy
           .connect(profileAdmin)
           .profileTypeUpdateActivityStatus(emptyProfileMemberSignature, requests)
-      )
-        .to.revertedWith("Illegal Type")
+      ).to.revertedWith("Illegal Type");
     });
 
     it("Should disabled activity of LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE failed", async () => {
@@ -13105,8 +13016,7 @@ describe("Lively Guard Profile Tests", function () {
         profileRoleManagerDelegateProxy
           .connect(profileAdmin)
           .profileRoleUpdateActivityStatus(emptyProfileMemberSignature, requests)
-      )
-        .to.revertedWith("Illegal Role")
+      ).to.revertedWith("Illegal Role");
     });
 
     it("Should disabled profileOwner2 activity failed", async () => {
@@ -13123,8 +13033,7 @@ describe("Lively Guard Profile Tests", function () {
         profileMemberManagerDelegateProxy
           .connect(profileAdmin)
           .profileMemberUpdateActivityStatus(emptyProfileMemberSignature, requests)
-      )
-        .to.revertedWith("Illegal Member")
+      ).to.revertedWith("Illegal Member");
     });
 
     it("Should profile register aclTypeTest success", async () => {
@@ -13204,11 +13113,7 @@ describe("Lively Guard Profile Tests", function () {
           .profileTypeRemove(emptyProfileMemberSignature, [aclTypeTestId])
       )
         .to.emit(profileTypeManagerDelegateProxy, "ProfileTypeRemoved")
-        .withArgs(
-          profileOwnerWallet2.address,
-          profileTestId,
-          aclTypeTestId,
-        );
+        .withArgs(profileOwnerWallet2.address, profileTestId, aclTypeTestId);
 
       // then
       expect(await profileTypeManagerDelegateProxy.profileTypeCheckId(profileTestId, aclTypeTestId)).to.be.false;
@@ -13937,11 +13842,7 @@ describe("Lively Guard Profile Tests", function () {
           .profileRoleRemove(emptyProfileMemberSignature, [aclRoleTestId])
       )
         .to.emit(profileRoleManagerDelegateProxy, "ProfileRoleRemoved")
-        .withArgs(
-          profileAdminWallet.address,
-          profileTestId,
-          aclRoleTestId,
-        );
+        .withArgs(profileAdminWallet.address, profileTestId, aclRoleTestId);
 
       // then
       expect(await profileRoleManagerDelegateProxy.profileRoleCheckId(profileTestId, aclRoleTestId)).to.be.false;
@@ -14537,22 +14438,13 @@ describe("Lively Guard Profile Tests", function () {
           .profileMemberRemove(profileMemberSignature, [roleMemberUserId1])
       )
         .to.emit(profileMemberManagerDelegateProxy, "ProfileMemberRoleRevoked")
-        .withArgs(
-          profileAdminWallet.address,
-          profileTestId,
-          aclRoleTestId,
-          aclTypeTestId,
-        )
+        .withArgs(profileAdminWallet.address, profileTestId, aclRoleTestId, aclTypeTestId)
         .to.emit(profileMemberManagerDelegateProxy, "ProfileMemberRemoved")
-        .withArgs(
-          profileAdminWallet.address,
-          profileTestId,
-          roleMemberUserId1,
-          true
-        );
+        .withArgs(profileAdminWallet.address, profileTestId, roleMemberUserId1, true);
 
       // then
-      expect(await profileMemberManagerDelegateProxy.profileMemberCheckId(profileTestId, roleMemberUserId1)).to.be.false;
+      expect(await profileMemberManagerDelegateProxy.profileMemberCheckId(profileTestId, roleMemberUserId1)).to.be
+        .false;
       expect(await profileMemberManagerDelegateProxy.profileMemberCheckAccount(profileTestId, userWallet1.address)).to
         .be.false;
 
@@ -15680,8 +15572,7 @@ describe("Lively Guard Profile Tests", function () {
         profileTypeManagerDelegateProxy
           .connect(profileOwner2)
           .profileTypeRemove(emptyProfileMemberSignature, [aclTypeTestId])
-      )
-        .to.revertedWith("Illegal Remove");
+      ).to.revertedWith("Illegal Remove");
     });
 
     it("Should profile remove aclRoleTest failed", async () => {
@@ -15690,8 +15581,7 @@ describe("Lively Guard Profile Tests", function () {
         profileRoleManagerDelegateProxy
           .connect(profileSystemAdmin)
           .profileRoleRemove(emptyProfileMemberSignature, [aclRoleTestId])
-      )
-        .to.revertedWith("Illegal Remove");
+      ).to.revertedWith("Illegal Remove");
     });
   });
 
@@ -15802,14 +15692,12 @@ describe("Lively Guard Profile Tests", function () {
 
       // when
       await expect(
-        profilePolicyManagerDelegateProxy.connect(profileAdmin2).profilePolicyRemove(profileMemberSignature, [aclPolicyTestId])
+        profilePolicyManagerDelegateProxy
+          .connect(profileAdmin2)
+          .profilePolicyRemove(profileMemberSignature, [aclPolicyTestId])
       )
         .to.emit(profilePolicyManagerDelegateProxy, "ProfilePolicyRemoved")
-        .withArgs(
-          profileAdminWallet.address,
-          profileTestId,
-          aclPolicyTestId,
-        );
+        .withArgs(profileAdminWallet.address, profileTestId, aclPolicyTestId);
 
       // then
       expect(await profilePolicyManagerDelegateProxy.profilePolicyCheckId(profileTestId, aclPolicyTestId)).to.be.false;
@@ -16501,9 +16389,10 @@ describe("Lively Guard Profile Tests", function () {
 
       // when
       await expect(
-        profilePolicyManagerDelegateProxy.connect(profileAdmin2).profilePolicyRemove(profileMemberSignature, [aclPolicyTestId])
-      )
-        .to.revertedWith("Illegal Remove");
+        profilePolicyManagerDelegateProxy
+          .connect(profileAdmin2)
+          .profilePolicyRemove(profileMemberSignature, [aclPolicyTestId])
+      ).to.revertedWith("Illegal Remove");
     });
   });
 

@@ -159,7 +159,9 @@ interface IProfileRoleManagement is IACLCommons {
     ProfileRoleUpdateMemberLimitRequest[] calldata requests
   ) external returns (bool);
 
-  function profileRoleRemove(ProfileMemberSignature calldata memberSign, bytes32[] calldata roles) external returns (bool);
+  function profileRoleRemove(ProfileMemberSignature calldata memberSign, bytes32[] calldata roles)
+    external
+    returns (bool);
 
   function profileRoleCheckId(bytes32 profileId, bytes32 roleId) external view returns (bool);
 

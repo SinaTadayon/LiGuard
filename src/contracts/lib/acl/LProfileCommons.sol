@@ -487,7 +487,7 @@ library LProfileCommons {
     return _updateProfileAccount(data, profileMemberEntity, profileId, typeId, isRevoke);
   }
 
-   function _updateProfileAccount(
+  function _updateProfileAccount(
     ACLStorage.DataCollection storage data,
     IACLCommons.ProfileMemberEntity storage profileMemberEntity,
     bytes32 profileId,
@@ -524,7 +524,6 @@ library LProfileCommons {
 
     require(findFlag, "Illegal ProfileAccount");
   }
-
 
   function _doProfileGetAndCheckRequestScope(
     IACLCommons.ProfileEntity storage profileEntity,

@@ -120,9 +120,7 @@ interface IPolicyManagement is IACLCommons {
     external
     returns (bool);
 
-  function policyRemove(MemberSignature calldata memberSign, bytes32[] calldata policies)
-    external
-    returns (bool);
+  function policyRemove(MemberSignature calldata memberSign, bytes32[] calldata policies) external returns (bool);
 
   function policyCheckId(bytes32 policyId) external view returns (bool);
 

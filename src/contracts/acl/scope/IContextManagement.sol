@@ -87,9 +87,7 @@ interface IContextManagement is IACLCommons {
     ContextUpdateFunctionLimitRequest[] calldata requests
   ) external returns (bool);
 
-  function contextRemove(MemberSignature calldata memberSign, bytes32[] calldata contexts)
-    external
-    returns (bool);
+  function contextRemove(MemberSignature calldata memberSign, bytes32[] calldata contexts) external returns (bool);
 
   function contextCheckId(bytes32 contextId) external view returns (bool);
 

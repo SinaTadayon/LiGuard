@@ -764,7 +764,6 @@ library LProfileRolePolicy {
     return requestScope;
   }
 
-
   function _doProfileCheckAdminAccess(
     IACLCommons.ProfileEntity storage profileEntity,
     IACLCommons.FunctionEntity storage functionEntity,

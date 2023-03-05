@@ -153,7 +153,7 @@ contract UniverseManager is ACLStorage, BaseUUPSProxy, IUniverseManagement {
         acstat: universeEntity.bs.acstat,
         alstat: universeEntity.bs.alstat
       });
-  } 
+  }
 
   function _accessPermission(MemberSignature calldata memberSign, bytes4 selector)
     internal
@@ -178,8 +178,11 @@ contract UniverseManager is ACLStorage, BaseUUPSProxy, IUniverseManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(signer);
     IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
     if (status != IACL.AuthorizationStatus.PERMITTED) {
-      if(status == IACL.AuthorizationStatus.UNIVERSE_ACTIVITY_FORBIDDEN && IUniverseManagement.universeUpdateActivityStatus.selector == selector ) {
-        return (functionId, senderId, signer);    
+      if (
+        status == IACL.AuthorizationStatus.UNIVERSE_ACTIVITY_FORBIDDEN &&
+        IUniverseManagement.universeUpdateActivityStatus.selector == selector
+      ) {
+        return (functionId, senderId, signer);
       }
       LACLUtils.generateAuthorizationError(status);
     }

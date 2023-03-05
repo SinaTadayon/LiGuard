@@ -160,7 +160,7 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
       IACL.AdminAccessStatus status = _doCheckAdminAccess(domainEntity.bs.adminId, senderId, functionId);
       if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
       require(requests[i].alstat != AlterabilityStatus.NONE, "Illegal Alterability");
-      
+
       domainEntity.bs.alstat = requests[i].alstat;
       emit DomainAlterabilityUpdated(sender, requests[i].id, requests[i].alstat);
     }
@@ -209,9 +209,9 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
       DomainEntity storage targetDomainEntity = _doGetEntityAndCheckAdminAccess(
         requests[i].targetDomainId,
         senderId,
-        functionId        
+        functionId
       );
-      
+
       RealmEntity storage realmEntity = _data.realmReadSlot(requests[i].realmId);
       require(realmEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Realm Updatable");
       require(realmEntity.bs.referredByAgent == 0, "Illeagl Referred");
@@ -220,8 +220,8 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
       require(
         IACLGenerals(address(this)).isScopesCompatible(realmAdminScopeId, requests[i].targetDomainId),
         "Illegal Admin Scope"
-      );    
-      
+      );
+
       require(targetDomainEntity.realmLimit > targetDomainEntity.realms.length(), "Illegal Move");
       domainEntity.realms.remove(requests[i].realmId);
       targetDomainEntity.realms.add(requests[i].realmId);
@@ -259,10 +259,9 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
       DomainEntity storage domainEntity = _data.domainReadSlot(domains[i]);
       IACL.AdminAccessStatus status = _doCheckAdminAccess(domainEntity.bs.adminId, senderId, functionId);
       if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
-      
-      require(domainEntity.realms.length() == 0, "Illegal Remove");
-      if(domainEntity.bs.referredByAgent == 0) {
 
+      require(domainEntity.realms.length() == 0, "Illegal Remove");
+      if (domainEntity.bs.referredByAgent == 0) {
         // check universe
         UniverseEntity storage universeEntity = _data.universeReadSlot(domainEntity.universeId);
         require(universeEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Universe Updatable");
@@ -274,7 +273,6 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
         delete domainEntity.name;
         delete domainEntity.realms;
         emit DomainRemoved(sender, domains[i], false);
-      
       } else {
         require(domainEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
         domainEntity.bs.acstat = ActivityStatus.DELETED;
@@ -431,8 +429,11 @@ contract DomainManager is ACLStorage, BaseUUPSProxy, IDomainManagement {
     bytes32 senderId = LACLUtils.accountGenerateId(signer);
     IACL.AuthorizationStatus status = IACL(address(this)).hasMemberAccess(functionId, senderId);
     if (status != IACL.AuthorizationStatus.PERMITTED) {
-      if(status == IACL.AuthorizationStatus.DOMAIN_ACTIVITY_FORBIDDEN && IDomainManagement.domainUpdateActivityStatus.selector == selector ) {
-        return (functionId, senderId, signer);    
+      if (
+        status == IACL.AuthorizationStatus.DOMAIN_ACTIVITY_FORBIDDEN &&
+        IDomainManagement.domainUpdateActivityStatus.selector == selector
+      ) {
+        return (functionId, senderId, signer);
       }
       LACLUtils.generateAuthorizationError(status);
     }

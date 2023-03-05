@@ -257,7 +257,10 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
     return true;
   }
 
-  function profileMemberRemove(ProfileMemberSignature calldata memberSign, bytes32[] calldata members) external returns (bool) {
+  function profileMemberRemove(ProfileMemberSignature calldata memberSign, bytes32[] calldata members)
+    external
+    returns (bool)
+  {
     (
       ProfileEntity storage profileEntity,
       FunctionEntity storage functionEntity,
@@ -265,7 +268,7 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
       bytes32 senderId,
       address sender
     ) = _accessPermission(memberSign, IProfileMemberManagement.profileMemberRemove.selector);
-    
+
     for (uint256 i = 0; i < members.length; i++) {
       ProfileMemberEntity storage memberEntity = profileEntity.profileMemberReadSlot(members[i]);
       IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(
@@ -276,55 +279,13 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
       );
       if (status != IProfileACL.ProfileAdminAccessStatus.PERMITTED) LACLUtils.generateProfileAdminAccessError(status);
 
-      // check and remove member from admin      
+      // check and remove member from admin
       require(profileEntity.owner != memberEntity.account, "Illegal Owner Remove");
       profileEntity.admins.remove(members[i]);
 
-      _doProfileRemoveMember(profileEntity, memberEntity, members[i], profileId, sender);     
+      _doProfileRemoveMember(profileEntity, memberEntity, members[i], profileId, sender);
     }
     return true;
-  }
-
-  function _doProfileRemoveMember(ProfileEntity storage profileEntity, ProfileMemberEntity storage memberEntity, bytes32 memberId, bytes32 profileId, address sender) internal {
-    bytes32 typeId;
-    for (uint256 j = 0; j < memberEntity.types.length() && j < 16; j++) {
-
-      // check type
-      typeId = memberEntity.types.at(j);
-      TypeEntity storage typeEntity = profileEntity.profileTypeReadSlot(typeId);
-      require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Type Updatable");
-
-      // check role
-      bytes32 roleId = typeEntity.members[memberId];
-      RoleEntity storage roleEntity = profileEntity.profileRoleReadSlot(roleId);
-      require(roleEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Role Updatable");     
-      require(roleEntity.memberCount > 0, "Illegal MemberCount");
-      unchecked { roleEntity.memberCount -= 1; }
-
-      // delete member from type
-      delete typeEntity.members[memberId];
-
-      // delete type from member
-      memberEntity.types.remove(typeId);        
-      emit ProfileMemberRoleRevoked(sender, profileId, memberId, roleId, typeId);
-    }
-
-    if(memberEntity.types.length() == 0) {
-      // revoke member from profile Account 
-      LProfileCommons.updateProfileAccount(_data, memberEntity, profileId, typeId, true);
-
-      // delete member entity
-      delete memberEntity.ba;
-      delete memberEntity.account;
-      delete memberEntity.callLimit;
-      delete memberEntity.typeLimit;
-      delete memberEntity.registerLimits;
-      delete memberEntity.types;
-      emit ProfileMemberRemoved(sender, profileId, memberId, true);
-
-    } else {
-      emit ProfileMemberRemoved(sender, profileId, memberId, false);        
-    }
   }
 
   function profileMemberCheckId(bytes32 profileId, bytes32 memberId) external view returns (bool) {
@@ -549,6 +510,54 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
       registerLimits.policyRegisterLimit >= registerLimitRequest.policyRegisterLimit,
       "Illegal PolicyRegisterLimit"
     );
+  }
+
+  function _doProfileRemoveMember(
+    ProfileEntity storage profileEntity,
+    ProfileMemberEntity storage memberEntity,
+    bytes32 memberId,
+    bytes32 profileId,
+    address sender
+  ) internal {
+    bytes32 typeId;
+    for (uint256 j = 0; j < memberEntity.types.length() && j < 16; j++) {
+      // check type
+      typeId = memberEntity.types.at(j);
+      TypeEntity storage typeEntity = profileEntity.profileTypeReadSlot(typeId);
+      require(typeEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Type Updatable");
+
+      // check role
+      bytes32 roleId = typeEntity.members[memberId];
+      RoleEntity storage roleEntity = profileEntity.profileRoleReadSlot(roleId);
+      require(roleEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Role Updatable");
+      require(roleEntity.memberCount > 0, "Illegal MemberCount");
+      unchecked {
+        roleEntity.memberCount -= 1;
+      }
+
+      // delete member from type
+      delete typeEntity.members[memberId];
+
+      // delete type from member
+      memberEntity.types.remove(typeId);
+      emit ProfileMemberRoleRevoked(sender, profileId, memberId, roleId, typeId);
+    }
+
+    if (memberEntity.types.length() == 0) {
+      // revoke member from profile Account
+      LProfileCommons.updateProfileAccount(_data, memberEntity, profileId, typeId, true);
+
+      // delete member entity
+      delete memberEntity.ba;
+      delete memberEntity.account;
+      delete memberEntity.callLimit;
+      delete memberEntity.typeLimit;
+      delete memberEntity.registerLimits;
+      delete memberEntity.types;
+      emit ProfileMemberRemoved(sender, profileId, memberId, true);
+    } else {
+      emit ProfileMemberRemoved(sender, profileId, memberId, false);
+    }
   }
 
   function getLibrary() external pure returns (address) {
