@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v2.0.1)
+// LivelyVerse Contracts (last updated v3.0.0)
 
 pragma solidity 0.8.17;
 
@@ -10,10 +10,10 @@ pragma solidity 0.8.17;
  *
  */
 interface IAssetEntity {
-  enum Status {
+  enum AssetSafeModeStatus {
     NONE,
-    ACTIVE,
-    SAFE_MODE
+    DISABLED,
+    ENABLED
   }
 
   enum AssetType {
@@ -23,37 +23,61 @@ interface IAssetEntity {
     ERC1155
   }
 
+  struct AssetInitRequest {
+    bytes32 realmId;
+    bytes32 adminId;
+    bytes32 agentId;
+    bytes32 salt;
+    address subjectId;
+    address erc20TokenId;
+    address accessControlId;
+    address assetManagerId;
+    address assetContractId;
+    string contractName;
+    string contractVersion;
+    bytes signature;
+  }
+
+  struct AssetInfo {
+    uint256 balance;
+    string name;
+    string version;
+    address token;
+    address accessControl;
+    uint16 initVersion;
+    AssetType atype;
+    AssetSafeModeStatus status;
+  }
+
   event AssetInitialized(
     address indexed sender,
     address indexed assetId,
     address indexed tokenId,
-    address assetManager,
-    address assetSubject,
-    string name,
-    string version,
-    bytes32 realm,
-    bytes32 role
+    address assetManagerId,
+    address assetSubjectId
   );
 
-  event AssetSafeModeChanged(address indexed sender, address indexed assetId, bytes32 indexed realm, bool status);
+  event AssetSafeModeUpdated(address indexed sender, address indexed assetId, AssetSafeModeStatus status);
 
-  function assetSafeModeSet(bool status) external returns (bool);
+  function assetInitialize(AssetInitRequest calldata request) external returns (bool);
 
-  function assetSafeMode() external view returns (bool);
+  function assetSetSafeMode(AssetSafeModeStatus status) external returns (bool);
+
+  function assetSafeMode() external view returns (AssetSafeModeStatus);
 
   function assetType() external view returns (AssetType);
 
   function assetToken() external view returns (address);
 
-  function assetName() external view returns (bytes32);
+  function assetName() external view returns (string memory);
 
-  function assetVersion() external view returns (bytes32);
+  function assetVersion() external view returns (string memory);
 
-  function assetRealm() external view returns (bytes32);
-
-  function assetRole() external view returns (bytes32);
-
-  function assetAcl() external view returns (address);
+  function assetAccessControl() external view returns (address);
 
   function assetInitVersion() external view returns (uint16);
+
+  function assetBalance() external view returns (uint256);
+
+  function assetInfo() external view returns (AssetInfo memory);
 }

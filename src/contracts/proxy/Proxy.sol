@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v2.0.1)
+// LivelyVerse Contracts (last updated v3.0.0)
 
 pragma solidity 0.8.17;
 
@@ -18,7 +18,7 @@ import "../utils/IERC165.sol";
  * @dev
  *
  */
-contract Proxy is BaseUUPSStorage, BaseProxy, IBaseProxy {
+contract Proxy is BaseUUPSStorage, BaseProxy {
   /**
    * @dev Initializes the upgradeable proxy with an initial implementation specified by `_logic`.
    *
@@ -29,7 +29,8 @@ contract Proxy is BaseUUPSStorage, BaseProxy, IBaseProxy {
     assert(_IMPLEMENTATION_SLOT == bytes32(uint256(keccak256("eip1967.proxy.implementation")) - 1));
     assert(_ADMIN_SLOT == bytes32(uint256(keccak256("eip1967.proxy.admin")) - 1));
     LStorageSlot.getAddressSlot(_ADMIN_SLOT).value = msg.sender;
-    _isSafeMode = true;
+    _sstat = ProxySafeModeStatus.ENABLED;
+    _ustat = ProxyUpdatabilityStatus.DISABLED;
     _upgradeToAndCallUUPS(logic, data, false);
   }
 
@@ -55,7 +56,7 @@ contract Proxy is BaseUUPSStorage, BaseProxy, IBaseProxy {
    */
   function _upgradeTo(address newImplementation) private {
     _setImplementation(newImplementation);
-    emit Upgraded(msg.sender, address(this), _implementation());
+    emit ProxyUpgraded(msg.sender, address(this), _implementation());
   }
 
   /**
@@ -85,6 +86,7 @@ contract Proxy is BaseUUPSStorage, BaseProxy, IBaseProxy {
     bytes memory data,
     bool forceCall
   ) private returns (bytes memory) {
+    require(LAddress.isContract(newImplementation), "Illegal Contract");
     // Upgrades from old implementations will perform a rollback test. This test requires the new
     // implementation to upgrade back to the old, non-ERC1822 compliant, implementation. Removing
     // this special case will break upgrade paths from old UUPS implementation to new ones.
@@ -93,15 +95,15 @@ contract Proxy is BaseUUPSStorage, BaseProxy, IBaseProxy {
       return new bytes(0);
     } else {
       try IERC1822Proxiable(newImplementation).proxiableUUID() returns (bytes32 slot) {
-        require(slot == _IMPLEMENTATION_SLOT, "Invalid UUPS Contract");
+        require(slot == _IMPLEMENTATION_SLOT, "Invalid UUPS");
       } catch {
-        revert("Illegal UUPS Contract");
+        revert("Illegal UUPS");
       }
 
       try IERC165(newImplementation).supportsInterface(type(IProxy).interfaceId) returns (bool isSupported) {
-        require(isSupported, "Invalid IProxy Contract");
+        require(isSupported, "Invalid IProxy");
       } catch {
-        revert("Illegal IProxy Contract");
+        revert("Illegal IProxy");
       }
       return _upgradeToAndCall(newImplementation, data, forceCall);
     }

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v2.0.1)
+// LivelyVerse Contracts (last updated v3.0.0)
 
 pragma solidity 0.8.17;
 
-import "./IAssetEntity.sol";
+import "./IAssetManagerERC20.sol";
 import "../../proxy/BaseUUPSStorage.sol";
 import "../../lib/struct/LEnumerableSet.sol";
 
@@ -18,16 +18,14 @@ abstract contract AssetManagerStorageERC20 is BaseUUPSStorage {
 
   struct TokenData {
     LEnumerableSet.AddressSet assets;
-    IAssetEntity.Status status;
+    address assetSubjectId;
+    bytes assetSignature;
   }
 
   struct DataCollection {
     mapping(address => TokenData) tokens;
     LEnumerableSet.AddressSet tokensSet;
   }
-
-  address internal _assetSubjectERC20;
-  bytes internal _assetCreationSignature;
   DataCollection internal _data;
 
   // Note: for next upgrade add new variables after this line

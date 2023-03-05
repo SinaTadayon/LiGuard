@@ -92,21 +92,13 @@ library LSafeERC20 {
     require(nonceAfter == nonceBefore + 1, "SafeERC20Extra: Permit Failed");
   }
 
-  function lockToken(IERC20Lock token, IERC20Lock.LockTokenRequest calldata lockRequest) internal returns (bytes32) {
-    bytes memory returndata = _callMandatoryReturn(
-      address(token),
-      abi.encodeWithSelector(token.lockToken.selector, lockRequest)
-    );
-    return abi.decode(returndata, (bytes32));
-  }
-
-  function batchLockToken(IERC20Lock token, IERC20Lock.LockTokenRequest[] calldata lockRequest)
+  function lockToken(IERC20Lock token, IERC20Lock.LockTokenRequest[] calldata lockRequest)
     internal
     returns (bytes32[] memory)
   {
     bytes memory returndata = _callMandatoryReturn(
       address(token),
-      abi.encodeWithSelector(token.batchLockToken.selector, lockRequest)
+      abi.encodeWithSelector(token.lockToken.selector, lockRequest)
     );
     return abi.decode(returndata, (bytes32[]));
   }

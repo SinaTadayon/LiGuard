@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v2.0.1)
+// LivelyVerse Contracts (last updated v3.0.0)
 
 pragma solidity 0.8.17;
+
+import "./IBaseProxy.sol";
 
 /**
  * @title Abstract Base UUPS Storage Contract
@@ -9,7 +11,7 @@ pragma solidity 0.8.17;
  * @dev
  *
  */
-abstract contract BaseUUPSStorage {
+abstract contract BaseUUPSStorage is IBaseProxy {
   // This is the keccak-256 hash of "eip1967.proxy.rollback" subtracted by 1
   bytes32 internal constant _ROLLBACK_SLOT = 0x4910fdfa16fed3260ed0e7147f7cc6da11a60208b5b9406d12a635614ffd9143;
 
@@ -33,17 +35,16 @@ abstract contract BaseUUPSStorage {
    */
   bytes32 internal constant _ADMIN_SLOT = 0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103;
 
-  bytes32 internal constant _TYPE_HASH =
+  bytes32 public constant TYPE_HASH =
     keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
 
   address internal immutable __self = address(this);
 
-  bytes32 internal _domainName;
-  bytes32 internal _domainVersion;
-  bytes32 internal _domainRealm;
+  string internal _contractName;
+  string internal _contractVersion;
   address internal _accessControlManager;
-  bool internal _isSafeMode;
-  bool internal _isUpgradable;
+  ProxySafeModeStatus internal _sstat;
+  ProxyUpdatabilityStatus internal _ustat;
 
   /**
    * @dev This empty reserved space is put in place to allow future versions to add new

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v2.0.1)
+// LivelyVerse Contracts (last updated v3.0.0)
 
 pragma solidity 0.8.17;
 
@@ -21,7 +21,7 @@ interface IERC20Extra {
     uint256 amount;
   }
 
-  struct BatchUpdateTaxWhitelistRequest {
+  struct TaxWhitelistUpdateRequest {
     address account;
     bool isDeleted;
   }
@@ -58,9 +58,9 @@ interface IERC20Extra {
 
   function updateTaxRate(uint256 taxRate) external returns (bool);
 
-  function updateTaxWhitelist(address account, bool isDeleted) external returns (bool);
+  // function updateTaxWhitelist(address account, bool isDeleted) external returns (bool);
 
-  function batchUpdateTaxWhitelist(BatchUpdateTaxWhitelistRequest[] calldata request) external;
+  function updateTaxWhitelist(TaxWhitelistUpdateRequest[] calldata request) external returns (bool);
 
   function permit(
     address owner,

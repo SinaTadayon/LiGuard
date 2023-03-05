@@ -4,6 +4,8 @@
 
 pragma solidity 0.8.17;
 
+import "hardhat/console.sol";
+
 /**
  * @title Abstract Base Proxy Contract
  * @dev

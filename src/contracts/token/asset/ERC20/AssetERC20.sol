@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v2.0.1)
+// LivelyVerse Contracts (last updated v3.0.0)
 
 pragma solidity 0.8.17;
 
@@ -11,10 +11,13 @@ import "../../../proxy/Initializable.sol";
 import "../../../utils/Message.sol";
 import "../../../utils/ERC165.sol";
 import "../../../lib/cryptography/LECDSA.sol";
-import "../../../lib/LContextUtils.sol";
 import "../../../lib/LAddress.sol";
-import "../../../acl/IAccessControl.sol";
-import "../../../acl/IContextManagement.sol";
+import "../../../lib/acl/LACLUtils.sol";
+import "../../../acl/IACL.sol";
+import "../../../acl/IACLGenerals.sol";
+import "../../../acl/agent/IRoleManagement.sol";
+import "../../../acl/scope/IFunctionManagement.sol";
+import "../../../acl/scope/IContextManagement.sol";
 
 /**
  * @title Asset ERC20 Contract
@@ -25,151 +28,173 @@ import "../../../acl/IContextManagement.sol";
 contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity {
   using LAddress for address;
 
-  struct InitRequest {
-    bytes32 domainRealm;
-    bytes32 assetRole;
-    bytes32 salt;
-    address subject;
-    address erc20Token;
-    address accessControl;
-    address assetManager;
-    string domainName;
-    string domainVersion;
-    bytes signature;
-  }
-
-  bytes32 private constant _LIVELY_ASSET_GROUP = keccak256(abi.encodePacked("LIVELY_ASSET_GROUP"));
-  bytes32 private constant _LIVELY_ASSET_ADMIN_ROLE = keccak256(abi.encodePacked("LIVELY_ASSET_ADMIN_ROLE"));
-  bytes32 private constant _LIVELY_ASSET_MANAGER_ROLE = keccak256(abi.encodePacked("LIVELY_ASSET_MANAGER_ROLE"));
-
-  address private _accessControlManager;
-  address private _erc20Token;
-  bytes32 private _domainName;
-  bytes32 private _domainVersion;
-  bytes32 private _domainRealm;
-  bytes32 private _assetRole;
-  bool private _isSafeMode;
+  address private _accessControlId;
+  address private _erc20TokenId;
+  string private _contractName;
+  string private _contractVersion;
+  AssetSafeModeStatus private _assetSafeModeStatus;
 
   constructor() {
-    _isSafeMode = true;
+    _assetSafeModeStatus = AssetSafeModeStatus.ENABLED;
   }
 
-  function initialize(InitRequest calldata request) public initializer {
-    try IERC165(request.erc20Token).supportsInterface(type(IERC20).interfaceId) returns (bool isSupported) {
-      require(isSupported, "Invalid ERC20Token Address");
-    } catch {
-      revert("Illegal ERC20Token Address");
-    }
+  function assetInitialize(AssetInitRequest calldata request) external initializer returns (bool) {
+    if (!IERC165(request.erc20TokenId).supportsInterface(type(IERC20).interfaceId)) revert("Illegal ERC20Token");
 
-    try IERC165(request.erc20Token).supportsInterface(type(IERC20Extra).interfaceId) returns (bool isSupported) {
-      require(isSupported, "Invalid ERC20TokenExtra Address");
-    } catch {
-      revert("Illegal ERC20TokenExtra Address");
-    }
+    if (!IERC165(request.erc20TokenId).supportsInterface(type(IERC20Extra).interfaceId))
+      revert("Illegal ERC20TokenExtra");
 
-    try IERC165(request.erc20Token).supportsInterface(type(IERC20Lock).interfaceId) returns (bool isSupported) {
-      require(isSupported, "Invalid ERC20TokenLock Address");
-    } catch {
+    if (!IERC165(request.erc20TokenId).supportsInterface(type(IERC20Lock).interfaceId))
       revert("Illegal ERC20TokenLock");
-    }
 
-    try IERC165(request.accessControl).supportsInterface(type(IAccessControl).interfaceId) returns (bool isSupported) {
-      require(isSupported, "Invalid AccessControlManager");
-    } catch {
-      revert("Illegal AccessControlManager");
-    }
+    if (!IERC165(request.accessControlId).supportsInterface(type(IACL).interfaceId)) revert("Illegal ACL");
 
-    try IERC165(request.assetManager).supportsInterface(type(IAssetManagerERC20).interfaceId) returns (
-      bool isSupported
-    ) {
-      require(isSupported, "Invalid IAssetManagerERC20");
-    } catch {
+    if (!IERC165(request.assetManagerId).supportsInterface(type(IAssetManagerERC20).interfaceId))
       revert("Illegal IAssetManagerERC20");
-    }
 
-    _accessControlManager = request.accessControl;
-    require(IAccessControl(_accessControlManager).isRoleEnabled(request.assetRole), "Role Not Found OR Disabled ");
+    _contractName = request.contractName;
+    _contractVersion = request.contractVersion;
+    _erc20TokenId = request.erc20TokenId;
+    _accessControlId = request.accessControlId;
+    _assetSafeModeStatus = AssetSafeModeStatus.DISABLED;
 
-    _domainRealm = request.domainRealm;
-    _domainName = keccak256(abi.encodePacked(request.domainName));
-    _domainVersion = keccak256(abi.encodePacked(request.domainVersion));
-    _erc20Token = request.erc20Token;
-    _assetRole = request.assetRole;
-    _isSafeMode = false;
+    _createContext(request);
 
-    (
-      IContextManagement.RequestPredictContext memory rpc,
-      IContextManagement.RequestRegisterContext[] memory rrc
-    ) = _createRequestContext(
-        _domainName,
-        _domainVersion,
-        _domainRealm,
-        _assetRole,
-        request.salt,
-        request.subject,
-        request.assetManager
-      );
+    _createFunctions(request);
 
-    IContextManagement(_accessControlManager).registerPredictContext(request.signature, rpc, rrc);
+    emit AssetInitialized(_msgSender(), address(this), request.erc20TokenId, request.assetManagerId, request.subjectId);
 
-    emit AssetInitialized(
-      _msgSender(),
-      address(this),
-      _erc20Token,
-      request.assetManager,
-      request.subject,
-      request.domainName,
-      request.domainVersion,
-      _domainRealm,
-      _assetRole
-    );
+    return true;
   }
 
-  function _createRequestContext(
-    bytes32 domainName,
-    bytes32 domainVersion,
-    bytes32 realm,
-    bytes32 role,
-    bytes32 salt,
-    address subject,
-    address deployer
-  )
-    internal
-    pure
-    returns (IContextManagement.RequestPredictContext memory, IContextManagement.RequestRegisterContext[] memory)
-  {
-    IContextManagement.RequestRegisterContext[] memory rrc = new IContextManagement.RequestRegisterContext[](2);
+  function _createContext(AssetInitRequest calldata request) internal {
+    IContextManagement.ContextRegisterRequest[]
+      memory contextRequests = new IContextManagement.ContextRegisterRequest[](1);
+    contextRequests[0].realmId = request.realmId;
+    contextRequests[0].adminId = request.adminId;
+    contextRequests[0].salt = request.salt;
+    contextRequests[0].name = request.contractName;
+    contextRequests[0].version = request.contractVersion;
+    contextRequests[0].contractId = request.assetContractId;
+    contextRequests[0].subject = request.subjectId;
+    contextRequests[0].deployer = request.assetManagerId;
+    contextRequests[0].functionLimit = 32;
+    contextRequests[0].acstat = IACLCommons.ActivityStatus.ENABLED;
+    contextRequests[0].alstat = IACLCommons.AlterabilityStatus.UPGRADABLE;
+    contextRequests[0].signature = request.signature;
 
-    rrc[0].role = _LIVELY_ASSET_ADMIN_ROLE;
-    rrc[0].isEnabled = true;
-    rrc[0].funcSelectors = new bytes4[](1);
-    rrc[0].funcSelectors[0] = this.assetSafeModeSet.selector;
-
-    rrc[1].role = role;
-    rrc[1].isEnabled = true;
-    rrc[1].funcSelectors = new bytes4[](10);
-    rrc[1].funcSelectors[0] = IAssetERC20.tokenLock.selector;
-    rrc[1].funcSelectors[1] = IAssetERC20.tokenBatchLock.selector;
-    rrc[1].funcSelectors[2] = IAssetERC20.tokenTransfer.selector;
-    rrc[1].funcSelectors[3] = IAssetERC20.tokenBatchTransfer.selector;
-    rrc[1].funcSelectors[4] = IAssetERC20.tokenTransferFrom.selector;
-    rrc[1].funcSelectors[5] = IAssetERC20.tokenBatchTransferFrom.selector;
-    rrc[1].funcSelectors[6] = IAssetERC20.tokenApprove.selector;
-    rrc[1].funcSelectors[7] = IAssetERC20.tokenIncreaseAllowance.selector;
-    rrc[1].funcSelectors[8] = IAssetERC20.tokenDecreaseAllowance.selector;
-    rrc[1].funcSelectors[9] = this.withdrawBalance.selector;
-
-    IContextManagement.RequestPredictContext memory rpc = IContextManagement.RequestPredictContext({
-      name: domainName,
-      version: domainVersion,
-      realm: realm,
-      salt: salt,
-      subject: subject,
-      deployer: deployer,
-      status: true
+    IACLCommons.MemberSignature memory memberSignRequest = IACLCommons.MemberSignature({
+      account: address(0),
+      expiredAt: 0,
+      signature: bytes("")
     });
 
-    return (rpc, rrc);
+    IContextManagement(_accessControlId).contextRegister(memberSignRequest, contextRequests);
+  }
+
+  function _createFunctions(AssetInitRequest calldata request) internal {
+    IFunctionManagement.FunctionRequest[] memory functionRequests = new IFunctionManagement.FunctionRequest[](10);
+
+    // assetSafeModeSet
+    functionRequests[0].adminId = request.adminId;
+    functionRequests[0].agentId = request.adminId;
+    functionRequests[0].selector = IAssetEntity.assetSetSafeMode.selector;
+    functionRequests[0].policyCode = 130;
+    functionRequests[0].acstat = IACLCommons.ActivityStatus.ENABLED;
+    functionRequests[0].alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
+
+    // tokenLock
+    functionRequests[1].adminId = request.adminId;
+    functionRequests[1].agentId = request.agentId;
+    functionRequests[1].selector = IAssetERC20.tokenLock.selector;
+    functionRequests[1].policyCode = 48;
+    functionRequests[1].acstat = IACLCommons.ActivityStatus.ENABLED;
+    functionRequests[1].alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
+
+    // tokenTransfer
+    functionRequests[2].adminId = request.adminId;
+    functionRequests[2].agentId = request.agentId;
+    functionRequests[2].selector = IAssetERC20.tokenTransfer.selector;
+    functionRequests[2].policyCode = 96;
+    functionRequests[2].acstat = IACLCommons.ActivityStatus.ENABLED;
+    functionRequests[2].alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
+
+    // tokenBatchTransfer
+    functionRequests[3].adminId = request.adminId;
+    functionRequests[3].agentId = request.agentId;
+    functionRequests[3].selector = IAssetERC20.tokenBatchTransfer.selector;
+    functionRequests[3].policyCode = 99;
+    functionRequests[3].acstat = IACLCommons.ActivityStatus.ENABLED;
+    functionRequests[3].alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
+
+    // tokenTransferFrom
+    functionRequests[4].adminId = request.adminId;
+    functionRequests[4].agentId = request.agentId;
+    functionRequests[4].selector = IAssetERC20.tokenTransferFrom.selector;
+    functionRequests[4].policyCode = 110;
+    functionRequests[4].acstat = IACLCommons.ActivityStatus.ENABLED;
+    functionRequests[4].alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
+
+    // tokenBatchTransferFrom
+    functionRequests[5].adminId = request.adminId;
+    functionRequests[5].agentId = request.agentId;
+    functionRequests[5].selector = IAssetERC20.tokenBatchTransferFrom.selector;
+    functionRequests[5].policyCode = 116;
+    functionRequests[5].acstat = IACLCommons.ActivityStatus.ENABLED;
+    functionRequests[5].alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
+
+    // tokenApprove
+    functionRequests[6].adminId = request.adminId;
+    functionRequests[6].agentId = request.agentId;
+    functionRequests[6].selector = IAssetERC20.tokenApprove.selector;
+    functionRequests[6].policyCode = 150;
+    functionRequests[6].acstat = IACLCommons.ActivityStatus.ENABLED;
+    functionRequests[6].alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
+
+    // tokenIncreaseAllowance
+    functionRequests[7].adminId = request.adminId;
+    functionRequests[7].agentId = request.agentId;
+    functionRequests[7].selector = IAssetERC20.tokenIncreaseAllowance.selector;
+    functionRequests[7].policyCode = 160;
+    functionRequests[7].acstat = IACLCommons.ActivityStatus.ENABLED;
+    functionRequests[7].alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
+
+    // tokenDecreaseAllowance
+    functionRequests[8].adminId = request.adminId;
+    functionRequests[8].agentId = request.agentId;
+    functionRequests[8].selector = IAssetERC20.tokenDecreaseAllowance.selector;
+    functionRequests[8].policyCode = 160;
+    functionRequests[8].acstat = IACLCommons.ActivityStatus.ENABLED;
+    functionRequests[8].alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
+
+    // withdrawBalance
+    functionRequests[9].adminId = request.adminId;
+    functionRequests[9].agentId = request.agentId;
+    functionRequests[9].selector = this.withdrawBalance.selector;
+    functionRequests[9].policyCode = 24;
+    functionRequests[9].acstat = IACLCommons.ActivityStatus.ENABLED;
+    functionRequests[9].alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
+
+    IFunctionManagement.FunctionRegisterRequest[] memory requests = new IFunctionManagement.FunctionRegisterRequest[](
+      1
+    );
+    requests[0].signature = request.signature;
+    requests[0].realmId = request.realmId;
+    requests[0].salt = request.salt;
+    requests[0].name = request.contractName;
+    requests[0].version = request.contractVersion;
+    requests[0].subject = request.subjectId;
+    requests[0].deployer = request.assetManagerId;
+    requests[0].contractId = address(0);
+    requests[0].functions = functionRequests;
+
+    IACLCommons.MemberSignature memory memberSignRequest = IACLCommons.MemberSignature({
+      account: address(0),
+      expiredAt: 0,
+      signature: bytes("")
+    });
+
+    IFunctionManagement(_accessControlId).functionRegister(memberSignRequest, requests);
   }
 
   /**
@@ -182,34 +207,26 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
       super.supportsInterface(interfaceId);
   }
 
-  function tokenLock(IERC20Lock.LockTokenRequest calldata lockRequest) external returns (bytes32) {
+  function tokenLock(IERC20Lock.LockTokenRequest[] calldata lockRequests) external returns (bytes32[] memory) {
     _policyInterceptor(this.tokenLock.selector);
-    require(lockRequest.source == address(this), "Illegal Source Addres");
-
-    emit AssetERC20Called(_msgSender(), address(this), this.tokenLock.selector);
-    return IERC20Lock(_erc20Token).lockToken(lockRequest);
-  }
-
-  function tokenBatchLock(IERC20Lock.LockTokenRequest[] calldata lockRequests) external returns (bytes32[] memory) {
-    _policyInterceptor(this.tokenBatchLock.selector);
     for (uint256 i = 0; i < lockRequests.length; i++) {
-      require(lockRequests[i].source == address(this), "Illegal Source Addres");
+      require(lockRequests[i].source == address(this), "Illegal Address");
     }
 
-    emit AssetERC20Called(_msgSender(), address(this), this.tokenBatchLock.selector);
-    return IERC20Lock(_erc20Token).batchLockToken(lockRequests);
+    emit AssetERC20Called(_msgSender(), address(this), this.tokenLock.selector);
+    return IERC20Lock(_erc20TokenId).lockToken(lockRequests);
   }
 
   function tokenTransfer(address to, uint256 amount) external returns (bool) {
     _policyInterceptor(this.tokenTransfer.selector);
     emit AssetERC20Called(_msgSender(), address(this), this.tokenTransfer.selector);
-    return IERC20(_erc20Token).transfer(to, amount);
+    return IERC20(_erc20TokenId).transfer(to, amount);
   }
 
   function tokenBatchTransfer(IERC20Extra.BatchTransferRequest[] calldata request) external returns (bool) {
     _policyInterceptor(this.tokenBatchTransfer.selector);
     emit AssetERC20Called(_msgSender(), address(this), this.tokenBatchTransfer.selector);
-    return IERC20Extra(_erc20Token).batchTransfer(request);
+    return IERC20Extra(_erc20TokenId).batchTransfer(request);
   }
 
   function tokenTransferFrom(
@@ -219,46 +236,44 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
   ) external returns (bool) {
     _policyInterceptor(this.tokenTransferFrom.selector);
     emit AssetERC20Called(_msgSender(), address(this), this.tokenTransferFrom.selector);
-    return IERC20(_erc20Token).transferFrom(from, to, amount);
+    return IERC20(_erc20TokenId).transferFrom(from, to, amount);
   }
 
   function tokenBatchTransferFrom(IERC20Extra.BatchTransferFromRequest[] calldata request) external returns (bool) {
     _policyInterceptor(this.tokenBatchTransferFrom.selector);
     emit AssetERC20Called(_msgSender(), address(this), this.tokenBatchTransferFrom.selector);
-    return IERC20Extra(_erc20Token).batchTransferFrom(request);
+    return IERC20Extra(_erc20TokenId).batchTransferFrom(request);
   }
 
   function tokenApprove(address spender, uint256 amount) external returns (bool) {
     _policyInterceptor(this.tokenApprove.selector);
     emit AssetERC20Called(_msgSender(), address(this), this.tokenApprove.selector);
-    return IERC20(_erc20Token).approve(spender, amount);
+    return IERC20(_erc20TokenId).approve(spender, amount);
   }
 
   function tokenIncreaseAllowance(address spender, uint256 amount) external returns (uint256) {
     _policyInterceptor(this.tokenIncreaseAllowance.selector);
     emit AssetERC20Called(_msgSender(), address(this), this.tokenIncreaseAllowance.selector);
-    return IERC20Extra(_erc20Token).increaseAllowance(spender, amount);
+    return IERC20Extra(_erc20TokenId).increaseAllowance(spender, amount);
   }
 
   function tokenDecreaseAllowance(address spender, uint256 amount) external returns (uint256) {
     _policyInterceptor(this.tokenDecreaseAllowance.selector);
     emit AssetERC20Called(_msgSender(), address(this), this.tokenDecreaseAllowance.selector);
-    return IERC20Extra(_erc20Token).decreaseAllowance(spender, amount);
+    return IERC20Extra(_erc20TokenId).decreaseAllowance(spender, amount);
   }
 
-  function assetSafeModeSet(bool status) public override returns (bool) {
-    require(
-      IAccessControl(_accessControlManager).hasAccess(
-        LContextUtils.generateCtx(address(this)),
-        _msgSender(),
-        this.assetSafeModeSet.selector
-      ),
-      "AssetERC20 Access Denied"
+  function assetSetSafeMode(AssetSafeModeStatus status) public override returns (bool) {
+    IACL.AuthorizationStatus aclStatus = IACL(_accessControlId).hasAccountAccess(
+      address(this),
+      this.assetSetSafeMode.selector,
+      _msgSender()
     );
-    require(_getInitializedCount() > 0, "AssetERC20 Not Initialized");
-    _isSafeMode = status;
-    emit AssetSafeModeChanged(_msgSender(), address(this), _domainRealm, status);
-    return status;
+    if (aclStatus != IACL.AuthorizationStatus.PERMITTED) revert IACL.ACLActionForbidden(aclStatus);
+    require(_getInitializedCount() > 0, "NOT INIT");
+    _assetSafeModeStatus = status;
+    emit AssetSafeModeUpdated(_msgSender(), address(this), status);
+    return true;
   }
 
   function withdrawBalance(address recepient) public {
@@ -266,8 +281,8 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
     payable(recepient).transfer(address(this).balance);
   }
 
-  function assetSafeMode() external view returns (bool) {
-    return _isSafeMode;
+  function assetSafeMode() external view returns (AssetSafeModeStatus) {
+    return _assetSafeModeStatus;
   }
 
   function assetType() external pure returns (AssetType) {
@@ -275,31 +290,41 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
   }
 
   function assetToken() external view returns (address) {
-    return _erc20Token;
+    return _erc20TokenId;
   }
 
-  function assetName() external view returns (bytes32) {
-    return _domainName;
+  function assetName() external view returns (string memory) {
+    return _contractName;
   }
 
-  function assetVersion() external view returns (bytes32) {
-    return _domainVersion;
+  function assetVersion() external view returns (string memory) {
+    return _contractVersion;
   }
 
-  function assetRealm() external view returns (bytes32) {
-    return _domainRealm;
-  }
-
-  function assetRole() external view returns (bytes32) {
-    return _assetRole;
-  }
-
-  function assetAcl() external view returns (address) {
-    return _accessControlManager;
+  function assetAccessControl() external view returns (address) {
+    return _accessControlId;
   }
 
   function assetInitVersion() external view returns (uint16) {
     return _getInitializedCount();
+  }
+
+  function assetBalance() external view returns (uint256) {
+    return IERC20(_erc20TokenId).balanceOf(address(this));
+  }
+
+  function assetInfo() external view returns (AssetInfo memory) {
+    return
+      AssetInfo({
+        balance: IERC20(_erc20TokenId).balanceOf(address(this)),
+        name: _contractName,
+        version: _contractVersion,
+        token: _erc20TokenId,
+        accessControl: _accessControlId,
+        initVersion: _getInitializedCount(),
+        atype: AssetType.ERC20,
+        status: _assetSafeModeStatus
+      });
   }
 
   // solhint-disable-next-line
@@ -308,23 +333,17 @@ contract AssetERC20 is Initializable, Message, ERC165, IAssetERC20, IAssetEntity
   // solhint-disable-next-line
   fallback() external payable {}
 
-  function tokenBalance() external view returns (uint256) {
-    return IERC20(_erc20Token).balanceOf(address(this));
-  }
-
-  function assetBalance() external view returns (uint256) {
+  function balance() public view returns (uint256) {
     return address(this).balance;
   }
 
-  function _policyInterceptor(bytes4 funcSelector) private view {
-    require(!_isSafeMode, "SafeMode: AssetERC20 Call Rejected");
-    require(
-      IAccessControl(_accessControlManager).hasAccess(
-        LContextUtils.generateCtx(address(this)),
-        _msgSender(),
-        funcSelector
-      ),
-      "AssetERC20 Access Denied"
+  function _policyInterceptor(bytes4 funcSelector) private {
+    require(_assetSafeModeStatus == AssetSafeModeStatus.DISABLED, "Rejected");
+    IACL.AuthorizationStatus aclStatus = IACL(_accessControlId).hasAccountAccess(
+      address(this),
+      funcSelector,
+      _msgSender()
     );
+    if (aclStatus != IACL.AuthorizationStatus.PERMITTED) revert IACL.ACLActionForbidden(aclStatus);
   }
 }

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v2.0.1)
+// LivelyVerse Contracts (last updated v3.0.0)
 
 pragma solidity 0.8.17;
 
@@ -15,11 +15,13 @@ interface IProxy is IBaseProxy {
   /**
    * @dev Emitted when the admin account has changed.
    */
-  event LocalAdminChanged(address indexed sender, address indexed proxy, address newAdmin);
+  event ProxyLocalAdminUpdated(address indexed sender, address indexed proxy, address newAdmin);
 
-  event SafeModeChanged(address indexed sender, address indexed proxy, bytes32 indexed realm, bool status);
+  event ProxyAccessControlUpdated(address indexed sender, address indexed proxy, address acl);
 
-  event UpgradeStatusChanged(address indexed sender, address indexed proxy, bytes32 indexed realm, bool status);
+  event ProxySafeModeUpdated(address indexed sender, address indexed proxy, ProxySafeModeStatus sstat);
+
+  event ProxyUpdatabilityUpdated(address indexed sender, address indexed proxy, ProxyUpdatabilityStatus ustat);
 
   /**
    * @dev Triggered when the contract has been initialized or reinitialized.
@@ -30,7 +32,6 @@ interface IProxy is IBaseProxy {
     address indexed subject,
     string name,
     string version,
-    bytes32 realm,
     uint16 initCount
   );
 
@@ -40,27 +41,27 @@ interface IProxy is IBaseProxy {
     bool forceCall
   ) external returns (bytes memory);
 
-  function setSafeMode(bool status) external returns (bool);
+  function setSafeModeStatus(ProxySafeModeStatus sstat) external returns (bool);
 
-  function setUpgradeStatus(bool status) external returns (bool);
+  function setUpdatabilityStatus(ProxyUpdatabilityStatus ustat) external returns (bool);
 
   function setLocalAdmin(address newAdmin) external returns (bool);
 
-  function contractName() external view returns (bytes32);
+  function setAccessControlManager(address acl) external returns (bool);
 
-  function contractVersion() external view returns (bytes32);
+  function withdrawBalance(address recepient) external returns (uint256);
 
-  function contractRealm() external view returns (bytes32);
+  function contractName() external view returns (string memory);
 
-  function contractContext() external view returns (bytes32);
+  function contractVersion() external view returns (string memory);
 
   function accessControlManager() external view returns (address);
 
   function subjectAddress() external view returns (address);
 
-  function isSafeMode() external view returns (bool);
+  function safeModeStatus() external view returns (ProxySafeModeStatus);
 
-  function isUpgradable() external view returns (bool);
+  function updatabilityStatus() external view returns (ProxyUpdatabilityStatus);
 
   function localAdmin() external view returns (address);
 

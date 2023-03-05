@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v2.0.1)
+// LivelyVerse Contracts (last updated v3.0.0)
 // Author: OpenZeppelin
 
 pragma solidity 0.8.17;
@@ -42,6 +42,18 @@ library LAddress {
     return account.code.length > 0;
   }
 
+  function isContract2(address account) internal view returns (bool) {
+    // This method relies on extcodesize/address.code.length, which returns 0
+    // for contracts in construction, since the code is only stored at the end
+    // of the constructor execution.
+
+    uint256 size;
+    assembly {
+      size := extcodesize(account)
+    }
+    return size > 0;
+  }
+
   /**
    * @dev Replacement for Solidity's `transfer`: sends `amount` wei to
    * `recipient`, forwarding all available gas and reverting on errors.
@@ -74,7 +86,7 @@ library LAddress {
    * function (like regular Solidity function calls).
    *
    * Returns the raw returned data. To convert to the expected return value,
-   * use https://solidity.readthedocs.io/en/latest/units-and-global-variables.html?highlight=abi.decode#abi-encoding-and-decoding-functions[`abi.decode`].
+   * use https://solidity.readthedocs.io/en/latest/units-and-universe-variables.html?highlight=abi.decode#abi-encoding-and-decoding-functions[`abi.decode`].
    *
    * Requirements:
    *

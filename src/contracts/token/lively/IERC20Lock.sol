@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v2.0.1)
+// LivelyVerse Contracts (last updated v3.0.0)
 
 pragma solidity 0.8.17;
 
@@ -10,10 +10,17 @@ pragma solidity 0.8.17;
  *
  */
 interface IERC20Lock {
+  enum LockState {
+    NONE,
+    LOCKED,
+    CLAIMED,
+    UNLOCKED
+  }
+
   struct LockTokenRequest {
     address source;
     address dest;
-    uint256 timestamp;
+    uint256 claimAt;
     uint256 amount;
   }
 
@@ -23,12 +30,20 @@ interface IERC20Lock {
     string reason;
   }
 
+  struct LockInfo {
+    uint256 amount;
+    uint128 lockedAt;
+    uint128 claimedAt;
+    address source;
+    LockState stat;
+  }
+
   event TokenLocked(
     bytes32 indexed id,
     address indexed sender,
     address indexed src,
     address account,
-    uint256 timestamp,
+    uint256 claimAt,
     uint256 amount
   );
 
@@ -43,34 +58,13 @@ interface IERC20Lock {
     string reason
   );
 
-  event BatchTokenClaimed(address indexed sender, uint256 totalAmount);
+  function lockToken(LockTokenRequest[] calldata lockRequest) external returns (bytes32[] memory);
 
-  event BatchTokenUnlocked(address indexed sender, uint256 totalAmount);
+  function unlockToken(UnLockTokenRequest[] calldata unlockRequest) external returns (uint256);
 
-  event BatchTokenLocked(address indexed sender, uint256 totalAmount);
+  function claimToken(bytes32[] calldata lockIds) external returns (uint256);
 
-  function lockToken(LockTokenRequest calldata lockRequest) external returns (bytes32);
-
-  function batchLockToken(LockTokenRequest[] calldata lockRequest) external returns (bytes32[] memory);
-
-  function unlockToken(UnLockTokenRequest calldata unlockRequest) external returns (uint256);
-
-  function batchUnlockToken(UnLockTokenRequest[] calldata unlockRequest) external returns (uint256);
-
-  function claimToken(bytes32 lockId) external returns (uint256);
-
-  function batchClaimToken(bytes32[] calldata lockIds) external returns (uint256);
-
-  function lockInfo(bytes32 lockId, address account)
-    external
-    view
-    returns (
-      uint256,
-      uint128,
-      uint128,
-      address,
-      uint8
-    );
+  function lockInfo(bytes32 lockId, address account) external view returns (LockInfo memory);
 
   function totalBalanceOf(address account) external view returns (uint256);
 

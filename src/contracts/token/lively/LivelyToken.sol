@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v2.0.1)
+// LivelyVerse Contracts (last updated v3.0.0)
 
 pragma solidity 0.8.17;
 
@@ -18,7 +18,6 @@ import "../../lib/LCounters.sol";
 import "../../lib/math/LBasisPointsMath.sol";
 import "../../lib/math/LSafeMath.sol";
 import "../../lib/struct/LEnumerableSet.sol";
-import "../../acl/IContextManagement.sol";
 
 /**
  * @title Lively ERC20 Token Contract
@@ -33,80 +32,60 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
   using LSafeMath for uint256;
 
   struct InitRequest {
-    string domainName;
-    string domainVersion;
-    string domainRealm;
-    bytes signature;
+    string contractName;
+    string contractVersion;
     uint256 taxRateValue;
-    address accessControlManager;
+    address aclManager;
   }
 
   constructor() {}
 
-  function lockToken(LockTokenRequest calldata lockRequest) external returns (bytes32) {
-    _policyInterceptor(this.lockToken.selector, lockRequest.source, true, true);
-    return _lockToken(lockRequest);
-  }
-
-  function batchLockToken(LockTokenRequest[] calldata lockRequest) external returns (bytes32[] memory) {
-    _policyInterceptor(this.batchLockToken.selector, address(0), true, false);
+  function lockToken(LockTokenRequest[] calldata lockRequest) external returns (bytes32[] memory) {
+    _policyInterceptor(this.lockToken.selector, address(0), true, false);
     uint256 totalAmount = 0;
     bytes32[] memory lockIds = new bytes32[](lockRequest.length);
     for (uint256 i = 0; i < lockRequest.length; i++) {
-      require(!_data.pausedList.contains(lockRequest[i].source), "ERC20Pause: Account Suspended");
+      require(!_data.pausedList.contains(lockRequest[i].source), "Suspended");
       lockIds[i] = _lockToken(lockRequest[i]);
       totalAmount += lockRequest[i].amount;
     }
 
-    emit BatchTokenLocked(_msgSender(), totalAmount);
     return lockIds;
   }
 
-  function claimToken(bytes32 lockId) external returns (uint256) {
+  function claimToken(bytes32[] calldata lockIds) external returns (uint256) {
     _policyInterceptor(this.claimToken.selector, _msgSender(), true, true);
-    return _claimToken(lockId);
-  }
-
-  function batchClaimToken(bytes32[] calldata lockIds) external returns (uint256) {
-    _policyInterceptor(this.batchClaimToken.selector, _msgSender(), true, true);
     uint256 totalAmount = 0;
     for (uint256 i = 0; i < lockIds.length; i++) {
       totalAmount += _claimToken(lockIds[i]);
     }
 
-    emit BatchTokenClaimed(_msgSender(), totalAmount);
     return totalAmount;
   }
 
-  function unlockToken(UnLockTokenRequest calldata unlockRequest) external returns (uint256) {
-    _policyInterceptor(this.unlockToken.selector, unlockRequest.account, true, true);
-    return _unlockToken(unlockRequest);
-  }
-
-  function batchUnlockToken(UnLockTokenRequest[] calldata unlockRequest) external returns (uint256) {
-    _policyInterceptor(this.batchUnlockToken.selector, address(0), true, false);
+  function unlockToken(UnLockTokenRequest[] calldata unlockRequest) external returns (uint256) {
+    _policyInterceptor(this.unlockToken.selector, address(0), true, false);
     uint256 totalAmount = 0;
     for (uint256 i = 0; i < unlockRequest.length; i++) {
-      require(!_data.pausedList.contains(unlockRequest[i].account), "ERC20Pause: Account Suspended");
+      require(!_data.pausedList.contains(unlockRequest[i].account), "Suspended");
       totalAmount += _unlockToken(unlockRequest[i]);
     }
 
-    emit BatchTokenUnlocked(_msgSender(), totalAmount);
     return totalAmount;
   }
 
   function pause(address account) external {
     _policyInterceptor(this.pause.selector, address(0), false, false);
-    require(account != address(0), "Invalid Account Address");
-    require(!_data.pausedList.contains(account), "Account Already Paused");
+    require(account != address(0), "Illegal Address");
+    require(!_data.pausedList.contains(account), "Already Paused");
     _data.pausedList.add(account);
     emit Paused(_msgSender(), account);
   }
 
   function unpause(address account) external {
     _policyInterceptor(this.unpause.selector, address(0), false, false);
-    require(account != address(0), "Invalid Account Address");
-    require(_data.pausedList.contains(account), "Account Not Found");
+    require(account != address(0), "Illegal Address");
+    require(_data.pausedList.contains(account), "Not Found");
     _data.pausedList.remove(account);
     emit Unpaused(_msgSender(), account);
   }
@@ -130,16 +109,12 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
     return true;
   }
 
-  function batchUpdateTaxWhitelist(BatchUpdateTaxWhitelistRequest[] calldata request) external {
-    _policyInterceptor(this.batchUpdateTaxWhitelist.selector, address(0), false, false);
+  function updateTaxWhitelist(TaxWhitelistUpdateRequest[] calldata request) external returns (bool) {
+    _policyInterceptor(this.updateTaxWhitelist.selector, address(0), false, false);
     for (uint256 i = 0; i < request.length; i++) {
       _updateTaxWhitelist(request[i].account, request[i].isDeleted);
     }
-  }
-
-  function updateTaxWhitelist(address account, bool isDeleted) external returns (bool) {
-    _policyInterceptor(this.updateTaxWhitelist.selector, address(0), false, false);
-    return _updateTaxWhitelist(account, isDeleted);
+    return true;
   }
 
   function transfer(address recipient, uint256 amount) external returns (bool) {
@@ -177,7 +152,7 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
     _policyInterceptor(this.batchTransferFrom.selector, address(0), true, false);
     uint256 totalAmount = 0;
     for (uint256 i = 0; i < request.length; i++) {
-      require(!_data.pausedList.contains(request[i].from), "ERC20Pause: Account Suspended");
+      require(!_data.pausedList.contains(request[i].from), "Suspended");
       totalAmount += request[i].amount;
       _transferFrom(request[i].from, request[i].to, request[i].amount);
     }
@@ -217,12 +192,12 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
     bytes calldata signature
   ) external returns (bool) {
     _policyInterceptor(this.permit.selector, owner, true, true);
-    require(block.timestamp <= deadline, "Permit Deadline Expired");
+    require(block.timestamp <= deadline, "Expired");
     bytes32 structHash = keccak256(abi.encode(_PERMIT_TYPEHASH, owner, spender, value, _useNonce(owner), deadline));
     bytes32 hash = LECDSA.toTypedDataHash(_domainSeparatorV4(), structHash);
     address signer = LECDSA.recover(hash, signature);
 
-    require(signer == owner, "Illegal ECDASA Signature");
+    require(signer == owner, "Illegal Signature");
     _approve(owner, spender, value);
     return true;
   }
@@ -234,13 +209,14 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
 
   function burn(address account, uint256 amount) external returns (uint256) {
     _policyInterceptor(this.burn.selector, account, true, true);
-    require(account != address(0), "Invalid Account Address");
+    require(account != address(0), "Illegal Address");
     uint256 accountBalance = _data.accounts[account].balance;
-    require(accountBalance >= amount, "Insufficient Account Balance");
+    require(accountBalance >= amount, "Illegal Balance");
     unchecked {
       _data.accounts[account].balance = accountBalance - amount;
+      _totalSupply -= amount;
     }
-    _totalSupply -= amount;
+
     emit Burn(_msgSender(), account, amount, _totalSupply);
     return _totalSupply;
   }
@@ -301,19 +277,16 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
     return _data.pausedList.values();
   }
 
-  function lockInfo(bytes32 lockId, address account)
-    external
-    view
-    returns (
-      uint256,
-      uint128,
-      uint128,
-      address,
-      uint8
-    )
-  {
+  function lockInfo(bytes32 lockId, address account) external view returns (LockInfo memory) {
     AssetLock storage lock = _data.locks[account][lockId];
-    return (lock.amount, lock.lockedAt, lock.claimedAt, lock.source, uint8(lock.status));
+    return
+      LockInfo({
+        amount: lock.amount,
+        lockedAt: lock.lockedAt,
+        claimedAt: lock.claimedAt,
+        source: lock.source,
+        stat: lock.status
+      });
   }
 
   function decimals() external pure returns (uint8) {
@@ -321,14 +294,21 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
   }
 
   function initialize(InitRequest calldata request) public onlyProxy onlyLocalAdmin initializer {
-    bytes32 realm = keccak256(abi.encodePacked(request.domainRealm));
-    __BASE_UUPS_init(request.domainName, request.domainVersion, realm, request.accessControlManager);
+    __BASE_UUPS_init(request.contractName, request.contractVersion, request.aclManager);
 
     _name = "LIVELY";
-    _symbol = "LVL";
+    _symbol = "LIV";
     _taxRate = request.taxRateValue;
     _isTokenDistributed = false;
-    _initContext(request.domainName, request.domainVersion, realm, request.signature);
+
+    emit Initialized(
+      _msgSender(),
+      address(this),
+      _implementation(),
+      request.contractName,
+      request.contractVersion,
+      _getInitializedCount()
+    );
   }
 
   function _tokensDistributionValidation(address account) private view {
@@ -343,46 +323,59 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
   {
     require(!_isTokenDistributed, "Token Already Distributed");
 
-    try IERC165(assetManager).supportsInterface(type(IAssetManagerERC20).interfaceId) returns (bool isSupported) {
-      require(isSupported, "Invalid IAssetManagerERC20");
-    } catch {
+    if (!IERC165(assetManager).supportsInterface(type(IAssetManagerERC20).interfaceId))
       revert("Illegal IAssetManagerERC20");
-    }
 
-    _mint(assetManager, 5_000_000_000 * 10**18); // 5 billion tokens according to tokenomics
+    _mint(_msgSender(), 5_000_000_000 * 10**18); // 5 billion tokens according to tokenomics
 
     for (uint256 i = 0; i < 7; i++) {
-      try IERC165(assets[i]).supportsInterface(type(IAssetEntity).interfaceId) returns (bool isSupported) {
-        require(isSupported, "Invalid IAssetEntity");
-      } catch {
-        revert("Illegal IAssetEntity");
-      }
-      require(IAssetEntity(assets[i]).assetToken() == address(this), "Invalid Asset Token");
-      if (IAssetEntity(assets[i]).assetName() == keccak256(abi.encodePacked("LIVELY_AUDIO_VIDEO_PROGRAM_ASSET"))) {
+      if (!IERC165(assets[i]).supportsInterface(type(IAssetEntity).interfaceId)) revert("Illegal IAssetEntity");
+
+      require(IAssetEntity(assets[i]).assetToken() == address(this), "Illegal Asset Token");
+      if (
+        keccak256(abi.encodePacked(IAssetEntity(assets[i]).assetName())) ==
+        keccak256(abi.encodePacked("LIVELY_AUDIO_VIDEO_PROGRAM_ASSET"))
+      ) {
         _tokensDistributionValidation(assets[i]);
         _transfer(_msgSender(), assets[i], 500_000_000 * 10**18); // 10%
-      } else if (IAssetEntity(assets[i]).assetName() == keccak256(abi.encodePacked("LIVELY_FOUNDING_TEAM_ASSET"))) {
+      } else if (
+        keccak256(abi.encodePacked(IAssetEntity(assets[i]).assetName())) ==
+        keccak256(abi.encodePacked("LIVELY_FOUNDING_TEAM_ASSET"))
+      ) {
         _tokensDistributionValidation(assets[i]);
         _transfer(_msgSender(), assets[i], 900_000_000 * 10**18); // 18%
-      } else if (IAssetEntity(assets[i]).assetName() == keccak256(abi.encodePacked("LIVELY_TREASURY_ASSET"))) {
+      } else if (
+        keccak256(abi.encodePacked(IAssetEntity(assets[i]).assetName())) ==
+        keccak256(abi.encodePacked("LIVELY_TREASURY_ASSET"))
+      ) {
         _tokensDistributionValidation(assets[i]);
         _transfer(_msgSender(), assets[i], 750_000_000 * 10**18); // 15%
-      } else if (IAssetEntity(assets[i]).assetName() == keccak256(abi.encodePacked("LIVELY_PUBLIC_SALE_ASSET"))) {
+      } else if (
+        keccak256(abi.encodePacked(IAssetEntity(assets[i]).assetName())) ==
+        keccak256(abi.encodePacked("LIVELY_PUBLIC_SALE_ASSET"))
+      ) {
         _tokensDistributionValidation(assets[i]);
         _transfer(_msgSender(), assets[i], 2_000_000_000 * 10**18); // 40%
       } else if (
-        IAssetEntity(assets[i]).assetName() == keccak256(abi.encodePacked("LIVELY_VALIDATORS_REWARDS_ASSET"))
+        keccak256(abi.encodePacked(IAssetEntity(assets[i]).assetName())) ==
+        keccak256(abi.encodePacked("LIVELY_VALIDATORS_REWARDS_ASSET"))
       ) {
         _tokensDistributionValidation(assets[i]);
         _transfer(_msgSender(), assets[i], 300_000_000 * 10**18); // 6%
-      } else if (IAssetEntity(assets[i]).assetName() == keccak256(abi.encodePacked("LIVELY_CROWD_FOUNDING_ASSET"))) {
+      } else if (
+        keccak256(abi.encodePacked(IAssetEntity(assets[i]).assetName())) ==
+        keccak256(abi.encodePacked("LIVELY_CROWD_FOUNDING_ASSET"))
+      ) {
         _tokensDistributionValidation(assets[i]);
         _transfer(_msgSender(), assets[i], 550_000_000 * 10**18); // 11%
-      } else if (IAssetEntity(assets[i]).assetName() == keccak256(abi.encodePacked("LIVELY_TAX_TREASURY_ASSET"))) {
+      } else if (
+        keccak256(abi.encodePacked(IAssetEntity(assets[i]).assetName())) ==
+        keccak256(abi.encodePacked("LIVELY_TAX_TREASURY_ASSET"))
+      ) {
         require(_taxTreasury == address(0), "TaxTreasury Already Registered");
         _taxTreasury = assets[i];
       } else {
-        revert("Asset Not Supported");
+        revert("Not Supported");
       }
     }
 
@@ -403,35 +396,13 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
     return address(LTokenERC20);
   }
 
-  function _initContext(
-    string calldata domainName,
-    string calldata domainVersion,
-    bytes32 realm,
-    bytes calldata signature
-  ) internal {
-    (IContextManagement.RequestContext memory rc, IContextManagement.RequestRegisterContext[] memory rrc) = LTokenERC20
-      .createRequestContext(_domainName, _domainVersion, _domainRealm);
-
-    IContextManagement(_accessControlManager).registerContext(signature, rc, rrc);
-
-    emit Initialized(
-      _msgSender(),
-      address(this),
-      _implementation(),
-      domainName,
-      domainVersion,
-      realm,
-      _getInitializedCount()
-    );
-  }
-
   function _updateTaxWhitelist(address account, bool isDeleted) internal returns (bool) {
     emit TaxWhitelistUpdated(_msgSender(), account, isDeleted);
     return LTokenERC20.updateTaxWhitelist(_data, account, isDeleted);
   }
 
   function _mint(address account, uint256 amount) internal returns (uint256) {
-    require(account != address(0), "Invalid Account Address");
+    require(account != address(0), "Illegal Address");
     _totalSupply += amount;
     _data.accounts[account].balance += amount;
     emit Mint(_msgSender(), account, amount, _totalSupply);
@@ -453,7 +424,7 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
     uint256 amount
   ) internal {
     uint256 tax = amount.mulBP(_taxRate);
-    uint256 tokensToTransfer = amount.sub(tax, "Insufficient Transfer Amount");
+    uint256 tokensToTransfer = amount.sub(tax, "Illegal Amount");
 
     _transfer(source, _taxTreasury, tax);
     _transfer(source, recipient, tokensToTransfer);
@@ -481,9 +452,7 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
     address spender,
     uint256 amount
   ) internal {
-    require(owner != address(0), "Invalid Owner Address");
-    require(spender != address(0), "Invalid Spender Address");
-
+    require(owner != address(0) && spender != address(0), "Illegal Address");
     _data.allowances[owner][spender] = amount;
     emit Approval(owner, spender, amount);
   }
@@ -494,7 +463,7 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
     uint256 amount
   ) internal {
     uint256 currentAllowance = _allowance(owner, spender);
-    require(currentAllowance >= amount, "Insufficient Account Allowance");
+    require(currentAllowance >= amount, "Illegal Allowance");
     unchecked {
       _approve(owner, spender, currentAllowance - amount);
     }
@@ -513,7 +482,7 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
       _msgSender(),
       lockRequest.source,
       lockRequest.dest,
-      lockRequest.timestamp,
+      lockRequest.claimAt,
       lockRequest.amount
     );
     return lockId;
@@ -549,11 +518,11 @@ contract LivelyToken is LivelyStorage, BaseUUPSProxy, IERC20, IERC20Extra, IERC2
     bool isCheckingAccountPaused
   ) private safeModeCheck aclCheck(funcSelector) {
     if (isCheckingTokenPaused) {
-      require(!_isPaused, "ERC20Pause: Call Rejected");
+      require(!_isPaused, "Token Paused");
     }
 
     if (isCheckingAccountPaused) {
-      require(!_data.pausedList.contains(account), "ERC20Pause: Account Suspended");
+      require(!_data.pausedList.contains(account), "Suspended");
     }
   }
 }

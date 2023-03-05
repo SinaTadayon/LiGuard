@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v2.0.1)
+// LivelyVerse Contracts (last updated v3.0.0)
 
 pragma solidity 0.8.17;
 
@@ -10,5 +10,15 @@ pragma solidity 0.8.17;
  *
  */
 interface IBaseProxy {
-  event Upgraded(address indexed sender, address indexed proxy, address indexed newImplementation);
+  enum ProxySafeModeStatus {
+    DISABLED,
+    ENABLED
+  }
+
+  enum ProxyUpdatabilityStatus {
+    DISABLED,
+    ENABLED
+  }
+
+  event ProxyUpgraded(address indexed sender, address indexed proxy, address indexed newImplementation);
 }

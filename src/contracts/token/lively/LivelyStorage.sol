@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v2.0.1)
+// LivelyVerse Contracts (last updated v3.0.0)
 
 pragma solidity 0.8.17;
 
+import "./IERC20Lock.sol";
 import "../../proxy/BaseUUPSStorage.sol";
 import "../../lib/LCounters.sol";
 import "../../lib/struct/LEnumerableSet.sol";
@@ -17,13 +18,6 @@ abstract contract LivelyStorage is BaseUUPSStorage {
   using LEnumerableSet for LEnumerableSet.AddressSet;
   using LCounters for LCounters.Counter;
 
-  enum LockState {
-    NONE,
-    LOCKED,
-    CLAIMED,
-    UNLOCKED
-  }
-
   struct AccountInfo {
     uint256 balance;
     uint256 lockBalance;
@@ -35,7 +29,7 @@ abstract contract LivelyStorage is BaseUUPSStorage {
     uint128 lockedAt;
     uint128 claimedAt;
     address source;
-    LockState status;
+    IERC20Lock.LockState status;
   }
 
   struct DataCollection {

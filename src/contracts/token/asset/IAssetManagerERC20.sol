@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v2.0.1)
+// LivelyVerse Contracts (last updated v3.0.0)
 
 pragma solidity 0.8.17;
 
-import "../lively/IERC20Extra.sol";
-import "../lively/IERC20Lock.sol";
 import "./IAssetEntity.sol";
 
 /**
@@ -14,92 +12,76 @@ import "./IAssetEntity.sol";
  *
  */
 interface IAssetManagerERC20 {
-  struct CreateAssetRequest {
-    bytes32 role;
+  struct AssetCreateRequest {
+    bytes32 adminId;
+    bytes32 agentId;
+    bytes32 realmId;
     bytes32 salt;
     address tokenId;
+    address assetId;
     string assetName;
     string assetVersion;
   }
 
-  event AssetSubjectUpdated(address indexed sender, address indexed assetSubject);
+  struct AssetActionRequest {
+    address tokenId;
+    address assetId;
+  }
 
-  event TokenRegistered(address indexed sender, address indexed tokenId, string tokenName, string tokenSymbol);
+  struct AssetTokenActionRequest {
+    address tokenId;
+    address assetSubjectId;
+    bytes assetSignature;
+  }
 
-  event AssetCreated(address indexed sender, address indexed assetId, address indexed tokenId, address assetSubject);
+  struct AssetTokenSafeModeRequest {
+    address tokenId;
+    IAssetEntity.AssetSafeModeStatus status;
+  }
+
+  struct TokenInfo {
+    address assetSubjectId;
+    address[] assets;
+    bytes assetSignature;
+  }
+
+  event TokenUpdated(address indexed sender, address indexed tokenId, address indexed assetSubjectId);
+
+  event TokenRegistered(
+    address indexed sender,
+    address indexed tokenId,
+    address indexed assetSubjectId,
+    string tokenName,
+    string tokenSymbol
+  );
+
+  event AssetCreated(address indexed sender, address indexed assetId, address indexed tokenId);
 
   event AssetRegistered(address indexed sender, address indexed assetId, address indexed tokenId);
 
   event AssetRemoved(address indexed sender, address indexed assetId, address indexed tokenId);
 
-  event TokenSafeModeChanged(address indexed sender, address indexed tokenId, bool isEnabled);
+  function createAsset(AssetCreateRequest[] calldata requests) external returns (bool);
 
-  function createAsset(CreateAssetRequest calldata request) external returns (address);
+  function registerAsset(AssetActionRequest[] calldata requests) external returns (bool);
 
-  function updateAssetSubject(address assetSubject, bytes calldata assetCreationSignature) external returns (bool);
+  function removeAsset(AssetActionRequest[] calldata requests) external returns (bool);
 
-  function registerToken(address tokenId) external returns (bool);
+  function registerToken(AssetTokenActionRequest[] calldata requests) external returns (bool);
 
-  function registerAsset(address assetId) external returns (bool);
+  function updateToken(AssetTokenActionRequest[] calldata requests) external returns (bool);
 
-  function removeAsset(address assetId) external returns (bool);
+  function setSafeModeAssets(AssetTokenSafeModeRequest[] calldata requests) external returns (bool);
 
-  function setSafeModeToken(address tokenId, bool isEnabled) external returns (bool);
-
-  function tokenLock(address assetId, IERC20Lock.LockTokenRequest calldata lockRequest) external returns (bytes32);
-
-  function tokenBatchLock(address assetId, IERC20Lock.LockTokenRequest[] calldata lockRequests)
-    external
-    returns (bytes32[] memory);
-
-  function tokenTransfer(
-    address assetId,
-    address to,
-    uint256 amount
-  ) external returns (bool);
-
-  function tokenBatchTransfer(address assetId, IERC20Extra.BatchTransferRequest[] calldata request)
-    external
-    returns (bool);
-
-  function tokenTransferFrom(
-    address assetId,
-    address from,
-    address to,
-    uint256 amount
-  ) external returns (bool);
-
-  function tokenBatchTransferFrom(address assetId, IERC20Extra.BatchTransferFromRequest[] calldata request)
-    external
-    returns (bool);
-
-  function tokenApprove(
-    address assetId,
-    address spender,
-    uint256 amount
-  ) external returns (bool);
-
-  function tokenIncreaseAllowance(
-    address assetId,
-    address spender,
-    uint256 amount
-  ) external returns (uint256);
-
-  function tokenDecreaseAllowance(
-    address assetId,
-    address spender,
-    uint256 amount
-  ) external returns (uint256);
+  function getSafeModeAsset(address assetId) external view returns (IAssetEntity.AssetSafeModeStatus);
 
   function getAllTokens() external view returns (address[] memory);
 
-  function getTokenInfo(address tokenId) external view returns (IAssetEntity.Status, address[] memory);
+  function getTokenInfo(address tokenId) external view returns (TokenInfo memory);
 
   function isAssetExists(address assetId) external view returns (bool);
 
   function isTokenExists(address tokenId) external view returns (bool);
-
-  function getAssetSubject() external view returns (address);
 
   function predictAddress(
     address implementation,
