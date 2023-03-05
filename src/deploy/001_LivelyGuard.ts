@@ -4688,7 +4688,7 @@ async function upgradableContextsToUpdatable(
     },
   ];
   let txReceipt;
-  console.log(`[ LivelyGuard Upgradable Contexts To Updatable ]`);
+  console.log(`[ Update LivelyGuard Upgradable Contexts To Updatable ]`);
   const tx = await contextManagerDelegateProxy
     .connect(livelyAdmin)
     .contextUpdateAlterabilityStatus(EMPTY_MEMBER_SIGNATURE, requests);

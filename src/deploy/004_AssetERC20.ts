@@ -913,7 +913,7 @@ async function allUpgradableContextsToUpdatable(
     },
   ];
   let txReceipt;
-  console.log(`[ Token And Assets Upgradable Contexts To Updatable ]`);
+  console.log(`[ Update Token And Assets Upgradable Contexts To Updatable ]`);
   const tx = await contextManagerDelegateProxy
     .connect(assetAdmin)
     .contextUpdateAlterabilityStatus(EMPTY_MEMBER_SIGNATURE, requests);
