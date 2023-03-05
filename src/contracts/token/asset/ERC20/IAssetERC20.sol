@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // LivelyVerse Contracts (last updated v3.0.0)
 
-pragma solidity 0.8.17;
+pragma solidity 0.8.19;
 
 import "../../lively/IERC20Extra.sol";
 import "../../lively/IERC20Lock.sol";

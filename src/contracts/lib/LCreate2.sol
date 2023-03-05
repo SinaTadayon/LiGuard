@@ -2,7 +2,7 @@
 // LivelyVerse Contracts (last updated v2.0.1)
 // Author: OpenZeppelin
 
-pragma solidity 0.8.17;
+pragma solidity 0.8.19;
 
 /**
  * @dev Helper to make usage of the `CREATE2` EVM opcode easier and safer.

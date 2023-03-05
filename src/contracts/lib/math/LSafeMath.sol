@@ -2,7 +2,7 @@
 // LivelyVerse Contracts (last updated v2.0.1)
 // Author: OpenZeppelin
 
-pragma solidity 0.8.17;
+pragma solidity 0.8.19;
 
 // CAUTION
 // This version of SafeMath should only be used with Solidity 0.8 or later,

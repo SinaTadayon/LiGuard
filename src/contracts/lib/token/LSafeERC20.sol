@@ -2,7 +2,7 @@
 // LivelyVerse Contracts (last updated v2.0.1)
 // Authors: OpenZeppelin, Sina Tadayon, https://github.com/SinaTadayon
 
-pragma solidity 0.8.17;
+pragma solidity 0.8.19;
 
 import "../../token/lively/IERC20.sol";
 import "../../token/lively/IERC20Extra.sol";

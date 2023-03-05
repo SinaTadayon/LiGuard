@@ -119,6 +119,6 @@
     "@openzeppelin/contracts": "^4.7.3",
     "@openzeppelin/contracts-upgradeable": "^4.7.3",
     "@openzeppelin/test-helpers": "^0.5.16",
-    "@remix-project/remixd": "0.6.5"
+    "@remix-project/remixd": "^0.6.12"
   }
 }

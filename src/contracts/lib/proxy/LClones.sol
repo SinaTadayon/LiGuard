@@ -2,7 +2,7 @@
 // LivelyVerse Contracts (last updated v2.0.1)
 // Author: OpenZeppelin
 
-pragma solidity 0.8.17;
+pragma solidity 0.8.19;
 
 /**
  * @dev https://eips.ethereum.org/EIPS/eip-1167[EIP 1167] is a standard for

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // LivelyVerse Contracts (last updated v2.0.1)
 
-pragma solidity 0.8.17;
+pragma solidity 0.8.19;
 
 import "../../proxy/IERC1822.sol";
 import "../../lib/LAddress.sol";

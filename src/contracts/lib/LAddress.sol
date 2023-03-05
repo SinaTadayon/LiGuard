@@ -2,7 +2,7 @@
 // LivelyVerse Contracts (last updated v3.0.0)
 // Author: OpenZeppelin
 
-pragma solidity 0.8.17;
+pragma solidity 0.8.19;
 
 /**
  * @dev Collection of functions related to the address type
