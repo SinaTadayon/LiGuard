@@ -113,4 +113,5 @@ dist
 
 # Ide
 .idea/
+.vscode/
 
