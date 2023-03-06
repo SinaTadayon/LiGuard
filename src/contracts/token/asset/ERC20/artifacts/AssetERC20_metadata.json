@@ -1,0 +1,908 @@
+{
+	"compiler": {
+		"version": "0.8.19+commit.7dd6d404"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [],
+				"stateMutability": "nonpayable",
+				"type": "constructor"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "enum IACL.AuthorizationStatus",
+						"name": "",
+						"type": "uint8"
+					}
+				],
+				"name": "ACLActionForbidden",
+				"type": "error"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "sender",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "assetId",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "bytes4",
+						"name": "functionSelector",
+						"type": "bytes4"
+					}
+				],
+				"name": "AssetERC20Called",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "sender",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "assetId",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "tokenId",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "assetManagerId",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "assetSubjectId",
+						"type": "address"
+					}
+				],
+				"name": "AssetInitialized",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "sender",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "assetId",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "enum IAssetEntity.AssetSafeModeStatus",
+						"name": "status",
+						"type": "uint8"
+					}
+				],
+				"name": "AssetSafeModeUpdated",
+				"type": "event"
+			},
+			{
+				"stateMutability": "payable",
+				"type": "fallback"
+			},
+			{
+				"inputs": [],
+				"name": "assetAccessControl",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "assetBalance",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "assetInfo",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "uint256",
+								"name": "balance",
+								"type": "uint256"
+							},
+							{
+								"internalType": "string",
+								"name": "name",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "version",
+								"type": "string"
+							},
+							{
+								"internalType": "address",
+								"name": "token",
+								"type": "address"
+							},
+							{
+								"internalType": "address",
+								"name": "accessControl",
+								"type": "address"
+							},
+							{
+								"internalType": "uint16",
+								"name": "initVersion",
+								"type": "uint16"
+							},
+							{
+								"internalType": "enum IAssetEntity.AssetType",
+								"name": "atype",
+								"type": "uint8"
+							},
+							{
+								"internalType": "enum IAssetEntity.AssetSafeModeStatus",
+								"name": "status",
+								"type": "uint8"
+							}
+						],
+						"internalType": "struct IAssetEntity.AssetInfo",
+						"name": "",
+						"type": "tuple"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "assetInitVersion",
+				"outputs": [
+					{
+						"internalType": "uint16",
+						"name": "",
+						"type": "uint16"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"components": [
+							{
+								"internalType": "bytes32",
+								"name": "realmId",
+								"type": "bytes32"
+							},
+							{
+								"internalType": "bytes32",
+								"name": "adminId",
+								"type": "bytes32"
+							},
+							{
+								"internalType": "bytes32",
+								"name": "agentId",
+								"type": "bytes32"
+							},
+							{
+								"internalType": "bytes32",
+								"name": "salt",
+								"type": "bytes32"
+							},
+							{
+								"internalType": "address",
+								"name": "subjectId",
+								"type": "address"
+							},
+							{
+								"internalType": "address",
+								"name": "erc20TokenId",
+								"type": "address"
+							},
+							{
+								"internalType": "address",
+								"name": "accessControlId",
+								"type": "address"
+							},
+							{
+								"internalType": "address",
+								"name": "assetManagerId",
+								"type": "address"
+							},
+							{
+								"internalType": "address",
+								"name": "assetContractId",
+								"type": "address"
+							},
+							{
+								"internalType": "string",
+								"name": "contractName",
+								"type": "string"
+							},
+							{
+								"internalType": "string",
+								"name": "contractVersion",
+								"type": "string"
+							},
+							{
+								"internalType": "bytes",
+								"name": "signature",
+								"type": "bytes"
+							}
+						],
+						"internalType": "struct IAssetEntity.AssetInitRequest",
+						"name": "request",
+						"type": "tuple"
+					}
+				],
+				"name": "assetInitialize",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "assetName",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "assetSafeMode",
+				"outputs": [
+					{
+						"internalType": "enum IAssetEntity.AssetSafeModeStatus",
+						"name": "",
+						"type": "uint8"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "enum IAssetEntity.AssetSafeModeStatus",
+						"name": "status",
+						"type": "uint8"
+					}
+				],
+				"name": "assetSetSafeMode",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "assetToken",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "assetType",
+				"outputs": [
+					{
+						"internalType": "enum IAssetEntity.AssetType",
+						"name": "",
+						"type": "uint8"
+					}
+				],
+				"stateMutability": "pure",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "assetVersion",
+				"outputs": [
+					{
+						"internalType": "string",
+						"name": "",
+						"type": "string"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "balance",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "bytes4",
+						"name": "interfaceId",
+						"type": "bytes4"
+					}
+				],
+				"name": "supportsInterface",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "spender",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					}
+				],
+				"name": "tokenApprove",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"components": [
+							{
+								"internalType": "address",
+								"name": "to",
+								"type": "address"
+							},
+							{
+								"internalType": "uint256",
+								"name": "amount",
+								"type": "uint256"
+							}
+						],
+						"internalType": "struct IERC20Extra.BatchTransferRequest[]",
+						"name": "request",
+						"type": "tuple[]"
+					}
+				],
+				"name": "tokenBatchTransfer",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"components": [
+							{
+								"internalType": "address",
+								"name": "from",
+								"type": "address"
+							},
+							{
+								"internalType": "address",
+								"name": "to",
+								"type": "address"
+							},
+							{
+								"internalType": "uint256",
+								"name": "amount",
+								"type": "uint256"
+							}
+						],
+						"internalType": "struct IERC20Extra.BatchTransferFromRequest[]",
+						"name": "request",
+						"type": "tuple[]"
+					}
+				],
+				"name": "tokenBatchTransferFrom",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "spender",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					}
+				],
+				"name": "tokenDecreaseAllowance",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "spender",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					}
+				],
+				"name": "tokenIncreaseAllowance",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"components": [
+							{
+								"internalType": "address",
+								"name": "source",
+								"type": "address"
+							},
+							{
+								"internalType": "address",
+								"name": "dest",
+								"type": "address"
+							},
+							{
+								"internalType": "uint256",
+								"name": "claimAt",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "amount",
+								"type": "uint256"
+							}
+						],
+						"internalType": "struct IERC20Lock.LockTokenRequest[]",
+						"name": "lockRequests",
+						"type": "tuple[]"
+					}
+				],
+				"name": "tokenLock",
+				"outputs": [
+					{
+						"internalType": "bytes32[]",
+						"name": "",
+						"type": "bytes32[]"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "to",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					}
+				],
+				"name": "tokenTransfer",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "from",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "to",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					}
+				],
+				"name": "tokenTransferFrom",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "recepient",
+						"type": "address"
+					}
+				],
+				"name": "withdrawBalance",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"stateMutability": "payable",
+				"type": "receive"
+			}
+		],
+		"devdoc": {
+			"author": "Sina Tadayon, https://github.com/SinaTadayon",
+			"kind": "dev",
+			"methods": {
+				"supportsInterface(bytes4)": {
+					"details": "See {IERC165-supportsInterface}."
+				}
+			},
+			"title": "Asset ERC20 Contract",
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"src/contracts/token/asset/ERC20/AssetERC20.sol": "AssetERC20"
+		},
+		"evmVersion": "paris",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": true,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"src/contracts/acl/ACLStorage.sol": {
+			"keccak256": "0x748ba9ee4ce4e5492afd3261bf61e8360b3f45ae3588218c1bbf90699df2065b",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://d27e83a8b0b7fdaa1a4e03f702ccc49a2112ad34e9524b08f77be3e6eed1c390",
+				"dweb:/ipfs/QmeeuRQph74t2RAKFpbVCMXpZrzJDQRSKm7VPJo4uArNCJ"
+			]
+		},
+		"src/contracts/acl/IACL.sol": {
+			"keccak256": "0x3b4bd5cd73079a4bcbc82fe3699b21fcc08fdafc964f978a9c540756302dbb2e",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://9feb8da7875e1f1d77cb1c20f4af96fbd6870ba5d48b6e47665691295e470ed2",
+				"dweb:/ipfs/Qmb54A4sRwsm6toChKbQCQGxMKdBxU3fBahgZsrcWNCC4d"
+			]
+		},
+		"src/contracts/acl/IACLCommons.sol": {
+			"keccak256": "0x2269cec662cb8f25c0523b281f8f97bd9b5115ea80771c7d1e4083031f4a1c87",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://fcb9977ebcac39938fa9726a6dfe3d289676faa526410e47f4a915c7490db494",
+				"dweb:/ipfs/QmQbkhT6a6CWftT3U9V1vZAFbXeFtjacwPNwmhX7LGxTHH"
+			]
+		},
+		"src/contracts/acl/IACLGenerals.sol": {
+			"keccak256": "0x303b03b04f7fc7356cc4c88bf54e218e29ce9fb479b44310d0788fa176ecfc50",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://6ed0c7e770a183feb70293ed0faaaaa483a9b94c253c3c00b15bd959d203de0d",
+				"dweb:/ipfs/QmYRunefUwP2LciPDc3BEsHoqFes3PWzcjZ3xfHQAPz9Fx"
+			]
+		},
+		"src/contracts/acl/agent/IRoleManagement.sol": {
+			"keccak256": "0xd577f997c4da278bcf299f28134d89a2807745820b182d7f4de0bcfa68ad262c",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://ffd2fc1899214a3be010800df74b429ec125cd424b4efd894a466e64f725354d",
+				"dweb:/ipfs/QmSh6U3DC7sWDVKbj2qWw8TrTqH81rTtm1qjaDaSLry8fM"
+			]
+		},
+		"src/contracts/acl/profile/IProfileACL.sol": {
+			"keccak256": "0xb3687f11a1d2d28b78e815657864fbe1ef4aeba750e8c9760b3d3f97e467efc2",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://6cc3e786913f4e51194ae6aeed0562a3318ebaef158ce3b25077c4ab5f9f088e",
+				"dweb:/ipfs/Qmf5VevrPxKgvNrijva23G9RZ3MhfkPbKeCf22hSqwf1QU"
+			]
+		},
+		"src/contracts/acl/scope/IContextManagement.sol": {
+			"keccak256": "0x3db7b4eaff9522c669111ec8e268f603b57da7b4c0846d3d6ffb74d9f9a07f08",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://9f9bb5c09a40982c83a5da8d3a09e1ee0082bbfc906049946eead2f7461969f1",
+				"dweb:/ipfs/QmQLMgFs9bQEi5GHfgSU5SszKb5mBWXscfKkinC6pVKJbK"
+			]
+		},
+		"src/contracts/acl/scope/IFunctionManagement.sol": {
+			"keccak256": "0xf9cab043ca2218987527dc17343b3bb632a65ba9be0ab9e863c6c140d9d488b7",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://0218e883a85844f2211a327bd14dc8c6d3a5da3dd67c2a9ce5cc9b7c7315476e",
+				"dweb:/ipfs/QmU8FtHDXYmiQ1NfdfojEviTfp52jZu2ycB4Ez2GoBShGk"
+			]
+		},
+		"src/contracts/lib/LAddress.sol": {
+			"keccak256": "0xb46e5ff7d2a40ad64a6ca16bf560fef69391201577931c8c0b8395292014035e",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://9c89c60f4791dfe29cbd79bbc22e2e331cb268c836d3e10943e7ff92e8477310",
+				"dweb:/ipfs/QmaFzh7a1kNx93VYN8LkJHUrnfwZXTb8gVdqJdHw7kmvsm"
+			]
+		},
+		"src/contracts/lib/LStrings.sol": {
+			"keccak256": "0xf6b56daea1f2692628dff63bd57ff8ad0bc38ecbc34887db37a8305162ce1394",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://96864feec80d3806989fe7f9c747cae042709b1fb22fc8c75fa595e131d25806",
+				"dweb:/ipfs/Qma5Dy9yVrFbfmspB3WD5cBv8cdkmXCGzkcjZ6BLEQg2U3"
+			]
+		},
+		"src/contracts/lib/acl/LACLUtils.sol": {
+			"keccak256": "0x0a1ead86733fdae5c48faf98479dea608f2a5743722b7d458981c33ff13489c1",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://55e6c3a14413e25acb4364eb0125ac4ad58c2de50bc1f391e0eb9999881c15e2",
+				"dweb:/ipfs/QmVmqtZF4AWnRuPFZSsxsZXzUuKo7VdtAwdUrtCtLWNojK"
+			]
+		},
+		"src/contracts/lib/cryptography/LECDSA.sol": {
+			"keccak256": "0x75b905d070ebb72fa3358e262ab18166f6c6386c11171324f235058ce9185ca4",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://2ca9c023abac21164df4361ac1e31a3bfdd508dbb88e2a96ed26830c9e1b4530",
+				"dweb:/ipfs/QmVwkenSPJwofnentyFrw6gkrZo6M1YFCm6YskHWBmGV96"
+			]
+		},
+		"src/contracts/lib/struct/LEnumerableSet.sol": {
+			"keccak256": "0xe49098eb2019f9d9628a399f6a06ec310fe8a10785c369cc508c56df1f203dd0",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://e0d7ae377e47f29075e58f4807273a4f684aa7d17c87c212e97aa5ffc0d4b92e",
+				"dweb:/ipfs/QmRaLLCRbELbqZyncpA3uwNVBBGc4wPtcCWggUxcKPYPAT"
+			]
+		},
+		"src/contracts/proxy/BaseUUPSStorage.sol": {
+			"keccak256": "0x4ff079fd2fd1ad102d42e82a72bff6bb1ffb8f9ab29cec2dd8e970b892ea415e",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://c1a7c023aa59bf70e854d92f63304cada5a23cb9d5762c66cfa1ef7c0bb08644",
+				"dweb:/ipfs/QmQacZdumFpDp2aeMsg7iDsGanQECbGnHs2Xms2dL7Dhcc"
+			]
+		},
+		"src/contracts/proxy/IBaseProxy.sol": {
+			"keccak256": "0x4b2695303b3acb300ba472d17da71a16367191af571d325d43171503d7c92846",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://4af66f10b8534adb927f011801c564b66b1347513ab796c7044810b2cc9e1f44",
+				"dweb:/ipfs/QmTQsaG5e2SDEaTt8UC6hcsQ7NUgS3sd5cQMpx3sj6xYyb"
+			]
+		},
+		"src/contracts/proxy/IProxy.sol": {
+			"keccak256": "0xaadf51e846486cf9dc7387ad1dcac9a67e6a2d9354ce71694d79de783e1dea3b",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://0e19d5ac43e98fb5680456b6b1a7d5c12a10d7a69139101568fdfdd677122845",
+				"dweb:/ipfs/QmWTJaEX6tqpsNKQn8Dz8UZbF9txx8G6L9pYSZGW6kpfkc"
+			]
+		},
+		"src/contracts/proxy/Initializable.sol": {
+			"keccak256": "0x5603924c0330dcabd0b81d2b6a8113be8ad3ecbbfd0e75795a79221c21990f45",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://3f4f5557b9737e144977871cd6a5a6b50687174af79783bfb37384bcbae99ada",
+				"dweb:/ipfs/Qmcoxmve9vq4WFZ6CHp4ZRdVnWivo7fekwvKa5o28qunNS"
+			]
+		},
+		"src/contracts/token/asset/ERC20/AssetERC20.sol": {
+			"keccak256": "0xc694e7666e3ef3af1eebb9b9c8910d02266b04ef2f749b520b63fefcfc80aea5",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://3dc6044140b18ea0420da41dc0d39b0fa3fdc41dd763abe9649edeaae0e3a308",
+				"dweb:/ipfs/QmZ7rLW5j9nD5cUcD2t6nNFzb6qRwfLtK16TTcRG7L8DKw"
+			]
+		},
+		"src/contracts/token/asset/ERC20/IAssetERC20.sol": {
+			"keccak256": "0x1606b4bd6c2b34dbaca75c8cc5a7fb63e92f2823926f12a52d672ed338774b3f",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://ceccb448fd5fa07785d0af0b649ef6ec5b1e03865be04655aafe4c5bcf8f0da7",
+				"dweb:/ipfs/Qmd4Comu6pRbXB8mATXdAz4GCEZ9bDXJwLDXpFVopXCktD"
+			]
+		},
+		"src/contracts/token/asset/IAssetEntity.sol": {
+			"keccak256": "0x741d681fe8de7b1ac608f14342eb0afaa9676f8ba178e14e568db2097ae9514d",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://8feb11aa36bb374b959b2f7171eb5ad1ca2987aa549a839af5a643bf97ab3c78",
+				"dweb:/ipfs/QmWpgdNfzr8Ho49iWAC5WnPuFEsqWCQhj4AmL5DroxZU8w"
+			]
+		},
+		"src/contracts/token/asset/IAssetManagerERC20.sol": {
+			"keccak256": "0xce43795ca45ae01d60dc46a3bf737d26ee82dec7437cf05f9ce0f7b4c33353a6",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://9080535402fce5aca90b84be989cadf73f5886c9ede5b508b972f7b1159cb204",
+				"dweb:/ipfs/QmPzGxSmSzG3qbmwBPaztrqsHwNJ7YWmMNuaWHLyjDfZVP"
+			]
+		},
+		"src/contracts/token/lively/IERC20.sol": {
+			"keccak256": "0x263733c522826e43a3ca283e264365c50357f12d806ab185163c012142890898",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://b73b0ee65b078decc361a738be868bb4ea54785f52b33d0c375e348974e684a6",
+				"dweb:/ipfs/Qmdnx2LdxnGKzY4tDJUtTqFB52c5KYfhYZzyVLfD15ubrb"
+			]
+		},
+		"src/contracts/token/lively/IERC20Extra.sol": {
+			"keccak256": "0x16c99d17574e51329d990100a53104b81bd82db6e25e0d370ab2ae77bc23ad5b",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://dafc85120ccc08fd29161c6aa8b275097d46f057948a7531dffa780fd999b6a2",
+				"dweb:/ipfs/QmevqHJ7jhqDVckCtJhyLmGAKSpqo9mcU7qeUGgVSncyZ1"
+			]
+		},
+		"src/contracts/token/lively/IERC20Lock.sol": {
+			"keccak256": "0x5ffdd8cad41daccfba39396ace4fe8fd984886f95fa4d4b4914fca9079bc778a",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://1e2fa6a06e8aaa4e7f35015fdc988fa23229554644a9e5e47b267e448d3a3464",
+				"dweb:/ipfs/QmR8wCsJ4U8QwAWLgAtjXa98m1Ng9kA1pdE4bDToR7YjFT"
+			]
+		},
+		"src/contracts/utils/ERC165.sol": {
+			"keccak256": "0xd4388084c83f15ac54be8d4e28a9d0f7be51c87efc357a33e7080e9769d5553a",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://39e17fddffcc33210a90b2b9e665fcd52202ce04633a23194e32af586109c0e4",
+				"dweb:/ipfs/Qmf6pZ8mUzcanzuk1bH8jm7Hm7PUb6LYfei6gjBbb5PTVQ"
+			]
+		},
+		"src/contracts/utils/IERC165.sol": {
+			"keccak256": "0x95ac867088cd7cca6d583788b83e56e0c521c847aa9844f6184c14f5ce3ddf90",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://3fef535ea39417310c3e85ab75cd67fbbada719fdfc44e8cc09584d06fcb0e40",
+				"dweb:/ipfs/QmcQAuUm3YJ6rBNUpXKbDyDSfbZh9ePYaLY8gt1qLCyv3w"
+			]
+		},
+		"src/contracts/utils/Message.sol": {
+			"keccak256": "0x9fe52fdf93ebcdcbe224c4eba70bd3d8f6b4479fcc67d681b18070975d1ba970",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://3818def8f1dbb3355259321b106d5b9b1f391ba5fb98f7bd3d5f280b385de0ba",
+				"dweb:/ipfs/QmZM1V1LzubrzzKMig8T3VECBPzFB1K1boFpaUs7SMeDrw"
+			]
+		}
+	},
+	"version": 1
+}
