@@ -1,9 +1,10 @@
 hardhat.config.ts
-src/scripts
-src/test
+src/
+export/artifacts
 build
 deployments
 .idea/
+.vscode/
 coverage.json
 .env.example
 .eslintignore
@@ -20,3 +21,4 @@ coverage.json
 .env-test
 tsconfig.json
 typechain
+yarn-error.log
