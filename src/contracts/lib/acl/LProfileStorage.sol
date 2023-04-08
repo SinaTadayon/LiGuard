@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v3.0.0)
+// LivelyVerse Contracts (last updated v3.1.0)
 
 pragma solidity 0.8.19;
 
@@ -13,7 +13,7 @@ import "../../acl/ACLStorage.sol";
  *
  */
 library LProfileStorage {
-  function profileUniverseReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId)
+  function profileUniverseReadSlot(ACLStorage.ProfileEntity storage profileEntity, bytes32 scopeId)
     internal
     view
     returns (IACLCommons.UniverseEntity storage ge)
@@ -33,7 +33,7 @@ library LProfileStorage {
     }
   }
 
-  function profileUniverseWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId)
+  function profileUniverseWriteSlot(ACLStorage.ProfileEntity storage profileEntity, bytes32 scopeId)
     internal
     view
     returns (IACLCommons.UniverseEntity storage ge)
@@ -51,7 +51,7 @@ library LProfileStorage {
     }
   }
 
-  function profileFunctionReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId)
+  function profileFunctionReadSlot(ACLStorage.ProfileEntity storage profileEntity, bytes32 scopeId)
     internal
     view
     returns (IACLCommons.FunctionEntity storage fe)
@@ -71,7 +71,7 @@ library LProfileStorage {
     }
   }
 
-  function profileFunctionTryReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId)
+  function profileFunctionTryReadSlot(ACLStorage.ProfileEntity storage profileEntity, bytes32 scopeId)
     internal
     view
     returns (IACLCommons.FunctionEntity storage fe, bool result)
@@ -93,7 +93,7 @@ library LProfileStorage {
     result = false;
   }
 
-  function profileFunctionWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId)
+  function profileFunctionWriteSlot(ACLStorage.ProfileEntity storage profileEntity, bytes32 scopeId)
     internal
     view
     returns (IACLCommons.FunctionEntity storage fe)
@@ -111,7 +111,7 @@ library LProfileStorage {
     }
   }
 
-  function profileFunctionTryWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId)
+  function profileFunctionTryWriteSlot(ACLStorage.ProfileEntity storage profileEntity, bytes32 scopeId)
     internal
     view
     returns (IACLCommons.FunctionEntity storage fe, bool result)
@@ -133,7 +133,7 @@ library LProfileStorage {
     result = false;
   }
 
-  function profileContextReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId)
+  function profileContextReadSlot(ACLStorage.ProfileEntity storage profileEntity, bytes32 scopeId)
     internal
     view
     returns (IACLCommons.ContextEntity storage ce)
@@ -153,7 +153,7 @@ library LProfileStorage {
     }
   }
 
-  function profileContextTryReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId)
+  function profileContextTryReadSlot(ACLStorage.ProfileEntity storage profileEntity, bytes32 scopeId)
     internal
     view
     returns (IACLCommons.ContextEntity storage ce, bool result)
@@ -175,7 +175,7 @@ library LProfileStorage {
     result = false;
   }
 
-  function profileContextWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId)
+  function profileContextWriteSlot(ACLStorage.ProfileEntity storage profileEntity, bytes32 scopeId)
     internal
     view
     returns (IACLCommons.ContextEntity storage ce)
@@ -193,7 +193,7 @@ library LProfileStorage {
     }
   }
 
-  function profileContextTryWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId)
+  function profileContextTryWriteSlot(ACLStorage.ProfileEntity storage profileEntity, bytes32 scopeId)
     internal
     view
     returns (IACLCommons.ContextEntity storage ce, bool result)
@@ -215,7 +215,7 @@ library LProfileStorage {
     result = false;
   }
 
-  function profileRealmReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId)
+  function profileRealmReadSlot(ACLStorage.ProfileEntity storage profileEntity, bytes32 scopeId)
     internal
     view
     returns (IACLCommons.RealmEntity storage re)
@@ -235,7 +235,7 @@ library LProfileStorage {
     }
   }
 
-  function profileRealmTryReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId)
+  function profileRealmTryReadSlot(ACLStorage.ProfileEntity storage profileEntity, bytes32 scopeId)
     internal
     view
     returns (IACLCommons.RealmEntity storage re, bool result)
@@ -257,7 +257,7 @@ library LProfileStorage {
     result = false;
   }
 
-  function profileRealmWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId)
+  function profileRealmWriteSlot(ACLStorage.ProfileEntity storage profileEntity, bytes32 scopeId)
     internal
     view
     returns (IACLCommons.RealmEntity storage re)
@@ -276,7 +276,7 @@ library LProfileStorage {
     }
   }
 
-  function profileRealmTryWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId)
+  function profileRealmTryWriteSlot(ACLStorage.ProfileEntity storage profileEntity, bytes32 scopeId)
     internal
     view
     returns (IACLCommons.RealmEntity storage re, bool result)
@@ -298,7 +298,7 @@ library LProfileStorage {
     result = false;
   }
 
-  function profileDomainReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId)
+  function profileDomainReadSlot(ACLStorage.ProfileEntity storage profileEntity, bytes32 scopeId)
     internal
     view
     returns (IACLCommons.DomainEntity storage de)
@@ -318,7 +318,7 @@ library LProfileStorage {
     }
   }
 
-  function profileDomainTryReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId)
+  function profileDomainTryReadSlot(ACLStorage.ProfileEntity storage profileEntity, bytes32 scopeId)
     internal
     view
     returns (IACLCommons.DomainEntity storage de, bool result)
@@ -340,7 +340,7 @@ library LProfileStorage {
     result = false;
   }
 
-  function profileDomainWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId)
+  function profileDomainWriteSlot(ACLStorage.ProfileEntity storage profileEntity, bytes32 scopeId)
     internal
     view
     returns (IACLCommons.DomainEntity storage de)
@@ -358,7 +358,7 @@ library LProfileStorage {
     }
   }
 
-  function profileDomainTryWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 scopeId)
+  function profileDomainTryWriteSlot(ACLStorage.ProfileEntity storage profileEntity, bytes32 scopeId)
     internal
     view
     returns (IACLCommons.DomainEntity storage de, bool result)
@@ -380,7 +380,7 @@ library LProfileStorage {
     result = false;
   }
 
-  function profileMemberReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId)
+  function profileMemberReadSlot(ACLStorage.ProfileEntity storage profileEntity, bytes32 agentId)
     internal
     view
     returns (IACLCommons.ProfileMemberEntity storage me)
@@ -400,7 +400,7 @@ library LProfileStorage {
     }
   }
 
-  function profileMemberTryReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId)
+  function profileMemberTryReadSlot(ACLStorage.ProfileEntity storage profileEntity, bytes32 agentId)
     internal
     view
     returns (IACLCommons.ProfileMemberEntity storage me, bool result)
@@ -422,7 +422,7 @@ library LProfileStorage {
     result = false;
   }
 
-  function profileMemberWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId)
+  function profileMemberWriteSlot(ACLStorage.ProfileEntity storage profileEntity, bytes32 agentId)
     internal
     view
     returns (IACLCommons.ProfileMemberEntity storage me)
@@ -440,7 +440,7 @@ library LProfileStorage {
     }
   }
 
-  function profileMemberTryWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId)
+  function profileMemberTryWriteSlot(ACLStorage.ProfileEntity storage profileEntity, bytes32 agentId)
     internal
     view
     returns (IACLCommons.ProfileMemberEntity storage me, bool result)
@@ -462,7 +462,7 @@ library LProfileStorage {
     result = false;
   }
 
-  function profileRoleReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId)
+  function profileRoleReadSlot(ACLStorage.ProfileEntity storage profileEntity, bytes32 agentId)
     internal
     view
     returns (IACLCommons.RoleEntity storage re)
@@ -482,7 +482,7 @@ library LProfileStorage {
     }
   }
 
-  function profileRoleTryReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId)
+  function profileRoleTryReadSlot(ACLStorage.ProfileEntity storage profileEntity, bytes32 agentId)
     internal
     view
     returns (IACLCommons.RoleEntity storage re, bool result)
@@ -504,7 +504,7 @@ library LProfileStorage {
     result = false;
   }
 
-  function profileRoleWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId)
+  function profileRoleWriteSlot(ACLStorage.ProfileEntity storage profileEntity, bytes32 agentId)
     internal
     view
     returns (IACLCommons.RoleEntity storage re)
@@ -523,7 +523,7 @@ library LProfileStorage {
     }
   }
 
-  function profileRoleTryWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId)
+  function profileRoleTryWriteSlot(ACLStorage.ProfileEntity storage profileEntity, bytes32 agentId)
     internal
     view
     returns (IACLCommons.RoleEntity storage re, bool result)
@@ -546,7 +546,7 @@ library LProfileStorage {
     result = false;
   }
 
-  function profileTypeReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId)
+  function profileTypeReadSlot(ACLStorage.ProfileEntity storage profileEntity, bytes32 agentId)
     internal
     view
     returns (IACLCommons.TypeEntity storage te)
@@ -566,7 +566,7 @@ library LProfileStorage {
     }
   }
 
-  function profileTypeTryReadSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId)
+  function profileTypeTryReadSlot(ACLStorage.ProfileEntity storage profileEntity, bytes32 agentId)
     internal
     view
     returns (IACLCommons.TypeEntity storage te, bool result)
@@ -588,7 +588,7 @@ library LProfileStorage {
     result = false;
   }
 
-  function profileTypeWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId)
+  function profileTypeWriteSlot(ACLStorage.ProfileEntity storage profileEntity, bytes32 agentId)
     internal
     view
     returns (IACLCommons.TypeEntity storage te)
@@ -606,7 +606,7 @@ library LProfileStorage {
     }
   }
 
-  function profileTypeTryWriteSlot(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId)
+  function profileTypeTryWriteSlot(ACLStorage.ProfileEntity storage profileEntity, bytes32 agentId)
     internal
     view
     returns (IACLCommons.TypeEntity storage te, bool result)

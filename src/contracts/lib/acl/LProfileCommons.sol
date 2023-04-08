@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v3.0.0)
+// LivelyVerse Contracts (last updated v3.1.0)
 
 pragma solidity 0.8.19;
 
+import "./LACLGenerals.sol";
 import "./LACLUtils.sol";
 import "./LProfileStorage.sol";
 import "../struct/LEnumerableSet.sol";
@@ -28,29 +29,29 @@ import "../../acl/profile/agent/IProfileMemberManagement.sol";
  *
  */
 library LProfileCommons {
-  using LProfileStorage for IACLCommons.ProfileEntity;
+  using LProfileStorage for ACLStorage.ProfileEntity;
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
 
   string public constant LIB_NAME = "LProfileCommons";
-  string public constant LIB_VERSION = "3.0.0";
+  string public constant LIB_VERSION = "3.1.0";
 
-  bytes32 public constant LIVELY_VERSE_ANONYMOUS_TYPE_ID =
-    keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_ANONYMOUS"));
-  bytes32 public constant LIVELY_VERSE_ANY_TYPE_ID = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_ANY"));
+  // bytes32 public constant LIVELY_VERSE_ANONYMOUS_TYPE_ID =
+  //   keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_ANONYMOUS"));
+  // bytes32 public constant LIVELY_VERSE_ANY_TYPE_ID = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_ANY"));
 
-  bytes32 public constant LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID =
-    keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_MASTER"));
-  bytes32 public constant LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID =
-    keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER"));
-  bytes32 public constant LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID =
-    keccak256(abi.encodePacked("UNIVERSE.LIVELY_PROFILE"));
-  bytes32 public constant LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID =
-    keccak256(abi.encodePacked("ROLE.LIVELY_PROFILE.LIVELY_MASTER_ADMIN"));
-  bytes32 public constant LIVELY_PROFILE_SYSTEM_MASTER_ADMIN_ROLE_ID =
-    keccak256(abi.encodePacked("ROLE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER_ADMIN"));
+  // bytes32 public constant LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID =
+  //   keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_MASTER"));
+  // bytes32 public constant LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID =
+  //   keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER"));
+  // bytes32 public constant LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID =
+  //   keccak256(abi.encodePacked("UNIVERSE.LIVELY_PROFILE"));
+  // bytes32 public constant LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID =
+  //   keccak256(abi.encodePacked("ROLE.LIVELY_PROFILE.LIVELY_MASTER_ADMIN"));
+  // bytes32 public constant LIVELY_PROFILE_SYSTEM_MASTER_ADMIN_ROLE_ID =
+  //   keccak256(abi.encodePacked("ROLE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER_ADMIN"));
 
   function profileCheckAdminAccess(
-    IACLCommons.ProfileEntity storage profileEntity,
+    ACLStorage.ProfileEntity storage profileEntity,
     IACLCommons.FunctionEntity storage functionEntity,
     bytes32 adminId,
     bytes32 senderId
@@ -58,7 +59,7 @@ library LProfileCommons {
     return _doProfileCheckAdminAccess(profileEntity, functionEntity, adminId, senderId);
   }
 
-  function profileAgentGetScopeInfo(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId)
+  function profileAgentGetScopeInfo(ACLStorage.ProfileEntity storage profileEntity, bytes32 agentId)
     external
     view
     returns (IACLCommons.ScopeType, bytes32)
@@ -81,7 +82,7 @@ library LProfileCommons {
     bytes32 newContextId = LACLUtils.accountGenerateId(contractId);
 
     {
-      IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
+      ACLStorage.ProfileEntity storage profileEntity = data.profiles[profileId];
       ProfileAccessControl(payable(address(this))).profileAclHasMemberAccess(profileId, functionId, signerId);
       require(profileEntity.scopes[newContextId].stype == IACLCommons.ScopeType.NONE, "Already Exist");
 
@@ -130,7 +131,7 @@ library LProfileCommons {
   }
 
   function profileCheckMemberForDomainRegister(
-    IACLCommons.ProfileEntity storage profileEntity,
+    ACLStorage.ProfileEntity storage profileEntity,
     uint16 requestLength,
     bytes32 senderId
   ) external {
@@ -153,7 +154,7 @@ library LProfileCommons {
   }
 
   function profileCheckMemberForFunctionRegister(
-    IACLCommons.ProfileEntity storage profileEntity,
+    ACLStorage.ProfileEntity storage profileEntity,
     uint16 requestLength,
     bytes32 signerId
   ) external {
@@ -176,7 +177,7 @@ library LProfileCommons {
   }
 
   function profileCheckMemberForRealmRegister(
-    IACLCommons.ProfileEntity storage profileEntity,
+    ACLStorage.ProfileEntity storage profileEntity,
     uint16 requestLength,
     bytes32 senderId
   ) external {
@@ -199,7 +200,7 @@ library LProfileCommons {
   }
 
   function profileCheckMemberForMemberRegister(
-    IACLCommons.ProfileEntity storage profileEntity,
+    ACLStorage.ProfileEntity storage profileEntity,
     IACLCommons.ProfileMemberEntity storage,
     uint16 requestLength,
     bytes32 senderId
@@ -223,7 +224,7 @@ library LProfileCommons {
   }
 
   function profileDomainRegister(
-    IACLCommons.ProfileEntity storage profileEntity,
+    ACLStorage.ProfileEntity storage profileEntity,
     IProfileDomainManagement.ProfileDomainRegisterRequest calldata request,
     IACLCommons.FunctionEntity storage functionEntity,
     bytes32 senderId
@@ -233,7 +234,7 @@ library LProfileCommons {
 
     // check sender scopes
     IACLCommons.UniverseEntity storage livelyUniverseEntity = profileEntity.profileUniverseReadSlot(
-      LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID
+      LACLGenerals.LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID
     );
 
     require(livelyUniverseEntity.bs.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Universe Updatable");
@@ -257,7 +258,7 @@ library LProfileCommons {
     newDomain.bs.acstat = IACLCommons.ActivityStatus.ENABLED;
     newDomain.bs.alstat = IACLCommons.AlterabilityStatus.UPDATABLE;
     newDomain.name = request.name;
-    newDomain.universeId = LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID;
+    newDomain.universeId = LACLGenerals.LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID;
     newDomain.realmLimit = request.realmLimit >= 0
       ? uint16(uint24(request.realmLimit))
       : profileEntity.limits.realmLimit;
@@ -266,7 +267,7 @@ library LProfileCommons {
     if (request.adminId != bytes32(0)) {
       require(profileEntity.agents[request.adminId].atype > IACLCommons.AgentType.MEMBER, "Illegal Admin AgentType");
       bytes32 requestAdminScopeId = _doDomainAgentGetScopeInfo(profileEntity, request.adminId);
-      require(requestAdminScopeId == LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID, "Illegal Admin Scope");
+      require(requestAdminScopeId == LACLGenerals.LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID, "Illegal Admin Scope");
       newDomain.bs.adminId = request.adminId;
     } else {
       newDomain.bs.adminId = livelyUniverseEntity.bs.adminId;
@@ -277,7 +278,7 @@ library LProfileCommons {
 
   function profileRealmRegister(
     IProfileRealmManagement.ProfileRealmRegisterRequest calldata request,
-    IACLCommons.ProfileEntity storage profileEntity,
+    ACLStorage.ProfileEntity storage profileEntity,
     IACLCommons.FunctionEntity storage functionEntity,
     bytes32 senderId,
     IACLCommons.ScopeType memberScopeType,
@@ -291,7 +292,7 @@ library LProfileCommons {
     if (memberScopeType == IACLCommons.ScopeType.DOMAIN) {
       require(memberScopeId == request.domainId, "Illegal Domain Scope");
     } else {
-      require(memberScopeId == LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID, "Illegal Universe Scope");
+      require(memberScopeId == LACLGenerals.LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID, "Illegal Universe Scope");
     }
 
     IACLCommons.DomainEntity storage domainEntity = profileEntity.profileDomainReadSlot(request.domainId);
@@ -331,7 +332,7 @@ library LProfileCommons {
   }
 
   function profileGetAndCheckRequestScope(
-    IACLCommons.ProfileEntity storage profileEntity,
+    ACLStorage.ProfileEntity storage profileEntity,
     bytes32 requestScopeId,
     bytes32 senderScopeId,
     IACLCommons.ScopeType senderScopeType,
@@ -341,7 +342,7 @@ library LProfileCommons {
   }
 
   function profileFunctionRegistration(
-    IACLCommons.ProfileEntity storage profileEntity,
+    ACLStorage.ProfileEntity storage profileEntity,
     IProfileFunctionManagement.ProfileFunctionRequest calldata functionRequest,
     bytes32 profileId,
     bytes32 contextId
@@ -378,7 +379,7 @@ library LProfileCommons {
   }
 
   function profileGetAndCheckFunctionAdmin(
-    IACLCommons.ProfileEntity storage profileEntity,
+    ACLStorage.ProfileEntity storage profileEntity,
     bytes32 contextAdminId,
     bytes32 contextId,
     bytes32 adminId,
@@ -392,7 +393,7 @@ library LProfileCommons {
     bytes32 profileId,
     bytes32 memberId
   ) external view returns (IProfileMemberManagement.ProfileMemberInfo memory) {
-    IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
+    ACLStorage.ProfileEntity storage profileEntity = data.profiles[profileId];
     (IACLCommons.ProfileMemberEntity storage member, bool result) = profileEntity.profileMemberTryReadSlot(memberId);
     if (!result || profileEntity.acstat == IACLCommons.ActivityStatus.NONE) {
       return
@@ -449,7 +450,7 @@ library LProfileCommons {
     bytes32 memberId,
     address account
   ) external view returns (bool) {
-    IACLCommons.ProfileEntity storage profileEntity = data.profiles[profileId];
+    ACLStorage.ProfileEntity storage profileEntity = data.profiles[profileId];
     if (profileEntity.acstat == IACLCommons.ActivityStatus.NONE) return false;
     if (profileEntity.agents[memberId].atype != IACLCommons.AgentType.MEMBER) return false;
 
@@ -502,9 +503,9 @@ library LProfileCommons {
         findFlag = true;
         if (!isRevoke) {
           if (
-            (profileMemberEntity.types.contains(LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID) ||
-              profileMemberEntity.types.contains(LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID)) &&
-            (typeId == LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID || typeId == LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID)
+            (profileMemberEntity.types.contains(LACLGenerals.LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID) ||
+              profileMemberEntity.types.contains(LACLGenerals.LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID)) &&
+            (typeId == LACLGenerals.LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID || typeId == LACLGenerals.LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID)
           ) {
             revert("Illegal GrantMemberType");
           }
@@ -526,7 +527,7 @@ library LProfileCommons {
   }
 
   function _doProfileGetAndCheckRequestScope(
-    IACLCommons.ProfileEntity storage profileEntity,
+    ACLStorage.ProfileEntity storage profileEntity,
     bytes32 requestScopeId,
     bytes32 senderScopeId,
     IACLCommons.ScopeType senderScopeType,
@@ -551,7 +552,7 @@ library LProfileCommons {
   }
 
   function _getProfileRealmAdmin(
-    IACLCommons.ProfileEntity storage profileEntity,
+    ACLStorage.ProfileEntity storage profileEntity,
     bytes32 requestScopeAdmin,
     bytes32 domainId,
     bytes32 adminId
@@ -568,7 +569,7 @@ library LProfileCommons {
       if (IACLCommons.ScopeType.DOMAIN == requestAdminScopeType) {
         require(requestAdminScopeId == domainId, "Illegal Admin Scope");
       } else {
-        require(requestAdminScopeId == LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID, "Illegal Admin Scope");
+        require(requestAdminScopeId == LACLGenerals.LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID, "Illegal Admin Scope");
       }
       realmAdminId = adminId;
     } else {
@@ -577,7 +578,7 @@ library LProfileCommons {
   }
 
   function _doProfileCheckAdminAccess(
-    IACLCommons.ProfileEntity storage profileEntity,
+    ACLStorage.ProfileEntity storage profileEntity,
     IACLCommons.FunctionEntity storage functionEntity,
     bytes32 adminId,
     bytes32 senderId
@@ -633,7 +634,7 @@ library LProfileCommons {
   }
 
   function _doGetContextAdmin(
-    IACLCommons.ProfileEntity storage profileEntity,
+    ACLStorage.ProfileEntity storage profileEntity,
     IProfileContextManagement.ProfileContextRegisterRequest calldata request,
     bytes32 profileId,
     bytes32 scopeId,
@@ -661,7 +662,7 @@ library LProfileCommons {
     }
   }
 
-  function _doGetAgentScopeInfo(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId)
+  function _doGetAgentScopeInfo(ACLStorage.ProfileEntity storage profileEntity, bytes32 agentId)
     private
     view
     returns (IACLCommons.ScopeType, bytes32)
@@ -681,12 +682,12 @@ library LProfileCommons {
   }
 
   function _doCheckContextSystemScope(
-    IACLCommons.ProfileEntity storage profileEntity,
+    ACLStorage.ProfileEntity storage profileEntity,
     bytes32 scopeId,
     bytes32 memberId,
     bytes32 profileId
   ) private view returns (bool) {
-    IACLCommons.TypeEntity storage systemType = profileEntity.profileTypeReadSlot(LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID);
+    IACLCommons.TypeEntity storage systemType = profileEntity.profileTypeReadSlot(LACLGenerals.LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID);
     bytes32 memberRoleId = systemType.members[memberId];
     IACLCommons.RoleEntity storage memberSystemRole = profileEntity.profileRoleReadSlot(memberRoleId);
     if (profileEntity.scopes[memberSystemRole.scopeId].stype < IACLCommons.ScopeType.REALM) return false;
@@ -698,7 +699,7 @@ library LProfileCommons {
   }
 
   function _doCheckAgentId(
-    IACLCommons.ProfileEntity storage profileEntity,
+    ACLStorage.ProfileEntity storage profileEntity,
     bytes32 profileId,
     bytes32 agentId,
     bytes32 contextId
@@ -722,7 +723,7 @@ library LProfileCommons {
   }
 
   function _doGetAndCheckFunctionAdmin(
-    IACLCommons.ProfileEntity storage profileEntity,
+    ACLStorage.ProfileEntity storage profileEntity,
     bytes32 contextAdminId,
     bytes32 contextId,
     bytes32 requestAdminId,
@@ -752,7 +753,7 @@ library LProfileCommons {
     }
   }
 
-  function _doDomainAgentGetScopeInfo(IACLCommons.ProfileEntity storage profileEntity, bytes32 agentId)
+  function _doDomainAgentGetScopeInfo(ACLStorage.ProfileEntity storage profileEntity, bytes32 agentId)
     private
     view
     returns (bytes32)

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v3.0.0)
+// LivelyVerse Contracts (last updated v3.1.0)
 
 pragma solidity 0.8.19;
 
@@ -150,6 +150,52 @@ contract ProfileUniverseManager is ACLStorage, BaseUUPSProxy, IProfileUniverseMa
     bytes32 memberId = LACLUtils.accountGenerateId(account);
     TypeEntity storage profileAdminType = profileEntity.profileTypeReadSlot(_LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID);
     return profileAdminType.members[memberId] != bytes32(0);
+  }
+
+  function profileUniverseHasFunction(bytes32 profileId, bytes32 functionId) external view returns (bool result) {
+    ProfileEntity storage profileEntity = _data.profiles[profileId];
+    if (profileEntity.acstat == ActivityStatus.NONE) return false;
+    (,result) = profileEntity.profileFunctionTryReadSlot(functionId);
+  }
+
+  function profileUniverseHasContext(bytes32 profileId, bytes32 contextId) external view returns (bool result) {
+    ProfileEntity storage profileEntity = _data.profiles[profileId];
+    if (profileEntity.acstat == ActivityStatus.NONE) return false;
+    (,result) = profileEntity.profileContextTryReadSlot(contextId);
+  }
+
+  function profileUniverseHasRealm(bytes32 profileId, bytes32 realmId) external view returns (bool result) {
+    ProfileEntity storage profileEntity = _data.profiles[profileId];
+    if (profileEntity.acstat == ActivityStatus.NONE) return false;
+    (,result) = profileEntity.profileRealmTryReadSlot(realmId);
+  }
+
+  function profileUniverseHasDomain(bytes32 profileId, bytes32 domainId) external view returns (bool result) {
+    ProfileEntity storage profileEntity = _data.profiles[profileId];
+    if (profileEntity.acstat == ActivityStatus.NONE) return false;
+    (,result) = profileEntity.profileDomainTryReadSlot(domainId);
+  }
+
+  function profileUniverseHasPolicy(bytes32 profileId, bytes32 policyId) external view returns (bool) {
+    return _data.profiles[profileId].policies[policyId].adminId != bytes32(0);
+  }
+
+  function profileUniverseHasType(bytes32 profileId, bytes32 typeId) external view returns (bool result) {
+    ProfileEntity storage profileEntity = _data.profiles[profileId];
+    if (profileEntity.acstat == ActivityStatus.NONE) return false;
+    (,result) = profileEntity.profileTypeTryReadSlot(typeId);
+  }
+
+  function profileUniverseHasRole(bytes32 profileId, bytes32 roleId) external view returns (bool result) {
+    ProfileEntity storage profileEntity = _data.profiles[profileId];
+    if (profileEntity.acstat == ActivityStatus.NONE) return false;
+    (,result) = profileEntity.profileRoleTryReadSlot(roleId);
+  }
+
+  function profileUniverseHasMember(bytes32 profileId, bytes32 memberId) external view returns (bool result) {
+    ProfileEntity storage profileEntity = _data.profiles[profileId];
+    if (profileEntity.acstat == ActivityStatus.NONE) return false;
+    (,result) = profileEntity.profileMemberTryReadSlot(memberId);
   }
 
   function profileUniverseGetDomains(bytes32 profileId) external view returns (bytes32[] memory) {

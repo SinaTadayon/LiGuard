@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v3.0.0)
+// LivelyVerse Contracts (last updated v3.1.0)
 pragma solidity 0.8.19;
 
 import "./IProfileACL.sol";

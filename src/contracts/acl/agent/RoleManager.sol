@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v3.0.0)
+// LivelyVerse Contracts (last updated v3.1.0)
 
 pragma solidity 0.8.19;
 
@@ -232,7 +232,7 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
         if (memberEntity.types.contains(roleEntity.typeId)) {
           bytes32 currentRoleId = typeEntity.members[requests[i].members[j]];
           require(currentRoleId != requests[i].roleId, "Already Exist");
-          if (requests[i].roleId == LACLAgentScope.LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID) {
+          if (requests[i].roleId == LACLGenerals.LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID) {
             require(roleEntity.memberCount > 1, "Illegal Admin Revoke");
           }
           RoleEntity storage currentRoleEntity = _doGetEntityAndCheckAdminAccess(
@@ -292,7 +292,7 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
       for (uint256 j = 0; j < requests[i].members.length; j++) {
         MemberEntity storage memberEntity = _data.memberReadSlot(requests[i].members[j]);
         require(memberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-        if (requests[i].roleId == LACLAgentScope.LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID) {
+        if (requests[i].roleId == LACLGenerals.LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID) {
           require(roleEntity.memberCount > 1, "Illegal Admin Revoke");
         }
 

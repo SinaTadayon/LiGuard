@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v3.0.0)
+// LivelyVerse Contracts (last updated v3.1.0)
 
 pragma solidity 0.8.19;
 
@@ -45,11 +45,11 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
   using LEnumerableSet for LEnumerableSet.AddressSet;
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
 
-  // General Roles ID
-  bytes32 internal constant _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID =
-    keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_MASTER_ADMIN"));
-  bytes32 internal constant _LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID =
-    keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_SYSTEM_MASTER_ADMIN"));
+  // // General Roles ID
+  // bytes32 internal constant _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID =
+  //   keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_MASTER_ADMIN"));
+  // bytes32 internal constant _LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID =
+  //   keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_SYSTEM_MASTER_ADMIN"));
 
   constructor() {}
 
@@ -189,141 +189,141 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
     return FacetInfo({subjectId: facetEntity.subjectId});
   }
 
-  function initACL(
-    address contextManagerAddress,
-    address functionManagerAddress,
-    address livelyAdmin,
-    address systemAdmin
-  ) public onlyProxy onlyLocalAdmin {
-    require(_firstInit, "Already INIT");
-    _firstInit = false;
-    LACLCommons.initACLAgents(_data, livelyAdmin, systemAdmin);
+  // function initACL(
+  //   address contextManagerAddress,
+  //   address functionManagerAddress,
+  //   address livelyAdmin,
+  //   address systemAdmin
+  // ) public onlyProxy onlyLocalAdmin {
+  //   require(_firstInit, "Already INIT");
+  //   _firstInit = false;
+  //   LACLCommons.initACLAgents(_data, livelyAdmin, systemAdmin);
 
-    _initACLScopes(contextManagerAddress, functionManagerAddress, LACLUtils.accountGenerateId(livelyAdmin));
+  //   _initACLScopes(contextManagerAddress, functionManagerAddress, LACLUtils.accountGenerateId(livelyAdmin));
 
-    emit ACLInitialized(msg.sender, livelyAdmin, systemAdmin, contextManagerAddress, functionManagerAddress);
-  }
+  //   emit ACLInitialized(msg.sender, livelyAdmin, systemAdmin, contextManagerAddress, functionManagerAddress);
+  // }
 
-  function _initACLScopes(
-    address contextManagerAddress,
-    address functionManagerAddress,
-    bytes32 livelyMasterAdminMemberId
-  ) internal {
-    // Create ACL Domain
-    bytes32 aclTypeId = LACLUtils.generateId2("TYPE.LIVELY_VERSE.LIVELY_GUARD.MASTER");
-    bytes32 aclDomainId = LACLUtils.generateId2("DOMAIN.LIVELY_VERSE.LIVELY_GUARD");
-    bytes32 aclRealmId = LACLUtils.generateId2("REALM.LIVELY_VERSE.LIVELY_GUARD.ACL");
-    bytes32 aclContextManagerId = LACLUtils.accountGenerateId(contextManagerAddress);
-    bytes32 aclFunctionManagerId = LACLUtils.accountGenerateId(functionManagerAddress);
-    bytes32 aclContextRegisterId = LACLUtils.functionGenerateId(
-      contextManagerAddress,
-      IContextManagement.contextRegister.selector
-    );
-    bytes32 aclFunctionRegisterId = LACLUtils.functionGenerateId(
-      functionManagerAddress,
-      IFunctionManagement.functionRegister.selector
-    );
+  // function _initACLScopes(
+  //   address contextManagerAddress,
+  //   address functionManagerAddress,
+  //   bytes32 livelyMasterAdminMemberId
+  // ) internal {
+  //   // Create ACL Domain
+  //   bytes32 aclTypeId = LACLUtils.generateId2("TYPE.LIVELY_VERSE.LIVELY_GUARD.MASTER");
+  //   bytes32 aclDomainId = LACLUtils.generateId2("DOMAIN.LIVELY_VERSE.LIVELY_GUARD");
+  //   bytes32 aclRealmId = LACLUtils.generateId2("REALM.LIVELY_VERSE.LIVELY_GUARD.ACL");
+  //   bytes32 aclContextManagerId = LACLUtils.accountGenerateId(contextManagerAddress);
+  //   bytes32 aclFunctionManagerId = LACLUtils.accountGenerateId(functionManagerAddress);
+  //   bytes32 aclContextRegisterId = LACLUtils.functionGenerateId(
+  //     contextManagerAddress,
+  //     IContextManagement.contextRegister.selector
+  //   );
+  //   bytes32 aclFunctionRegisterId = LACLUtils.functionGenerateId(
+  //     functionManagerAddress,
+  //     IFunctionManagement.functionRegister.selector
+  //   );
 
-    {
-      DomainEntity storage aclDomain = _data.domainWriteSlot(aclDomainId);
-      aclDomain.name = "DOMAIN.LIVELY_VERSE.LIVELY_GUARD";
-      aclDomain.universeId = _LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID;
-      aclDomain.realmLimit = 3;
-      aclDomain.bs.stype = ScopeType.DOMAIN;
-      aclDomain.bs.alstat = AlterabilityStatus.UPDATABLE;
-      aclDomain.bs.acstat = ActivityStatus.ENABLED;
-      aclDomain.bs.adminId = aclTypeId;
-      aclDomain.realms.add(aclRealmId);
-      aclDomain.bs.referredByAgent = 2;
+  //   {
+  //     DomainEntity storage aclDomain = _data.domainWriteSlot(aclDomainId);
+  //     aclDomain.name = "DOMAIN.LIVELY_VERSE.LIVELY_GUARD";
+  //     aclDomain.universeId = _LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID;
+  //     aclDomain.realmLimit = 3;
+  //     aclDomain.bs.stype = ScopeType.DOMAIN;
+  //     aclDomain.bs.alstat = AlterabilityStatus.UPDATABLE;
+  //     aclDomain.bs.acstat = ActivityStatus.ENABLED;
+  //     aclDomain.bs.adminId = aclTypeId;
+  //     aclDomain.realms.add(aclRealmId);
+  //     aclDomain.bs.referredByAgent = 2;
 
-      // Create Realm ACL
-      RealmEntity storage aclRealm = _data.realmWriteSlot(aclRealmId);
-      aclRealm.name = "REALM.LIVELY_VERSE.LIVELY_GUARD.ACL";
-      aclRealm.contextLimit = 128;
-      aclRealm.domainId = aclDomainId;
-      aclRealm.bs.stype = ScopeType.REALM;
-      aclRealm.bs.alstat = AlterabilityStatus.UPDATABLE;
-      aclRealm.bs.acstat = ActivityStatus.ENABLED;
-      aclRealm.bs.adminId = aclTypeId;
-      aclRealm.contexts.add(aclContextManagerId);
-      aclRealm.contexts.add(aclFunctionManagerId);
-    }
+  //     // Create Realm ACL
+  //     RealmEntity storage aclRealm = _data.realmWriteSlot(aclRealmId);
+  //     aclRealm.name = "REALM.LIVELY_VERSE.LIVELY_GUARD.ACL";
+  //     aclRealm.contextLimit = 128;
+  //     aclRealm.domainId = aclDomainId;
+  //     aclRealm.bs.stype = ScopeType.REALM;
+  //     aclRealm.bs.alstat = AlterabilityStatus.UPDATABLE;
+  //     aclRealm.bs.acstat = ActivityStatus.ENABLED;
+  //     aclRealm.bs.adminId = aclTypeId;
+  //     aclRealm.contexts.add(aclContextManagerId);
+  //     aclRealm.contexts.add(aclFunctionManagerId);
+  //   }
 
-    {
-      // Create ContextManager Context ACL
-      ContextEntity storage aclContextManagerEntity = _data.contextWriteSlot(aclContextManagerId);
-      aclContextManagerEntity.realmId = aclRealmId;
-      aclContextManagerEntity.contractId = contextManagerAddress;
-      aclContextManagerEntity.functionLimit = type(uint8).max;
-      aclContextManagerEntity.bs.stype = ScopeType.CONTEXT;
-      aclContextManagerEntity.bs.alstat = AlterabilityStatus.UPGRADABLE;
-      aclContextManagerEntity.bs.acstat = ActivityStatus.ENABLED;
-      aclContextManagerEntity.bs.adminId = aclTypeId;
-      aclContextManagerEntity.functions.add(aclContextRegisterId);
+  //   {
+  //     // Create ContextManager Context ACL
+  //     ContextEntity storage aclContextManagerEntity = _data.contextWriteSlot(aclContextManagerId);
+  //     aclContextManagerEntity.realmId = aclRealmId;
+  //     aclContextManagerEntity.contractId = contextManagerAddress;
+  //     aclContextManagerEntity.functionLimit = type(uint8).max;
+  //     aclContextManagerEntity.bs.stype = ScopeType.CONTEXT;
+  //     aclContextManagerEntity.bs.alstat = AlterabilityStatus.UPGRADABLE;
+  //     aclContextManagerEntity.bs.acstat = ActivityStatus.ENABLED;
+  //     aclContextManagerEntity.bs.adminId = aclTypeId;
+  //     aclContextManagerEntity.functions.add(aclContextRegisterId);
 
-      // Create FunctionManager Context ACL
-      ContextEntity storage aclFunctionManagerEntity = _data.contextWriteSlot(aclFunctionManagerId);
-      aclFunctionManagerEntity.realmId = aclRealmId;
-      aclFunctionManagerEntity.contractId = functionManagerAddress;
-      aclFunctionManagerEntity.functionLimit = type(uint8).max;
-      aclFunctionManagerEntity.bs.stype = ScopeType.CONTEXT;
-      aclFunctionManagerEntity.bs.alstat = AlterabilityStatus.UPGRADABLE;
-      aclFunctionManagerEntity.bs.acstat = ActivityStatus.ENABLED;
-      aclFunctionManagerEntity.bs.adminId = aclTypeId;
-      aclFunctionManagerEntity.functions.add(aclFunctionRegisterId);
+  //     // Create FunctionManager Context ACL
+  //     ContextEntity storage aclFunctionManagerEntity = _data.contextWriteSlot(aclFunctionManagerId);
+  //     aclFunctionManagerEntity.realmId = aclRealmId;
+  //     aclFunctionManagerEntity.contractId = functionManagerAddress;
+  //     aclFunctionManagerEntity.functionLimit = type(uint8).max;
+  //     aclFunctionManagerEntity.bs.stype = ScopeType.CONTEXT;
+  //     aclFunctionManagerEntity.bs.alstat = AlterabilityStatus.UPGRADABLE;
+  //     aclFunctionManagerEntity.bs.acstat = ActivityStatus.ENABLED;
+  //     aclFunctionManagerEntity.bs.adminId = aclTypeId;
+  //     aclFunctionManagerEntity.functions.add(aclFunctionRegisterId);
 
-      // Create Function ContextRegister ACL
-      FunctionEntity storage functionContextRegisterEntity = _data.functionWriteSlot(aclContextRegisterId);
-      functionContextRegisterEntity.contextId = aclContextManagerId;
-      functionContextRegisterEntity.policyCode = 250;
-      functionContextRegisterEntity.selector = IContextManagement.contextRegister.selector;
-      functionContextRegisterEntity.bs.stype = ScopeType.FUNCTION;
-      functionContextRegisterEntity.bs.alstat = AlterabilityStatus.UPDATABLE;
-      functionContextRegisterEntity.bs.acstat = ActivityStatus.ENABLED;
-      functionContextRegisterEntity.bs.adminId = aclTypeId;
-      functionContextRegisterEntity.agentId = _LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID;
+  //     // Create Function ContextRegister ACL
+  //     FunctionEntity storage functionContextRegisterEntity = _data.functionWriteSlot(aclContextRegisterId);
+  //     functionContextRegisterEntity.contextId = aclContextManagerId;
+  //     functionContextRegisterEntity.policyCode = 250;
+  //     functionContextRegisterEntity.selector = IContextManagement.contextRegister.selector;
+  //     functionContextRegisterEntity.bs.stype = ScopeType.FUNCTION;
+  //     functionContextRegisterEntity.bs.alstat = AlterabilityStatus.UPDATABLE;
+  //     functionContextRegisterEntity.bs.acstat = ActivityStatus.ENABLED;
+  //     functionContextRegisterEntity.bs.adminId = aclTypeId;
+  //     functionContextRegisterEntity.agentId = _LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID;
 
-      // Create Function FunctionRegister ACL
-      FunctionEntity storage aclFunctionRegister = _data.functionWriteSlot(aclFunctionRegisterId);
-      aclFunctionRegister.contextId = aclContextManagerId;
-      aclFunctionRegister.policyCode = 250;
-      aclFunctionRegister.selector = IFunctionManagement.functionRegister.selector;
-      aclFunctionRegister.bs.stype = ScopeType.FUNCTION;
-      aclFunctionRegister.bs.alstat = AlterabilityStatus.UPDATABLE;
-      aclFunctionRegister.bs.acstat = ActivityStatus.ENABLED;
-      aclFunctionRegister.bs.adminId = aclTypeId;
-      aclFunctionRegister.agentId = _LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID;
-    }
+  //     // Create Function FunctionRegister ACL
+  //     FunctionEntity storage aclFunctionRegister = _data.functionWriteSlot(aclFunctionRegisterId);
+  //     aclFunctionRegister.contextId = aclContextManagerId;
+  //     aclFunctionRegister.policyCode = 250;
+  //     aclFunctionRegister.selector = IFunctionManagement.functionRegister.selector;
+  //     aclFunctionRegister.bs.stype = ScopeType.FUNCTION;
+  //     aclFunctionRegister.bs.alstat = AlterabilityStatus.UPDATABLE;
+  //     aclFunctionRegister.bs.acstat = ActivityStatus.ENABLED;
+  //     aclFunctionRegister.bs.adminId = aclTypeId;
+  //     aclFunctionRegister.agentId = _LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID;
+  //   }
 
-    {
-      // Create ACL Type
-      TypeEntity storage aclType = _data.typeWriteSlot(aclTypeId);
-      aclType.name = "TYPE.LIVELY_VERSE.LIVELY_GUARD.MASTER";
-      aclType.roleLimit = type(uint16).max;
-      aclType.scopeId = aclDomainId;
-      aclType.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
-      aclType.ba.atype = AgentType.TYPE;
-      aclType.ba.acstat = ActivityStatus.ENABLED;
-      aclType.ba.alstat = AlterabilityStatus.UPDATABLE;
+  //   {
+  //     // Create ACL Type
+  //     TypeEntity storage aclType = _data.typeWriteSlot(aclTypeId);
+  //     aclType.name = "TYPE.LIVELY_VERSE.LIVELY_GUARD.MASTER";
+  //     aclType.roleLimit = type(uint16).max;
+  //     aclType.scopeId = aclDomainId;
+  //     aclType.ba.adminId = LACLGenerals.LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
+  //     aclType.ba.atype = AgentType.TYPE;
+  //     aclType.ba.acstat = ActivityStatus.ENABLED;
+  //     aclType.ba.alstat = AlterabilityStatus.UPDATABLE;
 
-      // Create Admin Role
-      bytes32 aclAdminRoleId = LACLUtils.generateId2("ROLE.LIVELY_VERSE.LIVELY_GUARD.MASTER_ADMIN");
-      RoleEntity storage aclAdminRole = _data.roleWriteSlot(aclAdminRoleId);
-      aclAdminRole.name = "ROLE.LIVELY_VERSE.LIVELY_GUARD.MASTER_ADMIN";
-      aclAdminRole.scopeId = aclDomainId;
-      aclAdminRole.typeId = aclTypeId;
-      aclAdminRole.memberLimit = type(uint24).max;
-      aclAdminRole.memberCount = 1;
-      aclAdminRole.ba.atype = AgentType.ROLE;
-      aclAdminRole.ba.acstat = ActivityStatus.ENABLED;
-      aclAdminRole.ba.alstat = AlterabilityStatus.UPDATABLE;
-      aclAdminRole.ba.adminId = _LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
+  //     // Create Admin Role
+  //     bytes32 aclAdminRoleId = LACLUtils.generateId2("ROLE.LIVELY_VERSE.LIVELY_GUARD.MASTER_ADMIN");
+  //     RoleEntity storage aclAdminRole = _data.roleWriteSlot(aclAdminRoleId);
+  //     aclAdminRole.name = "ROLE.LIVELY_VERSE.LIVELY_GUARD.MASTER_ADMIN";
+  //     aclAdminRole.scopeId = aclDomainId;
+  //     aclAdminRole.typeId = aclTypeId;
+  //     aclAdminRole.memberLimit = type(uint24).max;
+  //     aclAdminRole.memberCount = 1;
+  //     aclAdminRole.ba.atype = AgentType.ROLE;
+  //     aclAdminRole.ba.acstat = ActivityStatus.ENABLED;
+  //     aclAdminRole.ba.alstat = AlterabilityStatus.UPDATABLE;
+  //     aclAdminRole.ba.adminId = LACLGenerals.LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID;
 
-      // acl
-      aclType.roles.add(aclAdminRoleId);
-      aclType.members[livelyMasterAdminMemberId] = aclAdminRoleId;
-    }
-  }
+  //     // acl
+  //     aclType.roles.add(aclAdminRoleId);
+  //     aclType.members[livelyMasterAdminMemberId] = aclAdminRoleId;
+  //   }
+  // }
 
   function getLibrary() external pure returns (address) {
     return address(LACLCommons);

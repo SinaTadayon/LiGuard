@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v3.0.0)
+// LivelyVerse Contracts (last updated v3.1.0)
 
 pragma solidity 0.8.19;
 
@@ -132,6 +132,42 @@ contract UniverseManager is ACLStorage, BaseUUPSProxy, IUniverseManagement {
     bytes32 functionId
   ) internal view returns (IACL.AdminAccessStatus) {
     return LACLCommons.checkAdminAccess(_data, adminId, memberId, functionId);
+  }
+
+  function universeHasFunction(bytes32 functionId) external view returns (bool result) {
+    (,result) = _data.functionTryReadSlot(functionId);
+  }
+
+  function universeHasContext(bytes32 contextId) external view returns (bool result) {
+    (,result) = _data.contextTryReadSlot(contextId);
+  }
+
+  function universeHasRealm(bytes32 realmId) external view returns (bool result) {
+    (,result) = _data.realmTryReadSlot(realmId);
+  }
+
+  function universeHasDomain(bytes32 domainId) external view returns (bool result) {
+    (,result) = _data.domainTryReadSlot(domainId);
+  }
+
+  function universeHasProfile(bytes32 profileId) external view returns (bool) {
+    return _data.profiles[profileId].acstat != ActivityStatus.NONE;
+  }
+
+  function universeHasPolicy(bytes32 policyId) external view returns (bool) {
+    return _data.policies[policyId].adminId != bytes32(0);
+  }
+
+  function universeHasType(bytes32 typeId) external view returns (bool result) {
+    (,result) = _data.typeTryReadSlot(typeId);
+  }
+
+  function universeHasRole(bytes32 roleId) external view returns (bool result) {
+    (,result) = _data.roleTryReadSlot(roleId);
+  }
+
+  function universeHasMember(bytes32 memberId) external view returns (bool result) {
+    (,result) = _data.memberTryReadSlot(memberId);
   }
 
   function universeGetDomains() external view returns (bytes32[] memory) {

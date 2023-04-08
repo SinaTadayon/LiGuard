@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v3.0.0)
+// LivelyVerse Contracts (last updated v3.1.0)
 
 pragma solidity 0.8.19;
 
+import "./LACLGenerals.sol";
 import "./LACLUtils.sol";
 import "./LACLStorage.sol";
 import "./LProfileStorage.sol";
@@ -29,20 +30,35 @@ import "../../acl/profile/IProfileACLGenerals.sol";
  *
  */
 library LACLAgentScope {
-  using LProfileStorage for IACLCommons.ProfileEntity;
+  using LProfileStorage for ACLStorage.ProfileEntity;
   using LACLStorage for ACLStorage.DataCollection;
   using LEnumerableSet for LEnumerableSet.AddressSet;
   using LEnumerableSet for LEnumerableSet.Bytes32Set;
 
   string public constant LIB_NAME = "LACLAgentScope";
-  string public constant LIB_VERSION = "3.0.0";
+  string public constant LIB_VERSION = "3.1.0";
 
-  bytes32 public constant LIVELY_VERSE_ANONYMOUS_TYPE_ID =
-    keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_ANONYMOUS"));
-  bytes32 public constant LIVELY_VERSE_ANY_TYPE_ID = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_ANY"));
+  // bytes32 public constant LIVELY_VERSE_ANONYMOUS_TYPE_ID =
+  //   keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_ANONYMOUS"));
+  // bytes32 public constant LIVELY_VERSE_ANY_TYPE_ID = 
+  //   keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_ANY"));
 
-  bytes32 public constant LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID =
-    keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_MASTER_ADMIN"));
+  // // General Roles ID
+  // bytes32 public constant LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID =
+  //   keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_MASTER_ADMIN"));
+  // bytes32 public constant LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID =
+  //   keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_SYSTEM_MASTER_ADMIN"));
+  // bytes32 public constant LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID =
+  //   keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_SCOPE_MASTER_ADMIN"));
+  // bytes32 public constant LIVELY_VERSE_TYPE_MASTER_ADMIN_ROLE_ID =
+  //   keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_TYPE_MASTER_ADMIN"));
+  // bytes32 public constant LIVELY_VERSE_MEMBER_MASTER_ADMIN_ROLE_ID =
+  //   keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_MEMBER_MASTER_ADMIN"));
+  // bytes32 public constant LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE_ID =
+  //   keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_POLICY_MASTER_ADMIN"));
+  // bytes32 public constant LIVELY_VERSE_PROFILE_MASTER_ADMIN_ROLE_ID =
+  //   keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_PROFILE_MASTER_ADMIN"));
+
 
   function checkAdminAccess(
     ACLStorage.DataCollection storage data,
@@ -67,7 +83,7 @@ library LACLAgentScope {
       "Illegal Activity/Alterability"
     );
     require(
-      request.typeId != LIVELY_VERSE_ANONYMOUS_TYPE_ID && request.typeId != LIVELY_VERSE_ANY_TYPE_ID,
+      request.typeId != LACLGenerals.LIVELY_VERSE_ANONYMOUS_TYPE_ID && request.typeId != LACLGenerals.LIVELY_VERSE_ANY_TYPE_ID,
       "Illegal Type"
     );
 
@@ -98,6 +114,39 @@ library LACLAgentScope {
     newRole.ba.adminId = _getRoleAdmin(data, requestScopeType, typeEntity.ba.adminId, request.scopeId, request.adminId);
 
     return (newRoleId, newRole.ba.adminId);
+  }
+
+  function policyAddRoles(ACLStorage.DataCollection storage data, IACLCommons.PolicyEntity storage policyEntity, bytes32 roleId, bytes32 policyId, IACLCommons.ScopeType policyScopeType) external {
+    // for (uint256 j = 0; j < request.roles.length; j++) {
+      require(data.rolePolicyMap[roleId] == bytes32(0), "Already Exist");
+      require(policyEntity.adminId != roleId, "Illegal Role");
+      require(
+        roleId != LACLGenerals.LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID && 
+        roleId != LACLGenerals.LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID && 
+        roleId != LACLGenerals.LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID  && 
+        roleId != LACLGenerals.LIVELY_VERSE_TYPE_MASTER_ADMIN_ROLE_ID   && 
+        roleId != LACLGenerals.LIVELY_VERSE_MEMBER_MASTER_ADMIN_ROLE_ID && 
+        roleId != LACLGenerals.LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE_ID && 
+        roleId != LACLGenerals.LIVELY_VERSE_PROFILE_MASTER_ADMIN_ROLE_ID,
+        "Illegal Policy Role"
+      );
+      require(policyEntity.roleLimit > policyEntity.roles.length(), "Illegal Limit");
+      IACLCommons.RoleEntity storage roleEntity = data.roleReadSlot(roleId);
+
+      IACLCommons.ScopeType roleScopeType = data.scopes[roleEntity.scopeId].stype;
+      require(roleScopeType <= policyScopeType, "Illegal Role ScopeType");
+      if (roleScopeType == policyScopeType) {
+        require(roleEntity.scopeId == policyEntity.scopeId, "Illegal Role Scope");
+      } else {
+        require(
+          IACLGenerals(address(this)).isScopesCompatible(policyEntity.scopeId, roleEntity.scopeId),
+          "Illegal Role Scope"
+        );
+      }
+
+      data.rolePolicyMap[roleId] = policyId;
+      policyEntity.roles.add(roleId);
+    // }
   }
 
   function getPolicyAdmin(
@@ -141,75 +190,12 @@ library LACLAgentScope {
     return _getCheckUpdateRequestScope(data, requestScopeId, senderScopeId, senderScopeType);
   }
 
-  function _getCheckUpdateRequestScope(
-    ACLStorage.DataCollection storage data,
-    bytes32 requestScopeId,
-    bytes32 senderScopeId,
-    IACLCommons.ScopeType senderScopeType
-  ) private returns (IACLCommons.BaseScope storage) {
-    // checking requested type scope
-    IACLCommons.BaseScope storage requestedScope = data.scopes[requestScopeId];
-    require(requestedScope.stype != IACLCommons.ScopeType.NONE, "Scope Not Found");
-    require(requestedScope.acstat > IACLCommons.ActivityStatus.DELETED, "Scope Deleted");
-
-    // increase referred count to target scope
-    requestedScope.referredByAgent += 1;
-
-    require(requestedScope.stype <= senderScopeType, "Illegal ScopeType");
-    if (requestedScope.stype == senderScopeType) {
-      require(requestScopeId == senderScopeId, "Illegal Scope");
-    } else {
-      require(IACLGenerals(address(this)).isScopesCompatible(senderScopeId, requestScopeId), "Illegal Scope");
-    }
-
-    return requestedScope;
-  }
-
   function roleCheckRequestScope(
     ACLStorage.DataCollection storage data,
     bytes32 requestScopeId,
     bytes32 typeScopeId
   ) external returns (IACLCommons.ScopeType) {
     return _doRoleCheckRequestScope(data, requestScopeId, typeScopeId);
-  }
-
-  function _doGetPolicyAndCheckAdminAccess(
-    ACLStorage.DataCollection storage data,
-    bytes32 policyId,
-    bytes32 memberId,
-    bytes32 functionId
-  ) private view returns (IACLCommons.PolicyEntity storage) {
-    IACLCommons.PolicyEntity storage policyEntity = data.policies[policyId];
-    require(policyEntity.adminId != bytes32(0), "Not Found");
-    require(policyEntity.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Updatable");
-    IACL.AdminAccessStatus status = _doCheckAdminAccess(data, policyEntity.adminId, memberId, functionId);
-    if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
-    return policyEntity;
-  }
-
-  function _doRoleCheckRequestScope(
-    ACLStorage.DataCollection storage data,
-    bytes32 requestScopeId,
-    bytes32 typeScopeId
-  ) private returns (IACLCommons.ScopeType) {
-    // checking requested role scope
-    IACLCommons.BaseScope storage requestScope = data.scopes[requestScopeId];
-    require(requestScope.stype != IACLCommons.ScopeType.NONE, "Scope Not Found");
-    require(requestScope.acstat > IACLCommons.ActivityStatus.DELETED, "Scope Deleted");
-
-    // increase referred count to target scope
-    requestScope.referredByAgent += 1;
-
-    // checking requested role type scope with role scope
-    IACLCommons.ScopeType typeScopeType = data.scopes[typeScopeId].stype;
-    require(typeScopeType >= requestScope.stype, "Illegal ScopeType");
-    if (typeScopeType == requestScope.stype) {
-      require(typeScopeId == requestScopeId, "Illegal Scope");
-    } else {
-      require(IACLGenerals(address(this)).isScopesCompatible(typeScopeId, requestScopeId), "Illegal Scope");
-    }
-
-    return requestScope.stype;
   }
 
   function updatePolicyScope(
@@ -297,6 +283,69 @@ library LACLAgentScope {
     require(memberEntity.limits.typeLimit >= limits.typeLimit, "Illegal TypeLimit");
     require(memberEntity.limits.policyRoleLimit >= limits.policyRoleLimit, "Illegal PolicyRoleLimit");
     require(memberEntity.limits.functionLimit >= limits.functionLimit, "Illegal FunctionLimit");
+  }
+
+  function _getCheckUpdateRequestScope(
+    ACLStorage.DataCollection storage data,
+    bytes32 requestScopeId,
+    bytes32 senderScopeId,
+    IACLCommons.ScopeType senderScopeType
+  ) private returns (IACLCommons.BaseScope storage) {
+    // checking requested type scope
+    IACLCommons.BaseScope storage requestedScope = data.scopes[requestScopeId];
+    require(requestedScope.stype != IACLCommons.ScopeType.NONE, "Scope Not Found");
+    require(requestedScope.acstat > IACLCommons.ActivityStatus.DELETED, "Scope Deleted");
+
+    // increase referred count to target scope
+    requestedScope.referredByAgent += 1;
+
+    require(requestedScope.stype <= senderScopeType, "Illegal ScopeType");
+    if (requestedScope.stype == senderScopeType) {
+      require(requestScopeId == senderScopeId, "Illegal Scope");
+    } else {
+      require(IACLGenerals(address(this)).isScopesCompatible(senderScopeId, requestScopeId), "Illegal Scope");
+    }
+
+    return requestedScope;
+  }
+
+  function _doGetPolicyAndCheckAdminAccess(
+    ACLStorage.DataCollection storage data,
+    bytes32 policyId,
+    bytes32 memberId,
+    bytes32 functionId
+  ) private view returns (IACLCommons.PolicyEntity storage) {
+    IACLCommons.PolicyEntity storage policyEntity = data.policies[policyId];
+    require(policyEntity.adminId != bytes32(0), "Not Found");
+    require(policyEntity.alstat >= IACLCommons.AlterabilityStatus.UPDATABLE, "Illegal Updatable");
+    IACL.AdminAccessStatus status = _doCheckAdminAccess(data, policyEntity.adminId, memberId, functionId);
+    if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
+    return policyEntity;
+  }
+
+  function _doRoleCheckRequestScope(
+    ACLStorage.DataCollection storage data,
+    bytes32 requestScopeId,
+    bytes32 typeScopeId
+  ) private returns (IACLCommons.ScopeType) {
+    // checking requested role scope
+    IACLCommons.BaseScope storage requestScope = data.scopes[requestScopeId];
+    require(requestScope.stype != IACLCommons.ScopeType.NONE, "Scope Not Found");
+    require(requestScope.acstat > IACLCommons.ActivityStatus.DELETED, "Scope Deleted");
+
+    // increase referred count to target scope
+    requestScope.referredByAgent += 1;
+
+    // checking requested role type scope with role scope
+    IACLCommons.ScopeType typeScopeType = data.scopes[typeScopeId].stype;
+    require(typeScopeType >= requestScope.stype, "Illegal ScopeType");
+    if (typeScopeType == requestScope.stype) {
+      require(typeScopeId == requestScopeId, "Illegal Scope");
+    } else {
+      require(IACLGenerals(address(this)).isScopesCompatible(typeScopeId, requestScopeId), "Illegal Scope");
+    }
+
+    return requestScope.stype;
   }
 
   function _doCheckAdminAccess(

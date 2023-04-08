@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v3.0.0)
+// LivelyVerse Contracts (last updated v3.1.0)
 
 pragma solidity 0.8.19;
 
@@ -15,6 +15,21 @@ import "../lib/struct/LEnumerableSet.sol";
  */
 abstract contract ACLStorage is BaseUUPSStorage, IACLCommons {
   using LEnumerableSet for LEnumerableSet.AddressSet;
+
+  struct ProfileEntity {
+    mapping(bytes32 => BaseAgent) agents;
+    mapping(bytes32 => BaseScope) scopes;
+    mapping(bytes32 => PolicyEntity) policies;
+    mapping(bytes32 => bytes32) rolePolicyMap;
+    LEnumerableSet.Bytes32Set admins;
+    bytes32 adminId;
+    string name;
+    address owner;
+    ActivityStatus acstat;
+    AlterabilityStatus alstat;
+    ProfileRegisterLimit registerLimits;
+    ProfileLimit limits;
+  }
 
   struct DataCollection {
     mapping(bytes32 => BaseAgent) agents;
@@ -53,7 +68,8 @@ abstract contract ACLStorage is BaseUUPSStorage, IACLCommons {
     keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_SYSTEM_MASTER"));
   bytes32 internal constant _LIVELY_VERSE_ANONYMOUS_TYPE_ID =
     keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_ANONYMOUS"));
-  bytes32 internal constant _LIVELY_VERSE_ANY_TYPE_ID = keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_ANY"));
+  bytes32 internal constant _LIVELY_VERSE_ANY_TYPE_ID = 
+    keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_ANY"));
   bytes32 internal constant _LIVELY_VERSE_SCOPE_MASTER_TYPE_ID =
     keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_SCOPE_MASTER"));
   bytes32 internal constant _LIVELY_VERSE_MEMBER_MASTER_TYPE_ID =
@@ -74,7 +90,8 @@ abstract contract ACLStorage is BaseUUPSStorage, IACLCommons {
     keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_MASTER"));
   bytes32 internal constant _LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID =
     keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER"));
-  bytes32 internal constant _LIVELY_PROFILE_ANY_TYPE_ID = keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_ANY"));
+  bytes32 internal constant _LIVELY_PROFILE_ANY_TYPE_ID = 
+    keccak256(abi.encodePacked("TYPE.LIVELY_PROFILE.LIVELY_ANY"));
   bytes32 internal constant _LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID =
     keccak256(abi.encodePacked("UNIVERSE.LIVELY_PROFILE"));
 

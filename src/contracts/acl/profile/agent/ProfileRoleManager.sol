@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v3.0.0)
+// LivelyVerse Contracts (last updated v3.1.0)
 
 pragma solidity 0.8.19;
 
@@ -136,7 +136,7 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
       address sender
     ) = _accessPermission(memberSign, IProfileRoleManagement.profileRoleUpdateActivityStatus.selector);
     for (uint256 i = 0; i < requests.length; i++) {
-      require(requests[i].entityId != LProfileRolePolicy.LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID, "Illegal Role");
+      require(requests[i].entityId != LACLGenerals.LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID, "Illegal Role");
 
       RoleEntity storage roleEntity = _doGetEntityAndCheckAdminAccess(
         profileEntity,
@@ -163,7 +163,7 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
       address sender
     ) = _accessPermission(memberSign, IProfileRoleManagement.profileRoleUpdateAlterabilityStatus.selector);
     for (uint256 i = 0; i < requests.length; i++) {
-      require(requests[i].entityId != LProfileRolePolicy.LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID, "Illegal Role");
+      require(requests[i].entityId != LACLGenerals.LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID, "Illegal Role");
 
       RoleEntity storage roleEntity = profileEntity.profileRoleReadSlot(requests[i].entityId);
       IProfileACL.ProfileAdminAccessStatus status = _doCheckAdminAccess(
@@ -415,7 +415,7 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
     for (uint256 j = 0; j < request.members.length; j++) {
       ProfileMemberEntity storage profileMemberEntity = profileEntity.profileMemberReadSlot(request.members[j]);
       require(profileMemberEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Member Updatable");
-      if (request.roleId == LProfileRolePolicy.LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID) {
+      if (request.roleId == LACLGenerals.LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID) {
         require(request.members[j] != LACLUtils.accountGenerateId(profileEntity.owner), "Illegal Owner Revoke");
       }
 
@@ -475,7 +475,7 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
 
     for (uint256 j = 0; j < request.members.length; j++) {
       require(roleEntity.memberCount < roleEntity.memberLimit, "Illegal Grant");
-      if (request.roleId == LProfileRolePolicy.LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID) {
+      if (request.roleId == LACLGenerals.LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID) {
         require(request.members[j] != LACLUtils.accountGenerateId(profileEntity.owner), "Illegal Owner Revoke");
       }
 

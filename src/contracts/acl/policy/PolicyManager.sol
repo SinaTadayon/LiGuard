@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v3.0.0)
+// LivelyVerse Contracts (last updated v3.1.0)
 
 pragma solidity 0.8.19;
 
@@ -92,24 +92,35 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
       ScopeType policyScopeType = _data.scopes[policyEntity.scopeId].stype;
 
       for (uint256 j = 0; j < requests[i].roles.length; j++) {
-        require(_data.rolePolicyMap[requests[i].roles[j]] == bytes32(0), "Already Exist");
-        require(policyEntity.adminId != requests[i].roles[j], "Illegal Role");
-        require(policyEntity.roleLimit > policyEntity.roles.length(), "Illegal Limit");
-        RoleEntity storage roleEntity = _data.roleReadSlot(requests[i].roles[j]);
+        // require(_data.rolePolicyMap[requests[i].roles[j]] == bytes32(0), "Already Exist");
+        // require(policyEntity.adminId != requests[i].roles[j], "Illegal Role");
+        // require(
+        //   requests[i].roles[j] != LACLAgentScope.LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID && 
+        //   requests[i].roles[j] != LACLAgentScope.LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID && 
+        //   requests[i].roles[j] != LACLAgentScope.LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID  && 
+        //   requests[i].roles[j] != LACLAgentScope.LIVELY_VERSE_TYPE_MASTER_ADMIN_ROLE_ID   && 
+        //   requests[i].roles[j] != LACLAgentScope.LIVELY_VERSE_MEMBER_MASTER_ADMIN_ROLE_ID && 
+        //   requests[i].roles[j] != LACLAgentScope.LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE_ID && 
+        //   requests[i].roles[j] != LACLAgentScope.LIVELY_VERSE_PROFILE_MASTER_ADMIN_ROLE_ID,
+        //   "Illegal System Role"
+        // );
+        // require(policyEntity.roleLimit > policyEntity.roles.length(), "Illegal Limit");
+        // RoleEntity storage roleEntity = _data.roleReadSlot(requests[i].roles[j]);
 
-        ScopeType roleScopeType = _data.scopes[roleEntity.scopeId].stype;
-        require(roleScopeType <= policyScopeType, "Illegal Role ScopeType");
-        if (roleScopeType == policyScopeType) {
-          require(roleEntity.scopeId == policyEntity.scopeId, "Illegal Role Scope");
-        } else {
-          require(
-            IACLGenerals(address(this)).isScopesCompatible(policyEntity.scopeId, roleEntity.scopeId),
-            "Illegal Role Scope"
-          );
-        }
+        // ScopeType roleScopeType = _data.scopes[roleEntity.scopeId].stype;
+        // require(roleScopeType <= policyScopeType, "Illegal Role ScopeType");
+        // if (roleScopeType == policyScopeType) {
+        //   require(roleEntity.scopeId == policyEntity.scopeId, "Illegal Role Scope");
+        // } else {
+        //   require(
+        //     IACLGenerals(address(this)).isScopesCompatible(policyEntity.scopeId, roleEntity.scopeId),
+        //     "Illegal Role Scope"
+        //   );
+        // }
 
-        _data.rolePolicyMap[requests[i].roles[j]] = requests[i].policyId;
-        policyEntity.roles.add(requests[i].roles[j]);
+        // _data.rolePolicyMap[requests[i].roles[j]] = requests[i].policyId;
+        // policyEntity.roles.add(requests[i].roles[j]);
+        LACLAgentScope.policyAddRoles(_data, policyEntity, requests[i].roles[j], requests[i].policyId, policyScopeType);
         emit PolicyRoleAdded(sender, requests[i].policyId, requests[i].roles[j]);
       }
     }

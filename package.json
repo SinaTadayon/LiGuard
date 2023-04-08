@@ -1,6 +1,6 @@
 {
-  "name": "@livelyverse/lively-core-onchain",
-  "version": "3.0.4",
+  "name": "@livelyversenpm/lively-core-onchain",
+  "version": "3.0.5",
   "description": "Lively Guard Contracts and Utilities",
   "scripts": {
     "accounts": "yarn run hardhat accounts",

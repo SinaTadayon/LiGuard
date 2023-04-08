@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v3.0.0)
+// LivelyVerse Contracts (last updated v3.1.0)
 
 pragma solidity 0.8.19;
 
@@ -91,7 +91,7 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
     for (uint256 i = 0; i < requests.length; i++) {
       MemberEntity storage memberEntity = _doGetEntityAndCheckAdminAccess(requests[i].id, senderId, functionId);
       require(
-        !_doRoleHasMember(LACLAgentScope.LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID, requests[i].id),
+        !_doRoleHasMember(LACLGenerals.LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID, requests[i].id),
         "Illegal Member"
       );
       require(requests[i].acstat > ActivityStatus.DELETED, "Illegal Activity");
@@ -193,7 +193,7 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
         bytes32 roleId = typeEntity.members[members[i]];
         RoleEntity storage roleEntity = _data.roleReadSlot(roleId);
         require(roleEntity.ba.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Role Updatable");
-        if (roleId == LACLAgentScope.LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID) {
+        if (roleId == LACLGenerals.LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID) {
           require(roleEntity.memberCount > 1, "Illegal Member Revoke");
         }
         require(roleEntity.memberCount > 0, "Illegal MemberCount");

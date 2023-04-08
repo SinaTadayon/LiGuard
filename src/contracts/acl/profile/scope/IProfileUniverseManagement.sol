@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v3.0.0)
+// LivelyVerse Contracts (last updated v3.1.0)
 
 pragma solidity 0.8.19;
 
 /**
- * @title Domain Management Interface
+ * @title Profile Universe Management Interface
  * @author Sina Tadayon, https://github.com/SinaTadayon
  * @dev
  *
@@ -71,6 +71,22 @@ interface IProfileUniverseManagement is IACLCommons {
     returns (bool);
 
   function profileUniverseCheckAdmin(bytes32 profileId, address account) external view returns (bool);
+
+  function profileUniverseHasFunction(bytes32 profileId, bytes32 functionId) external view returns (bool);
+
+  function profileUniverseHasContext(bytes32 profileId, bytes32 contextId) external view returns (bool);
+
+  function profileUniverseHasRealm(bytes32 profileId, bytes32 realmId) external view returns (bool);
+
+  function profileUniverseHasDomain(bytes32 profileId, bytes32 domainId) external view returns (bool);
+
+  function profileUniverseHasPolicy(bytes32 profileId, bytes32 policyId) external view returns (bool);
+
+  function profileUniverseHasType(bytes32 profileId, bytes32 typeId) external view returns (bool);
+
+  function profileUniverseHasRole(bytes32 profileId, bytes32 roleId) external view returns (bool);
+
+  function profileUniverseHasMember(bytes32 profileId, bytes32 memberId) external view returns (bool);
 
   function profileUniverseGetDomains(bytes32 profileId) external view returns (bytes32[] memory);
 

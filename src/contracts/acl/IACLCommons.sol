@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v3.0.0)
+// LivelyVerse Contracts (last updated v3.1.0)
 
 pragma solidity 0.8.19;
 
@@ -236,21 +236,6 @@ interface IACLCommons {
 
   struct ProfileAccount {
     bytes32[] profiles;
-  }
-
-  struct ProfileEntity {
-    mapping(bytes32 => BaseAgent) agents;
-    mapping(bytes32 => BaseScope) scopes;
-    mapping(bytes32 => PolicyEntity) policies;
-    mapping(bytes32 => bytes32) rolePolicyMap;
-    LEnumerableSet.Bytes32Set admins;
-    bytes32 adminId;
-    string name;
-    address owner;
-    ActivityStatus acstat;
-    AlterabilityStatus alstat;
-    ProfileRegisterLimit registerLimits;
-    ProfileLimit limits;
   }
 
   struct ProfileMemberEntity {

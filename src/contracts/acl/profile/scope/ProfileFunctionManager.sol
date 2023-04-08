@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v3.0.0)
+// LivelyVerse Contracts (last updated v3.1.0)
 
 pragma solidity 0.8.19;
 
@@ -562,7 +562,7 @@ contract ProfileFunctionManager is ACLStorage, BaseUUPSProxy, IProfileFunctionMa
   }
 
   function _doCheckSystemScope(
-    IACLCommons.ProfileEntity storage profileEntity,
+    ProfileEntity storage profileEntity,
     bytes32 scopeId,
     bytes32 memberId,
     bytes32 profileId
