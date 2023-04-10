@@ -49,6 +49,10 @@ library LProfileRolePolicy {
   // bytes32 public constant LIVELY_PROFILE_SYSTEM_MASTER_ADMIN_ROLE_ID =
   //   keccak256(abi.encodePacked("ROLE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER_ADMIN"));
 
+  function getLibrary() external pure returns (address) {
+    return address(LACLGenerals);
+  }
+
   function profileCheckAdminAccess(
     ACLStorage.ProfileEntity storage profileEntity,
     IACLCommons.FunctionEntity storage functionEntity,
@@ -267,7 +271,7 @@ library LProfileRolePolicy {
     if (policyEntity.roles.length() > 0) {
       require(requestScope.stype > currentScope.stype, "Illegal ScopeType");
       require(
-        IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, request.scopeId, policyEntity.scopeId),
+        IProfileACLGenerals(address(this)).profileCheckScopesCompatibility(profileId, request.scopeId, policyEntity.scopeId),
         "Illegal Scope"
       );
     }
@@ -304,7 +308,7 @@ library LProfileRolePolicy {
       require(roleEntity.scopeId == policyEntity.scopeId, "Illegal Role Scope");
     } else {
       require(
-        IProfileACLGenerals(address(this)).profileIsScopesCompatible(
+        IProfileACLGenerals(address(this)).profileCheckScopesCompatibility(
           profileId,
           policyEntity.scopeId,
           roleEntity.scopeId
@@ -601,7 +605,7 @@ library LProfileRolePolicy {
         require(requestAdminScopeId == scopeId, "Illegal Admin Scope");
       } else {
         require(
-          IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, requestAdminScopeId, scopeId),
+          IProfileACLGenerals(address(this)).profileCheckScopesCompatibility(profileId, requestAdminScopeId, scopeId),
           "Illegal Admin Scope"
         );
       }
@@ -705,7 +709,7 @@ library LProfileRolePolicy {
         require(requestAdminScopeId == scopeId, "Illegal Admin Scope");
       } else {
         require(
-          IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, requestAdminScopeId, scopeId),
+          IProfileACLGenerals(address(this)).profileCheckScopesCompatibility(profileId, requestAdminScopeId, scopeId),
           "Illegal Admin Scope"
         );
       }
@@ -736,7 +740,7 @@ library LProfileRolePolicy {
       require(typeScopeId == requestScopeId, "Illegal Scope");
     } else {
       require(
-        IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, typeScopeId, requestScopeId),
+        IProfileACLGenerals(address(this)).profileCheckScopesCompatibility(profileId, typeScopeId, requestScopeId),
         "Illegal Scope"
       );
     }
@@ -764,7 +768,7 @@ library LProfileRolePolicy {
       require(requestScopeId == senderScopeId, "Illegal Scope");
     } else {
       require(
-        IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, senderScopeId, requestScopeId),
+        IProfileACLGenerals(address(this)).profileCheckScopesCompatibility(profileId, senderScopeId, requestScopeId),
         "Illegal Scope"
       );
     }

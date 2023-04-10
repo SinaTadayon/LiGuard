@@ -32,18 +32,31 @@ contract ProfilePolicyManager is ACLStorage, BaseUUPSProxy, IProfilePolicyManage
 
   constructor() {}
 
-  function initialize(
-    string calldata contractName,
-    string calldata contractVersion,
-    address accessControlManager
-  ) public onlyProxy onlyLocalAdmin initializer {
-    __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
+  // function initialize(
+  //   string calldata contractName,
+  //   string calldata contractVersion,
+  //   address accessControlManager
+  // ) public onlyProxy onlyLocalAdmin initializer {
+  //   __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
+
+  //   emit Initialized(
+  //     _msgSender(),
+  //     address(this),
+  //     _implementation(),
+  //     contractName,
+  //     contractVersion,
+  //     _getInitializedCount()
+  //   );
+  // }
+
+  function reinitialize(string calldata contractVersion) public onlyProxy onlyLocalAdmin reinitializer(2) {
+    _contractVersion = contractVersion;
 
     emit Initialized(
       _msgSender(),
       address(this),
       _implementation(),
-      contractName,
+      _contractName,
       contractVersion,
       _getInitializedCount()
     );
@@ -438,7 +451,7 @@ contract ProfilePolicyManager is ACLStorage, BaseUUPSProxy, IProfilePolicyManage
 
     if (memberSign.signature.length > 0) {
       require(memberSign.expiredAt > block.timestamp, "Expired Signature");
-      signer = LACLUtils.getProfileMemeberSignerAddress(memberSign, PROFILE_MEMBER_SIGNATURE_MESSAGE_TYPEHASH);
+      signer = LACLUtils.getProfileMemeberSignerAddress(memberSign, LACLGenerals.PROFILE_MEMBER_SIGNATURE_MESSAGE_TYPE_HASH);
     } else {
       signer = msg.sender;
     }
@@ -461,7 +474,7 @@ contract ProfilePolicyManager is ACLStorage, BaseUUPSProxy, IProfilePolicyManage
     returns (ScopeType, bytes32)
   {
     bytes32 memberId = LACLUtils.accountGenerateId(account);
-    TypeEntity storage policyMasterType = profileEntity.profileTypeReadSlot(_LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID);
+    TypeEntity storage policyMasterType = profileEntity.profileTypeReadSlot(LACLGenerals.LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID);
     bytes32 senderRoleId = policyMasterType.members[memberId];
     RoleEntity storage senderPolicyRole = profileEntity.profileRoleReadSlot(senderRoleId);
     return (profileEntity.scopes[senderPolicyRole.scopeId].stype, senderPolicyRole.scopeId);
@@ -544,7 +557,7 @@ contract ProfilePolicyManager is ACLStorage, BaseUUPSProxy, IProfilePolicyManage
     emit ProfilePolicyRegistered(sender, profileId, newPolicyId, request.scopeId, request.adminId, request.policyCode);
   }
 
-  function getLibrary() external pure returns (address) {
-    return address(LProfileRolePolicy);
+  function getLibraries() external pure returns (address, address) {
+    return (address(LProfileRolePolicy), address(LACLGenerals));
   }
 }

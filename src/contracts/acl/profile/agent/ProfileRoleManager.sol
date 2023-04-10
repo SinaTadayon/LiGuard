@@ -32,18 +32,31 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
 
   constructor() {}
 
-  function initialize(
-    string calldata contractName,
-    string calldata contractVersion,
-    address accessControlManager
-  ) public onlyProxy onlyLocalAdmin initializer {
-    __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
+  // function initialize(
+  //   string calldata contractName,
+  //   string calldata contractVersion,
+  //   address accessControlManager
+  // ) public onlyProxy onlyLocalAdmin initializer {
+  //   __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
+
+  //   emit Initialized(
+  //     _msgSender(),
+  //     address(this),
+  //     _implementation(),
+  //     contractName,
+  //     contractVersion,
+  //     _getInitializedCount()
+  //   );
+  // }
+
+  function reinitialize(string calldata contractVersion) public onlyProxy onlyLocalAdmin reinitializer(2) {
+    _contractVersion = contractVersion;
 
     emit Initialized(
       _msgSender(),
       address(this),
       _implementation(),
-      contractName,
+      _contractName,
       contractVersion,
       _getInitializedCount()
     );
@@ -341,7 +354,7 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
 
     if (memberSign.signature.length > 0) {
       require(memberSign.expiredAt > block.timestamp, "Expired Signature");
-      signer = LACLUtils.getProfileMemeberSignerAddress(memberSign, PROFILE_MEMBER_SIGNATURE_MESSAGE_TYPEHASH);
+      signer = LACLUtils.getProfileMemeberSignerAddress(memberSign, LACLGenerals.PROFILE_MEMBER_SIGNATURE_MESSAGE_TYPE_HASH);
     } else {
       signer = msg.sender;
     }
@@ -507,7 +520,7 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
         require(profileMemberEntity.typeLimit > profileMemberEntity.types.length(), "Illegal Member TypeLimit");
         _updateProfileAccount(profileId, roleEntity.typeId, profileMemberEntity, false);
         // check and add member from admin
-        if (roleEntity.typeId == _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID) profileEntity.admins.add(request.members[j]);
+        if (roleEntity.typeId == LACLGenerals.LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID) profileEntity.admins.add(request.members[j]);
 
         profileMemberEntity.types.add(roleEntity.typeId);
       }
@@ -536,7 +549,7 @@ contract ProfileRoleManager is ACLStorage, BaseUUPSProxy, IProfileRoleManagement
     emit ProfileRoleRegistered(sender, profileId, newRoleId, request.typeId, adminId, request.scopeId);
   }
 
-  function getLibrary() external pure returns (address) {
-    return address(LProfileRolePolicy);
+  function getLibraries() external pure returns (address, address) {
+    return (address(LProfileRolePolicy), address(LACLGenerals));
   }
 }

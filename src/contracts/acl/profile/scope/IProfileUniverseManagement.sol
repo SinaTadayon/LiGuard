@@ -80,14 +80,6 @@ interface IProfileUniverseManagement is IACLCommons {
 
   function profileUniverseHasDomain(bytes32 profileId, bytes32 domainId) external view returns (bool);
 
-  function profileUniverseHasPolicy(bytes32 profileId, bytes32 policyId) external view returns (bool);
-
-  function profileUniverseHasType(bytes32 profileId, bytes32 typeId) external view returns (bool);
-
-  function profileUniverseHasRole(bytes32 profileId, bytes32 roleId) external view returns (bool);
-
-  function profileUniverseHasMember(bytes32 profileId, bytes32 memberId) external view returns (bool);
-
   function profileUniverseGetDomains(bytes32 profileId) external view returns (bytes32[] memory);
 
   function profileUniverseGetInfo(bytes32 profileId) external view returns (ProfileUniverseInfo memory);

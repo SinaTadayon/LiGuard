@@ -21,7 +21,6 @@ import "../../acl/agent/IMemberManagement.sol";
 import "../../acl/agent/IRoleManagement.sol";
 import "../../acl/agent/ITypeManagement.sol";
 import "../../acl/policy/IPolicyManagement.sol";
-
 import "hardhat/console.sol";
 
 /**
@@ -35,7 +34,7 @@ library LACLManagerTest {
   using LEnumerableSet for LEnumerableSet.AddressSet;
 
   string public constant LIB_NAME = "LACLManager";
-  string public constant LIB_VERSION = "3.0.1";
+  string public constant LIB_VERSION = "3.1.1";
 
   function registerProxyFacet(ACLStorage.DataCollection storage data, address implementation) external {
     data.facetSet.add(address(this));

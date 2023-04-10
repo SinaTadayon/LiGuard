@@ -28,18 +28,31 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
 
   constructor() {}
 
-  function initialize(
-    string calldata contractName,
-    string calldata contractVersion,
-    address accessControlManager
-  ) public onlyProxy onlyLocalAdmin initializer {
-    __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
+  // function initialize(
+  //   string calldata contractName,
+  //   string calldata contractVersion,
+  //   address accessControlManager
+  // ) public onlyProxy onlyLocalAdmin initializer {
+  //   __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
+
+  //   emit Initialized(
+  //     _msgSender(),
+  //     address(this),
+  //     _implementation(),
+  //     contractName,
+  //     contractVersion,
+  //     _getInitializedCount()
+  //   );
+  // }
+
+  function reinitialize(string calldata contractVersion) public onlyProxy onlyLocalAdmin reinitializer(2) {
+    _contractVersion = contractVersion;
 
     emit Initialized(
       _msgSender(),
       address(this),
       _implementation(),
-      contractName,
+      _contractName,
       contractVersion,
       _getInitializedCount()
     );
@@ -140,7 +153,7 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
         require(requestedAdminAgent.atype > AgentType.MEMBER, "Illegal Admin AgentType");
         memberEntity.ba.adminId = requests[i].adminId;
       } else {
-        memberEntity.ba.adminId = _LIVELY_VERSE_MEMBER_MASTER_TYPE_ID;
+        memberEntity.ba.adminId = LACLGenerals.LIVELY_VERSE_MEMBER_MASTER_TYPE_ID;
       }
       emit MemberAdminUpdated(sender, requests[i].id, requests[i].adminId);
     }
@@ -161,8 +174,8 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
       require(requests[i].limits.typeLimit > memberEntity.types.length(), "Illegal TypeLimit");
 
       if (
-        !memberEntity.types.contains(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID) &&
-        !memberEntity.types.contains(_LIVELY_VERSE_MEMBER_MASTER_TYPE_ID)
+        !memberEntity.types.contains(LACLGenerals.LIVELY_VERSE_LIVELY_MASTER_TYPE_ID) &&
+        !memberEntity.types.contains(LACLGenerals.LIVELY_VERSE_MEMBER_MASTER_TYPE_ID)
       ) {
         _doCheckMemberRegisterLimits(senderMemberEntity, requests[i].limits);
       }
@@ -356,7 +369,7 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
 
     if (memberSign.signature.length > 0) {
       require(memberSign.expiredAt > block.timestamp, "Expired Signature");
-      signer = LACLUtils.getMemeberSignerAddress(memberSign, MEMBER_SIGNATURE_MESSAGE_TYPEHASH);
+      signer = LACLUtils.getMemeberSignerAddress(memberSign, LACLGenerals.MEMBER_SIGNATURE_MESSAGE_TYPE_HASH);
     } else {
       signer = msg.sender;
     }
@@ -397,8 +410,8 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
     );
 
     if (
-      !memberEntity.types.contains(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID) &&
-      !memberEntity.types.contains(_LIVELY_VERSE_MEMBER_MASTER_TYPE_ID)
+      !memberEntity.types.contains(LACLGenerals.LIVELY_VERSE_LIVELY_MASTER_TYPE_ID) &&
+      !memberEntity.types.contains(LACLGenerals.LIVELY_VERSE_MEMBER_MASTER_TYPE_ID)
     ) {
       _doCheckMemberRegisterLimits(memberEntity, request.limits);
     }
@@ -428,11 +441,11 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
     // check adminId
     if (request.adminId != bytes32(0)) {
       require(_data.agents[request.adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
-      adminAccessStatus = _doCheckAdminAccess(_LIVELY_VERSE_MEMBER_MASTER_TYPE_ID, senderId, functionId);
+      adminAccessStatus = _doCheckAdminAccess(LACLGenerals.LIVELY_VERSE_MEMBER_MASTER_TYPE_ID, senderId, functionId);
       if (adminAccessStatus != IACL.AdminAccessStatus.PERMITTED) revert IACL.SetAdminForbidden(adminAccessStatus);
       newMember.ba.adminId = request.adminId;
     } else {
-      newMember.ba.adminId = _LIVELY_VERSE_MEMBER_MASTER_TYPE_ID;
+      newMember.ba.adminId = LACLGenerals.LIVELY_VERSE_MEMBER_MASTER_TYPE_ID;
     }
 
     newMember.ba.atype = AgentType.MEMBER;
@@ -459,7 +472,7 @@ contract MemberManager is ACLStorage, BaseUUPSProxy, IMemberManagement {
     return typeEntity.members[memberId] == roleId;
   }
 
-  function getLibrary() external pure returns (address) {
-    return address(LACLAgentScope);
+  function getLibraries() external pure returns (address, address) {
+    return (address(LACLAgentScope), address(LACLGenerals));
   }
 }

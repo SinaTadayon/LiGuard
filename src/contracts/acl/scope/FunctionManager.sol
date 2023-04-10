@@ -29,18 +29,31 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
 
   constructor() {}
 
-  function initialize(
-    string calldata contractName,
-    string calldata contractVersion,
-    address accessControlManager
-  ) public onlyProxy onlyLocalAdmin initializer {
-    __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
+  // function initialize(
+  //   string calldata contractName,
+  //   string calldata contractVersion,
+  //   address accessControlManager
+  // ) public onlyProxy onlyLocalAdmin initializer {
+  //   __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
+
+  //   emit Initialized(
+  //     _msgSender(),
+  //     address(this),
+  //     _implementation(),
+  //     contractName,
+  //     contractVersion,
+  //     _getInitializedCount()
+  //   );
+  // }
+
+  function reinitialize(string calldata contractVersion) public onlyProxy onlyLocalAdmin reinitializer(2) {
+    _contractVersion = contractVersion;
 
     emit Initialized(
       _msgSender(),
       address(this),
       _implementation(),
-      contractName,
+      _contractName,
       contractVersion,
       _getInitializedCount()
     );
@@ -62,7 +75,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
 
     if (memberSign.signature.length > 0) {
       require(memberSign.expiredAt > block.timestamp, "Expired Signature");
-      signer = LACLUtils.getMemeberSignerAddress(memberSign, MEMBER_SIGNATURE_MESSAGE_TYPEHASH);
+      signer = LACLUtils.getMemeberSignerAddress(memberSign, LACLGenerals.MEMBER_SIGNATURE_MESSAGE_TYPE_HASH);
     } else {
       signer = msg.sender;
     }
@@ -356,7 +369,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
   }
 
   function _doCheckSystemScope(bytes32 scopeId, bytes32 memberId) internal view returns (bool) {
-    TypeEntity storage systemType = _data.typeReadSlot(_LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID);
+    TypeEntity storage systemType = _data.typeReadSlot(LACLGenerals.LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID);
     bytes32 memberRoleId = systemType.members[memberId];
     RoleEntity storage memberSystemRole = _data.roleReadSlot(memberRoleId);
     if (_data.scopes[memberSystemRole.scopeId].stype < ScopeType.CONTEXT) return false;
@@ -364,7 +377,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
       return true;
     }
 
-    return IACLGenerals(address(this)).isScopesCompatible(memberSystemRole.scopeId, scopeId);
+    return IACLGenerals(address(this)).checkScopesCompatibility(memberSystemRole.scopeId, scopeId);
   }
 
   function _doCheckAdminAccess(
@@ -388,7 +401,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
 
     if (memberSign.signature.length > 0) {
       require(memberSign.expiredAt > block.timestamp, "Expired Signature");
-      signer = LACLUtils.getMemeberSignerAddress(memberSign, MEMBER_SIGNATURE_MESSAGE_TYPEHASH);
+      signer = LACLUtils.getMemeberSignerAddress(memberSign, LACLGenerals.MEMBER_SIGNATURE_MESSAGE_TYPE_HASH);
     } else {
       signer = msg.sender;
     }
@@ -436,9 +449,9 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     );
 
     if (
-      functionRequest.agentId != _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID &&
-      functionRequest.agentId != _LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID &&
-      functionRequest.agentId != _LIVELY_PROFILE_ANY_TYPE_ID
+      functionRequest.agentId != LACLGenerals.LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID &&
+      functionRequest.agentId != LACLGenerals.LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID &&
+      functionRequest.agentId != LACLGenerals.LIVELY_PROFILE_ANY_TYPE_ID
     ) {
       _doCheckAgentId(functionRequest.agentId, contextId);
     }
@@ -472,7 +485,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     bytes32 version,
     bytes32 realmId
   ) internal pure returns (bytes32) {
-    return keccak256(abi.encode(CTX_MESSAGE_TYPEHASH, contractId, name, version, realmId));
+    return keccak256(abi.encode(LACLGenerals.CTX_MESSAGE_TYPE_HASH, contractId, name, version, realmId));
   }
 
   function _doCheckAgentId(bytes32 agentId, bytes32 contextId) internal view {
@@ -484,7 +497,7 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     if (ScopeType.CONTEXT == requestAgentScopeType) {
       require(requestAgentScopeId == contextId, "Illegal Agent Scope");
     } else {
-      require(IACLGenerals(address(this)).isScopesCompatible(requestAgentScopeId, contextId), "Illegal Agent Scope");
+      require(IACLGenerals(address(this)).checkScopesCompatibility(requestAgentScopeId, contextId), "Illegal Agent Scope");
     }
   }
 
@@ -493,10 +506,10 @@ contract FunctionManager is ACLStorage, BaseUUPSProxy, IFunctionManagement {
     address subject,
     bytes32 realmId
   ) internal pure returns (bytes32) {
-    return keccak256(abi.encode(PREDICT_CTX_MESSAGE_TYPEHASH, deployer, subject, realmId));
+    return keccak256(abi.encode(LACLGenerals.PREDICT_CTX_MESSAGE_TYPE_HASH, deployer, subject, realmId));
   }
 
-  function getLibrary() external pure returns (address) {
-    return address(LACLAgentScope);
+  function getLibraries() external pure returns (address, address) {
+    return (address(LACLAgentScope), address(LACLGenerals));
   }
 }

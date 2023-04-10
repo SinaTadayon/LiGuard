@@ -32,22 +32,36 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
 
   constructor() {}
 
-  function initialize(
-    string calldata contractName,
-    string calldata contractVersion,
-    address accessControlManager
-  ) public onlyProxy onlyLocalAdmin initializer {
-    __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
+  // function initialize(
+  //   string calldata contractName,
+  //   string calldata contractVersion,
+  //   address accessControlManager
+  // ) public onlyProxy onlyLocalAdmin initializer {
+  //   __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
+
+  //   emit Initialized(
+  //     _msgSender(),
+  //     address(this),
+  //     _implementation(),
+  //     contractName,
+  //     contractVersion,
+  //     _getInitializedCount()
+  //   );
+  // }
+
+  function reinitialize(string calldata contractVersion) public onlyProxy onlyLocalAdmin reinitializer(2) {
+    _contractVersion = contractVersion;
 
     emit Initialized(
       _msgSender(),
       address(this),
       _implementation(),
-      contractName,
+      _contractName,
       contractVersion,
       _getInitializedCount()
     );
   }
+
 
   /**
    * @dev See {IERC165-supportsInterface}.
@@ -68,7 +82,7 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
     address signer;
     if (memberSign.signature.length > 0) {
       require(memberSign.expiredAt > block.timestamp, "Expired Signature");
-      signer = LACLUtils.getProfileMemeberSignerAddress(memberSign, PROFILE_MEMBER_SIGNATURE_MESSAGE_TYPEHASH);
+      signer = LACLUtils.getProfileMemeberSignerAddress(memberSign, LACLGenerals.PROFILE_MEMBER_SIGNATURE_MESSAGE_TYPE_HASH);
     } else {
       signer = msg.sender;
     }
@@ -214,7 +228,7 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
           require(requestAdminScopeId == requests[i].entityId, "Illegal Admin Scope");
         } else {
           require(
-            IProfileACLGenerals(address(this)).profileIsScopesCompatible(
+            IProfileACLGenerals(address(this)).profileCheckScopesCompatibility(
               profileId,
               requestAdminScopeId,
               requests[i].entityId
@@ -451,7 +465,7 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
 
     if (memberSign.signature.length > 0) {
       require(memberSign.expiredAt > block.timestamp, "Expired Signature");
-      signer = LACLUtils.getProfileMemeberSignerAddress(memberSign, PROFILE_MEMBER_SIGNATURE_MESSAGE_TYPEHASH);
+      signer = LACLUtils.getProfileMemeberSignerAddress(memberSign, LACLGenerals.PROFILE_MEMBER_SIGNATURE_MESSAGE_TYPE_HASH);
     } else {
       signer = msg.sender;
     }
@@ -501,7 +515,7 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
     bytes32 version,
     bytes32 realmId
   ) internal pure returns (bytes32) {
-    return keccak256(abi.encode(PROFILE_CTX_MESSAGE_TYPEHASH, profileId, contractId, name, version, realmId));
+    return keccak256(abi.encode(LACLGenerals.PROFILE_CTX_MESSAGE_TYPE_HASH, profileId, contractId, name, version, realmId));
   }
 
   function _getPredictContextMessageHash(
@@ -510,14 +524,14 @@ contract ProfileContextManager is ACLStorage, BaseUUPSProxy, IProfileContextMana
     address subject,
     bytes32 realmId
   ) internal pure returns (bytes32) {
-    return keccak256(abi.encode(PROFILE_PREDICT_CTX_MESSAGE_TYPEHASH, profileId, deployer, subject, realmId));
+    return keccak256(abi.encode(LACLGenerals.PROFILE_PREDICT_CTX_MESSAGE_TYPE_HASH, profileId, deployer, subject, realmId));
   }
 
   function _hashTypedDataV4(bytes32 structHash) internal view returns (bytes32) {
     return LECDSA.toTypedDataHash(IProxy(address(this)).domainSeparator(), structHash);
   }
 
-  function getLibrary() external pure returns (address) {
-    return address(LProfileCommons);
+  function getLibraries() external pure returns (address, address) {
+    return (address(LProfileCommons), address(LACLGenerals));
   }
 }

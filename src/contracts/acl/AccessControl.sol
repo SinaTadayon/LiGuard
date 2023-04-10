@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// LivelyVerse Contracts (last updated v3.0.0)
+// LivelyVerse Contracts (last updated v3.1.0)
 
 pragma solidity 0.8.19;
 
@@ -13,6 +13,7 @@ import "./agent/ITypeManagement.sol";
 import "../proxy/IProxy.sol";
 import "../lib/acl/LACLUtils.sol";
 import "../lib/acl/LACLStorage.sol";
+import "../lib/acl/LACLGenerals.sol";
 import "../lib/struct/LEnumerableSet.sol";
 import "../proxy/BaseUUPSProxy.sol";
 
@@ -30,22 +31,36 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IACLGenerals, IACL {
 
   constructor() {}
 
-  function initialize(
-    string calldata contractName,
-    string calldata contractVersion,
-    address accessControlManager
-  ) public onlyProxy onlyLocalAdmin initializer {
-    __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
+  // function initialize(
+  //   string calldata contractName,
+  //   string calldata contractVersion,
+  //   address accessControlManager
+  // ) public onlyProxy onlyLocalAdmin initializer {
+  //   __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
+
+  //   emit Initialized(
+  //     _msgSender(),
+  //     address(this),
+  //     _implementation(),
+  //     contractName,
+  //     contractVersion,
+  //     _getInitializedCount()
+  //   );
+  // }
+
+  function reinitialize(string calldata contractVersion) public onlyProxy onlyLocalAdmin reinitializer(2) {
+    _contractVersion = contractVersion;
 
     emit Initialized(
       _msgSender(),
       address(this),
       _implementation(),
-      contractName,
+      _contractName,
       contractVersion,
       _getInitializedCount()
     );
   }
+
 
   /**
    * @dev See {IERC165-supportsInterface}.
@@ -100,7 +115,7 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IACLGenerals, IACL {
       (MemberEntity storage memberEntity, bool result0) = _data.memberTryReadSlot(memberId);
       if (!result0) return AuthorizationStatus.MEMBER_NOT_FOUND;
       if (memberEntity.ba.acstat != ActivityStatus.ENABLED) return AuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN;
-      if (!memberEntity.types.contains(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID)) {
+      if (!memberEntity.types.contains(LACLGenerals.LIVELY_VERSE_LIVELY_MASTER_TYPE_ID)) {
         if (memberEntity.limits.callLimit > 0) {
           unchecked {
             memberEntity.limits.callLimit -= 1;
@@ -130,12 +145,12 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IACLGenerals, IACL {
       if (policyEntity.acstat == ActivityStatus.ENABLED && policyEntity.policyCode >= functionEntity.policyCode)
         return AuthorizationStatus.POLICY_FORBIDDEN;
     } else if (atype == AgentType.TYPE) {
-      if (agentId == _LIVELY_VERSE_ANY_TYPE_ID) {
+      if (agentId == LACLGenerals.LIVELY_VERSE_ANY_TYPE_ID) {
         (MemberEntity storage memberEntity, bool result0) = _data.memberTryReadSlot(memberId);
 
         if (!result0) return AuthorizationStatus.MEMBER_NOT_FOUND;
         if (memberEntity.ba.acstat != ActivityStatus.ENABLED) return AuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN;
-        if (!memberEntity.types.contains(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID)) {
+        if (!memberEntity.types.contains(LACLGenerals.LIVELY_VERSE_LIVELY_MASTER_TYPE_ID)) {
           if (memberEntity.limits.callLimit > 0) {
             unchecked {
               memberEntity.limits.callLimit -= 1;
@@ -144,12 +159,12 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IACLGenerals, IACL {
             return AuthorizationStatus.CALL_FORBIDDEN;
           }
         }
-      } else if (agentId != _LIVELY_VERSE_ANONYMOUS_TYPE_ID) {
+      } else if (agentId != LACLGenerals.LIVELY_VERSE_ANONYMOUS_TYPE_ID) {
         // check member activation
         (MemberEntity storage memberEntity, bool result0) = _data.memberTryReadSlot(memberId);
         if (!result0) return AuthorizationStatus.MEMBER_NOT_FOUND;
         if (memberEntity.ba.acstat != ActivityStatus.ENABLED) return AuthorizationStatus.MEMBER_ACTIVITY_FORBIDDEN;
-        if (!memberEntity.types.contains(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID)) {
+        if (!memberEntity.types.contains(LACLGenerals.LIVELY_VERSE_LIVELY_MASTER_TYPE_ID)) {
           if (memberEntity.limits.callLimit > 0) {
             unchecked {
               memberEntity.limits.callLimit -= 1;
@@ -201,60 +216,60 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IACLGenerals, IACL {
     if (domainEntity.bs.acstat != ActivityStatus.ENABLED) return AuthorizationStatus.DOMAIN_ACTIVITY_FORBIDDEN;
 
     // check universe activity
-    UniverseEntity storage universeEntity = _data.universeReadSlot(_LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);
+    UniverseEntity storage universeEntity = _data.universeReadSlot(LACLGenerals.LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);
     if (universeEntity.bs.acstat != ActivityStatus.ENABLED) return AuthorizationStatus.UNIVERSE_ACTIVITY_FORBIDDEN;
 
     return AuthorizationStatus.PERMITTED;
   }
 
-  // Anonymouse type
-  function getAnonymousType() external pure returns (bytes32) {
-    return _LIVELY_VERSE_ANONYMOUS_TYPE_ID;
-  }
+  // // Anonymouse type
+  // function getAnonymousType() external pure returns (bytes32) {
+  //   return LACLGenerals.LIVELY_VERSE_ANONYMOUS_TYPE_ID;
+  // }
 
-  // Any type
-  function getAnyType() external pure returns (bytes32) {
-    return _LIVELY_VERSE_ANY_TYPE_ID;
-  }
+  // // Any type
+  // function getAnyType() external pure returns (bytes32) {
+  //   return LACLGenerals.LIVELY_VERSE_ANY_TYPE_ID;
+  // }
 
-  // scope master type
-  function getScopeMasterType() external pure returns (bytes32) {
-    return _LIVELY_VERSE_SCOPE_MASTER_TYPE_ID;
-  }
+  // // scope master type
+  // function getScopeMasterType() external pure returns (bytes32) {
+  //   return LACLGenerals.LIVELY_VERSE_SCOPE_MASTER_TYPE_ID;
+  // }
 
-  // type master type
-  function getTypeMasterType() external pure returns (bytes32) {
-    return _LIVELY_VERSE_TYPE_MASTER_TYPE_ID;
-  }
+  // // type master type
+  // function getTypeMasterType() external pure returns (bytes32) {
+  //   return LACLGenerals.LIVELY_VERSE_TYPE_MASTER_TYPE_ID;
+  // }
 
-  // type master type
-  function getMemberMasterType() external pure returns (bytes32) {
-    return _LIVELY_VERSE_MEMBER_MASTER_TYPE_ID;
-  }
+  // // type master type
+  // function getMemberMasterType() external pure returns (bytes32) {
+  //   return LACLGenerals.LIVELY_VERSE_MEMBER_MASTER_TYPE_ID;
+  // }
 
-  // system admin type
-  function getSystemMasterType() external pure returns (bytes32) {
-    return _LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID;
-  }
+  // // system admin type
+  // function getSystemMasterType() external pure returns (bytes32) {
+  //   return LACLGenerals.LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID;
+  // }
 
-  // admin type
-  function getLivelyMasterType() external pure returns (bytes32) {
-    return _LIVELY_VERSE_LIVELY_MASTER_TYPE_ID;
-  }
+  // // admin type
+  // function getLivelyMasterType() external pure returns (bytes32) {
+  //   return LACLGenerals.LIVELY_VERSE_LIVELY_MASTER_TYPE_ID;
+  // }
 
-  // Policy Master
-  function getPolicyMasterType() external pure returns (bytes32) {
-    return _LIVELY_VERSE_POLICY_MASTER_TYPE_ID;
-  }
+  // // Policy Master
+  // function getPolicyMasterType() external pure returns (bytes32) {
+  //   return LACLGenerals.LIVELY_VERSE_POLICY_MASTER_TYPE_ID;
+  // }
 
-  // Profile Master
-  function getProfileMasterType() external pure returns (bytes32) {
-    return _LIVELY_VERSE_PROFILE_MASTER_TYPE_ID;
-  }
+  // // Profile Master
+  // function getProfileMasterType() external pure returns (bytes32) {
+  //   return LACLGenerals.LIVELY_VERSE_PROFILE_MASTER_TYPE_ID;
+  // }
 
-  function getUniverseScope() external pure returns (bytes32) {
-    return _LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID;
-  }
+  // function getUniverseScope() external pure returns (bytes32) {
+  //   return LACLGenerals.LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID;
+  // }
 
   // general
   function isAgentExist(bytes32 agentId) external view returns (bool) {
@@ -265,6 +280,14 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IACLGenerals, IACL {
     return _data.scopes[scopeId].stype != ScopeType.NONE;
   }
 
+  function isProfileExist(bytes32 profileId) external view returns (bool) {
+    return _data.profiles[profileId].acstat != ActivityStatus.NONE;
+  }
+
+  function isPolicyExist(bytes32 policyId) external view returns (bool) {
+    return _data.policies[policyId].adminId != bytes32(0);
+  }
+
   function getScopeBaseInfo(bytes32 scopeId) external view returns (BaseScope memory) {
     return _data.scopes[scopeId];
   }
@@ -273,7 +296,7 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IACLGenerals, IACL {
     return _data.agents[agentId];
   }
 
-  function isScopesCompatible(bytes32 destScopeId, bytes32 srcScopeId) external view returns (bool) {
+  function checkScopesCompatibility(bytes32 destScopeId, bytes32 srcScopeId) external view returns (bool) {
     ScopeType destScopeType = _data.scopes[destScopeId].stype;
     ScopeType srcScopeType = _data.scopes[srcScopeId].stype;
     if (destScopeType == ScopeType.NONE || srcScopeType == ScopeType.NONE) return false;
@@ -304,5 +327,9 @@ contract AccessControl is ACLStorage, BaseUUPSProxy, IACLGenerals, IACL {
     }
 
     return false;
+  }
+
+  function getLibrary() external pure returns (address) {
+    return address(LACLGenerals);
   }
 }

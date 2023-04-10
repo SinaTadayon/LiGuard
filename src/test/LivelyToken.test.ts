@@ -78,7 +78,7 @@ import {
   ProfilePolicyManager__factory,
   ProfileAccessControl__factory,
   LACLAgentScope__factory,
-  LACLAgentScope,
+  LACLAgentScope, LACLGenerals__factory, LACLGenerals
 } from "../../typechain/types";
 import { LivelyTokenLibraryAddresses } from "../../typechain/types/factories/token/lively/LivelyToken__factory";
 import {
@@ -139,6 +139,16 @@ import { ProfileRealmManagerLibraryAddresses } from "../../typechain/types/facto
 import { ProfileDomainManagerLibraryAddresses } from "../../typechain/types/factories/acl/profile/scope/ProfileDomainManager__factory";
 import { ProfileUniverseManagerLibraryAddresses } from "../../typechain/types/factories/acl/profile/scope/ProfileUniverseManger.sol/ProfileUniverseManager__factory";
 import { ProfilePolicyManagerLibraryAddresses } from "../../typechain/types/factories/acl/profile/policy/ProfilePolicyManager__factory";
+import { LACLCommonsLibraryAddresses } from "../../typechain/types/factories/lib/acl/LACLCommons__factory";
+import { LACLAgentScopeLibraryAddresses } from "../../typechain/types/factories/lib/acl/LACLAgentScope__factory";
+import { LProfileCommonsLibraryAddresses } from "../../typechain/types/factories/lib/acl/LProfileCommons__factory";
+import {
+  LProfileRolePolicyLibraryAddresses
+} from "../../typechain/types/factories/lib/acl/LProfileRolePolicy__factory";
+import { AccessControlLibraryAddresses } from "../../typechain/types/factories/acl/AccessControl__factory";
+import {
+  ProfileAccessControlLibraryAddresses
+} from "../../typechain/types/factories/acl/profile/ProfileAccessControl__factory";
 const { provider } = waffle;
 
 describe("Lively Token Tests", function () {
@@ -225,10 +235,14 @@ describe("Lively Token Tests", function () {
   let accessControlSubject: AccessControl;
   let accessControlProxy: AccessControl;
   let accessControlDelegateProxy: AccessControl;
+  let lACLGenerals: LACLGenerals;
   let lACLCommons: LACLCommons;
   let lACLAgentScope: LACLAgentScope;
   let lProfileCommons: LProfileCommons;
   let lProfileRolePolicy: LProfileRolePolicy;
+
+  // General library
+  let linkGeneralLibraryAddress: unknown;
 
   // acl libraries
   let linkCommonLibraryAddresses: unknown;
@@ -435,30 +449,46 @@ describe("Lively Token Tests", function () {
   describe("ACL Manager Deployments", function () {
     it("ACL Deploy Libraries", async () => {
       // given
-      const libFactory = new LACLCommons__factory(systemAdmin);
-      const libFactory1 = new LACLAgentScope__factory(systemAdmin);
-      const libFactory2 = new LProfileCommons__factory(systemAdmin);
-      const libFactory3 = new LProfileRolePolicy__factory(systemAdmin);
+      const aclFactory = new LACLGenerals__factory(systemAdmin);
+
+      // when
+      lACLGenerals = await aclFactory.deploy();
+
+      // acl libraries
+      linkGeneralLibraryAddress = {
+        "src/contracts/lib/acl/LACLGenerals.sol:LACLGenerals": lACLGenerals.address,
+      };
+
+
+      const libFactory = new LACLCommons__factory(<LACLCommonsLibraryAddresses>linkGeneralLibraryAddress, systemAdmin);
+      const libFactory1 = new LACLAgentScope__factory(<LACLAgentScopeLibraryAddresses>linkGeneralLibraryAddress, systemAdmin);
+      const libFactory2 = new LProfileCommons__factory(<LProfileCommonsLibraryAddresses>linkGeneralLibraryAddress, systemAdmin);
+      const libFactory3 = new LProfileRolePolicy__factory(<LProfileRolePolicyLibraryAddresses>linkGeneralLibraryAddress, systemAdmin);
 
       lACLCommons = await libFactory.deploy();
       lACLAgentScope = await libFactory1.deploy();
       lProfileCommons = await libFactory2.deploy();
       lProfileRolePolicy = await libFactory3.deploy();
 
-      linkCommonLibraryAddresses = {
-        "src/contracts/lib/acl/LACLCommons.sol:LACLCommons": lACLCommons.address,
-      };
-
-      linkAgentScopeLibraryAddresses = {
-        "src/contracts/lib/acl/LACLAgentScope.sol:LACLAgentScope": lACLAgentScope.address,
-      };
-
       linkProfileCommonLibraryAddresses = {
         "src/contracts/lib/acl/LProfileCommons.sol:LProfileCommons": lProfileCommons.address,
+        "src/contracts/lib/acl/LACLGenerals.sol:LACLGenerals": lACLGenerals.address
       };
 
       linkProfileRolePolicyLibraryAddresses = {
         "src/contracts/lib/acl/LProfileRolePolicy.sol:LProfileRolePolicy": lProfileRolePolicy.address,
+        "src/contracts/lib/acl/LACLGenerals.sol:LACLGenerals": lACLGenerals.address
+      };
+
+      // profiles libraries
+      linkProfileCommonLibraryAddresses = {
+        "src/contracts/lib/acl/LProfileCommons.sol:LProfileCommons": lProfileCommons.address,
+        "src/contracts/lib/acl/LACLGenerals.sol:LACLGenerals": lACLGenerals.address
+      };
+
+      linkProfileRolePolicyLibraryAddresses = {
+        "src/contracts/lib/acl/LProfileRolePolicy.sol:LProfileRolePolicy": lProfileRolePolicy.address,
+        "src/contracts/lib/acl/LACLGenerals.sol:LACLGenerals": lACLGenerals.address
       };
     });
 
@@ -504,7 +534,7 @@ describe("Lively Token Tests", function () {
         <ProfileManagerLibraryAddresses>linkCommonLibraryAddresses,
         systemAdmin
       );
-      const accessControlFactory = new AccessControl__factory(systemAdmin);
+      const accessControlFactory = new AccessControl__factory(<AccessControlLibraryAddresses>linkGeneralLibraryAddress, systemAdmin);
 
       // profile
       const profileMemberManagerFactory = new ProfileMemberManager__factory(
@@ -543,7 +573,7 @@ describe("Lively Token Tests", function () {
         <ProfilePolicyManagerLibraryAddresses>linkProfileRolePolicyLibraryAddresses,
         systemAdmin
       );
-      const profileAccessControlFactory = new ProfileAccessControl__factory(systemAdmin);
+      const profileAccessControlFactory = new ProfileAccessControl__factory(<ProfileAccessControlLibraryAddresses>linkGeneralLibraryAddress, systemAdmin);
 
       // acl manager
       const aclManagerFactory = new ACLManager__factory(
@@ -579,7 +609,6 @@ describe("Lively Token Tests", function () {
       // acl manager
       aclManagerSubject = await aclManagerFactory.deploy();
     });
-
     it("ACL Deploy Proxies", async () => {
       const aclManagerProxyFactory = new ACLManagerProxy__factory(systemAdmin);
       let iface = new ethers.utils.Interface(ACLManager__factory.abi);
@@ -1272,18 +1301,18 @@ describe("Lively Token Tests", function () {
       await aclManagerProxy.connect(systemAdmin).aclRegisterFacet(profileFacetRequests);
     });
 
-    it("ACL Manager Initialize", async () => {
-      // Acl Manager Init
-      await aclManagerProxy.getFirstInit();
-      await aclManagerProxy
-        .connect(systemAdmin)
-        .initACL(
-          contextManagerProxy.address,
-          functionManagerProxy.address,
-          livelyAdminWallet.address,
-          systemAdminWallet.address
-        );
-    });
+    // it("ACL Manager Initialize", async () => {
+    //   // Acl Manager Init
+    //   await aclManagerProxy.getFirstInit();
+    //   await aclManagerProxy
+    //     .connect(systemAdmin)
+    //     .initACL(
+    //       contextManagerProxy.address,
+    //       functionManagerProxy.address,
+    //       livelyAdminWallet.address,
+    //       systemAdminWallet.address
+    //     );
+    // });
 
     it("ACL Contexts Register ", async () => {
       // acl contexts

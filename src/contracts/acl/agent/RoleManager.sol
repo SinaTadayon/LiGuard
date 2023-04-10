@@ -29,18 +29,31 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
 
   constructor() {}
 
-  function initialize(
-    string calldata contractName,
-    string calldata contractVersion,
-    address accessControlManager
-  ) public onlyProxy onlyLocalAdmin initializer {
-    __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
+  // function initialize(
+  //   string calldata contractName,
+  //   string calldata contractVersion,
+  //   address accessControlManager
+  // ) public onlyProxy onlyLocalAdmin initializer {
+  //   __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
+
+  //   emit Initialized(
+  //     _msgSender(),
+  //     address(this),
+  //     _implementation(),
+  //     contractName,
+  //     contractVersion,
+  //     _getInitializedCount()
+  //   );
+  // }
+
+  function reinitialize(string calldata contractVersion) public onlyProxy onlyLocalAdmin reinitializer(2) {
+    _contractVersion = contractVersion;
 
     emit Initialized(
       _msgSender(),
       address(this),
       _implementation(),
-      contractName,
+      _contractName,
       contractVersion,
       _getInitializedCount()
     );
@@ -251,10 +264,10 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
           require(memberEntity.limits.typeLimit > memberEntity.types.length(), "Illegal TypeLimit");
 
           if (
-            (memberEntity.types.contains(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID) ||
-              memberEntity.types.contains(_LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID)) &&
-            (roleEntity.typeId == _LIVELY_VERSE_LIVELY_MASTER_TYPE_ID ||
-              roleEntity.typeId == _LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID)
+            (memberEntity.types.contains(LACLGenerals.LIVELY_VERSE_LIVELY_MASTER_TYPE_ID) ||
+              memberEntity.types.contains(LACLGenerals.LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID)) &&
+            (roleEntity.typeId == LACLGenerals.LIVELY_VERSE_LIVELY_MASTER_TYPE_ID ||
+              roleEntity.typeId == LACLGenerals.LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID)
           ) {
             revert("Illegal Grant");
           }
@@ -453,7 +466,7 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
 
     if (memberSign.signature.length > 0) {
       require(memberSign.expiredAt > block.timestamp, "Expired Signature");
-      signer = LACLUtils.getMemeberSignerAddress(memberSign, MEMBER_SIGNATURE_MESSAGE_TYPEHASH);
+      signer = LACLUtils.getMemeberSignerAddress(memberSign, LACLGenerals.MEMBER_SIGNATURE_MESSAGE_TYPE_HASH);
     } else {
       signer = msg.sender;
     }
@@ -511,7 +524,7 @@ contract RoleManager is ACLStorage, BaseUUPSProxy, IRoleManagement {
     return roleEntity;
   }
 
-  function getLibrary() external pure returns (address) {
-    return address(LACLAgentScope);
+  function getLibraries() external pure returns (address, address) {
+    return (address(LACLAgentScope), address(LACLGenerals));
   }
 }

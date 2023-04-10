@@ -29,22 +29,36 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
 
   constructor() {}
 
-  function initialize(
-    string calldata contractName,
-    string calldata contractVersion,
-    address accessControlManager
-  ) public onlyProxy onlyLocalAdmin initializer {
-    __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
+  // function initialize(
+  //   string calldata contractName,
+  //   string calldata contractVersion,
+  //   address accessControlManager
+  // ) public onlyProxy onlyLocalAdmin initializer {
+  //   __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
+
+  //   emit Initialized(
+  //     _msgSender(),
+  //     address(this),
+  //     _implementation(),
+  //     contractName,
+  //     contractVersion,
+  //     _getInitializedCount()
+  //   );
+  // }
+
+  function reinitialize(string calldata contractVersion) public onlyProxy onlyLocalAdmin reinitializer(2) {
+    _contractVersion = contractVersion;
 
     emit Initialized(
       _msgSender(),
       address(this),
       _implementation(),
-      contractName,
+      _contractName,
       contractVersion,
       _getInitializedCount()
     );
   }
+
 
   /**
    * @dev See {IERC165-supportsInterface}.
@@ -113,7 +127,7 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
         //   require(roleEntity.scopeId == policyEntity.scopeId, "Illegal Role Scope");
         // } else {
         //   require(
-        //     IACLGenerals(address(this)).isScopesCompatible(policyEntity.scopeId, roleEntity.scopeId),
+        //     IACLGenerals(address(this)).checkScopesCompatibility(policyEntity.scopeId, roleEntity.scopeId),
         //     "Illegal Role Scope"
         //   );
         // }
@@ -438,7 +452,7 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
 
     if (memberSign.signature.length > 0) {
       require(memberSign.expiredAt > block.timestamp, "Expired Signature");
-      signer = LACLUtils.getMemeberSignerAddress(memberSign, MEMBER_SIGNATURE_MESSAGE_TYPEHASH);
+      signer = LACLUtils.getMemeberSignerAddress(memberSign, LACLGenerals.MEMBER_SIGNATURE_MESSAGE_TYPE_HASH);
     } else {
       signer = msg.sender;
     }
@@ -453,7 +467,7 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
 
   function _getMemberPolicyScopeInfo(address account) internal view returns (ScopeType, bytes32) {
     bytes32 memberId = LACLUtils.accountGenerateId(account);
-    TypeEntity storage policyMasterType = _data.typeReadSlot(_LIVELY_VERSE_POLICY_MASTER_TYPE_ID);
+    TypeEntity storage policyMasterType = _data.typeReadSlot(LACLGenerals.LIVELY_VERSE_POLICY_MASTER_TYPE_ID);
     bytes32 senderRoleId = policyMasterType.members[memberId];
     RoleEntity storage senderPolicyRole = _data.roleReadSlot(senderRoleId);
     return (_data.scopes[senderPolicyRole.scopeId].stype, senderPolicyRole.scopeId);
@@ -521,7 +535,7 @@ contract PolicyManager is ACLStorage, BaseUUPSProxy, IPolicyManagement {
     emit PolicyRegistered(sender, newPolicyId, request.scopeId, request.adminId, request.policyCode);
   }
 
-  function getLibrary() external pure returns (address) {
-    return address(LACLAgentScope);
+  function getLibraries() external pure returns (address, address) {
+    return (address(LACLAgentScope), address(LACLGenerals));
   }
 }

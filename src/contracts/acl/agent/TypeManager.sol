@@ -28,18 +28,30 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
 
   constructor() {}
 
-  function initialize(
-    string calldata contractName,
-    string calldata contractVersion,
-    address accessControlManager
-  ) public onlyProxy onlyLocalAdmin initializer {
-    __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
+  // function initialize(
+  //   string calldata contractName,
+  //   string calldata contractVersion,
+  //   address accessControlManager
+  // ) public onlyProxy onlyLocalAdmin initializer {
+  //   __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
 
+  //   emit Initialized(
+  //     _msgSender(),
+  //     address(this),
+  //     _implementation(),
+  //     contractName,
+  //     contractVersion,
+  //     _getInitializedCount()
+  //   );
+  // }
+
+  function reinitialize(string calldata contractVersion) public onlyProxy onlyLocalAdmin reinitializer(2) {
+    _contractVersion = contractVersion;
     emit Initialized(
       _msgSender(),
       address(this),
       _implementation(),
-      contractName,
+      _contractName,
       contractVersion,
       _getInitializedCount()
     );
@@ -70,7 +82,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
 
     // fetch scope type and scope id of sender
     (ScopeType senderScopeType, bytes32 senderScopeId) = _doGetMemberScopeInfoFromType(
-      _LIVELY_VERSE_TYPE_MASTER_TYPE_ID,
+      LACLGenerals.LIVELY_VERSE_TYPE_MASTER_TYPE_ID,
       senderId
     );
 
@@ -177,7 +189,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
       if (typeEntity.roles.length() > 0) {
         require(requestScope.stype > currentScope.stype, "Illegal ScopeType");
         require(
-          IACLGenerals(address(this)).isScopesCompatible(requests[i].scopeId, typeEntity.scopeId),
+          IACLGenerals(address(this)).checkScopesCompatibility(requests[i].scopeId, typeEntity.scopeId),
           "Illegal Scope"
         );
       }
@@ -403,7 +415,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
 
     if (memberSign.signature.length > 0) {
       require(memberSign.expiredAt > block.timestamp, "Expired Signature");
-      signer = LACLUtils.getMemeberSignerAddress(memberSign, MEMBER_SIGNATURE_MESSAGE_TYPEHASH);
+      signer = LACLUtils.getMemeberSignerAddress(memberSign, LACLGenerals.MEMBER_SIGNATURE_MESSAGE_TYPE_HASH);
     } else {
       signer = msg.sender;
     }
@@ -438,7 +450,7 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
       if (requestScopeType == requestAdminScopeType) {
         require(requestAdminScopeId == scopeId, "Illegal Admin Scope");
       } else {
-        require(IACLGenerals(address(this)).isScopesCompatible(requestAdminScopeId, scopeId), "Illegal Admin Scope");
+        require(IACLGenerals(address(this)).checkScopesCompatibility(requestAdminScopeId, scopeId), "Illegal Admin Scope");
       }
       typeAdminId = adminId;
     } else {
@@ -493,13 +505,13 @@ contract TypeManager is ACLStorage, BaseUUPSProxy, ITypeManagement {
     if (senderScopeType == requestedScope.stype) {
       require(senderScopeId == requestScopeId, "Illegal Sender Scope");
     } else {
-      require(IACLGenerals(address(this)).isScopesCompatible(senderScopeId, requestScopeId), "Illegal Sender Scope");
+      require(IACLGenerals(address(this)).checkScopesCompatibility(senderScopeId, requestScopeId), "Illegal Sender Scope");
     }
 
     return requestedScope;
   }
 
-  function getLibrary() external pure returns (address) {
-    return address(LACLCommons);
+  function getLibraries() external pure returns (address, address) {
+    return (address(LACLCommons), address(LACLGenerals));
   }
 }

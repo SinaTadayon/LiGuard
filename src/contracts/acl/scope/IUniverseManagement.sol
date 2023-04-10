@@ -55,16 +55,6 @@ interface IUniverseManagement is IACLCommons {
 
   function universeHasDomain(bytes32 domainId) external view returns (bool);
 
-  function universeHasProfile(bytes32 profileId) external view returns (bool);
-
-  function universeHasPolicy(bytes32 policyId) external view returns (bool);
-
-  function universeHasType(bytes32 typeId) external view returns (bool);
-
-  function universeHasRole(bytes32 roleId) external view returns (bool);
-
-  function universeHasMember(bytes32 memberId) external view returns (bool);
-
   function universeGetDomains() external view returns (bytes32[] memory);
 
   function universeGetInfo() external view returns (UniverseInfo memory);

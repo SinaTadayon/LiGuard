@@ -31,23 +31,36 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
 
   constructor() {}
 
-  function initialize(
-    string calldata contractName,
-    string calldata contractVersion,
-    address accessControlManager
-  ) public onlyProxy onlyLocalAdmin initializer {
-    __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
+  // function initialize(
+  //   string calldata contractName,
+  //   string calldata contractVersion,
+  //   address accessControlManager
+  // ) public onlyProxy onlyLocalAdmin initializer {
+  //   __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
+
+  //   emit Initialized(
+  //     _msgSender(),
+  //     address(this),
+  //     _implementation(),
+  //     contractName,
+  //     contractVersion,
+  //     _getInitializedCount()
+  //   );
+  // }
+
+  function reinitialize(string calldata contractVersion) public onlyProxy onlyLocalAdmin reinitializer(2) {
+    _contractVersion = contractVersion;
 
     emit Initialized(
       _msgSender(),
       address(this),
       _implementation(),
-      contractName,
+      _contractName,
       contractVersion,
       _getInitializedCount()
     );
   }
-
+  
   /**
    * @dev See {IERC165-supportsInterface}.
    */
@@ -84,7 +97,7 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
     // fetch scope type and scope id of sender
     (ScopeType senderScopeType, bytes32 senderScopeId) = _doGetMemberScopeInfoFromType(
       profileEntity,
-      _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,
+      LACLGenerals.LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,
       senderId
     );
     for (uint256 i = 0; i < requests.length; i++) {
@@ -156,7 +169,7 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
       address sender
     ) = _accessPermission(memberSign, IProfileTypeManagement.profileTypeUpdateActivityStatus.selector);
     for (uint256 i = 0; i < requests.length; i++) {
-      require(requests[i].entityId != _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID, "Illegal Type");
+      require(requests[i].entityId != LACLGenerals.LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID, "Illegal Type");
 
       TypeEntity storage typeEntity = _doGetEntityAndCheckAdminAccess(
         profileEntity,
@@ -411,7 +424,7 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
 
     if (memberSign.signature.length > 0) {
       require(memberSign.expiredAt > block.timestamp, "Expired Signature");
-      signer = LACLUtils.getProfileMemeberSignerAddress(memberSign, PROFILE_MEMBER_SIGNATURE_MESSAGE_TYPEHASH);
+      signer = LACLUtils.getProfileMemeberSignerAddress(memberSign, LACLGenerals.PROFILE_MEMBER_SIGNATURE_MESSAGE_TYPE_HASH);
     } else {
       signer = msg.sender;
     }
@@ -445,7 +458,7 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
         require(requestAdminScopeId == scopeId, "Illegal Admin Scope");
       } else {
         require(
-          IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, requestAdminScopeId, scopeId),
+          IProfileACLGenerals(address(this)).profileCheckScopesCompatibility(profileId, requestAdminScopeId, scopeId),
           "Illegal Admin Scope"
         );
       }
@@ -505,7 +518,7 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
       require(senderScopeId == requestScopeId, "Illegal Sender Scope");
     } else {
       require(
-        IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, senderScopeId, requestScopeId),
+        IProfileACLGenerals(address(this)).profileCheckScopesCompatibility(profileId, senderScopeId, requestScopeId),
         "Illegal Admin Scope"
       );
     }
@@ -597,7 +610,7 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
     if (typeEntity.roles.length() > 0) {
       require(requestScope.stype > currentScope.stype, "Illegal ScopeType");
       require(
-        IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, request.scopeId, typeEntity.scopeId),
+        IProfileACLGenerals(address(this)).profileCheckScopesCompatibility(profileId, request.scopeId, typeEntity.scopeId),
         "Illegal Scope"
       );
     }
@@ -609,7 +622,7 @@ contract ProfileTypeManager is ACLStorage, BaseUUPSProxy, IProfileTypeManagement
     emit ProfileTypeScopeUpdated(sender, profileId, request.entityId, request.scopeId);
   }
 
-  function getLibrary() external pure returns (address) {
-    return address(LProfileCommons);
+  function getLibraries() external pure returns (address, address) {
+    return (address(LProfileCommons), address(LACLGenerals));
   }
 }

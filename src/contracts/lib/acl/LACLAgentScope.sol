@@ -58,7 +58,9 @@ library LACLAgentScope {
   //   keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_POLICY_MASTER_ADMIN"));
   // bytes32 public constant LIVELY_VERSE_PROFILE_MASTER_ADMIN_ROLE_ID =
   //   keccak256(abi.encodePacked("ROLE.LIVELY_VERSE.LIVELY_PROFILE_MASTER_ADMIN"));
-
+  function getLibrary() external pure returns (address) {
+    return address(LACLGenerals);
+  }
 
   function checkAdminAccess(
     ACLStorage.DataCollection storage data,
@@ -139,7 +141,7 @@ library LACLAgentScope {
         require(roleEntity.scopeId == policyEntity.scopeId, "Illegal Role Scope");
       } else {
         require(
-          IACLGenerals(address(this)).isScopesCompatible(policyEntity.scopeId, roleEntity.scopeId),
+          IACLGenerals(address(this)).checkScopesCompatibility(policyEntity.scopeId, roleEntity.scopeId),
           "Illegal Role Scope"
         );
       }
@@ -164,7 +166,7 @@ library LACLAgentScope {
       if (requestScopeType == requestAdminScopeType) {
         require(requestAdminScopeId == scopeId, "Illegal Admin Scope");
       } else {
-        require(IACLGenerals(address(this)).isScopesCompatible(requestAdminScopeId, scopeId), "Illegal Admin Scope");
+        require(IACLGenerals(address(this)).checkScopesCompatibility(requestAdminScopeId, scopeId), "Illegal Admin Scope");
       }
       policyAdminId = adminId;
     } else {
@@ -234,7 +236,7 @@ library LACLAgentScope {
     IACLCommons.BaseScope storage currentScope = data.scopes[policyEntity.scopeId];
     if (policyEntity.roles.length() > 0) {
       require(requestScope.stype > currentScope.stype, "Illegal ScopeType");
-      require(IACLGenerals(address(this)).isScopesCompatible(request.scopeId, policyEntity.scopeId), "Illegal Scope");
+      require(IACLGenerals(address(this)).checkScopesCompatibility(request.scopeId, policyEntity.scopeId), "Illegal Scope");
     }
     require(currentScope.referredByAgent > 0, "Illeagl Referred");
     unchecked {
@@ -303,7 +305,7 @@ library LACLAgentScope {
     if (requestedScope.stype == senderScopeType) {
       require(requestScopeId == senderScopeId, "Illegal Scope");
     } else {
-      require(IACLGenerals(address(this)).isScopesCompatible(senderScopeId, requestScopeId), "Illegal Scope");
+      require(IACLGenerals(address(this)).checkScopesCompatibility(senderScopeId, requestScopeId), "Illegal Scope");
     }
 
     return requestedScope;
@@ -342,7 +344,7 @@ library LACLAgentScope {
     if (typeScopeType == requestScope.stype) {
       require(typeScopeId == requestScopeId, "Illegal Scope");
     } else {
-      require(IACLGenerals(address(this)).isScopesCompatible(typeScopeId, requestScopeId), "Illegal Scope");
+      require(IACLGenerals(address(this)).checkScopesCompatibility(typeScopeId, requestScopeId), "Illegal Scope");
     }
 
     return requestScope.stype;
@@ -417,7 +419,7 @@ library LACLAgentScope {
       if (requestScopeType == requestAdminScopeType) {
         require(requestAdminScopeId == scopeId, "Illegal Admin Scope");
       } else {
-        require(IACLGenerals(address(this)).isScopesCompatible(requestAdminScopeId, scopeId), "Illegal Admin Scope");
+        require(IACLGenerals(address(this)).checkScopesCompatibility(requestAdminScopeId, scopeId), "Illegal Admin Scope");
       }
       roleAdminId = adminId;
     } else {
@@ -471,7 +473,7 @@ library LACLAgentScope {
       if (IACLCommons.ScopeType.CONTEXT == requestAdminScopeType) {
         require(requestAdminScopeId == contextAdminId, "Illegal Admin Scope");
       } else {
-        require(IACLGenerals(address(this)).isScopesCompatible(requestAdminScopeId, contextId), "Illegal Admin Scope");
+        require(IACLGenerals(address(this)).checkScopesCompatibility(requestAdminScopeId, contextId), "Illegal Admin Scope");
       }
       functionAdminId = requestAdminId;
     } else {

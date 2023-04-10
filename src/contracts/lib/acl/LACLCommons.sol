@@ -93,37 +93,41 @@ library LACLCommons {
   // bytes32 public constant LIVELY_VERSE_LIVELY_GUARD_MASTER_TYPE_ID =
   //   keccak256(abi.encodePacked("TYPE.LIVELY_VERSE.LIVELY_GUARD.MASTER"));
 
-  function registerProxyFacet(ACLStorage.DataCollection storage data, address implementation) external {
-    data.facetSet.add(address(this));
-    IACLCommons.FacetEntity storage facetEntity = data.facets[address(this)];
-    facetEntity.subjectId = implementation;
-    data.selectors[IProxy.upgradeTo.selector] = address(this);
-    data.selectors[IProxy.setSafeModeStatus.selector] = address(this);
-    data.selectors[IProxy.setUpdatabilityStatus.selector] = address(this);
-    data.selectors[IProxy.setLocalAdmin.selector] = address(this);
-    data.selectors[IProxy.setAccessControlManager.selector] = address(this);
-    data.selectors[IProxy.contractName.selector] = address(this);
-    data.selectors[IProxy.contractVersion.selector] = address(this);
-    data.selectors[IProxy.accessControlManager.selector] = address(this);
-    data.selectors[IProxy.subjectAddress.selector] = address(this);
-    data.selectors[IProxy.safeModeStatus.selector] = address(this);
-    data.selectors[IProxy.updatabilityStatus.selector] = address(this);
-    data.selectors[IProxy.localAdmin.selector] = address(this);
-    data.selectors[IProxy.domainSeparator.selector] = address(this);
-    data.selectors[IProxy.initVersion.selector] = address(this);
-    data.selectors[IProxy.withdrawBalance.selector] = address(this);
-    data.selectors[IERC165.supportsInterface.selector] = address(this);
-    data.selectors[IACLManager.aclRegisterFacet.selector] = address(this);
-    data.selectors[IACLManager.aclUpgradeFacet.selector] = address(this);
-    data.selectors[IACLManager.aclGetFacets.selector] = address(this);
-    data.selectors[IACLManager.aclGetFacet.selector] = address(this);
-    data.selectors[IACLManager.aclHasSelector.selector] = address(this);
-    data.selectors[IACLManager.aclGetFacetInfo.selector] = address(this);
-    data.selectors[IERC1822Proxiable.proxiableUUID.selector] = address(this);
-    data.selectors[bytes4(keccak256("initialize(string,string)"))] = address(this);
-    // data.selectors[bytes4(keccak256("initACL(address,address,address,address)"))] = address(this);
-    data.selectors[bytes4(keccak256("getFirstInit()"))] = address(this);
-    data.selectors[bytes4(keccak256("getLibrary()"))] = address(this);
+  // function registerProxyFacet(ACLStorage.DataCollection storage data, address implementation) external {
+  //   data.facetSet.add(address(this));
+  //   IACLCommons.FacetEntity storage facetEntity = data.facets[address(this)];
+  //   facetEntity.subjectId = implementation;
+  //   data.selectors[IProxy.upgradeTo.selector] = address(this);
+  //   data.selectors[IProxy.setSafeModeStatus.selector] = address(this);
+  //   data.selectors[IProxy.setUpdatabilityStatus.selector] = address(this);
+  //   data.selectors[IProxy.setLocalAdmin.selector] = address(this);
+  //   data.selectors[IProxy.setAccessControlManager.selector] = address(this);
+  //   data.selectors[IProxy.contractName.selector] = address(this);
+  //   data.selectors[IProxy.contractVersion.selector] = address(this);
+  //   data.selectors[IProxy.accessControlManager.selector] = address(this);
+  //   data.selectors[IProxy.subjectAddress.selector] = address(this);
+  //   data.selectors[IProxy.safeModeStatus.selector] = address(this);
+  //   data.selectors[IProxy.updatabilityStatus.selector] = address(this);
+  //   data.selectors[IProxy.localAdmin.selector] = address(this);
+  //   data.selectors[IProxy.domainSeparator.selector] = address(this);
+  //   data.selectors[IProxy.initVersion.selector] = address(this);
+  //   data.selectors[IProxy.withdrawBalance.selector] = address(this);
+  //   data.selectors[IERC165.supportsInterface.selector] = address(this);
+  //   data.selectors[IACLManager.aclRegisterFacet.selector] = address(this);
+  //   data.selectors[IACLManager.aclUpgradeFacet.selector] = address(this);
+  //   data.selectors[IACLManager.aclGetFacets.selector] = address(this);
+  //   data.selectors[IACLManager.aclGetFacet.selector] = address(this);
+  //   data.selectors[IACLManager.aclHasSelector.selector] = address(this);
+  //   data.selectors[IACLManager.aclGetFacetInfo.selector] = address(this);
+  //   data.selectors[IERC1822Proxiable.proxiableUUID.selector] = address(this);
+  //   // data.selectors[bytes4(keccak256("initialize(string,string)"))] = address(this);
+  //   // data.selectors[bytes4(keccak256("initACL(address,address,address,address)"))] = address(this);
+  //   data.selectors[bytes4(keccak256("getFirstInit()"))] = address(this);
+    // data.selectors[bytes4(keccak256("getLibrary()"))] = address(this);
+  // }
+
+  function getLibrary() external pure returns (address) {
+    return address(LACLGenerals);
   }
 
   function aclRegisterFacet(ACLStorage.DataCollection storage data, IACLManager.FacetRegisterRequest calldata request)
@@ -177,7 +181,7 @@ library LACLCommons {
     if (requestedScope.stype == senderScopeType) {
       require(requestScopeId == senderScopeId, "Illegal Scope");
     } else {
-      require(IACLGenerals(address(this)).isScopesCompatible(senderScopeId, requestScopeId), "Illegal Scope");
+      require(IACLGenerals(address(this)).checkScopesCompatibility(senderScopeId, requestScopeId), "Illegal Scope");
     }
 
     return requestedScope;

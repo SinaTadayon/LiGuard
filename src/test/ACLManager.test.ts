@@ -76,7 +76,7 @@ import {
   TypeManager,
   TypeManager__factory,
   LACLAgentScope,
-  LACLAgentScope__factory,
+  LACLAgentScope__factory, LACLGenerals, LACLGenerals__factory
 } from "../../typechain/types";
 import { InitializedEventObject } from "../../typechain/types/acl/ACLManager";
 import { ACLManagerLibraryAddresses } from "../../typechain/types/factories/acl/ACLManager__factory";
@@ -117,6 +117,14 @@ import {
   ScopeType,
   generateMemberSignatureManually,
   LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID,
+  LIVELY_VERSE_PROFILE_MASTER_ADMIN_ROLE_ID,
+  LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID,
+  LIVELY_PROFILE_SYSTEM_MASTER_ADMIN_ROLE_ID,
+  MESSAGE_CONTEXT_TYPE_HASH,
+  MESSAGE_PREDICT_CONTEXT_TYPE_HASH,
+  MESSAGE_PROFILE_CONTEXT_TYPE_HASH,
+  MESSAGE_PROFILE_PREDICT_CONTEXT_TYPE_HASH,
+  MEMBER_SIGNATURE_MESSAGE_TYPE_HASH, PROFILE_MEMBER_SIGNATURE_MESSAGE_TYPE_HASH
 } from "../utils/Utils";
 import { ProxyUpgradedEventObject } from "../../typechain/types/proxy/Proxy";
 import { ProxyLocalAdminUpdatedEventObject } from "../../typechain/types/proxy/IProxy";
@@ -143,6 +151,16 @@ import { UniverseManagerLibraryAddresses } from "../../typechain/types/factories
 import { ProfileTypeManagerLibraryAddresses } from "../../typechain/types/factories/acl/profile/agent/ProfileTypeManager__factory";
 import { ProfileUniverseManagerLibraryAddresses } from "../../typechain/types/factories/acl/profile/scope/ProfileUniverseManger.sol/ProfileUniverseManager__factory";
 import { MockContract } from "ethereum-waffle";
+import { LACLCommonsLibraryAddresses } from "../../typechain/types/factories/lib/acl/LACLCommons__factory";
+import { AccessControlLibraryAddresses } from "../../typechain/types/factories/acl/AccessControl__factory";
+import {
+  ProfileAccessControlLibraryAddresses
+} from "../../typechain/types/factories/acl/profile/ProfileAccessControl__factory";
+import { LACLAgentScopeLibraryAddresses } from "../../typechain/types/factories/lib/acl/LACLAgentScope__factory";
+import { LProfileCommonsLibraryAddresses } from "../../typechain/types/factories/lib/acl/LProfileCommons__factory";
+import {
+  LProfileRolePolicyLibraryAddresses
+} from "../../typechain/types/factories/lib/acl/LProfileRolePolicy__factory";
 // ethers.utils.keccak256(ethers.utils.toUtf8Bytes("src/contracts/lib/acl/ContextManagementLib.sol:ContextManagementLib")) => 0x0304621006bd13fe54dc5f6b75a37ec856740450109fd223c2bfb60db9095cad => __$0304621006bd13fe54dc5f6b75a37ec856$__ ( library placeholder)
 const { provider, deployMockContract } = waffle;
 
@@ -157,10 +175,14 @@ describe("Lively Guard Tests", function () {
   let userWallet1: Wallet;
   let userWallet2: Wallet;
   let userWallet3: Wallet;
+  let lACLGenerals: LACLGenerals;
   let lACLCommons: LACLCommons;
   let lACLAgentScope: LACLAgentScope;
   let lProfileCommons: LProfileCommons;
   let lProfileRolePolicy: LProfileRolePolicy;
+
+  // General library
+  let linkGeneralLibraryAddress: unknown;
 
   // acl libraries
   let linkCommonLibraryAddresses: unknown;
@@ -289,7 +311,7 @@ describe("Lively Guard Tests", function () {
   const PROFILE_ACCESS_CONTROL_CONTRACT_NAME = "ProfileAccessControl";
 
   const ACL_MANAGER_CONTRACT_NAME = "ACLManager";
-  const CONTRACTS_VERSION = "3.0.0";
+  const CONTRACTS_VERSION = "3.1.0";
 
   const memberIface = new ethers.utils.Interface(MemberManager__factory.abi);
   let domainManagerSubjectTest: DomainManagerTest;
@@ -306,9 +328,61 @@ describe("Lively Guard Tests", function () {
   });
 
   describe("Libraries Deployments Test", function () {
+
+    it("Should LACLGenerals deploy success", async () => {
+      // given
+      const aclFactory = new LACLGenerals__factory(systemAdmin);
+
+      // when
+      lACLGenerals = await aclFactory.deploy();
+
+      // acl libraries
+      linkGeneralLibraryAddress = {
+        "src/contracts/lib/acl/LACLGenerals.sol:LACLGenerals": lACLGenerals.address,
+      };
+
+      // then
+      expect(lACLGenerals.address).not.null;
+      expect(await lACLGenerals.LIB_NAME()).to.be.equal("LACLGenerals");
+      expect(await lACLGenerals.LIB_VERSION()).to.be.equal("3.1.0");
+      expect(await lACLGenerals.LIVELY_VERSE_LIVELY_MASTER_TYPE_ID).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_TYPE_ID);
+      expect(await lACLGenerals.LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID).to.be.equal(LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID);
+      expect(await lACLGenerals.LIVELY_VERSE_ANONYMOUS_TYPE_ID).to.be.equal(LIVELY_VERSE_ANONYMOUS_TYPE_ID);
+      expect(await lACLGenerals.LIVELY_VERSE_ANY_TYPE_ID).to.be.equal(LIVELY_VERSE_ANY_TYPE_ID);
+      expect(await lACLGenerals.LIVELY_VERSE_SCOPE_MASTER_TYPE_ID).to.be.equal(LIVELY_VERSE_SCOPE_MASTER_TYPE_ID);
+      expect(await lACLGenerals.LIVELY_VERSE_MEMBER_MASTER_TYPE_ID).to.be.equal(LIVELY_VERSE_MEMBER_MASTER_TYPE_ID);
+      expect(await lACLGenerals.LIVELY_VERSE_TYPE_MASTER_TYPE_ID).to.be.equal(LIVELY_VERSE_TYPE_MASTER_TYPE_ID);
+      expect(await lACLGenerals.LIVELY_VERSE_POLICY_MASTER_TYPE_ID).to.be.equal(LIVELY_VERSE_POLICY_MASTER_TYPE_ID);
+      expect(await lACLGenerals.LIVELY_VERSE_PROFILE_MASTER_TYPE_ID).to.be.equal(LIVELY_VERSE_PROFILE_MASTER_TYPE_ID);
+      expect(await lACLGenerals.LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID).to.be.equal(LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);
+      expect(await lACLGenerals.LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID);
+      expect(await lACLGenerals.LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID).to.be.equal(LIVELY_VERSE_SYSTEM_MASTER_ADMIN_ROLE_ID);
+      expect(await lACLGenerals.LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID).to.be.equal(LIVELY_VERSE_SCOPE_MASTER_ADMIN_ROLE_ID);
+      expect(await lACLGenerals.LIVELY_VERSE_TYPE_MASTER_ADMIN_ROLE_ID).to.be.equal(LIVELY_VERSE_TYPE_MASTER_ADMIN_ROLE_ID);
+      expect(await lACLGenerals.LIVELY_VERSE_MEMBER_MASTER_ADMIN_ROLE_ID).to.be.equal(LIVELY_VERSE_MEMBER_MASTER_ADMIN_ROLE_ID);
+      expect(await lACLGenerals.LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE_ID).to.be.equal(LIVELY_VERSE_POLICY_MASTER_ADMIN_ROLE_ID);
+      expect(await lACLGenerals.LIVELY_VERSE_PROFILE_MASTER_ADMIN_ROLE_ID).to.be.equal(LIVELY_VERSE_PROFILE_MASTER_ADMIN_ROLE_ID);
+      expect(await lACLGenerals.LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID).to.be.equal(LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID);
+      expect(await lACLGenerals.LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID).to.be.equal(LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID);
+      expect(await lACLGenerals.LIVELY_PROFILE_ANY_TYPE_ID).to.be.equal(LIVELY_PROFILE_ANY_TYPE_ID);
+      expect(await lACLGenerals.LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID).to.be.equal(LIVELY_PROFILE_LIVELY_MASTER_ADMIN_ROLE_ID);
+      expect(await lACLGenerals.LIVELY_PROFILE_SYSTEM_MASTER_ADMIN_ROLE_ID).to.be.equal(LIVELY_PROFILE_SYSTEM_MASTER_ADMIN_ROLE_ID);
+      expect(await lACLGenerals.LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID).to.be.equal(LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID);
+      expect(await lACLGenerals.LIVELY_VERSE_LIVELY_GUARD_MASTER_TYPE_ID).to.be.equal(LIVELY_VERSE_ACL_TYPE_ID);
+      expect(await lACLGenerals.LIVELY_VERSE_LIVELY_GUARD_MASTER_ADMIN_ROLE_ID).to.be.equal(LIVELY_VERSE_ACL_ADMIN_ROLE_ID);
+      expect(await lACLGenerals.LIVELY_VERSE_LIVELY_GUARD_DOMAIN_ID).to.be.equal(LIVELY_VERSE_ACL_DOMAIN_ID);
+      expect(await lACLGenerals.LIVELY_VERSE_LIVELY_GUARD_REALM_ID).to.be.equal(LIVELY_VERSE_ACL_REALM_ID);
+      expect(await lACLGenerals.CTX_MESSAGE_TYPE_HASH).to.be.equal(MESSAGE_CONTEXT_TYPE_HASH);
+      expect(await lACLGenerals.PREDICT_CTX_MESSAGE_TYPE_HASH).to.be.equal(MESSAGE_PREDICT_CONTEXT_TYPE_HASH);
+      expect(await lACLGenerals.MEMBER_SIGNATURE_MESSAGE_TYPE_HASH).to.be.equal(MEMBER_SIGNATURE_MESSAGE_TYPE_HASH);
+      expect(await lACLGenerals.PROFILE_CTX_MESSAGE_TYPE_HASH).to.be.equal(MESSAGE_PROFILE_CONTEXT_TYPE_HASH);
+      expect(await lACLGenerals.PROFILE_PREDICT_CTX_MESSAGE_TYPE_HASH).to.be.equal(MESSAGE_PROFILE_PREDICT_CONTEXT_TYPE_HASH);
+      expect(await lACLGenerals.PROFILE_MEMBER_SIGNATURE_MESSAGE_TYPE_HASH).to.be.equal(PROFILE_MEMBER_SIGNATURE_MESSAGE_TYPE_HASH);
+    });
+
     it("Should LACLCommons deploy success", async () => {
       // given
-      const aclFactory = new LACLCommons__factory(systemAdmin);
+      const aclFactory = new LACLCommons__factory(<LACLCommonsLibraryAddresses>linkGeneralLibraryAddress, systemAdmin);
 
       // when
       lACLCommons = await aclFactory.deploy();
@@ -316,12 +390,12 @@ describe("Lively Guard Tests", function () {
       // then
       expect(lACLCommons.address).not.null;
       expect(await lACLCommons.LIB_NAME()).to.be.equal("LACLCommons");
-      expect(await lACLCommons.LIB_VERSION()).to.be.equal("3.0.0");
+      expect(await lACLCommons.LIB_VERSION()).to.be.equal("3.1.0");
     });
 
     it("Should LACLAgentScope deploy success", async () => {
       // given
-      const aclFactory = new LACLAgentScope__factory(systemAdmin);
+      const aclFactory = new LACLAgentScope__factory(<LACLAgentScopeLibraryAddresses>linkGeneralLibraryAddress, systemAdmin);
 
       // when
       lACLAgentScope = await aclFactory.deploy();
@@ -329,12 +403,12 @@ describe("Lively Guard Tests", function () {
       // then
       expect(lACLAgentScope.address).not.null;
       expect(await lACLAgentScope.LIB_NAME()).to.be.equal("LACLAgentScope");
-      expect(await lACLAgentScope.LIB_VERSION()).to.be.equal("3.0.0");
+      expect(await lACLAgentScope.LIB_VERSION()).to.be.equal("3.1.0");
     });
 
     it("Should LProfileCommons deploy success", async () => {
       // given
-      const aclFactory = new LProfileCommons__factory(systemAdmin);
+      const aclFactory = new LProfileCommons__factory(<LProfileCommonsLibraryAddresses>linkGeneralLibraryAddress, systemAdmin);
 
       // when
       lProfileCommons = await aclFactory.deploy();
@@ -342,12 +416,12 @@ describe("Lively Guard Tests", function () {
       // then
       expect(lProfileCommons.address).not.null;
       expect(await lProfileCommons.LIB_NAME()).to.be.equal("LProfileCommons");
-      expect(await lProfileCommons.LIB_VERSION()).to.be.equal("3.0.0");
+      expect(await lProfileCommons.LIB_VERSION()).to.be.equal("3.1.0");
     });
 
     it("Should LProfileRolePolicy deploy success", async () => {
       // given
-      const aclFactory = new LProfileRolePolicy__factory(systemAdmin);
+      const aclFactory = new LProfileRolePolicy__factory(<LProfileRolePolicyLibraryAddresses>linkGeneralLibraryAddress, systemAdmin);
 
       // when
       lProfileRolePolicy = await aclFactory.deploy();
@@ -355,7 +429,7 @@ describe("Lively Guard Tests", function () {
       // then
       expect(lProfileRolePolicy.address).not.null;
       expect(await lProfileRolePolicy.LIB_NAME()).to.be.equal("LProfileRolePolicy");
-      expect(await lProfileRolePolicy.LIB_VERSION()).to.be.equal("3.0.0");
+      expect(await lProfileRolePolicy.LIB_VERSION()).to.be.equal("3.1.0");
     });
   });
 
@@ -364,10 +438,12 @@ describe("Lively Guard Tests", function () {
       // acl libraries
       linkCommonLibraryAddresses = {
         "src/contracts/lib/acl/LACLCommons.sol:LACLCommons": lACLCommons.address,
+        "src/contracts/lib/acl/LACLGenerals.sol:LACLGenerals": lACLGenerals.address
       };
 
       linkAgentScopeLibraryAddresses = {
         "src/contracts/lib/acl/LACLAgentScope.sol:LACLAgentScope": lACLAgentScope.address,
+        "src/contracts/lib/acl/LACLGenerals.sol:LACLGenerals": lACLGenerals.address
       };
     });
 
@@ -388,7 +464,7 @@ describe("Lively Guard Tests", function () {
       expect(await memberManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await memberManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await memberManagerSubject.initVersion()).to.be.equal(0);
-      expect(await memberManagerSubject.getLibrary()).to.be.equal(lACLAgentScope.address);
+      expect(await memberManagerSubject.getLibraries()).to.be.eql([lACLAgentScope.address, lACLGenerals.address]);
     });
 
     it("Should RoleManager subject deploy success", async () => {
@@ -408,7 +484,7 @@ describe("Lively Guard Tests", function () {
       expect(await roleManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await roleManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await roleManagerSubject.initVersion()).to.be.equal(0);
-      expect(await roleManagerSubject.getLibrary()).to.be.equal(lACLAgentScope.address);
+      expect(await roleManagerSubject.getLibraries()).to.be.eql([lACLAgentScope.address, lACLGenerals.address]);
     });
 
     it("Should TypeManager subject deploy success", async () => {
@@ -428,7 +504,7 @@ describe("Lively Guard Tests", function () {
       expect(await typeManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await typeManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await typeManagerSubject.initVersion()).to.be.equal(0);
-      expect(await typeManagerSubject.getLibrary()).to.be.equal(lACLCommons.address);
+      expect(await typeManagerSubject.getLibraries()).to.be.eql([lACLCommons.address, lACLGenerals.address]);
     });
 
     it("Should FunctionManager subject deploy success", async () => {
@@ -448,7 +524,7 @@ describe("Lively Guard Tests", function () {
       expect(await functionManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await functionManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await functionManagerSubject.initVersion()).to.be.equal(0);
-      expect(await functionManagerSubject.getLibrary()).to.be.equal(lACLAgentScope.address);
+      expect(await functionManagerSubject.getLibraries()).to.be.eql([lACLAgentScope.address, lACLGenerals.address]);
     });
 
     it("Should ContextManager subject deploy success", async () => {
@@ -468,7 +544,7 @@ describe("Lively Guard Tests", function () {
       expect(await contextManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await contextManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await contextManagerSubject.initVersion()).to.be.equal(0);
-      expect(await contextManagerSubject.getLibrary()).to.be.equal(lACLCommons.address);
+      expect(await contextManagerSubject.getLibraries()).to.be.eql([lACLCommons.address, lACLGenerals.address]);
     });
 
     it("Should RealmManager subject deploy success", async () => {
@@ -488,7 +564,7 @@ describe("Lively Guard Tests", function () {
       expect(await realmManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await realmManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await realmManagerSubject.initVersion()).to.be.equal(0);
-      expect(await realmManagerSubject.getLibrary()).to.be.equal(lACLCommons.address);
+      expect(await realmManagerSubject.getLibraries()).to.be.eql([lACLCommons.address, lACLGenerals.address]);
     });
 
     it("Should DomainManager subject deploy success", async () => {
@@ -508,7 +584,7 @@ describe("Lively Guard Tests", function () {
       expect(await domainManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await domainManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await domainManagerSubject.initVersion()).to.be.equal(0);
-      expect(await domainManagerSubject.getLibrary()).to.be.equal(lACLCommons.address);
+      expect(await domainManagerSubject.getLibraries()).to.be.eql([lACLCommons.address, lACLGenerals.address]);
     });
 
     it("Should UniverseManager subject deploy success", async () => {
@@ -528,7 +604,7 @@ describe("Lively Guard Tests", function () {
       expect(await universeManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await universeManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await universeManagerSubject.initVersion()).to.be.equal(0);
-      expect(await universeManagerSubject.getLibrary()).to.be.equal(lACLCommons.address);
+      expect(await universeManagerSubject.getLibraries()).to.be.equal([lACLCommons.address, lACLGenerals.address]);
     });
 
     it("Should PolicyManager subject deploy success", async () => {
@@ -548,7 +624,7 @@ describe("Lively Guard Tests", function () {
       expect(await policyManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await policyManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await policyManagerSubject.initVersion()).to.be.equal(0);
-      expect(await policyManagerSubject.getLibrary()).to.be.equal(lACLAgentScope.address);
+      expect(await policyManagerSubject.getLibraries()).to.be.equal([lACLAgentScope.address, lACLGenerals.address]);
     });
 
     it("Should ProfileManager subject deploy success", async () => {
@@ -568,11 +644,12 @@ describe("Lively Guard Tests", function () {
       expect(await profileManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await profileManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await profileManagerSubject.initVersion()).to.be.equal(0);
+      expect(await profileManagerSubject.getLibraries()).to.be.equal([lACLCommons, lACLGenerals.address]);
     });
 
     it("Should AccessControl subject deploy success", async () => {
       // given
-      const accessControlFactory = new AccessControl__factory(systemAdmin);
+      const accessControlFactory = new AccessControl__factory(<AccessControlLibraryAddresses>linkGeneralLibraryAddress, systemAdmin);
 
       // when
       accessControlSubject = await accessControlFactory.deploy();
@@ -584,6 +661,7 @@ describe("Lively Guard Tests", function () {
       expect(await accessControlSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await accessControlSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await accessControlSubject.initVersion()).to.be.equal(0);
+      expect(await accessControlSubject.getLibrary()).to.be.equal(lACLGenerals.address);
     });
   });
 
@@ -592,10 +670,12 @@ describe("Lively Guard Tests", function () {
       // profiles libraries
       linkProfileCommonLibraryAddresses = {
         "src/contracts/lib/acl/LProfileCommons.sol:LProfileCommons": lProfileCommons.address,
+        "src/contracts/lib/acl/LACLGenerals.sol:LACLGenerals": lACLGenerals.address
       };
 
       linkProfileRolePolicyLibraryAddresses = {
         "src/contracts/lib/acl/LProfileRolePolicy.sol:LProfileRolePolicy": lProfileRolePolicy.address,
+        "src/contracts/lib/acl/LACLGenerals.sol:LACLGenerals": lACLGenerals.address
       };
     });
 
@@ -616,7 +696,7 @@ describe("Lively Guard Tests", function () {
       expect(await profileMemberManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await profileMemberManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await profileMemberManagerSubject.initVersion()).to.be.equal(0);
-      expect(await profileMemberManagerSubject.getLibrary()).to.be.equal(lProfileCommons.address);
+      expect(await profileMemberManagerSubject.getLibraries()).to.be.eql([lProfileCommons.address, lACLGenerals.address]);
     });
 
     it("Should ProfileRoleManager subject deploy success", async () => {
@@ -636,7 +716,7 @@ describe("Lively Guard Tests", function () {
       expect(await profileRoleManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await profileRoleManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await profileRoleManagerSubject.initVersion()).to.be.equal(0);
-      expect(await profileRoleManagerSubject.getLibrary()).to.be.equal(lProfileRolePolicy.address);
+      expect(await profileRoleManagerSubject.getLibraries()).to.be.eql([lProfileRolePolicy.address, lACLGenerals.address]);
     });
 
     it("Should ProfileTypeManager subject deploy success", async () => {
@@ -656,7 +736,7 @@ describe("Lively Guard Tests", function () {
       expect(await profileTypeManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await profileTypeManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await profileTypeManagerSubject.initVersion()).to.be.equal(0);
-      expect(await profileTypeManagerSubject.getLibrary()).to.be.equal(lProfileCommons.address);
+      expect(await profileTypeManagerSubject.getLibraries()).to.be.equal([lProfileCommons.address, lACLGenerals.address]);
     });
 
     it("Should ProfileFunctionManager subject deploy success", async () => {
@@ -676,7 +756,7 @@ describe("Lively Guard Tests", function () {
       expect(await profileFunctionManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await profileFunctionManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await profileFunctionManagerSubject.initVersion()).to.be.equal(0);
-      expect(await profileFunctionManagerSubject.getLibrary()).to.be.equal(lProfileCommons.address);
+      expect(await profileFunctionManagerSubject.getLibraries()).to.be.equal([lProfileCommons.address, lACLGenerals.address]);
     });
 
     it("Should ProfileContextManager subject deploy success", async () => {
@@ -696,7 +776,7 @@ describe("Lively Guard Tests", function () {
       expect(await profileContextManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await profileContextManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await profileContextManagerSubject.initVersion()).to.be.equal(0);
-      expect(await profileContextManagerSubject.getLibrary()).to.be.equal(lProfileCommons.address);
+      expect(await profileContextManagerSubject.getLibraries()).to.be.equal([lProfileCommons.address, lACLGenerals.address]);
     });
 
     it("Should ProfileRealmManager subject deploy success", async () => {
@@ -716,7 +796,7 @@ describe("Lively Guard Tests", function () {
       expect(await profileRealmManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await profileRealmManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await profileRealmManagerSubject.initVersion()).to.be.equal(0);
-      expect(await profileRealmManagerSubject.getLibrary()).to.be.equal(lProfileCommons.address);
+      expect(await profileRealmManagerSubject.getLibraries()).to.be.equal([lProfileCommons.address, lACLGenerals.address]);
     });
 
     it("Should ProfileDomainManager subject deploy success", async () => {
@@ -736,7 +816,7 @@ describe("Lively Guard Tests", function () {
       expect(await profileDomainManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await profileDomainManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await profileDomainManagerSubject.initVersion()).to.be.equal(0);
-      expect(await profileDomainManagerSubject.getLibrary()).to.be.equal(lProfileCommons.address);
+      expect(await profileDomainManagerSubject.getLibraries()).to.be.equal([lProfileCommons.address, lACLGenerals.address]);
     });
 
     it("Should ProfileUniverseManager subject deploy success", async () => {
@@ -756,7 +836,7 @@ describe("Lively Guard Tests", function () {
       expect(await profileUniverseManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await profileUniverseManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await profileUniverseManagerSubject.initVersion()).to.be.equal(0);
-      expect(await profileUniverseManagerSubject.getLibrary()).to.be.equal(lProfileCommons.address);
+      expect(await profileUniverseManagerSubject.getLibraries()).to.be.equal([lProfileCommons.address, lACLGenerals.address]);
     });
 
     it("Should ProfilePolicyManager subject deploy success", async () => {
@@ -776,12 +856,12 @@ describe("Lively Guard Tests", function () {
       expect(await profilePolicyManagerSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await profilePolicyManagerSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await profilePolicyManagerSubject.initVersion()).to.be.equal(0);
-      expect(await profilePolicyManagerSubject.getLibrary()).to.be.equal(lProfileRolePolicy.address);
+      expect(await profilePolicyManagerSubject.getLibraries()).to.be.equal([lProfileRolePolicy.address, lACLGenerals.address]);
     });
 
     it("Should ProfileAccessControl subject deploy success", async () => {
       // given
-      const profileAccessControlFactory = new ProfileAccessControl__factory(systemAdmin);
+      const profileAccessControlFactory = new ProfileAccessControl__factory(<ProfileAccessControlLibraryAddresses>linkGeneralLibraryAddress, systemAdmin);
 
       // when
       profileAccessControlSubject = await profileAccessControlFactory.deploy();
@@ -793,6 +873,7 @@ describe("Lively Guard Tests", function () {
       expect(await profileAccessControlSubject.localAdmin()).to.be.hexEqual(systemAdminWallet.address);
       expect(await profileAccessControlSubject.accessControlManager()).to.be.hexEqual(ethers.constants.AddressZero);
       expect(await profileAccessControlSubject.initVersion()).to.be.equal(0);
+      expect(await profileAccessControlSubject.getLibrary()).to.be.equal(lACLGenerals.address);
     });
   });
 
@@ -817,9 +898,9 @@ describe("Lively Guard Tests", function () {
       expect(await aclManagerSubject.getLibrary()).to.be.equal(lACLCommons.address);
     });
 
-    it("Should initialize raise exception", async () => {
+    it("Should reinitialize raise exception", async () => {
       // when and then
-      await expect(aclManagerSubject.connect(systemAdmin).initialize("ACLManager", "3.0.0")).to.be.revertedWith(
+      await expect(aclManagerSubject.connect(systemAdmin).reinitialize("3.1.0")).to.be.revertedWith(
         "Illegal Call"
       );
     });
@@ -2456,65 +2537,65 @@ describe("Lively Guard Tests", function () {
       ]);
     });
 
-    it("Should call aclInit of ACLManager with anyone failed", async () => {
-      // when and then
-      await expect(
-        aclManagerProxy
-          .connect(livelyAdmin)
-          .initACL(
-            contextManagerProxy.address,
-            functionManagerProxy.address,
-            livelyAdminWallet.address,
-            systemAdminWallet.address
-          )
-      ).revertedWith("Access Denied");
-    });
+    // it("Should call aclInit of ACLManager with anyone failed", async () => {
+    //   // when and then
+    //   await expect(
+    //     aclManagerProxy
+    //       .connect(livelyAdmin)
+    //       .initACL(
+    //         contextManagerProxy.address,
+    //         functionManagerProxy.address,
+    //         livelyAdminWallet.address,
+    //         systemAdminWallet.address
+    //       )
+    //   ).revertedWith("Access Denied");
+    // });
 
-    it("Should call aclInit of ACLManager by systemAdmin success", async () => {
-      // given
-      const firstInit = await aclManagerProxy.getFirstInit();
+    // it("Should call aclInit of ACLManager by systemAdmin success", async () => {
+    //   // given
+    //   const firstInit = await aclManagerProxy.getFirstInit();
+    //
+    //   // when
+    //   await expect(
+    //     aclManagerProxy
+    //       .connect(systemAdmin)
+    //       .initACL(
+    //         contextManagerProxy.address,
+    //         functionManagerProxy.address,
+    //         livelyAdminWallet.address,
+    //         systemAdminWallet.address
+    //       )
+    //   )
+    //     .to.emit(aclManagerProxy, "ACLInitialized")
+    //     .withArgs(
+    //       systemAdminWallet.address,
+    //       livelyAdminWallet.address,
+    //       systemAdminWallet.address,
+    //       contextManagerProxy.address,
+    //       functionManagerProxy.address
+    //     );
+    //
+    //   // then
+    //   expect(firstInit).to.be.true;
+    //   expect(await aclManagerProxy.getFirstInit()).to.be.false;
+    // });
 
-      // when
-      await expect(
-        aclManagerProxy
-          .connect(systemAdmin)
-          .initACL(
-            contextManagerProxy.address,
-            functionManagerProxy.address,
-            livelyAdminWallet.address,
-            systemAdminWallet.address
-          )
-      )
-        .to.emit(aclManagerProxy, "ACLInitialized")
-        .withArgs(
-          systemAdminWallet.address,
-          livelyAdminWallet.address,
-          systemAdminWallet.address,
-          contextManagerProxy.address,
-          functionManagerProxy.address
-        );
-
-      // then
-      expect(firstInit).to.be.true;
-      expect(await aclManagerProxy.getFirstInit()).to.be.false;
-    });
-
-    it("Should recall aclInit of ACLManager by systemAdmin failed", async () => {
-      // given
-      const firstInit = await aclManagerProxy.getFirstInit();
-
-      // when
-      await expect(
-        aclManagerProxy
-          .connect(systemAdmin)
-          .initACL(
-            contextManagerProxy.address,
-            functionManagerProxy.address,
-            livelyAdminWallet.address,
-            systemAdminWallet.address
-          )
-      ).to.revertedWith("Already INIT");
-    });
+    // it("Should recall aclInit of ACLManager by systemAdmin failed", async () => {
+    //   // given
+    //   const firstInit = await aclManagerProxy.getFirstInit();
+    //
+    //   // when
+    //   await expect(
+    //     aclManagerProxy
+    //       .connect(systemAdmin)
+    //       .initACL(
+    //         contextManagerProxy.address,
+    //         functionManagerProxy.address,
+    //         livelyAdminWallet.address,
+    //         systemAdminWallet.address
+    //       )
+    //   ).to.revertedWith("Already INIT");
+    // });
 
     it("Should register ACL contexts by systemAdmin success", async () => {
       // given
@@ -10349,7 +10430,7 @@ describe("Lively Guard Tests", function () {
     it("Should init proxy call by new systemAdmin failed", async () => {
       // when and then
       await expect(
-        aclManagerProxy.connect(user1).initialize(ACL_MANAGER_CONTRACT_NAME, CONTRACTS_VERSION)
+        aclManagerProxy.connect(user1).reinitialize(CONTRACTS_VERSION)
       ).to.revertedWith("Contract Already Initialized");
     });
 
@@ -17378,17 +17459,9 @@ describe("Lively Guard Tests", function () {
 
   describe("IAccessControl Tests", async () => {
     it("Should all functions called success", async () => {
-      expect(await accessControlDelegateProxy.getAnonymousType()).to.be.equal(LIVELY_VERSE_ANONYMOUS_TYPE_ID);
-      expect(await accessControlDelegateProxy.getAnyType()).to.be.equal(LIVELY_VERSE_ANY_TYPE_ID);
-      expect(await accessControlDelegateProxy.getScopeMasterType()).to.be.equal(LIVELY_VERSE_SCOPE_MASTER_TYPE_ID);
-      expect(await accessControlDelegateProxy.getTypeMasterType()).to.be.equal(LIVELY_VERSE_TYPE_MASTER_TYPE_ID);
-      expect(await accessControlDelegateProxy.getMemberMasterType()).to.be.equal(LIVELY_VERSE_MEMBER_MASTER_TYPE_ID);
-      expect(await accessControlDelegateProxy.getSystemMasterType()).to.be.equal(LIVELY_VERSE_SYSTEM_MASTER_TYPE_ID);
-      expect(await accessControlDelegateProxy.getLivelyMasterType()).to.be.equal(LIVELY_VERSE_LIVELY_MASTER_TYPE_ID);
-      expect(await accessControlDelegateProxy.getPolicyMasterType()).to.be.equal(LIVELY_VERSE_POLICY_MASTER_TYPE_ID);
-      expect(await accessControlDelegateProxy.getUniverseScope()).to.be.equal(LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);
       expect(await accessControlDelegateProxy.isAgentExist(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID)).to.be.true;
       expect(await accessControlDelegateProxy.isScopeExist(LIVELY_VERSE_ACL_DOMAIN_ID)).to.be.true;
+      expect(await accessControlDelegateProxy.isPolicyExist(aclPolicyTestId)).to.be.true;
       expect(await accessControlDelegateProxy.getScopeBaseInfo(LIVELY_VERSE_ACL_DOMAIN_ID)).to.be.not.empty;
       expect(await accessControlDelegateProxy.getAgentBaseInfo(LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID)).to.be.not
         .empty;

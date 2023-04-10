@@ -31,18 +31,31 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
 
   constructor() {}
 
-  function initialize(
-    string calldata contractName,
-    string calldata contractVersion,
-    address accessControlManager
-  ) public onlyProxy onlyLocalAdmin initializer {
-    __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
+  // function initialize(
+  //   string calldata contractName,
+  //   string calldata contractVersion,
+  //   address accessControlManager
+  // ) public onlyProxy onlyLocalAdmin initializer {
+  //   __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
+
+  //   emit Initialized(
+  //     _msgSender(),
+  //     address(this),
+  //     _implementation(),
+  //     contractName,
+  //     contractVersion,
+  //     _getInitializedCount()
+  //   );
+  // }
+
+  function reinitialize(string calldata contractVersion) public onlyProxy onlyLocalAdmin reinitializer(2) {
+    _contractVersion = contractVersion;
 
     emit Initialized(
       _msgSender(),
       address(this),
       _implementation(),
-      contractName,
+      _contractName,
       contractVersion,
       _getInitializedCount()
     );
@@ -173,10 +186,10 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
       if (requests[i].adminId != bytes32(0)) {
         require(_data.agents[requests[i].adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
         bytes32 requestAdminScopeId = _doAgentGetScopeInfo(requests[i].adminId);
-        require(requestAdminScopeId == _LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID, "Illegal Admin Scope");
+        require(requestAdminScopeId == LACLGenerals.LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID, "Illegal Admin Scope");
         profileEntity.adminId = requests[i].adminId;
       } else {
-        profileEntity.adminId = _LIVELY_VERSE_PROFILE_MASTER_TYPE_ID;
+        profileEntity.adminId = LACLGenerals.LIVELY_VERSE_PROFILE_MASTER_TYPE_ID;
       }
 
       emit ProfileAdminUpdated(sender, requests[i].id, requests[i].adminId);
@@ -207,7 +220,7 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
       LACLUtils.accountGenerateId(account)
     );
     if (!result) return false;
-    return profileMemberEntity.types.contains(_LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID);
+    return profileMemberEntity.types.contains(LACLGenerals.LIVELY_PROFILE_SYSTEM_MASTER_TYPE_ID);
   }
 
   function profileCheckAdmin(bytes32 profileId, address account) external view returns (bool) {
@@ -292,7 +305,7 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
 
     if (memberSign.signature.length > 0) {
       require(memberSign.expiredAt > block.timestamp, "Expired Signature");
-      signer = LACLUtils.getMemeberSignerAddress(memberSign, MEMBER_SIGNATURE_MESSAGE_TYPEHASH);
+      signer = LACLUtils.getMemeberSignerAddress(memberSign, LACLGenerals.MEMBER_SIGNATURE_MESSAGE_TYPE_HASH);
     } else {
       signer = msg.sender;
     }
@@ -351,7 +364,7 @@ contract ProfileManager is ACLStorage, BaseUUPSProxy, IProfileManagement {
     );
   }
 
-  function getLibrary() external pure returns (address) {
-    return address(LACLCommons);
+  function getLibraries() external pure returns (address, address) {
+    return (address(LACLCommons), address(LACLGenerals));
   }
 }

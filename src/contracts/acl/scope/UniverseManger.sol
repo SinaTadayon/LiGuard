@@ -26,18 +26,31 @@ contract UniverseManager is ACLStorage, BaseUUPSProxy, IUniverseManagement {
 
   constructor() {}
 
-  function initialize(
-    string calldata contractName,
-    string calldata contractVersion,
-    address accessControlManager
-  ) public onlyProxy onlyLocalAdmin initializer {
-    __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
+  // function initialize(
+  //   string calldata contractName,
+  //   string calldata contractVersion,
+  //   address accessControlManager
+  // ) public onlyProxy onlyLocalAdmin initializer {
+  //   __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
+
+  //   emit Initialized(
+  //     _msgSender(),
+  //     address(this),
+  //     _implementation(),
+  //     contractName,
+  //     contractVersion,
+  //     _getInitializedCount()
+  //   );
+  // }
+
+  function reinitialize(string calldata contractVersion) public onlyProxy onlyLocalAdmin reinitializer(2) {
+    _contractVersion = contractVersion;
 
     emit Initialized(
       _msgSender(),
       address(this),
       _implementation(),
-      contractName,
+      _contractName,
       contractVersion,
       _getInitializedCount()
     );
@@ -61,7 +74,7 @@ contract UniverseManager is ACLStorage, BaseUUPSProxy, IUniverseManagement {
     UniverseEntity storage universeEntity = _doGetEntityAndCheckAdminAccess(senderId, functionId);
     require(acstat > ActivityStatus.DELETED, "Illegal Activity");
     universeEntity.bs.acstat = acstat;
-    emit UniverseActivityUpdated(sender, _LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID, universeEntity.bs.acstat);
+    emit UniverseActivityUpdated(sender, LACLGenerals.LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID, universeEntity.bs.acstat);
     return acstat;
   }
 
@@ -74,12 +87,12 @@ contract UniverseManager is ACLStorage, BaseUUPSProxy, IUniverseManagement {
       IUniverseManagement.universeUpdateAlterabilityStatus.selector
     );
 
-    UniverseEntity storage universeEntity = _data.universeReadSlot(_LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);
+    UniverseEntity storage universeEntity = _data.universeReadSlot(LACLGenerals.LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);
     IACL.AdminAccessStatus status = _doCheckAdminAccess(universeEntity.bs.adminId, senderId, functionId);
     if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
     require(alstat != AlterabilityStatus.NONE, "Illegal Alterability");
     universeEntity.bs.alstat = alstat;
-    emit UniverseAlterabilityUpdated(sender, _LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID, universeEntity.bs.alstat);
+    emit UniverseAlterabilityUpdated(sender, LACLGenerals.LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID, universeEntity.bs.alstat);
     return alstat;
   }
 
@@ -96,14 +109,14 @@ contract UniverseManager is ACLStorage, BaseUUPSProxy, IUniverseManagement {
     BaseAgent storage adminBaseAgent = _data.agents[newAdminId];
     require(adminBaseAgent.atype > AgentType.MEMBER, "Illegal Admin AgentType");
     if (adminBaseAgent.atype == AgentType.ROLE) {
-      TypeEntity storage livelyAdminType = _data.typeReadSlot(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID);
+      TypeEntity storage livelyAdminType = _data.typeReadSlot(LACLGenerals.LIVELY_VERSE_LIVELY_MASTER_TYPE_ID);
       require(livelyAdminType.roles.contains(newAdminId), "Not Found");
     } else {
-      require(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID == newAdminId, "Illegal Admin");
+      require(LACLGenerals.LIVELY_VERSE_LIVELY_MASTER_TYPE_ID == newAdminId, "Illegal Admin");
     }
 
     universeEntity.bs.adminId = newAdminId;
-    emit UniverseAdminUpdated(sender, _LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID, universeEntity.bs.adminId);
+    emit UniverseAdminUpdated(sender, LACLGenerals.LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID, universeEntity.bs.adminId);
     return true;
   }
 
@@ -116,13 +129,13 @@ contract UniverseManager is ACLStorage, BaseUUPSProxy, IUniverseManagement {
     UniverseEntity storage universeEntity = _doGetEntityAndCheckAdminAccess(senderId, functionId);
     require(domainLimit > universeEntity.domains.length(), "Illegal Limit");
     universeEntity.domainLimit = domainLimit;
-    emit UniverseDomainLimitUpdated(sender, _LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID, domainLimit);
+    emit UniverseDomainLimitUpdated(sender, LACLGenerals.LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID, domainLimit);
     return true;
   }
 
   function universeCheckAdmin(address account) external view returns (bool) {
     bytes32 memberId = LACLUtils.accountGenerateId(account);
-    TypeEntity storage livelyAdminType = _data.typeReadSlot(_LIVELY_VERSE_LIVELY_MASTER_TYPE_ID);
+    TypeEntity storage livelyAdminType = _data.typeReadSlot(LACLGenerals.LIVELY_VERSE_LIVELY_MASTER_TYPE_ID);
     return livelyAdminType.members[memberId] != bytes32(0);
   }
 
@@ -150,36 +163,16 @@ contract UniverseManager is ACLStorage, BaseUUPSProxy, IUniverseManagement {
     (,result) = _data.domainTryReadSlot(domainId);
   }
 
-  function universeHasProfile(bytes32 profileId) external view returns (bool) {
-    return _data.profiles[profileId].acstat != ActivityStatus.NONE;
-  }
-
-  function universeHasPolicy(bytes32 policyId) external view returns (bool) {
-    return _data.policies[policyId].adminId != bytes32(0);
-  }
-
-  function universeHasType(bytes32 typeId) external view returns (bool result) {
-    (,result) = _data.typeTryReadSlot(typeId);
-  }
-
-  function universeHasRole(bytes32 roleId) external view returns (bool result) {
-    (,result) = _data.roleTryReadSlot(roleId);
-  }
-
-  function universeHasMember(bytes32 memberId) external view returns (bool result) {
-    (,result) = _data.memberTryReadSlot(memberId);
-  }
-
   function universeGetDomains() external view returns (bytes32[] memory) {
-    UniverseEntity storage universeEntity = _data.universeReadSlot(_LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);
+    UniverseEntity storage universeEntity = _data.universeReadSlot(LACLGenerals.LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);
     return universeEntity.domains.values();
   }
 
   function universeGetInfo() external view returns (UniverseInfo memory) {
-    UniverseEntity storage universeEntity = _data.universeReadSlot(_LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);
+    UniverseEntity storage universeEntity = _data.universeReadSlot(LACLGenerals.LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);
     return
       UniverseInfo({
-        id: _LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID,
+        id: LACLGenerals.LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID,
         adminId: universeEntity.bs.adminId,
         domainLimit: universeEntity.domainLimit,
         domainCount: uint16(universeEntity.domains.length()),
@@ -204,7 +197,7 @@ contract UniverseManager is ACLStorage, BaseUUPSProxy, IUniverseManagement {
 
     if (memberSign.signature.length > 0) {
       require(memberSign.expiredAt > block.timestamp, "Expired Signature");
-      signer = LACLUtils.getMemeberSignerAddress(memberSign, MEMBER_SIGNATURE_MESSAGE_TYPEHASH);
+      signer = LACLUtils.getMemeberSignerAddress(memberSign, LACLGenerals.MEMBER_SIGNATURE_MESSAGE_TYPE_HASH);
     } else {
       signer = msg.sender;
     }
@@ -231,14 +224,14 @@ contract UniverseManager is ACLStorage, BaseUUPSProxy, IUniverseManagement {
     view
     returns (UniverseEntity storage)
   {
-    UniverseEntity storage universeEntity = _data.universeReadSlot(_LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);
+    UniverseEntity storage universeEntity = _data.universeReadSlot(LACLGenerals.LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID);
     require(universeEntity.bs.alstat >= AlterabilityStatus.UPDATABLE, "Illegal Updatable");
     IACL.AdminAccessStatus status = _doCheckAdminAccess(universeEntity.bs.adminId, senderId, functionId);
     if (status != IACL.AdminAccessStatus.PERMITTED) LACLUtils.generateAdminAccessError(status);
     return universeEntity;
   }
 
-  function getLibrary() external pure returns (address) {
-    return address(LACLCommons);
+  function getLibraries() external pure returns (address, address) {
+    return (address(LACLCommons), address(LACLGenerals));
   }
 }

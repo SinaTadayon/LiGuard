@@ -29,22 +29,36 @@ contract ProfileRealmManager is ACLStorage, BaseUUPSProxy, IProfileRealmManageme
 
   constructor() {}
 
-  function initialize(
-    string calldata contractName,
-    string calldata contractVersion,
-    address accessControlManager
-  ) public onlyProxy onlyLocalAdmin initializer {
-    __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
+  // function initialize(
+  //   string calldata contractName,
+  //   string calldata contractVersion,
+  //   address accessControlManager
+  // ) public onlyProxy onlyLocalAdmin initializer {
+  //   __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
+
+  //   emit Initialized(
+  //     _msgSender(),
+  //     address(this),
+  //     _implementation(),
+  //     contractName,
+  //     contractVersion,
+  //     _getInitializedCount()
+  //   );
+  // }
+
+  function reinitialize(string calldata contractVersion) public onlyProxy onlyLocalAdmin reinitializer(2) {
+    _contractVersion = contractVersion;
 
     emit Initialized(
       _msgSender(),
       address(this),
       _implementation(),
-      contractName,
+      _contractName,
       contractVersion,
       _getInitializedCount()
     );
   }
+
 
   /**
    * @dev See {IERC165-supportsInterface}.
@@ -69,7 +83,7 @@ contract ProfileRealmManager is ACLStorage, BaseUUPSProxy, IProfileRealmManageme
     // fetch scope type and scope id of sender
     (ScopeType memberScopeType, bytes32 memberScopeId) = _doGetMemberScopeInfoFromType(
       profileEntity,
-      _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,
+      LACLGenerals.LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,
       senderId
     );
 
@@ -119,7 +133,7 @@ contract ProfileRealmManager is ACLStorage, BaseUUPSProxy, IProfileRealmManageme
           require(requestAdminScopeId == requests[i].entityId, "Illegal Admin Scope");
         } else {
           require(
-            IProfileACLGenerals(address(this)).profileIsScopesCompatible(
+            IProfileACLGenerals(address(this)).profileCheckScopesCompatibility(
               profileId,
               requestAdminScopeId,
               requests[i].entityId
@@ -441,7 +455,7 @@ contract ProfileRealmManager is ACLStorage, BaseUUPSProxy, IProfileRealmManageme
 
     if (memberSign.signature.length > 0) {
       require(memberSign.expiredAt > block.timestamp, "Expired Signature");
-      signer = LACLUtils.getProfileMemeberSignerAddress(memberSign, PROFILE_MEMBER_SIGNATURE_MESSAGE_TYPEHASH);
+      signer = LACLUtils.getProfileMemeberSignerAddress(memberSign, LACLGenerals.PROFILE_MEMBER_SIGNATURE_MESSAGE_TYPE_HASH);
     } else {
       signer = msg.sender;
     }
@@ -537,7 +551,7 @@ contract ProfileRealmManager is ACLStorage, BaseUUPSProxy, IProfileRealmManageme
 
     (, bytes32 contextAdminScopeId) = _doAgentGetScopeInfo(profileEntity, contextEntity.bs.adminId);
     require(
-      IProfileACLGenerals(address(this)).profileIsScopesCompatible(
+      IProfileACLGenerals(address(this)).profileCheckScopesCompatibility(
         profileId,
         contextAdminScopeId,
         request.targetRealmId
@@ -552,7 +566,7 @@ contract ProfileRealmManager is ACLStorage, BaseUUPSProxy, IProfileRealmManageme
     emit ProfileRealmContextMoved(sender, profileId, request.realmId, request.contextId, request.targetRealmId);
   }
 
-  function getLibrary() external pure returns (address) {
-    return address(LProfileCommons);
+  function getLibraries() external pure returns (address, address) {
+    return (address(LProfileCommons), address(LACLGenerals));
   }
 }

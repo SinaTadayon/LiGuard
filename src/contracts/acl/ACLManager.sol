@@ -53,21 +53,51 @@ contract ACLManager is ACLStorage, BaseUUPSProxy, IACLManager {
 
   constructor() {}
 
-  function initialize(string calldata contractName, string calldata contractVersion)
-    public
-    onlyProxy
-    onlyLocalAdmin
-    initializer
-  {
-    LACLCommons.registerProxyFacet(_data, _implementation());
-    __BASE_UUPS_init(contractName, contractVersion, address(this));
-    _firstInit = true;
+  // function initialize(string calldata contractName, string calldata contractVersion)
+  //   public
+  //   onlyProxy
+  //   onlyLocalAdmin
+  //   initializer
+  // {
+  //   LACLCommons.registerProxyFacet(_data, _implementation());
+  //   __BASE_UUPS_init(contractName, contractVersion, address(this));
+  //   _firstInit = true;
+
+  //   emit Initialized(
+  //     _msgSender(),
+  //     address(this),
+  //     _implementation(),
+  //     contractName,
+  //     contractVersion,
+  //     _getInitializedCount()
+  //   );
+  // }
+
+  function reinitialize(string calldata contractVersion) public onlyProxy onlyLocalAdmin reinitializer(2) {
+    bytes4 initilizeSelector = bytes4(keccak256("initialize(string,string)"));    
+    require(_data.selectors[initilizeSelector] == address(this), "Selector Not Found");
+    delete _data.selectors[initilizeSelector];
+    emit ACLFacetFunctionUpgraded(
+      msg.sender,
+      address(this),
+      initilizeSelector,
+      ActionType.REMOVE
+    );
+
+    _contractVersion = contractVersion;
+    _data.selectors[this.reinitialize.selector] = address(this);
+    emit ACLFacetFunctionUpgraded(
+      msg.sender,
+      address(this),
+      this.reinitialize.selector,
+      ActionType.ADD
+    );
 
     emit Initialized(
       _msgSender(),
       address(this),
       _implementation(),
-      contractName,
+      _contractName,
       contractVersion,
       _getInitializedCount()
     );

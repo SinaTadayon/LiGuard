@@ -26,18 +26,31 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
 
   constructor() {}
 
-  function initialize(
-    string calldata contractName,
-    string calldata contractVersion,
-    address accessControlManager
-  ) public onlyProxy onlyLocalAdmin initializer {
-    __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
+  // function initialize(
+  //   string calldata contractName,
+  //   string calldata contractVersion,
+  //   address accessControlManager
+  // ) public onlyProxy onlyLocalAdmin initializer {
+  //   __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
+
+  //   emit Initialized(
+  //     _msgSender(),
+  //     address(this),
+  //     _implementation(),
+  //     contractName,
+  //     contractVersion,
+  //     _getInitializedCount()
+  //   );
+  // }
+
+  function reinitialize(string calldata contractVersion) public onlyProxy onlyLocalAdmin reinitializer(2) {
+    _contractVersion = contractVersion;
 
     emit Initialized(
       _msgSender(),
       address(this),
       _implementation(),
-      contractName,
+      _contractName,
       contractVersion,
       _getInitializedCount()
     );
@@ -71,7 +84,7 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
 
     // fetch scope type and scope id of sender
     (ScopeType memberScopeType, bytes32 memberScopeId) = _doGetMemberScopeInfoFromType(
-      _LIVELY_VERSE_SCOPE_MASTER_TYPE_ID,
+      LACLGenerals.LIVELY_VERSE_SCOPE_MASTER_TYPE_ID,
       senderId
     );
 
@@ -88,7 +101,7 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
       if (memberScopeType == ScopeType.DOMAIN) {
         require(memberScopeId == requests[i].domainId, "Illegal Domain Scope");
       } else {
-        require(memberScopeId == _LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID, "Illegal Universe Scope");
+        require(memberScopeId == LACLGenerals.LIVELY_VERSE_LIVELY_UNIVERSE_SCOPE_ID, "Illegal Universe Scope");
       }
 
       DomainEntity storage domainEntity = _data.domainReadSlot(requests[i].domainId);
@@ -146,7 +159,7 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
           require(requestAdminScopeId == requests[i].id, "Illegal Admin Scope");
         } else {
           require(
-            IACLGenerals(address(this)).isScopesCompatible(requestAdminScopeId, requests[i].id),
+            IACLGenerals(address(this)).checkScopesCompatibility(requestAdminScopeId, requests[i].id),
             "Illegal Admin Scope"
           );
         }
@@ -184,7 +197,7 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
 
       (, bytes32 contextAdminScopeId) = _doAgentGetScopeInfo(contextEntity.bs.adminId);
       require(
-        IACLGenerals(address(this)).isScopesCompatible(contextAdminScopeId, requests[i].targetRealmId),
+        IACLGenerals(address(this)).checkScopesCompatibility(contextAdminScopeId, requests[i].targetRealmId),
         "Illegal Admin Scope"
       );
 
@@ -420,7 +433,7 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
 
     if (memberSign.signature.length > 0) {
       require(memberSign.expiredAt > block.timestamp, "Expired Signature");
-      signer = LACLUtils.getMemeberSignerAddress(memberSign, MEMBER_SIGNATURE_MESSAGE_TYPEHASH);
+      signer = LACLUtils.getMemeberSignerAddress(memberSign, LACLGenerals.MEMBER_SIGNATURE_MESSAGE_TYPE_HASH);
     } else {
       signer = msg.sender;
     }
@@ -469,7 +482,7 @@ contract RealmManager is ACLStorage, BaseUUPSProxy, IRealmManagement {
     return LACLCommons.realmGetAdmin(_data, requestScopeAdmin, domainId, adminId);
   }
 
-  function getLibrary() external pure returns (address) {
-    return address(LACLCommons);
+  function getLibraries() external pure returns (address, address) {
+    return (address(LACLCommons), address(LACLGenerals));
   }
 }

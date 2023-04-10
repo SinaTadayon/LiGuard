@@ -293,7 +293,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
     await registerProfileFacets(hre, systemAdmin);
 
-    await initAclManager(hre, systemAdmin, livelyAdmin);
+    // await initAclManager(hre, systemAdmin, livelyAdmin);
 
     await registerACLContexts(hre, systemAdmin);
 
@@ -308,35 +308,35 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   }
 };
 
-async function initAclManager(hre: HardhatRuntimeEnvironment, systemAdmin: Signer, livelyAdmin: Signer) {
-  const livelyAdminAddress = await livelyAdmin.getAddress();
-  const systemAdminAddress = await systemAdmin.getAddress();
-  // Acl Manager Init
-  let txReceipt;
-  console.log(`[ Initialize ACL Manager ]`);
-  const tx = await aclManagerProxy
-    .connect(systemAdmin)
-    .initACL(
-      contextManagerProxyDeployed.address,
-      functionManagerProxyDeployed.address,
-      livelyAdminAddress,
-      systemAdminAddress
-    );
-  console.log(`txHash: ${tx.hash} . . .`);
-  if (hre.network.name === "polygon" || hre.network.name === "bsc") {
-    txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
-  } else {
-    txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
-  }
-  console.log(
-    `txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`
-  );
-  console.log();
-
-  // attach proxies to function and context manager
-  functionManagerDelegateProxy = FunctionManager__factory.connect(aclManagerProxy.address, systemAdmin);
-  contextManagerDelegateProxy = ContextManager__factory.connect(aclManagerProxy.address, systemAdmin);
-}
+// async function initAclManager(hre: HardhatRuntimeEnvironment, systemAdmin: Signer, livelyAdmin: Signer) {
+//   const livelyAdminAddress = await livelyAdmin.getAddress();
+//   const systemAdminAddress = await systemAdmin.getAddress();
+//   // Acl Manager Init
+//   let txReceipt;
+//   console.log(`[ Initialize ACL Manager ]`);
+//   const tx = await aclManagerProxy
+//     .connect(systemAdmin)
+//     .initACL(
+//       contextManagerProxyDeployed.address,
+//       functionManagerProxyDeployed.address,
+//       livelyAdminAddress,
+//       systemAdminAddress
+//     );
+//   console.log(`txHash: ${tx.hash} . . .`);
+//   if (hre.network.name === "polygon" || hre.network.name === "bsc") {
+//     txReceipt = await tx.wait(MAINNET_TX_WAIT_BLOCK_COUNT);
+//   } else {
+//     txReceipt = await tx.wait(TESTNET_TX_WAIT_BLOCK_COUNT);
+//   }
+//   console.log(
+//     `txBlock: ${txReceipt.blockNumber}, gasUsed: ${txReceipt.gasUsed}, gasPrice:${txReceipt.effectiveGasPrice}, status: ${txReceipt.status}`
+//   );
+//   console.log();
+//
+//   // attach proxies to function and context manager
+//   functionManagerDelegateProxy = FunctionManager__factory.connect(aclManagerProxy.address, systemAdmin);
+//   contextManagerDelegateProxy = ContextManager__factory.connect(aclManagerProxy.address, systemAdmin);
+// }
 
 async function deployACLSubjects(
   systemAdmin: Signer,

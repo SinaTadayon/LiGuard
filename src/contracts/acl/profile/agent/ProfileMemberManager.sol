@@ -32,22 +32,36 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
 
   constructor() {}
 
-  function initialize(
-    string calldata contractName,
-    string calldata contractVersion,
-    address accessControlManager
-  ) public onlyProxy onlyLocalAdmin initializer {
-    __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
+  // function initialize(
+  //   string calldata contractName,
+  //   string calldata contractVersion,
+  //   address accessControlManager
+  // ) public onlyProxy onlyLocalAdmin initializer {
+  //   __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
+
+  //   emit Initialized(
+  //     _msgSender(),
+  //     address(this),
+  //     _implementation(),
+  //     contractName,
+  //     contractVersion,
+  //     _getInitializedCount()
+  //   );
+  // }
+
+  function reinitialize(string calldata contractVersion) public onlyProxy onlyLocalAdmin reinitializer(2) {
+    _contractVersion = contractVersion;
 
     emit Initialized(
       _msgSender(),
       address(this),
       _implementation(),
-      contractName,
+      _contractName,
       contractVersion,
       _getInitializedCount()
     );
   }
+
 
   /**
    * @dev See {IERC165-supportsInterface}.
@@ -78,7 +92,7 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
     );
     for (uint256 i = 0; i < requests.length; i++) {
       // check register limits
-      if (profileMemberEntity.types.contains(_LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID)) {
+      if (profileMemberEntity.types.contains(LACLGenerals.LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID)) {
         _doCheckRegisterLimit(profileEntity.registerLimits, requests[i].registerLimit, memberRegisterLimit, true);
       } else {
         _doCheckRegisterLimit(profileMemberEntity.registerLimits, requests[i].registerLimit, memberRegisterLimit, true);
@@ -169,7 +183,7 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
         require(requestedAdminAgent.atype > AgentType.MEMBER, "Illegal Admin AgentType");
         memberEntity.ba.adminId = requests[i].adminId;
       } else {
-        memberEntity.ba.adminId = _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID;
+        memberEntity.ba.adminId = LACLGenerals.LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID;
       }
       emit ProfileMemberAdminUpdated(sender, profileId, requests[i].entityId, requests[i].adminId);
     }
@@ -222,7 +236,7 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
       );
 
       // check register limits
-      if (memberEntity.types.contains(_LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID)) {
+      if (memberEntity.types.contains(LACLGenerals.LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID)) {
         _doCheckRegisterLimit(profileEntity.registerLimits, requests[i].registerLimit, 0, false);
       } else {
         _doCheckRegisterLimit(senderMemberEntity.registerLimits, requests[i].registerLimit, 0, false);
@@ -354,7 +368,7 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
 
     if (memberSign.signature.length > 0) {
       require(memberSign.expiredAt > block.timestamp, "Expired Signature");
-      signer = LACLUtils.getProfileMemeberSignerAddress(memberSign, PROFILE_MEMBER_SIGNATURE_MESSAGE_TYPEHASH);
+      signer = LACLUtils.getProfileMemeberSignerAddress(memberSign, LACLGenerals.PROFILE_MEMBER_SIGNATURE_MESSAGE_TYPE_HASH);
     } else {
       signer = msg.sender;
     }
@@ -422,7 +436,7 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
     }
 
     // check and add member to profile admin
-    if (roleEntity.typeId == _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID) profileEntity.admins.add(newMemberId);
+    if (roleEntity.typeId == LACLGenerals.LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID) profileEntity.admins.add(newMemberId);
 
     // add new member to type
     typeEntity.members[newMemberId] = memberRequest.roleId;
@@ -444,14 +458,14 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
       IProfileACL.ProfileAdminAccessStatus adminAccessStatus = _doCheckAdminAccess(
         profileEntity,
         functionEntity,
-        _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,
+        LACLGenerals.LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,
         senderId
       );
       if (adminAccessStatus != IProfileACL.ProfileAdminAccessStatus.PERMITTED)
         revert IProfileACL.ProfileSetAdminForbidden(adminAccessStatus);
       newMember.ba.adminId = memberRequest.adminId;
     } else {
-      newMember.ba.adminId = _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID;
+      newMember.ba.adminId = LACLGenerals.LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID;
     }
 
     newMember.ba.atype = AgentType.MEMBER;
@@ -560,7 +574,7 @@ contract ProfileMemberManager is ACLStorage, BaseUUPSProxy, IProfileMemberManage
     }
   }
 
-  function getLibrary() external pure returns (address) {
-    return address(LProfileCommons);
+  function getLibraries() external pure returns (address, address) {
+    return (address(LProfileCommons), address(LACLGenerals));
   }
 }

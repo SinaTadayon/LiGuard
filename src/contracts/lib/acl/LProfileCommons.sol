@@ -50,6 +50,10 @@ library LProfileCommons {
   // bytes32 public constant LIVELY_PROFILE_SYSTEM_MASTER_ADMIN_ROLE_ID =
   //   keccak256(abi.encodePacked("ROLE.LIVELY_PROFILE.LIVELY_SYSTEM_MASTER_ADMIN"));
 
+  function getLibrary() external pure returns (address) {
+    return address(LACLGenerals);
+  }
+
   function profileCheckAdminAccess(
     ACLStorage.ProfileEntity storage profileEntity,
     IACLCommons.FunctionEntity storage functionEntity,
@@ -543,7 +547,7 @@ library LProfileCommons {
       require(requestScopeId == senderScopeId, "Illegal Scope");
     } else {
       require(
-        IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, senderScopeId, requestScopeId),
+        IProfileACLGenerals(address(this)).profileCheckScopesCompatibility(profileId, senderScopeId, requestScopeId),
         "Illegal Scope"
       );
     }
@@ -652,7 +656,7 @@ library LProfileCommons {
         require(requestAdminScopeId == request.realmId, "Illegal Admin Scope");
       } else {
         require(
-          IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, requestAdminScopeId, scopeId),
+          IProfileACLGenerals(address(this)).profileCheckScopesCompatibility(profileId, requestAdminScopeId, scopeId),
           "Illegal Admin Scope"
         );
       }
@@ -695,7 +699,7 @@ library LProfileCommons {
       return true;
     }
 
-    return IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, memberSystemRole.scopeId, scopeId);
+    return IProfileACLGenerals(address(this)).profileCheckScopesCompatibility(profileId, memberSystemRole.scopeId, scopeId);
   }
 
   function _doCheckAgentId(
@@ -716,7 +720,7 @@ library LProfileCommons {
       require(requestAgentScopeId == contextId, "Illegal Agent Scope");
     } else {
       require(
-        IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, requestAgentScopeId, contextId),
+        IProfileACLGenerals(address(this)).profileCheckScopesCompatibility(profileId, requestAgentScopeId, contextId),
         "Illegal Agent Scope"
       );
     }
@@ -743,7 +747,7 @@ library LProfileCommons {
         require(requestAdminFuncId == contextAdminId, "Illegal Admin Scope");
       } else {
         require(
-          IProfileACLGenerals(address(this)).profileIsScopesCompatible(profileId, requestAdminFuncId, contextId),
+          IProfileACLGenerals(address(this)).profileCheckScopesCompatibility(profileId, requestAdminFuncId, contextId),
           "Illegal Admin Scope"
         );
       }

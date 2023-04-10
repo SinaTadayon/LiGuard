@@ -29,22 +29,36 @@ contract ProfileDomainManager is ACLStorage, BaseUUPSProxy, IProfileDomainManage
 
   constructor() {}
 
-  function initialize(
-    string calldata contractName,
-    string calldata contractVersion,
-    address accessControlManager
-  ) public onlyProxy onlyLocalAdmin initializer {
-    __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
+  // function initialize(
+  //   string calldata contractName,
+  //   string calldata contractVersion,
+  //   address accessControlManager
+  // ) public onlyProxy onlyLocalAdmin initializer {
+  //   __BASE_UUPS_init(contractName, contractVersion, accessControlManager);
+
+  //   emit Initialized(
+  //     _msgSender(),
+  //     address(this),
+  //     _implementation(),
+  //     contractName,
+  //     contractVersion,
+  //     _getInitializedCount()
+  //   );
+  // }
+
+  function reinitialize(string calldata contractVersion) public onlyProxy onlyLocalAdmin reinitializer(2) {
+    _contractVersion = contractVersion;
 
     emit Initialized(
       _msgSender(),
       address(this),
       _implementation(),
-      contractName,
+      _contractName,
       contractVersion,
       _getInitializedCount()
     );
   }
+
 
   /**
    * @dev See {IERC165-supportsInterface}.
@@ -72,10 +86,10 @@ contract ProfileDomainManager is ACLStorage, BaseUUPSProxy, IProfileDomainManage
     // fetch scope type and scope id of sender
     bytes32 senderScopeId = _doGetMemberScopeInfoFromType(
       profileEntity,
-      _LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,
+      LACLGenerals.LIVELY_PROFILE_LIVELY_MASTER_TYPE_ID,
       senderId
     );
-    require(senderScopeId == _LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID, "Illegal Universe Scope");
+    require(senderScopeId == LACLGenerals.LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID, "Illegal Universe Scope");
 
     for (uint256 i = 0; i < requests.length; i++) {
       bytes32 newDomainId = LProfileCommons.profileDomainRegister(profileEntity, requests[i], functionEntity, senderId);
@@ -168,10 +182,10 @@ contract ProfileDomainManager is ACLStorage, BaseUUPSProxy, IProfileDomainManage
       if (requests[i].adminId != bytes32(0)) {
         require(profileEntity.agents[requests[i].adminId].atype > AgentType.MEMBER, "Illegal Admin AgentType");
         bytes32 requestAdminScopeId = _doAgentGetScopeInfo(profileEntity, requests[i].adminId);
-        require(requestAdminScopeId == _LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID, "Illegal Admin Scope");
+        require(requestAdminScopeId == LACLGenerals.LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID, "Illegal Admin Scope");
         domainEntity.bs.adminId = requests[i].adminId;
       } else {
-        domainEntity.bs.adminId = profileEntity.scopes[_LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID].adminId;
+        domainEntity.bs.adminId = profileEntity.scopes[LACLGenerals.LIVELY_PROFILE_LIVELY_UNIVERSE_SCOPE_ID].adminId;
       }
 
       emit ProfileDomainAdminUpdated(sender, profileId, requests[i].entityId, requests[i].adminId);
@@ -432,7 +446,7 @@ contract ProfileDomainManager is ACLStorage, BaseUUPSProxy, IProfileDomainManage
 
     if (memberSign.signature.length > 0) {
       require(memberSign.expiredAt > block.timestamp, "Expired Signature");
-      signer = LACLUtils.getProfileMemeberSignerAddress(memberSign, PROFILE_MEMBER_SIGNATURE_MESSAGE_TYPEHASH);
+      signer = LACLUtils.getProfileMemeberSignerAddress(memberSign, LACLGenerals.PROFILE_MEMBER_SIGNATURE_MESSAGE_TYPE_HASH);
     } else {
       signer = msg.sender;
     }
@@ -525,7 +539,7 @@ contract ProfileDomainManager is ACLStorage, BaseUUPSProxy, IProfileDomainManage
 
     bytes32 realmAdminScopeId = _doAgentGetScopeInfo(profileEntity, realmEntity.bs.adminId);
     require(
-      IProfileACLGenerals(address(this)).profileIsScopesCompatible(
+      IProfileACLGenerals(address(this)).profileCheckScopesCompatibility(
         profileId,
         realmAdminScopeId,
         request.targetDomainId
@@ -540,7 +554,7 @@ contract ProfileDomainManager is ACLStorage, BaseUUPSProxy, IProfileDomainManage
     emit ProfileDomainRealmMoved(sender, profileId, request.domainId, request.realmId, request.targetDomainId);
   }
 
-  function getLibrary() external pure returns (address) {
-    return address(LProfileCommons);
+  function getLibraries() external pure returns (address, address) {
+    return (address(LProfileCommons), address(LACLGenerals));
   }
 }
