@@ -36,8 +36,8 @@ import {
   ITypeManagement,
   LACLCommons,
   LACLCommons__factory,
-  LACLManagerTest,
-  LACLManagerTest__factory,
+  LACLMTest,
+  LACLMTest__factory,
   LProfileCommons,
   LProfileCommons__factory,
   LProfileRolePolicy,
@@ -76,11 +76,17 @@ import {
   TypeManager,
   TypeManager__factory,
   LACLAgentScope,
-  LACLAgentScope__factory, LACLGenerals, LACLGenerals__factory
+  LACLAgentScope__factory,
+  LACLGenerals,
+  LACLGenerals__factory,
+  DMTest__factory,
+  DMTest,
+  IDMTest,
+  ACLMTest__factory,
+  ACLMTest
 } from "../../typechain/types";
 import { InitializedEventObject } from "../../typechain/types/acl/ACLManager";
 import { ACLManagerLibraryAddresses } from "../../typechain/types/factories/acl/ACLManager__factory";
-import { ACLManagerTestLibraryAddresses } from "../../typechain/types/factories/test/acl/ACLManagerTest__factory";
 import { Address } from "hardhat-deploy/dist/types";
 import {
   ActionType,
@@ -161,6 +167,7 @@ import { LProfileCommonsLibraryAddresses } from "../../typechain/types/factories
 import {
   LProfileRolePolicyLibraryAddresses
 } from "../../typechain/types/factories/lib/acl/LProfileRolePolicy__factory";
+import { ACLMTestLibraryAddresses } from "../../typechain/types/factories/test/acl/ACLMTest__factory";
 // ethers.utils.keccak256(ethers.utils.toUtf8Bytes("src/contracts/lib/acl/ContextManagementLib.sol:ContextManagementLib")) => 0x0304621006bd13fe54dc5f6b75a37ec856740450109fd223c2bfb60db9095cad => __$0304621006bd13fe54dc5f6b75a37ec856$__ ( library placeholder)
 const { provider, deployMockContract } = waffle;
 
@@ -314,10 +321,10 @@ describe("Lively Guard Tests", function () {
   const CONTRACTS_VERSION = "3.1.0";
 
   const memberIface = new ethers.utils.Interface(MemberManager__factory.abi);
-  let domainManagerSubjectTest: DomainManagerTest;
-  let domainManagerProxyTest: DomainManagerTest;
-  let domainManagerDelegateProxyTest: DomainManagerTest;
-  let linkLibraryAddressesTest: ACLManagerTestLibraryAddresses;
+  let domainManagerSubjectTest: DMTest;
+  let domainManagerProxyTest: DMTest;
+  let domainManagerDelegateProxyTest: DMTest;
+  let linkLibraryAddressesTest: ACLMTestLibraryAddresses;
 
   let mockTestProxy: MockContract;
 
@@ -17025,8 +17032,8 @@ describe("Lively Guard Tests", function () {
   });
 
   describe("Upgrade ACL proxy tests", function () {
-    let lACLManagerTest: LACLManagerTest;
-    let aclManagerSubjectTest: ACLManagerTest;
+    let LACLMTest: LACLMTest;
+    let aclManagerSubjectTest: ACLMTest;
     it("Should enable Upgrade Status of domain proxy by anyone failed", async () => {
       // when and then
       await expect(
@@ -17043,10 +17050,10 @@ describe("Lively Guard Tests", function () {
 
     it("Should upgrade domain proxy to another subject by systemAdmin success", async () => {
       // given
-      const domainManagerTestFactory = new DomainManagerTest__factory(systemAdmin);
+      const domainManagerTestFactory = new DMTest__factory(systemAdmin);
 
       // const proxyFactory = new ACLProxy__factory(systemAdmin);
-      const iface = new ethers.utils.Interface(DomainManagerTest__factory.abi);
+      const iface = new ethers.utils.Interface(DMTest__factory.abi);
       const data = iface.encodeFunctionData("reInitialize", ["3.0.1"]);
 
       // when
@@ -17078,26 +17085,26 @@ describe("Lively Guard Tests", function () {
       expect(await domainManagerProxyTest.initVersion()).to.be.equal(2);
     });
 
-    it("Should deploy LACLManagerTest success", async () => {
+    it("Should deploy LACLMTest success", async () => {
       // given
-      const aclFactory = new LACLManagerTest__factory(systemAdmin);
+      const aclFactory = new LACLMTest__factory(systemAdmin);
 
       // when
-      lACLManagerTest = await aclFactory.deploy();
+      LACLMTest = await aclFactory.deploy();
 
       // then
-      expect(lACLManagerTest.address).not.null;
-      expect(await lACLManagerTest.LIB_NAME()).to.be.equal("LACLManager");
-      expect(await lACLManagerTest.LIB_VERSION()).to.be.equal("3.0.1");
+      expect(LACLMTest.address).not.null;
+      expect(await LACLMTest.LIB_NAME()).to.be.equal("LACLManager");
+      expect(await LACLMTest.LIB_VERSION()).to.be.equal("3.0.1");
     });
 
     it("Should ACLManager subject test deploy success", async () => {
       // given
       linkLibraryAddressesTest = {
-        "src/contracts/test/acl/LACLManagerTest.sol:LACLManagerTest": lACLManagerTest.address,
+        "src/contracts/test/acl/LACLMTest.sol:LACLMTest": LACLMTest.address,
       };
 
-      const aclManagerFactory = new ACLManagerTest__factory(linkLibraryAddressesTest, systemAdmin);
+      const aclManagerFactory = new ACLMTest__factory(linkLibraryAddressesTest, systemAdmin);
 
       // when
       aclManagerSubjectTest = await aclManagerFactory.deploy();
@@ -17258,7 +17265,7 @@ describe("Lively Guard Tests", function () {
       expect(await aclManagerProxy.updatabilityStatus()).to.be.equal(ProxyUpdatabilityStatus.ENABLED);
       expect(await aclManagerProxy.contractVersion()).to.be.equal("3.0.1");
       expect(await aclManagerProxy.initVersion()).to.be.equal(2);
-      expect(await aclManagerProxy.getLibrary()).to.be.equal(lACLManagerTest.address);
+      expect(await aclManagerProxy.getLibrary()).to.be.equal(LACLMTest.address);
     });
 
     it("Should delete of domain old functions in domainContext by livelyAdmin success", async () => {
@@ -17418,7 +17425,7 @@ describe("Lively Guard Tests", function () {
     it("Should call domainRegister2 by livelyAdmin success", async () => {
       // given
       aclDomainTest2Id = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(ACL_DOMAIN_TEST_NAME_2));
-      const requests: IDomainManagementTest.DomainRegisterRequestStruct[] = [
+      const requests: IDMTest.DomainRegisterRequestStruct[] = [
         {
           adminId: LIVELY_VERSE_LIVELY_MASTER_ADMIN_ROLE_ID,
           acstat: ActivityStatus.ENABLED,
@@ -17436,7 +17443,7 @@ describe("Lively Guard Tests", function () {
       expect(await domainManagerDelegateProxyTest.domainCheckId(aclDomainTest2Id)).to.be.true;
 
       // and
-      const domainInfo: IDomainManagementTest.DomainInfoStruct = await domainManagerDelegateProxyTest.domainGetInfo(
+      const domainInfo: IDMTest.DomainInfoStruct = await domainManagerDelegateProxyTest.domainGetInfo(
         aclDomainTest2Id
       );
       expect(domainInfo.name).to.be.equal(ACL_DOMAIN_TEST_NAME_2);

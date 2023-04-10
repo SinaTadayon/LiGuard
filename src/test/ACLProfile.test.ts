@@ -46,8 +46,8 @@ import {
   ITypeManagement,
   LACLCommons,
   LACLCommons__factory,
-  LACLManagerTest,
-  LACLManagerTest__factory,
+  LACLMTest,
+  LACLMTest__factory,
   LProfileCommons,
   LProfileCommons__factory,
   LProfileRolePolicy,
@@ -88,11 +88,11 @@ import {
   TypeManager,
   TypeManager__factory,
   LACLAgentScope__factory,
-  LACLAgentScope, LACLGenerals__factory, LACLGenerals
+  LACLAgentScope, LACLGenerals__factory, LACLGenerals, PMMTest__factory, PMMTest
 } from "../../typechain/types";
 import { InitializedEventObject } from "../../typechain/types/acl/ACLManager";
 import { ACLManagerLibraryAddresses } from "../../typechain/types/factories/acl/ACLManager__factory";
-import { ACLManagerTestLibraryAddresses } from "../../typechain/types/factories/test/acl/ACLManagerTest__factory";
+import { ACLMTestLibraryAddresses } from "../../typechain/types/factories/test/acl/ACLMTest__factory";
 import { Address } from "hardhat-deploy/dist/types";
 import {
   ActionType,
@@ -309,7 +309,7 @@ describe("Lively Guard Profile Tests", function () {
   let profileMemberContextTestId: string;
   let profileRoleContextTestId: string;
 
-  let profileMemberManagerTest: ProfileMemberManagerTest;
+  let profileMemberManagerTest: PMMTest;
   let profileRoleManagerTestProxy: ProfileRoleManager;
 
   let profileTestId: string;
@@ -11771,7 +11771,7 @@ describe("Lively Guard Profile Tests", function () {
     // Register profileMemberContextTest context
     it("Should profile register profileMemberContextTest by profileSystemAdmin success", async () => {
       // given
-      const profileMemberManagerTestFactory = new ProfileMemberManagerTest__factory(profileSystemAdmin);
+      const profileMemberManagerTestFactory = new PMMTest__factory(profileSystemAdmin);
 
       // when
       profileMemberManagerTest = await profileMemberManagerTestFactory.deploy(aclManagerProxy.address);
@@ -11902,7 +11902,7 @@ describe("Lively Guard Profile Tests", function () {
 
     it("Should profile register again profileMemberContextTest by profileSystemAdmin success", async () => {
       // given
-      const profileMemberManagerTestFactory = new ProfileMemberManagerTest__factory(profileSystemAdmin);
+      const profileMemberManagerTestFactory = new PMMTest__factory(profileSystemAdmin);
 
       // when
       profileMemberManagerTest = await profileMemberManagerTestFactory.deploy(aclManagerProxy.address);
